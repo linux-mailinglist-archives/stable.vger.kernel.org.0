@@ -2,86 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBCB246421
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE23524642C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726963AbgHQKJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 06:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48922 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726685AbgHQKJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 06:09:42 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47D842067C;
-        Mon, 17 Aug 2020 10:09:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597658981;
-        bh=XumW++DamzGKuRx1QT1NZGaJJr+n/YIGVu4xzF/Kcb4=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=InZja3MTWGa2wsGmRCnwjhsRBcxb1707nSDQpQF3rZ+nCwUHpzUpMkOuy7GEZi2Hb
-         4aPsbtPjISXfD9zRA+FdZtagsFOElkexr4VIX/sOvXUEUXdCWiyLn5n2rrXMjMk+3t
-         ziQGTcBuDcff2Z0RY9eyxcHwGVviUiKj3c7zmhRQ=
-Date:   Mon, 17 Aug 2020 12:09:38 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        linux-input@vger.kernel.org, stable@vger.kernel.org,
-        Andrea Borgia <andrea@borgia.bo.it>
-Subject: Re: [PATCH v3] HID: i2c-hid: Always sleep 60ms after I2C_HID_PWR_ON
- commands
-In-Reply-To: <20200811133958.355760-1-hdegoede@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2008171209250.27422@cbobk.fhfr.pm>
-References: <20200811133958.355760-1-hdegoede@redhat.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1726685AbgHQKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 06:13:51 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45035 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726151AbgHQKNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:13:50 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5F4C31941AD4;
+        Mon, 17 Aug 2020 06:13:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:13:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ihUmj+
+        Zl6feElivpQYgZNcLjWaa+8JV0eYOVTnd2BzU=; b=A9dHDWDTB66SFIY45vlRfE
+        B//9ple3+WYvwb5ZX2BAcVNkbh2KDS19OToeI6eBr2xr8O3B2UhlwDg20tN1QM1H
+        hUPEIfACWewy8E8oqkydTXu+bZpszI8kHjwnux7OBzPfhYhCKKNtPc1IfSoW4rZo
+        gcHYe9g0J+vPZv9wrXpwMUGJBfN0aVzJ2Sb7hnKg8uS89P4FF3YTDxtj2tJqIRXg
+        49cik0UUx1Mgbc9pY8AbW7rBzkcQ+EM+T6ZIOfj/Q6Ui9sntWksmVf34oqmBQwHH
+        vTQ5TPfYvb2C8DsT9qEofhemgiygHANKS+NDm4ixB5+3E2qJNBRDN2PMxfgfigcA
+        ==
+X-ME-Sender: <xms:XFg6X3v22jDx1HdT1Q7jjL61hNsVZC9L2ClMy9_upEMdVZVpTH1_2Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgvdegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:XFg6X4eQB7J9m-Ef0YgPb4LvxJOKTPR3B6MSKBK15McU4jwNB1MFQw>
+    <xmx:XFg6X6wr5t684-HdgNFCNsYkCSLmDFAW8TM_jb30KZb_N6EpsbmBhg>
+    <xmx:XFg6X2OMsGJOtBqNAUZc5U6_TFLib7E9nNcSOsKLkx2wIIcWiRj26Q>
+    <xmx:XVg6X0GS9PwWmy-pp173aTkQTSbbkR9kY-6LUh9k9c59uCeq0mVzNQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5DC98328005E;
+        Mon, 17 Aug 2020 06:13:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space buffer sizes" failed to apply to 4.19-stable tree
+To:     jarkko.sakkinen@linux.intel.com, jsnitsel@redhat.com,
+        stefanb@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Aug 2020 12:14:08 +0200
+Message-ID: <159765924819527@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 11 Aug 2020, Hans de Goede wrote:
 
-> Before this commit i2c_hid_parse() consists of the following steps:
-> 
-> 1. Send power on cmd
-> 2. usleep_range(1000, 5000)
-> 3. Send reset cmd
-> 4. Wait for reset to complete (device interrupt, or msleep(100))
-> 5. Send power on cmd
-> 6. Try to read HID descriptor
-> 
-> Notice how there is an usleep_range(1000, 5000) after the first power-on
-> command, but not after the second power-on command.
-> 
-> Testing has shown that at least on the BMAX Y13 laptop's i2c-hid touchpad,
-> not having a delay after the second power-on command causes the HID
-> descriptor to read as all zeros.
-> 
-> In case we hit this on other devices too, the descriptor being all zeros
-> can be recognized by the following message being logged many, many times:
-> 
-> hid-generic 0018:0911:5288.0002: unknown main item tag 0x0
-> 
-> At the same time as the BMAX Y13's touchpad issue was debugged,
-> Kai-Heng was working on debugging some issues with Goodix i2c-hid
-> touchpads. It turns out that these need a delay after a PWR_ON command
-> too, otherwise they stop working after a suspend/resume cycle.
-> According to Goodix a delay of minimal 60ms is needed.
-> 
-> Having multiple cases where we need a delay after sending the power-on
-> command, seems to indicate that we should always sleep after the power-on
-> command.
-> 
-> This commit fixes the mentioned issues by moving the existing 1ms sleep to
-> the i2c_hid_set_power() function and changing it to a 60ms sleep.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Applied, thanks.
+thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6c4e79d99e6f42b79040f1a33cd4018f5425030b Mon Sep 17 00:00:00 2001
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Date: Fri, 3 Jul 2020 01:55:59 +0300
+Subject: [PATCH] tpm: Unify the mismatching TPM space buffer sizes
+
+The size of the buffers for storing context's and sessions can vary from
+arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
+maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
+enough for most use with three handles (that is how many we allow at the
+moment). Parametrize the buffer size while doing this, so that it is easier
+to revisit this later on if required.
+
+Cc: stable@vger.kernel.org
+Reported-by: Stefan Berger <stefanb@linux.ibm.com>
+Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index 8c77e88012e9..ddaeceb7e109 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -386,13 +386,8 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+ 	chip->cdev.owner = THIS_MODULE;
+ 	chip->cdevs.owner = THIS_MODULE;
+ 
+-	chip->work_space.context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+-	if (!chip->work_space.context_buf) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
+-	chip->work_space.session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+-	if (!chip->work_space.session_buf) {
++	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
++	if (rc) {
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index 0fbcede241ea..947d1db0a5cc 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -59,6 +59,9 @@ enum tpm_addr {
+ 
+ #define TPM_TAG_RQU_COMMAND 193
+ 
++/* TPM2 specific constants. */
++#define TPM2_SPACE_BUFFER_SIZE		16384 /* 16 kB */
++
+ struct	stclear_flags_t {
+ 	__be16	tag;
+ 	u8	deactivated;
+@@ -228,7 +231,7 @@ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
+ int tpm2_probe(struct tpm_chip *chip);
+ int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip);
+ int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
+-int tpm2_init_space(struct tpm_space *space);
++int tpm2_init_space(struct tpm_space *space, unsigned int buf_size);
+ void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
+ void tpm2_flush_space(struct tpm_chip *chip);
+ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
+diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
+index 982d341d8837..784b8b3cb903 100644
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -38,18 +38,21 @@ static void tpm2_flush_sessions(struct tpm_chip *chip, struct tpm_space *space)
+ 	}
+ }
+ 
+-int tpm2_init_space(struct tpm_space *space)
++int tpm2_init_space(struct tpm_space *space, unsigned int buf_size)
+ {
+-	space->context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
++	space->context_buf = kzalloc(buf_size, GFP_KERNEL);
+ 	if (!space->context_buf)
+ 		return -ENOMEM;
+ 
+-	space->session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
++	space->session_buf = kzalloc(buf_size, GFP_KERNEL);
+ 	if (space->session_buf == NULL) {
+ 		kfree(space->context_buf);
++		/* Prevent caller getting a dangling pointer. */
++		space->context_buf = NULL;
+ 		return -ENOMEM;
+ 	}
+ 
++	space->buf_size = buf_size;
+ 	return 0;
+ }
+ 
+@@ -311,8 +314,10 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
+ 	       sizeof(space->context_tbl));
+ 	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
+ 	       sizeof(space->session_tbl));
+-	memcpy(chip->work_space.context_buf, space->context_buf, PAGE_SIZE);
+-	memcpy(chip->work_space.session_buf, space->session_buf, PAGE_SIZE);
++	memcpy(chip->work_space.context_buf, space->context_buf,
++	       space->buf_size);
++	memcpy(chip->work_space.session_buf, space->session_buf,
++	       space->buf_size);
+ 
+ 	rc = tpm2_load_space(chip);
+ 	if (rc) {
+@@ -492,7 +497,7 @@ static int tpm2_save_space(struct tpm_chip *chip)
+ 			continue;
+ 
+ 		rc = tpm2_save_context(chip, space->context_tbl[i],
+-				       space->context_buf, PAGE_SIZE,
++				       space->context_buf, space->buf_size,
+ 				       &offset);
+ 		if (rc == -ENOENT) {
+ 			space->context_tbl[i] = 0;
+@@ -509,9 +514,8 @@ static int tpm2_save_space(struct tpm_chip *chip)
+ 			continue;
+ 
+ 		rc = tpm2_save_context(chip, space->session_tbl[i],
+-				       space->session_buf, PAGE_SIZE,
++				       space->session_buf, space->buf_size,
+ 				       &offset);
+-
+ 		if (rc == -ENOENT) {
+ 			/* handle error saving session, just forget it */
+ 			space->session_tbl[i] = 0;
+@@ -557,8 +561,10 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+ 	       sizeof(space->context_tbl));
+ 	memcpy(&space->session_tbl, &chip->work_space.session_tbl,
+ 	       sizeof(space->session_tbl));
+-	memcpy(space->context_buf, chip->work_space.context_buf, PAGE_SIZE);
+-	memcpy(space->session_buf, chip->work_space.session_buf, PAGE_SIZE);
++	memcpy(space->context_buf, chip->work_space.context_buf,
++	       space->buf_size);
++	memcpy(space->session_buf, chip->work_space.session_buf,
++	       space->buf_size);
+ 
+ 	return 0;
+ out:
+diff --git a/drivers/char/tpm/tpmrm-dev.c b/drivers/char/tpm/tpmrm-dev.c
+index 7a0a7051a06f..eef0fb06ea83 100644
+--- a/drivers/char/tpm/tpmrm-dev.c
++++ b/drivers/char/tpm/tpmrm-dev.c
+@@ -21,7 +21,7 @@ static int tpmrm_open(struct inode *inode, struct file *file)
+ 	if (priv == NULL)
+ 		return -ENOMEM;
+ 
+-	rc = tpm2_init_space(&priv->space);
++	rc = tpm2_init_space(&priv->space, TPM2_SPACE_BUFFER_SIZE);
+ 	if (rc) {
+ 		kfree(priv);
+ 		return -ENOMEM;
+diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+index 03e9b184411b..8f4ff39f51e7 100644
+--- a/include/linux/tpm.h
++++ b/include/linux/tpm.h
+@@ -96,6 +96,7 @@ struct tpm_space {
+ 	u8 *context_buf;
+ 	u32 session_tbl[3];
+ 	u8 *session_buf;
++	u32 buf_size;
+ };
+ 
+ struct tpm_bios_log {
 
