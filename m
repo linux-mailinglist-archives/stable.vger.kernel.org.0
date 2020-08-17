@@ -2,38 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6758324719D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44FC3247366
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391087AbgHQSaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48562 "EHLO mail.kernel.org"
+        id S2388551AbgHQSzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:55:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387941AbgHQQBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:01:08 -0400
+        id S1730911AbgHQPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:51:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9987C207FB;
-        Mon, 17 Aug 2020 16:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7400208B3;
+        Mon, 17 Aug 2020 15:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680067;
-        bh=cjtdBc3RixVqwCdUJQihsAUyE8l5VSflaCE6otsLWuA=;
+        s=default; t=1597679468;
+        bh=G1OvFEXrou1OJyh/zOo3R3BvFhcRVwtwoYVL1FhzfHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3sSuv0LLn14wvg4LQIL0xKvFLI56Q8TawdwJMUlxR00X2DIkzvGN+li1M77YKlsQ
-         2cGfd/MxDSGGTHSOg7p29tRJf95F+slZZnP1WJKE5hQRXoaW+9rMY8npy/PDuIEycF
-         2oFKWldLm9CwyPElZZioNDaFYAZhfOxRjqkPQhwQ=
+        b=DnX9422z/TZdcNBww480J/8EQgWZ+feQJVs+RTiFrYaLToarJusoeLPH3BzNsFCeX
+         /ehlCdrXvxDBj8w7vQ6xT1xWcJVX32DOv8cJ6CpFHyGLM7cLL7h5foH/YbTz2h4pFp
+         2+y+1EQoWHD5KTa+BwCwbI/yP85ZcTDUFEnL6M9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Yannick=20Fertr=C3=A9?= <yannick.fertre@st.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        Vincent Abriou <vincent.abriou@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/270] seccomp: Fix ioctl number for SECCOMP_IOCTL_NOTIF_ID_VALID
-Date:   Mon, 17 Aug 2020 17:14:01 +0200
-Message-Id: <20200817143757.801486980@linuxfoundation.org>
+Subject: [PATCH 5.7 192/393] drm/stm: repair runtime power management
+Date:   Mon, 17 Aug 2020 17:14:02 +0200
+Message-Id: <20200817143828.935241948@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 47e33c05f9f07cac3de833e531bcac9ae052c7ca ]
+[ Upstream commit ebd267b2e3c25d5f93a08528b47c036569eb8744 ]
 
-When SECCOMP_IOCTL_NOTIF_ID_VALID was first introduced it had the wrong
-direction flag set. While this isn't a big deal as nothing currently
-enforces these bits in the kernel, it should be defined correctly. Fix
-the define and provide support for the old command until it is no longer
-needed for backward compatibility.
+Add missing pm_runtime_get_sync() into ltdc_crtc_atomic_enable() to
+match pm_runtime_put_sync() in ltdc_crtc_atomic_disable(), otherwise
+the LTDC might suspend via runtime PM, disable clock, and then fail
+to resume later on.
 
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+The test which triggers it is roughly -- run qt5 application which
+uses eglfs platform and etnaviv, stop the application, sleep for 15
+minutes, run the application again. This leads to a timeout waiting
+for vsync, because the LTDC has suspended, but did not resume.
+
+Fixes: 35ab6cfbf211 ("drm/stm: support runtime power management")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Yannick Fertré <yannick.fertre@st.com>
+Cc: Philippe Cornu <philippe.cornu@st.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: Vincent Abriou <vincent.abriou@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+To: dri-devel@lists.freedesktop.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Yannick Fertre <yannick.fertre@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200229221649.90813-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/seccomp.h                  | 3 ++-
- kernel/seccomp.c                              | 9 +++++++++
- tools/testing/selftests/seccomp/seccomp_bpf.c | 2 +-
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/stm/ltdc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/uapi/linux/seccomp.h b/include/uapi/linux/seccomp.h
-index 90734aa5aa363..b5f901af79f0b 100644
---- a/include/uapi/linux/seccomp.h
-+++ b/include/uapi/linux/seccomp.h
-@@ -93,5 +93,6 @@ struct seccomp_notif_resp {
- #define SECCOMP_IOCTL_NOTIF_RECV	SECCOMP_IOWR(0, struct seccomp_notif)
- #define SECCOMP_IOCTL_NOTIF_SEND	SECCOMP_IOWR(1,	\
- 						struct seccomp_notif_resp)
--#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOR(2, __u64)
-+#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOW(2, __u64)
-+
- #endif /* _UAPI_LINUX_SECCOMP_H */
-diff --git a/kernel/seccomp.c b/kernel/seccomp.c
-index 2c697ce7be21f..e0fd972356539 100644
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -42,6 +42,14 @@
- #include <linux/uaccess.h>
- #include <linux/anon_inodes.h>
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index df585fe64f614..60ffe5bbc1294 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -425,9 +425,12 @@ static void ltdc_crtc_atomic_enable(struct drm_crtc *crtc,
+ 				    struct drm_crtc_state *old_state)
+ {
+ 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
++	struct drm_device *ddev = crtc->dev;
  
-+/*
-+ * When SECCOMP_IOCTL_NOTIF_ID_VALID was first introduced, it had the
-+ * wrong direction flag in the ioctl number. This is the broken one,
-+ * which the kernel needs to keep supporting until all userspaces stop
-+ * using the wrong command number.
-+ */
-+#define SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR	SECCOMP_IOR(2, __u64)
-+
- enum notify_state {
- 	SECCOMP_NOTIFY_INIT,
- 	SECCOMP_NOTIFY_SENT,
-@@ -1168,6 +1176,7 @@ static long seccomp_notify_ioctl(struct file *file, unsigned int cmd,
- 		return seccomp_notify_recv(filter, buf);
- 	case SECCOMP_IOCTL_NOTIF_SEND:
- 		return seccomp_notify_send(filter, buf);
-+	case SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR:
- 	case SECCOMP_IOCTL_NOTIF_ID_VALID:
- 		return seccomp_notify_id_valid(filter, buf);
- 	default:
-diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-index 96bbda4f10fc6..19c7351eeb74b 100644
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -177,7 +177,7 @@ struct seccomp_metadata {
- #define SECCOMP_IOCTL_NOTIF_RECV	SECCOMP_IOWR(0, struct seccomp_notif)
- #define SECCOMP_IOCTL_NOTIF_SEND	SECCOMP_IOWR(1,	\
- 						struct seccomp_notif_resp)
--#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOR(2, __u64)
-+#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOW(2, __u64)
+ 	DRM_DEBUG_DRIVER("\n");
  
- struct seccomp_notif {
- 	__u64 id;
++	pm_runtime_get_sync(ddev->dev);
++
+ 	/* Sets the background color value */
+ 	reg_write(ldev->regs, LTDC_BCCR, BCCR_BCBLACK);
+ 
 -- 
 2.25.1
 
