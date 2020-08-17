@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8D3246B41
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0B6246A46
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730927AbgHQPvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:51:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S1730355AbgHQPdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730834AbgHQPvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:51:00 -0400
+        id S1730352AbgHQPdH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:33:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A27372072E;
-        Mon, 17 Aug 2020 15:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 186B822D00;
+        Mon, 17 Aug 2020 15:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679460;
-        bh=LP/ESwE5uXSLHnZg76uKNJaf8JA4zFy3qEkEfQyv0Wo=;
+        s=default; t=1597678386;
+        bh=u2l8rYnpqO1GxowdoZloj+Y5TmSk8RmfO86+JjBpaeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUyBz0RdmxE/KOny3FtFvQTNNKFhFfsH05y8jH+3ktm99sC2eDFKlK8BOC8dG3Qv3
-         m2k1ww0XOHkua0vNGXa0jq6NHQ5GkW3WiNuguLl7rNDQYP6GgrpI9hHG/4wg8I28a+
-         2iX2soKo0mmMXOQThPhUBNuonRCEAN2slvgWZs6E=
+        b=mey7hUYXKz4aBFMUs3pC9bw++hyvxqj9RijmT5Ewy7XqU0zTNggAnOcciNo7165m4
+         W3I1cFXX0iVm8Awgui0iKIyoaY+CCqOnDWolWV8NueUAZ08JfOhU/cX/U43Q+DGTSD
+         SMS1Ot1aC509dcWu86Sa4NQhYjtGI01VmOLAWmB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 218/393] phy: renesas: rcar-gen3-usb2: move irq registration to init
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 315/464] selftests/powerpc: Squash spurious errors due to device removal
 Date:   Mon, 17 Aug 2020 17:14:28 +0200
-Message-Id: <20200817143830.199525631@linuxfoundation.org>
+Message-Id: <20200817143848.885698106@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,157 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 08b0ad375ca66181faee725b1b358bcae8d592ee ]
+[ Upstream commit 5f8cf6475828b600ff6d000e580c961ac839cc61 ]
 
-If CONFIG_DEBUG_SHIRQ was enabled, r8a77951-salvator-xs could boot
-correctly. If we appended "earlycon keep_bootcon" to the kernel
-command like, we could get kernel log like below.
+For drivers that don't have the error handling callbacks we implement
+recovery by removing the device and re-probing it. This causes the sysfs
+directory for the PCI device to be removed which causes the following
+spurious error to be printed when checking the PE state:
 
-    SError Interrupt on CPU0, code 0xbf000002 -- SError
-    CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.8.0-rc3-salvator-x-00505-g6c843129e6faaf01 #785
-    Hardware name: Renesas Salvator-X 2nd version board based on r8a77951 (DT)
-    pstate: 60400085 (nZCv daIf +PAN -UAO BTYPE=--)
-    pc : rcar_gen3_phy_usb2_irq+0x14/0x54
-    lr : free_irq+0xf4/0x27c
+Breaking 0005:03:00.0...
+./eeh-basic.sh: line 13: can't open /sys/bus/pci/devices/0005:03:00.0/eeh_pe_state: no such file
+0005:03:00.0, waited 0/60
+0005:03:00.0, waited 1/60
+0005:03:00.0, waited 2/60
+0005:03:00.0, waited 3/60
+0005:03:00.0, waited 4/60
+0005:03:00.0, waited 5/60
+0005:03:00.0, waited 6/60
+0005:03:00.0, waited 7/60
+0005:03:00.0, Recovered after 8 seconds
 
-This means free_irq() calls the interrupt handler while PM runtime
-is not getting if DEBUG_SHIRQ is enabled and rcar_gen3_phy_usb2_probe()
-failed. To fix the issue, move the irq registration place to
-rcar_gen3_phy_usb2_init() which is ready to handle the interrupts.
+We currently try to avoid this by checking if the PE state file exists
+before reading from it. This is however inherently racy so re-work the
+state checking so that we only read from the file once, and we squash any
+errors that occur while reading.
 
-Note that after the commit 549b6b55b005 ("phy: renesas: rcar-gen3-usb2:
-enable/disable independent irqs") which is merged into v5.2, since this
-driver creates multiple phy instances, needs to check whether one of
-phy instances is initialized. However, if we backport this patch to v5.1
-or less, we don't need to check it because such kernel have single
-phy instance.
-
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Fixes: 9f391c574efc ("phy: rcar-gen3-usb2: add runtime ID/VBUS pin detection")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1594986297-12434-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 85d86c8aa52e ("selftests/powerpc: Add basic EEH selftest")
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200727010127.23698-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/renesas/phy-rcar-gen3-usb2.c | 61 +++++++++++++-----------
- 1 file changed, 33 insertions(+), 28 deletions(-)
+ tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-index bfb22f868857f..5087b7c44d55b 100644
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -111,6 +111,7 @@ struct rcar_gen3_chan {
- 	struct work_struct work;
- 	struct mutex lock;	/* protects rphys[...].powered */
- 	enum usb_dr_mode dr_mode;
-+	int irq;
- 	bool extcon_host;
- 	bool is_otg_channel;
- 	bool uses_otg_pins;
-@@ -389,12 +390,38 @@ static void rcar_gen3_init_otg(struct rcar_gen3_chan *ch)
- 	rcar_gen3_device_recognition(ch);
- }
+diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+index f52ed92b53e74..00dc32c0ed75c 100755
+--- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
++++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+@@ -5,12 +5,17 @@ pe_ok() {
+ 	local dev="$1"
+ 	local path="/sys/bus/pci/devices/$dev/eeh_pe_state"
  
-+static irqreturn_t rcar_gen3_phy_usb2_irq(int irq, void *_ch)
-+{
-+	struct rcar_gen3_chan *ch = _ch;
-+	void __iomem *usb2_base = ch->base;
-+	u32 status = readl(usb2_base + USB2_OBINTSTA);
-+	irqreturn_t ret = IRQ_NONE;
-+
-+	if (status & USB2_OBINT_BITS) {
-+		dev_vdbg(ch->dev, "%s: %08x\n", __func__, status);
-+		writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
-+		rcar_gen3_device_recognition(ch);
-+		ret = IRQ_HANDLED;
-+	}
-+
-+	return ret;
-+}
-+
- static int rcar_gen3_phy_usb2_init(struct phy *p)
- {
- 	struct rcar_gen3_phy *rphy = phy_get_drvdata(p);
- 	struct rcar_gen3_chan *channel = rphy->ch;
- 	void __iomem *usb2_base = channel->base;
- 	u32 val;
-+	int ret;
-+
-+	if (!rcar_gen3_is_any_rphy_initialized(channel) && channel->irq >= 0) {
-+		INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
-+		ret = request_irq(channel->irq, rcar_gen3_phy_usb2_irq,
-+				  IRQF_SHARED, dev_name(channel->dev), channel);
-+		if (ret < 0)
-+			dev_err(channel->dev, "No irq handler (%d)\n", channel->irq);
-+	}
+-	if ! [ -e "$path" ] ; then
++	# if a driver doesn't support the error handling callbacks then the
++	# device is recovered by removing and re-probing it. This causes the
++	# sysfs directory to disappear so read the PE state once and squash
++	# any potential error messages
++	local eeh_state="$(cat $path 2>/dev/null)"
++	if [ -z "$eeh_state" ]; then
+ 		return 1;
+ 	fi
  
- 	/* Initialize USB2 part */
- 	val = readl(usb2_base + USB2_INT_ENABLE);
-@@ -433,6 +460,9 @@ static int rcar_gen3_phy_usb2_exit(struct phy *p)
- 		val &= ~USB2_INT_ENABLE_UCOM_INTEN;
- 	writel(val, usb2_base + USB2_INT_ENABLE);
+-	local fw_state="$(cut -d' ' -f1 < $path)"
+-	local sw_state="$(cut -d' ' -f2 < $path)"
++	local fw_state="$(echo $eeh_state | cut -d' ' -f1)"
++	local sw_state="$(echo $eeh_state | cut -d' ' -f2)"
  
-+	if (channel->irq >= 0 && !rcar_gen3_is_any_rphy_initialized(channel))
-+		free_irq(channel->irq, channel);
-+
- 	return 0;
- }
- 
-@@ -503,23 +533,6 @@ static const struct phy_ops rz_g1c_phy_usb2_ops = {
- 	.owner		= THIS_MODULE,
- };
- 
--static irqreturn_t rcar_gen3_phy_usb2_irq(int irq, void *_ch)
--{
--	struct rcar_gen3_chan *ch = _ch;
--	void __iomem *usb2_base = ch->base;
--	u32 status = readl(usb2_base + USB2_OBINTSTA);
--	irqreturn_t ret = IRQ_NONE;
--
--	if (status & USB2_OBINT_BITS) {
--		dev_vdbg(ch->dev, "%s: %08x\n", __func__, status);
--		writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
--		rcar_gen3_device_recognition(ch);
--		ret = IRQ_HANDLED;
--	}
--
--	return ret;
--}
--
- static const struct of_device_id rcar_gen3_phy_usb2_match_table[] = {
- 	{
- 		.compatible = "renesas,usb2-phy-r8a77470",
-@@ -598,7 +611,7 @@ static int rcar_gen3_phy_usb2_probe(struct platform_device *pdev)
- 	struct phy_provider *provider;
- 	struct resource *res;
- 	const struct phy_ops *phy_usb2_ops;
--	int irq, ret = 0, i;
-+	int ret = 0, i;
- 
- 	if (!dev->of_node) {
- 		dev_err(dev, "This driver needs device tree\n");
-@@ -614,16 +627,8 @@ static int rcar_gen3_phy_usb2_probe(struct platform_device *pdev)
- 	if (IS_ERR(channel->base))
- 		return PTR_ERR(channel->base);
- 
--	/* call request_irq for OTG */
--	irq = platform_get_irq_optional(pdev, 0);
--	if (irq >= 0) {
--		INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
--		irq = devm_request_irq(dev, irq, rcar_gen3_phy_usb2_irq,
--				       IRQF_SHARED, dev_name(dev), channel);
--		if (irq < 0)
--			dev_err(dev, "No irq handler (%d)\n", irq);
--	}
--
-+	/* get irq number here and request_irq for OTG in phy_init */
-+	channel->irq = platform_get_irq_optional(pdev, 0);
- 	channel->dr_mode = rcar_gen3_get_dr_mode(dev->of_node);
- 	if (channel->dr_mode != USB_DR_MODE_UNKNOWN) {
- 		int ret;
+ 	# If EEH_PE_ISOLATED or EEH_PE_RECOVERING are set then the PE is in an
+ 	# error state or being recovered. Either way, not ok.
 -- 
 2.25.1
 
