@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E45E8246C33
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5786246C37
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388623AbgHQQLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:11:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        id S2388641AbgHQQLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:11:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730784AbgHQQLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:11:24 -0400
+        id S2388620AbgHQQLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:11:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1BD022C9F;
-        Mon, 17 Aug 2020 16:11:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2276620760;
+        Mon, 17 Aug 2020 16:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680683;
-        bh=sYiXg3G94M+HiuTnzDDfRf926aFKFASDQAR01m4WSwM=;
+        s=default; t=1597680688;
+        bh=TMZSxOWR4DoSRPwXZvMAnYvdUNi4BFmEtSVD2UmFTXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ya+asStRr1qQ8+q6XIEZCK3fBIQhNM1fSm1Wm/ctVlvsALKin0skvGIy2u/s155r7
-         uvwVcHq3G3uWT5JT7oPnLvERQ91bRLFwhU4YmfMB8M9ggTSFd+GQjkT5JiphwX/UXt
-         ge/QsvVy9YuHri/wPxn//FAanI12EZylN3/QNanU=
+        b=V/VOJgtYSvbjsoqD+6Imh2f2t6AWGhaUImrT4XIh2MTviPJgHFLxAB3zvBSZnpqk4
+         YKyfjykO4Fnz4H3hAYH31DtKNoTgetZy4toH7076qW6OSaSOO6q96jYl68zYjk02L5
+         qPIz6shIKT5PYAok5emNuL8nRMi19e6z+lTyhNkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Dien Pham <dien.pham.ry@renesas.com>
-Subject: [PATCH 4.19 015/168] clk: scmi: Fix min and max rate when registering clocks with discrete rates
-Date:   Mon, 17 Aug 2020 17:15:46 +0200
-Message-Id: <20200817143734.481261181@linuxfoundation.org>
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        Joshua Thompson <funaho@jurai.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 017/168] m68k: mac: Fix IOP status/control register writes
+Date:   Mon, 17 Aug 2020 17:15:48 +0200
+Message-Id: <20200817143734.609136780@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -45,68 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit fcd2e0deae50bce48450f14c8fc5611b08d7438c ]
+[ Upstream commit 931fc82a6aaf4e2e4a5490addaa6a090d78c24a7 ]
 
-Currently we are not initializing the scmi clock with discrete rates
-correctly. We fetch the min_rate and max_rate value only for clocks with
-ranges and ignore the ones with discrete rates. This will lead to wrong
-initialization of rate range when clock supports discrete rate.
+When writing values to the IOP status/control register make sure those
+values do not have any extraneous bits that will clear interrupt flags.
 
-Fix this by using the first and the last rate in the sorted list of the
-discrete clock rates while registering the clock.
+To place the SCC IOP into bypass mode would be desirable but this is not
+achieved by writing IOP_DMAINACTIVE | IOP_RUN | IOP_AUTOINC | IOP_BYPASS
+to the control register. Drop this ineffective register write.
 
-Link: https://lore.kernel.org/r/20200709081705.46084-2-sudeep.holla@arm.com
-Fixes: 6d6a1d82eaef7 ("clk: add support for clocks provided by SCMI")
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reported-and-tested-by: Dien Pham <dien.pham.ry@renesas.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Remove the flawed and unused iop_bypass() function. Make use of the
+unused iop_stop() function.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Cc: Joshua Thompson <funaho@jurai.org>
+Link: https://lore.kernel.org/r/09bcb7359a1719a18b551ee515da3c4c3cf709e6.1590880333.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-scmi.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ arch/m68k/mac/iop.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/clk/clk-scmi.c b/drivers/clk/clk-scmi.c
-index a985bf5e1ac61..c65d30bba7005 100644
---- a/drivers/clk/clk-scmi.c
-+++ b/drivers/clk/clk-scmi.c
-@@ -103,6 +103,8 @@ static const struct clk_ops scmi_clk_ops = {
- static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
- {
- 	int ret;
-+	unsigned long min_rate, max_rate;
-+
- 	struct clk_init_data init = {
- 		.flags = CLK_GET_RATE_NOCACHE,
- 		.num_parents = 0,
-@@ -112,9 +114,23 @@ static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
+diff --git a/arch/m68k/mac/iop.c b/arch/m68k/mac/iop.c
+index d8f2282978f9c..c432bfafe63e2 100644
+--- a/arch/m68k/mac/iop.c
++++ b/arch/m68k/mac/iop.c
+@@ -183,7 +183,7 @@ static __inline__ void iop_writeb(volatile struct mac_iop *iop, __u16 addr, __u8
  
- 	sclk->hw.init = &init;
- 	ret = devm_clk_hw_register(dev, &sclk->hw);
--	if (!ret)
--		clk_hw_set_rate_range(&sclk->hw, sclk->info->range.min_rate,
--				      sclk->info->range.max_rate);
-+	if (ret)
-+		return ret;
-+
-+	if (sclk->info->rate_discrete) {
-+		int num_rates = sclk->info->list.num_rates;
-+
-+		if (num_rates <= 0)
-+			return -EINVAL;
-+
-+		min_rate = sclk->info->list.rates[0];
-+		max_rate = sclk->info->list.rates[num_rates - 1];
-+	} else {
-+		min_rate = sclk->info->range.min_rate;
-+		max_rate = sclk->info->range.max_rate;
-+	}
-+
-+	clk_hw_set_rate_range(&sclk->hw, min_rate, max_rate);
- 	return ret;
+ static __inline__ void iop_stop(volatile struct mac_iop *iop)
+ {
+-	iop->status_ctrl &= ~IOP_RUN;
++	iop->status_ctrl = IOP_AUTOINC;
  }
  
+ static __inline__ void iop_start(volatile struct mac_iop *iop)
+@@ -191,14 +191,9 @@ static __inline__ void iop_start(volatile struct mac_iop *iop)
+ 	iop->status_ctrl = IOP_RUN | IOP_AUTOINC;
+ }
+ 
+-static __inline__ void iop_bypass(volatile struct mac_iop *iop)
+-{
+-	iop->status_ctrl |= IOP_BYPASS;
+-}
+-
+ static __inline__ void iop_interrupt(volatile struct mac_iop *iop)
+ {
+-	iop->status_ctrl |= IOP_IRQ;
++	iop->status_ctrl = IOP_IRQ | IOP_RUN | IOP_AUTOINC;
+ }
+ 
+ static int iop_alive(volatile struct mac_iop *iop)
+@@ -244,7 +239,6 @@ void __init iop_preinit(void)
+ 		} else {
+ 			iop_base[IOP_NUM_SCC] = (struct mac_iop *) SCC_IOP_BASE_QUADRA;
+ 		}
+-		iop_base[IOP_NUM_SCC]->status_ctrl = 0x87;
+ 		iop_scc_present = 1;
+ 	} else {
+ 		iop_base[IOP_NUM_SCC] = NULL;
+@@ -256,7 +250,7 @@ void __init iop_preinit(void)
+ 		} else {
+ 			iop_base[IOP_NUM_ISM] = (struct mac_iop *) ISM_IOP_BASE_QUADRA;
+ 		}
+-		iop_base[IOP_NUM_ISM]->status_ctrl = 0;
++		iop_stop(iop_base[IOP_NUM_ISM]);
+ 		iop_ism_present = 1;
+ 	} else {
+ 		iop_base[IOP_NUM_ISM] = NULL;
 -- 
 2.25.1
 
