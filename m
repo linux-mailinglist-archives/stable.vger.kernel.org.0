@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 596D0247600
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4252475FA
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732117AbgHQTbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56816 "EHLO mail.kernel.org"
+        id S2390650AbgHQTbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729351AbgHQPbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:31:41 -0400
+        id S1730293AbgHQPbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:31:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 623FC20B1F;
-        Mon, 17 Aug 2020 15:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96AB020709;
+        Mon, 17 Aug 2020 15:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678301;
-        bh=OICnLkXlVe5P+5n/vyf978ebwQib89u725aBI8qOb9s=;
+        s=default; t=1597678304;
+        bh=wITwGc/iA9hZ7809WDDKU8at8eq9U1abe8a8Alu0yAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VwI0nMiWs8Xu5GgNHllY0l4uxMzYgRg4RfwoVbNuAhKMsSvNMNnKct1SJYZ1WI7H4
-         YZKdGwfyr5pDYAEsmFR11ja9dbe7O6P102F0stsuIJjc9vrbDpZOHx1JLvba4lJGzF
-         92MOmWeC/Umha5tNIxbn46KqCFpXv6PEbKUq15AA=
+        b=MZdGVzSk2I4v4yywXQW7uUSmheSKBspvYH05AtkJ1FNYZn4kh0i3eE/VAqn1pJlm7
+         o4g4RlGj9ZnpdHXy3DJd5Z+ezO9roDLrFinQebnIa/dhjmo7zlMIOMi1Z9SPsfOuT9
+         NuJNEHYufp/M7BWvr8foSWIfcItkrWnVbouQaRWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 256/464] spi: lantiq-ssc: Fix warning by using WQ_MEM_RECLAIM
-Date:   Mon, 17 Aug 2020 17:13:29 +0200
-Message-Id: <20200817143846.056139584@linuxfoundation.org>
+Subject: [PATCH 5.8 257/464] PCI: loongson: Use DECLARE_PCI_FIXUP_EARLY for bridge_class_quirk()
+Date:   Mon, 17 Aug 2020 17:13:30 +0200
+Message-Id: <20200817143846.102226905@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,45 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hauke Mehrtens <hauke@hauke-m.de>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit ba3548cf29616b58c93bbaffc3d636898d009858 ]
+[ Upstream commit 14110af606965ce07abe4d121c100241c2e73b86 ]
 
-The lantiq-ssc driver uses internally an own workqueue to wait till the
-data is not only written out of the FIFO but really written to the wire.
-This workqueue is flushed while the SPI subsystem is working in some
-other system workqueue.
+According to the datasheet of Loongson LS7A bridge chip, the old version
+of Loongson LS7A PCIE port has a wrong value about PCI class which is
+0x060000, the correct value should be 0x060400, this bug can be fixed by
+"dev->class = PCI_CLASS_BRIDGE_PCI << 8;" at the software level and it
+was fixed in hardware in the latest LS7A versions.
 
-The system workqueue is marked as WQ_MEM_RECLAIM, but the workqueue in
-the lantiq-ssc driver does not use WQ_MEM_RECLAIM for now. Add this flag
-too to prevent this warning.
+In order to maintain downward compatibility, use DECLARE_PCI_FIXUP_EARLY
+instead of DECLARE_PCI_FIXUP_HEADER for bridge_class_quirk() to fix it as
+early as possible.
 
-This fixes the following warning:
-[    2.975956] WARNING: CPU: 1 PID: 17 at kernel/workqueue.c:2614 check_flush_dependency+0x168/0x184
-[    2.984752] workqueue: WQ_MEM_RECLAIM kblockd:blk_mq_run_work_fn is flushing !WQ_MEM_RECLAIM 1e100800.spi:0x0
+Otherwise, in the function pci_setup_device(), the related code about
+"dev->class" such as "class = dev->class >> 8;" and "dev->transparent
+= ((dev->class & 0xff) == 1);" maybe get wrong value without EARLY fixup.
 
-Fixes: 891b7c5fbf61 ("mtd_blkdevs: convert to blk-mq")
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Link: https://lore.kernel.org/r/20200717215648.20522-1-hauke@hauke-m.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/1595065176-460-1-git-send-email-yangtiezhu@loongson.cn
+Fixes: 1f58cca5cf2b ("PCI: Add Loongson PCI Controller support")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-lantiq-ssc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-loongson.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-lantiq-ssc.c b/drivers/spi/spi-lantiq-ssc.c
-index 44600fb71c484..049a64451c750 100644
---- a/drivers/spi/spi-lantiq-ssc.c
-+++ b/drivers/spi/spi-lantiq-ssc.c
-@@ -909,7 +909,7 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
- 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(2, 8) |
- 				     SPI_BPW_MASK(16) | SPI_BPW_MASK(32);
+diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
+index 459009c8a4a02..58b862aaa6e94 100644
+--- a/drivers/pci/controller/pci-loongson.c
++++ b/drivers/pci/controller/pci-loongson.c
+@@ -37,11 +37,11 @@ static void bridge_class_quirk(struct pci_dev *dev)
+ {
+ 	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LOONGSON,
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+ 			DEV_PCIE_PORT_0, bridge_class_quirk);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LOONGSON,
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+ 			DEV_PCIE_PORT_1, bridge_class_quirk);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LOONGSON,
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+ 			DEV_PCIE_PORT_2, bridge_class_quirk);
  
--	spi->wq = alloc_ordered_workqueue(dev_name(dev), 0);
-+	spi->wq = alloc_ordered_workqueue(dev_name(dev), WQ_MEM_RECLAIM);
- 	if (!spi->wq) {
- 		err = -ENOMEM;
- 		goto err_clk_put;
+ static void system_bus_quirk(struct pci_dev *pdev)
 -- 
 2.25.1
 
