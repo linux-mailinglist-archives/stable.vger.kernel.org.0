@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9F324738F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 669412471A1
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391740AbgHQS5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:57:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34416 "EHLO mail.kernel.org"
+        id S2389318AbgHQSbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:31:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730655AbgHQPuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:06 -0400
+        id S1730863AbgHQQA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:00:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEAE02067C;
-        Mon, 17 Aug 2020 15:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6297E208C7;
+        Mon, 17 Aug 2020 16:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679389;
-        bh=SJxSG5hjeCoBv7dI/pFgKfrBpXKRvG9S8f+X7U2EkEs=;
+        s=default; t=1597680055;
+        bh=aYG/jnikgEWyVG2dqQNg2g22DSYc7s2Ba/lJaKzMlRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sG8aHlV+bu/wm4j9/Kdv22bXCaAX8Q7s38l9diNqv7hRpc5ElQd9vpiZb26/Y/YzK
-         R1zWmYVErNKJ15a2IudZpUIborSEfIJRwoXlSx3q1auvQBo8pa9cOE9/BQf/GIQGCA
-         JHGadqA3wM4rTLDtMs4qO2nBwmtiUpovNerB9zts=
+        b=VdLD3bHTQdXMV/Yz1BS/gYvpAI/wSB2QUwHwsUeLZOElYVLTD4mP+mNRZw4/aN3sE
+         IhafmQ5dpJmAUn+vSodg1nvWntJwI42UnXtJMw9CaIIwHnBsTOE6SHYHTQO03WcQ/a
+         xlq4skhAANZNPKWKOyTa77lV3Vk9dS2VmpWrbZ/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
+        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 187/393] xfs: fix reflink quota reservation accounting error
+Subject: [PATCH 5.4 036/270] spi: rockchip: Fix error in SPI slave pio read
 Date:   Mon, 17 Aug 2020 17:13:57 +0200
-Message-Id: <20200817143828.691455190@linuxfoundation.org>
+Message-Id: <20200817143757.592848129@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Jon Lin <jon.lin@rock-chips.com>
 
-[ Upstream commit 83895227aba1ade33e81f586aa7b6b1e143096a5 ]
+[ Upstream commit 4294e4accf8d695ea5605f6b189008b692e3e82c ]
 
-Quota reservations are supposed to account for the blocks that might be
-allocated due to a bmap btree split.  Reflink doesn't do this, so fix
-this to make the quota accounting more accurate before we start
-rearranging things.
+The RXFLR is possible larger than rx_left in Rockchip SPI, fix it.
 
-Fixes: 862bb360ef56 ("xfs: reflink extents from one file to another")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+Fixes: 01b59ce5dac8 ("spi: rockchip: use irq rather than polling")
+Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
+Tested-by: Emil Renner Berthing <kernel@esmil.dk>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Emil Renner Berthing <kernel@esmil.dk>
+Link: https://lore.kernel.org/r/20200723004356.6390-3-jon.lin@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_reflink.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/spi/spi-rockchip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 107bf2a2f3448..d89201d40891f 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1003,6 +1003,7 @@ xfs_reflink_remap_extent(
- 	xfs_filblks_t		rlen;
- 	xfs_filblks_t		unmap_len;
- 	xfs_off_t		newlen;
-+	int64_t			qres;
- 	int			error;
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index 2cc6d9951b52e..008b64f4e031a 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -286,7 +286,7 @@ static void rockchip_spi_pio_writer(struct rockchip_spi *rs)
+ static void rockchip_spi_pio_reader(struct rockchip_spi *rs)
+ {
+ 	u32 words = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
+-	u32 rx_left = rs->rx_left - words;
++	u32 rx_left = (rs->rx_left > words) ? rs->rx_left - words : 0;
  
- 	unmap_len = irec->br_startoff + irec->br_blockcount - destoff;
-@@ -1025,13 +1026,19 @@ xfs_reflink_remap_extent(
- 	xfs_ilock(ip, XFS_ILOCK_EXCL);
- 	xfs_trans_ijoin(tp, ip, 0);
- 
--	/* If we're not just clearing space, then do we have enough quota? */
--	if (real_extent) {
--		error = xfs_trans_reserve_quota_nblks(tp, ip,
--				irec->br_blockcount, 0, XFS_QMOPT_RES_REGBLKS);
--		if (error)
--			goto out_cancel;
--	}
-+	/*
-+	 * Reserve quota for this operation.  We don't know if the first unmap
-+	 * in the dest file will cause a bmap btree split, so we always reserve
-+	 * at least enough blocks for that split.  If the extent being mapped
-+	 * in is written, we need to reserve quota for that too.
-+	 */
-+	qres = XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK);
-+	if (real_extent)
-+		qres += irec->br_blockcount;
-+	error = xfs_trans_reserve_quota_nblks(tp, ip, qres, 0,
-+			XFS_QMOPT_RES_REGBLKS);
-+	if (error)
-+		goto out_cancel;
- 
- 	trace_xfs_reflink_remap(ip, irec->br_startoff,
- 				irec->br_blockcount, irec->br_startblock);
+ 	/* the hardware doesn't allow us to change fifo threshold
+ 	 * level while spi is enabled, so instead make sure to leave
 -- 
 2.25.1
 
