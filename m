@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19337246C2B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C007246C79
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388588AbgHQQLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
+        id S1729820AbgHQQRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388413AbgHQQKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:45 -0400
+        id S1731125AbgHQQQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:16:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5204322BED;
-        Mon, 17 Aug 2020 16:10:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E0DA20772;
+        Mon, 17 Aug 2020 16:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680644;
-        bh=b6eX7ifBXiMIhLGrhTJBbIm8XMK4WsR85T2xCvWD8Cw=;
+        s=default; t=1597680999;
+        bh=hPo0V38jnWsNMAydRHO7trBV7uIaBeU/p2KnrRXXULM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMHDbrmQnqIEV1kU9iDfoCWLIVCgDluQVTxiJ0g/rYwTlpUHn8V7of7N3SA9+8sAY
-         vomn9cNvxcfcM+1wmMNlNa/Fp6NH4GdlSaPR8/anYFaXb3HzPNY6is8kAmtKiZy0LZ
-         x8CC03V2q/jF+NgRAJYjiNXu2TE0FLjCbp0FTjaM=
+        b=Riw4kPNPOvsGcmm2o9+1wsu432u85ZjJu/RcgmLZAgq8wG1igxiCoJ9XGzzC8rv7u
+         XgLQ3iAcNJcQkO0p0RwX+9lXLSTt1vCmhXcjut49hFg3e4VOcQ/im4Ve3zheaRjfiW
+         OaztLVXfmSECOexCEK9PKgjaqF9bB3oXdIrg1urE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoyu Huang <hgy5945@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 270/270] io_uring: Fix NULL pointer dereference in loop_rw_iter()
-Date:   Mon, 17 Aug 2020 17:17:51 +0200
-Message-Id: <20200817143809.254945655@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 143/168] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
+Date:   Mon, 17 Aug 2020 17:17:54 +0200
+Message-Id: <20200817143740.824601407@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoyu Huang <hgy5945@gmail.com>
+From: Hector Martin <marcan@marcan.st>
 
-commit 2dd2111d0d383df104b144e0d1f6b5a00cb7cd88 upstream.
+commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
 
-loop_rw_iter() does not check whether the file has a read or
-write function. This can lead to NULL pointer dereference
-when the user passes in a file descriptor that does not have
-read or write function.
+Further investigation of the L-R swap problem on the MS2109 reveals that
+the problem isn't that the channels are swapped, but rather that they
+are swapped and also out of phase by one sample. In other words, the
+issue is actually that the very first frame that comes from the hardware
+is a half-frame containing only the right channel, and after that
+everything becomes offset.
 
-The crash log looks like this:
+So introduce a new quirk field to drop the very first 2 bytes that come
+in after the format is configured and a capture stream starts. This puts
+the channels in phase and in the correct order.
 
-[   99.834071] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[   99.835364] #PF: supervisor instruction fetch in kernel mode
-[   99.836522] #PF: error_code(0x0010) - not-present page
-[   99.837771] PGD 8000000079d62067 P4D 8000000079d62067 PUD 79d8c067 PMD 0
-[   99.839649] Oops: 0010 [#2] SMP PTI
-[   99.840591] CPU: 1 PID: 333 Comm: io_wqe_worker-0 Tainted: G      D           5.8.0 #2
-[   99.842622] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-[   99.845140] RIP: 0010:0x0
-[   99.845840] Code: Bad RIP value.
-[   99.846672] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
-[   99.848018] RAX: 0000000000000000 RBX: ffff92363bd67300 RCX: ffff92363d461208
-[   99.849854] RDX: 0000000000000010 RSI: 00007ffdbf696bb0 RDI: ffff92363bd67300
-[   99.851743] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
-[   99.853394] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
-[   99.855148] R13: 0000000000000000 R14: ffff92363d461208 R15: ffffa1c7c01ebc68
-[   99.856914] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
-[   99.858651] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   99.860032] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
-[   99.861979] Call Trace:
-[   99.862617]  loop_rw_iter.part.0+0xad/0x110
-[   99.863838]  io_write+0x2ae/0x380
-[   99.864644]  ? kvm_sched_clock_read+0x11/0x20
-[   99.865595]  ? sched_clock+0x9/0x10
-[   99.866453]  ? sched_clock_cpu+0x11/0xb0
-[   99.867326]  ? newidle_balance+0x1d4/0x3c0
-[   99.868283]  io_issue_sqe+0xd8f/0x1340
-[   99.869216]  ? __switch_to+0x7f/0x450
-[   99.870280]  ? __switch_to_asm+0x42/0x70
-[   99.871254]  ? __switch_to_asm+0x36/0x70
-[   99.872133]  ? lock_timer_base+0x72/0xa0
-[   99.873155]  ? switch_mm_irqs_off+0x1bf/0x420
-[   99.874152]  io_wq_submit_work+0x64/0x180
-[   99.875192]  ? kthread_use_mm+0x71/0x100
-[   99.876132]  io_worker_handle_work+0x267/0x440
-[   99.877233]  io_wqe_worker+0x297/0x350
-[   99.878145]  kthread+0x112/0x150
-[   99.878849]  ? __io_worker_unuse+0x100/0x100
-[   99.879935]  ? kthread_park+0x90/0x90
-[   99.880874]  ret_from_fork+0x22/0x30
-[   99.881679] Modules linked in:
-[   99.882493] CR2: 0000000000000000
-[   99.883324] ---[ end trace 4453745f4673190b ]---
-[   99.884289] RIP: 0010:0x0
-[   99.884837] Code: Bad RIP value.
-[   99.885492] RSP: 0018:ffffa1c7c01ebc08 EFLAGS: 00010202
-[   99.886851] RAX: 0000000000000000 RBX: ffff92363acd7f00 RCX: ffff92363d461608
-[   99.888561] RDX: 0000000000000010 RSI: 00007ffe040d9e10 RDI: ffff92363acd7f00
-[   99.890203] RBP: ffffa1c7c01ebc40 R08: 0000000000000000 R09: 0000000000000000
-[   99.891907] R10: ffffffff9ec692a0 R11: 0000000000000000 R12: 0000000000000010
-[   99.894106] R13: 0000000000000000 R14: ffff92363d461608 R15: ffffa1c7c01ebc68
-[   99.896079] FS:  0000000000000000(0000) GS:ffff92363dd00000(0000) knlGS:0000000000000000
-[   99.898017] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   99.899197] CR2: ffffffffffffffd6 CR3: 000000007ac66000 CR4: 00000000000006e0
-
-Fixes: 32960613b7c3 ("io_uring: correctly handle non ->{read,write}_iter() file_operations")
 Cc: stable@vger.kernel.org
-Signed-off-by: Guoyu Huang <hgy5945@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/usb/card.h   |    1 +
+ sound/usb/pcm.c    |    6 ++++++
+ sound/usb/quirks.c |    3 +++
+ sound/usb/stream.c |    1 +
+ 4 files changed, 11 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1433,8 +1433,10 @@ static int io_read(struct io_kiocb *req,
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -129,6 +129,7 @@ struct snd_usb_substream {
+ 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
+ 	unsigned int fmt_type;		/* USB audio format type (1-3) */
+ 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
++	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
  
- 		if (file->f_op->read_iter)
- 			ret2 = call_read_iter(file, kiocb, &iter);
--		else
-+		else if (req->file->f_op->read)
- 			ret2 = loop_rw_iter(READ, file, kiocb, &iter);
-+		else
-+			ret2 = -EINVAL;
+ 	unsigned int running: 1;	/* running status */
  
- 		/*
- 		 * In case of a short read, punt to async. This can happen
-@@ -1524,8 +1526,10 @@ static int io_write(struct io_kiocb *req
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1387,6 +1387,12 @@ static void retire_capture_urb(struct sn
+ 			// continue;
+ 		}
+ 		bytes = urb->iso_frame_desc[i].actual_length;
++		if (subs->stream_offset_adj > 0) {
++			unsigned int adj = min(subs->stream_offset_adj, bytes);
++			cp += adj;
++			bytes -= adj;
++			subs->stream_offset_adj -= adj;
++		}
+ 		frames = bytes / stride;
+ 		if (!subs->txfr_quirk)
+ 			bytes = frames * stride;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1166,6 +1166,9 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
++		subs->stream_offset_adj = 2;
++		break;
+ 	}
+ }
  
- 		if (file->f_op->write_iter)
- 			ret2 = call_write_iter(file, kiocb, &iter);
--		else
-+		else if (req->file->f_op->write)
- 			ret2 = loop_rw_iter(WRITE, file, kiocb, &iter);
-+		else
-+			ret2 = -EINVAL;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -99,6 +99,7 @@ static void snd_usb_init_substream(struc
+ 	subs->tx_length_quirk = as->chip->tx_length_quirk;
+ 	subs->speed = snd_usb_get_speed(subs->dev);
+ 	subs->pkt_offset_adj = 0;
++	subs->stream_offset_adj = 0;
  
- 		if (!force_nonblock)
- 			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+ 	snd_usb_set_pcm_ops(as->pcm, stream);
+ 
 
 
