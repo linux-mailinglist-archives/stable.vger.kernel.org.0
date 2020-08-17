@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B39246B09
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E35246B0C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730822AbgHQPre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59194 "EHLO mail.kernel.org"
+        id S1730827AbgHQPrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:47:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730813AbgHQPrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:47:11 -0400
+        id S1730619AbgHQPr1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:47:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 469682065D;
-        Mon, 17 Aug 2020 15:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B769F2075B;
+        Mon, 17 Aug 2020 15:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679230;
-        bh=yXQOpAs4ndvdbKpfDxoRQL3kvSO841IDlA/qnlsWcOY=;
+        s=default; t=1597679246;
+        bh=79hPRqgXWFr+ObCSA7EIGI00pw8gXvjZdWf2oaJ+dAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKr2urQxIE2lX81V/w/CZTVRLx3PTSGkMKkpdcxy5lwzEcBLyVcz6yaA96nOCUYom
-         JLFRqEJnIMZ5a+R9El516lAtRyGEWcEJxhgscsZwquIsbr2aQGSc6rwG822F6LMTGT
-         D4BjmdYcjxa9+knhSGx09+VL9gDVojOXaC6wLOVA=
+        b=sjf6NS81rMxeqSBJ1WAnQSDUFrD8vLtTW00RhgVJfbU1PGt+oJpBTlRxzY3MlKMa+
+         jiQ9oFt30eBH3UfI+ZOCyL+T1jAUfXB1pEstZkNv89Fo/9BTVQ/6fW609qBoX3/YkS
+         uqRDOSMfT0AsM1h4a2k6/7ZAOKzoDlZfbMC4yPkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 140/393] iio: improve IIO_CONCENTRATION channel type description
-Date:   Mon, 17 Aug 2020 17:13:10 +0200
-Message-Id: <20200817143826.402675819@linuxfoundation.org>
+Subject: [PATCH 5.7 145/393] drm/arm: fix unintentional integer overflow on left shift
+Date:   Mon, 17 Aug 2020 17:13:15 +0200
+Message-Id: <20200817143826.646254076@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,41 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit df16c33a4028159d1ba8a7061c9fa950b58d1a61 ]
+[ Upstream commit 5f368ddea6fec519bdb93b5368f6a844b6ea27a6 ]
 
-IIO_CONCENTRATION together with INFO_RAW specifier is used for reporting
-raw concentrations of pollutants. Raw value should be meaningless
-before being properly scaled. Because of that description shouldn't
-mention raw value unit whatsoever.
+Shifting the integer value 1 is evaluated using 32-bit arithmetic
+and then used in an expression that expects a long value leads to
+a potential integer overflow. Fix this by using the BIT macro to
+perform the shift to avoid the overflow.
 
-Fix this by rephrasing existing description so it follows conventions
-used throughout IIO ABI docs.
-
-Fixes: 8ff6b3bc94930 ("iio: chemical: Add IIO_CONCENTRATION channel type")
-Signed-off-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Addresses-Coverity: ("Unintentional integer overflow")
+Fixes: ad49f8602fe8 ("drm/arm: Add support for Mali Display Processors")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200618100400.11464-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-bus-iio | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/arm/malidp_planes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-index d3e53a6d8331b..5c62bfb0f3f57 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio
-+++ b/Documentation/ABI/testing/sysfs-bus-iio
-@@ -1569,7 +1569,8 @@ What:		/sys/bus/iio/devices/iio:deviceX/in_concentrationX_voc_raw
- KernelVersion:	4.3
- Contact:	linux-iio@vger.kernel.org
- Description:
--		Raw (unscaled no offset etc.) percentage reading of a substance.
-+		Raw (unscaled no offset etc.) reading of a substance. Units
-+		after application of scale and offset are percents.
- 
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistance_raw
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistanceX_raw
+diff --git a/drivers/gpu/drm/arm/malidp_planes.c b/drivers/gpu/drm/arm/malidp_planes.c
+index 37715cc6064e6..ab45ac445045a 100644
+--- a/drivers/gpu/drm/arm/malidp_planes.c
++++ b/drivers/gpu/drm/arm/malidp_planes.c
+@@ -928,7 +928,7 @@ int malidp_de_planes_init(struct drm_device *drm)
+ 	const struct malidp_hw_regmap *map = &malidp->dev->hw->map;
+ 	struct malidp_plane *plane = NULL;
+ 	enum drm_plane_type plane_type;
+-	unsigned long crtcs = 1 << drm->mode_config.num_crtc;
++	unsigned long crtcs = BIT(drm->mode_config.num_crtc);
+ 	unsigned long flags = DRM_MODE_ROTATE_0 | DRM_MODE_ROTATE_90 | DRM_MODE_ROTATE_180 |
+ 			      DRM_MODE_ROTATE_270 | DRM_MODE_REFLECT_X | DRM_MODE_REFLECT_Y;
+ 	unsigned int blend_caps = BIT(DRM_MODE_BLEND_PIXEL_NONE) |
 -- 
 2.25.1
 
