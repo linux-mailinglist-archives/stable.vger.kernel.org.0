@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E642466F9
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 15:08:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EC9246706
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 15:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728580AbgHQNIH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 09:08:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40010 "EHLO
+        id S1727953AbgHQNKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 09:10:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728284AbgHQNH4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 09:07:56 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB23C061389
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 06:07:56 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id 2so7795322pjx.5
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 06:07:56 -0700 (PDT)
+        with ESMTP id S1727931AbgHQNKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 09:10:07 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EEF6C061389
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 06:10:07 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id f9so7664520pju.4
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 06:10:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
+        h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language;
-        bh=G4GA0D4igj300bLkoB6/sg15ML4RgkhUlWeJnOIJahc=;
-        b=fuKhvlf0wmohnzGM4EMtWwJglJ7LZ+4FjogN2lgnp5NeaCPmm9B8LqLMEyFP1ryvy6
-         89q9pSWb74xSKOWPkguMioZkjrYYV2KiTiGfgPEEgFOFVVZ8y0Mfp5W2PaEC5gWo5sI4
-         nKGcBxogeNjZqTyyvHrZP/BICIFmicsrA4AQPsG7AuJADhxsy5/torzcmYHEuT2aHhia
-         l9hZ9v6McAr1HYuUjpDeFg9K878cGX46cCYEIWygROS+0xY/kAHx6n0eu/Bjo6TjZVz5
-         BGw3QU/XspC7bxgy5nm7tFN+oGPN/doV4H9C9R9W8yxqfnHuxnuw/KDu2iN8jKbDqLyS
-         B80g==
+        bh=nT232oFXSCRJnd22Q/9DirmkyLMP0zVTAD6pA2pDbgw=;
+        b=ZkMvOJXOobAE5QAzxM7ZruiEl6VSDgIFof6+MC4Ll/Z3ptq4dHiqzjF9LalbrPGGql
+         0o/UDEtoVUi2TqzzHNxb40vEKLYbDNY7WxaERpfhp/g+oXO5ti3Tj47JLhNM31awFRV0
+         3nd6k66Fk1uwip3NJ7r90g9t61CQgFPVfmV3s7Qtao1BKXQLVNGzDy51aeRZAQNVanE5
+         ubX4hhLY0fpdiXwaPzAk7mXSLC9W6QLK7Qg0wuI78VK/MCQ0yrIUUlXO0JK+yGegfvgL
+         dhDv8NUMKe4b3stzj5CCav8xGgTCQYGBrJeXCdIJj+5oP2HnqVbr9i2Uu+gT3rYqzemA
+         24lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language;
-        bh=G4GA0D4igj300bLkoB6/sg15ML4RgkhUlWeJnOIJahc=;
-        b=PV6P/6lgfIGz8/7Omb61RkPlDETRPQ/3DVQmQS6Ca9oPDpoWOv9X1GpGZ0QJeyaYzy
-         gn4xgSJRTV96FkFa2r41u7PIyjS9TCl/l4MWQCVd+EasfUBmOqHF/V5SVqW/P2BaOGP0
-         Sljmfvudguh9K5xiBbMVPWQ2kGBhz3UHBw5/o7J6CO1turowyRGg/1umTxe/U8j8Y1OP
-         +cVkHgzDPv+ZzFVfEHxwyszCJGeolEQhX1l3ek8dArGz9UtHDd1SFRudkAVc19hp4Jz9
-         0KkUMyjG1x6Ew630bvB7SxZYEzGPJpmVrh7m7dRQWcoltxpJ9FILZOCrnREGikPPoJgc
-         1Kyw==
-X-Gm-Message-State: AOAM533rvyKQshZtVy2LgXHWs40AdN4mxbhD2w8tYD92mMurlUlmoFyh
-        Nr0RhSo/T6DKv7ZN2nit5+gWOvL8MWX+Xw==
-X-Google-Smtp-Source: ABdhPJwr5rW8trrvoUAzA/NisNAIc19L8/ZiqnNLn8Ub9r0ArXN/MylNbETJiwFgPa3WP0SpFmy+vA==
-X-Received: by 2002:a17:902:ba8e:: with SMTP id k14mr10281777pls.256.1597669675395;
-        Mon, 17 Aug 2020 06:07:55 -0700 (PDT)
+        bh=nT232oFXSCRJnd22Q/9DirmkyLMP0zVTAD6pA2pDbgw=;
+        b=bZN3wJYW2o4IZ/rDNeDF9glWM6N2o2S31dkoPsSq6Bs/aKrZnfoy3Suv391SD7qzJ/
+         +U024WYHal4VWkR3rryorEnC/dkqmXIS3KyDS/5DTPm+Up0PJFH+yJG4tn0o5i9HzQkd
+         1N46p4EjWRCjwUHbPI6ZElGFW2P0KsGfVONjctCB7Min3EAM0Nlie3f+l77YRP9+4ham
+         ZEeMC3sSBgiaE7wya5/O4lS7WWJAiEMsaKJPtYLsSqqgBQDR9gobFkO6/i3gVyI1pInE
+         U/q202NWm2D6Yc9UpsBUIO7HtoXOtlWs356MtBEdxA8DDchllH/bJLBnN5sN6nHRcomI
+         wJiw==
+X-Gm-Message-State: AOAM530yUXk6X/UbHsleW/HCQpCfEy+m7LFcbwDvFDZ5Jkb95PCN22CJ
+        c/3cNtYsetjdDEO7HPrE1lFZjURTHa8F1g==
+X-Google-Smtp-Source: ABdhPJwdsRIrE/TQO0ejvkCL2nr8Sd9rP5PVxKm9ax1wfQaTbSMK/M9xoSwA3TyQjvbXwSsci43mAw==
+X-Received: by 2002:a17:90a:f290:: with SMTP id fs16mr12361596pjb.35.1597669806301;
+        Mon, 17 Aug 2020 06:10:06 -0700 (PDT)
 Received: from ?IPv6:2605:e000:100e:8c61:ff2c:a74f:a461:daa2? ([2605:e000:100e:8c61:ff2c:a74f:a461:daa2])
-        by smtp.gmail.com with ESMTPSA id b22sm20216168pfb.52.2020.08.17.06.07.54
+        by smtp.gmail.com with ESMTPSA id s8sm17589302pju.54.2020.08.17.06.10.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Aug 2020 06:07:54 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: enable lookup of links holding
- inflight files" failed to apply to 5.8-stable tree
-From:   Jens Axboe <axboe@kernel.dk>
-To:     gregkh@linuxfoundation.org, josef.grieb@gmail.com
+        Mon, 17 Aug 2020 06:10:05 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: hold 'ctx' reference around
+ task_work queue +" failed to apply to 5.8-stable tree
+To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org
-References: <159766102815889@kroah.com>
- <bac8dccd-1a06-50a2-729d-8421aed4455d@kernel.dk>
-Message-ID: <0f227a86-52fc-3fbf-12c8-d896466790bf@kernel.dk>
-Date:   Mon, 17 Aug 2020 06:07:53 -0700
+References: <1597661043160117@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <6d363f5c-711c-6953-d417-2f9dfbf3dd7a@kernel.dk>
+Date:   Mon, 17 Aug 2020 06:10:04 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <bac8dccd-1a06-50a2-729d-8421aed4455d@kernel.dk>
+In-Reply-To: <1597661043160117@kroah.com>
 Content-Type: multipart/mixed;
- boundary="------------11970608C9E8A9C8F83BC374"
+ boundary="------------698E952C08759A00E275CA36"
 Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -69,201 +68,97 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------11970608C9E8A9C8F83BC374
+--------------698E952C08759A00E275CA36
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 
-On 8/17/20 6:05 AM, Jens Axboe wrote:
-> On 8/17/20 3:43 AM, gregkh@linuxfoundation.org wrote:
->>
->> The patch below does not apply to the 5.8-stable tree.
->> If someone wants it applied there, or to any other stable or longterm
->> tree, then please email the backport, including the original git commit
->> id to <stable@vger.kernel.org>.
->>
->> thanks,
+On 8/17/20 3:44 AM, gregkh@linuxfoundation.org wrote:
 > 
-> Needs a prep patch, please apply these two (last one being this patch).
+> The patch below does not apply to the 5.8-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Sorry, sent the wrong one, here's the right 2nd patch.
+Here's a 5.8 version.
 
 -- 
 Jens Axboe
 
 
---------------11970608C9E8A9C8F83BC374
+--------------698E952C08759A00E275CA36
 Content-Type: text/x-patch; charset=UTF-8;
- name="0002-io_uring-enable-lookup-of-links-holding-inflight-fil.patch"
+ name="0001-io_uring-hold-ctx-reference-around-task_work-queue-e.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0002-io_uring-enable-lookup-of-links-holding-inflight-fil.pa";
+ filename*0="0001-io_uring-hold-ctx-reference-around-task_work-queue-e.pa";
  filename*1="tch"
 
-From 782e1b66f57b519088539381733412d816016507 Mon Sep 17 00:00:00 2001
+From 4805555b82f6eb78903ee2841ebae13707d9da13 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 12 Aug 2020 17:33:30 -0600
-Subject: [PATCH] io_uring: enable lookup of links holding inflight files
+Date: Tue, 11 Aug 2020 08:04:14 -0600
+Subject: [PATCH] io_uring: hold 'ctx' reference around task_work queue +
+ execute
 
-When a process exits, we cancel whatever requests it has pending that
-are referencing the file table. However, if a link is holding a
-reference, then we cannot find it by simply looking at the inflight
-list.
+We're holding the request reference, but we need to go one higher
+to ensure that the ctx remains valid after the request has finished.
+If the ring is closed with pending task_work inflight, and the
+given io_kiocb finishes sync during issue, then we need a reference
+to the ring itself around the task_work execution cycle.
 
-Enable checking of the poll and timeout list to find the link, and
-cancel it appropriately.
-
-Cc: stable@vger.kernel.org
-Reported-by: Josef <josef.grieb@gmail.com>
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: syzbot+9b260fc33297966f5a8e@syzkaller.appspotmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 97 +++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 87 insertions(+), 10 deletions(-)
+ fs/io_uring.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f81a22178d35..3da73e58759e 100644
+index 3da73e58759e..c7aefd3da135 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4553,6 +4553,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
- 		io_cqring_fill_event(req, -ECANCELED);
- 		io_commit_cqring(req->ctx);
- 		req->flags |= REQ_F_COMP_LOCKED;
-+		req_set_fail_links(req);
- 		io_put_req(req);
+@@ -4141,6 +4141,8 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
+ 	tsk = req->task;
+ 	req->result = mask;
+ 	init_task_work(&req->task_work, func);
++	percpu_ref_get(&req->ctx->refs);
++
+ 	/*
+ 	 * If this fails, then the task is exiting. When a task exits, the
+ 	 * work gets canceled, so just cancel this request as well instead
+@@ -4225,6 +4227,7 @@ static void io_poll_task_handler(struct io_kiocb *req, struct io_kiocb **nxt)
+ static void io_poll_task_func(struct callback_head *cb)
+ {
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
++	struct io_ring_ctx *ctx = req->ctx;
+ 	struct io_kiocb *nxt = NULL;
+ 
+ 	io_poll_task_handler(req, &nxt);
+@@ -4235,6 +4238,7 @@ static void io_poll_task_func(struct callback_head *cb)
+ 		__io_queue_sqe(nxt, NULL);
+ 		mutex_unlock(&ctx->uring_lock);
+ 	}
++	percpu_ref_put(&ctx->refs);
+ }
+ 
+ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
+@@ -4349,6 +4353,7 @@ static void io_async_task_func(struct callback_head *cb)
+ 
+ 	if (io_poll_rewait(req, &apoll->poll)) {
+ 		spin_unlock_irq(&ctx->completion_lock);
++		percpu_ref_put(&ctx->refs);
+ 		return;
  	}
  
-@@ -4726,6 +4727,23 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
- 	return HRTIMER_NORESTART;
+@@ -4387,6 +4392,7 @@ static void io_async_task_func(struct callback_head *cb)
+ 		req_set_fail_links(req);
+ 		io_double_put_req(req);
+ 	}
++	percpu_ref_put(&ctx->refs);
  }
  
-+static int __io_timeout_cancel(struct io_kiocb *req)
-+{
-+	int ret;
-+
-+	list_del_init(&req->list);
-+
-+	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
-+	if (ret == -1)
-+		return -EALREADY;
-+
-+	req_set_fail_links(req);
-+	req->flags |= REQ_F_COMP_LOCKED;
-+	io_cqring_fill_event(req, -ECANCELED);
-+	io_put_req(req);
-+	return 0;
-+}
-+
- static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- {
- 	struct io_kiocb *req;
-@@ -4733,7 +4751,6 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- 
- 	list_for_each_entry(req, &ctx->timeout_list, list) {
- 		if (user_data == req->user_data) {
--			list_del_init(&req->list);
- 			ret = 0;
- 			break;
- 		}
-@@ -4742,15 +4759,7 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
- 	if (ret == -ENOENT)
- 		return ret;
- 
--	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
--	if (ret == -1)
--		return -EALREADY;
--
--	req_set_fail_links(req);
--	req->flags |= REQ_F_COMP_LOCKED;
--	io_cqring_fill_event(req, -ECANCELED);
--	io_put_req(req);
--	return 0;
-+	return __io_timeout_cancel(req);
- }
- 
- static int io_timeout_remove_prep(struct io_kiocb *req,
-@@ -7506,6 +7515,71 @@ static bool io_wq_files_match(struct io_wq_work *work, void *data)
- 	return work->files == files;
- }
- 
-+/*
-+ * Returns true if 'preq' is the link parent of 'req'
-+ */
-+static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
-+{
-+	struct io_kiocb *link;
-+
-+	if (!(preq->flags & REQ_F_LINK_HEAD))
-+		return false;
-+
-+	list_for_each_entry(link, &preq->link_list, link_list) {
-+		if (link == req)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/*
-+ * We're looking to cancel 'req' because it's holding on to our files, but
-+ * 'req' could be a link to another request. See if it is, and cancel that
-+ * parent request if so.
-+ */
-+static bool io_poll_remove_link(struct io_ring_ctx *ctx, struct io_kiocb *req)
-+{
-+	struct hlist_node *tmp;
-+	struct io_kiocb *preq;
-+	bool found = false;
-+	int i;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	for (i = 0; i < (1U << ctx->cancel_hash_bits); i++) {
-+		struct hlist_head *list;
-+
-+		list = &ctx->cancel_hash[i];
-+		hlist_for_each_entry_safe(preq, tmp, list, hash_node) {
-+			found = io_match_link(preq, req);
-+			if (found) {
-+				io_poll_remove_one(preq);
-+				break;
-+			}
-+		}
-+	}
-+	spin_unlock_irq(&ctx->completion_lock);
-+	return found;
-+}
-+
-+static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
-+				   struct io_kiocb *req)
-+{
-+	struct io_kiocb *preq;
-+	bool found = false;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	list_for_each_entry(preq, &ctx->timeout_list, list) {
-+		found = io_match_link(preq, req);
-+		if (found) {
-+			__io_timeout_cancel(preq);
-+			break;
-+		}
-+	}
-+	spin_unlock_irq(&ctx->completion_lock);
-+	return found;
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
-@@ -7563,6 +7637,9 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 			}
- 		} else {
- 			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
-+			/* could be a link, check and remove if it is */
-+			if (!io_poll_remove_link(ctx, cancel_req))
-+				io_timeout_remove_link(ctx, cancel_req);
- 			io_put_req(cancel_req);
- 		}
- 
+ static int io_async_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 -- 
 2.28.0
 
 
---------------11970608C9E8A9C8F83BC374--
+--------------698E952C08759A00E275CA36--
