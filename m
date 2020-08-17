@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0732472B5
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092982472A5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391457AbgHQSqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43588 "EHLO mail.kernel.org"
+        id S1730138AbgHQSpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:45:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388048AbgHQPzx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:55:53 -0400
+        id S2388051AbgHQPzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:55:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E37020882;
-        Mon, 17 Aug 2020 15:55:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87037207FF;
+        Mon, 17 Aug 2020 15:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679751;
-        bh=a2Kv20AJygXJoaR4OPP/5jAv940SoiUnSAZ3rXPGb8s=;
+        s=default; t=1597679754;
+        bh=pajey29gSXI0arRFwJ6hX2XK+ZtRgpb5HmOTMiRFEzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BOSJohO7pr8egLi63UxcLI+f+BOrxpIe88JmbuJkVLjxUr1LVkcFlYy3B7SrrRsT/
-         Xu4mOAsikTA0kIpKSxXHJ2vMMy9sHLKrj+vyr32eTxbdh+pN9v8LmYeE/OHgH1xhvp
-         pOGzEiF1Jeq/nBwCF78+y9ENFF2jz9HEfqLU1VVM=
+        b=M6f6EMFoN/CImELkHg9AwOkpiw5XruNF3A1LoWsCkEQp4urKyj/XYW9w2rLumITQn
+         36re5/9jIcJqb5dqdsSwuwDYaWE1WGwwMTkQBUU6sWafAQY3oNfyRs5TG+L1XG9Sf9
+         XJAB9USyMbckZiuYpKB2ncdkaJ+daeFSQnpKh9PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 291/393] tools, build: Propagate build failures from tools/build/Makefile.build
-Date:   Mon, 17 Aug 2020 17:15:41 +0200
-Message-Id: <20200817143833.738072269@linuxfoundation.org>
+        Tobias Klauser <tklauser@distanz.ch>,
+        Andrii Nakryiko <andriin@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 292/393] tools, bpftool: Fix wrong return value in do_dump()
+Date:   Mon, 17 Aug 2020 17:15:42 +0200
+Message-Id: <20200817143833.786643800@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,49 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit a278f3d8191228212c553a5d4303fa603214b717 ]
+[ Upstream commit 041549b7b2c7811ec40e705c439211f00ade2dda ]
 
-The '&&' command seems to have a bad effect when $(cmd_$(1)) exits with
-non-zero effect: the command failure is masked (despite `set -e`) and all but
-the first command of $(dep-cmd) is executed (successfully, as they are mostly
-printfs), thus overall returning 0 in the end.
+In case of btf_id does not exist, a negative error code -ENOENT
+should be returned.
 
-This means in practice that despite compilation errors, tools's build Makefile
-will return success. We see this very reliably with libbpf's Makefile, which
-doesn't get compilation error propagated properly. This in turns causes issues
-with selftests build, as well as bpftool and other projects that rely on
-building libbpf.
-
-The fix is simple: don't use &&. Given `set -e`, we don't need to chain
-commands with &&. The shell will exit on first failure, giving desired
-behavior and propagating error properly.
-
-Fixes: 275e2d95591e ("tools build: Move dependency copy into function")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Fixes: c93cc69004df3 ("bpftool: add ability to dump BTF types")
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/bpf/20200731024244.872574-1-andriin@fb.com
+Reviewed-by: Tobias Klauser <tklauser@distanz.ch>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20200802111540.5384-1-tianjia.zhang@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Build.include | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/bpf/bpftool/btf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/build/Build.include b/tools/build/Build.include
-index 9ec01f4454f9f..585486e40995b 100644
---- a/tools/build/Build.include
-+++ b/tools/build/Build.include
-@@ -74,7 +74,8 @@ dep-cmd = $(if $(wildcard $(fixdep)),
- #                   dependencies in the cmd file
- if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),         \
-                   @set -e;                                         \
--                  $(echo-cmd) $(cmd_$(1)) && $(dep-cmd))
-+                  $(echo-cmd) $(cmd_$(1));                         \
-+                  $(dep-cmd))
- 
- # if_changed      - execute command if any prerequisite is newer than
- #                   target, or command line has changed
+diff --git a/tools/bpf/bpftool/btf.c b/tools/bpf/bpftool/btf.c
+index bcaf55b594982..81a77475bea61 100644
+--- a/tools/bpf/bpftool/btf.c
++++ b/tools/bpf/bpftool/btf.c
+@@ -597,7 +597,7 @@ static int do_dump(int argc, char **argv)
+ 			goto done;
+ 		}
+ 		if (!btf) {
+-			err = ENOENT;
++			err = -ENOENT;
+ 			p_err("can't find btf with ID (%u)", btf_id);
+ 			goto done;
+ 		}
 -- 
 2.25.1
 
