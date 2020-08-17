@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E783D246944
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DCC524694A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:19:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729145AbgHQPSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        id S1729214AbgHQPTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:19:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729128AbgHQPSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:18:30 -0400
+        id S1729196AbgHQPSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:18:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDFF62065C;
-        Mon, 17 Aug 2020 15:18:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F6C20709;
+        Mon, 17 Aug 2020 15:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677509;
-        bh=3vfQKMttlM0pOTyMoFBwaEXl9k9Q1/ngIocA8s8nfjU=;
+        s=default; t=1597677534;
+        bh=lKORXuK1Vq7++6LFUb5ugaddd/IrZZClPHqLCVvqZtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYpXIQu8ybujXfde4CPcT95hQ6lh5ivUb+KDY5+FQkB724oTUXEb93B82pnQzFWvA
-         n/pC+Vir2VZ1on2V4y99xkRCAe/1QNHRGbAwTrO5NNwdh+ybwUHVe27S5jZ5QLM4yx
-         a9VvZs3Io2+dGwazndkHtfmmGlHosooZmd7jgXQ4=
+        b=RsK4AgVLTuYItUoOFpE2jBtJYBYuKCpNBoQYZ6eMXQIfphb1Ee13gVH5zaP6JB9LW
+         4zx7r43Fm6jrPpfSZ2fDW9CGvpTdYnHXlin1qbixujusFoOCv6ju2VKVEy413C8EHl
+         RjZWYbYRihZ84VOgsHOfEJ+ULJ1rAFRJgVPq5O+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Tim Murray <timmurray@google.com>,
-        Simon MacMullen <simonmacm@google.com>,
-        Greg Hackmann <ghackmann@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.8 001/464] tracepoint: Mark __tracepoint_strings __used
-Date:   Mon, 17 Aug 2020 17:09:14 +0200
-Message-Id: <20200817143833.807083399@linuxfoundation.org>
+        stable@vger.kernel.org, Will Chen <chenwi@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 002/464] kunit: capture stderr on all make subprocess calls
+Date:   Mon, 17 Aug 2020 17:09:15 +0200
+Message-Id: <20200817143833.855845762@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,50 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Will Chen <chenwi@google.com>
 
-commit f3751ad0116fb6881f2c3c957d66a9327f69cefb upstream.
+[ Upstream commit 5a9fcad71caa970f30aef99134a1cd19bc4b8eea ]
 
-__tracepoint_string's have their string data stored in .rodata, and an
-address to that data stored in the "__tracepoint_str" section. Functions
-that refer to those strings refer to the symbol of the address. Compiler
-optimization can replace those address references with references
-directly to the string data. If the address doesn't appear to have other
-uses, then it appears dead to the compiler and is removed. This can
-break the /tracing/printk_formats sysfs node which iterates the
-addresses stored in the "__tracepoint_str" section.
+Direct stderr to subprocess.STDOUT so error messages get included in the
+subprocess.CalledProcessError exceptions output field. This results in
+more meaningful error messages for the user.
 
-Like other strings stored in custom sections in this header, mark these
-__used to inform the compiler that there are other non-obvious users of
-the address, so they should still be emitted.
+This is already being done in the make_allyesconfig method. Do the same
+for make_mrproper, make_olddefconfig, and make methods.
 
-Link: https://lkml.kernel.org/r/20200730224555.2142154-2-ndesaulniers@google.com
+With this, failures on unclean trees [1] will give users an error
+message that includes:
+"The source tree is not clean, please run 'make ARCH=um mrproper'"
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: 102c9323c35a8 ("tracing: Add __tracepoint_string() to export string pointers")
-Reported-by: Tim Murray <timmurray@google.com>
-Reported-by: Simon MacMullen <simonmacm@google.com>
-Suggested-by: Greg Hackmann <ghackmann@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=205219
 
+Signed-off-by: Will Chen <chenwi@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/tracepoint.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/kunit/kunit_kernel.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/tracepoint.h
-+++ b/include/linux/tracepoint.h
-@@ -361,7 +361,7 @@ static inline struct tracepoint *tracepo
- 		static const char *___tp_str __tracepoint_string = str; \
- 		___tp_str;						\
- 	})
--#define __tracepoint_string	__attribute__((section("__tracepoint_str")))
-+#define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
- #else
- /*
-  * tracepoint_string() is used to save the string address for userspace
+diff --git a/tools/testing/kunit/kunit_kernel.py b/tools/testing/kunit/kunit_kernel.py
+index 63dbda2d029f6..e20e2056cb380 100644
+--- a/tools/testing/kunit/kunit_kernel.py
++++ b/tools/testing/kunit/kunit_kernel.py
+@@ -34,7 +34,7 @@ class LinuxSourceTreeOperations(object):
+ 
+ 	def make_mrproper(self):
+ 		try:
+-			subprocess.check_output(['make', 'mrproper'])
++			subprocess.check_output(['make', 'mrproper'], stderr=subprocess.STDOUT)
+ 		except OSError as e:
+ 			raise ConfigError('Could not call make command: ' + e)
+ 		except subprocess.CalledProcessError as e:
+@@ -47,7 +47,7 @@ class LinuxSourceTreeOperations(object):
+ 		if build_dir:
+ 			command += ['O=' + build_dir]
+ 		try:
+-			subprocess.check_output(command, stderr=subprocess.PIPE)
++			subprocess.check_output(command, stderr=subprocess.STDOUT)
+ 		except OSError as e:
+ 			raise ConfigError('Could not call make command: ' + e)
+ 		except subprocess.CalledProcessError as e:
+@@ -77,7 +77,7 @@ class LinuxSourceTreeOperations(object):
+ 		if build_dir:
+ 			command += ['O=' + build_dir]
+ 		try:
+-			subprocess.check_output(command)
++			subprocess.check_output(command, stderr=subprocess.STDOUT)
+ 		except OSError as e:
+ 			raise BuildError('Could not call execute make: ' + e)
+ 		except subprocess.CalledProcessError as e:
+-- 
+2.25.1
+
 
 
