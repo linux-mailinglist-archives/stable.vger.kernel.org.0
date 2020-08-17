@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3384A246C29
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 624A7246CC3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388570AbgHQQLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37854 "EHLO mail.kernel.org"
+        id S1729983AbgHQQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388573AbgHQQKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:50 -0400
+        id S1731141AbgHQQSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:18:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EAFB20658;
-        Mon, 17 Aug 2020 16:10:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16F4F22CA1;
+        Mon, 17 Aug 2020 16:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680650;
-        bh=j6itLwYHs4h1ELFjdN0Ed7FTwV28jLzTzu64XBJ+iL4=;
+        s=default; t=1597681075;
+        bh=vPeBCt8thzFG8GWW6Q01OjtB4q5Va9ZO6h/U/hX0IDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TCwxEav7tookZI4pmwQPyzzRIgSTmRbp4pxVlmNKyU9LK3r69GhKzfs9SetZST3N
-         vXr96kXCAogCk0pyz8aGBkU/DDNwzag0z2mxQ8/HUZLuLZUpPxHqLyxLVrLMkvjelf
-         Bw6RDOsB83JsqbhdjiBIH6y3RZ13K9dFcihtr1R0=
+        b=ZiBSIu8/bC1R/+kqZOBQL9s9fZ01uWb19+sDS5zQWtF9/hW+Dfkb9k7Pe2nfPJLSf
+         39EL6MVYGBQC1kWjh27Dj3NiW62CT+d+ra1K54BfLt+clf8ApjgSiV7j0pXiQMEEr0
+         8SFb6KMxgrAwv2d0A7NPlP0yA0beyUOIRZVqG6JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 260/270] crypto: cpt - dont sleep of CRYPTO_TFM_REQ_MAY_SLEEP was not specified
-Date:   Mon, 17 Aug 2020 17:17:41 +0200
-Message-Id: <20200817143808.769592297@linuxfoundation.org>
+        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
+        kernel test robot <lkp@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 131/168] af_packet: TPACKET_V3: fix fill status rwlock imbalance
+Date:   Mon, 17 Aug 2020 17:17:42 +0200
+Message-Id: <20200817143740.241219751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-commit 9e27c99104707f083dccd3b4d79762859b5a0614 upstream.
+[ Upstream commit 88fd1cb80daa20af063bce81e1fad14e945a8dc4 ]
 
-There is this call chain:
-cvm_encrypt -> cvm_enc_dec -> cptvf_do_request -> process_request -> kzalloc
-where we call sleeping allocator function even if CRYPTO_TFM_REQ_MAY_SLEEP
-was not specified.
+After @blk_fill_in_prog_lock is acquired there is an early out vnet
+situation that can occur. In that case, the rwlock needs to be
+released.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org	# v4.11+
-Fixes: c694b233295b ("crypto: cavium - Add the Virtual Function driver for CPT")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Also, since @blk_fill_in_prog_lock is only acquired when @tp_version
+is exactly TPACKET_V3, only release it on that exact condition as
+well.
+
+And finally, add sparse annotation so that it is clearer that
+prb_fill_curr_block() and prb_clear_blk_fill_status() are acquiring
+and releasing @blk_fill_in_prog_lock, respectively. sparse is still
+unable to understand the balance, but the warnings are now on a
+higher level that make more sense.
+
+Fixes: 632ca50f2cbd ("af_packet: TPACKET_V3: replace busy-wait loop")
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/crypto/cavium/cpt/cptvf_algs.c       |    1 +
- drivers/crypto/cavium/cpt/cptvf_reqmanager.c |   12 ++++++------
- drivers/crypto/cavium/cpt/request_manager.h  |    2 ++
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ net/packet/af_packet.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/cavium/cpt/cptvf_algs.c
-+++ b/drivers/crypto/cavium/cpt/cptvf_algs.c
-@@ -200,6 +200,7 @@ static inline int cvm_enc_dec(struct abl
- 	int status;
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -949,6 +949,7 @@ static int prb_queue_frozen(struct tpack
+ }
  
- 	memset(req_info, 0, sizeof(struct cpt_request_info));
-+	req_info->may_sleep = (req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) != 0;
- 	memset(fctx, 0, sizeof(struct fc_context));
- 	create_input_list(req, enc, enc_iv_len);
- 	create_output_list(req, enc_iv_len);
---- a/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
-+++ b/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
-@@ -133,7 +133,7 @@ static inline int setup_sgio_list(struct
+ static void prb_clear_blk_fill_status(struct packet_ring_buffer *rb)
++	__releases(&pkc->blk_fill_in_prog_lock)
+ {
+ 	struct tpacket_kbdq_core *pkc  = GET_PBDQC_FROM_RB(rb);
+ 	atomic_dec(&pkc->blk_fill_in_prog);
+@@ -996,6 +997,7 @@ static void prb_fill_curr_block(char *cu
+ 				struct tpacket_kbdq_core *pkc,
+ 				struct tpacket_block_desc *pbd,
+ 				unsigned int len)
++	__acquires(&pkc->blk_fill_in_prog_lock)
+ {
+ 	struct tpacket3_hdr *ppd;
  
- 	/* Setup gather (input) components */
- 	g_sz_bytes = ((req->incnt + 3) / 4) * sizeof(struct sglist_component);
--	info->gather_components = kzalloc(g_sz_bytes, GFP_KERNEL);
-+	info->gather_components = kzalloc(g_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->gather_components) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -150,7 +150,7 @@ static inline int setup_sgio_list(struct
+@@ -2272,8 +2274,11 @@ static int tpacket_rcv(struct sk_buff *s
+ 	if (do_vnet &&
+ 	    virtio_net_hdr_from_skb(skb, h.raw + macoff -
+ 				    sizeof(struct virtio_net_hdr),
+-				    vio_le(), true, 0))
++				    vio_le(), true, 0)) {
++		if (po->tp_version == TPACKET_V3)
++			prb_clear_blk_fill_status(&po->rx_ring);
+ 		goto drop_n_account;
++	}
  
- 	/* Setup scatter (output) components */
- 	s_sz_bytes = ((req->outcnt + 3) / 4) * sizeof(struct sglist_component);
--	info->scatter_components = kzalloc(s_sz_bytes, GFP_KERNEL);
-+	info->scatter_components = kzalloc(s_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->scatter_components) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -167,7 +167,7 @@ static inline int setup_sgio_list(struct
- 
- 	/* Create and initialize DPTR */
- 	info->dlen = g_sz_bytes + s_sz_bytes + SG_LIST_HDR_SIZE;
--	info->in_buffer = kzalloc(info->dlen, GFP_KERNEL);
-+	info->in_buffer = kzalloc(info->dlen, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->in_buffer) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -195,7 +195,7 @@ static inline int setup_sgio_list(struct
+ 	if (po->tp_version <= TPACKET_V2) {
+ 		packet_increment_rx_head(po, &po->rx_ring);
+@@ -2379,7 +2384,7 @@ static int tpacket_rcv(struct sk_buff *s
+ 		__clear_bit(slot_id, po->rx_ring.rx_owner_map);
+ 		spin_unlock(&sk->sk_receive_queue.lock);
+ 		sk->sk_data_ready(sk);
+-	} else {
++	} else if (po->tp_version == TPACKET_V3) {
+ 		prb_clear_blk_fill_status(&po->rx_ring);
  	}
- 
- 	/* Create and initialize RPTR */
--	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, GFP_KERNEL);
-+	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->out_buffer) {
- 		ret = -ENOMEM;
- 		goto scatter_gather_clean;
-@@ -421,7 +421,7 @@ int process_request(struct cpt_vf *cptvf
- 	struct cpt_vq_command vq_cmd;
- 	union cpt_inst_s cptinst;
- 
--	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	info = kzalloc(sizeof(*info), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (unlikely(!info)) {
- 		dev_err(&pdev->dev, "Unable to allocate memory for info_buffer\n");
- 		return -ENOMEM;
-@@ -443,7 +443,7 @@ int process_request(struct cpt_vf *cptvf
- 	 * Get buffer for union cpt_res_s response
- 	 * structure and its physical address
- 	 */
--	info->completion_addr = kzalloc(sizeof(union cpt_res_s), GFP_KERNEL);
-+	info->completion_addr = kzalloc(sizeof(union cpt_res_s), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (unlikely(!info->completion_addr)) {
- 		dev_err(&pdev->dev, "Unable to allocate memory for completion_addr\n");
- 		ret = -ENOMEM;
---- a/drivers/crypto/cavium/cpt/request_manager.h
-+++ b/drivers/crypto/cavium/cpt/request_manager.h
-@@ -62,6 +62,8 @@ struct cpt_request_info {
- 	union ctrl_info ctrl; /* User control information */
- 	struct cptvf_request req; /* Request Information (Core specific) */
- 
-+	bool may_sleep;
-+
- 	struct buf_ptr in[MAX_BUF_CNT];
- 	struct buf_ptr out[MAX_BUF_CNT];
  
 
 
