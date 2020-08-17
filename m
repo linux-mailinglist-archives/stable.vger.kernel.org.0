@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B0C246B2F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C541246A37
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730878AbgHQPua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34422 "EHLO mail.kernel.org"
+        id S1730308AbgHQPcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730773AbgHQPuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:06 -0400
+        id S1730065AbgHQPcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:32:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C75112245C;
-        Mon, 17 Aug 2020 15:49:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0430B22D00;
+        Mon, 17 Aug 2020 15:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679398;
-        bh=EGmXluOUHO25U06vCs4b8FJqku0OIik3wXzBz25SqUo=;
+        s=default; t=1597678327;
+        bh=PEIF5s5bOK0Rz4QWL+fmZFTs5nPWRTg7RKyh87EV3ZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jMnGfXpOOgOpGwU40FzmhZR34XKatGyPj0hwZnYFX9YQzdqZea44PIcdJCQNpbCX1
-         xcFWce0NFocW3pK+1jVfPTDQB/8y+hL76Zv5aTIDV7ujdqHKwMu55u54lj9R7fuZkQ
-         loUMfma34vx2qGJ57Y1u4HPw8xoDeIu/3gbha9jI=
+        b=RORcg7bQ4rCkmj1Z5Xl3XTvgxnEF17Lsxz5EYVhc6NawkcMVZcrKzkw/Gb4thIqZu
+         vE6akshZb/4H2O8ZLSV5BmKGQTBXf6u9AZWWNfBD3SpD5/lkdaBD+RofdsYRwRkeQe
+         4PvyATr141+smrQFRWswqoYjqUCkx1a6Hc9JSMMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 198/393] drm/bridge: sil_sii8620: initialize return of sii8620_readb
-Date:   Mon, 17 Aug 2020 17:14:08 +0200
-Message-Id: <20200817143829.227122165@linuxfoundation.org>
+Subject: [PATCH 5.8 296/464] macintosh/via-macii: Access autopoll_devs when inside lock
+Date:   Mon, 17 Aug 2020 17:14:09 +0200
+Message-Id: <20200817143847.961540513@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
+References: <20200817143833.737102804@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 02cd2d3144653e6e2a0c7ccaa73311e48e2dc686 ]
+[ Upstream commit 59ea38f6b3af5636edf541768a1ed721eeaca99e ]
 
-clang static analysis flags this error
+The interrupt handler should be excluded when accessing the autopoll_devs
+variable.
 
-sil-sii8620.c:184:2: warning: Undefined or garbage value
-  returned to caller [core.uninitialized.UndefReturn]
-        return ret;
-        ^~~~~~~~~~
-
-sii8620_readb calls sii8620_read_buf.
-sii8620_read_buf can return without setting its output
-pararmeter 'ret'.
-
-So initialize ret.
-
-Fixes: ce6e153f414a ("drm/bridge: add Silicon Image SiI8620 driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200712152453.27510-1-trix@redhat.com
+Fixes: d95fd5fce88f0 ("m68k: Mac II ADB fixes") # v5.0+
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/5952dd8a9bc9de90f1acc4790c51dd42b4c98065.1593318192.git.fthain@telegraphics.com.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/macintosh/via-macii.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index 92acd336aa894..ca98133411aab 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -178,7 +178,7 @@ static void sii8620_read_buf(struct sii8620 *ctx, u16 addr, u8 *buf, int len)
+diff --git a/drivers/macintosh/via-macii.c b/drivers/macintosh/via-macii.c
+index ac824d7b2dcfc..6aa903529570d 100644
+--- a/drivers/macintosh/via-macii.c
++++ b/drivers/macintosh/via-macii.c
+@@ -270,15 +270,12 @@ static int macii_autopoll(int devs)
+ 	unsigned long flags;
+ 	int err = 0;
  
- static u8 sii8620_readb(struct sii8620 *ctx, u16 addr)
- {
--	u8 ret;
-+	u8 ret = 0;
++	local_irq_save(flags);
++
+ 	/* bit 1 == device 1, and so on. */
+ 	autopoll_devs = devs & 0xFFFE;
  
- 	sii8620_read_buf(ctx, addr, &ret, 1);
- 	return ret;
+-	if (!autopoll_devs)
+-		return 0;
+-
+-	local_irq_save(flags);
+-
+-	if (current_req == NULL) {
++	if (autopoll_devs && !current_req) {
+ 		/* Send a Talk Reg 0. The controller will repeatedly transmit
+ 		 * this as long as it is idle.
+ 		 */
 -- 
 2.25.1
 
