@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7405247719
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD24424771B
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404356AbgHQTpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S1729400AbgHQTpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:45:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729426AbgHQPWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:22:25 -0400
+        id S1729418AbgHQPWH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:22:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 821202311A;
-        Mon, 17 Aug 2020 15:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6500422D75;
+        Mon, 17 Aug 2020 15:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677744;
-        bh=KNcgXN6WTnCYqd9oKfbJ81GTNU4+cy6iXLByrlnl1yY=;
+        s=default; t=1597677727;
+        bh=pheYLl1F1b+RkUaS318nzLCRhq4G0ZZVeOC/26y6vwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxYfUljkpWfIIB89JJFJ++0e8cApPduvZ8H07HDZjsYQUM+SygcShPv7pqgGUUxmA
-         GGAB0V+T1qT/1urzPWfmry/kF3tdKYdhdhAtOOLWnfaxTv6vixe2YLoqgWF+M7wqtg
-         GVJh0KgBmUtGjqT+RVfjuntrQhyJFUFYIMjBHYa4=
+        b=t5aaE4TQw1AWDuvBIe8wKdWSu/0O5p8s2iG3QKpRzDAR/lEmVQGlzg1v9eT3fhLqZ
+         M51HHvcybtNFqlgGoVv1VbthDbqvlvko1LLvQb/+dY5a1sgoCQbyVX5ygbNWu3vLZX
+         CDXD31hmBtvMTl03HsBhZtmhhJM0AJN8AGzsMS6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
-        Wen Yang <wenyang@linux.alibaba.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 051/464] regulator: fix memory leak on error path of regulator_register()
-Date:   Mon, 17 Aug 2020 17:10:04 +0200
-Message-Id: <20200817143836.203674514@linuxfoundation.org>
+Subject: [PATCH 5.8 055/464] soc: qcom: pdr: Reorder the PD state indication ack
+Date:   Mon, 17 Aug 2020 17:10:08 +0200
+Message-Id: <20200817143836.397478153@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,114 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vz@mleia.com>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit 9177514ce34902b3adb2abd490b6ad05d1cfcb43 ]
+[ Upstream commit 72fe996f9643043c8f84e32c0610975b01aa555b ]
 
-The change corrects registration and deregistration on error path
-of a regulator, the problem was manifested by a reported memory
-leak on deferred probe:
+The Protection Domains (PD) have a mechanism to keep its resources
+enabled until the PD down indication is acked. Reorder the PD state
+indication ack so that clients get to release the relevant resources
+before the PD goes down.
 
-    as3722-regulator as3722-regulator: regulator 13 register failed -517
-
-    # cat /sys/kernel/debug/kmemleak
-    unreferenced object 0xecc43740 (size 64):
-      comm "swapper/0", pid 1, jiffies 4294937640 (age 712.880s)
-      hex dump (first 32 bytes):
-        72 65 67 75 6c 61 74 6f 72 2e 32 34 00 5a 5a 5a  regulator.24.ZZZ
-        5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-      backtrace:
-        [<0c4c3d1c>] __kmalloc_track_caller+0x15c/0x2c0
-        [<40c0ad48>] kvasprintf+0x64/0xd4
-        [<109abd29>] kvasprintf_const+0x70/0x84
-        [<c4215946>] kobject_set_name_vargs+0x34/0xa8
-        [<62282ea2>] dev_set_name+0x40/0x64
-        [<a39b6757>] regulator_register+0x3a4/0x1344
-        [<16a9543f>] devm_regulator_register+0x4c/0x84
-        [<51a4c6a1>] as3722_regulator_probe+0x294/0x754
-        ...
-
-The memory leak problem was introduced as a side ef another fix in
-regulator_register() error path, I believe that the proper fix is
-to decouple device_register() function into its two compounds and
-initialize a struct device before assigning any values to its fields
-and then using it before actual registration of a device happens.
-
-This lets to call put_device() safely after initialization, and, since
-now a release callback is called, kfree(rdev->constraints) shall be
-removed to exclude a double free condition.
-
-Fixes: a3cde9534ebd ("regulator: core: fix regulator_register() error paths to properly release rdev")
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Wen Yang <wenyang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20200724005013.23278-1-vz@mleia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
+Reported-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200701195954.9007-1-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ drivers/soc/qcom/pdr_interface.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 03154f5b939f7..720f28844795b 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5023,7 +5023,6 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	struct regulator_dev *rdev;
- 	bool dangling_cfg_gpiod = false;
- 	bool dangling_of_gpiod = false;
--	bool reg_device_fail = false;
- 	struct device *dev;
- 	int ret, i;
+diff --git a/drivers/soc/qcom/pdr_interface.c b/drivers/soc/qcom/pdr_interface.c
+index bdcf16f88a97f..4c9225f15c4e6 100644
+--- a/drivers/soc/qcom/pdr_interface.c
++++ b/drivers/soc/qcom/pdr_interface.c
+@@ -278,13 +278,15 @@ static void pdr_indack_work(struct work_struct *work)
  
-@@ -5152,10 +5151,12 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	}
+ 	list_for_each_entry_safe(ind, tmp, &pdr->indack_list, node) {
+ 		pds = ind->pds;
+-		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
  
- 	/* register with sysfs */
-+	device_initialize(&rdev->dev);
- 	rdev->dev.class = &regulator_class;
- 	rdev->dev.parent = dev;
- 	dev_set_name(&rdev->dev, "regulator.%lu",
- 		    (unsigned long) atomic_inc_return(&regulator_no));
-+	dev_set_drvdata(&rdev->dev, rdev);
+ 		mutex_lock(&pdr->status_lock);
+ 		pds->state = ind->curr_state;
+ 		pdr->status(pds->state, pds->service_path, pdr->priv);
+ 		mutex_unlock(&pdr->status_lock);
  
- 	/* set regulator constraints */
- 	if (init_data)
-@@ -5206,12 +5207,9 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	    !rdev->desc->fixed_uV)
- 		rdev->is_switch = true;
- 
--	dev_set_drvdata(&rdev->dev, rdev);
--	ret = device_register(&rdev->dev);
--	if (ret != 0) {
--		reg_device_fail = true;
-+	ret = device_add(&rdev->dev);
-+	if (ret != 0)
- 		goto unset_supplies;
--	}
- 
- 	rdev_init_debugfs(rdev);
- 
-@@ -5233,17 +5231,15 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	mutex_unlock(&regulator_list_mutex);
- wash:
- 	kfree(rdev->coupling_desc.coupled_rdevs);
--	kfree(rdev->constraints);
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
- 	mutex_unlock(&regulator_list_mutex);
-+	put_device(&rdev->dev);
-+	rdev = NULL;
- clean:
- 	if (dangling_of_gpiod)
- 		gpiod_put(config->ena_gpiod);
--	if (reg_device_fail)
--		put_device(&rdev->dev);
--	else
--		kfree(rdev);
-+	kfree(rdev);
- 	kfree(config);
- rinse:
- 	if (dangling_cfg_gpiod)
++		/* Ack the indication after clients release the PD resources */
++		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
++
+ 		mutex_lock(&pdr->list_lock);
+ 		list_del(&ind->node);
+ 		mutex_unlock(&pdr->list_lock);
 -- 
 2.25.1
 
