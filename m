@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F7E2469C0
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB672469C3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729746AbgHQPZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59868 "EHLO mail.kernel.org"
+        id S1729758AbgHQPZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729456AbgHQPZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:25:33 -0400
+        id S1729751AbgHQPZs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:25:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ECF02053B;
-        Mon, 17 Aug 2020 15:25:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 036C82333B;
+        Mon, 17 Aug 2020 15:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677933;
-        bh=y++K4L8lsUhHLOP4E6b9FyypC8XKvr/3Uarqcsdcx08=;
+        s=default; t=1597677947;
+        bh=1XFPFE0sJKoxL1C0uECPNsIw+Kvaz1aUejOSXQzcn50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIYvhsl+Glyybt0XvyYB/UhljBb92K8OG7r8OOa/2wFPj8m74PYp7fCAt8GwyIIQx
-         XyCIbR1wtHhKxc3k9kNrzqIjA+F/7VGjkLSl88RL0PM4WV3vuAQOZOaIbayWkdkKXQ
-         hpjuZGjiEioyFgNzkVsF0J+A2HviCE74WAnKmuyg=
+        b=0tHjlpm2MqFMmQWXhryJKkVjCvTZ9hzzLDG93u2QhxYjhY8pA7QJTzoVaAhjWCsZw
+         zYNE9jV0yXumY9RaYTnwg8aydQBfgblJ2zewFJK5GkcISgBQ1vxNai83cnnNYcmp2n
+         yM6RE2Zvwhl6qqet8nu2iYsQuuRD3E16gMEaMbYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 161/464] scsi: ufs: Fix imprecise load calculation in devfreq window
-Date:   Mon, 17 Aug 2020 17:11:54 +0200
-Message-Id: <20200817143841.521215260@linuxfoundation.org>
+Subject: [PATCH 5.8 166/464] powerpc/mm: Fix typo in IS_ENABLED()
+Date:   Mon, 17 Aug 2020 17:11:59 +0200
+Message-Id: <20200817143841.765738351@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,122 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit b1bf66d1d5a8fcb54f0e584db5d196ef015b5172 ]
+[ Upstream commit 55bd9ac468397c4f12a33b7ec714b5d0362c3aa2 ]
 
-The UFS load calculation is based on "total_time" and "busy_time" in a
-devfreq window.  However, the source of time is different for both
-parameters: "busy_time" is assigned from "jiffies" thus has different
-accuracy from "total_time" which is assigned from ktime_get().
+IS_ENABLED() matches names exactly, so the missing "CONFIG_" prefix
+means this code would never be built.
 
-In addition, the time of window boundary is not exactly the same as the
-starting busy time in this window if UFS is actually busy in the beginning
-of the window. A similar accuracy error may also happen for the end of busy
-time in current window.
+Also fixes a missing newline in pr_warn().
 
-To guarantee the precision of load calculation, we need to
-
-1. Align time accuracy of both devfreq_dev_status.total_time and
-   devfreq_dev_status.busy_time. For example, use "ktime_get()" directly.
-
-2. Align the following timelines:
-   - The beginning time of devfreq windows
-   - The beginning of busy time in a new window
-   - The end of busy time in the current window
-
-Link: https://lore.kernel.org/r/20200611101043.6379-1-stanley.chu@mediatek.com
-Fixes: a3cd5ec55f6c ("scsi: ufs: add load based scaling of UFS gear")
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 970d54f99cea ("powerpc/book3s64/hash: Disable 16M linear mapping size if not aligned")
+Signed-off-by: Joe Perches <joe@perches.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/202006050717.A2F9809E@keescook
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 18 ++++++++++--------
- drivers/scsi/ufs/ufshcd.h |  2 +-
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ arch/powerpc/mm/book3s64/hash_utils.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a483c0720a0c1..ec93bec8e78d8 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1314,6 +1314,7 @@ static int ufshcd_devfreq_get_dev_status(struct device *dev,
- 	unsigned long flags;
- 	struct list_head *clk_list = &hba->clk_list_head;
- 	struct ufs_clk_info *clki;
-+	ktime_t curr_t;
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 9b9f92ad0e7ab..3d5c9092feb19 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -663,11 +663,10 @@ static void __init htab_init_page_sizes(void)
+ 		 * Pick a size for the linear mapping. Currently, we only
+ 		 * support 16M, 1M and 4K which is the default
+ 		 */
+-		if (IS_ENABLED(STRICT_KERNEL_RWX) &&
++		if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX) &&
+ 		    (unsigned long)_stext % 0x1000000) {
+ 			if (mmu_psize_defs[MMU_PAGE_16M].shift)
+-				pr_warn("Kernel not 16M aligned, "
+-					"disabling 16M linear map alignment");
++				pr_warn("Kernel not 16M aligned, disabling 16M linear map alignment\n");
+ 			aligned = false;
+ 		}
  
- 	if (!ufshcd_is_clkscaling_supported(hba))
- 		return -EINVAL;
-@@ -1321,6 +1322,7 @@ static int ufshcd_devfreq_get_dev_status(struct device *dev,
- 	memset(stat, 0, sizeof(*stat));
- 
- 	spin_lock_irqsave(hba->host->host_lock, flags);
-+	curr_t = ktime_get();
- 	if (!scaling->window_start_t)
- 		goto start_window;
- 
-@@ -1332,18 +1334,17 @@ static int ufshcd_devfreq_get_dev_status(struct device *dev,
- 	 */
- 	stat->current_frequency = clki->curr_freq;
- 	if (scaling->is_busy_started)
--		scaling->tot_busy_t += ktime_to_us(ktime_sub(ktime_get(),
--					scaling->busy_start_t));
-+		scaling->tot_busy_t += ktime_us_delta(curr_t,
-+				scaling->busy_start_t);
- 
--	stat->total_time = jiffies_to_usecs((long)jiffies -
--				(long)scaling->window_start_t);
-+	stat->total_time = ktime_us_delta(curr_t, scaling->window_start_t);
- 	stat->busy_time = scaling->tot_busy_t;
- start_window:
--	scaling->window_start_t = jiffies;
-+	scaling->window_start_t = curr_t;
- 	scaling->tot_busy_t = 0;
- 
- 	if (hba->outstanding_reqs) {
--		scaling->busy_start_t = ktime_get();
-+		scaling->busy_start_t = curr_t;
- 		scaling->is_busy_started = true;
- 	} else {
- 		scaling->busy_start_t = 0;
-@@ -1877,6 +1878,7 @@ static void ufshcd_exit_clk_gating(struct ufs_hba *hba)
- static void ufshcd_clk_scaling_start_busy(struct ufs_hba *hba)
- {
- 	bool queue_resume_work = false;
-+	ktime_t curr_t = ktime_get();
- 
- 	if (!ufshcd_is_clkscaling_supported(hba))
- 		return;
-@@ -1892,13 +1894,13 @@ static void ufshcd_clk_scaling_start_busy(struct ufs_hba *hba)
- 			   &hba->clk_scaling.resume_work);
- 
- 	if (!hba->clk_scaling.window_start_t) {
--		hba->clk_scaling.window_start_t = jiffies;
-+		hba->clk_scaling.window_start_t = curr_t;
- 		hba->clk_scaling.tot_busy_t = 0;
- 		hba->clk_scaling.is_busy_started = false;
- 	}
- 
- 	if (!hba->clk_scaling.is_busy_started) {
--		hba->clk_scaling.busy_start_t = ktime_get();
-+		hba->clk_scaling.busy_start_t = curr_t;
- 		hba->clk_scaling.is_busy_started = true;
- 	}
- }
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index bf97d616e597c..16187be98a94c 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -411,7 +411,7 @@ struct ufs_saved_pwr_info {
- struct ufs_clk_scaling {
- 	int active_reqs;
- 	unsigned long tot_busy_t;
--	unsigned long window_start_t;
-+	ktime_t window_start_t;
- 	ktime_t busy_start_t;
- 	struct device_attribute enable_attr;
- 	struct ufs_saved_pwr_info saved_pwr_info;
 -- 
 2.25.1
 
