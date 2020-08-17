@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80AB524764E
+	by mail.lfdr.de (Postfix) with ESMTP id 069D924764D
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392125AbgHQTf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:35:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46616 "EHLO mail.kernel.org"
+        id S1732308AbgHQTfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:35:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730066AbgHQP3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:29:09 -0400
+        id S1730068AbgHQP3L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:29:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B79B23C30;
-        Mon, 17 Aug 2020 15:29:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B14A23110;
+        Mon, 17 Aug 2020 15:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678148;
-        bh=J3j1CAeF/HlRbP998WeR/N6nIfOh7ODeCHCssqEivms=;
+        s=default; t=1597678150;
+        bh=L0Qb6iWSC9f8uqPcyvIxwgiepdf1g4/2ZxUmL2djvjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVPTntcJ6jzQEPhAVp955DUn0663oZEWqsxZE8OXXIJoxqV5q2LuTNIKWfH+Ykizw
-         MqM8a+iOg1/D/Y13BvDkOLd4LAgQa1LtOxS5rj6XBQNARYGouXnEd9b0aTz5XTNPqG
-         hUDbbfrc2K3AhMkLchoWpjLakpXyIE8Q+r7q/U9Y=
+        b=Dr64GM/mg8pzs48hgzgw9TuDQq/FdwjEgsBbBAM1aRXCoXPi17Vst7nV9pqDSIcBO
+         1pbwBYPPtBCD1kmkVlkPspc1xphfInkzw5myoljovbhVx2a9U9waFGwcLC01jyoG6V
+         MqNfYoQGXjwtAqAWGWbaIuP/e9F+GD9wE82VGkEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
-        Yuval Basson <ybason@marvell.com>,
+        stable@vger.kernel.org, Yuval Bason <yuval.bason@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 235/464] RDMA/qedr: SRQs bug fixes
-Date:   Mon, 17 Aug 2020 17:13:08 +0200
-Message-Id: <20200817143845.055654406@linuxfoundation.org>
+Subject: [PATCH 5.8 236/464] RDMA/qedr: Add EDPM mode type for user-fw compatibility
+Date:   Mon, 17 Aug 2020 17:13:09 +0200
+Message-Id: <20200817143845.103317410@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,113 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuval Basson <ybason@marvell.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit acca72e2b031b9fbb4184511072bd246a0abcebc ]
+[ Upstream commit bbe4f4245271bd0f21bf826996c0c5d87a3529c9 ]
 
-QP's with the same SRQ, working on different CQs and running in parallel
-on different CPUs could lead to a race when maintaining the SRQ consumer
-count, and leads to FW running out of SRQs. Update the consumer
-atomically.  Make sure the wqe_prod is updated after the sge_prod due to
-FW requirements.
+In older FW versions the completion flag was treated as the ack flag in
+edpm messages.  commit ff937b916eb6 ("qed: Add EDPM mode type for user-fw
+compatibility") exposed the FW option of setting which mode the QP is in
+by adding a flag to the qedr <-> qed API.
 
-Fixes: 3491c9e799fb ("qedr: Add support for kernel mode SRQ's")
-Link: https://lore.kernel.org/r/20200708195526.31040-1-ybason@marvell.com
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Yuval Basson <ybason@marvell.com>
+This patch adds the qedr <-> libqedr interface so that the libqedr can set
+the flag appropriately and qedr can pass it down to FW.  Flag is added for
+backward compatibility with libqedr.
+
+For older libs, this flag didn't exist and therefore set to zero.
+
+Fixes: ac1b36e55a51 ("qedr: Add support for user context verbs")
+Link: https://lore.kernel.org/r/20200707063100.3811-2-michal.kalderon@marvell.com
+Signed-off-by: Yuval Bason <yuval.bason@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/qedr.h  |  4 ++--
- drivers/infiniband/hw/qedr/verbs.c | 22 ++++++++++------------
- 2 files changed, 12 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/qedr/qedr.h  |  1 +
+ drivers/infiniband/hw/qedr/verbs.c | 11 ++++++++---
+ include/uapi/rdma/qedr-abi.h       |  4 ++--
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/infiniband/hw/qedr/qedr.h b/drivers/infiniband/hw/qedr/qedr.h
-index fdf90ecb26990..aa332027da868 100644
+index aa332027da868..460292179b327 100644
 --- a/drivers/infiniband/hw/qedr/qedr.h
 +++ b/drivers/infiniband/hw/qedr/qedr.h
-@@ -344,10 +344,10 @@ struct qedr_srq_hwq_info {
- 	u32 wqe_prod;
- 	u32 sge_prod;
- 	u32 wr_prod_cnt;
--	u32 wr_cons_cnt;
-+	atomic_t wr_cons_cnt;
- 	u32 num_elems;
- 
--	u32 *virt_prod_pair_addr;
-+	struct rdma_srq_producers *virt_prod_pair_addr;
- 	dma_addr_t phy_prod_pair_addr;
+@@ -235,6 +235,7 @@ struct qedr_ucontext {
+ 	u32 dpi_size;
+ 	u16 dpi;
+ 	bool db_rec;
++	u8 edpm_mode;
  };
  
+ union db_prod32 {
 diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 9b9e802663674..c6355e369a3a3 100644
+index c6355e369a3a3..bddd85e1c8c77 100644
 --- a/drivers/infiniband/hw/qedr/verbs.c
 +++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -3686,7 +3686,7 @@ static u32 qedr_srq_elem_left(struct qedr_srq_hwq_info *hw_srq)
- 	 * count and consumer count and subtract it from max
- 	 * work request supported so that we get elements left.
- 	 */
--	used = hw_srq->wr_prod_cnt - hw_srq->wr_cons_cnt;
-+	used = hw_srq->wr_prod_cnt - (u32)atomic_read(&hw_srq->wr_cons_cnt);
- 
- 	return hw_srq->max_wr - used;
- }
-@@ -3701,7 +3701,6 @@ int qedr_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
- 	unsigned long flags;
- 	int status = 0;
- 	u32 num_sge;
--	u32 offset;
- 
- 	spin_lock_irqsave(&srq->lock, flags);
- 
-@@ -3714,7 +3713,8 @@ int qedr_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
- 		if (!qedr_srq_elem_left(hw_srq) ||
- 		    wr->num_sge > srq->hw_srq.max_sges) {
- 			DP_ERR(dev, "Can't post WR  (%d,%d) || (%d > %d)\n",
--			       hw_srq->wr_prod_cnt, hw_srq->wr_cons_cnt,
-+			       hw_srq->wr_prod_cnt,
-+			       atomic_read(&hw_srq->wr_cons_cnt),
- 			       wr->num_sge, srq->hw_srq.max_sges);
- 			status = -ENOMEM;
- 			*bad_wr = wr;
-@@ -3748,22 +3748,20 @@ int qedr_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
- 			hw_srq->sge_prod++;
+@@ -275,7 +275,8 @@ int qedr_alloc_ucontext(struct ib_ucontext *uctx, struct ib_udata *udata)
+ 			DP_ERR(dev, "Problem copying data from user space\n");
+ 			return -EFAULT;
  		}
- 
--		/* Flush WQE and SGE information before
-+		/* Update WQE and SGE information before
- 		 * updating producer.
- 		 */
--		wmb();
-+		dma_wmb();
- 
- 		/* SRQ producer is 8 bytes. Need to update SGE producer index
- 		 * in first 4 bytes and need to update WQE producer in
- 		 * next 4 bytes.
- 		 */
--		*srq->hw_srq.virt_prod_pair_addr = hw_srq->sge_prod;
--		offset = offsetof(struct rdma_srq_producers, wqe_prod);
--		*((u8 *)srq->hw_srq.virt_prod_pair_addr + offset) =
--			hw_srq->wqe_prod;
-+		srq->hw_srq.virt_prod_pair_addr->sge_prod = hw_srq->sge_prod;
-+		/* Make sure sge producer is updated first */
-+		dma_wmb();
-+		srq->hw_srq.virt_prod_pair_addr->wqe_prod = hw_srq->wqe_prod;
- 
--		/* Flush producer after updating it. */
--		wmb();
- 		wr = wr->next;
+-
++		ctx->edpm_mode = !!(ureq.context_flags &
++				    QEDR_ALLOC_UCTX_EDPM_MODE);
+ 		ctx->db_rec = !!(ureq.context_flags & QEDR_ALLOC_UCTX_DB_REC);
  	}
  
-@@ -4182,7 +4180,7 @@ static int process_resp_one_srq(struct qedr_dev *dev, struct qedr_qp *qp,
- 	} else {
- 		__process_resp_one(dev, qp, cq, wc, resp, wr_id);
- 	}
--	srq->hw_srq.wr_cons_cnt++;
-+	atomic_inc(&srq->hw_srq.wr_cons_cnt);
+@@ -316,7 +317,8 @@ int qedr_alloc_ucontext(struct ib_ucontext *uctx, struct ib_udata *udata)
+ 		uresp.dpm_flags = QEDR_DPM_TYPE_IWARP_LEGACY;
+ 	else
+ 		uresp.dpm_flags = QEDR_DPM_TYPE_ROCE_ENHANCED |
+-				  QEDR_DPM_TYPE_ROCE_LEGACY;
++				  QEDR_DPM_TYPE_ROCE_LEGACY |
++				  QEDR_DPM_TYPE_ROCE_EDPM_MODE;
  
- 	return 1;
- }
+ 	uresp.dpm_flags |= QEDR_DPM_SIZES_SET;
+ 	uresp.ldpm_limit_size = QEDR_LDPM_MAX_SIZE;
+@@ -1750,7 +1752,7 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
+ 	struct qed_rdma_create_qp_out_params out_params;
+ 	struct qedr_pd *pd = get_qedr_pd(ibpd);
+ 	struct qedr_create_qp_uresp uresp;
+-	struct qedr_ucontext *ctx = NULL;
++	struct qedr_ucontext *ctx = pd ? pd->uctx : NULL;
+ 	struct qedr_create_qp_ureq ureq;
+ 	int alloc_and_init = rdma_protocol_roce(&dev->ibdev, 1);
+ 	int rc = -EINVAL;
+@@ -1788,6 +1790,9 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
+ 		in_params.rq_pbl_ptr = qp->urq.pbl_tbl->pa;
+ 	}
+ 
++	if (ctx)
++		SET_FIELD(in_params.flags, QED_ROCE_EDPM_MODE, ctx->edpm_mode);
++
+ 	qp->qed_qp = dev->ops->rdma_create_qp(dev->rdma_ctx,
+ 					      &in_params, &out_params);
+ 
+diff --git a/include/uapi/rdma/qedr-abi.h b/include/uapi/rdma/qedr-abi.h
+index a0b83c9d4498b..b261c9fca07bb 100644
+--- a/include/uapi/rdma/qedr-abi.h
++++ b/include/uapi/rdma/qedr-abi.h
+@@ -39,7 +39,7 @@
+ 
+ /* user kernel communication data structures. */
+ enum qedr_alloc_ucontext_flags {
+-	QEDR_ALLOC_UCTX_RESERVED	= 1 << 0,
++	QEDR_ALLOC_UCTX_EDPM_MODE	= 1 << 0,
+ 	QEDR_ALLOC_UCTX_DB_REC		= 1 << 1
+ };
+ 
+@@ -56,7 +56,7 @@ enum qedr_rdma_dpm_type {
+ 	QEDR_DPM_TYPE_ROCE_ENHANCED	= 1 << 0,
+ 	QEDR_DPM_TYPE_ROCE_LEGACY	= 1 << 1,
+ 	QEDR_DPM_TYPE_IWARP_LEGACY	= 1 << 2,
+-	QEDR_DPM_TYPE_RESERVED		= 1 << 3,
++	QEDR_DPM_TYPE_ROCE_EDPM_MODE	= 1 << 3,
+ 	QEDR_DPM_SIZES_SET		= 1 << 4,
+ };
+ 
 -- 
 2.25.1
 
