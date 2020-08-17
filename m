@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA45246AA2
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DFE246AA9
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387449AbgHQPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48136 "EHLO mail.kernel.org"
+        id S1730660AbgHQPkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730486AbgHQPjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:39:35 -0400
+        id S1730676AbgHQPkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 620DA208E4;
-        Mon, 17 Aug 2020 15:39:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94EBF22BEB;
+        Mon, 17 Aug 2020 15:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678774;
-        bh=mdDePSu7eStr8QxZQkIFDAJN7NczDRXPX+oERb1uTbE=;
+        s=default; t=1597678840;
+        bh=oiYqFNOTIqWznWy5oZ7YjAKLAwxOQpK6HJg4N1XZrkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhSyKbVnIOc984eDtcCTZ524Txqjt+V8Z6iZXVUdyi/0M6iU0SFM1kZsaVMiTcJRf
-         sok6HYoGACghfcmdFf7f7CLbDuUAmrk+Ix9hSomQX7AGxGuqCzUpdhQQvAFZSJoVqU
-         MzQ7tmc4WHFOew86C4TxKv7cLwc3lCPBSZJK3NoE=
+        b=I3h5SgYjodMPr9cCbqvMpQ10cJlP115b1EU3hqejCBPjAD5we5niJfADD4czef1b/
+         +P9u7vH4mtB324uopY/Cp5XQmPjZVR9iXxnj3dnz1ZLdrFb8jBb3aUD6PZhwckerj0
+         lh7lxyxq3hR2mwBhs4AKUchPfiOr1zFDz+GZjurI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.8 448/464] ARM: dts: exynos: Extend all Exynos5800 A15s OPPs with max voltage data
-Date:   Mon, 17 Aug 2020 17:16:41 +0200
-Message-Id: <20200817143855.233813199@linuxfoundation.org>
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Huckleberry <nhuck@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.8 449/464] ARM: 8992/1: Fix unwind_frame for clang-built kernels
+Date:   Mon, 17 Aug 2020 17:16:42 +0200
+Message-Id: <20200817143855.280685160@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,48 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-commit d644853ff8fcbb7a4e3757f9d8ccc39d930b7e3c upstream.
+commit b4d5ec9b39f8b31d98f65bc5577b5d15d93795d7 upstream.
 
-On Exynos5422/5800 the regulator supply for the A15 cores ("vdd_arm") is
-coupled with the regulator supply for the SoC internal circuits
-("vdd_int"), thus all operating points that modify one of those supplies
-have to specify a triplet of the min/target/max values to properly work
-with regulator coupling.
+Since clang does not push pc and sp in function prologues, the current
+implementation of unwind_frame does not work. By using the previous
+frame's lr/fp instead of saved pc/sp we get valid unwinds on clang-built
+kernels.
 
-Fixes: eaffc4de16c6 ("ARM: dts: exynos: Add missing CPU frequencies for Exynos5422/5800")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+The bounds check on next frame pointer must be changed as well since
+there are 8 less bytes between frames.
+
+This fixes /proc/<pid>/stack.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/912
+
+Reported-by: Miles Chen <miles.chen@mediatek.com>
+Tested-by: Miles Chen <miles.chen@mediatek.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/exynos5800.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/kernel/stacktrace.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/arch/arm/boot/dts/exynos5800.dtsi
-+++ b/arch/arm/boot/dts/exynos5800.dtsi
-@@ -23,17 +23,17 @@
- &cluster_a15_opp_table {
- 	opp-2000000000 {
- 		opp-hz = /bits/ 64 <2000000000>;
--		opp-microvolt = <1312500>;
-+		opp-microvolt = <1312500 1312500 1500000>;
- 		clock-latency-ns = <140000>;
- 	};
- 	opp-1900000000 {
- 		opp-hz = /bits/ 64 <1900000000>;
--		opp-microvolt = <1262500>;
-+		opp-microvolt = <1262500 1262500 1500000>;
- 		clock-latency-ns = <140000>;
- 	};
- 	opp-1800000000 {
- 		opp-hz = /bits/ 64 <1800000000>;
--		opp-microvolt = <1237500>;
-+		opp-microvolt = <1237500 1237500 1500000>;
- 		clock-latency-ns = <140000>;
- 	};
- 	opp-1700000000 {
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -22,6 +22,19 @@
+  * A simple function epilogue looks like this:
+  *	ldm	sp, {fp, sp, pc}
+  *
++ * When compiled with clang, pc and sp are not pushed. A simple function
++ * prologue looks like this when built with clang:
++ *
++ *	stmdb	{..., fp, lr}
++ *	add	fp, sp, #x
++ *	sub	sp, sp, #y
++ *
++ * A simple function epilogue looks like this when built with clang:
++ *
++ *	sub	sp, fp, #x
++ *	ldm	{..., fp, pc}
++ *
++ *
+  * Note that with framepointer enabled, even the leaf functions have the same
+  * prologue and epilogue, therefore we can ignore the LR value in this case.
+  */
+@@ -34,6 +47,16 @@ int notrace unwind_frame(struct stackfra
+ 	low = frame->sp;
+ 	high = ALIGN(low, THREAD_SIZE);
+ 
++#ifdef CONFIG_CC_IS_CLANG
++	/* check current frame pointer is within bounds */
++	if (fp < low + 4 || fp > high - 4)
++		return -EINVAL;
++
++	frame->sp = frame->fp;
++	frame->fp = *(unsigned long *)(fp);
++	frame->pc = frame->lr;
++	frame->lr = *(unsigned long *)(fp + 4);
++#else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
+@@ -42,6 +65,7 @@ int notrace unwind_frame(struct stackfra
+ 	frame->fp = *(unsigned long *)(fp - 12);
+ 	frame->sp = *(unsigned long *)(fp - 8);
+ 	frame->pc = *(unsigned long *)(fp - 4);
++#endif
+ 
+ 	return 0;
+ }
 
 
