@@ -2,56 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCE22464A3
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BBCE2464AD
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 12:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726746AbgHQKhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 06:37:48 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:57399 "EHLO
+        id S1726161AbgHQKm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 06:42:56 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:44943 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726830AbgHQKhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:37:48 -0400
+        by vger.kernel.org with ESMTP id S1726151AbgHQKmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 06:42:55 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C1FD41941B38;
-        Mon, 17 Aug 2020 06:37:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:37:46 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id CBEF71941BEE;
+        Mon, 17 Aug 2020 06:42:54 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 17 Aug 2020 06:42:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=R5WpgV
-        KjcIpmD3qZNJdFbhCKL3Gtl0z0OhdWvGpuQUE=; b=LXr2YPnjrQu0REGBghM/Lo
-        ooEW+9d7ABcyt5JvsQ+kxXFfvJvV10vx8GPEBtBlPBrT4onQS6i3vHSSO0fFLA/4
-        heVuC2rtgfSA0B9BCY8CX157govTrLcfUbdelE08suJF5gRQL+1RIUpZeiOU5ZB7
-        F7mYJAygC1R7vcGnnn9KeNxg7f7o8YngBp5gsPFDofmIjADk7SU0clup9KXPNtk7
-        CyKile62ufV1dYaswWit7yl9LiK0iVJXwOJ4ICiVRqXrHUBA2Aiu2Jrj80IwdQuX
-        L0WipsZU0abDRweivVoG6zQ7POqvPGi2BwOu0ZZigartz88gmpux0r7DRVWjAntQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RBen5N
+        3GoCjWcrJvLqcvJ2CldR6/zpk7C6f4y4YUfLY=; b=E63VsYLrzM6D5vwk9WfFF+
+        PRIKxcdsYeh9MbeMOn/pK7CIo48NTu6FKmLms7fWopYDJJGSSZZlvAARVGv/XZLw
+        VPvVJJClSB36qdyfneWtbZLM9lPwl5vNJbrLypHnGCzyg6uJvM2ETNAcv0HXgeTM
+        KPlYtYPzS07IOeKCKMF476ewXMO7qgAEW3IGO9AGbaU0xlPJ3L+he/DVhz9UIjB1
+        xlRq8IGTFXy8R/bwuWdXIo7kH72KEbmru0roSUS5IhmV/p4pWMIOPpOaXE0eZLOX
+        lWyQmFLIjj4lu+xjJqNBhqzqVtpUH49XDgenfDKVLi/xju6evCGf+p9svCYJBlOA
         ==
-X-ME-Sender: <xms:-l06X3Vz8CjWn3uj846ovE5Yt3s4ACfWpwYByaKEAUevf8eE8XRlOA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgvdelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Ll86X-Ekyrntzh_VQat8kuQex0f6msH67_wcfCCOH6MpKHJGjBUIlg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgoufhushhpvggtthffohhmrghinhculdegledmne
-    cujfgurhepuffvhfffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhh
-    sehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeenucggtffrrghtthgvrhhnpeefge
-    eugeegkefffeegkeevgeegffegleejkeejkeelueffgeehfeeiudffkeeuhfenucffohhm
-    rghinheprghpphhsphhothdrtghomhdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:-l06X_li7qMUZ17m5QcJoUL5oSLVQ-OcExHQilR3q3Lvph8kqYgfmA>
-    <xmx:-l06XzYyWBwoyN1bP3SAGRvPSEtN4L4JvWnMpOwjfpTPXKSJHCHGUQ>
-    <xmx:-l06XyVRVbEEqjhiqXrJszKaoWAlmwr8KT_iFCXP8vHjt_yU8xMSFA>
-    <xmx:-l06X2wGNU0f1YAnS4kClqw_mR-5FdvsRKy7FEq8thjgIN7N4tO-2A>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:Ll86X_X1lR24gv-nbEYmo12jOFQbqXjcNxhRO5HJJp3jbNLr9MjqYA>
+    <xmx:Ll86X4IvEH8t-wrp-B9PYPbDvjuVU-yZnYcmNRBbRrLzfFDRJ6NkXA>
+    <xmx:Ll86X4FyTnEkVJ8kxXyoUqdhj0i_jxzlxghbn8YPwqeX5naNCZQlyw>
+    <xmx:Ll86X8jqyx9DNqu0-2lcjJsSU6Ww72eoG0fTxVLljJatIIOlpc93yA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6032430600A6;
-        Mon, 17 Aug 2020 06:37:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] driver core: Fix probe_count imbalance in really_probe()" failed to apply to 5.4-stable tree
-To:     penguin-kernel@I-love.SAKURA.ne.jp, geert+renesas@glider.be,
-        gregkh@linuxfoundation.org, stable@kernel.org,
-        syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 345BB3280063;
+        Mon, 17 Aug 2020 06:42:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: sanitize double poll handling" failed to apply to 5.7-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Aug 2020 12:38:03 +0200
-Message-ID: <15976606839978@kroah.com>
+Date:   Mon, 17 Aug 2020 12:43:14 +0200
+Message-ID: <1597660994188250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,61 +69,118 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b292b50b0efcc7095d8bf15505fba6909bb35dce Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 13 Jul 2020 11:12:54 +0900
-Subject: [PATCH] driver core: Fix probe_count imbalance in really_probe()
+From d4e7cd36a90e38e0276d6ce0c20f5ccef17ec38c Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sat, 15 Aug 2020 11:44:50 -0700
+Subject: [PATCH] io_uring: sanitize double poll handling
 
-syzbot is reporting hung task in wait_for_device_probe() [1]. At least,
-we always need to decrement probe_count if we incremented probe_count in
-really_probe().
+There's a bit of confusion on the matching pairs of poll vs double poll,
+depending on if the request is a pure poll (IORING_OP_POLL_ADD) or
+poll driven retry.
 
-However, since I can't find "Resources present before probing" message in
-the console log, both "this message simply flowed off" and "syzbot is not
-hitting this path" will be possible. Therefore, while we are at it, let's
-also prepare for concurrent wait_for_device_probe() calls by replacing
-wake_up() with wake_up_all().
+Add io_poll_get_double() that returns the double poll waitqueue, if any,
+and io_poll_get_single() that returns the original poll waitqueue. With
+that, remove the argument to io_poll_remove_double().
 
-[1] https://syzkaller.appspot.com/bug?id=25c833f1983c9c1d512f4ff860dd0d7f5a2e2c0f
+Finally ensure that wait->private is cleared once the double poll handler
+has run, so that remove knows it's already been seen.
 
-Reported-by: syzbot <syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com>
-Fixes: 7c35e699c88bd607 ("driver core: Print device when resources present in really_probe()")
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20200713021254.3444-1-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # v5.8
+Reported-by: syzbot+7f617d4a9369028b8a2c@syzkaller.appspotmail.com
+Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 2306b481109a..fce8e35b6367 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -276,7 +276,7 @@ static void deferred_probe_timeout_work_func(struct work_struct *work)
- 
- 	list_for_each_entry_safe(private, p, &deferred_probe_pending_list, deferred_probe)
- 		dev_info(private->device, "deferred probe pending\n");
--	wake_up(&probe_timeout_waitqueue);
-+	wake_up_all(&probe_timeout_waitqueue);
- }
- static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
- 
-@@ -498,7 +498,8 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
- 	if (!list_empty(&dev->devres_head)) {
- 		dev_crit(dev, "Resources present before probing\n");
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto done;
- 	}
- 
- re_probe:
-@@ -627,7 +628,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	ret = 0;
- done:
- 	atomic_dec(&probe_count);
--	wake_up(&probe_waitqueue);
-+	wake_up_all(&probe_waitqueue);
- 	return ret;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7dd6df15bc49..cb030912bf5e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4649,9 +4649,24 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
+ 	return false;
  }
  
+-static void io_poll_remove_double(struct io_kiocb *req, void *data)
++static struct io_poll_iocb *io_poll_get_double(struct io_kiocb *req)
+ {
+-	struct io_poll_iocb *poll = data;
++	/* pure poll stashes this in ->io, poll driven retry elsewhere */
++	if (req->opcode == IORING_OP_POLL_ADD)
++		return (struct io_poll_iocb *) req->io;
++	return req->apoll->double_poll;
++}
++
++static struct io_poll_iocb *io_poll_get_single(struct io_kiocb *req)
++{
++	if (req->opcode == IORING_OP_POLL_ADD)
++		return &req->poll;
++	return &req->apoll->poll;
++}
++
++static void io_poll_remove_double(struct io_kiocb *req)
++{
++	struct io_poll_iocb *poll = io_poll_get_double(req);
+ 
+ 	lockdep_assert_held(&req->ctx->completion_lock);
+ 
+@@ -4671,7 +4686,7 @@ static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+-	io_poll_remove_double(req, req->io);
++	io_poll_remove_double(req);
+ 	req->poll.done = true;
+ 	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
+ 	io_commit_cqring(ctx);
+@@ -4711,7 +4726,7 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
+ 			       int sync, void *key)
+ {
+ 	struct io_kiocb *req = wait->private;
+-	struct io_poll_iocb *poll = req->apoll->double_poll;
++	struct io_poll_iocb *poll = io_poll_get_single(req);
+ 	__poll_t mask = key_to_poll(key);
+ 
+ 	/* for instances that support it check for an event match first: */
+@@ -4725,6 +4740,8 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
+ 		done = list_empty(&poll->wait.entry);
+ 		if (!done)
+ 			list_del_init(&poll->wait.entry);
++		/* make sure double remove sees this as being gone */
++		wait->private = NULL;
+ 		spin_unlock(&poll->head->lock);
+ 		if (!done)
+ 			__io_async_wake(req, poll, mask, io_poll_task_func);
+@@ -4808,7 +4825,7 @@ static void io_async_task_func(struct callback_head *cb)
+ 	if (hash_hashed(&req->hash_node))
+ 		hash_del(&req->hash_node);
+ 
+-	io_poll_remove_double(req, apoll->double_poll);
++	io_poll_remove_double(req);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+ 	if (!READ_ONCE(apoll->poll.canceled))
+@@ -4919,7 +4936,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
+ 					io_async_wake);
+ 	if (ret || ipt.error) {
+-		io_poll_remove_double(req, apoll->double_poll);
++		io_poll_remove_double(req);
+ 		spin_unlock_irq(&ctx->completion_lock);
+ 		kfree(apoll->double_poll);
+ 		kfree(apoll);
+@@ -4951,14 +4968,13 @@ static bool io_poll_remove_one(struct io_kiocb *req)
+ {
+ 	bool do_complete;
+ 
++	io_poll_remove_double(req);
++
+ 	if (req->opcode == IORING_OP_POLL_ADD) {
+-		io_poll_remove_double(req, req->io);
+ 		do_complete = __io_poll_remove_one(req, &req->poll);
+ 	} else {
+ 		struct async_poll *apoll = req->apoll;
+ 
+-		io_poll_remove_double(req, apoll->double_poll);
+-
+ 		/* non-poll requests have submit ref still */
+ 		do_complete = __io_poll_remove_one(req, &apoll->poll);
+ 		if (do_complete) {
 
