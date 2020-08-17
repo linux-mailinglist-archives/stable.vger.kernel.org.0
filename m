@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6A4246A60
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27A79246B4C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbgHQPet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:34:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39474 "EHLO mail.kernel.org"
+        id S2387854AbgHQPwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730242AbgHQPe0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:26 -0400
+        id S2387846AbgHQPwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:52:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33E46233FE;
-        Mon, 17 Aug 2020 15:34:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B4E220657;
+        Mon, 17 Aug 2020 15:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678465;
-        bh=/u610J051YLC42YLmGhLdhRzg2RFOI1y6QVRsg1ftOc=;
+        s=default; t=1597679541;
+        bh=aQ1uykngxfyy77fl0AX9x6BTeX7NsTbHVS3LBX3NjRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ehh5VuiMyup1E+GTy8H51sj3PGKYyqJPKavhl9PpKEN9PLLdY0YQ6AIkIUkiGz+9K
-         wAGljlChiXLmvpTwe5SfVUv7+82rOaqp3O0z6iWNsnKwroWOs0EhzKjPPf7AV9gWe5
-         PfEIbItkGU/Sej7gaYw7roNZn3OV4WTT01Dh5TTg=
+        b=mwqFedwLwSzMa43IarmSWIdaHeTzB2RGkG8zxdLdfCriVR0SCFh5Ws2suhjCyEHYJ
+         +G5sNvfY1ad5aJ61GjAVe207j6YcU8dRv6ehUP1PBKLmc2bL8u648iCR+tmNCeFJyf
+         vMcnfNliS5C6cC1jdaxC8PhN4s52GfDvfBeCz3eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 343/464] ice: Graceful error handling in HW table calloc failure
-Date:   Mon, 17 Aug 2020 17:14:56 +0200
-Message-Id: <20200817143850.201190433@linuxfoundation.org>
+Subject: [PATCH 5.7 248/393] net: dsa: mv88e6xxx: MV88E6097 does not support jumbo configuration
+Date:   Mon, 17 Aug 2020 17:14:58 +0200
+Message-Id: <20200817143831.651057479@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surabhi Boob <surabhi.boob@intel.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit bcc46cb8a077c6189b44f1555b8659837f748eb2 ]
+[ Upstream commit 0f3c66a3c7b4e8b9f654b3c998e9674376a51b0f ]
 
-In the ice_init_hw_tbls, if the devm_kcalloc for es->written fails, catch
-that error and bail out gracefully, instead of continuing with a NULL
-pointer.
+The MV88E6097 chip does not support configuring jumbo frames. Prior to
+commit 5f4366660d65 only the 6352, 6351, 6165 and 6320 chips configured
+jumbo mode. The refactor accidentally added the function for the 6097.
+Remove the erroneous function pointer assignment.
 
-Fixes: 32d63fa1e9f3 ("ice: Initialize DDP package structures")
-Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 5f4366660d65 ("net: dsa: mv88e6xxx: Refactor setting of jumbo frames")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_flex_pipe.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-index 6698612048625..504a02b071cee 100644
---- a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-+++ b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-@@ -3152,10 +3152,12 @@ enum ice_status ice_init_hw_tbls(struct ice_hw *hw)
- 		es->ref_count = devm_kcalloc(ice_hw_to_dev(hw), es->count,
- 					     sizeof(*es->ref_count),
- 					     GFP_KERNEL);
-+		if (!es->ref_count)
-+			goto err;
- 
- 		es->written = devm_kcalloc(ice_hw_to_dev(hw), es->count,
- 					   sizeof(*es->written), GFP_KERNEL);
--		if (!es->ref_count)
-+		if (!es->written)
- 			goto err;
- 	}
- 	return 0;
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index e065be419a03d..18c892df0a130 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3477,7 +3477,6 @@ static const struct mv88e6xxx_ops mv88e6097_ops = {
+ 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
+ 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
+ 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+-	.port_set_jumbo_size = mv88e6165_port_set_jumbo_size,
+ 	.port_egress_rate_limiting = mv88e6095_port_egress_rate_limiting,
+ 	.port_pause_limit = mv88e6097_port_pause_limit,
+ 	.port_disable_learn_limit = mv88e6xxx_port_disable_learn_limit,
 -- 
 2.25.1
 
