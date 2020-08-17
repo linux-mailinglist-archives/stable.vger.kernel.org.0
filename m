@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6545F2475BC
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F1E247571
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbgHQT14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:27:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34168 "EHLO mail.kernel.org"
+        id S1730450AbgHQTXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:23:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730347AbgHQPdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:33:04 -0400
+        id S1730451AbgHQPfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:35:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6222E22D37;
-        Mon, 17 Aug 2020 15:33:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9424322B40;
+        Mon, 17 Aug 2020 15:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678384;
-        bh=2BfhhYnsLp5gaWK9BK6d61mLgB+8MKCs25zwBQrWmQA=;
+        s=default; t=1597678506;
+        bh=7/jSenEQJI1USPtTKR+KueXBZvlK+SmNfaZd+djxXj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IV5MI85GgpskXqs1vc8qcNmF27ndRj24RRlGF2W5rihI5wzwyTpSbaYm70/PdLDIv
-         /zgHNBViWqQZmoHkGekf6NXawrB6InwaXwH0yGyYCp+vSpDZp7yolEqk5ssOgc4tpL
-         9T+pZv+wS2hIauJnbihAyLnsaNZNtgkKlAJ9nOIg=
+        b=GQesun9jV72RTfLVbHuhItNmHyGFYaMSfSzzujY4POJLnZbL0ZjDIN+6brYP9y7iN
+         zH2QaTPOcZaRZPrIOezkIXzfH1hkSAfx6DQE11g+vkx8V76GGRq8vnQMTan0EEI/4K
+         ZbvUKUo/5CMT1I9yjh7S+wnLhTsfELnrj87UR+uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Allison Collins <allison.henderson@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 314/464] xfs: clear XFS_DQ_FREEING if we cant lock the dquot buffer to flush
-Date:   Mon, 17 Aug 2020 17:14:27 +0200
-Message-Id: <20200817143848.837368726@linuxfoundation.org>
+Subject: [PATCH 5.8 316/464] powerpc/32s: Fix CONFIG_BOOK3S_601 uses
+Date:   Mon, 17 Aug 2020 17:14:29 +0200
+Message-Id: <20200817143848.932971143@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -49,73 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c97738a960a86081a147e7d436138e6481757445 ]
+[ Upstream commit df4d4ef22446b3a789a4efd74d34f2ec1e24deb2 ]
 
-In commit 8d3d7e2b35ea, we changed xfs_qm_dqpurge to bail out if we
-can't lock the dquot buf to flush the dquot.  This prevents the AIL from
-blocking on the dquot, but it also forgets to clear the FREEING flag on
-its way out.  A subsequent purge attempt will see the FREEING flag is
-set and bail out, which leads to dqpurge_all failing to purge all the
-dquots.
+We have two uses of CONFIG_BOOK3S_601, which doesn't exist. Fix them
+to use CONFIG_PPC_BOOK3S_601 which is the correct symbol.
 
-(copy-pasting from Dave Chinner's identical patch)
-
-This was found by inspection after having xfs/305 hang 1 in ~50
-iterations in a quotaoff operation:
-
-[ 8872.301115] xfs_quota       D13888 92262  91813 0x00004002
-[ 8872.302538] Call Trace:
-[ 8872.303193]  __schedule+0x2d2/0x780
-[ 8872.304108]  ? do_raw_spin_unlock+0x57/0xd0
-[ 8872.305198]  schedule+0x6e/0xe0
-[ 8872.306021]  schedule_timeout+0x14d/0x300
-[ 8872.307060]  ? __next_timer_interrupt+0xe0/0xe0
-[ 8872.308231]  ? xfs_qm_dqusage_adjust+0x200/0x200
-[ 8872.309422]  schedule_timeout_uninterruptible+0x2a/0x30
-[ 8872.310759]  xfs_qm_dquot_walk.isra.0+0x15a/0x1b0
-[ 8872.311971]  xfs_qm_dqpurge_all+0x7f/0x90
-[ 8872.313022]  xfs_qm_scall_quotaoff+0x18d/0x2b0
-[ 8872.314163]  xfs_quota_disable+0x3a/0x60
-[ 8872.315179]  kernel_quotactl+0x7e2/0x8d0
-[ 8872.316196]  ? __do_sys_newstat+0x51/0x80
-[ 8872.317238]  __x64_sys_quotactl+0x1e/0x30
-[ 8872.318266]  do_syscall_64+0x46/0x90
-[ 8872.319193]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 8872.320490] RIP: 0033:0x7f46b5490f2a
-[ 8872.321414] Code: Bad RIP value.
-
-Returning -EAGAIN from xfs_qm_dqpurge() without clearing the
-XFS_DQ_FREEING flag means the xfs_qm_dqpurge_all() code can never
-free the dquot, and we loop forever waiting for the XFS_DQ_FREEING
-flag to go away on the dquot that leaked it via -EAGAIN.
-
-Fixes: 8d3d7e2b35ea ("xfs: trylock underlying buffer on dquot flush")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Fixes: 12c3f1fd87bf ("powerpc/32s: get rid of CPU_FTR_601 feature")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200724131728.1643966-5-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_qm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/ptrace.h | 2 +-
+ arch/powerpc/include/asm/timex.h  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/xfs_qm.c b/fs/xfs/xfs_qm.c
-index d6cd833173447..938023dd8ce5d 100644
---- a/fs/xfs/xfs_qm.c
-+++ b/fs/xfs/xfs_qm.c
-@@ -148,6 +148,7 @@ xfs_qm_dqpurge(
- 			error = xfs_bwrite(bp);
- 			xfs_buf_relse(bp);
- 		} else if (error == -EAGAIN) {
-+			dqp->dq_flags &= ~XFS_DQ_FREEING;
- 			goto out_unlock;
- 		}
- 		xfs_dqflock(dqp);
+diff --git a/arch/powerpc/include/asm/ptrace.h b/arch/powerpc/include/asm/ptrace.h
+index ac3970fff0d5d..8b5814a36b76e 100644
+--- a/arch/powerpc/include/asm/ptrace.h
++++ b/arch/powerpc/include/asm/ptrace.h
+@@ -238,7 +238,7 @@ static inline void set_trap_norestart(struct pt_regs *regs)
+ }
+ 
+ #define arch_has_single_step()	(1)
+-#ifndef CONFIG_BOOK3S_601
++#ifndef CONFIG_PPC_BOOK3S_601
+ #define arch_has_block_step()	(true)
+ #else
+ #define arch_has_block_step()	(false)
+diff --git a/arch/powerpc/include/asm/timex.h b/arch/powerpc/include/asm/timex.h
+index d2d2c4bd84358..6047402b0a4db 100644
+--- a/arch/powerpc/include/asm/timex.h
++++ b/arch/powerpc/include/asm/timex.h
+@@ -17,7 +17,7 @@ typedef unsigned long cycles_t;
+ 
+ static inline cycles_t get_cycles(void)
+ {
+-	if (IS_ENABLED(CONFIG_BOOK3S_601))
++	if (IS_ENABLED(CONFIG_PPC_BOOK3S_601))
+ 		return 0;
+ 
+ 	return mftb();
 -- 
 2.25.1
 
