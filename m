@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F714246FFE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E08D246F0F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389989AbgHQR55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:57:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
+        id S1731492AbgHQRmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388542AbgHQQKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:17 -0400
+        id S1731096AbgHQQQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:16:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B4322B47;
-        Mon, 17 Aug 2020 16:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812EA2065C;
+        Mon, 17 Aug 2020 16:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680604;
-        bh=9UGYvTZuxS8KReSErAO6zMcVKaslegku5/vKJSj0UAM=;
+        s=default; t=1597680952;
+        bh=Fwo0FDK2/w9SWFeNDQy6dcWQ1EaURSRHtoIZWGQM2A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUSniXkLWboZmNR7BIfRBVim9uE7ebXS88dLFmNBz9CIn2bf2LitM9H6JaSn2XgeR
-         M2F09lDxwHgOrvW1h3KnTW2feylDWyxVuzfPQQWzn71hGLr4lIgkTUx02OIX2V52oj
-         TZVhF3HjSpCOfTgT9hXocxgsBS9Emo+i7brbX1+Q=
+        b=o8rltkut0NBd1eDILH9NIhNjm9ykZB7YA+OAzoQrqCIEuITkUFeVhm9CBxc78PHRD
+         kj8R5eSFoVwN9QGW1dz4alxJP5ejLFrmkdK2zTJLfjgSrHMIFdqUy/GLsvNJlao+kw
+         HYlKQH2J4gaOrYuOE+B7Bq9B1AvPoHO77CqJbHec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 253/270] irqdomain/treewide: Free firmware node after domain removal
+        stable@vger.kernel.org,
+        Florinel Iordache <florinel.iordache@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 123/168] fsl/fman: check dereferencing null pointer
 Date:   Mon, 17 Aug 2020 17:17:34 +0200
-Message-Id: <20200817143808.427294047@linuxfoundation.org>
+Message-Id: <20200817143739.824113379@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
+References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,125 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Florinel Iordache <florinel.iordache@nxp.com>
 
-commit ec0160891e387f4771f953b888b1fe951398e5d9 upstream.
+[ Upstream commit cc5d229a122106733a85c279d89d7703f21e4d4f ]
 
-Commit 711419e504eb ("irqdomain: Add the missing assignment of
-domain->fwnode for named fwnode") unintentionally caused a dangling pointer
-page fault issue on firmware nodes that were freed after IRQ domain
-allocation. Commit e3beca48a45b fixed that dangling pointer issue by only
-freeing the firmware node after an IRQ domain allocation failure. That fix
-no longer frees the firmware node immediately, but leaves the firmware node
-allocated after the domain is removed.
+Add a safe check to avoid dereferencing null pointer
 
-The firmware node must be kept around through irq_domain_remove, but should be
-freed it afterwards.
-
-Add the missing free operations after domain removal where where appropriate.
-
-Fixes: e3beca48a45b ("irqdomain/treewide: Keep firmware node unconditionally allocated")
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>	# drivers/pci
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1595363169-7157-1-git-send-email-jonathan.derrick@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 57ba4c9b56d8 ("fsl/fman: Add FMan MAC support")
+Signed-off-by: Florinel Iordache <florinel.iordache@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/pci/pci-xtalk-bridge.c    |    3 +++
- arch/x86/kernel/apic/io_apic.c      |    5 +++++
- drivers/iommu/intel_irq_remapping.c |    8 ++++++++
- drivers/pci/controller/vmd.c        |    3 +++
- 4 files changed, 19 insertions(+)
+ drivers/net/ethernet/freescale/fman/fman_dtsec.c | 4 ++--
+ drivers/net/ethernet/freescale/fman/fman_memac.c | 2 +-
+ drivers/net/ethernet/freescale/fman/fman_tgec.c  | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -539,6 +539,7 @@ err_free_resource:
- 	pci_free_resource_list(&host->windows);
- err_remove_domain:
- 	irq_domain_remove(domain);
-+	irq_domain_free_fwnode(fn);
- 	return err;
- }
+diff --git a/drivers/net/ethernet/freescale/fman/fman_dtsec.c b/drivers/net/ethernet/freescale/fman/fman_dtsec.c
+index 1ca543ac8f2cd..d2de9ea80c43f 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_dtsec.c
++++ b/drivers/net/ethernet/freescale/fman/fman_dtsec.c
+@@ -1205,7 +1205,7 @@ int dtsec_del_hash_mac_address(struct fman_mac *dtsec, enet_addr_t *eth_addr)
+ 		list_for_each(pos,
+ 			      &dtsec->multicast_addr_hash->lsts[bucket]) {
+ 			hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-			if (hash_entry->addr == addr) {
++			if (hash_entry && hash_entry->addr == addr) {
+ 				list_del_init(&hash_entry->node);
+ 				kfree(hash_entry);
+ 				break;
+@@ -1218,7 +1218,7 @@ int dtsec_del_hash_mac_address(struct fman_mac *dtsec, enet_addr_t *eth_addr)
+ 		list_for_each(pos,
+ 			      &dtsec->unicast_addr_hash->lsts[bucket]) {
+ 			hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-			if (hash_entry->addr == addr) {
++			if (hash_entry && hash_entry->addr == addr) {
+ 				list_del_init(&hash_entry->node);
+ 				kfree(hash_entry);
+ 				break;
+diff --git a/drivers/net/ethernet/freescale/fman/fman_memac.c b/drivers/net/ethernet/freescale/fman/fman_memac.c
+index 08f8b36779ea4..9088b4f4b4b87 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_memac.c
++++ b/drivers/net/ethernet/freescale/fman/fman_memac.c
+@@ -985,7 +985,7 @@ int memac_del_hash_mac_address(struct fman_mac *memac, enet_addr_t *eth_addr)
  
-@@ -546,8 +547,10 @@ static int bridge_remove(struct platform
- {
- 	struct pci_bus *bus = platform_get_drvdata(pdev);
- 	struct bridge_controller *bc = BRIDGE_CONTROLLER(bus);
-+	struct fwnode_handle *fn = bc->domain->fwnode;
+ 	list_for_each(pos, &memac->multicast_addr_hash->lsts[hash]) {
+ 		hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-		if (hash_entry->addr == addr) {
++		if (hash_entry && hash_entry->addr == addr) {
+ 			list_del_init(&hash_entry->node);
+ 			kfree(hash_entry);
+ 			break;
+diff --git a/drivers/net/ethernet/freescale/fman/fman_tgec.c b/drivers/net/ethernet/freescale/fman/fman_tgec.c
+index f75b9c11b2d29..ac5a281e0ec3b 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_tgec.c
++++ b/drivers/net/ethernet/freescale/fman/fman_tgec.c
+@@ -630,7 +630,7 @@ int tgec_del_hash_mac_address(struct fman_mac *tgec, enet_addr_t *eth_addr)
  
- 	irq_domain_remove(bc->domain);
-+	irq_domain_free_fwnode(fn);
- 	pci_lock_rescan_remove();
- 	pci_stop_root_bus(bus);
- 	pci_remove_root_bus(bus);
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2348,8 +2348,13 @@ static int mp_irqdomain_create(int ioapi
- 
- static void ioapic_destroy_irqdomain(int idx)
- {
-+	struct ioapic_domain_cfg *cfg = &ioapics[idx].irqdomain_cfg;
-+	struct fwnode_handle *fn = ioapics[idx].irqdomain->fwnode;
-+
- 	if (ioapics[idx].irqdomain) {
- 		irq_domain_remove(ioapics[idx].irqdomain);
-+		if (!cfg->dev)
-+			irq_domain_free_fwnode(fn);
- 		ioapics[idx].irqdomain = NULL;
- 	}
- }
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -628,13 +628,21 @@ out_free_table:
- 
- static void intel_teardown_irq_remapping(struct intel_iommu *iommu)
- {
-+	struct fwnode_handle *fn;
-+
- 	if (iommu && iommu->ir_table) {
- 		if (iommu->ir_msi_domain) {
-+			fn = iommu->ir_msi_domain->fwnode;
-+
- 			irq_domain_remove(iommu->ir_msi_domain);
-+			irq_domain_free_fwnode(fn);
- 			iommu->ir_msi_domain = NULL;
- 		}
- 		if (iommu->ir_domain) {
-+			fn = iommu->ir_domain->fwnode;
-+
- 			irq_domain_remove(iommu->ir_domain);
-+			irq_domain_free_fwnode(fn);
- 			iommu->ir_domain = NULL;
- 		}
- 		free_pages((unsigned long)iommu->ir_table->base,
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -694,6 +694,7 @@ static int vmd_enable_domain(struct vmd_
- 	if (!vmd->bus) {
- 		pci_free_resource_list(&resources);
- 		irq_domain_remove(vmd->irq_domain);
-+		irq_domain_free_fwnode(fn);
- 		return -ENODEV;
- 	}
- 
-@@ -808,6 +809,7 @@ static void vmd_cleanup_srcu(struct vmd_
- static void vmd_remove(struct pci_dev *dev)
- {
- 	struct vmd_dev *vmd = pci_get_drvdata(dev);
-+	struct fwnode_handle *fn = vmd->irq_domain->fwnode;
- 
- 	sysfs_remove_link(&vmd->dev->dev.kobj, "domain");
- 	pci_stop_root_bus(vmd->bus);
-@@ -816,6 +818,7 @@ static void vmd_remove(struct pci_dev *d
- 	vmd_teardown_dma_ops(vmd);
- 	vmd_detach_resources(vmd);
- 	irq_domain_remove(vmd->irq_domain);
-+	irq_domain_free_fwnode(fn);
- }
- 
- #ifdef CONFIG_PM_SLEEP
+ 	list_for_each(pos, &tgec->multicast_addr_hash->lsts[hash]) {
+ 		hash_entry = ETH_HASH_ENTRY_OBJ(pos);
+-		if (hash_entry->addr == addr) {
++		if (hash_entry && hash_entry->addr == addr) {
+ 			list_del_init(&hash_entry->node);
+ 			kfree(hash_entry);
+ 			break;
+-- 
+2.25.1
+
 
 
