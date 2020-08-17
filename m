@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1CB247668
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150AE247663
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729999AbgHQP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:28:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41688 "EHLO mail.kernel.org"
+        id S1732381AbgHQTgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729989AbgHQP2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:28:06 -0400
+        id S1730011AbgHQP2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8755623AC0;
-        Mon, 17 Aug 2020 15:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791C423A32;
+        Mon, 17 Aug 2020 15:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678086;
-        bh=SJxSG5hjeCoBv7dI/pFgKfrBpXKRvG9S8f+X7U2EkEs=;
+        s=default; t=1597678092;
+        bh=Hxk7UHen0BwilFAy+VLDUeF9jJ/l/efGTHNGUWn3nYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFiK4Lb9Jyz9fjJiggtGf0eSMphLsIlZAPoV2xd8gh6CKIVbAscMn9RZQEBhdjStL
-         415GPusdhunmTQWJMFB5/A1Bie9G+P72//xE2kX/317pUQ0k+0qQiZCxmaU53mJGrY
-         LllHm7mVGE7yp0qfUbeUoiK3fdbJa1gZVirbx/CQ=
+        b=SenPNbw+mxoN8HFoIjd0QgzI5nlNp7+4Z+vunA+URdYkDFf/MKAA3olhPBzWPWung
+         tMCOtE8tpdsaxTb374Qoe9O4seG954E52X/4CkSI4P0GWPaGkbPySM6+eWvm/9oNwf
+         NY6Uc5GLKvq7z/CW46pBZFMh+v56tjhKiX5J6w10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 213/464] xfs: fix reflink quota reservation accounting error
-Date:   Mon, 17 Aug 2020 17:12:46 +0200
-Message-Id: <20200817143844.015665239@linuxfoundation.org>
+Subject: [PATCH 5.8 214/464] iomap: Make sure iomap_end is called after iomap_begin
+Date:   Mon, 17 Aug 2020 17:12:47 +0200
+Message-Id: <20200817143844.062314049@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,62 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 83895227aba1ade33e81f586aa7b6b1e143096a5 ]
+[ Upstream commit 856473cd5d17dbbf3055710857c67a4af6d9fcc0 ]
 
-Quota reservations are supposed to account for the blocks that might be
-allocated due to a bmap btree split.  Reflink doesn't do this, so fix
-this to make the quota accounting more accurate before we start
-rearranging things.
+Make sure iomap_end is always called when iomap_begin succeeds.
 
-Fixes: 862bb360ef56 ("xfs: reflink extents from one file to another")
+Without this fix, iomap_end won't be called when a filesystem's
+iomap_begin operation returns an invalid mapping, bypassing any
+unlocking done in iomap_end.  With this fix, the unlocking will still
+happen.
+
+This bug was found by Bob Peterson during code review.  It's unlikely
+that such iomap_begin bugs will survive to affect users, so backporting
+this fix seems unnecessary.
+
+Fixes: ae259a9c8593 ("fs: introduce iomap infrastructure")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_reflink.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ fs/iomap/apply.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 107bf2a2f3448..d89201d40891f 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1003,6 +1003,7 @@ xfs_reflink_remap_extent(
- 	xfs_filblks_t		rlen;
- 	xfs_filblks_t		unmap_len;
- 	xfs_off_t		newlen;
-+	int64_t			qres;
- 	int			error;
+diff --git a/fs/iomap/apply.c b/fs/iomap/apply.c
+index 76925b40b5fd2..26ab6563181fc 100644
+--- a/fs/iomap/apply.c
++++ b/fs/iomap/apply.c
+@@ -46,10 +46,14 @@ iomap_apply(struct inode *inode, loff_t pos, loff_t length, unsigned flags,
+ 	ret = ops->iomap_begin(inode, pos, length, flags, &iomap, &srcmap);
+ 	if (ret)
+ 		return ret;
+-	if (WARN_ON(iomap.offset > pos))
+-		return -EIO;
+-	if (WARN_ON(iomap.length == 0))
+-		return -EIO;
++	if (WARN_ON(iomap.offset > pos)) {
++		written = -EIO;
++		goto out;
++	}
++	if (WARN_ON(iomap.length == 0)) {
++		written = -EIO;
++		goto out;
++	}
  
- 	unmap_len = irec->br_startoff + irec->br_blockcount - destoff;
-@@ -1025,13 +1026,19 @@ xfs_reflink_remap_extent(
- 	xfs_ilock(ip, XFS_ILOCK_EXCL);
- 	xfs_trans_ijoin(tp, ip, 0);
+ 	trace_iomap_apply_dstmap(inode, &iomap);
+ 	if (srcmap.type != IOMAP_HOLE)
+@@ -80,6 +84,7 @@ iomap_apply(struct inode *inode, loff_t pos, loff_t length, unsigned flags,
+ 	written = actor(inode, pos, length, data, &iomap,
+ 			srcmap.type != IOMAP_HOLE ? &srcmap : &iomap);
  
--	/* If we're not just clearing space, then do we have enough quota? */
--	if (real_extent) {
--		error = xfs_trans_reserve_quota_nblks(tp, ip,
--				irec->br_blockcount, 0, XFS_QMOPT_RES_REGBLKS);
--		if (error)
--			goto out_cancel;
--	}
-+	/*
-+	 * Reserve quota for this operation.  We don't know if the first unmap
-+	 * in the dest file will cause a bmap btree split, so we always reserve
-+	 * at least enough blocks for that split.  If the extent being mapped
-+	 * in is written, we need to reserve quota for that too.
-+	 */
-+	qres = XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK);
-+	if (real_extent)
-+		qres += irec->br_blockcount;
-+	error = xfs_trans_reserve_quota_nblks(tp, ip, qres, 0,
-+			XFS_QMOPT_RES_REGBLKS);
-+	if (error)
-+		goto out_cancel;
- 
- 	trace_xfs_reflink_remap(ip, irec->br_startoff,
- 				irec->br_blockcount, irec->br_startblock);
++out:
+ 	/*
+ 	 * Now the data has been copied, commit the range we've copied.  This
+ 	 * should not fail unless the filesystem has had a fatal error.
 -- 
 2.25.1
 
