@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E60E246F24
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34FE246EF7
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731288AbgHQRmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
+        id S1731385AbgHQRji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731102AbgHQQQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:16:39 -0400
+        id S1730860AbgHQQQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:16:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 218C722D6E;
-        Mon, 17 Aug 2020 16:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ACC922D2B;
+        Mon, 17 Aug 2020 16:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680983;
-        bh=lCX+33kBjmYRuJfN436MhKq8NdcKgsXc1fbu2fP+NFE=;
+        s=default; t=1597680986;
+        bh=NfUegQHp701VI/9vB3DTU9av/uxtI0FjP/hSjjOVqIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giRLJthvjGxinZ9M5OrE8Lz1MJ+BfLEY517KuZP6e6DsQPbW+x9mBm9AqlWeZyMLP
-         42y70cM9OJeoPPh/2e0mQuEHHSfPWUVJsHgWsxNvIYROdjRyM+2gT1AmlRWNfQxIx0
-         3zaBH//9hdHBDVGf7ctoTnBD8HiP5FJNpZ5jmlKw=
+        b=hJc2MIDdH9GWP/5y91RI6fM3zDZExvPXkPQDnTxo9NlwuEVxj5oeuj9ESnKtdK0Op
+         0MvTneK/wNEF7z4lSPX6OfVV67rDS7mNlxWHZOSY5MEqPZowo8LuLu6BV3mArqcnTq
+         qzEd6Eh07XH3+o8YOCmPcvKIgvBS9L6JoFGN4VJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Mauri Sandberg <sandberg@mailfence.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/168] Bluetooth: hci_serdev: Only unregister device if it was registered
-Date:   Mon, 17 Aug 2020 17:17:17 +0200
-Message-Id: <20200817143738.991499151@linuxfoundation.org>
+Subject: [PATCH 4.19 107/168] net: dsa: rtl8366: Fix VLAN semantics
+Date:   Mon, 17 Aug 2020 17:17:18 +0200
+Message-Id: <20200817143739.041697692@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -44,35 +47,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 202798db9570104728dce8bb57dfeed47ce764bc ]
+[ Upstream commit 15ab7906cc9290afb006df1bb1074907fbcc7061 ]
 
-We should not call hci_unregister_dev if the device was not
-successfully registered.
+The RTL8366 would not handle adding new members (ports) to
+a VLAN: the code assumed that ->port_vlan_add() was only
+called once for a single port. When intializing the
+switch with .configure_vlan_while_not_filtering set to
+true, the function is called numerous times for adding
+all ports to VLAN1, which was something the code could
+not handle.
 
-Fixes: c34dc3bfa7642fd ("Bluetooth: hci_serdev: Introduce hci_uart_unregister_device()")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Alter rtl8366_set_vlan() to just |= new members and
+untagged flags to 4k and MC VLAN table entries alike.
+This makes it possible to just add new ports to a
+VLAN.
+
+Put in some helpful debug code that can be used to find
+any further bugs here.
+
+Cc: DENG Qingfang <dqfext@gmail.com>
+Cc: Mauri Sandberg <sandberg@mailfence.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_serdev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/dsa/rtl8366.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index 46e20444ba19b..d3fb0d657fa52 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -369,7 +369,8 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 	struct hci_dev *hdev = hu->hdev;
+diff --git a/drivers/net/dsa/rtl8366.c b/drivers/net/dsa/rtl8366.c
+index c281c488a306f..145f34de7b416 100644
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -43,18 +43,26 @@ int rtl8366_set_vlan(struct realtek_smi *smi, int vid, u32 member,
+ 	int ret;
+ 	int i;
  
- 	clear_bit(HCI_UART_PROTO_READY, &hu->flags);
--	hci_unregister_dev(hdev);
-+	if (test_bit(HCI_UART_REGISTERED, &hu->flags))
-+		hci_unregister_dev(hdev);
- 	hci_free_dev(hdev);
++	dev_dbg(smi->dev,
++		"setting VLAN%d 4k members: 0x%02x, untagged: 0x%02x\n",
++		vid, member, untag);
++
+ 	/* Update the 4K table */
+ 	ret = smi->ops->get_vlan_4k(smi, vid, &vlan4k);
+ 	if (ret)
+ 		return ret;
  
- 	cancel_work_sync(&hu->write_work);
+-	vlan4k.member = member;
+-	vlan4k.untag = untag;
++	vlan4k.member |= member;
++	vlan4k.untag |= untag;
+ 	vlan4k.fid = fid;
+ 	ret = smi->ops->set_vlan_4k(smi, &vlan4k);
+ 	if (ret)
+ 		return ret;
+ 
++	dev_dbg(smi->dev,
++		"resulting VLAN%d 4k members: 0x%02x, untagged: 0x%02x\n",
++		vid, vlan4k.member, vlan4k.untag);
++
+ 	/* Try to find an existing MC entry for this VID */
+ 	for (i = 0; i < smi->num_vlan_mc; i++) {
+ 		struct rtl8366_vlan_mc vlanmc;
+@@ -65,11 +73,16 @@ int rtl8366_set_vlan(struct realtek_smi *smi, int vid, u32 member,
+ 
+ 		if (vid == vlanmc.vid) {
+ 			/* update the MC entry */
+-			vlanmc.member = member;
+-			vlanmc.untag = untag;
++			vlanmc.member |= member;
++			vlanmc.untag |= untag;
+ 			vlanmc.fid = fid;
+ 
+ 			ret = smi->ops->set_vlan_mc(smi, i, &vlanmc);
++
++			dev_dbg(smi->dev,
++				"resulting VLAN%d MC members: 0x%02x, untagged: 0x%02x\n",
++				vid, vlanmc.member, vlanmc.untag);
++
+ 			break;
+ 		}
+ 	}
 -- 
 2.25.1
 
