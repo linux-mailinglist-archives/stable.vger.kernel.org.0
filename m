@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 358DA247315
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985A0247312
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391713AbgHQSu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:50:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39854 "EHLO mail.kernel.org"
+        id S2387920AbgHQSur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:50:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387907AbgHQPxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:12 -0400
+        id S2387919AbgHQPx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEDDF208B3;
-        Mon, 17 Aug 2020 15:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAEF0208C7;
+        Mon, 17 Aug 2020 15:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679592;
-        bh=zJJf9ufwWpUpsbzGQo2GcLdzmv5cztp9mfuTvLC4nV4=;
+        s=default; t=1597679598;
+        bh=Zhr72qCloKmSKihEzvvhRpi+WqP9C5JQJiJVztuEjV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl6//lGa5LZ/aybJALS286n4aOCcQ5v5byDq3Va/hr4u1EWFD7CLFQDrJ/nVJK97j
-         nuLIHIv83JmT+vvZDB80dPNnhRbb2cQqFtD2SKCh+M+Qnd/P9+2mOcFg0LZo8ts7gy
-         XpRMteV+/KUYp/IwggwsGxiE55mNwpbWgUX9vY20=
+        b=fy5jzI2wnAObdrvxd85YxMukHxI18WnB10Za6mU28thnJDRuKwMhJxCyCso/O4NsT
+         NCo69M1IBALO20jJv3ViCxOgZJW+ap7errIeZPxivImJDWs0LefdhiJN7utmqElvbX
+         PoTb7Q5lonzcLGBcybeKeuBnCh7GE7RZU6W7rqtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Harish <harish@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 268/393] selftests/powerpc: Fix CPU affinity for child process
-Date:   Mon, 17 Aug 2020 17:15:18 +0200
-Message-Id: <20200817143832.617353076@linuxfoundation.org>
+Subject: [PATCH 5.7 270/393] RDMA/netlink: Remove CAP_NET_RAW check when dump a raw QP
+Date:   Mon, 17 Aug 2020 17:15:20 +0200
+Message-Id: <20200817143832.717274797@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -48,80 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harish <harish@linux.ibm.com>
+From: Mark Zhang <markz@mellanox.com>
 
-[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
+[ Upstream commit 1d70ad0f85435a7262de802b104e49e6598c50ff ]
 
-On systems with large number of cpus, test fails trying to set
-affinity by calling sched_setaffinity() with smaller size for affinity
-mask. This patch fixes it by making sure that the size of allocated
-affinity mask is dependent on the number of CPUs as reported by
-get_nprocs().
+When dumping QPs bound to a counter, raw QPs should be allowed to dump
+without the CAP_NET_RAW privilege. This is consistent with what "rdma res
+show qp" does.
 
-Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Signed-off-by: Harish <harish@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
+Fixes: c4ffee7c9bdb ("RDMA/netlink: Implement counter dumpit calback")
+Link: https://lore.kernel.org/r/20200727095828.496195-1-leon@kernel.org
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/infiniband/core/nldev.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-index a2e8c9da7fa53..d50cc05df4952 100644
---- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-+++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
-@@ -19,6 +19,7 @@
- #include <limits.h>
- #include <sys/time.h>
- #include <sys/syscall.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <sys/shm.h>
- #include <linux/futex.h>
-@@ -104,8 +105,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index e16105be2eb23..98cd6403ca602 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -738,9 +738,6 @@ static int fill_stat_counter_qps(struct sk_buff *msg,
+ 	xa_lock(&rt->xa);
+ 	xa_for_each(&rt->xa, id, res) {
+ 		qp = container_of(res, struct ib_qp, res);
+-		if (qp->qp_type == IB_QPT_RAW_PACKET && !capable(CAP_NET_RAW))
+-			continue;
+-
+ 		if (!qp->counter || (qp->counter->id != counter->id))
+ 			continue;
  
- static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
- {
--	int pid;
--	cpu_set_t cpuset;
-+	int pid, ncpus;
-+	cpu_set_t *cpuset;
-+	size_t size;
- 
- 	pid = fork();
- 	if (pid == -1) {
-@@ -116,14 +118,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
- 	if (pid)
- 		return;
- 
--	CPU_ZERO(&cpuset);
--	CPU_SET(cpu, &cpuset);
-+	ncpus = get_nprocs();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	cpuset = CPU_ALLOC(ncpus);
-+	if (!cpuset) {
-+		perror("malloc");
-+		exit(1);
-+	}
-+	CPU_ZERO_S(size, cpuset);
-+	CPU_SET_S(cpu, size, cpuset);
- 
--	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
-+	if (sched_setaffinity(0, size, cpuset)) {
- 		perror("sched_setaffinity");
-+		CPU_FREE(cpuset);
- 		exit(1);
- 	}
- 
-+	CPU_FREE(cpuset);
- 	fn(arg);
- 
- 	exit(0);
 -- 
 2.25.1
 
