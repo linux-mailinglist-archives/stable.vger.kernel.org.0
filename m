@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE25824727F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F34E24727C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:44:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391493AbgHQSnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:43:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43660 "EHLO mail.kernel.org"
+        id S2391006AbgHQSnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388075AbgHQP4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:56:44 -0400
+        id S2388086AbgHQP4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:56:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C013C207FF;
-        Mon, 17 Aug 2020 15:56:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 809BF2053B;
+        Mon, 17 Aug 2020 15:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679803;
-        bh=nW21AHRpNbXFTr0vxcK4B0tYx33N8hK0p9KvN3PsyP8=;
+        s=default; t=1597679806;
+        bh=xdUZ6JmuAWxPCP7ksF1xp3Pn0z3uNevBMXyZq8yKP4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aya4SCtlvczK2miZ5PyG+nLiA2oiUyPmq1mCRXq6naPzbIAzV7ViOdHdD3yQsSd4e
-         whzNF2oWAyF9xHV5YNXCOVpOE6qSv3Swx4Xkc58jKOLwY3zvcZKI06qr7sxt6nVXeV
-         aLC9ggn9glkiv87stZacG+kvrb3W95xFyIo4jUcU=
+        b=XZ5M4gIIwRCKCldptEtqgEJosW3r3rVuxJfxpwFjq5at9bCb/me/jjguXVW0TgMka
+         o0pJLY58kC1X9Z6ItdDLpdybUgB9DP0caSf93CgoTt0SZG+jH+8/CKDcsbquL8QS3m
+         Ujvw5T9zfuW2Yo9hREk7bKnxA5RXxMUbGj0O0RYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.7 339/393] tpm: Unify the mismatching TPM space buffer sizes
-Date:   Mon, 17 Aug 2020 17:16:29 +0200
-Message-Id: <20200817143836.040654740@linuxfoundation.org>
+        stable@vger.kernel.org, Matteo Croce <mcroce@linux.microsoft.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.7 340/393] pstore: Fix linking when crypto API disabled
+Date:   Mon, 17 Aug 2020 17:16:30 +0200
+Message-Id: <20200817143836.089435992@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,165 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+From: Matteo Croce <mcroce@linux.microsoft.com>
 
-commit 6c4e79d99e6f42b79040f1a33cd4018f5425030b upstream.
+commit fd49e03280e596e54edb93a91bc96170f8e97e4a upstream.
 
-The size of the buffers for storing context's and sessions can vary from
-arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
-maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
-enough for most use with three handles (that is how many we allow at the
-moment). Parametrize the buffer size while doing this, so that it is easier
-to revisit this later on if required.
+When building a kernel with CONFIG_PSTORE=y and CONFIG_CRYPTO not set,
+a build error happens:
 
+    ld: fs/pstore/platform.o: in function `pstore_dump':
+    platform.c:(.text+0x3f9): undefined reference to `crypto_comp_compress'
+    ld: fs/pstore/platform.o: in function `pstore_get_backend_records':
+    platform.c:(.text+0x784): undefined reference to `crypto_comp_decompress'
+
+This because some pstore code uses crypto_comp_(de)compress regardless
+of the CONFIG_CRYPTO status. Fix it by wrapping the (de)compress usage
+by IS_ENABLED(CONFIG_PSTORE_COMPRESS)
+
+Signed-off-by: Matteo Croce <mcroce@linux.microsoft.com>
+Link: https://lore.kernel.org/lkml/20200706234045.9516-1-mcroce@linux.microsoft.com
+Fixes: cb3bee0369bc ("pstore: Use crypto compress API")
 Cc: stable@vger.kernel.org
-Reported-by: Stefan Berger <stefanb@linux.ibm.com>
-Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm-chip.c   |    9 ++-------
- drivers/char/tpm/tpm.h        |    5 ++++-
- drivers/char/tpm/tpm2-space.c |   26 ++++++++++++++++----------
- drivers/char/tpm/tpmrm-dev.c  |    2 +-
- include/linux/tpm.h           |    1 +
- 5 files changed, 24 insertions(+), 19 deletions(-)
+ fs/pstore/platform.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -386,13 +386,8 @@ struct tpm_chip *tpm_chip_alloc(struct d
- 	chip->cdev.owner = THIS_MODULE;
- 	chip->cdevs.owner = THIS_MODULE;
- 
--	chip->work_space.context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!chip->work_space.context_buf) {
--		rc = -ENOMEM;
--		goto out;
--	}
--	chip->work_space.session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!chip->work_space.session_buf) {
-+	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
-+	if (rc) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -59,6 +59,9 @@ enum tpm_addr {
- 
- #define TPM_TAG_RQU_COMMAND 193
- 
-+/* TPM2 specific constants. */
-+#define TPM2_SPACE_BUFFER_SIZE		16384 /* 16 kB */
-+
- struct	stclear_flags_t {
- 	__be16	tag;
- 	u8	deactivated;
-@@ -228,7 +231,7 @@ unsigned long tpm2_calc_ordinal_duration
- int tpm2_probe(struct tpm_chip *chip);
- int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip);
- int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
--int tpm2_init_space(struct tpm_space *space);
-+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size);
- void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
- void tpm2_flush_space(struct tpm_chip *chip);
- int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
---- a/drivers/char/tpm/tpm2-space.c
-+++ b/drivers/char/tpm/tpm2-space.c
-@@ -38,18 +38,21 @@ static void tpm2_flush_sessions(struct t
- 	}
- }
- 
--int tpm2_init_space(struct tpm_space *space)
-+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size)
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -275,6 +275,9 @@ static int pstore_compress(const void *i
  {
--	space->context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-+	space->context_buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (!space->context_buf)
- 		return -ENOMEM;
+ 	int ret;
  
--	space->session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-+	space->session_buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (space->session_buf == NULL) {
- 		kfree(space->context_buf);
-+		/* Prevent caller getting a dangling pointer. */
-+		space->context_buf = NULL;
- 		return -ENOMEM;
- 	}
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION))
++		return -EINVAL;
++
+ 	ret = crypto_comp_compress(tfm, in, inlen, out, &outlen);
+ 	if (ret) {
+ 		pr_err("crypto_comp_compress failed, ret = %d!\n", ret);
+@@ -661,7 +664,7 @@ static void decompress_record(struct pst
+ 	int unzipped_len;
+ 	char *unzipped, *workspace;
  
-+	space->buf_size = buf_size;
- 	return 0;
- }
+-	if (!record->compressed)
++	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION) || !record->compressed)
+ 		return;
  
-@@ -311,8 +314,10 @@ int tpm2_prepare_space(struct tpm_chip *
- 	       sizeof(space->context_tbl));
- 	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
- 	       sizeof(space->session_tbl));
--	memcpy(chip->work_space.context_buf, space->context_buf, PAGE_SIZE);
--	memcpy(chip->work_space.session_buf, space->session_buf, PAGE_SIZE);
-+	memcpy(chip->work_space.context_buf, space->context_buf,
-+	       space->buf_size);
-+	memcpy(chip->work_space.session_buf, space->session_buf,
-+	       space->buf_size);
- 
- 	rc = tpm2_load_space(chip);
- 	if (rc) {
-@@ -492,7 +497,7 @@ static int tpm2_save_space(struct tpm_ch
- 			continue;
- 
- 		rc = tpm2_save_context(chip, space->context_tbl[i],
--				       space->context_buf, PAGE_SIZE,
-+				       space->context_buf, space->buf_size,
- 				       &offset);
- 		if (rc == -ENOENT) {
- 			space->context_tbl[i] = 0;
-@@ -509,9 +514,8 @@ static int tpm2_save_space(struct tpm_ch
- 			continue;
- 
- 		rc = tpm2_save_context(chip, space->session_tbl[i],
--				       space->session_buf, PAGE_SIZE,
-+				       space->session_buf, space->buf_size,
- 				       &offset);
--
- 		if (rc == -ENOENT) {
- 			/* handle error saving session, just forget it */
- 			space->session_tbl[i] = 0;
-@@ -557,8 +561,10 @@ int tpm2_commit_space(struct tpm_chip *c
- 	       sizeof(space->context_tbl));
- 	memcpy(&space->session_tbl, &chip->work_space.session_tbl,
- 	       sizeof(space->session_tbl));
--	memcpy(space->context_buf, chip->work_space.context_buf, PAGE_SIZE);
--	memcpy(space->session_buf, chip->work_space.session_buf, PAGE_SIZE);
-+	memcpy(space->context_buf, chip->work_space.context_buf,
-+	       space->buf_size);
-+	memcpy(space->session_buf, chip->work_space.session_buf,
-+	       space->buf_size);
- 
- 	return 0;
- out:
---- a/drivers/char/tpm/tpmrm-dev.c
-+++ b/drivers/char/tpm/tpmrm-dev.c
-@@ -21,7 +21,7 @@ static int tpmrm_open(struct inode *inod
- 	if (priv == NULL)
- 		return -ENOMEM;
- 
--	rc = tpm2_init_space(&priv->space);
-+	rc = tpm2_init_space(&priv->space, TPM2_SPACE_BUFFER_SIZE);
- 	if (rc) {
- 		kfree(priv);
- 		return -ENOMEM;
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -96,6 +96,7 @@ struct tpm_space {
- 	u8 *context_buf;
- 	u32 session_tbl[3];
- 	u8 *session_buf;
-+	u32 buf_size;
- };
- 
- struct tpm_bios_log {
+ 	/* Only PSTORE_TYPE_DMESG support compression. */
 
 
