@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A500D246972
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA5B246974
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729415AbgHQPWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:22:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45178 "EHLO mail.kernel.org"
+        id S1729425AbgHQPWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:22:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729411AbgHQPWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:22:02 -0400
+        id S1729414AbgHQPWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:22:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A09C5208C7;
-        Mon, 17 Aug 2020 15:22:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D4C822D3E;
+        Mon, 17 Aug 2020 15:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677722;
-        bh=i02g/80+xU9ubA8gjbp4xU1NME5Fnda4eKEjvCeN7yE=;
+        s=default; t=1597677724;
+        bh=nYm3RprnuRVhwg3iVyxfrb0xM+3RXe/tSRGDEgoHWNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWyWxsb11bny1MHOKNO6RUFCjJGtYH70ZNXVV85k94ZUytryRGbCcOlEZKb13Jdnf
-         J0f6YJ71xfGx8cIcY10Wn06SlOHCG2TxbPiz6PkzuLu5McZxC+XSSx1bzhWpWMG6nu
-         2f3RwqtzTFh/jyJdJR8M86B4n5SVB4XT98VXHfIM=
+        b=w6669myVyKHEkm06SYxbHGmbCY6i2QamJjKv/EUbpPy78VhEClXV39bD5i8MZSu8y
+         0tjLvShWIrgwv7/Tws7ikdaPvzEMnavXlUDTLGCl0DJm3qFDxBH1zRTIDaYEsyUrWu
+         Kg+a2oTyuqzqMRS1qskZapNdyETa/ORJ94FCLkkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 083/464] io_uring: fix req->work corruption
-Date:   Mon, 17 Aug 2020 17:10:36 +0200
-Message-Id: <20200817143837.760573337@linuxfoundation.org>
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 084/464] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
+Date:   Mon, 17 Aug 2020 17:10:37 +0200
+Message-Id: <20200817143837.809469765@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,56 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 8ef77766ba8694968ed4ba24311b4bacee14f235 ]
+[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
 
-req->work and req->task_work are in a union, so io_req_task_queue() screws
-everything that was in work. De-union them for now.
+Very large I/Os can cause the following RCU CPU stall warning:
 
-[  704.367253] BUG: unable to handle page fault for address:
-	ffffffffaf7330d0
-[  704.367256] #PF: supervisor write access in kernel mode
-[  704.367256] #PF: error_code(0x0003) - permissions violation
-[  704.367261] CPU: 6 PID: 1654 Comm: io_wqe_worker-0 Tainted: G
-I       5.8.0-rc2-00038-ge28d0bdc4863-dirty #498
-[  704.367265] RIP: 0010:_raw_spin_lock+0x1e/0x36
-...
-[  704.367276]  __alloc_fd+0x35/0x150
-[  704.367279]  __get_unused_fd_flags+0x25/0x30
-[  704.367280]  io_openat2+0xcb/0x1b0
-[  704.367283]  io_issue_sqe+0x36a/0x1320
-[  704.367294]  io_wq_submit_work+0x58/0x160
-[  704.367295]  io_worker_handle_work+0x2a3/0x430
-[  704.367296]  io_wqe_worker+0x2a0/0x350
-[  704.367301]  kthread+0x136/0x180
-[  704.367304]  ret_from_fork+0x22/0x30
+RIP: 0010:rb_prev+0x8/0x50
+Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
+89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
+RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
+RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
+RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
+RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
+R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
+R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
+ __lookup_extent_mapping+0xa0/0x110
+ try_release_extent_mapping+0xdc/0x220
+ btrfs_releasepage+0x45/0x70
+ shrink_page_list+0xa39/0xb30
+ shrink_inactive_list+0x18f/0x3b0
+ shrink_lruvec+0x38e/0x6b0
+ shrink_node+0x14d/0x690
+ do_try_to_free_pages+0xc6/0x3e0
+ try_to_free_mem_cgroup_pages+0xe6/0x1e0
+ reclaim_high.constprop.73+0x87/0xc0
+ mem_cgroup_handle_over_high+0x66/0x150
+ exit_to_usermode_loop+0x82/0xd0
+ do_syscall_64+0xd4/0x100
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+On a PREEMPT=n kernel, the try_release_extent_mapping() function's
+"while" loop might run for a very long time on a large I/O.  This commit
+therefore adds a cond_resched() to this loop, providing RCU any needed
+quiescent states.
+
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/extent_io.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8503aec7ea295..d732566955d37 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -669,12 +669,12 @@ struct io_kiocb {
- 		 * restore the work, if needed.
- 		 */
- 		struct {
--			struct callback_head	task_work;
- 			struct hlist_node	hash_node;
- 			struct async_poll	*apoll;
- 		};
- 		struct io_wq_work	work;
- 	};
-+	struct callback_head	task_work;
- };
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 60278e52c37ab..eeaee346f5a95 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4516,6 +4516,8 @@ int try_release_extent_mapping(struct page *page, gfp_t mask)
  
- #define IO_PLUG_THRESHOLD		2
+ 			/* once for us */
+ 			free_extent_map(em);
++
++			cond_resched(); /* Allow large-extent preemption. */
+ 		}
+ 	}
+ 	return try_release_extent_state(tree, page, mask);
 -- 
 2.25.1
 
