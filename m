@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9426A247472
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2AD247475
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730775AbgHQPlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51594 "EHLO mail.kernel.org"
+        id S1730509AbgHQTKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbgHQPlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:51 -0400
+        id S1730781AbgHQPly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:41:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B3B922CF8;
-        Mon, 17 Aug 2020 15:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7A8520760;
+        Mon, 17 Aug 2020 15:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678910;
-        bh=s2bVGAhZxzkklepQXeBLPTCF0rSqnarv9PWI2eXr2p4=;
+        s=default; t=1597678913;
+        bh=jUQYFr/zNcIZpn8MHrRMQ4VbgAFjyryo9kcyksEqlsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erC043ncfx3iLDzJbLpDv1emgeFAfNGceO3Gk1PdXyYFqTKB+npTD1/RppO/0S1kr
-         wQZei8w57zx4gHaghQrM4u+/9L1ZzKAi6iOq4BA+SoRdcFRhz8pGzCySommJ6w/4uq
-         5p1NTacIl17XBsWmdVSkrcIe4SwSCI0LICU9Vkgc=
+        b=cx3HAkA9QWBMrkcr+3VgxK/1SzrEZcG+Pz+b4Eh7f+lnLsVD3V4NjInE6AiLS3k/j
+         AvdRQ1c5TzoblaDdQq4DBKU0fWrqdTQG6crW6LeAI2f4W14TJ3rW0asAlz8VYmXony
+         /8Qcri0pgicpQ3dq3nS8TDH7dAVWx0Gi4T4Tqp50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Lu Wei <luwei32@huawei.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 032/393] platform/x86: intel-vbtn: Fix return value check in check_acpi_dev()
-Date:   Mon, 17 Aug 2020 17:11:22 +0200
-Message-Id: <20200817143821.164685782@linuxfoundation.org>
+Subject: [PATCH 5.7 033/393] ARM: dts: gose: Fix ports node name for adv7180
+Date:   Mon, 17 Aug 2020 17:11:23 +0200
+Message-Id: <20200817143821.215410804@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,35 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit 64dd4a5a7d214a07e3d9f40227ec30ac8ba8796e ]
+[ Upstream commit d344234abde938ae1062edb6c05852b0bafb4a03 ]
 
-In the function check_acpi_dev(), if it fails to create
-platform device, the return value is ERR_PTR() or NULL.
-Thus it must use IS_ERR_OR_NULL() to check return value.
+When adding the adv7180 device node the ports node was misspelled as
+port, fix this.
 
-Fixes: 332e081225fc ("intel-vbtn: new driver for Intel Virtual Button")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 8cae359049a88b75 ("ARM: dts: gose: add composite video input")
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/20200704155856.3037010-2-niklas.soderlund+renesas@ragnatech.se
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 2 +-
+ arch/arm/boot/dts/r8a7793-gose.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index a05b80955dcdd..5db8b7ad1f5df 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -286,7 +286,7 @@ check_acpi_dev(acpi_handle handle, u32 lvl, void *context, void **rv)
- 		return AE_OK;
+diff --git a/arch/arm/boot/dts/r8a7793-gose.dts b/arch/arm/boot/dts/r8a7793-gose.dts
+index 79baf06019f5a..a378b54867bb4 100644
+--- a/arch/arm/boot/dts/r8a7793-gose.dts
++++ b/arch/arm/boot/dts/r8a7793-gose.dts
+@@ -336,7 +336,7 @@ composite-in@20 {
+ 			reg = <0x20>;
+ 			remote = <&vin1>;
  
- 	if (acpi_match_device_ids(dev, ids) == 0)
--		if (acpi_create_platform_device(dev, NULL))
-+		if (!IS_ERR_OR_NULL(acpi_create_platform_device(dev, NULL)))
- 			dev_info(&dev->dev,
- 				 "intel-vbtn: created platform device\n");
+-			port {
++			ports {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
  
 -- 
 2.25.1
