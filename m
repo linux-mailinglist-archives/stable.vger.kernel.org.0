@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DCC52473A7
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278C72473A3
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391826AbgHQS7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60972 "EHLO mail.kernel.org"
+        id S2388015AbgHQS6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387414AbgHQPsp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:48:45 -0400
+        id S2387681AbgHQPtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:49:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55D872067C;
-        Mon, 17 Aug 2020 15:48:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB81020855;
+        Mon, 17 Aug 2020 15:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679325;
-        bh=C8HJY6mzlMYJgOJb/37DmfGgi7e8IQV70Tp3hB3M2jk=;
+        s=default; t=1597679357;
+        bh=11TQG3Ov6Oau5HVpZcE9BPBg2ylugEwIixlNmsWPxMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rc+qfE14BVCsrJkLy/5PVlqzfXBwP6Sodfj9akvfScHMndvm3VJTZOAwOdJEXUxqK
-         5dvayqCqqh7LCrHEuSfXK8975AqxoWjclXC9BoqM15zvv1BnYqoyTZuJi5hyCESKWs
-         HmFW3PEHY4j6K3Q4WO1gcQjIMJycmP056W93k+Uc=
+        b=AlquORPRpdmunFGh3iyKYV6mwwh41dh7L75k7HqU5jfxyGw8C/Vt+w/rpJXVAjFKm
+         XEOFSHHtQGJ+X6kN/Ax7sTQf6CNtsnFvfG6X9nLfGYtzCPkxNhxvwaL6Pgc0N8KM32
+         iU3gdZQXFMvM4Jx89YA++0hZ/TeEd79JYTAJCU0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 155/393] staging: most: avoid null pointer dereference when iface is null
-Date:   Mon, 17 Aug 2020 17:13:25 +0200
-Message-Id: <20200817143827.135155225@linuxfoundation.org>
+Subject: [PATCH 5.7 156/393] dpaa2-eth: fix condition for number of buffer acquire retries
+Date:   Mon, 17 Aug 2020 17:13:26 +0200
+Message-Id: <20200817143827.183301761@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit e4463e49e29f43eecec86e2e2b2e2ab4feb7d867 ]
+[ Upstream commit 0e5ad75b02d9341eb9ca22627247f9a02cc20d6f ]
 
-In the case where the pointer iface is null then the reporting of this
-error will dereference iface when printing an error message causing which
-is not ideal.  Since the majority of callers to most_register_interface
-report an error when -EINVAL is returned a simple fix is to just remove
-the error message, I doubt it will be missed.
+We should keep retrying to acquire buffers through the software portals
+as long as the function returns -EBUSY and the number of retries is
+__below__ DPAA2_ETH_SWP_BUSY_RETRIES.
 
-Addresses-Coverity: ("Dereference after null check")
-Fixes: 57562a72414c ("Staging: most: add MOST driver's core module")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200624163957.11676-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ef17bd7cc0c8 ("dpaa2-eth: Avoid unbounded while loops")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/most/core.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/most/core.c b/drivers/most/core.c
-index f781c46cd4af9..353ab277cbc6b 100644
---- a/drivers/most/core.c
-+++ b/drivers/most/core.c
-@@ -1283,10 +1283,8 @@ int most_register_interface(struct most_interface *iface)
- 	struct most_channel *c;
- 
- 	if (!iface || !iface->enqueue || !iface->configure ||
--	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS)) {
--		dev_err(iface->dev, "Bad interface or channel overflow\n");
-+	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS))
- 		return -EINVAL;
--	}
- 
- 	id = ida_simple_get(&mdev_id, 0, 0, GFP_KERNEL);
- 	if (id < 0) {
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index b7031f8562e04..665ec7269c603 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -1054,7 +1054,7 @@ static void drain_bufs(struct dpaa2_eth_priv *priv, int count)
+ 					       buf_array, count);
+ 		if (ret < 0) {
+ 			if (ret == -EBUSY &&
+-			    retries++ >= DPAA2_ETH_SWP_BUSY_RETRIES)
++			    retries++ < DPAA2_ETH_SWP_BUSY_RETRIES)
+ 				continue;
+ 			netdev_err(priv->net_dev, "dpaa2_io_service_acquire() failed\n");
+ 			return;
 -- 
 2.25.1
 
