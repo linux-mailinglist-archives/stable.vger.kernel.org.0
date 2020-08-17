@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15EA1247105
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15B52470FC
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388655AbgHQSTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53238 "EHLO mail.kernel.org"
+        id S2390558AbgHQSTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388358AbgHQQFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:05:24 -0400
+        id S2388359AbgHQQFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:05:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE97D208B3;
-        Mon, 17 Aug 2020 16:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2383C20885;
+        Mon, 17 Aug 2020 16:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680312;
-        bh=pPGflhWf9CToCkrIk7EKW0g3pL6oyUS7nKayUPweHrk=;
+        s=default; t=1597680314;
+        bh=2F0P9FV987QZlm7wURu7j5FbEmfRyutvHSuhN2qNUmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9oEYMMPpF/MnQyGOZTgGDZ0J/p4+5hWjZu2PA8jL+zrj6XgjmOCVQVXsO4zsLtwF
-         IlivlZH7pWPYhMVMklgljTObSVyoz1Kr2TBMZeFG1Bp6K4nTy/T2yqeaTHRxjcKBjA
-         PmG4RpcoXCWJpSRldvjOwayD1Bxr+93tGsQF5rxw=
+        b=QNyO4aM32KRCkW605UWxegbNE/W5NCLwWrb38O93WjNAm0cbixJkoSriAz5ZUKriI
+         LxSsqG74KE1trDpA5H4aldb5Capkdxf60ukTgMDzjPC59mpiJe2IA+UAxwdbw/irH3
+         OWd8eBbjGTSflV7NskMGv3O17OJD/pu++82LQ+jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/270] drm/bridge: sil_sii8620: initialize return of sii8620_readb
-Date:   Mon, 17 Aug 2020 17:15:38 +0200
-Message-Id: <20200817143802.617348399@linuxfoundation.org>
+Subject: [PATCH 5.4 138/270] scsi: scsi_debug: Add check for sdebug_max_queue during module init
+Date:   Mon, 17 Aug 2020 17:15:39 +0200
+Message-Id: <20200817143802.679392751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -46,47 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 02cd2d3144653e6e2a0c7ccaa73311e48e2dc686 ]
+[ Upstream commit c87bf24cfb60bce27b4d2c7e56ebfd86fb9d16bb ]
 
-clang static analysis flags this error
+sdebug_max_queue should not exceed SDEBUG_CANQUEUE, otherwise crashes like
+this can be triggered by passing an out-of-range value:
 
-sil-sii8620.c:184:2: warning: Undefined or garbage value
-  returned to caller [core.uninitialized.UndefReturn]
-        return ret;
-        ^~~~~~~~~~
+Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0 - V1.16.01 03/15/2019
+ pstate: 20400009 (nzCv daif +PAN -UAO BTYPE=--)
+ pc : schedule_resp+0x2a4/0xa70 [scsi_debug]
+ lr : schedule_resp+0x52c/0xa70 [scsi_debug]
+ sp : ffff800022ab36f0
+ x29: ffff800022ab36f0 x28: ffff0023a935a610
+ x27: ffff800008e0a648 x26: 0000000000000003
+ x25: ffff0023e84f3200 x24: 00000000003d0900
+ x23: 0000000000000000 x22: 0000000000000000
+ x21: ffff0023be60a320 x20: ffff0023be60b538
+ x19: ffff800008e13000 x18: 0000000000000000
+ x17: 0000000000000000 x16: 0000000000000000
+ x15: 0000000000000000 x14: 0000000000000000
+ x13: 0000000000000000 x12: 0000000000000000
+ x11: 0000000000000000 x10: 0000000000000000
+ x9 : 0000000000000001 x8 : 0000000000000000
+ x7 : 0000000000000000 x6 : 00000000000000c1
+ x5 : 0000020000200000 x4 : dead0000000000ff
+ x3 : 0000000000000200 x2 : 0000000000000200
+ x1 : ffff800008e13d88 x0 : 0000000000000000
+ Call trace:
+schedule_resp+0x2a4/0xa70 [scsi_debug]
+scsi_debug_queuecommand+0x2c4/0x9e0 [scsi_debug]
+scsi_queue_rq+0x698/0x840
+__blk_mq_try_issue_directly+0x108/0x228
+blk_mq_request_issue_directly+0x58/0x98
+blk_mq_try_issue_list_directly+0x5c/0xf0
+blk_mq_sched_insert_requests+0x18c/0x200
+blk_mq_flush_plug_list+0x11c/0x190
+blk_flush_plug_list+0xdc/0x110
+blk_finish_plug+0x38/0x210
+blkdev_direct_IO+0x450/0x4d8
+generic_file_read_iter+0x84/0x180
+blkdev_read_iter+0x3c/0x50
+aio_read+0xc0/0x170
+io_submit_one+0x5c8/0xc98
+__arm64_sys_io_submit+0x1b0/0x258
+el0_svc_common.constprop.3+0x68/0x170
+do_el0_svc+0x24/0x90
+el0_sync_handler+0x13c/0x1a8
+el0_sync+0x158/0x180
+ Code: 528847e0 72a001e0 6b00003f 540018cd (3941c340)
 
-sii8620_readb calls sii8620_read_buf.
-sii8620_read_buf can return without setting its output
-pararmeter 'ret'.
+In addition, it should not be less than 1.
 
-So initialize ret.
+So add checks for these, and fail the module init for those cases.
 
-Fixes: ce6e153f414a ("drm/bridge: add Silicon Image SiI8620 driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200712152453.27510-1-trix@redhat.com
+[mkp: changed if condition to match error message]
+
+Link: https://lore.kernel.org/r/1594297400-24756-2-git-send-email-john.garry@huawei.com
+Fixes: c483739430f1 ("scsi_debug: add multiple queue support")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index bd3165ee53541..04431dbac4a4f 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -177,7 +177,7 @@ static void sii8620_read_buf(struct sii8620 *ctx, u16 addr, u8 *buf, int len)
- 
- static u8 sii8620_readb(struct sii8620 *ctx, u16 addr)
- {
--	u8 ret;
-+	u8 ret = 0;
- 
- 	sii8620_read_buf(ctx, addr, &ret, 1);
- 	return ret;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 32965ec76965a..44181a2cbf18d 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -5296,6 +5296,12 @@ static int __init scsi_debug_init(void)
+ 		pr_err("submit_queues must be 1 or more\n");
+ 		return -EINVAL;
+ 	}
++
++	if ((sdebug_max_queue > SDEBUG_CANQUEUE) || (sdebug_max_queue < 1)) {
++		pr_err("max_queue must be in range [1, %d]\n", SDEBUG_CANQUEUE);
++		return -EINVAL;
++	}
++
+ 	sdebug_q_arr = kcalloc(submit_queues, sizeof(struct sdebug_queue),
+ 			       GFP_KERNEL);
+ 	if (sdebug_q_arr == NULL)
 -- 
 2.25.1
 
