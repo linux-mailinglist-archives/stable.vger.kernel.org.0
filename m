@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DD22476A9
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AF72476A5
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732539AbgHQTkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32968 "EHLO mail.kernel.org"
+        id S1732520AbgHQTkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729768AbgHQPZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:25:53 -0400
+        id S1729488AbgHQPZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:25:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81AC1205CB;
-        Mon, 17 Aug 2020 15:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1219E205CB;
+        Mon, 17 Aug 2020 15:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677953;
-        bh=9tU5YFD76bVfGvbZRgLUI4JCisB5S13EcVehNhmKP9w=;
+        s=default; t=1597677958;
+        bh=4EeZo2BVJkUQH+XtB+Bb6i6GYCa2O/0wHaEUqGFgXQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXjYdXHo9CeXKExJ4jGhwcg0LNR0hUniPMmVAMGaBUEhjsvzMg9OlfuDOeZR33L+U
-         O3SCpxPbMSQG1D8AYlsLtXEBjd98yXXxEbsVk1hUJJrtyOjlIUZY49tFRBUBiA1lR+
-         ecNs6l9f72JSq72/WgFy/yNUP+5Ntv//p4ttNdLE=
+        b=HjsuZZ1TXN4lsEhK8tRxn3cKkESPjegsKs1wBgrr5aMJjjhq4v1/z3c+7sz9Xm+B/
+         eGR2UClTH2fXhhYU9WNQiVeto3j1IHhS8MHd+V4HMeV4mi5gbgjmoWNobhy91iGrWc
+         Psn4qRdkxCJYHuP1PXHdBslEQS/+Mhx9NBWfTW74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 168/464] leds: lm355x: avoid enum conversion warning
-Date:   Mon, 17 Aug 2020 17:12:01 +0200
-Message-Id: <20200817143841.865037175@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Chen <Mark-YW.Chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 170/464] Bluetooth: btusb: fix up firmware download sequence
+Date:   Mon, 17 Aug 2020 17:12:03 +0200
+Message-Id: <20200817143841.964263701@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -43,58 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 985b1f596f9ed56f42b8c2280005f943e1434c06 ]
+[ Upstream commit f645125711c80f9651e4a57403d799070c6ad13b ]
 
-clang points out that doing arithmetic between diffent enums is usually
-a mistake:
+Data RAM on the device have to be powered on before starting to download
+the firmware.
 
-drivers/leds/leds-lm355x.c:167:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
-                reg_val = pdata->pin_tx2 | pdata->ntc_pin;
-                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
-drivers/leds/leds-lm355x.c:178:28: warning: bitwise operation between different enumeration types ('enum lm355x_tx2' and 'enum lm355x_ntc') [-Wenum-enum-conversion]
-                reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
-                          ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~
-
-In this driver, it is intentional, so add a cast to hide the false-positive
-warning. It appears to be the only instance of this warning at the moment.
-
-Fixes: b98d13c72592 ("leds: Add new LED driver for lm355x chips")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: a1c49c434e15 ("Bluetooth: btusb: Add protocol support for MediaTek MT7668U USB devices")
+Co-developed-by: Mark Chen <Mark-YW.Chen@mediatek.com>
+Signed-off-by: Mark Chen <Mark-YW.Chen@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-lm355x.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btusb.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/leds/leds-lm355x.c b/drivers/leds/leds-lm355x.c
-index 11ce052497514..b2eb2e1e9c04b 100644
---- a/drivers/leds/leds-lm355x.c
-+++ b/drivers/leds/leds-lm355x.c
-@@ -164,18 +164,19 @@ static int lm355x_chip_init(struct lm355x_chip_data *chip)
- 	/* input and output pins configuration */
- 	switch (chip->type) {
- 	case CHIP_LM3554:
--		reg_val = pdata->pin_tx2 | pdata->ntc_pin;
-+		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin;
- 		ret = regmap_update_bits(chip->regmap, 0xE0, 0x28, reg_val);
- 		if (ret < 0)
- 			goto out;
--		reg_val = pdata->pass_mode;
-+		reg_val = (u32)pdata->pass_mode;
- 		ret = regmap_update_bits(chip->regmap, 0xA0, 0x04, reg_val);
- 		if (ret < 0)
- 			goto out;
- 		break;
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 5f022e9cf667e..61ffe185e0e49 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2925,7 +2925,7 @@ static int btusb_mtk_setup_firmware(struct hci_dev *hdev, const char *fwname)
+ 	const u8 *fw_ptr;
+ 	size_t fw_size;
+ 	int err, dlen;
+-	u8 flag;
++	u8 flag, param;
  
- 	case CHIP_LM3556:
--		reg_val = pdata->pin_tx2 | pdata->ntc_pin | pdata->pass_mode;
-+		reg_val = (u32)pdata->pin_tx2 | (u32)pdata->ntc_pin |
-+		          (u32)pdata->pass_mode;
- 		ret = regmap_update_bits(chip->regmap, 0x0A, 0xC4, reg_val);
- 		if (ret < 0)
- 			goto out;
+ 	err = request_firmware(&fw, fwname, &hdev->dev);
+ 	if (err < 0) {
+@@ -2933,6 +2933,20 @@ static int btusb_mtk_setup_firmware(struct hci_dev *hdev, const char *fwname)
+ 		return err;
+ 	}
+ 
++	/* Power on data RAM the firmware relies on. */
++	param = 1;
++	wmt_params.op = BTMTK_WMT_FUNC_CTRL;
++	wmt_params.flag = 3;
++	wmt_params.dlen = sizeof(param);
++	wmt_params.data = &param;
++	wmt_params.status = NULL;
++
++	err = btusb_mtk_hci_wmt_sync(hdev, &wmt_params);
++	if (err < 0) {
++		bt_dev_err(hdev, "Failed to power on data RAM (%d)", err);
++		return err;
++	}
++
+ 	fw_ptr = fw->data;
+ 	fw_size = fw->size;
+ 
 -- 
 2.25.1
 
