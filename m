@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BE12469EC
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443AA2469F4
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729948AbgHQP1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40058 "EHLO mail.kernel.org"
+        id S1729983AbgHQP2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:28:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbgHQP1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:27:43 -0400
+        id S1729977AbgHQP1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:27:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B48012395A;
-        Mon, 17 Aug 2020 15:27:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C07F23B29;
+        Mon, 17 Aug 2020 15:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678062;
-        bh=Be9bnFR/qhCB1VOcb3WJyzG81zm0wVIlrCEePGk53wo=;
+        s=default; t=1597678074;
+        bh=C8r8mALl/7ZEMq5jWAreO2rJacfW0xTMtM7RPgVBCDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJGGHDrHTcEVB0uCZJSvPQBsZyhpg7tGvnERrTwPGYAMwbL2Pu7l0usSyRiCb9rB9
-         7kb37VhI42w3uXInOjKjIf0zSm11AirYqHoah7/DY6QUMQAyM9YAv43adD9tgq+cpi
-         GVqzs12s/okjS8DI6ilEPRJtzSZQTP2SoBRSbkUI=
+        b=KdF8tRhUZOARJBysnLA7oH5l1gLxqNX4fT204s8h2dDeN8sXYz+VakdEzxG5SrjZL
+         yLxXWLQv5F5VTpGgp9iBeSmTWh7xplRkxDuWcWAaOvLNhO4EShlaUKnSzqOPnXE/TF
+         C1DlhZLjWc5HNuWOSqqZHgqeWl0Ni/6BreqtvJ9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 205/464] media: allegro: Fix some NULL vs IS_ERR() checks in probe
-Date:   Mon, 17 Aug 2020 17:12:38 +0200
-Message-Id: <20200817143843.634712149@linuxfoundation.org>
+Subject: [PATCH 5.8 209/464] media: exynos4-is: Add missed check for pinctrl_lookup_state()
+Date:   Mon, 17 Aug 2020 17:12:42 +0200
+Message-Id: <20200817143843.826599488@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,50 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit d93d45ab716e4107056be54969c8c70e50a8346d ]
+[ Upstream commit 18ffec750578f7447c288647d7282c7d12b1d969 ]
 
-The devm_ioremap() function doesn't return error pointers, it returns
-NULL on error.
+fimc_md_get_pinctrl() misses a check for pinctrl_lookup_state().
+Add the missed check to fix it.
 
-Fixes: f20387dfd065 ("media: allegro: add Allegro DVT video IP core driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration]")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/allegro-dvt/allegro-core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
-index 70f133a842ddf..3ed66aae741d5 100644
---- a/drivers/staging/media/allegro-dvt/allegro-core.c
-+++ b/drivers/staging/media/allegro-dvt/allegro-core.c
-@@ -3065,9 +3065,9 @@ static int allegro_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 	regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
--	if (IS_ERR(regs)) {
-+	if (!regs) {
- 		dev_err(&pdev->dev, "failed to map registers\n");
--		return PTR_ERR(regs);
-+		return -ENOMEM;
- 	}
- 	dev->regmap = devm_regmap_init_mmio(&pdev->dev, regs,
- 					    &allegro_regmap_config);
-@@ -3085,9 +3085,9 @@ static int allegro_probe(struct platform_device *pdev)
- 	sram_regs = devm_ioremap(&pdev->dev,
- 				 sram_res->start,
- 				 resource_size(sram_res));
--	if (IS_ERR(sram_regs)) {
-+	if (!sram_regs) {
- 		dev_err(&pdev->dev, "failed to map sram\n");
--		return PTR_ERR(sram_regs);
-+		return -ENOMEM;
- 	}
- 	dev->sram = devm_regmap_init_mmio(&pdev->dev, sram_regs,
- 					  &allegro_sram_config);
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 9aaf3b8060d50..9c31d950cddf7 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1270,6 +1270,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
+ 
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
++	if (IS_ERR(pctl->state_idle))
++		return PTR_ERR(pctl->state_idle);
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
