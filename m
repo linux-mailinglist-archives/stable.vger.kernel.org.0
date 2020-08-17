@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CFB6246FD7
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA2C7246FCB
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731685AbgHQRyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S1731621AbgHQRxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388598AbgHQQLJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:11:09 -0400
+        id S2388628AbgHQQLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:11:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78FD520578;
-        Mon, 17 Aug 2020 16:11:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65E8422BED;
+        Mon, 17 Aug 2020 16:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680668;
-        bh=2VsFGxlO7orduKOkaoyzKtQhYRrCDHgYfhHsHYfULMw=;
+        s=default; t=1597680695;
+        bh=kVRhEtl+UAk4V947xnY62S2SgqgbROmEWjYLUe4PZH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxbXeG3TRbCKr/bTr3eGeUPzq9j/pbytB4Mv7FYMiX4a4eK2kqHwVsnwxhC29J3Xt
-         JM2jqQaPH2o7Z/8R6BXfzj4Z+J6MNVifiTLPmdNZx0F5qv/k14Ytu1FvKaugrA+jWm
-         h8C0DvgpedTArYUp9FV3yfgpoZMlawEBQ9qpPCjk=
+        b=WaL864TQJctIMb952BwhbdwDG6rQ+phUePy2T3WnGw/LbVu1RuwKBjLLDM14NdD5q
+         BMDqX5lbJilyvv8Bz7zNW179OAFc5UiROh56GxggAKrAxnpISmeAtLvZt2A0Pden85
+         8NB9NFpSwRXKQAC7weMNhISySSz2TEFNL6hQiNqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Tim Murray <timmurray@google.com>,
-        Simon MacMullen <simonmacm@google.com>,
-        Greg Hackmann <ghackmann@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 001/168] tracepoint: Mark __tracepoint_strings __used
-Date:   Mon, 17 Aug 2020 17:15:32 +0200
-Message-Id: <20200817143733.776032648@linuxfoundation.org>
+        stable@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>,
+        Darren Hart <darren@dvhart.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 002/168] HID: input: Fix devices that return multiple bytes in battery report
+Date:   Mon, 17 Aug 2020 17:15:33 +0200
+Message-Id: <20200817143733.824503362@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,50 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Grant Likely <grant.likely@secretlab.ca>
 
-commit f3751ad0116fb6881f2c3c957d66a9327f69cefb upstream.
+commit 4f57cace81438cc873a96f9f13f08298815c9b51 upstream.
 
-__tracepoint_string's have their string data stored in .rodata, and an
-address to that data stored in the "__tracepoint_str" section. Functions
-that refer to those strings refer to the symbol of the address. Compiler
-optimization can replace those address references with references
-directly to the string data. If the address doesn't appear to have other
-uses, then it appears dead to the compiler and is removed. This can
-break the /tracing/printk_formats sysfs node which iterates the
-addresses stored in the "__tracepoint_str" section.
+Some devices, particularly the 3DConnexion Spacemouse wireless 3D
+controllers, return more than just the battery capacity in the battery
+report. The Spacemouse devices return an additional byte with a device
+specific field. However, hidinput_query_battery_capacity() only
+requests a 2 byte transfer.
 
-Like other strings stored in custom sections in this header, mark these
-__used to inform the compiler that there are other non-obvious users of
-the address, so they should still be emitted.
+When a spacemouse is connected via USB (direct wire, no wireless dongle)
+and it returns a 3 byte report instead of the assumed 2 byte battery
+report the larger transfer confuses and frightens the USB subsystem
+which chooses to ignore the transfer. Then after 2 seconds assume the
+device has stopped responding and reset it. This can be reproduced
+easily by using a wired connection with a wireless spacemouse. The
+Spacemouse will enter a loop of resetting every 2 seconds which can be
+observed in dmesg.
 
-Link: https://lkml.kernel.org/r/20200730224555.2142154-2-ndesaulniers@google.com
+This patch solves the problem by increasing the transfer request to 4
+bytes instead of 2. The fix isn't particularly elegant, but it is simple
+and safe to backport to stable kernels. A further patch will follow to
+more elegantly handle battery reports that contain additional data.
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+Cc: Darren Hart <darren@dvhart.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: 102c9323c35a8 ("tracing: Add __tracepoint_string() to export string pointers")
-Reported-by: Tim Murray <timmurray@google.com>
-Reported-by: Simon MacMullen <simonmacm@google.com>
-Suggested-by: Greg Hackmann <ghackmann@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: Darren Hart <dvhart@infradead.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/tracepoint.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-input.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/tracepoint.h
-+++ b/include/linux/tracepoint.h
-@@ -364,7 +364,7 @@ static inline struct tracepoint *tracepo
- 		static const char *___tp_str __tracepoint_string = str; \
- 		___tp_str;						\
- 	})
--#define __tracepoint_string	__attribute__((section("__tracepoint_str")))
-+#define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
- #else
- /*
-  * tracepoint_string() is used to save the string address for userspace
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -362,13 +362,13 @@ static int hidinput_query_battery_capaci
+ 	u8 *buf;
+ 	int ret;
+ 
+-	buf = kmalloc(2, GFP_KERNEL);
++	buf = kmalloc(4, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
++	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 4,
+ 				 dev->battery_report_type, HID_REQ_GET_REPORT);
+-	if (ret != 2) {
++	if (ret < 2) {
+ 		kfree(buf);
+ 		return -ENODATA;
+ 	}
 
 
