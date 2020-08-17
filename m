@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C472472FE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B70624729A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403875AbgHQSty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41460 "EHLO mail.kernel.org"
+        id S2391534AbgHQSpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:45:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387635AbgHQPyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:54:08 -0400
+        id S2388066AbgHQP4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:56:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58FD620729;
-        Mon, 17 Aug 2020 15:54:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E082053B;
+        Mon, 17 Aug 2020 15:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679647;
-        bh=lxJmkJbciIbSE8r9qbKuRDh+Fx1MAM8KlWvJ5hIi8lc=;
+        s=default; t=1597679765;
+        bh=U7t52tCIkx+MGwL/KjQUEtIkOleMcbC9f4pswlQt8HY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgJYRovB8wAzOebIVuZ/YEhFPySuNKPU2YTe4jXFAlF/JxginwNFm8PSf8K89+umO
-         08r3zkSUXlAS9stcSSyN6U716NfYVx8LSYZpZhZa/3dSpTJGL1ygSocBRlvMCRf4Fx
-         3Q40815F/3drmzNuxaOOnI8EvjqhTTauG6qhHIT0=
+        b=alTg6zl0oc/zKn8gef1K/DkLVIXLKT8bicXgJnDCnC3k07yzTsvmCInN3Bc90qtSo
+         qI9VOTUdvBUVK2iTERjv9jiJ/HhxSeB/0ZQeiNCsERtUK93hb4kFUrjfNb9bd7e8++
+         MgHQxMBTdYX5c+8rYTM4xWc5KEYYC44osUBOIv1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Demi M. Obenour" <demiobenour@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Tsang-Shian Lin <thlin@realtek.com>,
+        Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 285/393] netfilter: nft_meta: fix iifgroup matching
-Date:   Mon, 17 Aug 2020 17:15:35 +0200
-Message-Id: <20200817143833.447081629@linuxfoundation.org>
+Subject: [PATCH 5.7 286/393] rtw88: fix LDPC field for RA info
+Date:   Mon, 17 Aug 2020 17:15:36 +0200
+Message-Id: <20200817143833.495557234@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,34 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Tsang-Shian Lin <thlin@realtek.com>
 
-[ Upstream commit 78470d9d0d9f2f8d16f28382a4071568e839c0d5 ]
+[ Upstream commit ae44fa993e8e6c1a1d22e5ca03d9eadd53b2745b ]
 
-iifgroup matching erroneously checks the output interface.
+Convert the type of LDPC field to boolen because
+LDPC field of RA info H2C command to firmware
+is only one bit.
 
-Fixes: 8724e819cc9a ("netfilter: nft_meta: move all interface related keys to helper")
-Reported-by: Demi M. Obenour <demiobenour@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e3037485c68e ("rtw88: new Realtek 802.11ac driver")
+Signed-off-by: Tsang-Shian Lin <thlin@realtek.com>
+Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200717064937.27966-2-yhchuang@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_meta.c | 2 +-
+ drivers/net/wireless/realtek/rtw88/fw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index 951b6e87ed5d9..7bc6537f3ccb5 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -253,7 +253,7 @@ static bool nft_meta_get_eval_ifname(enum nft_meta_keys key, u32 *dest,
- 			return false;
- 		break;
- 	case NFT_META_IIFGROUP:
--		if (!nft_meta_store_ifgroup(dest, nft_out(pkt)))
-+		if (!nft_meta_store_ifgroup(dest, nft_in(pkt)))
- 			return false;
- 		break;
- 	case NFT_META_OIFGROUP:
+diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+index 05c430b3489cb..917decdbfb729 100644
+--- a/drivers/net/wireless/realtek/rtw88/fw.c
++++ b/drivers/net/wireless/realtek/rtw88/fw.c
+@@ -444,7 +444,7 @@ void rtw_fw_send_ra_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si)
+ 	SET_RA_INFO_INIT_RA_LVL(h2c_pkt, si->init_ra_lv);
+ 	SET_RA_INFO_SGI_EN(h2c_pkt, si->sgi_enable);
+ 	SET_RA_INFO_BW_MODE(h2c_pkt, si->bw_mode);
+-	SET_RA_INFO_LDPC(h2c_pkt, si->ldpc_en);
++	SET_RA_INFO_LDPC(h2c_pkt, !!si->ldpc_en);
+ 	SET_RA_INFO_NO_UPDATE(h2c_pkt, no_update);
+ 	SET_RA_INFO_VHT_EN(h2c_pkt, si->vht_enable);
+ 	SET_RA_INFO_DIS_PT(h2c_pkt, disable_pt);
 -- 
 2.25.1
 
