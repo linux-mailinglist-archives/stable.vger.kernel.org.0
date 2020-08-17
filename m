@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB36247292
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D8D24728F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388071AbgHQSoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44080 "EHLO mail.kernel.org"
+        id S2388005AbgHQSoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387441AbgHQP4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:56:21 -0400
+        id S2388071AbgHQP4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:56:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE93B20825;
-        Mon, 17 Aug 2020 15:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 696CB208E4;
+        Mon, 17 Aug 2020 15:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679780;
-        bh=6koyF1NfnaLb45FSujL5ROUMUf95tKOeWT7QZ7MH0kk=;
+        s=default; t=1597679783;
+        bh=b11HqNpdArzBfb36qjl30UnIfQaDQAJ3CJtGITz78ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHrTgYPVkEfhsJPc0p3/gCTMfv/eoIvuuuMxyfaB8T1VTps27o0r7s0R/yl6K6TTQ
-         3ohsh6YwOQ4W+ssJYP4bNoxHGxXhA42BGjpvoIt4bQtAjeTRK7zMTI+AWIHszPmNSM
-         BKDlXkMbSp4UlUNGXCJzmKfN0jn7lcMNEkqiZkQE=
+        b=N1OWw45dHesvNL/h7RSQkGuYz0kYg6kfsOYx0A98ZWKY/BNDqftm0iRkz0qKW+f37
+         aIYBWKUvvsECx3j8WIE6VlTI6cYMt3go3vYMGCvQsfL4n5YjtT7VJbk2kQKvwG/1nh
+         IruQ5neUi4P6S1ZWfgeTrd7fVpB50Ud7SSC1RZuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.7 332/393] usb: cdns3: gadget: always zeroed TRB buffer when enable endpoint
-Date:   Mon, 17 Aug 2020 17:16:22 +0200
-Message-Id: <20200817143835.702004847@linuxfoundation.org>
+        stable@vger.kernel.org, Max Gurtovoy <maxg@mellanox.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.7 333/393] vdpasim: protect concurrent access to iommu iotlb
+Date:   Mon, 17 Aug 2020 17:16:23 +0200
+Message-Id: <20200817143835.751584540@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,76 +44,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Max Gurtovoy <maxg@mellanox.com>
 
-commit 95f5acfc4f58f01a22b66d8c9c0ffb72aa96271c upstream.
+commit 0ea9ee430e74b16c6b17e70757d1c26d8d140e1f upstream.
 
-During the endpoint dequeue operation, it changes dequeued TRB as link
-TRB, when the endpoint is disabled and re-enabled, the DMA fetches the
-TRB before the link TRB, after it handles current TRB, the DMA pointer
-will advance to the TRB after link TRB, but enqueue and dequene
-variables don't know it due to no hardware interrupt at the time, when
-the next TRB is added to link TRB position, the DMA will not handle
-this TRB due to its pointer is already at the next TRB. See the trace
-log like below:
+Iommu iotlb can be accessed by different cores for performing IO using
+multiple virt queues. Add a spinlock to synchronize iotlb accesses.
 
-file-storage-675   [001] d..1    86.585657: usb_ep_queue: ep0: req 00000000df9b3a4f length 0/0 sgs 0/0 stream 0 zsI status 0 --> 0
-file-storage-675   [001] d..1    86.585663: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr (null)], flags:0 SID: 0
-file-storage-675   [001] d..1    86.585671: cdns3_prepare_trb: ep1out: trb 000000007f770303, dma buf: 0xbd195800, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
-file-storage-675   [001] d..1    86.585676: cdns3_ring:
-            Ring contents for ep1out:
-            Ring deq index: 0, trb: 000000007f770303 (virt), 0xc4003000 (dma)
-            Ring enq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
-            free trbs: 38, CCS=1, PCS=1
-            @0x00000000c4003000 bd195800 80020400 00000425
-            @0x00000000c400300c c4003018 80020400 00001811
-            @0x00000000c4003018 bcfcc000 0000001f 00000426
-            @0x00000000c4003024 bcfce800 0000001f 00000426
+This could be easily reproduced when using more than 1 pktgen threads
+to inject traffic to vdpa simulator.
 
-	    ...
-
- irq/144-5b13000-698   [000] d...    87.619286: usb_gadget_giveback_request: ep1in: req 0000000031b832eb length 13/13 sgs 0/0 stream 0 zsI status 0 --> 0
-    file-storage-675   [001] d..1    87.619287: cdns3_ep_queue: ep1out: req: 000000002ebce364, req buff 00000000f5bc96b4, length: 0/1024 zsi, status: -115, trb: [start:0, end:0: virt addr 0x80020400c400300c], flags:0 SID: 0
-    file-storage-675   [001] d..1    87.619294: cdns3_prepare_trb: ep1out: trb 0000000049c1ba21, dma buf: 0xbd198000, size: 1024, burst: 128 ctrl: 0x00000425 (C=1, T=0, ISP, IOC, Normal) SID:0 LAST_SID:0
-    file-storage-675   [001] d..1    87.619297: cdns3_ring:
-                Ring contents for ep1out:
-                Ring deq index: 1, trb: 0000000049c1ba21 (virt), 0xc400300c (dma)
-                Ring enq index: 2, trb: 0000000059b34b67 (virt), 0xc4003018 (dma)
-                free trbs: 38, CCS=1, PCS=1
-                @0x00000000c4003000 bd195800 0000001f 00000427
-                @0x00000000c400300c bd198000 80020400 00000425
-                @0x00000000c4003018 bcfcc000 0000001f 00000426
-                @0x00000000c4003024 bcfce800 0000001f 00000426
-		...
-
-    file-storage-675   [001] d..1    87.619305: cdns3_doorbell_epx: ep1out, ep_trbaddr c4003018
-    file-storage-675   [001] ....    87.619308: usb_ep_queue: ep1out: req 000000002ebce364 length 0/1024 sgs 0/0 stream 0 zsI status -115 --> 0
- irq/144-5b13000-698   [000] d..1    87.619315: cdns3_epx_irq: IRQ for ep1out: 01000c80 TRBERR , ep_traddr: c4003018 ep_last_sid: 00000000 use_streams: 0
- irq/144-5b13000-698   [000] d..1    87.619395: cdns3_usb_irq: IRQ 00000008 = Hot Reset
-
-Fixes: f616c3bda47e ("usb: cdns3: Fix dequeue implementation")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 2c53d0f64c06f("vdpasim: vDPA device simulator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20200731073822.13326-1-jasowang@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/cdns3/gadget.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c |   31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -242,9 +242,10 @@ int cdns3_allocate_trb_pool(struct cdns3
- 			return -ENOMEM;
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -70,6 +70,8 @@ struct vdpasim {
+ 	u32 status;
+ 	u32 generation;
+ 	u64 features;
++	/* spinlock to synchronize iommu table */
++	spinlock_t iommu_lock;
+ };
  
- 		priv_ep->alloc_ring_size = ring_size;
--		memset(priv_ep->trb_pool, 0, ring_size);
+ static struct vdpasim *vdpasim_dev;
+@@ -118,7 +120,9 @@ static void vdpasim_reset(struct vdpasim
+ 	for (i = 0; i < VDPASIM_VQ_NUM; i++)
+ 		vdpasim_vq_reset(&vdpasim->vqs[i]);
+ 
++	spin_lock(&vdpasim->iommu_lock);
+ 	vhost_iotlb_reset(vdpasim->iommu);
++	spin_unlock(&vdpasim->iommu_lock);
+ 
+ 	vdpasim->features = 0;
+ 	vdpasim->status = 0;
+@@ -235,8 +239,10 @@ static dma_addr_t vdpasim_map_page(struc
+ 	/* For simplicity, use identical mapping to avoid e.g iova
+ 	 * allocator.
+ 	 */
++	spin_lock(&vdpasim->iommu_lock);
+ 	ret = vhost_iotlb_add_range(iommu, pa, pa + size - 1,
+ 				    pa, dir_to_perm(dir));
++	spin_unlock(&vdpasim->iommu_lock);
+ 	if (ret)
+ 		return DMA_MAPPING_ERROR;
+ 
+@@ -250,8 +256,10 @@ static void vdpasim_unmap_page(struct de
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+ 	struct vhost_iotlb *iommu = vdpasim->iommu;
+ 
++	spin_lock(&vdpasim->iommu_lock);
+ 	vhost_iotlb_del_range(iommu, (u64)dma_addr,
+ 			      (u64)dma_addr + size - 1);
++	spin_unlock(&vdpasim->iommu_lock);
+ }
+ 
+ static void *vdpasim_alloc_coherent(struct device *dev, size_t size,
+@@ -263,9 +271,10 @@ static void *vdpasim_alloc_coherent(stru
+ 	void *addr = kmalloc(size, flag);
+ 	int ret;
+ 
+-	if (!addr)
++	spin_lock(&vdpasim->iommu_lock);
++	if (!addr) {
+ 		*dma_addr = DMA_MAPPING_ERROR;
+-	else {
++	} else {
+ 		u64 pa = virt_to_phys(addr);
+ 
+ 		ret = vhost_iotlb_add_range(iommu, (u64)pa,
+@@ -278,6 +287,7 @@ static void *vdpasim_alloc_coherent(stru
+ 		} else
+ 			*dma_addr = (dma_addr_t)pa;
  	}
++	spin_unlock(&vdpasim->iommu_lock);
  
-+	memset(priv_ep->trb_pool, 0, ring_size);
+ 	return addr;
+ }
+@@ -289,8 +299,11 @@ static void vdpasim_free_coherent(struct
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+ 	struct vhost_iotlb *iommu = vdpasim->iommu;
+ 
++	spin_lock(&vdpasim->iommu_lock);
+ 	vhost_iotlb_del_range(iommu, (u64)dma_addr,
+ 			      (u64)dma_addr + size - 1);
++	spin_unlock(&vdpasim->iommu_lock);
 +
- 	priv_ep->num_trbs = num_trbs;
+ 	kfree(phys_to_virt((uintptr_t)dma_addr));
+ }
  
- 	if (!priv_ep->num)
+@@ -531,6 +544,7 @@ static int vdpasim_set_map(struct vdpa_d
+ 	u64 start = 0ULL, last = 0ULL - 1;
+ 	int ret;
+ 
++	spin_lock(&vdpasim->iommu_lock);
+ 	vhost_iotlb_reset(vdpasim->iommu);
+ 
+ 	for (map = vhost_iotlb_itree_first(iotlb, start, last); map;
+@@ -540,10 +554,12 @@ static int vdpasim_set_map(struct vdpa_d
+ 		if (ret)
+ 			goto err;
+ 	}
++	spin_unlock(&vdpasim->iommu_lock);
+ 	return 0;
+ 
+ err:
+ 	vhost_iotlb_reset(vdpasim->iommu);
++	spin_unlock(&vdpasim->iommu_lock);
+ 	return ret;
+ }
+ 
+@@ -551,16 +567,23 @@ static int vdpasim_dma_map(struct vdpa_d
+ 			   u64 pa, u32 perm)
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
++	int ret;
+ 
+-	return vhost_iotlb_add_range(vdpasim->iommu, iova,
+-				     iova + size - 1, pa, perm);
++	spin_lock(&vdpasim->iommu_lock);
++	ret = vhost_iotlb_add_range(vdpasim->iommu, iova, iova + size - 1, pa,
++				    perm);
++	spin_unlock(&vdpasim->iommu_lock);
++
++	return ret;
+ }
+ 
+ static int vdpasim_dma_unmap(struct vdpa_device *vdpa, u64 iova, u64 size)
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+ 
++	spin_lock(&vdpasim->iommu_lock);
+ 	vhost_iotlb_del_range(vdpasim->iommu, iova, iova + size - 1);
++	spin_unlock(&vdpasim->iommu_lock);
+ 
+ 	return 0;
+ }
 
 
