@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A8024762F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DBC247649
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730169AbgHQTeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:34:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50948 "EHLO mail.kernel.org"
+        id S1729823AbgHQP2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:28:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729720AbgHQPaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:30:13 -0400
+        id S1730028AbgHQP2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:28:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 797AF2395B;
-        Mon, 17 Aug 2020 15:30:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC46623CD5;
+        Mon, 17 Aug 2020 15:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678213;
-        bh=EGmXluOUHO25U06vCs4b8FJqku0OIik3wXzBz25SqUo=;
+        s=default; t=1597678127;
+        bh=BJjDYJYE346Ldmp46iR+ZohEp0FtQWmXQUaNUBXvTms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJWgiKmsfi7hWNdFoYAg1WIAgYC4Mpe+hi9FDYnAEVbaOJ0WNKx3lTz7dugDAuhQT
-         +oNtnM0MpXWPL6QesMYXjMrmzK/OnjOC2nw4SsImD6XTAZU8PPfqocfqVN3666JPvJ
-         ibGfFAG537QH6lQVpPJ3jK2t8hlmP5g+LHrUBbdI=
+        b=Itc5Y83DmZ0sNyvYzKjhjnGXzl2J1QW76iHZlQgSxvfX4rVofxjo58jQwtMAIT8cC
+         zpVhEKAkMIUJtdN/iuPUx/Snd7hluSGRs0LM73ebyJK40aa50uT0Zc6j4Nm7qcp4w/
+         7wBk3hxuez3zjOgKPn+n2gcU6o8RJoKievuirC0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 226/464] drm/bridge: sil_sii8620: initialize return of sii8620_readb
-Date:   Mon, 17 Aug 2020 17:12:59 +0200
-Message-Id: <20200817143844.622127881@linuxfoundation.org>
+Subject: [PATCH 5.8 228/464] bpfilter: Initialize pos variable
+Date:   Mon, 17 Aug 2020 17:13:01 +0200
+Message-Id: <20200817143844.721217491@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,47 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 02cd2d3144653e6e2a0c7ccaa73311e48e2dc686 ]
+[ Upstream commit a4fa458950b40d3849946daa32466392811a3716 ]
 
-clang static analysis flags this error
+Make sure 'pos' is initialized to zero before calling kernel_write().
 
-sil-sii8620.c:184:2: warning: Undefined or garbage value
-  returned to caller [core.uninitialized.UndefReturn]
-        return ret;
-        ^~~~~~~~~~
-
-sii8620_readb calls sii8620_read_buf.
-sii8620_read_buf can return without setting its output
-pararmeter 'ret'.
-
-So initialize ret.
-
-Fixes: ce6e153f414a ("drm/bridge: add Silicon Image SiI8620 driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200712152453.27510-1-trix@redhat.com
+Fixes: d2ba09c17a06 ("net: add skeleton of bpfilter kernel module")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bpfilter/bpfilter_kern.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index 92acd336aa894..ca98133411aab 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -178,7 +178,7 @@ static void sii8620_read_buf(struct sii8620 *ctx, u16 addr, u8 *buf, int len)
- 
- static u8 sii8620_readb(struct sii8620 *ctx, u16 addr)
- {
--	u8 ret;
-+	u8 ret = 0;
- 
- 	sii8620_read_buf(ctx, addr, &ret, 1);
- 	return ret;
+diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
+index 4494ea6056cdb..42b88a92afe95 100644
+--- a/net/bpfilter/bpfilter_kern.c
++++ b/net/bpfilter/bpfilter_kern.c
+@@ -50,6 +50,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
+ 	req.len = optlen;
+ 	if (!bpfilter_ops.info.pid)
+ 		goto out;
++	pos = 0;
+ 	n = kernel_write(bpfilter_ops.info.pipe_to_umh, &req, sizeof(req),
+ 			   &pos);
+ 	if (n != sizeof(req)) {
 -- 
 2.25.1
 
