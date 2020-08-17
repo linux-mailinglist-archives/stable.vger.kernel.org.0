@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DA0247688
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E73A24769A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgHQP0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
+        id S1729809AbgHQTjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:39:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729498AbgHQP0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:26:12 -0400
+        id S1729792AbgHQP0P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D9EB205CB;
-        Mon, 17 Aug 2020 15:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 084EF23AC6;
+        Mon, 17 Aug 2020 15:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677971;
-        bh=f/0xQXnoIu068crQhuUc/3oebvyspQdCHqf8GvIepZs=;
+        s=default; t=1597677974;
+        bh=C8HJY6mzlMYJgOJb/37DmfGgi7e8IQV70Tp3hB3M2jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbD5c2QRPbCZ/jKKxeaOXDU1dO+EEOnqeGpmOWIEgX6xRs2RmQjZ38J9Tcu09DqFt
-         kcZWLoGguHXkEHehbX/8vGtq+MKl4jhHxMLIXtOK+UY1jLRb0KimQB1eAZ8qcs6VgO
-         gcA4D5Q7zzXX7YfVpw2ScP86INYI8d6Um1p5x+/0=
+        b=D8mKsPmDULMkcgX/JEI2D9CgpnsFT5Lmg3XyOPveNO5ImHBK00IGDy/O+rgJa980T
+         9nAzkoIdNH0/ZZODP81g9s+ou3AHvrTAyWFGhyrgGimaPeowcVAXyg8qWop1WZUsgF
+         AfomTatXL68LNm3tmN3UIW/P59TiUtXZf0c66NO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 174/464] media: omap3isp: Add missed v4l2_ctrl_handler_free() for preview_init_entities()
-Date:   Mon, 17 Aug 2020 17:12:07 +0200
-Message-Id: <20200817143842.151654932@linuxfoundation.org>
+Subject: [PATCH 5.8 175/464] staging: most: avoid null pointer dereference when iface is null
+Date:   Mon, 17 Aug 2020 17:12:08 +0200
+Message-Id: <20200817143842.199993811@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,46 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit dc7690a73017e1236202022e26a6aa133f239c8c ]
+[ Upstream commit e4463e49e29f43eecec86e2e2b2e2ab4feb7d867 ]
 
-preview_init_entities() does not call v4l2_ctrl_handler_free() when
-it fails.
-Add the missed function to fix it.
+In the case where the pointer iface is null then the reporting of this
+error will dereference iface when printing an error message causing which
+is not ideal.  Since the majority of callers to most_register_interface
+report an error when -EINVAL is returned a simple fix is to just remove
+the error message, I doubt it will be missed.
 
-Fixes: de1135d44f4f ("[media] omap3isp: CCDC, preview engine and resizer")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 57562a72414c ("Staging: most: add MOST driver's core module")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20200624163957.11676-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/omap3isp/isppreview.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/most/core.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/omap3isp/isppreview.c b/drivers/media/platform/omap3isp/isppreview.c
-index 4dbdf3180d108..607b7685c982f 100644
---- a/drivers/media/platform/omap3isp/isppreview.c
-+++ b/drivers/media/platform/omap3isp/isppreview.c
-@@ -2287,7 +2287,7 @@ static int preview_init_entities(struct isp_prev_device *prev)
- 	me->ops = &preview_media_ops;
- 	ret = media_entity_pads_init(me, PREV_PADS_NUM, pads);
- 	if (ret < 0)
--		return ret;
-+		goto error_handler_free;
+diff --git a/drivers/most/core.c b/drivers/most/core.c
+index f781c46cd4af9..353ab277cbc6b 100644
+--- a/drivers/most/core.c
++++ b/drivers/most/core.c
+@@ -1283,10 +1283,8 @@ int most_register_interface(struct most_interface *iface)
+ 	struct most_channel *c;
  
- 	preview_init_formats(sd, NULL);
+ 	if (!iface || !iface->enqueue || !iface->configure ||
+-	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS)) {
+-		dev_err(iface->dev, "Bad interface or channel overflow\n");
++	    !iface->poison_channel || (iface->num_channels > MAX_CHANNELS))
+ 		return -EINVAL;
+-	}
  
-@@ -2320,6 +2320,8 @@ static int preview_init_entities(struct isp_prev_device *prev)
- 	omap3isp_video_cleanup(&prev->video_in);
- error_video_in:
- 	media_entity_cleanup(&prev->subdev.entity);
-+error_handler_free:
-+	v4l2_ctrl_handler_free(&prev->ctrls);
- 	return ret;
- }
- 
+ 	id = ida_simple_get(&mdev_id, 0, 0, GFP_KERNEL);
+ 	if (id < 0) {
 -- 
 2.25.1
 
