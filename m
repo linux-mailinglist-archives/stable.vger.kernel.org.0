@@ -2,123 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F49124667B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 14:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3035246697
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 14:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbgHQMlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 08:41:23 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59185 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726727AbgHQMlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 08:41:23 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 499FD194018E;
-        Mon, 17 Aug 2020 08:41:22 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 17 Aug 2020 08:41:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tcnTFO
-        3HR/2mSflCNriOXvqDVBpj9pPWofyNNnnGhto=; b=FTi0E7ayi0C9lFfygrQelj
-        oH3KmgpcCJ8N5zg36UMwIyXadbBnT17eLwhK/CjU8Ngsn1xIBdirqFbN44IFeNQO
-        KbpKlkr6cZSZwcaOQ5ps0AZRNnMayAMrFtJP859Y6DlMZEqnCMd8++nMgsDqYkHd
-        NQkiB8g9PEpQ3yvA1xfBdtSosdFu8lFg/AZGaOPyR1eRYiZ4xomT5IL3reUKG2sB
-        eaPjMSBnaGwoIa/LJhEKHBNmjmexLpSr6Oz5KXPBmGLZyOcyAXFAncQIZH8dZfCs
-        qDrhh7JmfhdNILSb8cOvpGvEnzKiDL2Dl7p4P0KTUHMJN1t6H3Egs7d8FZ1wXsZA
-        ==
-X-ME-Sender: <xms:8Xo6X5f8-fLB1UNQuMxNsm06BsqQaHLHEp9zb_D2O8vMs_Mmmpe28A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtfedgheefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:8Xo6X3NSiiJEq6AVPQ-Yc2qe32ktRYG5hCNnWv9MUdz7-srT9t5fIg>
-    <xmx:8Xo6XyjFXK7UVnpw-A1ew0aw1cNAt5JB90OKJc0u0d68TOrzQK1y0Q>
-    <xmx:8Xo6Xy9OZUyz-O-MjpFndpEqh0TVEPuGS9Xlfehip9yiYGlFafUrWw>
-    <xmx:8no6Xz7DPm1KExBHIRjKXoJPBZOhG1Poz5c1XBn7fPczBpSOu5ACFg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7C457306005F;
-        Mon, 17 Aug 2020 08:41:21 -0400 (EDT)
-Subject: WTF: patch "[PATCH] parisc: Whitespace cleanups in atomic.h" was seriously submitted to be applied to the 5.8-stable tree?
-To:     deller@gmx.de, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Aug 2020 14:41:39 +0200
-Message-ID: <159766809925341@kroah.com>
+        id S1728338AbgHQMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 08:46:12 -0400
+Received: from mga03.intel.com ([134.134.136.65]:52832 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726727AbgHQMqL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 08:46:11 -0400
+IronPort-SDR: 0YqjXBMXfFiJor2gkwuiH3lL4gVFnojfeNUbdWLAow2GPkKxgObml+4GkM5Qx+GZap8LEdcG3e
+ C7Nm7IuE2EBA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9715"; a="154667564"
+X-IronPort-AV: E=Sophos;i="5.76,322,1592895600"; 
+   d="scan'208";a="154667564"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2020 05:46:09 -0700
+IronPort-SDR: xTwTFw00TGuZAg+WTlmvijPBVXP1Td+JvJVH7JUHwPi0AGsilJOf4s9s7MrpXJ1hOm6Ika3iHR
+ muJM6do3MuqA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,322,1592895600"; 
+   d="scan'208";a="319702948"
+Received: from cwilso3-mobl.fi.intel.com (HELO localhost) ([10.214.206.170])
+  by fmsmga004.fm.intel.com with ESMTP; 17 Aug 2020 05:46:06 -0700
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200817123412.4655-1-mika.kuoppala@linux.intel.com>
+References: <20200817123412.4655-1-mika.kuoppala@linux.intel.com>
+Subject: Re: [PATCH] drm/i915: Fix cmd parser desc matching with masks
+From:   Chris Wilson <chris.p.wilson@intel.com>
+Cc:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Jon Bloomfield <jon.bloomfield@intel.com>
+To:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Date:   Mon, 17 Aug 2020 13:46:04 +0100
+Message-ID: <159766836466.667.7312583547693920058@build.alporthouse.com>
+User-Agent: alot/0.9
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below was submitted to be applied to the 5.8-stable tree.
-
-I fail to see how this patch meets the stable kernel rules as found at
-Documentation/process/stable-kernel-rules.rst.
-
-I could be totally wrong, and if so, please respond to 
-<stable@vger.kernel.org> and let me know why this patch should be
-applied.  Otherwise, it is now dropped from my patch queues, never to be
-seen again.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3bc6e3dc5a54d5842938c6f1ed78dd1add379af7 Mon Sep 17 00:00:00 2001
-From: Helge Deller <deller@gmx.de>
-Date: Sun, 14 Jun 2020 10:50:42 +0200
-Subject: [PATCH] parisc: Whitespace cleanups in atomic.h
-
-Fix whitespace indenting and drop trailing backslashes.
-
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Helge Deller <deller@gmx.de>
-
-diff --git a/arch/parisc/include/asm/atomic.h b/arch/parisc/include/asm/atomic.h
-index 6dd4171c9530..90e8267fc509 100644
---- a/arch/parisc/include/asm/atomic.h
-+++ b/arch/parisc/include/asm/atomic.h
-@@ -34,13 +34,13 @@ extern arch_spinlock_t __atomic_hash[ATOMIC_HASH_SIZE] __lock_aligned;
- /* Can't use raw_spin_lock_irq because of #include problems, so
-  * this is the substitute */
- #define _atomic_spin_lock_irqsave(l,f) do {	\
--	arch_spinlock_t *s = ATOMIC_HASH(l);		\
-+	arch_spinlock_t *s = ATOMIC_HASH(l);	\
- 	local_irq_save(f);			\
- 	arch_spin_lock(s);			\
- } while(0)
- 
- #define _atomic_spin_unlock_irqrestore(l,f) do {	\
--	arch_spinlock_t *s = ATOMIC_HASH(l);			\
-+	arch_spinlock_t *s = ATOMIC_HASH(l);		\
- 	arch_spin_unlock(s);				\
- 	local_irq_restore(f);				\
- } while(0)
-@@ -85,7 +85,7 @@ static __inline__ void atomic_##op(int i, atomic_t *v)			\
- 	_atomic_spin_lock_irqsave(v, flags);				\
- 	v->counter c_op i;						\
- 	_atomic_spin_unlock_irqrestore(v, flags);			\
--}									\
-+}
- 
- #define ATOMIC_OP_RETURN(op, c_op)					\
- static __inline__ int atomic_##op##_return(int i, atomic_t *v)		\
-@@ -150,7 +150,7 @@ static __inline__ void atomic64_##op(s64 i, atomic64_t *v)		\
- 	_atomic_spin_lock_irqsave(v, flags);				\
- 	v->counter c_op i;						\
- 	_atomic_spin_unlock_irqrestore(v, flags);			\
--}									\
-+}
- 
- #define ATOMIC64_OP_RETURN(op, c_op)					\
- static __inline__ s64 atomic64_##op##_return(s64 i, atomic64_t *v)	\
+UXVvdGluZyBNaWthIEt1b3BwYWxhICgyMDIwLTA4LTE3IDEzOjM0OjEyKQo+IE91ciB2YXJpZXR5
+IG9mIGRlZmluZWQgZ3B1IGNvbW1hbmRzIGhhdmUgdGhlIGFjdHVhbAo+IGNvbW1hbmQgaWQgZmll
+bGQgYW5kIHBvc3NpYmx5IGxlbmd0aCBhbmQgZmxhZ3MgYXBwbGllZC4KPiAKPiBXZSBkaWQgc3Rh
+cnQgdG8gYXBwbHkgdGhlIG1hc2sgZHVyaW5nIGluaXRpYWxpemF0aW9uIG9mCj4gdGhlIGNtZCBk
+ZXNjcmlwdG9ycyBidXQgZm9yZ290IHRvIGFsc28gYXBwbHkgaXQgb24gY29tcGFyaXNvbnMuCj4g
+Cj4gRml4IGNvbXBhcmlzb25zIGluIG9yZGVyIHRvIHByb3Blcmx5IGRlbnkgYWNjZXNzIHdpdGgK
+PiBhc3NvY2lhdGVkIGNvbW1hbmRzLgo+IAo+IFJlZmVyZW5jZXM6IDkyNmFiZmYyMWE4ZiAoImRy
+bS9pOTE1L2NtZHBhcnNlcjogSWdub3JlIExlbmd0aCBvcGVyYW5kcyBkdXJpbmcgY29tbWFuZCBt
+YXRjaGluZyIpCj4gUmVwb3J0ZWQtYnk6IE5pY29sYWkgU3RhbmdlIDxuc3RhbmdlQHN1c2UuZGU+
+Cj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2NS40Kwo+IENjOiBNaXJvc2xhdiBCZW5l
+cyA8bWJlbmVzQHN1c2UuY3o+Cj4gQ2M6IFRha2FzaGkgSXdhaSA8dGl3YWlAc3VzZS5kZT4KPiBD
+YzogVHlsZXIgSGlja3MgPHR5aGlja3NAY2Fub25pY2FsLmNvbT4KPiBDYzogSm9uIEJsb29tZmll
+bGQgPGpvbi5ibG9vbWZpZWxkQGludGVsLmNvbT4KPiBDYzogQ2hyaXMgV2lsc29uIDxjaHJpcy5w
+LndpbHNvbkBpbnRlbC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogTWlrYSBLdW9wcGFsYSA8bWlrYS5r
+dW9wcGFsYUBsaW51eC5pbnRlbC5jb20+Cj4gLS0tCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5
+MTVfY21kX3BhcnNlci5jIHwgMjIgKysrKysrKysrKysrKystLS0tLS0tLQo+ICAxIGZpbGUgY2hh
+bmdlZCwgMTQgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9jbWRfcGFyc2VyLmMgYi9kcml2ZXJzL2dwdS9kcm0v
+aTkxNS9pOTE1X2NtZF9wYXJzZXIuYwo+IGluZGV4IDM3MjM1NGQzM2Y1NS4uZjJiMGViNDU4ZDJk
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfY21kX3BhcnNlci5jCj4g
+KysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9jbWRfcGFyc2VyLmMKPiBAQCAtMTIwNCw2
+ICsxMjA0LDEyIEBAIHN0YXRpYyB1MzIgKmNvcHlfYmF0Y2goc3RydWN0IGRybV9pOTE1X2dlbV9v
+YmplY3QgKmRzdF9vYmosCj4gICAgICAgICByZXR1cm4gZHN0Owo+ICB9Cj4gIAo+ICtzdGF0aWMg
+aW5saW5lIGJvb2wgY21kX2Rlc2NfaXMoY29uc3Qgc3RydWN0IGRybV9pOTE1X2NtZF9kZXNjcmlw
+dG9yICogY29uc3QgZGVzYywKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qg
+dTMyIGNtZCkKPiArewo+ICsgICAgICAgcmV0dXJuIGRlc2MtPmNtZC52YWx1ZSA9PSAoY21kICYg
+ZGVzYy0+Y21kLm1hc2spOwo+ICt9Cj4gKwo+ICBzdGF0aWMgYm9vbCBjaGVja19jbWQoY29uc3Qg
+c3RydWN0IGludGVsX2VuZ2luZV9jcyAqZW5naW5lLAo+ICAgICAgICAgICAgICAgICAgICAgICBj
+b25zdCBzdHJ1Y3QgZHJtX2k5MTVfY21kX2Rlc2NyaXB0b3IgKmRlc2MsCj4gICAgICAgICAgICAg
+ICAgICAgICAgIGNvbnN0IHUzMiAqY21kLCB1MzIgbGVuZ3RoKQo+IEBAIC0xMjQyLDI0ICsxMjQ4
+LDI0IEBAIHN0YXRpYyBib29sIGNoZWNrX2NtZChjb25zdCBzdHJ1Y3QgaW50ZWxfZW5naW5lX2Nz
+ICplbmdpbmUsCj4gICAgICAgICAgICAgICAgICAgICAgICAgICogYWxsb3dlZCBtYXNrL3ZhbHVl
+IHBhaXIgZ2l2ZW4gaW4gdGhlIHdoaXRlbGlzdCBlbnRyeS4KPiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgKi8KPiAgICAgICAgICAgICAgICAgICAgICAgICBpZiAocmVnLT5tYXNrKSB7Cj4gLSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZiAoZGVzYy0+Y21kLnZhbHVlID09IE1JX0xP
+QURfUkVHSVNURVJfTUVNKSB7Cj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZiAo
+Y21kX2Rlc2NfaXMoZGVzYywgTUlfTE9BRF9SRUdJU1RFUl9NRU0pKSB7Cj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIERSTV9ERUJVRygiQ01EOiBSZWplY3RlZCBMUk0g
+dG8gbWFza2VkIHJlZ2lzdGVyIDB4JTA4WFxuIiwKPiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHJlZ19hZGRyKTsKPiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwo+IC0gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgfQo+IC0KPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmIChk
+ZXNjLT5jbWQudmFsdWUgPT0gTUlfTE9BRF9SRUdJU1RFUl9SRUcpIHsKPiArICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIH0gZWxzZSBpZiAoY21kX2Rlc2NfaXMoZGVzYywgTUlfTE9BRF9S
+RUdJU1RFUl9SRUcpKSB7Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IERSTV9ERUJVRygiQ01EOiBSZWplY3RlZCBMUlIgdG8gbWFza2VkIHJlZ2lzdGVyIDB4JTA4WFxu
+IiwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJl
+Z19hZGRyKTsKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJu
+IGZhbHNlOwo+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfQo+IC0KPiAtICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIGlmIChkZXNjLT5jbWQudmFsdWUgPT0gTUlfTE9BRF9S
+RUdJU1RFUl9JTU0oMSkgJiYKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0gZWxz
+ZSBpZiAoY21kX2Rlc2NfaXMoZGVzYywgTUlfTE9BRF9SRUdJU1RFUl9JTU0oMSkpICYmCj4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKG9mZnNldCArIDIgPiBsZW5ndGggfHwK
+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNtZFtvZmZzZXQgKyAxXSAm
+IHJlZy0+bWFzaykgIT0gcmVnLT52YWx1ZSkpIHsKPiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgRFJNX0RFQlVHKCJDTUQ6IFJlamVjdGVkIExSSSB0byBtYXNrZWQgcmVn
+aXN0ZXIgMHglMDhYXG4iLAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgcmVnX2FkZHIpOwo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICByZXR1cm4gZmFsc2U7CgpUaGlzIG5lZWRzIHRvIGJlIHNwbGl0IGludG8gYSBwYXNz
+L2ZhaWwuCgpUaGUgaWRlYSBpcyB0aGF0IHdlIHdhbnQgdG8gYWxsb3cgYW4gTFJJIGludG8gdGhl
+IHJlZ2lzdGVyIHNvIGxvbmcgYXMgaXQKZG9lc24ndCB0b3VjaCB0aGUgbWFza2VkIGJpdHMuIElu
+IHRoaXMgY2FzZSB3ZSBub3cgZmFsbHRocm91Z2ggdG8gdGhlCmZpbmFsIHJlamVjdGlvbi4KCnN3
+aXRjaCAoZGVzYy0+Y21kLnZhbHVlKSB7CmNhc2UgTUlfSU5TVFIoTUlfTE9BRF9SRUdJU1RFUl9N
+RU0sIDApOiAvKiBJIHdpc2ggKi8KCS4uLgoJcmV0dXJuIGZhbHNlOwoKY2FzZSBNSV9JTlNUUihN
+SV9MT0FEX1JFR0lTVEVSX1JFRywgMCk6CgkuLi4KCXJldHVybiBmYWxzZTsKCmNhc2UgTUlfSU5T
+VFIoTUlfTE9BRF9SRUdJU1RFUl9JTU0sIDApOgoJaWYgKG9mZnNldCArIDIgPiBsZW5ndGggfHwg
+Y21kW29mZnNldC4uLl0gIT0gYWxsb3dlZCkgewoJCS4uLgoJCXJldHVybiBmYWxzZTsKCX0KCWJy
+ZWFrOyAvKiBhbGxvdyB0aGUgTFJJIHRvIHVwZGF0ZSB0aGUgb3RoZXIgYml0cyBpbiByZWcgKi8K
+CmRlZmF1bHQ6CgkuLi4uCglyZXR1cm4gZmFsc2U7Cn0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkludGVsIENvcnBv
+cmF0aW9uIChVSykgTGltaXRlZApSZWdpc3RlcmVkIE5vLiAxMTM0OTQ1IChFbmdsYW5kKQpSZWdp
+c3RlcmVkIE9mZmljZTogUGlwZXJzIFdheSwgU3dpbmRvbiBTTjMgMVJKClZBVCBObzogODYwIDIx
+NzMgNDcKClRoaXMgZS1tYWlsIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gY29uZmlk
+ZW50aWFsIG1hdGVyaWFsIGZvcgp0aGUgc29sZSB1c2Ugb2YgdGhlIGludGVuZGVkIHJlY2lwaWVu
+dChzKS4gQW55IHJldmlldyBvciBkaXN0cmlidXRpb24KYnkgb3RoZXJzIGlzIHN0cmljdGx5IHBy
+b2hpYml0ZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZApyZWNpcGllbnQsIHBsZWFzZSBj
+b250YWN0IHRoZSBzZW5kZXIgYW5kIGRlbGV0ZSBhbGwgY29waWVzLgo=
 
