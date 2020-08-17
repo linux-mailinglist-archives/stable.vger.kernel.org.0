@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6BB2476CF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6567F2476E6
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbgHQPYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54452 "EHLO mail.kernel.org"
+        id S1729838AbgHQTm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:42:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729520AbgHQPYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:24:19 -0400
+        id S1729647AbgHQPYW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:24:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 354472312E;
-        Mon, 17 Aug 2020 15:24:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B733F20729;
+        Mon, 17 Aug 2020 15:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677858;
-        bh=w2i6sfdM3RBvqRfsaE8X5skoAf93suubT65n4mRzRRw=;
+        s=default; t=1597677861;
+        bh=g+Wy7iCnNpmyB5BLU7r9saNvxQus1BUEvV7pAy8bNcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhhyQ7dxEpsCBFSiTDB9ZHf9+ZjG7ziDFKCUG1PJTGEf5mflGqPPTarxayKaXF8vb
-         FAB3YPYqd+k2n0inMexC1LU2sjpEsH2W0CXr6KRAQSBlzwUA9HleAf+VvvnZ1Vy6EX
-         lZ84vEM2LcfuC5gpdZLC6kSglZvxLjyxSdAe+nGE=
+        b=SbipTi1suBZrHXbHfa4RmiuL/MVnesFGcwU+dpUeItplV5MuV3ptTvhQ7GfiP25hu
+         jUVFxnp+JHsxJIOtZyLf2wjPMzy1Ho3nmQFb+Iy4Dr9rqZvTFsljMV57hqK0bMYxkQ
+         FfapcDwOP3RNpk1q+NoZOLJcjisfKMCjKXQlMnew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Erik Kaneda <erik.kaneda@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 134/464] btrfs: qgroup: free per-trans reserved space when a subvolume gets dropped
-Date:   Mon, 17 Aug 2020 17:11:27 +0200
-Message-Id: <20200817143840.232957576@linuxfoundation.org>
+Subject: [PATCH 5.8 135/464] ACPICA: Do not increment operation_region reference counts for field units
+Date:   Mon, 17 Aug 2020 17:11:28 +0200
+Message-Id: <20200817143840.281479058@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,79 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Erik Kaneda <erik.kaneda@intel.com>
 
-[ Upstream commit a3cf0e4342b6af9e6b34a4b913c630fbd03a82ea ]
+[ Upstream commit 6a54ebae6d047c988a31f5ac5a64ab5cf83797a2 ]
 
-[BUG]
-Sometime fsstress could lead to qgroup warning for case like
-generic/013:
+ACPICA commit e17b28cfcc31918d0db9547b6b274b09c413eb70
 
-  BTRFS warning (device dm-3): qgroup 0/259 has unreleased space, type 1 rsv 81920
-  ------------[ cut here ]------------
-  WARNING: CPU: 9 PID: 24535 at fs/btrfs/disk-io.c:4142 close_ctree+0x1dc/0x323 [btrfs]
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:close_ctree+0x1dc/0x323 [btrfs]
-  Call Trace:
-   btrfs_put_super+0x15/0x17 [btrfs]
-   generic_shutdown_super+0x72/0x110
-   kill_anon_super+0x18/0x30
-   btrfs_kill_super+0x17/0x30 [btrfs]
-   deactivate_locked_super+0x3b/0xa0
-   deactivate_super+0x40/0x50
-   cleanup_mnt+0x135/0x190
-   __cleanup_mnt+0x12/0x20
-   task_work_run+0x64/0xb0
-   __prepare_exit_to_usermode+0x1bc/0x1c0
-   __syscall_return_slowpath+0x47/0x230
-   do_syscall_64+0x64/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace 6c341cdf9b6cc3c1 ]---
-  BTRFS error (device dm-3): qgroup reserved space leaked
+Object reference counts are used as a part of ACPICA's garbage
+collection mechanism. This mechanism keeps track of references to
+heap-allocated structures such as the ACPI operand objects.
 
-While that subvolume 259 is no longer in that filesystem.
+Recent server firmware has revealed that this reference count can
+overflow on large servers that declare many field units under the
+same operation_region. This occurs because each field unit declaration
+will add a reference count to the source operation_region.
 
-[CAUSE]
-Normally per-trans qgroup reserved space is freed when a transaction is
-committed, in commit_fs_roots().
+This change solves the reference count overflow for operation_regions
+objects by preventing fieldunits from incrementing their
+operation_region's reference count. Each operation_region's reference
+count will not be changed by named objects declared under the Field
+operator. During namespace deletion, the operation_region namespace
+node will be deleted and each fieldunit will be deleted without
+touching the deleted operation_region object.
 
-However for completely dropped subvolume, that subvolume is completely
-gone, thus is no longer in the fs_roots_radix, and its per-trans
-reserved qgroup will never be freed.
-
-Since the subvolume is already gone, leaked per-trans space won't cause
-any trouble for end users.
-
-[FIX]
-Just call btrfs_qgroup_free_meta_all_pertrans() before a subvolume is
-completely dropped.
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://github.com/acpica/acpica/commit/e17b28cf
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/acpi/acpica/exprep.c   | 4 ----
+ drivers/acpi/acpica/utdelete.c | 6 +-----
+ 2 files changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index c0bc35f932bf7..96223813b6186 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5466,6 +5466,14 @@ int btrfs_drop_snapshot(struct btrfs_root *root, int update_ref, int for_reloc)
+diff --git a/drivers/acpi/acpica/exprep.c b/drivers/acpi/acpica/exprep.c
+index a4e306690a21b..4a0f03157e082 100644
+--- a/drivers/acpi/acpica/exprep.c
++++ b/drivers/acpi/acpica/exprep.c
+@@ -473,10 +473,6 @@ acpi_status acpi_ex_prep_field_value(struct acpi_create_field_info *info)
+ 				    (u8)access_byte_width;
+ 			}
  		}
- 	}
+-		/* An additional reference for the container */
+-
+-		acpi_ut_add_reference(obj_desc->field.region_obj);
+-
+ 		ACPI_DEBUG_PRINT((ACPI_DB_BFIELD,
+ 				  "RegionField: BitOff %X, Off %X, Gran %X, Region %p\n",
+ 				  obj_desc->field.start_field_bit_offset,
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index c365faf4e6cd4..4c0d4e4341961 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -568,11 +568,6 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 			next_object = object->buffer_field.buffer_obj;
+ 			break;
  
-+	/*
-+	 * This subvolume is going to be completely dropped, and won't be
-+	 * recorded as dirty roots, thus pertrans meta rsv will not be freed at
-+	 * commit transaction time.  So free it here manually.
-+	 */
-+	btrfs_qgroup_convert_reserved_meta(root, INT_MAX);
-+	btrfs_qgroup_free_meta_all_pertrans(root);
-+
- 	if (test_bit(BTRFS_ROOT_IN_RADIX, &root->state))
- 		btrfs_add_dropped_root(trans, root);
- 	else
+-		case ACPI_TYPE_LOCAL_REGION_FIELD:
+-
+-			next_object = object->field.region_obj;
+-			break;
+-
+ 		case ACPI_TYPE_LOCAL_BANK_FIELD:
+ 
+ 			next_object = object->bank_field.bank_obj;
+@@ -613,6 +608,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 			}
+ 			break;
+ 
++		case ACPI_TYPE_LOCAL_REGION_FIELD:
+ 		case ACPI_TYPE_REGION:
+ 		default:
+ 
 -- 
 2.25.1
 
