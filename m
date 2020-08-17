@@ -2,113 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE73A247879
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 23:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C97D247905
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 23:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727049AbgHQVEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 17:04:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58004 "EHLO
+        id S1728582AbgHQVpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 17:45:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726203AbgHQVEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 17:04:44 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D9BC061389;
-        Mon, 17 Aug 2020 14:04:44 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id r11so8830244pfl.11;
-        Mon, 17 Aug 2020 14:04:44 -0700 (PDT)
+        with ESMTP id S1728575AbgHQVpj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 17:45:39 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D302C061342
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 14:45:39 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id 189so8107803pgg.13
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 14:45:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=s0xsxFxhXZa1EWxR0qccoZxf/DJY4RuXfsMuyEx8Fs4=;
-        b=CDvdzwQqRovVxOhgT2RUbZ6X4YCbt6xiALqbZ0yshN7CEr/yMtl3nb+sjcNWGjPNhk
-         os0GGifoSws07ZWM8dyLJEIq6VlNGM4XlCgQ3qY5roljLEwpwoZTuZ8VgfHIaNSjElMd
-         bUcpeO3Q0iv/M5AVEPXWeZ5/NX71UCbzxp+V056ixoc7XPEtOG6MhHOR/gihRv9CnkIq
-         w1O0VVwKamy338MJwQUTvKvMUdzBjJwpyxXAY/pLNdNXFTZQt5A3NvE43dfD7Tj82CBr
-         cYbR1UCm41MVbmzp1TediUzG6NwOwPnbYS8XDhsvLLKOadbFimvTwxb3m0g1BdLksBQT
-         jvIg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M5NX3Q1GYp48OUvJZQHx5AOAR0W2M3qE4XWtOJ4Fmf4=;
+        b=HlS+DhuF53gJlvJjmZwoSWeJywwWrbP2J0o6+lnOf2amORdoowBNfu/IO4Cv8mkKaf
+         938OP6GPK4aAGksebv44/DUxsozDxt9zhcS/5zZyF9y1f1Qq7jJfRokWHnoGpdiWRBK4
+         MLgvTQZpojbRQ7EMIjwOyDdvq6yym1jfoibP1ALDQDuqhKZ0z2ZEH2oLmx4+/oAhnXkr
+         Fh3XJZNmkckaTTGmloFQ2nryxSCa9cprNSRp7Hv9AOCVyzcn432/lwWV86+hNL5ETYP2
+         mlSy8xx8Ztf4+YdzJ3lgjyiBCRSLXQ8Z4nuMkR0/NR00SM8nnitb4AXUOVTm9LJNloDA
+         Ywyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=s0xsxFxhXZa1EWxR0qccoZxf/DJY4RuXfsMuyEx8Fs4=;
-        b=D1VP/lrz0eEgOsplZeP7uUjbsR5jTM1VdZse+idLRI0HUyjVkzIsf8Jk/GHpM1zjOa
-         ix9gCM5v0INQgQyPLupA9tRV7dG0Oc1lzwN18Ji4zEDW2CttIEFdBX+6DwAnHTLte/Dj
-         SrWL7+XaXGVwHQRjkdtpPGCxqz9QRSNlajp+MMft62SUieKKDDLTVvV1vy8WhknGwf7Q
-         XKRnQVksdjEgHOrE0ZZww+OdIMTA4qYkK/D8nzw8E+tAbLYH1pvInJoLmlDcfOtKzUQA
-         eLpDJDF/p1CQ7KnWAOWulOJKsZurTrWAktiCOzx6xCLAl8hcdzzz13TZ+YVbjI8Cp/Bx
-         FNpQ==
-X-Gm-Message-State: AOAM530c3ca3DG01wnhysSsTuWNhlg/uzQ1f0+3UECQXX6cawuHXvt0K
-        ohl/MnNY/4+RqvzrxBNtaZiuor6wMA/rGw==
-X-Google-Smtp-Source: ABdhPJwUhkGlRkmO5t4lKAcNEqs80JBjk72J7fFvxm96RSENW/ROGKXpfL/92x0BUVl8KIua6QBW0g==
-X-Received: by 2002:a63:7e42:: with SMTP id o2mr7541262pgn.260.1597698283629;
-        Mon, 17 Aug 2020 14:04:43 -0700 (PDT)
-Received: from localhost.localdomain (c-107-3-138-210.hsd1.ca.comcast.net. [107.3.138.210])
-        by smtp.gmail.com with ESMTPSA id u62sm21092504pfb.4.2020.08.17.14.04.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2020 14:04:42 -0700 (PDT)
-From:   Yang Shi <shy828301@gmail.com>
-To:     xuyu@linux.alibaba.com, hannes@cmpxchg.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org
-Cc:     shy828301@gmail.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v3 PATCH] mm/memory.c: skip spurious TLB flush for retried page fault
-Date:   Fri, 14 Aug 2020 21:30:41 -0700
-Message-Id: <20200815043041.132195-1-shy828301@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M5NX3Q1GYp48OUvJZQHx5AOAR0W2M3qE4XWtOJ4Fmf4=;
+        b=kz743U8QiYQArCzn+/rQosKjvazQ+KBX4xNmjpF7XzqNQ2RlQ3TYeTNqAY2cuvDydr
+         qebVfsWQDJ1lIrQvQyxPqMXItPQyQ78tixpqKZ4gPCgC3FSVc7pGqENG1IhvPLHrYw9U
+         7eW7LpaGbj+Fo4zqbK0SQF9kZbmsO/aBWHMUt8dfKy/ESn2k2CyeD1bOwJZBkJnJSt3n
+         coVCWTguR1n3ewLKRyfq9cMqRzNxkRGI2U5FhhkMFSc9OSr1R+TCCeu62nZsW1EDmBDv
+         K+NG2gnvEDyUIaGaOcF1zTot8hqmYRBkcWLDuHNgyHMkrSUuFl8o8oyehjFl/aDMf9rB
+         PoOQ==
+X-Gm-Message-State: AOAM530xDuSsrd2bUs9F6Tvf4oleQuWiCdXhuS+bHBxwcmdcXH/79hkM
+        Y7NUo+KhkI2K3J4pLHhge75Jp7N68k1DPIvkncBeCQ==
+X-Google-Smtp-Source: ABdhPJzQtM0WgyIzaD6jqd80KqMJ+foDWc+kVqOWoecUhCR/LnSPxtj2Zb6aUss/SJr5hyl0bh6zqWx8BMSGNpoVy5w=
+X-Received: by 2002:a63:a119:: with SMTP id b25mr11094694pgf.10.1597700738307;
+ Mon, 17 Aug 2020 14:45:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAKwvOdnyHfx6ayqEoOr3pb_ibKBAG9vj31LuKE+f712W=7LFKA@mail.gmail.com>
+ <457a91183581509abfa00575d0392be543acbe07.camel@perches.com>
+ <CAKwvOdk4PRi45MXCtg4kmeN6c1AK5w9EJ1XFBJ5GyUjwEtRj1g@mail.gmail.com>
+ <ccacb2a860151fdd6ce95371f1e0cd7658a308d1.camel@perches.com>
+ <CAKwvOd=QkpmdWHAvWVFtogsDom2z_fA4XmDF6aLqz1czjSgZbQ@mail.gmail.com>
+ <20200816001917.4krsnrik7hxxfqfm@google.com> <CA+icZUW=rQ-e=mmYWsgVns8jDoQ=FJ7kdem1fWnW_i5jx-6JzQ@mail.gmail.com>
+ <20200816150217.GA1306483@rani.riverdale.lan> <CABCJKucsXufD6rmv7qQZ=9kLC7XrngCJkKA_WzGOAn-KfcObeA@mail.gmail.com>
+ <CAKwvOd=Ns4_+amT8P-7yQ56xUdDmL=1zDUThF-OmFKhexhJPdg@mail.gmail.com> <20200817201351.GA2246446@rani.riverdale.lan>
+In-Reply-To: <20200817201351.GA2246446@rani.riverdale.lan>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 17 Aug 2020 14:45:26 -0700
+Message-ID: <CAKwvOdnUydcU_LpEjXS+M-EUVztoiMNsVpvZ9eK+_+yoCen6ZQ@mail.gmail.com>
+Subject: Re: [PATCH v2] lib/string.c: implement stpcpy
+To:     Arvind Sankar <nivedita@alum.mit.edu>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Joe Perches <joe@perches.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?B?RMOhdmlkIEJvbHZhbnNrw70=?= <david.bolvansky@gmail.com>,
+        Eli Friedman <efriedma@quicinc.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Daniel Axtens <dja@axtens.net>, Ingo Molnar <mingo@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Recently we found regression when running will_it_scale/page_fault3 test
-on ARM64.  Over 70% down for the multi processes cases and over 20% down
-for the multi threads cases.  It turns out the regression is caused by
-commit 89b15332af7c0312a41e50846819ca6613b58b4c ("mm: drop mmap_sem before
-calling balance_dirty_pages() in write fault").
+On Mon, Aug 17, 2020 at 1:13 PM Arvind Sankar <nivedita@alum.mit.edu> wrote:
+>
+> On Mon, Aug 17, 2020 at 11:36:49AM -0700, Nick Desaulniers wrote:
+> > > > Though I don't understand the original issue, with -ffreestanding,
+> > > > sprintf shouldn't have been turned into strcpy in the first place.
+> >
+> > Huh? The original issue for this thread is because `-ffreestanding`
+> > *isn't* being used for most targets (oh boy, actually mixed usage by
+> > ARCH. Looks like MIPS, m68k, superH, xtensa, and 32b x86 use it?); and
+> > I'm not suggesting it be used.
+> >
+>
+> Sorry, I meant the issue mentioned in the commit that removed
+> -ffreestanding, not the stpcpy one you're solving now. It says that
+> sprintf got converted into strcpy, which caused failures because back
+> then, strcpy was #define'd to __builtin_strcpy, and the default
+> implementation was actually of a function called __builtin_strcpy o_O,
+> not strcpy.
+>
+> Anyway, that's water under the bridge now.
+>
+> 6edfba1b33c7 ("x86_64: Don't define string functions to builtin")
+>   gcc should handle this anyways, and it causes problems when
+>   sprintf is turned into strcpy by gcc behind our backs and
+>   the C fallback version of strcpy is actually defining __builtin_strcpy
 
-The test mmaps a memory size file then write to the mapping, this would
-make all memory dirty and trigger dirty pages throttle, that upstream
-commit would release mmap_sem then retry the page fault.  The retried page
-fault would see correct PTEs installed then just fall through to spurious TLB
-flush.  The regression is caused by the excessive spurious TLB flush.  It is
-fine on x86 since x86's spurious TLB flush is no-op.
+For fun, I tried removing `-ffreestanding` from arch/x86/Makefile;
+both gcc and clang can compile+boot the i386 defconfig just fine.  Why
+don't I send a patch removing it with your suggested by in a series of
+fixes for stpcpy and bcmp?
 
-We could just skip the spurious TLB flush to mitigate the regression.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Xu Yu <xuyu@linux.alibaba.com>
-Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
-Tested-by: Xu Yu <xuyu@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
----
-v3: Incorporated Linus's suggestion
-v2: Incorporated Will Deacon's suggestion
-
- mm/memory.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/mm/memory.c b/mm/memory.c
-index 3a7779d9891d..602f4283122f 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4247,6 +4247,9 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
- 				vmf->flags & FAULT_FLAG_WRITE)) {
- 		update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
- 	} else {
-+		/* Skip spurious TLB flush for retried page fault */
-+		if (vmf->flags & FAULT_FLAG_TRIED)
-+			goto unlock;
- 		/*
- 		 * This is needed only for protection faults but the arch code
- 		 * is not yet telling us if this is a protection fault or not.
 -- 
-2.26.2
-
+Thanks,
+~Nick Desaulniers
