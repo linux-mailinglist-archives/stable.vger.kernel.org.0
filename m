@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F254E246B17
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5475E246B02
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730847AbgHQPsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60062 "EHLO mail.kernel.org"
+        id S2387441AbgHQPqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730829AbgHQPr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:47:59 -0400
+        id S2387743AbgHQPqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908A422BF3;
-        Mon, 17 Aug 2020 15:47:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6252075B;
+        Mon, 17 Aug 2020 15:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679278;
-        bh=mZWLiMPkpmDjh4VWJYTnOjVF9SLNOL9q16QWCdKWD1Y=;
+        s=default; t=1597679198;
+        bh=JrnZwM8UAIuMLHP7tBDKi0C6XfjGffVEugHReXa9cHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhGb8Fc7wmybUFRAzkRsxfRnfDjPeFGOWlnYpE9FVSQXw2n/zUvVXx9Nylt9JsCEA
-         G9dYUTmVyAo6ScEVMd+V+0pAQSJwFZRJmEQnX3UZbwuoN6FQQtuKpYaGlcvd2WLiDb
-         FFCFtaZNx/Xa6sJjqmLx8SMaGx1fChSQXInoH2wY=
+        b=bGAfcovCamjNFMJrhAP64ZegNjRniO4Vn9CqFVtnQ7j+UjM/2bo+gMON02SSI1Nse
+         bsRhH3D4PR/tCmSXB7asrAA9IU9Pg+hEOVJVh5Xsi0kOqdtl+vVpFntafXjH7FySBl
+         RGaBQXMgbloGOHNjnwEdCGCtYdvsacrmVNXg5aMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 126/393] agp/intel: Fix a memory leak on module initialisation failure
-Date:   Mon, 17 Aug 2020 17:12:56 +0200
-Message-Id: <20200817143825.718469764@linuxfoundation.org>
+Subject: [PATCH 5.7 130/393] btmrvl: Fix firmware filename for sd8997 chipset
+Date:   Mon, 17 Aug 2020 17:13:00 +0200
+Message-Id: <20200817143825.915129160@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -44,41 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit b975abbd382fe442713a4c233549abb90e57c22b ]
+[ Upstream commit 00eb0cb36fad53315047af12e83c643d3a2c2e49 ]
 
-In intel_gtt_setup_scratch_page(), pointer "page" is not released if
-pci_dma_mapping_error() return an error, leading to a memory leak on
-module initialisation failure.  Simply fix this issue by freeing "page"
-before return.
+Firmware for sd8997 chipset is distributed by Marvell package and also as
+part of the linux-firmware repository in filename sdsd8997_combo_v4.bin.
 
-Fixes: 0e87d2b06cb46 ("intel-gtt: initialize our own scratch page")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200522083451.7448-1-chris@chris-wilson.co.uk
+This patch fixes mwifiex driver to load correct firmware file for sd8997.
+
+Fixes: f0ef67485f591 ("Bluetooth: btmrvl: add sd8997 chipset support")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/agp/intel-gtt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btmrvl_sdio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
-index 3d42fc4290bcf..585451a46e447 100644
---- a/drivers/char/agp/intel-gtt.c
-+++ b/drivers/char/agp/intel-gtt.c
-@@ -304,8 +304,10 @@ static int intel_gtt_setup_scratch_page(void)
- 	if (intel_private.needs_dmar) {
- 		dma_addr = pci_map_page(intel_private.pcidev, page, 0,
- 				    PAGE_SIZE, PCI_DMA_BIDIRECTIONAL);
--		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr))
-+		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr)) {
-+			__free_page(page);
- 			return -EINVAL;
-+		}
+diff --git a/drivers/bluetooth/btmrvl_sdio.c b/drivers/bluetooth/btmrvl_sdio.c
+index 7aa2c94720bc5..4c7978cb1786f 100644
+--- a/drivers/bluetooth/btmrvl_sdio.c
++++ b/drivers/bluetooth/btmrvl_sdio.c
+@@ -346,7 +346,7 @@ static const struct btmrvl_sdio_device btmrvl_sdio_sd8987 = {
  
- 		intel_private.scratch_page_dma = dma_addr;
- 	} else
+ static const struct btmrvl_sdio_device btmrvl_sdio_sd8997 = {
+ 	.helper         = NULL,
+-	.firmware       = "mrvl/sd8997_uapsta.bin",
++	.firmware       = "mrvl/sdsd8997_combo_v4.bin",
+ 	.reg            = &btmrvl_reg_8997,
+ 	.support_pscan_win_report = true,
+ 	.sd_blksz_fw_dl = 256,
+@@ -1833,4 +1833,4 @@ MODULE_FIRMWARE("mrvl/sd8887_uapsta.bin");
+ MODULE_FIRMWARE("mrvl/sd8897_uapsta.bin");
+ MODULE_FIRMWARE("mrvl/sdsd8977_combo_v2.bin");
+ MODULE_FIRMWARE("mrvl/sd8987_uapsta.bin");
+-MODULE_FIRMWARE("mrvl/sd8997_uapsta.bin");
++MODULE_FIRMWARE("mrvl/sdsd8997_combo_v4.bin");
 -- 
 2.25.1
 
