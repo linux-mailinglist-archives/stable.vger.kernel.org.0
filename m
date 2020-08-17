@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD77246A89
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD647246A79
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730392AbgHQPiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S1730528AbgHQPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730578AbgHQPiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:38:13 -0400
+        id S1730520AbgHQPgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:36:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A03E4208E4;
-        Mon, 17 Aug 2020 15:38:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7995020709;
+        Mon, 17 Aug 2020 15:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678692;
-        bh=XrGXVfkZGJOfgdQoFkJoVMpIOpg0//YVEswx0Gn5SG4=;
+        s=default; t=1597678612;
+        bh=TJ9AZakn52veKcbnZMKtfI9JpjIqWLaXbvn0eVDK0/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gi44MkZ6lHNiiWVh3ZnhNGIF2oBWzWX43zHIpjjnJYthmbFNOHDtI/lhkCZQHRUNm
-         Q+OSLQM1AwXOGEnLLSPXcI6Vx7BYBeTLXUagSwSxcQ67YugAlZYe8d6uMxJFgbxizy
-         YdPa7PWPVWzy70R03jcBHaI2rK+yNd22yL7XimWM=
+        b=xCI/6ggC/ki06LObWJ3Af3LQSor26sN7kA4NHVHB2oYKTO1vF2yJk2ZCmG7fT8ecc
+         icdeKQ8YrLmRM729KcjqTfgA7ekfPLcbmJ3k8HaaNvX4XpbKdRyNmEKX6g95MeK4m/
+         +I9ozehsqypN35gCLa1BoTyIjOlulAKe/0ptzWW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronak Doshi <doshir@vmware.com>,
-        Guolin Yang <gyang@vmware.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        Andrew Lunn <andrew@lunn.ch>, Baruch Siach <baruch@tkos.co.il>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 391/464] vmxnet3: use correct tcp hdr length when packet is encapsulated
-Date:   Mon, 17 Aug 2020 17:15:44 +0200
-Message-Id: <20200817143852.508586799@linuxfoundation.org>
+Subject: [PATCH 5.8 395/464] net: phy: marvell10g: fix null pointer dereference
+Date:   Mon, 17 Aug 2020 17:15:48 +0200
+Message-Id: <20200817143852.699988475@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,38 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: "Marek Behún" <marek.behun@nic.cz>
 
-[ Upstream commit 8a7f280f29a80f6e0798f5d6e07c5dd8726620fe ]
+[ Upstream commit 1b8ef1423dbfd34de2439a2db457b84480b7c8a8 ]
 
-Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
-support") added support for encapsulation offload. However, while
-calculating tcp hdr length, it does not take into account if the
-packet is encapsulated or not.
+Commit c3e302edca24 ("net: phy: marvell10g: fix temperature sensor on 2110")
+added a check for PHY ID via phydev->drv->phy_id in a function which is
+called by devres at a time when phydev->drv is already set to null by
+phy_remove function.
 
-This patch fixes this issue by using correct reference for inner
-tcp header.
+This null pointer dereference can be triggered via SFP subsystem with a
+SFP module containing this Marvell PHY. When the SFP interface is put
+down, the SFP subsystem removes the PHY.
 
-Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Guolin Yang <gyang@vmware.com>
+Fixes: c3e302edca24 ("net: phy: marvell10g: fix temperature sensor on 2110")
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Maxime Chevallier <maxime.chevallier@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/marvell10g.c |   18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -886,7 +886,8 @@ vmxnet3_parse_hdr(struct sk_buff *skb, s
+--- a/drivers/net/phy/marvell10g.c
++++ b/drivers/net/phy/marvell10g.c
+@@ -205,13 +205,6 @@ static int mv3310_hwmon_config(struct ph
+ 			      MV_V2_TEMP_CTRL_MASK, val);
+ }
  
- 			switch (protocol) {
- 			case IPPROTO_TCP:
--				ctx->l4_hdr_size = tcp_hdrlen(skb);
-+				ctx->l4_hdr_size = skb->encapsulation ? inner_tcp_hdrlen(skb) :
-+						   tcp_hdrlen(skb);
- 				break;
- 			case IPPROTO_UDP:
- 				ctx->l4_hdr_size = sizeof(struct udphdr);
+-static void mv3310_hwmon_disable(void *data)
+-{
+-	struct phy_device *phydev = data;
+-
+-	mv3310_hwmon_config(phydev, false);
+-}
+-
+ static int mv3310_hwmon_probe(struct phy_device *phydev)
+ {
+ 	struct device *dev = &phydev->mdio.dev;
+@@ -235,10 +228,6 @@ static int mv3310_hwmon_probe(struct phy
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = devm_add_action_or_reset(dev, mv3310_hwmon_disable, phydev);
+-	if (ret)
+-		return ret;
+-
+ 	priv->hwmon_dev = devm_hwmon_device_register_with_info(dev,
+ 				priv->hwmon_name, phydev,
+ 				&mv3310_hwmon_chip_info, NULL);
+@@ -423,6 +412,11 @@ static int mv3310_probe(struct phy_devic
+ 	return phy_sfp_probe(phydev, &mv3310_sfp_ops);
+ }
+ 
++static void mv3310_remove(struct phy_device *phydev)
++{
++	mv3310_hwmon_config(phydev, false);
++}
++
+ static int mv3310_suspend(struct phy_device *phydev)
+ {
+ 	return mv3310_power_down(phydev);
+@@ -762,6 +756,7 @@ static struct phy_driver mv3310_drivers[
+ 		.read_status	= mv3310_read_status,
+ 		.get_tunable	= mv3310_get_tunable,
+ 		.set_tunable	= mv3310_set_tunable,
++		.remove		= mv3310_remove,
+ 	},
+ 	{
+ 		.phy_id		= MARVELL_PHY_ID_88E2110,
+@@ -776,6 +771,7 @@ static struct phy_driver mv3310_drivers[
+ 		.read_status	= mv3310_read_status,
+ 		.get_tunable	= mv3310_get_tunable,
+ 		.set_tunable	= mv3310_set_tunable,
++		.remove		= mv3310_remove,
+ 	},
+ };
+ 
 
 
