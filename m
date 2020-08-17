@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 233CF24725B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE3A247276
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730697AbgHQP5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44516 "EHLO mail.kernel.org"
+        id S1731739AbgHQSnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388089AbgHQP4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:56:54 -0400
+        id S2388094AbgHQP47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:56:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E16DA207DA;
-        Mon, 17 Aug 2020 15:56:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2906320882;
+        Mon, 17 Aug 2020 15:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679812;
-        bh=KtlD/dHbQX6e0yXtT9SBli8K4ds5ERxe2N5v+WXJC4c=;
+        s=default; t=1597679818;
+        bh=O130pITfkEZjlbweqZvbhuI2bgX0PeT8PhsHPXZuxYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCOVb+mEbBz9gltE6Y2r/hZjvrVKxZYgsq4C/b4yJMTXw4WPpgbK3lf9MWEQaA1ZU
-         W2s61SFYal1ea6/iIVsmQyG7ceq60m4hIP3NuYkfTAggyPH5N1NEBZTWeIvksvsP3G
-         Ok4sARJPncV8gk5XPuKpaIinewFDOPF79yItk+zg=
+        b=XtmrHlOIvKkSAqi36P4na6Zp+0hPEvKAIFkzvDtp1j6KVh5aJU3BW72uG1S92iLiG
+         so5ZK8JR+w6PCF117RkZR62SiyFTwRnfulWcGLkQx9SF8GZ6sFkwX+RJbc6SHyVGk6
+         MWomtfmGg5L5DK9ElJ+RiV2X1Ls1hpCUGwVewuVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.7 342/393] crypto: qat - fix double free in qat_uclo_create_batch_init_list
-Date:   Mon, 17 Aug 2020 17:16:32 +0200
-Message-Id: <20200817143836.187159293@linuxfoundation.org>
+Subject: [PATCH 5.7 344/393] crypto: cpt - dont sleep of CRYPTO_TFM_REQ_MAY_SLEEP was not specified
+Date:   Mon, 17 Aug 2020 17:16:34 +0200
+Message-Id: <20200817143836.286203305@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -43,91 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit c06c76602e03bde24ee69a2022a829127e504202 upstream.
+commit 9e27c99104707f083dccd3b4d79762859b5a0614 upstream.
 
-clang static analysis flags this error
+There is this call chain:
+cvm_encrypt -> cvm_enc_dec -> cptvf_do_request -> process_request -> kzalloc
+where we call sleeping allocator function even if CRYPTO_TFM_REQ_MAY_SLEEP
+was not specified.
 
-qat_uclo.c:297:3: warning: Attempt to free released memory
-  [unix.Malloc]
-                kfree(*init_tab_base);
-                ^~~~~~~~~~~~~~~~~~~~~
-
-When input *init_tab_base is null, the function allocates memory for
-the head of the list.  When there is problem allocating other list
-elements the list is unwound and freed.  Then a check is made if the
-list head was allocated and is also freed.
-
-Keeping track of the what may need to be freed is the variable 'tail_old'.
-The unwinding/freeing block is
-
-	while (tail_old) {
-		mem_init = tail_old->next;
-		kfree(tail_old);
-		tail_old = mem_init;
-	}
-
-The problem is that the first element of tail_old is also what was
-allocated for the list head
-
-		init_header = kzalloc(sizeof(*init_header), GFP_KERNEL);
-		...
-		*init_tab_base = init_header;
-		flag = 1;
-	}
-	tail_old = init_header;
-
-So *init_tab_base/init_header are freed twice.
-
-There is another problem.
-When the input *init_tab_base is non null the tail_old is calculated by
-traveling down the list to first non null entry.
-
-	tail_old = init_header;
-	while (tail_old->next)
-		tail_old = tail_old->next;
-
-When the unwinding free happens, the last entry of the input list will
-be freed.
-
-So the freeing needs a general changed.
-If locally allocated the first element of tail_old is freed, else it
-is skipped.  As a bit of cleanup, reset *init_tab_base if it came in
-as null.
-
-Fixes: b4b7e67c917f ("crypto: qat - Intel(R) QAT ucode part of fw loader")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org	# v4.11+
+Fixes: c694b233295b ("crypto: cavium - Add the Virtual Function driver for CPT")
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/crypto/cavium/cpt/cptvf_algs.c       |    1 +
+ drivers/crypto/cavium/cpt/cptvf_reqmanager.c |   12 ++++++------
+ drivers/crypto/cavium/cpt/request_manager.h  |    2 ++
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -332,13 +332,18 @@ static int qat_uclo_create_batch_init_li
+--- a/drivers/crypto/cavium/cpt/cptvf_algs.c
++++ b/drivers/crypto/cavium/cpt/cptvf_algs.c
+@@ -200,6 +200,7 @@ static inline int cvm_enc_dec(struct skc
+ 	int status;
+ 
+ 	memset(req_info, 0, sizeof(struct cpt_request_info));
++	req_info->may_sleep = (req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) != 0;
+ 	memset(fctx, 0, sizeof(struct fc_context));
+ 	create_input_list(req, enc, enc_iv_len);
+ 	create_output_list(req, enc_iv_len);
+--- a/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
++++ b/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
+@@ -133,7 +133,7 @@ static inline int setup_sgio_list(struct
+ 
+ 	/* Setup gather (input) components */
+ 	g_sz_bytes = ((req->incnt + 3) / 4) * sizeof(struct sglist_component);
+-	info->gather_components = kzalloc(g_sz_bytes, GFP_KERNEL);
++	info->gather_components = kzalloc(g_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (!info->gather_components) {
+ 		ret = -ENOMEM;
+ 		goto  scatter_gather_clean;
+@@ -150,7 +150,7 @@ static inline int setup_sgio_list(struct
+ 
+ 	/* Setup scatter (output) components */
+ 	s_sz_bytes = ((req->outcnt + 3) / 4) * sizeof(struct sglist_component);
+-	info->scatter_components = kzalloc(s_sz_bytes, GFP_KERNEL);
++	info->scatter_components = kzalloc(s_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (!info->scatter_components) {
+ 		ret = -ENOMEM;
+ 		goto  scatter_gather_clean;
+@@ -167,7 +167,7 @@ static inline int setup_sgio_list(struct
+ 
+ 	/* Create and initialize DPTR */
+ 	info->dlen = g_sz_bytes + s_sz_bytes + SG_LIST_HDR_SIZE;
+-	info->in_buffer = kzalloc(info->dlen, GFP_KERNEL);
++	info->in_buffer = kzalloc(info->dlen, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (!info->in_buffer) {
+ 		ret = -ENOMEM;
+ 		goto  scatter_gather_clean;
+@@ -195,7 +195,7 @@ static inline int setup_sgio_list(struct
  	}
- 	return 0;
- out_err:
-+	/* Do not free the list head unless we allocated it. */
-+	tail_old = tail_old->next;
-+	if (flag) {
-+		kfree(*init_tab_base);
-+		*init_tab_base = NULL;
-+	}
+ 
+ 	/* Create and initialize RPTR */
+-	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, GFP_KERNEL);
++	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (!info->out_buffer) {
+ 		ret = -ENOMEM;
+ 		goto scatter_gather_clean;
+@@ -421,7 +421,7 @@ int process_request(struct cpt_vf *cptvf
+ 	struct cpt_vq_command vq_cmd;
+ 	union cpt_inst_s cptinst;
+ 
+-	info = kzalloc(sizeof(*info), GFP_KERNEL);
++	info = kzalloc(sizeof(*info), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (unlikely(!info)) {
+ 		dev_err(&pdev->dev, "Unable to allocate memory for info_buffer\n");
+ 		return -ENOMEM;
+@@ -443,7 +443,7 @@ int process_request(struct cpt_vf *cptvf
+ 	 * Get buffer for union cpt_res_s response
+ 	 * structure and its physical address
+ 	 */
+-	info->completion_addr = kzalloc(sizeof(union cpt_res_s), GFP_KERNEL);
++	info->completion_addr = kzalloc(sizeof(union cpt_res_s), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (unlikely(!info->completion_addr)) {
+ 		dev_err(&pdev->dev, "Unable to allocate memory for completion_addr\n");
+ 		ret = -ENOMEM;
+--- a/drivers/crypto/cavium/cpt/request_manager.h
++++ b/drivers/crypto/cavium/cpt/request_manager.h
+@@ -62,6 +62,8 @@ struct cpt_request_info {
+ 	union ctrl_info ctrl; /* User control information */
+ 	struct cptvf_request req; /* Request Information (Core specific) */
+ 
++	bool may_sleep;
 +
- 	while (tail_old) {
- 		mem_init = tail_old->next;
- 		kfree(tail_old);
- 		tail_old = mem_init;
- 	}
--	if (flag)
--		kfree(*init_tab_base);
- 	return -ENOMEM;
- }
+ 	struct buf_ptr in[MAX_BUF_CNT];
+ 	struct buf_ptr out[MAX_BUF_CNT];
  
 
 
