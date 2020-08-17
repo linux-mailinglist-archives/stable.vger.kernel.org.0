@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB44246EDF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E07246EDC
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388081AbgHQRiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:38:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55088 "EHLO mail.kernel.org"
+        id S2387678AbgHQRiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:38:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731132AbgHQQRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731135AbgHQQRN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 Aug 2020 12:17:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015E722D03;
-        Mon, 17 Aug 2020 16:16:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CCF422DA9;
+        Mon, 17 Aug 2020 16:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681013;
-        bh=uJITJNKX/Xsrl60nntsf/Tz4btf1aqR+2Nu4tLw7UWg=;
+        s=default; t=1597681015;
+        bh=Vz1IWgRRXlQKFbJAubLEj5+gx2dz54XngUGfMWWbNtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDW8U6DfxeWBOHCqHqTs+AvB4S2+/sKIAk7aqLZRP9epu9w72u0YV87KssjHjEGLJ
-         CkBAir560Sif9+9uEpDLb+4TsQUIZ7QSNEU8u5ada+cHTRBUG/ipT4R7jvDQv0K2Uu
-         U6omVUSYpcqSnBVqr7Vu7aQiJpW1UBtEfCyHcqzk=
+        b=uWBvWwDPUWEKAbRk4Wxfz8Mw+19VdVRAhjiBXEX2gpSXYeVQNMXv1jYzIOXXOQ9H4
+         OcEuWnT5LNceY7Xag+dAw+FL6SGm1Z1AnjqNI4thZQJ7jo3QIA4QNGvbvkqQvLHIEf
+         oHT8oJnehOiWCUm85uw62uS4Kp0RLlJrcVPE0B8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sami Tolvanen <samitolvanen@google.com>
-Subject: [PATCH 4.19 149/168] bitfield.h: dont compile-time validate _val in FIELD_FIT
-Date:   Mon, 17 Aug 2020 17:18:00 +0200
-Message-Id: <20200817143741.108649329@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 150/168] fs/minix: check return value of sb_getblk()
+Date:   Mon, 17 Aug 2020 17:18:01 +0200
+Message-Id: <20200817143741.159464747@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -46,55 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 444da3f52407d74c9aa12187ac6b01f76ee47d62 upstream.
+commit da27e0a0e5f655f0d58d4e153c3182bb2b290f64 upstream.
 
-When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
-compiler to deduce a case where _val can only have the value of -1 at
-compile time. Specifically,
+Patch series "fs/minix: fix syzbot bugs and set s_maxbytes".
 
-/* struct bpf_insn: _s32 imm */
-u64 imm = insn->imm; /* sign extend */
-if (imm >> 32) { /* non-zero only if insn->imm is negative */
-  /* inlined from ur_load_imm_any */
-  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
-  if (__builtin_constant_p(__imm) && __imm > 255)
-    compiletime_assert_XXX()
+This series fixes all syzbot bugs in the minix filesystem:
 
-This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
-checks that a given value is representable in one byte (interpreted as
-unsigned).
+	KASAN: null-ptr-deref Write in get_block
+	KASAN: use-after-free Write in get_block
+	KASAN: use-after-free Read in get_block
+	WARNING in inc_nlink
+	KMSAN: uninit-value in get_block
+	WARNING in drop_nlink
 
-FIELD_FIT() should return true or false at runtime for whether a value
-can fit for not. Don't break the build over a value that's too large for
-the mask. We'd prefer to keep the inlining and compiler optimizations
-though we know this case will always return false.
+It also fixes the minix filesystem to set s_maxbytes correctly, so that
+userspace sees the correct behavior when exceeding the max file size.
 
-Cc: stable@vger.kernel.org
-Fixes: 1697599ee301a ("bitfield.h: add FIELD_FIT() helper")
-Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch (of 6):
+
+sb_getblk() can fail, so check its return value.
+
+This fixes a NULL pointer dereference.
+
+Originally from Qiujun Huang.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200628060846.682158-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200628060846.682158-2-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/bitfield.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/minix/itree_common.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/include/linux/bitfield.h
-+++ b/include/linux/bitfield.h
-@@ -72,7 +72,7 @@
-  */
- #define FIELD_FIT(_mask, _val)						\
- 	({								\
--		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
-+		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
- 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
- 	})
+--- a/fs/minix/itree_common.c
++++ b/fs/minix/itree_common.c
+@@ -75,6 +75,7 @@ static int alloc_branch(struct inode *in
+ 	int n = 0;
+ 	int i;
+ 	int parent = minix_new_block(inode);
++	int err = -ENOSPC;
  
+ 	branch[0].key = cpu_to_block(parent);
+ 	if (parent) for (n = 1; n < num; n++) {
+@@ -85,6 +86,11 @@ static int alloc_branch(struct inode *in
+ 			break;
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
++		if (!bh) {
++			minix_free_block(inode, nr);
++			err = -ENOMEM;
++			break;
++		}
+ 		lock_buffer(bh);
+ 		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+@@ -103,7 +109,7 @@ static int alloc_branch(struct inode *in
+ 		bforget(branch[i].bh);
+ 	for (i = 0; i < n; i++)
+ 		minix_free_block(inode, block_to_cpu(branch[i].key));
+-	return -ENOSPC;
++	return err;
+ }
+ 
+ static inline int splice_branch(struct inode *inode,
 
 
