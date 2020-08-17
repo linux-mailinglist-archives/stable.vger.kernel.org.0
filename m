@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C331F247589
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7AE1247583
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:24:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731992AbgHQTY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:24:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S2390352AbgHQTYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729556AbgHQPeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:34:23 -0400
+        id S1730414AbgHQPeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:34:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F195208B3;
-        Mon, 17 Aug 2020 15:34:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6924422CA1;
+        Mon, 17 Aug 2020 15:34:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678463;
-        bh=YdWU+OC7HwpMZ2Qxoo3a1t4tkGl4iN6BYJQOodDcjnY=;
+        s=default; t=1597678468;
+        bh=lxJmkJbciIbSE8r9qbKuRDh+Fx1MAM8KlWvJ5hIi8lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDgMqsP8CzDwBuBgScYSiueGeAjrLxUAWf580Y26boWUb2yEAEpxhZJ8wWpuoCAU+
-         UQF07Y7KbICaI2Ih5OjIzaOJAnOLAfjWFiNZA1lOSkybwq3ODkbDvWwSM6I/74c78w
-         IAES3zirxD5AAeJntddRSRMJ0249BRcoGa5tDzXo=
+        b=hzkk4OkVsNYLL3kg++AU9FA71L+Pm+z2GWX5AcgShw/KKWD0ihiJpT68XQDFEeGgp
+         ZozCwPZLUZqYtBs8MfvBpUHfZEvuTHSyYl4OBkFNZlkALkx6Reyz/68ItQF4aNIXXO
+         Iky0Mwz+AtWq4utEPnFuF4nppXboB4ly5DnMqf4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vignesh Sridhar <vignesh.sridhar@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, "Demi M. Obenour" <demiobenour@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 342/464] ice: Clear and free XLT entries on reset
-Date:   Mon, 17 Aug 2020 17:14:55 +0200
-Message-Id: <20200817143850.155765628@linuxfoundation.org>
+Subject: [PATCH 5.8 344/464] netfilter: nft_meta: fix iifgroup matching
+Date:   Mon, 17 Aug 2020 17:14:57 +0200
+Message-Id: <20200817143850.249350448@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,50 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Sridhar <vignesh.sridhar@intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit ec1d1d2302067e3ccbc4d0adcd36d72410933b70 ]
+[ Upstream commit 78470d9d0d9f2f8d16f28382a4071568e839c0d5 ]
 
-This fix has been added to address memory leak issues resulting from
-triggering a sudden driver reset which does not allow us to follow our
-normal removal flows for SW XLT entries for advanced features.
+iifgroup matching erroneously checks the output interface.
 
-- Adding call to destroy flow profile locks when clearing SW XLT tables.
-
-- Extraction sequence entries were not correctly cleared previously
-which could cause ownership conflicts for repeated reset-replay calls.
-
-Fixes: 31ad4e4ee1e4 ("ice: Allocate flow profile")
-Signed-off-by: Vignesh Sridhar <vignesh.sridhar@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 8724e819cc9a ("netfilter: nft_meta: move all interface related keys to helper")
+Reported-by: Demi M. Obenour <demiobenour@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_flex_pipe.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nft_meta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-index 4420fc02f7e7a..6698612048625 100644
---- a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-+++ b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
-@@ -2922,6 +2922,8 @@ static void ice_free_flow_profs(struct ice_hw *hw, u8 blk_idx)
- 					   ICE_FLOW_ENTRY_HNDL(e));
- 
- 		list_del(&p->l_entry);
-+
-+		mutex_destroy(&p->entries_lock);
- 		devm_kfree(ice_hw_to_dev(hw), p);
- 	}
- 	mutex_unlock(&hw->fl_profs_locks[blk_idx]);
-@@ -3039,7 +3041,7 @@ void ice_clear_hw_tbls(struct ice_hw *hw)
- 		memset(prof_redir->t, 0,
- 		       prof_redir->count * sizeof(*prof_redir->t));
- 
--		memset(es->t, 0, es->count * sizeof(*es->t));
-+		memset(es->t, 0, es->count * sizeof(*es->t) * es->fvw);
- 		memset(es->ref_count, 0, es->count * sizeof(*es->ref_count));
- 		memset(es->written, 0, es->count * sizeof(*es->written));
- 	}
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index 951b6e87ed5d9..7bc6537f3ccb5 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -253,7 +253,7 @@ static bool nft_meta_get_eval_ifname(enum nft_meta_keys key, u32 *dest,
+ 			return false;
+ 		break;
+ 	case NFT_META_IIFGROUP:
+-		if (!nft_meta_store_ifgroup(dest, nft_out(pkt)))
++		if (!nft_meta_store_ifgroup(dest, nft_in(pkt)))
+ 			return false;
+ 		break;
+ 	case NFT_META_OIFGROUP:
 -- 
 2.25.1
 
