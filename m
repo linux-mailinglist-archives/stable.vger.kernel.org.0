@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 838E6247619
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61507247611
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404232AbgHQTdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53790 "EHLO mail.kernel.org"
+        id S1729847AbgHQPbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730246AbgHQPa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:30:57 -0400
+        id S1730250AbgHQPa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:30:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AFF023440;
-        Mon, 17 Aug 2020 15:30:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E066823BCF;
+        Mon, 17 Aug 2020 15:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678257;
-        bh=WtHJlHpN1IoAghHnJrD6JHQcmHdwzjW8VjXo4bId0K4=;
+        s=default; t=1597678259;
+        bh=qGB1eCeXyQTCRvPGHcsCiktvK5rer3VZ0aHNYF40RSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ab554IHOpmgjA5BR8eExpNISn4gqdmsA8P+NmRnZnz4MRMfjzuG0P5N6BBkq967gQ
-         oDz/4Gu4AXl8OC62mqpoAikEhLPrO+n3b4/oimwglUB1eH66GQliNMTTvDjo9ed8YR
-         fNAaW0q4otWcNzCbPTO5EnOmOhszLftOCCeQaVQo=
+        b=WVKpGAUDCbVwW8xrzhY3KPQQQlEyacHAE3jzGqx6TrqvuYI+lU5OIsbYMCpnJYm3a
+         KpMcOgQZBOd2Kyi3vzK1l6SoRjdko00MUzrN7XHx5AU8DhSlqtdxVzlMke5K80HTry
+         Vazas99ohUS0UY9WwPESVwnTD4ZjhIoxLuSiwLrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 271/464] mt76: mt7915: add missing CONFIG_MAC80211_DEBUGFS
-Date:   Mon, 17 Aug 2020 17:13:44 +0200
-Message-Id: <20200817143846.763111625@linuxfoundation.org>
+Subject: [PATCH 5.8 272/464] mt76: mt7615: fix possible memory leak in mt7615_mcu_wtbl_sta_add
+Date:   Mon, 17 Aug 2020 17:13:45 +0200
+Message-Id: <20200817143846.810934762@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,38 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit a6e29d8ecd3d4eea8748d81d7b577083b4a7c441 ]
+[ Upstream commit 2bccc8415883c1cd5ae8836548d9783dbbd84999 ]
 
-Add CONFIG_MAC80211_DEBUGFS to fix a reported warning.
+Free the second mcu skb if __mt76_mcu_skb_send_msg() fails to transmit
+the first one in mt7615_mcu_wtbl_sta_add().
 
-Fixes: ec9742a8f38e ("mt76: mt7915: add .sta_add_debugfs support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Fixes: 99c457d902cf9 ("mt76: mt7615: move mt7615_mcu_set_bmc to mt7615_mcu_ops")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7615/mcu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-index 5278bee812f1c..7e48f56b5b08e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-@@ -384,6 +384,7 @@ int mt7915_init_debugfs(struct mt7915_dev *dev)
- 	return 0;
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index d8c52ffcf0ecb..cb8c1d80ead92 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -1209,8 +1209,12 @@ mt7615_mcu_wtbl_sta_add(struct mt7615_dev *dev, struct ieee80211_vif *vif,
+ 	skb = enable ? wskb : sskb;
  
-+#ifdef CONFIG_MAC80211_DEBUGFS
- /** per-station debugfs **/
+ 	err = __mt76_mcu_skb_send_msg(&dev->mt76, skb, cmd, true);
+-	if (err < 0)
++	if (err < 0) {
++		skb = enable ? sskb : wskb;
++		dev_kfree_skb(skb);
++
+ 		return err;
++	}
  
- /* usage: <tx mode> <ldpc> <stbc> <bw> <gi> <nss> <mcs> */
-@@ -461,3 +462,4 @@ void mt7915_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 	debugfs_create_file("fixed_rate", 0600, dir, sta, &fops_fixed_rate);
- 	debugfs_create_file("stats", 0400, dir, sta, &fops_sta_stats);
- }
-+#endif
+ 	cmd = enable ? MCU_EXT_CMD_STA_REC_UPDATE : MCU_EXT_CMD_WTBL_UPDATE;
+ 	skb = enable ? sskb : wskb;
 -- 
 2.25.1
 
