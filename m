@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89378246C4D
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38243246C06
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388732AbgHQQM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
+        id S2388343AbgHQQIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388722AbgHQQMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:12:49 -0400
+        id S2388399AbgHQQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:07:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B671420578;
-        Mon, 17 Aug 2020 16:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6689120888;
+        Mon, 17 Aug 2020 16:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680769;
-        bh=eC13ChoGeRWb9N3IW/OrT7LtsHGrOf7bsYGIWtTxk54=;
+        s=default; t=1597680424;
+        bh=+q16tVvoqn+1RNAC3l/0/VWWPT5WJdZe4rdN6K952ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttOsJ+K+McZc8QAhJoq/u2sydEA4q6O8P7Kfo/1NUxWI/aIHNU6jucw3y4tsX7VXV
-         t7Bn7/p67RfnnoVLarZpw9uvVpOr0CaPTuixEeKaKE1Z/St+gffFyJfsLIT9spom97
-         UO7p/x4RaAnOz8jSLWlO0IRjpu/owObOJ7SDN6Zo=
+        b=AWLF2OS6pTWhsrx7JBBcbI7hqTKgvcrXmJSn3apdp8EOiL71FhkmTAS5DzhqxPuhx
+         zZWAYZ/eCYePg7NSDCnaEBswjlRzLidykv73oJZQB0yPyt9/GeRAwtaEzy7y/Uu9FD
+         Pd1jSn/rw9IrYXewX4mP3tYi7Vb3vfu08PzVtImU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Danesh Petigara <danesh.petigara@broadcom.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/168] usb: bdc: Halt controller on suspend
-Date:   Mon, 17 Aug 2020 17:16:21 +0200
-Message-Id: <20200817143736.254018925@linuxfoundation.org>
+Subject: [PATCH 5.4 181/270] powerpc/boot: Fix CONFIG_PPC_MPC52XX references
+Date:   Mon, 17 Aug 2020 17:16:22 +0200
+Message-Id: <20200817143804.817895284@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danesh Petigara <danesh.petigara@broadcom.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 5fc453d7de3d0c345812453823a3a56783c5f82c ]
+[ Upstream commit e5eff89657e72a9050d95fde146b54c7dc165981 ]
 
-GISB bus error kernel panics have been observed during S2 transition
-tests on the 7271t platform. The errors are a result of the BDC
-interrupt handler trying to access BDC register space after the
-system's suspend callbacks have completed.
+Commit 866bfc75f40e ("powerpc: conditionally compile platform-specific
+serial drivers") made some code depend on CONFIG_PPC_MPC52XX, which
+doesn't exist.
 
-Adding a suspend hook to the BDC driver that halts the controller before
-S2 entry thus preventing unwanted access to the BDC register space during
-this transition.
+Fix it to use CONFIG_PPC_MPC52xx.
 
-Signed-off-by: Danesh Petigara <danesh.petigara@broadcom.com>
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 866bfc75f40e ("powerpc: conditionally compile platform-specific serial drivers")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200724131728.1643966-7-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/powerpc/boot/Makefile | 2 +-
+ arch/powerpc/boot/serial.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index 4c557f3154460..e174b1b889da5 100644
---- a/drivers/usb/gadget/udc/bdc/bdc_core.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -608,9 +608,14 @@ static int bdc_remove(struct platform_device *pdev)
- static int bdc_suspend(struct device *dev)
- {
- 	struct bdc *bdc = dev_get_drvdata(dev);
-+	int ret;
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index dfbd7f22eef5e..8c69bd07ada6a 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -119,7 +119,7 @@ src-wlib-y := string.S crt0.S stdio.c decompress.c main.c \
+ 		elf_util.c $(zlib-y) devtree.c stdlib.c \
+ 		oflib.c ofconsole.c cuboot.c
  
--	clk_disable_unprepare(bdc->clk);
--	return 0;
-+	/* Halt the controller */
-+	ret = bdc_stop(bdc);
-+	if (!ret)
-+		clk_disable_unprepare(bdc->clk);
-+
-+	return ret;
- }
- 
- static int bdc_resume(struct device *dev)
+-src-wlib-$(CONFIG_PPC_MPC52XX) += mpc52xx-psc.c
++src-wlib-$(CONFIG_PPC_MPC52xx) += mpc52xx-psc.c
+ src-wlib-$(CONFIG_PPC64_BOOT_WRAPPER) += opal-calls.S opal.c
+ ifndef CONFIG_PPC64_BOOT_WRAPPER
+ src-wlib-y += crtsavres.S
+diff --git a/arch/powerpc/boot/serial.c b/arch/powerpc/boot/serial.c
+index 9457863147f9b..00179cd6bdd08 100644
+--- a/arch/powerpc/boot/serial.c
++++ b/arch/powerpc/boot/serial.c
+@@ -128,7 +128,7 @@ int serial_console_init(void)
+ 	         dt_is_compatible(devp, "fsl,cpm2-smc-uart"))
+ 		rc = cpm_console_init(devp, &serial_cd);
+ #endif
+-#ifdef CONFIG_PPC_MPC52XX
++#ifdef CONFIG_PPC_MPC52xx
+ 	else if (dt_is_compatible(devp, "fsl,mpc5200-psc-uart"))
+ 		rc = mpc5200_psc_console_init(devp, &serial_cd);
+ #endif
 -- 
 2.25.1
 
