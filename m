@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 122322469D6
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC9F2469D8
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729842AbgHQP0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
+        id S1729326AbgHQP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729793AbgHQP0q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:26:46 -0400
+        id S1729841AbgHQP0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:26:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB92023A1D;
-        Mon, 17 Aug 2020 15:26:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1B9623AC0;
+        Mon, 17 Aug 2020 15:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678006;
-        bh=sCWwWWUVOqcvE+OPfFNQArOmoRTzDJBr21kMFMHQVAM=;
+        s=default; t=1597678009;
+        bh=SZwoex5LQAzkkk+vKspmwpjdMUbJieW9yzVGmipuZuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPQ54youknZpqA2mlgJzpk1MGAsyP/3LrsNJ9A3IKIA9C3Vc4rr6ALn3gRXXiNt7O
-         VxG+PtVlh96gWs59eVHzbDbGjNM/0a8l2Uv1YabFQlTLIbaH9RIW13M7/AI7tXVEoz
-         xlxTxfixj+mBQyEQNzgg8neOHP8uWsV9LCWd0mzA=
+        b=aJp+dwgqsGGhFOO8yhUY7EsXJYDgpfuc5Of7IA+3RpQcbCmJwuSbxTatNV8ptziN9
+         sD3aXeC3lsJtNfc/dbbE7yRCTd2Ru8BqBksRMD6t3VpxwqrwiFdLDwduXN86TN6Obw
+         nkT0EbXBYEhgA1fpyR8OqGGluonhXbdqVS2gEGcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 156/464] ath10k: Acquire tx_lock in tx error paths
-Date:   Mon, 17 Aug 2020 17:11:49 +0200
-Message-Id: <20200817143841.280799598@linuxfoundation.org>
+Subject: [PATCH 5.8 157/464] Bluetooth: hci_qca: Bug fix during SSR timeout
+Date:   Mon, 17 Aug 2020 17:11:50 +0200
+Message-Id: <20200817143841.328293948@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,48 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
 
-[ Upstream commit a738e766e3ed92c4ee5ec967777276b5ce11dd2c ]
+[ Upstream commit f98aa80ff78c34fe328eb9cd3e2cc3058e42bcfd ]
 
-ath10k_htt_tx_free_msdu_id() has a lockdep assertion that htt->tx_lock
-is held. Acquire the lock in a couple of error paths when calling that
-function to ensure this condition is met.
+Due to race conditions between qca_hw_error and qca_controller_memdump
+during SSR timeout,the same pointer is freed twice. This results in a
+double free. Now a lock is acquired before checking the stauts of SSR
+state.
 
-Fixes: 6421969f248fd ("ath10k: refactor tx pending management")
-Fixes: e62ee5c381c59 ("ath10k: Add support for htt_data_tx_desc_64 descriptor")
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200604105901.1.I5b8b0c7ee0d3e51a73248975a9da61401b8f3900@changeid
+Fixes: d841502c79e3 ("Bluetooth: hci_qca: Collect controller memory dump during SSR")
+Signed-off-by: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_tx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/bluetooth/hci_qca.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_tx.c b/drivers/net/wireless/ath/ath10k/htt_tx.c
-index 4fd10ac3a9417..bbe869575855a 100644
---- a/drivers/net/wireless/ath/ath10k/htt_tx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_tx.c
-@@ -1591,7 +1591,9 @@ static int ath10k_htt_tx_32(struct ath10k_htt *htt,
- err_unmap_msdu:
- 	dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
- err_free_msdu_id:
-+	spin_lock_bh(&htt->tx_lock);
- 	ath10k_htt_tx_free_msdu_id(htt, msdu_id);
-+	spin_unlock_bh(&htt->tx_lock);
- err:
- 	return res;
- }
-@@ -1798,7 +1800,9 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
- err_unmap_msdu:
- 	dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
- err_free_msdu_id:
-+	spin_lock_bh(&htt->tx_lock);
- 	ath10k_htt_tx_free_msdu_id(htt, msdu_id);
-+	spin_unlock_bh(&htt->tx_lock);
- err:
- 	return res;
- }
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 328919b79f7b9..74245f20a309e 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -991,8 +991,11 @@ static void qca_controller_memdump(struct work_struct *work)
+ 	while ((skb = skb_dequeue(&qca->rx_memdump_q))) {
+ 
+ 		mutex_lock(&qca->hci_memdump_lock);
+-		/* Skip processing the received packets if timeout detected. */
+-		if (qca->memdump_state == QCA_MEMDUMP_TIMEOUT) {
++		/* Skip processing the received packets if timeout detected
++		 * or memdump collection completed.
++		 */
++		if (qca->memdump_state == QCA_MEMDUMP_TIMEOUT ||
++		    qca->memdump_state == QCA_MEMDUMP_COLLECTED) {
+ 			mutex_unlock(&qca->hci_memdump_lock);
+ 			return;
+ 		}
+@@ -1494,8 +1497,6 @@ static void qca_hw_error(struct hci_dev *hdev, u8 code)
+ {
+ 	struct hci_uart *hu = hci_get_drvdata(hdev);
+ 	struct qca_data *qca = hu->priv;
+-	struct qca_memdump_data *qca_memdump = qca->qca_memdump;
+-	char *memdump_buf = NULL;
+ 
+ 	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
+ 	set_bit(QCA_HW_ERROR_EVENT, &qca->flags);
+@@ -1519,19 +1520,23 @@ static void qca_hw_error(struct hci_dev *hdev, u8 code)
+ 		qca_wait_for_dump_collection(hdev);
+ 	}
+ 
++	mutex_lock(&qca->hci_memdump_lock);
+ 	if (qca->memdump_state != QCA_MEMDUMP_COLLECTED) {
+ 		bt_dev_err(hu->hdev, "clearing allocated memory due to memdump timeout");
+-		mutex_lock(&qca->hci_memdump_lock);
+-		if (qca_memdump)
+-			memdump_buf = qca_memdump->memdump_buf_head;
+-		vfree(memdump_buf);
+-		kfree(qca_memdump);
+-		qca->qca_memdump = NULL;
++		if (qca->qca_memdump) {
++			vfree(qca->qca_memdump->memdump_buf_head);
++			kfree(qca->qca_memdump);
++			qca->qca_memdump = NULL;
++		}
+ 		qca->memdump_state = QCA_MEMDUMP_TIMEOUT;
+ 		cancel_delayed_work(&qca->ctrl_memdump_timeout);
+-		skb_queue_purge(&qca->rx_memdump_q);
+-		mutex_unlock(&qca->hci_memdump_lock);
++	}
++	mutex_unlock(&qca->hci_memdump_lock);
++
++	if (qca->memdump_state == QCA_MEMDUMP_TIMEOUT ||
++	    qca->memdump_state == QCA_MEMDUMP_COLLECTED) {
+ 		cancel_work_sync(&qca->ctrl_memdump_evt);
++		skb_queue_purge(&qca->rx_memdump_q);
+ 	}
+ 
+ 	clear_bit(QCA_HW_ERROR_EVENT, &qca->flags);
 -- 
 2.25.1
 
