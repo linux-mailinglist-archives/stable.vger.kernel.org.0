@@ -2,51 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9DFB247061
+	by mail.lfdr.de (Postfix) with ESMTP id 4C80B247060
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390083AbgHQSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:07:50 -0400
+        id S2388466AbgHQSHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:07:47 -0400
 Received: from mail.kernel.org ([198.145.29.99]:57900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388458AbgHQQIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:08:31 -0400
+        id S2388463AbgHQQIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:08:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132E420729;
-        Mon, 17 Aug 2020 16:08:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 629E522B49;
+        Mon, 17 Aug 2020 16:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680510;
-        bh=wp8U4N3ZbGrSZIZBQVuacLPlQFEyAk9/jAmYVSOMDrg=;
+        s=default; t=1597680515;
+        bh=shT0TsfYxiP/hnTvhFCHDh5rpK6WtRm4y7EfStqYOc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCqB5o4th8VUywq7bpKkQ1Q1z442OsMQvA+h2/A5aVVuVHTW72JQy4W8a+PxII/Os
-         5itFQmv+0fcBffgqOakMxZmPQpEoIWHm8+jpc/TiMMntgLpwlZ/L7RMqajpzVua0ri
-         RAPiGD71yLHijEjYA1Y1vo97bAR3cYKiwSQYdGFY=
+        b=fFs6GVF9a5F/MY49bKvO+r0hew8zzigPOHnIdWeurD3dPTZDRomwV3iQWcDwBA6rA
+         zuJXvT4QSPBhMDQOg9uXswnjqksDDbQBBMaCb3HdgLUJiNzM5G/0qx+zjaAVl89R6X
+         kN3TBElGPGDSHNhqXcknWBlClABcRTVuCQA6zlvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Brian Gerst <brgerst@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Denys Vlasenko <dvlasenk@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Markus T Metzger <markus.t.metzger@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Shankar <ravi.v.shankar@intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jann Horn <jannh@google.com>
-Subject: [PATCH 5.4 215/270] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
-Date:   Mon, 17 Aug 2020 17:16:56 +0200
-Message-Id: <20200817143806.486151983@linuxfoundation.org>
+        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
+        kernel test robot <lkp@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 217/270] af_packet: TPACKET_V3: fix fill status rwlock imbalance
+Date:   Mon, 17 Aug 2020 17:16:58 +0200
+Message-Id: <20200817143806.598095707@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -59,75 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 8ab49526b53d3172d1d8dd03a75c7d1f5bd21239 ]
+[ Upstream commit 88fd1cb80daa20af063bce81e1fad14e945a8dc4 ]
 
-syzbot found its way in 86_fsgsbase_read_task() and triggered this oops:
+After @blk_fill_in_prog_lock is acquired there is an early out vnet
+situation that can occur. In that case, the rwlock needs to be
+released.
 
-   KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-   CPU: 0 PID: 6866 Comm: syz-executor262 Not tainted 5.8.0-syzkaller #0
-   RIP: 0010:x86_fsgsbase_read_task+0x16d/0x310 arch/x86/kernel/process_64.c:393
-   Call Trace:
-     putreg32+0x3ab/0x530 arch/x86/kernel/ptrace.c:876
-     genregs32_set arch/x86/kernel/ptrace.c:1026 [inline]
-     genregs32_set+0xa4/0x100 arch/x86/kernel/ptrace.c:1006
-     copy_regset_from_user include/linux/regset.h:326 [inline]
-     ia32_arch_ptrace arch/x86/kernel/ptrace.c:1061 [inline]
-     compat_arch_ptrace+0x36c/0xd90 arch/x86/kernel/ptrace.c:1198
-     __do_compat_sys_ptrace kernel/ptrace.c:1420 [inline]
-     __se_compat_sys_ptrace kernel/ptrace.c:1389 [inline]
-     __ia32_compat_sys_ptrace+0x220/0x2f0 kernel/ptrace.c:1389
-     do_syscall_32_irqs_on arch/x86/entry/common.c:84 [inline]
-     __do_fast_syscall_32+0x57/0x80 arch/x86/entry/common.c:126
-     do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:149
-     entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+Also, since @blk_fill_in_prog_lock is only acquired when @tp_version
+is exactly TPACKET_V3, only release it on that exact condition as
+well.
 
-This can happen if ptrace() or sigreturn() pokes an LDT selector into FS
-or GS for a task with no LDT and something tries to read the base before
-a return to usermode notices the bad selector and fixes it.
+And finally, add sparse annotation so that it is clearer that
+prb_fill_curr_block() and prb_clear_blk_fill_status() are acquiring
+and releasing @blk_fill_in_prog_lock, respectively. sparse is still
+unable to understand the balance, but the warnings are now on a
+higher level that make more sense.
 
-The fix is to make sure ldt pointer is not NULL.
-
-Fixes: 07e1d88adaae ("x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately")
-Co-developed-by: Jann Horn <jannh@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Chang S. Bae <chang.seok.bae@intel.com>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Markus T Metzger <markus.t.metzger@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Shankar <ravi.v.shankar@intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 632ca50f2cbd ("af_packet: TPACKET_V3: replace busy-wait loop")
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/process_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/packet/af_packet.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
-index af64519b26957..da3cc3a10d63f 100644
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -316,7 +316,7 @@ static unsigned long x86_fsgsbase_read_task(struct task_struct *task,
- 		 */
- 		mutex_lock(&task->mm->context.lock);
- 		ldt = task->mm->context.ldt;
--		if (unlikely(idx >= ldt->nr_entries))
-+		if (unlikely(!ldt || idx >= ldt->nr_entries))
- 			base = 0;
- 		else
- 			base = get_desc_base(ldt->entries + idx);
--- 
-2.25.1
-
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -941,6 +941,7 @@ static int prb_queue_frozen(struct tpack
+ }
+ 
+ static void prb_clear_blk_fill_status(struct packet_ring_buffer *rb)
++	__releases(&pkc->blk_fill_in_prog_lock)
+ {
+ 	struct tpacket_kbdq_core *pkc  = GET_PBDQC_FROM_RB(rb);
+ 	atomic_dec(&pkc->blk_fill_in_prog);
+@@ -988,6 +989,7 @@ static void prb_fill_curr_block(char *cu
+ 				struct tpacket_kbdq_core *pkc,
+ 				struct tpacket_block_desc *pbd,
+ 				unsigned int len)
++	__acquires(&pkc->blk_fill_in_prog_lock)
+ {
+ 	struct tpacket3_hdr *ppd;
+ 
+@@ -2285,8 +2287,11 @@ static int tpacket_rcv(struct sk_buff *s
+ 	if (do_vnet &&
+ 	    virtio_net_hdr_from_skb(skb, h.raw + macoff -
+ 				    sizeof(struct virtio_net_hdr),
+-				    vio_le(), true, 0))
++				    vio_le(), true, 0)) {
++		if (po->tp_version == TPACKET_V3)
++			prb_clear_blk_fill_status(&po->rx_ring);
+ 		goto drop_n_account;
++	}
+ 
+ 	if (po->tp_version <= TPACKET_V2) {
+ 		packet_increment_rx_head(po, &po->rx_ring);
+@@ -2392,7 +2397,7 @@ static int tpacket_rcv(struct sk_buff *s
+ 		__clear_bit(slot_id, po->rx_ring.rx_owner_map);
+ 		spin_unlock(&sk->sk_receive_queue.lock);
+ 		sk->sk_data_ready(sk);
+-	} else {
++	} else if (po->tp_version == TPACKET_V3) {
+ 		prb_clear_blk_fill_status(&po->rx_ring);
+ 	}
+ 
 
 
