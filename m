@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE8A247565
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3F224755F
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730514AbgHQTW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:22:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42292 "EHLO mail.kernel.org"
+        id S2392453AbgHQTWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:22:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730463AbgHQPf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:35:28 -0400
+        id S1730465AbgHQPfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:35:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3339222CB3;
-        Mon, 17 Aug 2020 15:35:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBFE32078D;
+        Mon, 17 Aug 2020 15:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678527;
-        bh=QJSqNjTAX0hTsR3b06q2F58h9qio6PJsjCB4toyVe2g=;
+        s=default; t=1597678530;
+        bh=UVJYsnp9VrZ2KU6bKTwSieMy9VbS55d1Zju82t79cPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJujmUZ0T8Dnn5Hehog9c3z2r2Dee+Rvb0YPs4eov3E8Hi8kd5ePoz2yOB/W6e+LX
-         PPswx+KEUQ5AnRoir+XybMqh3gVdW7Q0J8VoR63X25bGkPrUNrXRmdFcDfR6p+3HKM
-         vFFfQ0yTqHU5AjZr1Rt0oYJnM6s3DaPq8HIjG0/I=
+        b=uSZkbEGbv4XVEQg1KAdHpovYNyEiu5RnCJs6IAsMoyk1fNZn6SXcD7SLk3Twfb+o1
+         fyRRTyR6LrS9tOcq1NFeSPdS+0/Sr66olj08s0OGhVp9tnPaZY83PeHKElXNkY/+C4
+         tyReMMCMak1Yca+6k6IIU83nrcC5NUl6sVBO9loY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael P." <rparrazo@redhat.com>,
-        Dean Nelson <dnelson@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Reto Schneider <reto.schneider@husqvarnagroup.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 366/464] net: thunderx: use spin_lock_bh in nicvf_set_rx_mode_task()
-Date:   Mon, 17 Aug 2020 17:15:19 +0200
-Message-Id: <20200817143851.303486853@linuxfoundation.org>
+Subject: [PATCH 5.8 367/464] net: macb: Properly handle phylink on at91sam9x
+Date:   Mon, 17 Aug 2020 17:15:20 +0200
+Message-Id: <20200817143851.352979099@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -46,63 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Stefan Roese <sr@denx.de>
 
-[ Upstream commit bab9693a9a8c6dd19f670408ec1e78e12a320682 ]
+[ Upstream commit f7ba7dbf4f7af67b5936ff1cbd40a3254b409ebf ]
 
-A dead lock was triggered on thunderx driver:
+I just recently noticed that ethernet does not work anymore since v5.5
+on the GARDENA smart Gateway, which is based on the AT91SAM9G25.
+Debugging showed that the "GEM bits" in the NCFGR register are now
+unconditionally accessed, which is incorrect for the !macb_is_gem()
+case.
 
-        CPU0                    CPU1
-        ----                    ----
-   [01] lock(&(&nic->rx_mode_wq_lock)->rlock);
-                           [11] lock(&(&mc->mca_lock)->rlock);
-                           [12] lock(&(&nic->rx_mode_wq_lock)->rlock);
-   [02] <Interrupt> lock(&(&mc->mca_lock)->rlock);
+This patch adds the macb_is_gem() checks back to the code
+(in macb_mac_config() & macb_mac_link_up()), so that the GEM register
+bits are not accessed in this case any more.
 
-The path for each is:
-
-  [01] worker_thread() -> process_one_work() -> nicvf_set_rx_mode_task()
-  [02] mld_ifc_timer_expire()
-  [11] ipv6_add_dev() -> ipv6_dev_mc_inc() -> igmp6_group_added() ->
-  [12] dev_mc_add() -> __dev_set_rx_mode() -> nicvf_set_rx_mode()
-
-To fix it, it needs to disable bh on [1], so that the timer on [2]
-wouldn't be triggered until rx_mode_wq_lock is released. So change
-to use spin_lock_bh() instead of spin_lock().
-
-Thanks to Paolo for helping with this.
-
-v1->v2:
-  - post to netdev.
-
-Reported-by: Rafael P. <rparrazo@redhat.com>
-Tested-by: Dean Nelson <dnelson@redhat.com>
-Fixes: 469998c861fa ("net: thunderx: prevent concurrent data re-writing by nicvf_set_rx_mode")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Fixes: 7897b071ac3b ("net: macb: convert to phylink")
+Signed-off-by: Stefan Roese <sr@denx.de>
+Cc: Reto Schneider <reto.schneider@husqvarnagroup.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: David S. Miller <davem@davemloft.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-index 2ba0ce115e63a..a82c708a32278 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-@@ -2042,11 +2042,11 @@ static void nicvf_set_rx_mode_task(struct work_struct *work_arg)
- 	/* Save message data locally to prevent them from
- 	 * being overwritten by next ndo_set_rx_mode call().
- 	 */
--	spin_lock(&nic->rx_mode_wq_lock);
-+	spin_lock_bh(&nic->rx_mode_wq_lock);
- 	mode = vf_work->mode;
- 	mc = vf_work->mc;
- 	vf_work->mc = NULL;
--	spin_unlock(&nic->rx_mode_wq_lock);
-+	spin_unlock_bh(&nic->rx_mode_wq_lock);
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 2213e6ab81512..4b1b5928b1043 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -578,7 +578,7 @@ static void macb_mac_config(struct phylink_config *config, unsigned int mode,
+ 	if (bp->caps & MACB_CAPS_MACB_IS_EMAC) {
+ 		if (state->interface == PHY_INTERFACE_MODE_RMII)
+ 			ctrl |= MACB_BIT(RM9200_RMII);
+-	} else {
++	} else if (macb_is_gem(bp)) {
+ 		ctrl &= ~(GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL));
  
- 	__nicvf_set_rx_mode_task(mode, mc, nic);
- }
+ 		if (state->interface == PHY_INTERFACE_MODE_SGMII)
+@@ -639,10 +639,13 @@ static void macb_mac_link_up(struct phylink_config *config,
+ 		ctrl |= MACB_BIT(FD);
+ 
+ 	if (!(bp->caps & MACB_CAPS_MACB_IS_EMAC)) {
+-		ctrl &= ~(GEM_BIT(GBE) | MACB_BIT(PAE));
++		ctrl &= ~MACB_BIT(PAE);
++		if (macb_is_gem(bp)) {
++			ctrl &= ~GEM_BIT(GBE);
+ 
+-		if (speed == SPEED_1000)
+-			ctrl |= GEM_BIT(GBE);
++			if (speed == SPEED_1000)
++				ctrl |= GEM_BIT(GBE);
++		}
+ 
+ 		/* We do not support MLO_PAUSE_RX yet */
+ 		if (tx_pause)
 -- 
 2.25.1
 
