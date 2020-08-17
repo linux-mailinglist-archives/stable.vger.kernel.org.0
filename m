@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3046246C6B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5367B246C6D
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 18:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731089AbgHQQPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54148 "EHLO mail.kernel.org"
+        id S1730853AbgHQQPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 12:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729495AbgHQQP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:27 -0400
+        id S1729513AbgHQQPc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA8A722B4E;
-        Mon, 17 Aug 2020 16:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B2492065C;
+        Mon, 17 Aug 2020 16:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680924;
-        bh=Asd07owELHLcVJSCB7XcF6eSEPdZsLwxYMqKCmtZ44g=;
+        s=default; t=1597680931;
+        bh=a2Kv20AJygXJoaR4OPP/5jAv940SoiUnSAZ3rXPGb8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxJWSdIbSn4dFB3DhbffFGHH01IvneyhwU6RWZ3y7/DncC53/Q0cdssDAgKajzKuC
-         5o3Eku0X+W7csKLhamYg6YKSOqNxCkiR8YjP7S58DjliVjU3mzFCvvTopnecV0VteF
-         xzX1imtwx1gsjw1MGafLRX4n4WmlXZAl2mcLIHJE=
+        b=hdjvHvYwkNRJA3N7YuEGWwKlUkqfSBkwAeK0BsG2Sh1OCDOXtT7B68WoHIG5c5xC8
+         wjXa6C3mvItjMZaQHsn53YeK4CRLsXCTi1yt1QLO1ckq7l2aBYXDFFIDeHIhuKVh+c
+         VmhMdOXJ0Gl+h+anlz/5MfxLCrkvrlhzb9UdlYMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/168] ASoC: meson: axg-tdm-interface: fix link fmt setup
-Date:   Mon, 17 Aug 2020 17:17:24 +0200
-Message-Id: <20200817143739.332370053@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 116/168] tools, build: Propagate build failures from tools/build/Makefile.build
+Date:   Mon, 17 Aug 2020 17:17:27 +0200
+Message-Id: <20200817143739.478734541@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -44,73 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit 6878ba91ce84f7a07887a0615af70f969508839f ]
+[ Upstream commit a278f3d8191228212c553a5d4303fa603214b717 ]
 
-The .set_fmt() callback of the axg tdm interface incorrectly
-test the content of SND_SOC_DAIFMT_MASTER_MASK as if it was a
-bitfield, which it is not.
+The '&&' command seems to have a bad effect when $(cmd_$(1)) exits with
+non-zero effect: the command failure is masked (despite `set -e`) and all but
+the first command of $(dep-cmd) is executed (successfully, as they are mostly
+printfs), thus overall returning 0 in the end.
 
-Implement the test correctly.
+This means in practice that despite compilation errors, tools's build Makefile
+will return success. We see this very reliably with libbpf's Makefile, which
+doesn't get compilation error propagated properly. This in turns causes issues
+with selftests build, as well as bpftool and other projects that rely on
+building libbpf.
 
-Fixes: d60e4f1e4be5 ("ASoC: meson: add tdm interface driver")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200729154456.1983396-2-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The fix is simple: don't use &&. Given `set -e`, we don't need to chain
+commands with &&. The shell will exit on first failure, giving desired
+behavior and propagating error properly.
+
+Fixes: 275e2d95591e ("tools build: Move dependency copy into function")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/bpf/20200731024244.872574-1-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-tdm-interface.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ tools/build/Build.include | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/meson/axg-tdm-interface.c b/sound/soc/meson/axg-tdm-interface.c
-index 7b8baf46d9689..5c055d8de8c7d 100644
---- a/sound/soc/meson/axg-tdm-interface.c
-+++ b/sound/soc/meson/axg-tdm-interface.c
-@@ -111,18 +111,25 @@ static int axg_tdm_iface_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- {
- 	struct axg_tdm_iface *iface = snd_soc_dai_get_drvdata(dai);
+diff --git a/tools/build/Build.include b/tools/build/Build.include
+index 9ec01f4454f9f..585486e40995b 100644
+--- a/tools/build/Build.include
++++ b/tools/build/Build.include
+@@ -74,7 +74,8 @@ dep-cmd = $(if $(wildcard $(fixdep)),
+ #                   dependencies in the cmd file
+ if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),         \
+                   @set -e;                                         \
+-                  $(echo-cmd) $(cmd_$(1)) && $(dep-cmd))
++                  $(echo-cmd) $(cmd_$(1));                         \
++                  $(dep-cmd))
  
--	/* These modes are not supported */
--	if (fmt & (SND_SOC_DAIFMT_CBS_CFM | SND_SOC_DAIFMT_CBM_CFS)) {
-+	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
-+	case SND_SOC_DAIFMT_CBS_CFS:
-+		if (!iface->mclk) {
-+			dev_err(dai->dev, "cpu clock master: mclk missing\n");
-+			return -ENODEV;
-+		}
-+		break;
-+
-+	case SND_SOC_DAIFMT_CBM_CFM:
-+		break;
-+
-+	case SND_SOC_DAIFMT_CBS_CFM:
-+	case SND_SOC_DAIFMT_CBM_CFS:
- 		dev_err(dai->dev, "only CBS_CFS and CBM_CFM are supported\n");
-+		/* Fall-through */
-+	default:
- 		return -EINVAL;
- 	}
- 
--	/* If the TDM interface is the clock master, it requires mclk */
--	if (!iface->mclk && (fmt & SND_SOC_DAIFMT_CBS_CFS)) {
--		dev_err(dai->dev, "cpu clock master: mclk missing\n");
--		return -ENODEV;
--	}
--
- 	iface->fmt = fmt;
- 	return 0;
- }
-@@ -311,7 +318,8 @@ static int axg_tdm_iface_hw_params(struct snd_pcm_substream *substream,
- 	if (ret)
- 		return ret;
- 
--	if (iface->fmt & SND_SOC_DAIFMT_CBS_CFS) {
-+	if ((iface->fmt & SND_SOC_DAIFMT_MASTER_MASK) ==
-+	    SND_SOC_DAIFMT_CBS_CFS) {
- 		ret = axg_tdm_iface_set_sclk(dai, params);
- 		if (ret)
- 			return ret;
+ # if_changed      - execute command if any prerequisite is newer than
+ #                   target, or command line has changed
 -- 
 2.25.1
 
