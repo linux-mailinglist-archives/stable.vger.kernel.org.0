@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F75246A34
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A28A246B18
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730299AbgHQPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57022 "EHLO mail.kernel.org"
+        id S1730862AbgHQPsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730294AbgHQPbu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:31:50 -0400
+        id S1730853AbgHQPsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:48:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9359220786;
-        Mon, 17 Aug 2020 15:31:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49E342177B;
+        Mon, 17 Aug 2020 15:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678310;
-        bh=37V6/cHNfByxn1dowiPj7VwusDnRpgO6TdIfMvjVYJw=;
+        s=default; t=1597679301;
+        bh=WwVCCF6YGtpYn6UGavjclfkVVyQbDAyfoETwFLGmhbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4Ey9ulJNz/HtWs8iWZol+3LWuO5nUJjc2wj4d5V+c9/QZnESLQwQXAQCFTXehrUV
-         uQvUWdD2hE/Z8CYqtsTNcxwReQwhxZP2ggroiID4NNUaojA7K3ei615j0QpioXS1RA
-         2I31I7ooHKTAhW/2Qdauc/JNqewEk0yCsGMe5skc=
+        b=OLfcGsrkJIoFzoHte3DHuSFFQ2x1CA5wz+TwUQRgpyfSRCeSmqwzM/SZEvMH2zNS6
+         yYAN9JmVBQ9VxgLpP5fhtZbG4xjM49i1C98QLLS0PpBwN74AzMzLpWcq0/ASPDtDIQ
+         xNj3JvkNDfwBA7puI3qrdMZgoWiKXR+9dt8sgDvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
-        Evan Green <evgreen@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 259/464] clk: qcom: gcc: Make disp gpll0 branch aon for sc7180/sdm845
-Date:   Mon, 17 Aug 2020 17:13:32 +0200
-Message-Id: <20200817143846.197184596@linuxfoundation.org>
+Subject: [PATCH 5.7 165/393] lkdtm: Avoid more compiler optimizations for bad writes
+Date:   Mon, 17 Aug 2020 17:13:35 +0200
+Message-Id: <20200817143827.620689517@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-References: <20200817143833.737102804@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +45,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taniya Das <tdas@codeaurora.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 9c3df2b1993da9ab1110702d7b2815d5cd8c02f3 ]
+[ Upstream commit 464e86b4abadfc490f426954b431e2ec6a9d7bd2 ]
 
-The display gpll0 branch clock inside GCC needs to always be enabled.
-Otherwise the AHB clk (disp_cc_mdss_ahb_clk_src) for the display clk
-controller (dispcc) will stop clocking while sourcing from gpll0 when
-this branch inside GCC is turned off during unused clk disabling. We can
-never turn this branch off because the AHB clk for the display subsystem
-is needed to read/write any registers inside the display subsystem
-including clk related ones. This makes this branch a really easy way to
-turn off AHB access to the display subsystem and cause all sorts of
-mayhem. Let's just make the clk ops keep the clk enabled forever and
-ignore any attempts to disable this clk so that dispcc accesses keep
-working.
+It seems at least Clang is able to throw away writes it knows are
+destined for read-only memory, which makes things like the WRITE_RO test
+fail, as the write gets elided. Instead, force the variable to be
+volatile, and make similar changes through-out other tests in an effort
+to avoid needing to repeat fixing these kinds of problems. Also includes
+pr_err() calls in failure paths so that kernel logs are more clear in
+the failure case.
 
-Signed-off-by: Taniya Das <tdas@codeaurora.org>
-Reported-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/1594796050-14511-1-git-send-email-tdas@codeaurora.org
-Fixes: 17269568f726 ("clk: qcom: Add Global Clock controller (GCC) driver for SC7180")
-Fixes: 06391eddb60a ("clk: qcom: Add Global Clock controller (GCC) driver for SDM845")
-[sboyd@kernel.org: Fill out commit text more]
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Reported-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Suggested-by: Sami Tolvanen <samitolvanen@google.com>
+Fixes: 9ae113ce5faf ("lkdtm: add tests for additional page permissions")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20200625203704.317097-2-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sc7180.c | 2 +-
- drivers/clk/qcom/gcc-sdm845.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/misc/lkdtm/bugs.c     | 11 +++++------
+ drivers/misc/lkdtm/perms.c    | 22 +++++++++++++++-------
+ drivers/misc/lkdtm/usercopy.c |  7 +++++--
+ 3 files changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sc7180.c b/drivers/clk/qcom/gcc-sc7180.c
-index ca4383e3a02a7..538677befb86f 100644
---- a/drivers/clk/qcom/gcc-sc7180.c
-+++ b/drivers/clk/qcom/gcc-sc7180.c
-@@ -1061,7 +1061,7 @@ static struct clk_branch gcc_disp_gpll0_clk_src = {
- 				.hw = &gpll0.clkr.hw,
- 			},
- 			.num_parents = 1,
--			.ops = &clk_branch2_ops,
-+			.ops = &clk_branch2_aon_ops,
- 		},
- 	},
- };
-diff --git a/drivers/clk/qcom/gcc-sdm845.c b/drivers/clk/qcom/gcc-sdm845.c
-index f6ce888098be9..90f7febaf5288 100644
---- a/drivers/clk/qcom/gcc-sdm845.c
-+++ b/drivers/clk/qcom/gcc-sdm845.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- * Copyright (c) 2018, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2018, 2020, The Linux Foundation. All rights reserved.
-  */
+diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
+index 886459e0ddd98..e1b43f6155496 100644
+--- a/drivers/misc/lkdtm/bugs.c
++++ b/drivers/misc/lkdtm/bugs.c
+@@ -118,9 +118,8 @@ noinline void lkdtm_CORRUPT_STACK(void)
+ 	/* Use default char array length that triggers stack protection. */
+ 	char data[8] __aligned(sizeof(void *));
  
- #include <linux/kernel.h>
-@@ -1344,7 +1344,7 @@ static struct clk_branch gcc_disp_gpll0_clk_src = {
- 				"gpll0",
- 			},
- 			.num_parents = 1,
--			.ops = &clk_branch2_ops,
-+			.ops = &clk_branch2_aon_ops,
- 		},
- 	},
- };
+-	__lkdtm_CORRUPT_STACK(&data);
+-
+-	pr_info("Corrupted stack containing char array ...\n");
++	pr_info("Corrupting stack containing char array ...\n");
++	__lkdtm_CORRUPT_STACK((void *)&data);
+ }
+ 
+ /* Same as above but will only get a canary with -fstack-protector-strong */
+@@ -131,9 +130,8 @@ noinline void lkdtm_CORRUPT_STACK_STRONG(void)
+ 		unsigned long *ptr;
+ 	} data __aligned(sizeof(void *));
+ 
+-	__lkdtm_CORRUPT_STACK(&data);
+-
+-	pr_info("Corrupted stack containing union ...\n");
++	pr_info("Corrupting stack containing union ...\n");
++	__lkdtm_CORRUPT_STACK((void *)&data);
+ }
+ 
+ void lkdtm_UNALIGNED_LOAD_STORE_WRITE(void)
+@@ -248,6 +246,7 @@ void lkdtm_ARRAY_BOUNDS(void)
+ 
+ 	kfree(not_checked);
+ 	kfree(checked);
++	pr_err("FAIL: survived array bounds overflow!\n");
+ }
+ 
+ void lkdtm_CORRUPT_LIST_ADD(void)
+diff --git a/drivers/misc/lkdtm/perms.c b/drivers/misc/lkdtm/perms.c
+index 62f76d506f040..2dede2ef658f3 100644
+--- a/drivers/misc/lkdtm/perms.c
++++ b/drivers/misc/lkdtm/perms.c
+@@ -57,6 +57,7 @@ static noinline void execute_location(void *dst, bool write)
+ 	}
+ 	pr_info("attempting bad execution at %px\n", func);
+ 	func();
++	pr_err("FAIL: func returned\n");
+ }
+ 
+ static void execute_user_location(void *dst)
+@@ -75,20 +76,22 @@ static void execute_user_location(void *dst)
+ 		return;
+ 	pr_info("attempting bad execution at %px\n", func);
+ 	func();
++	pr_err("FAIL: func returned\n");
+ }
+ 
+ void lkdtm_WRITE_RO(void)
+ {
+-	/* Explicitly cast away "const" for the test. */
+-	unsigned long *ptr = (unsigned long *)&rodata;
++	/* Explicitly cast away "const" for the test and make volatile. */
++	volatile unsigned long *ptr = (unsigned long *)&rodata;
+ 
+ 	pr_info("attempting bad rodata write at %px\n", ptr);
+ 	*ptr ^= 0xabcd1234;
++	pr_err("FAIL: survived bad write\n");
+ }
+ 
+ void lkdtm_WRITE_RO_AFTER_INIT(void)
+ {
+-	unsigned long *ptr = &ro_after_init;
++	volatile unsigned long *ptr = &ro_after_init;
+ 
+ 	/*
+ 	 * Verify we were written to during init. Since an Oops
+@@ -102,19 +105,21 @@ void lkdtm_WRITE_RO_AFTER_INIT(void)
+ 
+ 	pr_info("attempting bad ro_after_init write at %px\n", ptr);
+ 	*ptr ^= 0xabcd1234;
++	pr_err("FAIL: survived bad write\n");
+ }
+ 
+ void lkdtm_WRITE_KERN(void)
+ {
+ 	size_t size;
+-	unsigned char *ptr;
++	volatile unsigned char *ptr;
+ 
+ 	size = (unsigned long)do_overwritten - (unsigned long)do_nothing;
+ 	ptr = (unsigned char *)do_overwritten;
+ 
+ 	pr_info("attempting bad %zu byte write at %px\n", size, ptr);
+-	memcpy(ptr, (unsigned char *)do_nothing, size);
++	memcpy((void *)ptr, (unsigned char *)do_nothing, size);
+ 	flush_icache_range((unsigned long)ptr, (unsigned long)(ptr + size));
++	pr_err("FAIL: survived bad write\n");
+ 
+ 	do_overwritten();
+ }
+@@ -193,9 +198,11 @@ void lkdtm_ACCESS_USERSPACE(void)
+ 	pr_info("attempting bad read at %px\n", ptr);
+ 	tmp = *ptr;
+ 	tmp += 0xc0dec0de;
++	pr_err("FAIL: survived bad read\n");
+ 
+ 	pr_info("attempting bad write at %px\n", ptr);
+ 	*ptr = tmp;
++	pr_err("FAIL: survived bad write\n");
+ 
+ 	vm_munmap(user_addr, PAGE_SIZE);
+ }
+@@ -203,19 +210,20 @@ void lkdtm_ACCESS_USERSPACE(void)
+ void lkdtm_ACCESS_NULL(void)
+ {
+ 	unsigned long tmp;
+-	unsigned long *ptr = (unsigned long *)NULL;
++	volatile unsigned long *ptr = (unsigned long *)NULL;
+ 
+ 	pr_info("attempting bad read at %px\n", ptr);
+ 	tmp = *ptr;
+ 	tmp += 0xc0dec0de;
++	pr_err("FAIL: survived bad read\n");
+ 
+ 	pr_info("attempting bad write at %px\n", ptr);
+ 	*ptr = tmp;
++	pr_err("FAIL: survived bad write\n");
+ }
+ 
+ void __init lkdtm_perms_init(void)
+ {
+ 	/* Make sure we can write to __ro_after_init values during __init */
+ 	ro_after_init |= 0xAA;
+-
+ }
+diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
+index e172719dd86d0..b833367a45d05 100644
+--- a/drivers/misc/lkdtm/usercopy.c
++++ b/drivers/misc/lkdtm/usercopy.c
+@@ -304,19 +304,22 @@ void lkdtm_USERCOPY_KERNEL(void)
+ 		return;
+ 	}
+ 
+-	pr_info("attempting good copy_to_user from kernel rodata\n");
++	pr_info("attempting good copy_to_user from kernel rodata: %px\n",
++		test_text);
+ 	if (copy_to_user((void __user *)user_addr, test_text,
+ 			 unconst + sizeof(test_text))) {
+ 		pr_warn("copy_to_user failed unexpectedly?!\n");
+ 		goto free_user;
+ 	}
+ 
+-	pr_info("attempting bad copy_to_user from kernel text\n");
++	pr_info("attempting bad copy_to_user from kernel text: %px\n",
++		vm_mmap);
+ 	if (copy_to_user((void __user *)user_addr, vm_mmap,
+ 			 unconst + PAGE_SIZE)) {
+ 		pr_warn("copy_to_user failed, but lacked Oops\n");
+ 		goto free_user;
+ 	}
++	pr_err("FAIL: survived bad copy_to_user()\n");
+ 
+ free_user:
+ 	vm_munmap(user_addr, PAGE_SIZE);
 -- 
 2.25.1
 
