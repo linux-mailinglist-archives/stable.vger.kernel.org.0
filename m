@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE1D247361
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 096ED247323
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388558AbgHQSzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:55:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35830 "EHLO mail.kernel.org"
+        id S2391585AbgHQSvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:51:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730904AbgHQPu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:57 -0400
+        id S2387639AbgHQPwu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:52:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B85BF2063A;
-        Mon, 17 Aug 2020 15:50:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D1A82072E;
+        Mon, 17 Aug 2020 15:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679457;
-        bh=05iKHycDZmcIvSow2mGu/p3lmoFOWIEpyO5G7US79J0=;
+        s=default; t=1597679570;
+        bh=YjfSUPal4nQVgLYdU8tmjzxp1u/sjv9OzIFU/D3XKvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joUR7m+85KMESNiTFOPk/6ZH5tKd3ZUV1K+HubcqSoXeOmwsq/9zeDvYq7mAFS8Nq
-         aqQBZEziSQteiOKFbFskP5uEmbmcooss2FODCrkomJHFQLPCFiTrzSXyHX6kyNBIGa
-         BgSIvJCqpejfwzoZ/9EJS+rZhywRLjyCbHqoeVO8=
+        b=lYQWmS1A84ww9nEI+fIlqAt8yGxVakvjHRR0YuHhTSozgOfSy/oPammS9oLVkCvOX
+         2OQ/JR/LlH+LkckdrgrHQAnMuLiS+sqOAvtnkcVoOZAsYvluylcWsVp9om2HuKmneo
+         wfIHgD+rgAa9mQ8rNUPwN3qNx6TLFrE0+CGKoGZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 217/393] media: s5p-g2d: Fix a memory leak in an error handling path in g2d_probe()
-Date:   Mon, 17 Aug 2020 17:14:27 +0200
-Message-Id: <20200817143830.152473225@linuxfoundation.org>
+Subject: [PATCH 5.7 219/393] powerpc/book3s64/pkeys: Use PVR check instead of cpu feature
+Date:   Mon, 17 Aug 2020 17:14:29 +0200
+Message-Id: <20200817143830.247271431@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,84 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 94b9ce6870f9c90ac92505482689818b254312f7 ]
+[ Upstream commit d79e7a5f26f1d179cbb915a8bf2469b6d7431c29 ]
 
-Memory allocated with 'v4l2_m2m_init()' must be freed by a corresponding
-call to 'v4l2_m2m_release()'
+We are wrongly using CPU_FTRS_POWER8 to check for P8 support. Instead, we should
+use PVR value. Now considering we are using CPU_FTRS_POWER8, that
+implies we returned true for P9 with older firmware. Keep the same behavior
+by checking for P9 PVR value.
 
-Also reorder the code at the end of the probe function so that
-'video_register_device()' is called last.
-Update the error handling path accordingly.
-
-Fixes: 5ce60d790a24 ("[media] s5p-g2d: Add DT based discovery support")
-Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: checkpatch: align with parenthesis]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: cf43d3b26452 ("powerpc: Enable pkey subsystem")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200709032946.881753-2-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-g2d/g2d.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ arch/powerpc/mm/book3s64/pkeys.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
-index 6932fd47071b0..15bcb7f6e113c 100644
---- a/drivers/media/platform/s5p-g2d/g2d.c
-+++ b/drivers/media/platform/s5p-g2d/g2d.c
-@@ -695,21 +695,13 @@ static int g2d_probe(struct platform_device *pdev)
- 	vfd->lock = &dev->mutex;
- 	vfd->v4l2_dev = &dev->v4l2_dev;
- 	vfd->device_caps = V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING;
--	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
--	if (ret) {
--		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
--		goto rel_vdev;
--	}
--	video_set_drvdata(vfd, dev);
--	dev->vfd = vfd;
--	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
--								vfd->num);
+diff --git a/arch/powerpc/mm/book3s64/pkeys.c b/arch/powerpc/mm/book3s64/pkeys.c
+index 268ce9581676a..fa237c8c161f7 100644
+--- a/arch/powerpc/mm/book3s64/pkeys.c
++++ b/arch/powerpc/mm/book3s64/pkeys.c
+@@ -83,13 +83,17 @@ static int pkey_initialize(void)
+ 	scan_pkey_feature();
+ 
+ 	/*
+-	 * Let's assume 32 pkeys on P8 bare metal, if its not defined by device
+-	 * tree. We make this exception since skiboot forgot to expose this
+-	 * property on power8.
++	 * Let's assume 32 pkeys on P8/P9 bare metal, if its not defined by device
++	 * tree. We make this exception since some version of skiboot forgot to
++	 * expose this property on power8/9.
+ 	 */
+-	if (!pkeys_devtree_defined && !firmware_has_feature(FW_FEATURE_LPAR) &&
+-			cpu_has_feature(CPU_FTRS_POWER8))
+-		pkeys_total = 32;
++	if (!pkeys_devtree_defined && !firmware_has_feature(FW_FEATURE_LPAR)) {
++		unsigned long pvr = mfspr(SPRN_PVR);
 +
- 	platform_set_drvdata(pdev, dev);
- 	dev->m2m_dev = v4l2_m2m_init(&g2d_m2m_ops);
- 	if (IS_ERR(dev->m2m_dev)) {
- 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem device\n");
- 		ret = PTR_ERR(dev->m2m_dev);
--		goto unreg_video_dev;
-+		goto rel_vdev;
- 	}
- 
- 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
-@@ -717,14 +709,24 @@ static int g2d_probe(struct platform_device *pdev)
- 	of_id = of_match_node(exynos_g2d_match, pdev->dev.of_node);
- 	if (!of_id) {
- 		ret = -ENODEV;
--		goto unreg_video_dev;
-+		goto free_m2m;
- 	}
- 	dev->variant = (struct g2d_variant *)of_id->data;
- 
-+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
-+	if (ret) {
-+		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
-+		goto free_m2m;
++		if (PVR_VER(pvr) == PVR_POWER8 || PVR_VER(pvr) == PVR_POWER8E ||
++		    PVR_VER(pvr) == PVR_POWER8NVL || PVR_VER(pvr) == PVR_POWER9)
++			pkeys_total = 32;
 +	}
-+	video_set_drvdata(vfd, dev);
-+	dev->vfd = vfd;
-+	v4l2_info(&dev->v4l2_dev, "device registered as /dev/video%d\n",
-+		  vfd->num);
-+
- 	return 0;
  
--unreg_video_dev:
--	video_unregister_device(dev->vfd);
-+free_m2m:
-+	v4l2_m2m_release(dev->m2m_dev);
- rel_vdev:
- 	video_device_release(vfd);
- unreg_v4l2_dev:
+ 	/*
+ 	 * Adjust the upper limit, based on the number of bits supported by
 -- 
 2.25.1
 
