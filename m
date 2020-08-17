@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983F2246FE3
+	by mail.lfdr.de (Postfix) with ESMTP id 26BA0246FE2
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388726AbgHQRza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
+        id S2388577AbgHQRzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388561AbgHQQKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:10:40 -0400
+        id S2388374AbgHQQKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:10:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ADE920729;
-        Mon, 17 Aug 2020 16:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B39E20748;
+        Mon, 17 Aug 2020 16:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680639;
-        bh=cNyIhF9xGuChpYRKI4UxdpDeXRQU1HRs8qXk0u2UPFA=;
+        s=default; t=1597680642;
+        bh=/cuD2ZRHke61dcElaO4+21/PDcRJpbABFxPbMOpsJZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjOx7wro6undvdvLoUKTrfCjnuyMeCFtQSWYFlDuWBWzmVKsncLm4MQU1vF3yywM1
-         SQQp5SKRHnuBUoxJljtLsSKAsj+H4OG4JO6yC4EgAQkMp/muXlPL2W83paCMYLcLpm
-         oTyvRZwWVAode9qwa1fj1e+YBggW+uAxTjqz8UsI=
+        b=S2oUXpx63GSEwVIjdCdo/AnsDJtD6EloYj0zcYrJ7JMKg1r/jzhmDYqDoTOWoxDt0
+         +wtRSpELXUKkK/k6qiY3uoURgZNL4Rb3/WP8vkMvmb8IKeUPMO5EogRrKA3OtaYNRm
+         CqljBQtpYDGxVhEl3XZ3lCe5auAzuqAj0yRxUVII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 268/270] s390/dasd: fix inability to use DASD with DIAG driver
-Date:   Mon, 17 Aug 2020 17:17:49 +0200
-Message-Id: <20200817143809.156290988@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 269/270] s390/gmap: improve THP splitting
+Date:   Mon, 17 Aug 2020 17:17:50 +0200
+Message-Id: <20200817143809.204796062@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,105 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 9f4aa52387c68049403b59939df5c0dd8e3872cc upstream.
+commit ba925fa35057a062ac98c3e8138b013ce4ce351c upstream.
 
-During initialization of the DASD DIAG driver a request is issued
-that has a bio structure that resides on the stack. With virtually
-mapped kernel stacks this bio address might be in virtual storage
-which is unsuitable for usage with the diag250 call.
-In this case the device can not be set online using the DIAG
-discipline and fails with -EOPNOTSUP.
-In the system journal the following error message is presented:
+During s390_enable_sie(), we need to take care of splitting all qemu user
+process THP mappings. This is currently done with follow_page(FOLL_SPLIT),
+by simply iterating over all vma ranges, with PAGE_SIZE increment.
 
-dasd: X.X.XXXX Setting the DASD online with discipline DIAG failed
-with rc=-95
+This logic is sub-optimal and can result in a lot of unnecessary overhead,
+especially when using qemu and ASAN with large shadow map. Ilya reported
+significant system slow-down with one CPU busy for a long time and overall
+unresponsiveness.
 
-Fix by allocating the bio structure instead of having it on the stack.
+Fix this by using walk_page_vma() and directly calling split_huge_pmd()
+only for present pmds, which greatly reduces overhead.
 
-Fixes: ce3dc447493f ("s390: add support for virtually mapped kernel stacks")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: stable@vger.kernel.org #4.20
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org> # v5.4+
+Reported-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/block/dasd_diag.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/s390/mm/gmap.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
---- a/drivers/s390/block/dasd_diag.c
-+++ b/drivers/s390/block/dasd_diag.c
-@@ -319,7 +319,7 @@ dasd_diag_check_device(struct dasd_devic
- 	struct dasd_diag_characteristics *rdc_data;
- 	struct vtoc_cms_label *label;
- 	struct dasd_block *block;
--	struct dasd_diag_bio bio;
-+	struct dasd_diag_bio *bio;
- 	unsigned int sb, bsize;
- 	blocknum_t end_block;
- 	int rc;
-@@ -395,29 +395,36 @@ dasd_diag_check_device(struct dasd_devic
- 		rc = -ENOMEM;
- 		goto out;
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2485,23 +2485,36 @@ void gmap_sync_dirty_log_pmd(struct gmap
+ }
+ EXPORT_SYMBOL_GPL(gmap_sync_dirty_log_pmd);
+ 
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
++static int thp_split_walk_pmd_entry(pmd_t *pmd, unsigned long addr,
++				    unsigned long end, struct mm_walk *walk)
++{
++	struct vm_area_struct *vma = walk->vma;
++
++	split_huge_pmd(vma, pmd, addr);
++	return 0;
++}
++
++static const struct mm_walk_ops thp_split_walk_ops = {
++	.pmd_entry	= thp_split_walk_pmd_entry,
++};
++
+ static inline void thp_split_mm(struct mm_struct *mm)
+ {
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ 	struct vm_area_struct *vma;
+-	unsigned long addr;
+ 
+ 	for (vma = mm->mmap; vma != NULL; vma = vma->vm_next) {
+-		for (addr = vma->vm_start;
+-		     addr < vma->vm_end;
+-		     addr += PAGE_SIZE)
+-			follow_page(vma, addr, FOLL_SPLIT);
+ 		vma->vm_flags &= ~VM_HUGEPAGE;
+ 		vma->vm_flags |= VM_NOHUGEPAGE;
++		walk_page_vma(vma, &thp_split_walk_ops, NULL);
  	}
-+	bio = kzalloc(sizeof(*bio), GFP_KERNEL);
-+	if (bio == NULL)  {
-+		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
-+			      "No memory to allocate initialization bio");
-+		rc = -ENOMEM;
-+		goto out_label;
-+	}
- 	rc = 0;
- 	end_block = 0;
- 	/* try all sizes - needed for ECKD devices */
- 	for (bsize = 512; bsize <= PAGE_SIZE; bsize <<= 1) {
- 		mdsk_init_io(device, bsize, 0, &end_block);
--		memset(&bio, 0, sizeof (struct dasd_diag_bio));
--		bio.type = MDSK_READ_REQ;
--		bio.block_number = private->pt_block + 1;
--		bio.buffer = label;
-+		memset(bio, 0, sizeof(*bio));
-+		bio->type = MDSK_READ_REQ;
-+		bio->block_number = private->pt_block + 1;
-+		bio->buffer = label;
- 		memset(&private->iob, 0, sizeof (struct dasd_diag_rw_io));
- 		private->iob.dev_nr = rdc_data->dev_nr;
- 		private->iob.key = 0;
- 		private->iob.flags = 0;	/* do synchronous io */
- 		private->iob.block_count = 1;
- 		private->iob.interrupt_params = 0;
--		private->iob.bio_list = &bio;
-+		private->iob.bio_list = bio;
- 		private->iob.flaga = DASD_DIAG_FLAGA_DEFAULT;
- 		rc = dia250(&private->iob, RW_BIO);
- 		if (rc == 3) {
- 			pr_warn("%s: A 64-bit DIAG call failed\n",
- 				dev_name(&device->cdev->dev));
- 			rc = -EOPNOTSUPP;
--			goto out_label;
-+			goto out_bio;
- 		}
- 		mdsk_term_io(device);
- 		if (rc == 0)
-@@ -427,7 +434,7 @@ dasd_diag_check_device(struct dasd_devic
- 		pr_warn("%s: Accessing the DASD failed because of an incorrect format (rc=%d)\n",
- 			dev_name(&device->cdev->dev), rc);
- 		rc = -EIO;
--		goto out_label;
-+		goto out_bio;
- 	}
- 	/* check for label block */
- 	if (memcmp(label->label_id, DASD_DIAG_CMS1,
-@@ -457,6 +464,8 @@ dasd_diag_check_device(struct dasd_devic
- 			(rc == 4) ? ", read-only device" : "");
- 		rc = 0;
- 	}
-+out_bio:
-+	kfree(bio);
- out_label:
- 	free_page((long) label);
- out:
+ 	mm->def_flags |= VM_NOHUGEPAGE;
+-#endif
+ }
++#else
++static inline void thp_split_mm(struct mm_struct *mm)
++{
++}
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ /*
+  * Remove all empty zero pages from the mapping for lazy refaulting
 
 
