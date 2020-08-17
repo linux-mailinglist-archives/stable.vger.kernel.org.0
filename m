@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA15247612
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23447247604
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390809AbgHQTc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55656 "EHLO mail.kernel.org"
+        id S2404171AbgHQTcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:32:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730281AbgHQPb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:31:27 -0400
+        id S1730209AbgHQPb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:31:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 265A922BEA;
-        Mon, 17 Aug 2020 15:31:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDCAC208E4;
+        Mon, 17 Aug 2020 15:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678286;
-        bh=5g143PedhAMhKBn4Ao3RmJSWsNaby5hpi/DdzB/TTXc=;
+        s=default; t=1597678289;
+        bh=3LUiod+Cqih3pYIxq7RAyAbqMyx3soGj+1jvyCfTdb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGb1Vo3ccD5zRLfPlJ2BOKfy1uD2OiGKyXA1DUIGCenlsq0YFqhdM9yatok7Bs9uX
-         VL8i5SVNrseLFs/MVUNXPjZd+5rP5ddpSHB3ZSIGnAmSVJF+GDzLjWQdc4c2irKOdc
-         upOZes3km7VVl1hJA9HG8+7IlRjO7GiM8JXhj50A=
+        b=uUcElCwNrQ9SFD2xFBjPO70j3Ir+jFsktnMIYYAvuyDg2j2lVVZoOYJnjfCQ08ERo
+         wcugE2fM/Wi2ZbnEJE22Hfo7i/fDPse9GUKVJntcNFCzbnT+FNPVfpYuSX0Iqt/u2g
+         RfAZncn4guDvzTs+Pjj3NLecNo3RFo8ZnSJm567A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 280/464] ASoC: hdac_hda: fix deadlock after PCM open error
-Date:   Mon, 17 Aug 2020 17:13:53 +0200
-Message-Id: <20200817143847.170180769@linuxfoundation.org>
+Subject: [PATCH 5.8 281/464] powerpc/spufs: Fix the type of ret in spufs_arch_write_note
+Date:   Mon, 17 Aug 2020 17:13:54 +0200
+Message-Id: <20200817143847.216343777@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -47,75 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 06f07e2365378d51eddd0b5bf23506e1237662b0 ]
+[ Upstream commit 7c7ff885c7bce40a487e41c68f1dac14dd2c8033 ]
 
-Commit 5bd70440cb0a ("ASoC: soc-dai: revert all changes to DAI
-startup/shutdown sequence"), introduced a slight change of semantics
-to DAI startup/shutdown. If startup() returns an error, shutdown()
-is now called for the DAI.
+Both the ->dump method and snprintf return an int.  So switch to an
+int and properly handle errors from ->dump.
 
-This causes a deadlock in hdac_hda which issues a call to
-snd_hda_codec_pcm_put() in case open fails. Upon error, soc_pcm_open()
-will call shutdown(), and pcm_put() ends up getting called twice. Result
-is a deadlock on pcm->open_mutex, as snd_device_free() gets called from
-within snd_pcm_open(). Typical task backtrace looks like this:
-
-[  334.244627]  snd_pcm_dev_disconnect+0x49/0x340 [snd_pcm]
-[  334.244634]  __snd_device_disconnect.part.0+0x2c/0x50 [snd]
-[  334.244640]  __snd_device_free+0x7f/0xc0 [snd]
-[  334.244650]  snd_hda_codec_pcm_put+0x87/0x120 [snd_hda_codec]
-[  334.244660]  soc_pcm_open+0x6a0/0xbe0 [snd_soc_core]
-[  334.244676]  ? dpcm_add_paths.isra.0+0x491/0x590 [snd_soc_core]
-[  334.244679]  ? kfree+0x9a/0x230
-[  334.244686]  dpcm_be_dai_startup+0x255/0x300 [snd_soc_core]
-[  334.244695]  dpcm_fe_dai_open+0x20e/0xf30 [snd_soc_core]
-[  334.244701]  ? snd_pcm_hw_rule_muldivk+0x110/0x110 [snd_pcm]
-[  334.244709]  ? dpcm_be_dai_startup+0x300/0x300 [snd_soc_core]
-[  334.244714]  ? snd_pcm_attach_substream+0x3c4/0x540 [snd_pcm]
-[  334.244719]  snd_pcm_open_substream+0x69a/0xb60 [snd_pcm]
-[  334.244729]  ? snd_pcm_release_substream+0x30/0x30 [snd_pcm]
-[  334.244732]  ? __mutex_lock_slowpath+0x10/0x10
-[  334.244736]  snd_pcm_open+0x1b3/0x3c0 [snd_pcm]
-
-Fixes: 5bd70440cb0a ("ASoC: soc-dai: revert all changes to DAI startup/shutdown sequence")
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
-BugLink: https://github.com/thesofproject/linux/issues/2159
-Link: https://lore.kernel.org/r/20200717101950.3885187-3-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 5456ffdee666 ("powerpc/spufs: simplify spufs core dumping")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200610085554.5647-1-hch@lst.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/powerpc/platforms/cell/spufs/coredump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
-index 473efe9ef998a..b0370bb10c142 100644
---- a/sound/soc/codecs/hdac_hda.c
-+++ b/sound/soc/codecs/hdac_hda.c
-@@ -289,7 +289,6 @@ static int hdac_hda_dai_open(struct snd_pcm_substream *substream,
- 	struct hdac_hda_priv *hda_pvt;
- 	struct hda_pcm_stream *hda_stream;
- 	struct hda_pcm *pcm;
--	int ret;
+diff --git a/arch/powerpc/platforms/cell/spufs/coredump.c b/arch/powerpc/platforms/cell/spufs/coredump.c
+index 3b75e8f60609c..014d1c045bc3c 100644
+--- a/arch/powerpc/platforms/cell/spufs/coredump.c
++++ b/arch/powerpc/platforms/cell/spufs/coredump.c
+@@ -105,7 +105,7 @@ static int spufs_arch_write_note(struct spu_context *ctx, int i,
+ 	size_t sz = spufs_coredump_read[i].size;
+ 	char fullname[80];
+ 	struct elf_note en;
+-	size_t ret;
++	int ret;
  
- 	hda_pvt = snd_soc_component_get_drvdata(component);
- 	pcm = snd_soc_find_pcm_from_dai(hda_pvt, dai);
-@@ -300,11 +299,7 @@ static int hdac_hda_dai_open(struct snd_pcm_substream *substream,
- 
- 	hda_stream = &pcm->stream[substream->stream];
- 
--	ret = hda_stream->ops.open(hda_stream, &hda_pvt->codec, substream);
--	if (ret < 0)
--		snd_hda_codec_pcm_put(pcm);
--
--	return ret;
-+	return hda_stream->ops.open(hda_stream, &hda_pvt->codec, substream);
- }
- 
- static void hdac_hda_dai_close(struct snd_pcm_substream *substream,
+ 	sprintf(fullname, "SPU/%d/%s", dfd, spufs_coredump_read[i].name);
+ 	en.n_namesz = strlen(fullname) + 1;
 -- 
 2.25.1
 
