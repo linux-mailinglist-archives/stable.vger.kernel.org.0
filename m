@@ -2,119 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C97D247905
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 23:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D14C2479DD
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 00:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbgHQVpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 17:45:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
+        id S1729661AbgHQWEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 18:04:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728575AbgHQVpj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 17:45:39 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D302C061342
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 14:45:39 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id 189so8107803pgg.13
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 14:45:39 -0700 (PDT)
+        with ESMTP id S1729279AbgHQWCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 18:02:24 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B5DC061344
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 15:02:24 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id e196so19906275ybh.6
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 15:02:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M5NX3Q1GYp48OUvJZQHx5AOAR0W2M3qE4XWtOJ4Fmf4=;
-        b=HlS+DhuF53gJlvJjmZwoSWeJywwWrbP2J0o6+lnOf2amORdoowBNfu/IO4Cv8mkKaf
-         938OP6GPK4aAGksebv44/DUxsozDxt9zhcS/5zZyF9y1f1Qq7jJfRokWHnoGpdiWRBK4
-         MLgvTQZpojbRQ7EMIjwOyDdvq6yym1jfoibP1ALDQDuqhKZ0z2ZEH2oLmx4+/oAhnXkr
-         Fh3XJZNmkckaTTGmloFQ2nryxSCa9cprNSRp7Hv9AOCVyzcn432/lwWV86+hNL5ETYP2
-         mlSy8xx8Ztf4+YdzJ3lgjyiBCRSLXQ8Z4nuMkR0/NR00SM8nnitb4AXUOVTm9LJNloDA
-         Ywyw==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc:content-transfer-encoding;
+        bh=UpYGtC8VuPYbMUYzVChohylhl5f+DwA/jtv3WLbpTdU=;
+        b=LiE9k63vyCkhMTzCYeoaOM75uDKE+XeLSj2h/3vVFNBtsbG28nLNlqtKpTLxlj5faJ
+         AAYS7sxuGNAA16qzVg1TR2Xrv4mJvPmQInmvyq957XguEVvW2RlgPL24OfTHYZyM7jTd
+         aYh3VfLRRQofH8X4nGmNCAahxvnwi+L5GwOV6amHL6jODkxTtu+gCzfcVlnUcpjEhjLv
+         i4zVI2Y07P0ZX3H26HpgtYeiV+DfeXO+PoBd/WycXbEG4u3e1rv9smrAfL1pQ1kMTEaR
+         eD9vQkiLdGUIg/t0Cz5lu6Ku1Wop0JRuKdYyFaNxzSm3dlF/+n1KvP2pYqjs2LUfecLh
+         dzLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M5NX3Q1GYp48OUvJZQHx5AOAR0W2M3qE4XWtOJ4Fmf4=;
-        b=kz743U8QiYQArCzn+/rQosKjvazQ+KBX4xNmjpF7XzqNQ2RlQ3TYeTNqAY2cuvDydr
-         qebVfsWQDJ1lIrQvQyxPqMXItPQyQ78tixpqKZ4gPCgC3FSVc7pGqENG1IhvPLHrYw9U
-         7eW7LpaGbj+Fo4zqbK0SQF9kZbmsO/aBWHMUt8dfKy/ESn2k2CyeD1bOwJZBkJnJSt3n
-         coVCWTguR1n3ewLKRyfq9cMqRzNxkRGI2U5FhhkMFSc9OSr1R+TCCeu62nZsW1EDmBDv
-         K+NG2gnvEDyUIaGaOcF1zTot8hqmYRBkcWLDuHNgyHMkrSUuFl8o8oyehjFl/aDMf9rB
-         PoOQ==
-X-Gm-Message-State: AOAM530xDuSsrd2bUs9F6Tvf4oleQuWiCdXhuS+bHBxwcmdcXH/79hkM
-        Y7NUo+KhkI2K3J4pLHhge75Jp7N68k1DPIvkncBeCQ==
-X-Google-Smtp-Source: ABdhPJzQtM0WgyIzaD6jqd80KqMJ+foDWc+kVqOWoecUhCR/LnSPxtj2Zb6aUss/SJr5hyl0bh6zqWx8BMSGNpoVy5w=
-X-Received: by 2002:a63:a119:: with SMTP id b25mr11094694pgf.10.1597700738307;
- Mon, 17 Aug 2020 14:45:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAKwvOdnyHfx6ayqEoOr3pb_ibKBAG9vj31LuKE+f712W=7LFKA@mail.gmail.com>
- <457a91183581509abfa00575d0392be543acbe07.camel@perches.com>
- <CAKwvOdk4PRi45MXCtg4kmeN6c1AK5w9EJ1XFBJ5GyUjwEtRj1g@mail.gmail.com>
- <ccacb2a860151fdd6ce95371f1e0cd7658a308d1.camel@perches.com>
- <CAKwvOd=QkpmdWHAvWVFtogsDom2z_fA4XmDF6aLqz1czjSgZbQ@mail.gmail.com>
- <20200816001917.4krsnrik7hxxfqfm@google.com> <CA+icZUW=rQ-e=mmYWsgVns8jDoQ=FJ7kdem1fWnW_i5jx-6JzQ@mail.gmail.com>
- <20200816150217.GA1306483@rani.riverdale.lan> <CABCJKucsXufD6rmv7qQZ=9kLC7XrngCJkKA_WzGOAn-KfcObeA@mail.gmail.com>
- <CAKwvOd=Ns4_+amT8P-7yQ56xUdDmL=1zDUThF-OmFKhexhJPdg@mail.gmail.com> <20200817201351.GA2246446@rani.riverdale.lan>
-In-Reply-To: <20200817201351.GA2246446@rani.riverdale.lan>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc:content-transfer-encoding;
+        bh=UpYGtC8VuPYbMUYzVChohylhl5f+DwA/jtv3WLbpTdU=;
+        b=rMKVMfppkt46seVZATE7BSsOHxViwLAceCaNLvkXT+GXyj0aw+b3JWpxpUhwQwdyO9
+         osBimLsUepZTANH8dC+cjLT3J4VbLHqpnFl8qPJATFbDjj4FcoBMHpFDOf/BQpYl79ZP
+         E3Xw4Afqdtn2tXFbY3bbjA+1P58IMoi+c/Rh+Ko365/kar5ocnwi3QTOlycZl9lvrp58
+         Bzvh4p1oBekcRkNeVlW2kqvZCwyQHYWBsWHnoC4w04/tqD35RJAYy7E1CtIIL90EIu9T
+         x4s8gHTsSKiyl/7og2cgTpoDSLuSi9EAY8My37tgdAATWDOX3hZmqgRw72plkjLbb31O
+         oAVg==
+X-Gm-Message-State: AOAM53130u5cZg45ScDWepobg3c2RCvXCUuNBzThb8V7NCZllDnBj4ZY
+        3P9IZlhH5JT8W/b+qA7Uzd+SWIbJlai2SAEiNqo=
+X-Google-Smtp-Source: ABdhPJxizyp67lNME36xRZPdIHp+ZAc9h1Guk5DKKetBtfDNGZaI3fQVyPo4QkcGpgpnPDnBe+lR31JKDOpF3hrgtgc=
+X-Received: by 2002:a25:4252:: with SMTP id p79mr24577079yba.229.1597701743469;
+ Mon, 17 Aug 2020 15:02:23 -0700 (PDT)
+Date:   Mon, 17 Aug 2020 15:02:09 -0700
+In-Reply-To: <20200817220212.338670-1-ndesaulniers@google.com>
+Message-Id: <20200817220212.338670-2-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <20200817220212.338670-1-ndesaulniers@google.com>
+X-Mailer: git-send-email 2.28.0.220.ged08abb693-goog
+Subject: [PATCH 1/4] Makefile: add -fno-builtin-stpcpy
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 17 Aug 2020 14:45:26 -0700
-Message-ID: <CAKwvOdnUydcU_LpEjXS+M-EUVztoiMNsVpvZ9eK+_+yoCen6ZQ@mail.gmail.com>
-Subject: Re: [PATCH v2] lib/string.c: implement stpcpy
-To:     Arvind Sankar <nivedita@alum.mit.edu>
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Joe Perches <joe@perches.com>,
+To:     Masahiro Yamada <masahiroy@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?B?RMOhdmlkIEJvbHZhbnNrw70=?= <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Michal Marek <michal.lkml@markovi.net>,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Joe Perches <joe@perches.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>, Ingo Molnar <mingo@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nathan Chancellor <natechancellor@gmail.com>
+        Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Daniel Kiper <daniel.kiper@oracle.com>,
+        Bruce Ashfield <bruce.ashfield@gmail.com>,
+        Marco Elver <elver@google.com>,
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        Andi Kleen <ak@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "=?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?=" <david.bolvansky@gmail.com>,
+        Eli Friedman <efriedma@quicinc.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 1:13 PM Arvind Sankar <nivedita@alum.mit.edu> wrote:
->
-> On Mon, Aug 17, 2020 at 11:36:49AM -0700, Nick Desaulniers wrote:
-> > > > Though I don't understand the original issue, with -ffreestanding,
-> > > > sprintf shouldn't have been turned into strcpy in the first place.
-> >
-> > Huh? The original issue for this thread is because `-ffreestanding`
-> > *isn't* being used for most targets (oh boy, actually mixed usage by
-> > ARCH. Looks like MIPS, m68k, superH, xtensa, and 32b x86 use it?); and
-> > I'm not suggesting it be used.
-> >
->
-> Sorry, I meant the issue mentioned in the commit that removed
-> -ffreestanding, not the stpcpy one you're solving now. It says that
-> sprintf got converted into strcpy, which caused failures because back
-> then, strcpy was #define'd to __builtin_strcpy, and the default
-> implementation was actually of a function called __builtin_strcpy o_O,
-> not strcpy.
->
-> Anyway, that's water under the bridge now.
->
-> 6edfba1b33c7 ("x86_64: Don't define string functions to builtin")
->   gcc should handle this anyways, and it causes problems when
->   sprintf is turned into strcpy by gcc behind our backs and
->   the C fallback version of strcpy is actually defining __builtin_strcpy
+LLVM implemented a recent "libcall optimization" that lowers calls to
+`sprintf(dest, "%s", str)` where the return value is used to
+`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
+in parsing format strings. This optimization was introduced into
+clang-12. Because the kernel does not provide an implementation of
+stpcpy, we observe linkage failures for almost all targets when building
+with ToT clang.
 
-For fun, I tried removing `-ffreestanding` from arch/x86/Makefile;
-both gcc and clang can compile+boot the i386 defconfig just fine.  Why
-don't I send a patch removing it with your suggested by in a series of
-fixes for stpcpy and bcmp?
+The interface is unsafe as it does not perform any bounds checking.
+Disable this "libcall optimization" via `-fno-builtin-stpcpy`.
 
--- 
-Thanks,
-~Nick Desaulniers
+Unlike
+commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+which cited failures with `-fno-builtin-*` flags being retained in LLVM
+LTO, that bug seems to have been fixed by
+https://reviews.llvm.org/D71193, so the above sha can now be reverted in
+favor of `-fno-builtin-bcmp`.
+
+Cc: stable@vger.kernel.org # 4.4
+Link: https://bugs.llvm.org/show_bug.cgi?id=3D47162
+Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+Link: https://reviews.llvm.org/D85963
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: D=C3=A1vid Bolvansk=C3=BD <david.bolvansky@gmail.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 9cac6fde3479..211a1b6f6478 100644
+--- a/Makefile
++++ b/Makefile
+@@ -959,6 +959,12 @@ ifdef CONFIG_RETPOLINE
+ KBUILD_CFLAGS +=3D $(call cc-option,-fcf-protection=3Dnone)
+ endif
+=20
++# The compiler may "libcall optimize" certain function calls into the belo=
+w
++# functions, for architectures that don't use -ffreestanding. If we don't =
+plan
++# to provide implementations of these routines, then prevent the compiler =
+from
++# emitting calls to what will be undefined symbols.
++KBUILD_CFLAGS	+=3D -fno-builtin-stpcpy
++
+ # include additional Makefiles when needed
+ include-y			:=3D scripts/Makefile.extrawarn
+ include-$(CONFIG_KASAN)		+=3D scripts/Makefile.kasan
+--=20
+2.28.0.220.ged08abb693-goog
+
