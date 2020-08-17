@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF6C624730A
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA18424730E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403913AbgHQSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39854 "EHLO mail.kernel.org"
+        id S2387945AbgHQSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:50:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387920AbgHQPxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:34 -0400
+        id S2387927AbgHQPxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2225C2063A;
-        Mon, 17 Aug 2020 15:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AB1A20882;
+        Mon, 17 Aug 2020 15:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679612;
-        bh=iUmHx0gnU9KXKyMHqL5n3WV2OpVGhB51nKFJ6EEKsww=;
+        s=default; t=1597679615;
+        bh=HTbYPPiLX1D+TeX1/625p9jUsugtMD+BGLOZNajy31g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIzoxWlNKuw+3xG7jUxtd1TbDI/PMMfVAz8q+MWHGipi8wmBwunxcSNJplnfK7a2F
-         j8nl4TSqWkj6cptRNcAl3BO1iO73yKQlPDD3K/rj7wvPPYcyu3+cH8ZZQeoA3B43np
-         ksZl8j7/izLBLJNe6EQMm8xp7kKOj1IsAXRs/8JA=
+        b=kwIVhv1m2b8FZOY1mreiQhJQwiXm6vPkdOA5AbN/DkoNxHdF+tiXG2HO0OWhUnBAT
+         nmvUldfBRz/pNemncVGqq5eHKztdX4GPdCO15RST2jGgDd0V0o1Cgt6SZ51xreIIEM
+         ta9bQ9ziuLmIJtCa96vLRG3HUfioeBDFqQ7jMRBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 274/393] selftests/powerpc: Fix online CPU selection
-Date:   Mon, 17 Aug 2020 17:15:24 +0200
-Message-Id: <20200817143832.911323527@linuxfoundation.org>
+Subject: [PATCH 5.7 275/393] ASoC: meson: axg-tdm-interface: fix link fmt setup
+Date:   Mon, 17 Aug 2020 17:15:25 +0200
+Message-Id: <20200817143832.960829154@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -46,93 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit dfa03fff86027e58c8dba5c03ae68150d4e513ad ]
+[ Upstream commit 6878ba91ce84f7a07887a0615af70f969508839f ]
 
-The size of the CPU affinity mask must be large enough for
-systems with a very large number of CPUs. Otherwise, tests
-which try to determine the first online CPU by calling
-sched_getaffinity() will fail. This makes sure that the size
-of the allocated affinity mask is dependent on the number of
-CPUs as reported by get_nprocs_conf().
+The .set_fmt() callback of the axg tdm interface incorrectly
+test the content of SND_SOC_DAIFMT_MASTER_MASK as if it was a
+bitfield, which it is not.
 
-Fixes: 3752e453f6ba ("selftests/powerpc: Add tests of PMU EBBs")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a408c4b8e9a23bb39b539417a21eb0ff47bb5127.1596084858.git.sandipan@linux.ibm.com
+Implement the test correctly.
+
+Fixes: d60e4f1e4be5 ("ASoC: meson: add tdm interface driver")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200729154456.1983396-2-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/utils.c | 37 +++++++++++++++++--------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ sound/soc/meson/axg-tdm-interface.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
-index 5ee0e98c48967..eb530e73e02c1 100644
---- a/tools/testing/selftests/powerpc/utils.c
-+++ b/tools/testing/selftests/powerpc/utils.c
-@@ -16,6 +16,7 @@
- #include <string.h>
- #include <sys/ioctl.h>
- #include <sys/stat.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <sys/utsname.h>
- #include <unistd.h>
-@@ -88,28 +89,40 @@ void *get_auxv_entry(int type)
- 
- int pick_online_cpu(void)
+diff --git a/sound/soc/meson/axg-tdm-interface.c b/sound/soc/meson/axg-tdm-interface.c
+index d51f3344be7c6..e25336f739123 100644
+--- a/sound/soc/meson/axg-tdm-interface.c
++++ b/sound/soc/meson/axg-tdm-interface.c
+@@ -119,18 +119,25 @@ static int axg_tdm_iface_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
  {
--	cpu_set_t mask;
--	int cpu;
-+	int ncpus, cpu = -1;
-+	cpu_set_t *mask;
-+	size_t size;
+ 	struct axg_tdm_iface *iface = snd_soc_dai_get_drvdata(dai);
+ 
+-	/* These modes are not supported */
+-	if (fmt & (SND_SOC_DAIFMT_CBS_CFM | SND_SOC_DAIFMT_CBM_CFS)) {
++	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
++	case SND_SOC_DAIFMT_CBS_CFS:
++		if (!iface->mclk) {
++			dev_err(dai->dev, "cpu clock master: mclk missing\n");
++			return -ENODEV;
++		}
++		break;
 +
-+	ncpus = get_nprocs_conf();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	mask = CPU_ALLOC(ncpus);
-+	if (!mask) {
-+		perror("malloc");
-+		return -1;
-+	}
- 
--	CPU_ZERO(&mask);
-+	CPU_ZERO_S(size, mask);
- 
--	if (sched_getaffinity(0, sizeof(mask), &mask)) {
-+	if (sched_getaffinity(0, size, mask)) {
- 		perror("sched_getaffinity");
--		return -1;
-+		goto done;
++	case SND_SOC_DAIFMT_CBM_CFM:
++		break;
++
++	case SND_SOC_DAIFMT_CBS_CFM:
++	case SND_SOC_DAIFMT_CBM_CFS:
+ 		dev_err(dai->dev, "only CBS_CFS and CBM_CFM are supported\n");
++		/* Fall-through */
++	default:
+ 		return -EINVAL;
  	}
  
- 	/* We prefer a primary thread, but skip 0 */
--	for (cpu = 8; cpu < CPU_SETSIZE; cpu += 8)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = 8; cpu < ncpus; cpu += 8)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	/* Search for anything, but in reverse */
--	for (cpu = CPU_SETSIZE - 1; cpu >= 0; cpu--)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = ncpus - 1; cpu >= 0; cpu--)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	printf("No cpus in affinity mask?!\n");
--	return -1;
-+
-+done:
-+	CPU_FREE(mask);
-+	return cpu;
+-	/* If the TDM interface is the clock master, it requires mclk */
+-	if (!iface->mclk && (fmt & SND_SOC_DAIFMT_CBS_CFS)) {
+-		dev_err(dai->dev, "cpu clock master: mclk missing\n");
+-		return -ENODEV;
+-	}
+-
+ 	iface->fmt = fmt;
+ 	return 0;
  }
+@@ -319,7 +326,8 @@ static int axg_tdm_iface_hw_params(struct snd_pcm_substream *substream,
+ 	if (ret)
+ 		return ret;
  
- bool is_ppc64le(void)
+-	if (iface->fmt & SND_SOC_DAIFMT_CBS_CFS) {
++	if ((iface->fmt & SND_SOC_DAIFMT_MASTER_MASK) ==
++	    SND_SOC_DAIFMT_CBS_CFS) {
+ 		ret = axg_tdm_iface_set_sclk(dai, params);
+ 		if (ret)
+ 			return ret;
 -- 
 2.25.1
 
