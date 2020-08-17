@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4275924751B
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82874247514
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392284AbgHQTTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
+        id S2404165AbgHQTSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730571AbgHQPh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:37:58 -0400
+        id S1730572AbgHQPh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:37:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7009C22DD6;
-        Mon, 17 Aug 2020 15:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C7A223120;
+        Mon, 17 Aug 2020 15:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678675;
-        bh=9lydp8hjxOFrZPhNQnlx2zjaziqBxM76PYiRf3Woj4k=;
+        s=default; t=1597678677;
+        bh=w/2g3aLvQltOZyeGMCGkAoO5Cozq7K1AwA0txE6qThI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NY+5+Cl1MoP/8Sq7HFPh82P3LQH98VpMXfo4mUJvnNYlTWHlNdIg9pvjGJXic9gLx
-         qmzU00TzHq7R/LEPyUeLkqxrYH2DEWyEcCP5JQmT42Gng8r0P2PEMvqNz//kWcW2S9
-         jqTtuGhXf6ydnT7T/jbGmJWjt9mbtccIm/zGBlAo=
+        b=2Yxai9FRdD79CP/X/SAewOIHIJDZysFH9Mfp654rW2AVyklTP2rlGhcttcTPLdRzf
+         7qwMaMZlWBh/gumNW1WpCTDGbz37HgKrpoK5Z19+hvrNK1Z6Btyma9BP04hquuhYao
+         PMOQivPBuK/vZU5sH2X4jNSpHFAMYBUMdIZnNTlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Fleming <matt@codeblueprint.co.uk>,
-        Frederic Weisbecker <frederic@kernel.org>, stable@kernel.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.8 414/464] tick/nohz: Narrow down noise while setting current tasks tick dependency
-Date:   Mon, 17 Aug 2020 17:16:07 +0200
-Message-Id: <20200817143853.611231346@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sami Tolvanen <samitolvanen@google.com>
+Subject: [PATCH 5.8 415/464] bitfield.h: dont compile-time validate _val in FIELD_FIT
+Date:   Mon, 17 Aug 2020 17:16:08 +0200
+Message-Id: <20200817143853.658940008@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -47,79 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 3c8920e2dbd1a55f72dc14d656df9d0097cf5c72 upstream.
+commit 444da3f52407d74c9aa12187ac6b01f76ee47d62 upstream.
 
-Setting a tick dependency on any task, including the case where a task
-sets that dependency on itself, triggers an IPI to all CPUs.  That is
-of course suboptimal but it had previously not been an issue because it
-was only used by POSIX CPU timers on nohz_full, which apparently never
-occurs in latency-sensitive workloads in production.  (Or users of such
-systems are suffering in silence on the one hand or venting their ire
-on the wrong people on the other.)
+When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
+compiler to deduce a case where _val can only have the value of -1 at
+compile time. Specifically,
 
-But RCU now sets a task tick dependency on the current task in order
-to fix stall issues that can occur during RCU callback processing.
-Thus, RCU callback processing triggers frequent system-wide IPIs from
-nohz_full CPUs.  This is quite counter-productive, after all, avoiding
-IPIs is what nohz_full is supposed to be all about.
+/* struct bpf_insn: _s32 imm */
+u64 imm = insn->imm; /* sign extend */
+if (imm >> 32) { /* non-zero only if insn->imm is negative */
+  /* inlined from ur_load_imm_any */
+  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
+  if (__builtin_constant_p(__imm) && __imm > 255)
+    compiletime_assert_XXX()
 
-This commit therefore optimizes tasks' self-setting of a task tick
-dependency by using tick_nohz_full_kick() to avoid the system-wide IPI.
-Instead, only the execution of the one task is disturbed, which is
-acceptable given that this disturbance is well down into the noise
-compared to the degree to which the RCU callback processing itself
-disturbs execution.
+This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
+checks that a given value is representable in one byte (interpreted as
+unsigned).
 
-Fixes: 6a949b7af82d (rcu: Force on tick when invoking lots of callbacks)
-Reported-by: Matt Fleming <matt@codeblueprint.co.uk>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: stable@kernel.org
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+FIELD_FIT() should return true or false at runtime for whether a value
+can fit for not. Don't break the build over a value that's too large for
+the mask. We'd prefer to keep the inlining and compiler optimizations
+though we know this case will always return false.
+
+Cc: stable@vger.kernel.org
+Fixes: 1697599ee301a ("bitfield.h: add FIELD_FIT() helper")
+Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
+Reported-by: Masahiro Yamada <masahiroy@kernel.org>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/tick-sched.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ include/linux/bitfield.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -351,16 +351,24 @@ void tick_nohz_dep_clear_cpu(int cpu, en
- EXPORT_SYMBOL_GPL(tick_nohz_dep_clear_cpu);
- 
- /*
-- * Set a per-task tick dependency. Posix CPU timers need this in order to elapse
-- * per task timers.
-+ * Set a per-task tick dependency. RCU need this. Also posix CPU timers
-+ * in order to elapse per task timers.
+--- a/include/linux/bitfield.h
++++ b/include/linux/bitfield.h
+@@ -77,7 +77,7 @@
   */
- void tick_nohz_dep_set_task(struct task_struct *tsk, enum tick_dep_bits bit)
- {
--	/*
--	 * We could optimize this with just kicking the target running the task
--	 * if that noise matters for nohz full users.
--	 */
--	tick_nohz_dep_set_all(&tsk->tick_dep_mask, bit);
-+	if (!atomic_fetch_or(BIT(bit), &tsk->tick_dep_mask)) {
-+		if (tsk == current) {
-+			preempt_disable();
-+			tick_nohz_full_kick();
-+			preempt_enable();
-+		} else {
-+			/*
-+			 * Some future tick_nohz_full_kick_task()
-+			 * should optimize this.
-+			 */
-+			tick_nohz_full_kick_all();
-+		}
-+	}
- }
- EXPORT_SYMBOL_GPL(tick_nohz_dep_set_task);
+ #define FIELD_FIT(_mask, _val)						\
+ 	({								\
+-		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
++		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
+ 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
+ 	})
  
 
 
