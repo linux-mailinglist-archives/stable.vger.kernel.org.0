@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D605246EE9
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5570A246FDC
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730052AbgHQRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
+        id S1731709AbgHQRyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:54:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731134AbgHQQRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:17:13 -0400
+        id S2388248AbgHQQK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:10:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0ED7208C7;
-        Mon, 17 Aug 2020 16:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9796F207FB;
+        Mon, 17 Aug 2020 16:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597681018;
-        bh=qrdaKOIVavS/UpsqEh0jTdT1tTtGvj0c6xdHIGU2Kmw=;
+        s=default; t=1597680657;
+        bh=pfviu27H9hD2OYEl1DDN8ZQ7SZqNjtL9YSu3pGx/A6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWYXiRXcd4Nzhjj5cyyct4z8WVQUhTB77rBctMoJXa9/1O027Krdp4UW++Xbq8QK+
-         yq2L9Oag/IQrSULPUESHd77icYbte0C86F/o4YqdcJdFNGvYAyEgP6FRMVx2aeFaHh
-         iunIDXzPuUxd4ZHfyivfn15RHanQXuVAhKDOU028=
+        b=t/XS7fl1X8/R/F+BIGK1Q+49YObbeeG/DETo/05f64pqBdJ+1nnA24qeogVOPMpsP
+         lo6uLDnTKcP+iHGAuFhN3Cmkj60sIprq4Uvit1Pqqc5hMnonL6al+RJC9Yw0J1ApwU
+         2By+pJ/+wou/LSl0KzsUd/TfMo2az3PQ0rAJbJKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qingyu Li <ieatmuttonchuan@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 133/168] net/nfc/rawsock.c: add CAP_NET_RAW check.
+        stable@vger.kernel.org,
+        syzbot+a9ac3de1b5de5fb10efc@syzkaller.appspotmail.com,
+        syzbot+df958cf5688a96ad3287@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 263/270] fs/minix: dont allow getting deleted inodes
 Date:   Mon, 17 Aug 2020 17:17:44 +0200
-Message-Id: <20200817143740.342175123@linuxfoundation.org>
+Message-Id: <20200817143808.916886201@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-References: <20200817143733.692105228@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingyu Li <ieatmuttonchuan@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 26896f01467a28651f7a536143fe5ac8449d4041 ]
+commit facb03dddec04e4aac1bb2139accdceb04deb1f3 upstream.
 
-When creating a raw AF_NFC socket, CAP_NET_RAW needs to be checked first.
+If an inode has no links, we need to mark it bad rather than allowing it
+to be accessed.  This avoids WARNINGs in inc_nlink() and drop_nlink() when
+doing directory operations on a fuzzed filesystem.
 
-Signed-off-by: Qingyu Li <ieatmuttonchuan@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+a9ac3de1b5de5fb10efc@syzkaller.appspotmail.com
+Reported-by: syzbot+df958cf5688a96ad3287@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200628060846.682158-3-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/nfc/rawsock.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -344,10 +344,13 @@ static int rawsock_create(struct net *ne
- 	if ((sock->type != SOCK_SEQPACKET) && (sock->type != SOCK_RAW))
- 		return -ESOCKTNOSUPPORT;
- 
--	if (sock->type == SOCK_RAW)
-+	if (sock->type == SOCK_RAW) {
-+		if (!capable(CAP_NET_RAW))
-+			return -EPERM;
- 		sock->ops = &rawsock_raw_ops;
--	else
-+	} else {
- 		sock->ops = &rawsock_ops;
+---
+ fs/minix/inode.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+--- a/fs/minix/inode.c
++++ b/fs/minix/inode.c
+@@ -468,6 +468,13 @@ static struct inode *V1_minix_iget(struc
+ 		iget_failed(inode);
+ 		return ERR_PTR(-EIO);
+ 	}
++	if (raw_inode->i_nlinks == 0) {
++		printk("MINIX-fs: deleted inode referenced: %lu\n",
++		       inode->i_ino);
++		brelse(bh);
++		iget_failed(inode);
++		return ERR_PTR(-ESTALE);
 +	}
- 
- 	sk = sk_alloc(net, PF_NFC, GFP_ATOMIC, nfc_proto->proto, kern);
- 	if (!sk)
+ 	inode->i_mode = raw_inode->i_mode;
+ 	i_uid_write(inode, raw_inode->i_uid);
+ 	i_gid_write(inode, raw_inode->i_gid);
+@@ -501,6 +508,13 @@ static struct inode *V2_minix_iget(struc
+ 		iget_failed(inode);
+ 		return ERR_PTR(-EIO);
+ 	}
++	if (raw_inode->i_nlinks == 0) {
++		printk("MINIX-fs: deleted inode referenced: %lu\n",
++		       inode->i_ino);
++		brelse(bh);
++		iget_failed(inode);
++		return ERR_PTR(-ESTALE);
++	}
+ 	inode->i_mode = raw_inode->i_mode;
+ 	i_uid_write(inode, raw_inode->i_uid);
+ 	i_gid_write(inode, raw_inode->i_gid);
 
 
