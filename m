@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F029246A9F
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA45246AA2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730644AbgHQPjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:39:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47746 "EHLO mail.kernel.org"
+        id S2387449AbgHQPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:39:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730636AbgHQPjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:39:14 -0400
+        id S1730486AbgHQPjf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:39:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8906723343;
-        Mon, 17 Aug 2020 15:39:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 620DA208E4;
+        Mon, 17 Aug 2020 15:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678754;
-        bh=E6OS2FT95VtV0/IV0WeRwCdybz7w+OojF51B7w+0eog=;
+        s=default; t=1597678774;
+        bh=mdDePSu7eStr8QxZQkIFDAJN7NczDRXPX+oERb1uTbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHm/tNdptJIz12BRN/cmdJWcidzBeYM44zV2sW18IUIcnKZTTv1G9mIQJsMui5TCN
-         Ohzz5pYPilh1SotAVbnx9x45vq6dSGEoHdCrgVaG6G7qE0JxqoP8XF6bZPsi6MXZht
-         YufgLLLK0Vh5TN1RH/3fS8rOftr3OJj8ic85GcSk=
+        b=zhSyKbVnIOc984eDtcCTZ524Txqjt+V8Z6iZXVUdyi/0M6iU0SFM1kZsaVMiTcJRf
+         sok6HYoGACghfcmdFf7f7CLbDuUAmrk+Ix9hSomQX7AGxGuqCzUpdhQQvAFZSJoVqU
+         MzQ7tmc4WHFOew86C4TxKv7cLwc3lCPBSZJK3NoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.8 442/464] Revert "parisc: Drop LDCW barrier in CAS code when running UP"
-Date:   Mon, 17 Aug 2020 17:16:35 +0200
-Message-Id: <20200817143854.949467109@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.8 448/464] ARM: dts: exynos: Extend all Exynos5800 A15s OPPs with max voltage data
+Date:   Mon, 17 Aug 2020 17:16:41 +0200
+Message-Id: <20200817143855.233813199@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -42,62 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 462fb756c7de1ffe5bc6099149136031c2d9c02a upstream.
+commit d644853ff8fcbb7a4e3757f9d8ccc39d930b7e3c upstream.
 
-This reverts commit e6eb5fe9123f05dcbf339ae5c0b6d32fcc0685d5.
-We need to optimize it differently. A follow up patch will correct it.
+On Exynos5422/5800 the regulator supply for the A15 cores ("vdd_arm") is
+coupled with the regulator supply for the SoC internal circuits
+("vdd_int"), thus all operating points that modify one of those supplies
+have to specify a triplet of the min/target/max values to properly work
+with regulator coupling.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.2+
+Fixes: eaffc4de16c6 ("ARM: dts: exynos: Add missing CPU frequencies for Exynos5422/5800")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/kernel/syscall.S |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/exynos5800.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/parisc/kernel/syscall.S
-+++ b/arch/parisc/kernel/syscall.S
-@@ -641,8 +641,7 @@ cas_action:
- 2:	stw	%r24, 0(%r26)
- 	/* Free lock */
- #ifdef CONFIG_SMP
--98:	LDCW	0(%sr2,%r20), %r1			/* Barrier */
--99:	ALTERNATIVE(98b, 99b, ALT_COND_NO_SMP, INSN_NOP)
-+	LDCW	0(%sr2,%r20), %r1			/* Barrier */
- #endif
- 	stw	%r20, 0(%sr2,%r20)
- #if ENABLE_LWS_DEBUG
-@@ -659,8 +658,7 @@ cas_action:
- 	/* Error occurred on load or store */
- 	/* Free lock */
- #ifdef CONFIG_SMP
--98:	LDCW	0(%sr2,%r20), %r1			/* Barrier */
--99:	ALTERNATIVE(98b, 99b, ALT_COND_NO_SMP, INSN_NOP)
-+	LDCW	0(%sr2,%r20), %r1			/* Barrier */
- #endif
- 	stw	%r20, 0(%sr2,%r20)
- #if ENABLE_LWS_DEBUG
-@@ -864,8 +862,7 @@ cas2_action:
- cas2_end:
- 	/* Free lock */
- #ifdef CONFIG_SMP
--98:	LDCW	0(%sr2,%r20), %r1			/* Barrier */
--99:	ALTERNATIVE(98b, 99b, ALT_COND_NO_SMP, INSN_NOP)
-+	LDCW	0(%sr2,%r20), %r1			/* Barrier */
- #endif
- 	stw	%r20, 0(%sr2,%r20)
- 	/* Enable interrupts */
-@@ -878,8 +875,7 @@ cas2_end:
- 	/* Error occurred on load or store */
- 	/* Free lock */
- #ifdef CONFIG_SMP
--98:	LDCW	0(%sr2,%r20), %r1			/* Barrier */
--99:	ALTERNATIVE(98b, 99b, ALT_COND_NO_SMP, INSN_NOP)
-+	LDCW	0(%sr2,%r20), %r1			/* Barrier */
- #endif
- 	stw	%r20, 0(%sr2,%r20)
- 	ssm	PSW_SM_I, %r0
+--- a/arch/arm/boot/dts/exynos5800.dtsi
++++ b/arch/arm/boot/dts/exynos5800.dtsi
+@@ -23,17 +23,17 @@
+ &cluster_a15_opp_table {
+ 	opp-2000000000 {
+ 		opp-hz = /bits/ 64 <2000000000>;
+-		opp-microvolt = <1312500>;
++		opp-microvolt = <1312500 1312500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1900000000 {
+ 		opp-hz = /bits/ 64 <1900000000>;
+-		opp-microvolt = <1262500>;
++		opp-microvolt = <1262500 1262500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1800000000 {
+ 		opp-hz = /bits/ 64 <1800000000>;
+-		opp-microvolt = <1237500>;
++		opp-microvolt = <1237500 1237500 1500000>;
+ 		clock-latency-ns = <140000>;
+ 	};
+ 	opp-1700000000 {
 
 
