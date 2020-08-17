@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B26246F26
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C325246F34
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730829AbgHQQP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 12:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53370 "EHLO mail.kernel.org"
+        id S1729098AbgHQRoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388805AbgHQQPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:15:12 -0400
+        id S2388808AbgHQQPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:15:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0E29206FA;
-        Mon, 17 Aug 2020 16:15:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22FA1208C7;
+        Mon, 17 Aug 2020 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680912;
-        bh=LZEDUxir5qmJ/DDY6kHLkIl4v+t4VAJliT08wxgDnIU=;
+        s=default; t=1597680914;
+        bh=8n4MLbFEc1JbadAecSR/+GsTldndIr6BwD9NawghAOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jF3SoQRI64o7GPschgDfIEzhHsVgJGbLUGk286l2EFh23A3aEiPxUAFsGfbO2xM8/
-         W7J6fwYPQX8cn5Tl5Cp+Qeag9qRcSAMOlbCq9VBietYifiLTzwkl6biKyKVpk/uPUf
-         bxhmvGwl23U7LYoz86IMEARqXx/Ow4fLFgrm+GKg=
+        b=yQVg/Gif/46TBO+nQvIu+Gn7SSoc9Yf2b6Hrv5xmpT+P6jrXtRRwLyqGLt+qpnoQ+
+         ckwemZpXGvcl2aYYE41+VQh3Zm+Q9XIXD8w2iskSCb4fZZsa3LL6BEBYxyIe7MI/qA
+         KEIMzXJVrDDpMURauj7TyAuq4PZZlS7XARJyegLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Mauri Sandberg <sandberg@mailfence.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/168] net: dsa: rtl8366: Fix VLAN set-up
-Date:   Mon, 17 Aug 2020 17:17:19 +0200
-Message-Id: <20200817143739.085827014@linuxfoundation.org>
+Subject: [PATCH 4.19 109/168] powerpc/boot: Fix CONFIG_PPC_MPC52XX references
+Date:   Mon, 17 Aug 2020 17:17:20 +0200
+Message-Id: <20200817143739.136316245@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -47,65 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 788abc6d9d278ed6fa1fa94db2098481a04152b7 ]
+[ Upstream commit e5eff89657e72a9050d95fde146b54c7dc165981 ]
 
-Alter the rtl8366_vlan_add() to call rtl8366_set_vlan()
-inside the loop that goes over all VIDs since we now
-properly support calling that function more than once.
-Augment the loop to postincrement as this is more
-intuitive.
+Commit 866bfc75f40e ("powerpc: conditionally compile platform-specific
+serial drivers") made some code depend on CONFIG_PPC_MPC52XX, which
+doesn't exist.
 
-The loop moved past the last VID but called
-rtl8366_set_vlan() with the port number instead of
-the VID, assuming a 1-to-1 correspondence between
-ports and VIDs. This was also a bug.
+Fix it to use CONFIG_PPC_MPC52xx.
 
-Cc: DENG Qingfang <dqfext@gmail.com>
-Cc: Mauri Sandberg <sandberg@mailfence.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 866bfc75f40e ("powerpc: conditionally compile platform-specific serial drivers")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200724131728.1643966-7-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/rtl8366.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/powerpc/boot/Makefile | 2 +-
+ arch/powerpc/boot/serial.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/rtl8366.c b/drivers/net/dsa/rtl8366.c
-index 145f34de7b416..7e27c9aff9b72 100644
---- a/drivers/net/dsa/rtl8366.c
-+++ b/drivers/net/dsa/rtl8366.c
-@@ -397,7 +397,7 @@ void rtl8366_vlan_add(struct dsa_switch *ds, int port,
- 	if (dsa_is_dsa_port(ds, port) || dsa_is_cpu_port(ds, port))
- 		dev_err(smi->dev, "port is DSA or CPU port\n");
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index 7d5ddf53750ce..7a83b5e136e0d 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -122,7 +122,7 @@ src-wlib-y := string.S crt0.S stdio.c decompress.c main.c \
+ 		elf_util.c $(zlib-y) devtree.c stdlib.c \
+ 		oflib.c ofconsole.c cuboot.c
  
--	for (vid = vlan->vid_begin; vid <= vlan->vid_end; ++vid) {
-+	for (vid = vlan->vid_begin; vid <= vlan->vid_end; vid++) {
- 		int pvid_val = 0;
- 
- 		dev_info(smi->dev, "add VLAN %04x\n", vid);
-@@ -420,13 +420,13 @@ void rtl8366_vlan_add(struct dsa_switch *ds, int port,
- 			if (ret < 0)
- 				return;
- 		}
--	}
- 
--	ret = rtl8366_set_vlan(smi, port, member, untag, 0);
--	if (ret)
--		dev_err(smi->dev,
--			"failed to set up VLAN %04x",
--			vid);
-+		ret = rtl8366_set_vlan(smi, vid, member, untag, 0);
-+		if (ret)
-+			dev_err(smi->dev,
-+				"failed to set up VLAN %04x",
-+				vid);
-+	}
- }
- EXPORT_SYMBOL_GPL(rtl8366_vlan_add);
- 
+-src-wlib-$(CONFIG_PPC_MPC52XX) += mpc52xx-psc.c
++src-wlib-$(CONFIG_PPC_MPC52xx) += mpc52xx-psc.c
+ src-wlib-$(CONFIG_PPC64_BOOT_WRAPPER) += opal-calls.S opal.c
+ ifndef CONFIG_PPC64_BOOT_WRAPPER
+ src-wlib-y += crtsavres.S
+diff --git a/arch/powerpc/boot/serial.c b/arch/powerpc/boot/serial.c
+index 48e3743faedfd..83c78427c20be 100644
+--- a/arch/powerpc/boot/serial.c
++++ b/arch/powerpc/boot/serial.c
+@@ -127,7 +127,7 @@ int serial_console_init(void)
+ 	         dt_is_compatible(devp, "fsl,cpm2-smc-uart"))
+ 		rc = cpm_console_init(devp, &serial_cd);
+ #endif
+-#ifdef CONFIG_PPC_MPC52XX
++#ifdef CONFIG_PPC_MPC52xx
+ 	else if (dt_is_compatible(devp, "fsl,mpc5200-psc-uart"))
+ 		rc = mpc5200_psc_console_init(devp, &serial_cd);
+ #endif
 -- 
 2.25.1
 
