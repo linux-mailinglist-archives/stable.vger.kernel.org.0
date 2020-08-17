@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6567F2476E6
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 916BA2476E2
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729838AbgHQTm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:42:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
+        id S1731539AbgHQTmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729647AbgHQPYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:24:22 -0400
+        id S1729339AbgHQPYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:24:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B733F20729;
-        Mon, 17 Aug 2020 15:24:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA19233E2;
+        Mon, 17 Aug 2020 15:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677861;
-        bh=g+Wy7iCnNpmyB5BLU7r9saNvxQus1BUEvV7pAy8bNcg=;
+        s=default; t=1597677863;
+        bh=Jptlc0QXE/ISLzp4b1//9H8rIqEhyvUeWJqL+PW7trA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbipTi1suBZrHXbHfa4RmiuL/MVnesFGcwU+dpUeItplV5MuV3ptTvhQ7GfiP25hu
-         jUVFxnp+JHsxJIOtZyLf2wjPMzy1Ho3nmQFb+Iy4Dr9rqZvTFsljMV57hqK0bMYxkQ
-         FfapcDwOP3RNpk1q+NoZOLJcjisfKMCjKXQlMnew=
+        b=0khGRhWu5P60XRiaLyb26j0xB+QPHRNX9fq2JjbY3AaC67rYU4jfRiwlEBUolbWzL
+         i0BSCssfNF3r/I1PN742uJQO3WtQ3jyJ5KhpqR6yLS+R14lg1Ras96ZNokjYjefCRZ
+         Z2fb+qNum6qjIfrpCx7Gu/phmz4EAaEH04oLqihg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erik Kaneda <erik.kaneda@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 135/464] ACPICA: Do not increment operation_region reference counts for field units
-Date:   Mon, 17 Aug 2020 17:11:28 +0200
-Message-Id: <20200817143840.281479058@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 136/464] io_uring: fix racy overflow count reporting
+Date:   Mon, 17 Aug 2020 17:11:29 +0200
+Message-Id: <20200817143840.330114797@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,78 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 6a54ebae6d047c988a31f5ac5a64ab5cf83797a2 ]
+[ Upstream commit b2bd1cf99f3e7c8fbf12ea07af2c6998e1209e25 ]
 
-ACPICA commit e17b28cfcc31918d0db9547b6b274b09c413eb70
+All ->cq_overflow modifications should be under completion_lock,
+otherwise it can report a wrong number to the userspace. Fix it in
+io_uring_cancel_files().
 
-Object reference counts are used as a part of ACPICA's garbage
-collection mechanism. This mechanism keeps track of references to
-heap-allocated structures such as the ACPI operand objects.
-
-Recent server firmware has revealed that this reference count can
-overflow on large servers that declare many field units under the
-same operation_region. This occurs because each field unit declaration
-will add a reference count to the source operation_region.
-
-This change solves the reference count overflow for operation_regions
-objects by preventing fieldunits from incrementing their
-operation_region's reference count. Each operation_region's reference
-count will not be changed by named objects declared under the Field
-operator. During namespace deletion, the operation_region namespace
-node will be deleted and each fieldunit will be deleted without
-touching the deleted operation_region object.
-
-Link: https://github.com/acpica/acpica/commit/e17b28cf
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exprep.c   | 4 ----
- drivers/acpi/acpica/utdelete.c | 6 +-----
- 2 files changed, 1 insertion(+), 9 deletions(-)
+ fs/io_uring.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpica/exprep.c b/drivers/acpi/acpica/exprep.c
-index a4e306690a21b..4a0f03157e082 100644
---- a/drivers/acpi/acpica/exprep.c
-+++ b/drivers/acpi/acpica/exprep.c
-@@ -473,10 +473,6 @@ acpi_status acpi_ex_prep_field_value(struct acpi_create_field_info *info)
- 				    (u8)access_byte_width;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d732566955d37..1d8761a9f3b88 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7536,10 +7536,9 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				clear_bit(0, &ctx->cq_check_overflow);
+ 				ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
  			}
- 		}
--		/* An additional reference for the container */
+-			spin_unlock_irq(&ctx->completion_lock);
 -
--		acpi_ut_add_reference(obj_desc->field.region_obj);
--
- 		ACPI_DEBUG_PRINT((ACPI_DB_BFIELD,
- 				  "RegionField: BitOff %X, Off %X, Gran %X, Region %p\n",
- 				  obj_desc->field.start_field_bit_offset,
-diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
-index c365faf4e6cd4..4c0d4e4341961 100644
---- a/drivers/acpi/acpica/utdelete.c
-+++ b/drivers/acpi/acpica/utdelete.c
-@@ -568,11 +568,6 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 			next_object = object->buffer_field.buffer_obj;
- 			break;
+ 			WRITE_ONCE(ctx->rings->cq_overflow,
+ 				atomic_inc_return(&ctx->cached_cq_overflow));
++			spin_unlock_irq(&ctx->completion_lock);
  
--		case ACPI_TYPE_LOCAL_REGION_FIELD:
--
--			next_object = object->field.region_obj;
--			break;
--
- 		case ACPI_TYPE_LOCAL_BANK_FIELD:
- 
- 			next_object = object->bank_field.bank_obj;
-@@ -613,6 +608,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 			}
- 			break;
- 
-+		case ACPI_TYPE_LOCAL_REGION_FIELD:
- 		case ACPI_TYPE_REGION:
- 		default:
- 
+ 			/*
+ 			 * Put inflight ref and overflow ref. If that's
 -- 
 2.25.1
 
