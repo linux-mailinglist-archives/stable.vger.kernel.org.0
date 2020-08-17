@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF5262471CF
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:34:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B3A2473AB
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391223AbgHQSeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47662 "EHLO mail.kernel.org"
+        id S2391824AbgHQS7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:59:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731010AbgHQQAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:00:22 -0400
+        id S2387600AbgHQPss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:48:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8D65208C7;
-        Mon, 17 Aug 2020 16:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 572B82065D;
+        Mon, 17 Aug 2020 15:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680019;
-        bh=mPYpUOLwPa6N6HVe+fte52UqhbZ4u8iZpGJl2gAFN0Q=;
+        s=default; t=1597679327;
+        bh=3LE1sERH2op8tr81KcVJnW6F9WEIbmmNSLlI6nSbYV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17UtooQVrnP3wH8SBWMV+NeTEZ09lre//UZwJYZBhLRjAUgINWiOIPzK1GdJs9ykG
-         rU0hqTS/jB+O3JkSnszNHQGwLE0pyZGVv3o+TffXUQ5imGPJwc91rM8iJKVVS3xV9X
-         iQ9MzXJT5VXdK0weWL1xsR6qY3Xkd8pki+PFPb+s=
+        b=t4g6RgcQsWlqqPvXs2BJEf1ouaVcKhT1BpFx7OfUnTx7kCS5Q+L2N32mr1ekZ+GlD
+         IgSTN8XNmLnFgSkRhl9zBamd56n4d7tZ+UOfWdCOw3fCj60VPOfQx6Yk02fihbpw8Z
+         YAlZo7TPsXYKKCQCiZXX0UO4ek4FFX39Bw5rs/NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Dien Pham <dien.pham.ry@renesas.com>
-Subject: [PATCH 5.4 021/270] clk: scmi: Fix min and max rate when registering clocks with discrete rates
-Date:   Mon, 17 Aug 2020 17:13:42 +0200
-Message-Id: <20200817143756.840496842@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 173/393] iavf: fix error return code in iavf_init_get_resources()
+Date:   Mon, 17 Aug 2020 17:13:43 +0200
+Message-Id: <20200817143828.013398792@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit fcd2e0deae50bce48450f14c8fc5611b08d7438c ]
+[ Upstream commit 753f3884f253de6b6d3a516e6651bda0baf4aede ]
 
-Currently we are not initializing the scmi clock with discrete rates
-correctly. We fetch the min_rate and max_rate value only for clocks with
-ranges and ignore the ones with discrete rates. This will lead to wrong
-initialization of rate range when clock supports discrete rate.
+Fix to return negative error code -ENOMEM from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fix this by using the first and the last rate in the sorted list of the
-discrete clock rates while registering the clock.
-
-Link: https://lore.kernel.org/r/20200709081705.46084-2-sudeep.holla@arm.com
-Fixes: 6d6a1d82eaef7 ("clk: add support for clocks provided by SCMI")
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reported-and-tested-by: Dien Pham <dien.pham.ry@renesas.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: b66c7bc1cd4d ("iavf: Refactor init state machine")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-scmi.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-scmi.c b/drivers/clk/clk-scmi.c
-index 886f7c5df51a9..e3cdb4a282fea 100644
---- a/drivers/clk/clk-scmi.c
-+++ b/drivers/clk/clk-scmi.c
-@@ -103,6 +103,8 @@ static const struct clk_ops scmi_clk_ops = {
- static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
- {
- 	int ret;
-+	unsigned long min_rate, max_rate;
-+
- 	struct clk_init_data init = {
- 		.flags = CLK_GET_RATE_NOCACHE,
- 		.num_parents = 0,
-@@ -112,9 +114,23 @@ static int scmi_clk_ops_init(struct device *dev, struct scmi_clk *sclk)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index a21ae74bcd1b6..8deff711cc02c 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1863,8 +1863,10 @@ static int iavf_init_get_resources(struct iavf_adapter *adapter)
  
- 	sclk->hw.init = &init;
- 	ret = devm_clk_hw_register(dev, &sclk->hw);
--	if (!ret)
--		clk_hw_set_rate_range(&sclk->hw, sclk->info->range.min_rate,
--				      sclk->info->range.max_rate);
-+	if (ret)
-+		return ret;
-+
-+	if (sclk->info->rate_discrete) {
-+		int num_rates = sclk->info->list.num_rates;
-+
-+		if (num_rates <= 0)
-+			return -EINVAL;
-+
-+		min_rate = sclk->info->list.rates[0];
-+		max_rate = sclk->info->list.rates[num_rates - 1];
-+	} else {
-+		min_rate = sclk->info->range.min_rate;
-+		max_rate = sclk->info->range.max_rate;
+ 	adapter->rss_key = kzalloc(adapter->rss_key_size, GFP_KERNEL);
+ 	adapter->rss_lut = kzalloc(adapter->rss_lut_size, GFP_KERNEL);
+-	if (!adapter->rss_key || !adapter->rss_lut)
++	if (!adapter->rss_key || !adapter->rss_lut) {
++		err = -ENOMEM;
+ 		goto err_mem;
 +	}
-+
-+	clk_hw_set_rate_range(&sclk->hw, min_rate, max_rate);
- 	return ret;
- }
- 
+ 	if (RSS_AQ(adapter))
+ 		adapter->aq_required |= IAVF_FLAG_AQ_CONFIGURE_RSS;
+ 	else
 -- 
 2.25.1
 
