@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08341247212
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D9824720E
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391014AbgHQShu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S1730979AbgHQShe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:37:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730932AbgHQP6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:58:49 -0400
+        id S1730945AbgHQP7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:59:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65025206FA;
-        Mon, 17 Aug 2020 15:58:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27920206FA;
+        Mon, 17 Aug 2020 15:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679928;
-        bh=rwh+qVj2F7Wzx/uXe1qYlWUrga3sdBRZ98BEMzg7SzU=;
+        s=default; t=1597679940;
+        bh=bG8t/xepkdf4mxiEc3Yj/rM9RKATeDbJ8MdTAc8pIqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hv0VM6IMTZaMPlZgyUD5+gf6iyOkXYqaB6TXfODveRnlpQi2nBvx5tfpYAPFcKUBV
-         6SxpMOeacCjkW3gSS4KuT8qUG+M1M2zHX7DTFSWYVmrK+qXhaByj4e01oS3F/4DQns
-         qiTm45dfrlxmvSHgFmltUUmZ34ysGwQgrXEIGPTQ=
+        b=af/XlmM/TAUvgHJLkHlp1FowPdXDp+9D+NGgKiy94JAUBEDhecy4icxyOwHhsKAhN
+         ORWMEOX1iIOFD6k6I/VC5xJzBHIShY7+MwmuV9oQxhLwwlEVa9Ncp/xoRfSbJHGnwm
+         K/629xnoCuN5gTUIOgSt6k+rSicfI1c+6v5AbMNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Tom=C3=A1=C5=A1=20Chaloupka?= <chalucha@gmail.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
+        stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 355/393] io_uring: set ctx sq/cq entry count earlier
-Date:   Mon, 17 Aug 2020 17:16:45 +0200
-Message-Id: <20200817143836.814088162@linuxfoundation.org>
+Subject: [PATCH 5.7 356/393] io_uring: use TWA_SIGNAL for task_work uncondtionally
+Date:   Mon, 17 Aug 2020 17:16:46 +0200
+Message-Id: <20200817143836.867157350@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -47,47 +45,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit bd74048108c179cea0ff52979506164c80f29da7 upstream.
+commit 0ba9c9edcd152158a0e321a4c13ac1dfc571ff3d upstream.
 
-If we hit an earlier error path in io_uring_create(), then we will have
-accounted memory, but not set ctx->{sq,cq}_entries yet. Then when the
-ring is torn down in error, we use those values to unaccount the memory.
+An earlier commit:
 
-Ensure we set the ctx entries before we're able to hit a potential error
-path.
+b7db41c9e03b ("io_uring: fix regression with always ignoring signals in io_cqring_wait()")
 
-Cc: stable@vger.kernel.org
-Reported-by: Tomáš Chaloupka <chalucha@gmail.com>
-Tested-by: Tomáš Chaloupka <chalucha@gmail.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+ensured that we didn't get stuck waiting for eventfd reads when it's
+registered with the io_uring ring for event notification, but we still
+have cases where the task can be waiting on other events in the kernel and
+need a bigger nudge to make forward progress. Or the task could be in the
+kernel and running, but on its way to blocking.
+
+This means that TWA_RESUME cannot reliably be used to ensure we make
+progress. Use TWA_SIGNAL unconditionally.
+
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: Josef <josef.grieb@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7869,6 +7869,10 @@ static int io_allocate_scq_urings(struct
- 	struct io_rings *rings;
- 	size_t size, sq_array_offset;
+@@ -4161,22 +4161,22 @@ static int io_req_task_work_add(struct i
+ {
+ 	struct task_struct *tsk = req->task;
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	int ret, notify = TWA_RESUME;
++	int ret, notify;
  
-+	/* make sure these are sane, as we already accounted them */
-+	ctx->sq_entries = p->sq_entries;
-+	ctx->cq_entries = p->cq_entries;
+ 	/*
+-	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
+-	 * If we're not using an eventfd, then TWA_RESUME is always fine,
+-	 * as we won't have dependencies between request completions for
+-	 * other kernel wait conditions.
++	 * SQPOLL kernel thread doesn't need notification, just a wakeup. For
++	 * all other cases, use TWA_SIGNAL unconditionally to ensure we're
++	 * processing task_work. There's no reliable way to tell if TWA_RESUME
++	 * will do the job.
+ 	 */
+-	if (ctx->flags & IORING_SETUP_SQPOLL)
+-		notify = 0;
+-	else if (ctx->cq_ev_fd)
++	notify = 0;
++	if (!(ctx->flags & IORING_SETUP_SQPOLL))
+ 		notify = TWA_SIGNAL;
+ 
+ 	ret = task_work_add(tsk, cb, notify);
+ 	if (!ret)
+ 		wake_up_process(tsk);
 +
- 	size = rings_size(p->sq_entries, p->cq_entries, &sq_array_offset);
- 	if (size == SIZE_MAX)
- 		return -EOVERFLOW;
-@@ -7885,8 +7889,6 @@ static int io_allocate_scq_urings(struct
- 	rings->cq_ring_entries = p->cq_entries;
- 	ctx->sq_mask = rings->sq_ring_mask;
- 	ctx->cq_mask = rings->cq_ring_mask;
--	ctx->sq_entries = rings->sq_ring_entries;
--	ctx->cq_entries = rings->cq_ring_entries;
+ 	return ret;
+ }
  
- 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
- 	if (size == SIZE_MAX) {
 
 
