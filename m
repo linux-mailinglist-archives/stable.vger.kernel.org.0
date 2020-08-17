@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B932246A93
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417F2246A97
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbgHQPin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
+        id S1730628AbgHQPiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:38:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730274AbgHQPik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:38:40 -0400
+        id S1730612AbgHQPiv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:38:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8C5622C9F;
-        Mon, 17 Aug 2020 15:38:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 271D223120;
+        Mon, 17 Aug 2020 15:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678719;
-        bh=tUg0ufDbgldg0Nz5MOqtxis8bznVshMzTik0MI4PymY=;
+        s=default; t=1597678730;
+        bh=WyO2If/OfFCea9PXnScXqeh4WKPM3dmI5l5aslUJ0Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQUTkzeuXF2qanupwFryL1p9+CE2fNNDQTPWdjEd/U6aunqBaAUPDdKmE/vhkHznB
-         lbyqu79UPvyvfO1BT1xy6uYMlJelTzRpfBQpG+C+wZyNIoTi2CNbyjJ97vFprYXzrr
-         1BxlL1ilujEbpQzjeaEtGz3cP1ja6PL0SVC68huo=
+        b=cAmoaSWDvih/JxKoA87g9851GFfeDKgjpGoWyoZewldYnjEhmuTBLCOYZwEXtCMjL
+         QlF6hsO0Ir0dbCMXde+zeBjAZNrQohub3ZOUAgmYx9rOF6/Ufcb9khnYzgM3rrd+SG
+         sgf570FiHTV0oVIHBx8XasCyqQNi/imd4AWtIHHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.8 431/464] cpufreq: dt: fix oops on armada37xx
-Date:   Mon, 17 Aug 2020 17:16:24 +0200
-Message-Id: <20200817143854.426668767@linuxfoundation.org>
+        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 5.8 435/464] PM / devfreq: Fix indentaion of devfreq_summary debugfs node
+Date:   Mon, 17 Aug 2020 17:16:28 +0200
+Message-Id: <20200817143854.615375831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,48 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+From: Chanwoo Choi <cw00.choi@samsung.com>
 
-commit 10470dec3decaf5ed3c596f85debd7c42777ae12 upstream.
+commit 0aae11bcdefb4894b6100656ad24cbd85ff34b52 upstream.
 
-Commit 0c868627e617e43a295d8 (cpufreq: dt: Allow platform specific
-intermediate callbacks) added two function pointers to the
-struct cpufreq_dt_platform_data. However, armada37xx_cpufreq_driver_init()
-has this struct (pdata) located on the stack and uses only "suspend"
-and "resume" fields. So these newly added "get_intermediate" and
-"target_intermediate" pointers are uninitialized and contain arbitrary
-non-null values, causing all kinds of trouble.
+The commit 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name
+as devfreq(X) for sysfs"") roll back the device name from 'devfreqX'
+to device name explained in DT. After applied commit 66d0e797bf09,
+the indentation of devfreq_summary debugfs node was broken.
 
-For instance, here is an oops on espressobin after an attempt to change
-the cpefreq governor:
+So, fix indentaion of devfreq_summary debugfs node as following:
 
-[   29.174554] Unable to handle kernel execute from non-executable memory at virtual address ffff00003f87bdc0
-...
-[   29.269373] pc : 0xffff00003f87bdc0
-[   29.272957] lr : __cpufreq_driver_target+0x138/0x580
-...
+For example on Exynos5422-based Odroid-XU3 board,
+$ cat /sys/kernel/debug/devfreq/devfreq_summary
+dev                            parent_dev                     governor        polling_ms  cur_freq_Hz  min_freq_Hz  max_freq_Hz
+------------------------------ ------------------------------ --------------- ---------- ------------ ------------ ------------
+10c20000.memory-controller     null                           simple_ondemand          0    413000000    165000000    825000000
+soc:bus_wcore                  null                           simple_ondemand         50     88700000     88700000    532000000
+soc:bus_noc                    soc:bus_wcore                  passive                  0     66600000     66600000    111000000
+soc:bus_fsys_apb               soc:bus_wcore                  passive                  0    111000000    111000000    222000000
+soc:bus_fsys                   soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+soc:bus_fsys2                  soc:bus_wcore                  passive                  0     75000000     75000000    200000000
+soc:bus_mfc                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+soc:bus_gen                    soc:bus_wcore                  passive                  0     88700000     88700000    266000000
+soc:bus_peri                   soc:bus_wcore                  passive                  0     66600000     66600000     66600000
+soc:bus_g2d                    soc:bus_wcore                  passive                  0     83250000     83250000    333000000
+soc:bus_g2d_acp                soc:bus_wcore                  passive                  0            0     66500000    266000000
+soc:bus_jpeg                   soc:bus_wcore                  passive                  0            0     75000000    300000000
+soc:bus_jpeg_apb               soc:bus_wcore                  passive                  0            0     83250000    166500000
+soc:bus_disp1_fimd             soc:bus_wcore                  passive                  0            0    120000000    200000000
+soc:bus_disp1                  soc:bus_wcore                  passive                  0            0    120000000    300000000
+soc:bus_gscl_scaler            soc:bus_wcore                  passive                  0            0    150000000    300000000
+soc:bus_mscl                   soc:bus_wcore                  passive                  0            0     84000000    666000000
 
-Fixed by zeroing out pdata before use.
-
-Cc: <stable@vger.kernel.org> # v5.7+
-Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: 66d0e797bf09 ("Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"")
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/armada-37xx-cpufreq.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/devfreq/devfreq.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/cpufreq/armada-37xx-cpufreq.c
-+++ b/drivers/cpufreq/armada-37xx-cpufreq.c
-@@ -456,6 +456,7 @@ static int __init armada37xx_cpufreq_dri
- 	/* Now that everything is setup, enable the DVFS at hardware level */
- 	armada37xx_cpufreq_enable_dvfs(nb_pm_base);
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -1657,8 +1657,7 @@ static int devfreq_summary_show(struct s
+ 	unsigned long cur_freq, min_freq, max_freq;
+ 	unsigned int polling_ms;
  
-+	memset(&pdata, 0, sizeof(pdata));
- 	pdata.suspend = armada37xx_cpufreq_suspend;
- 	pdata.resume = armada37xx_cpufreq_resume;
+-	seq_printf(s, "%-30s %-10s %-10s %-15s %10s %12s %12s %12s\n",
+-			"dev_name",
++	seq_printf(s, "%-30s %-30s %-15s %10s %12s %12s %12s\n",
+ 			"dev",
+ 			"parent_dev",
+ 			"governor",
+@@ -1666,10 +1665,9 @@ static int devfreq_summary_show(struct s
+ 			"cur_freq_Hz",
+ 			"min_freq_Hz",
+ 			"max_freq_Hz");
+-	seq_printf(s, "%30s %10s %10s %15s %10s %12s %12s %12s\n",
++	seq_printf(s, "%30s %30s %15s %10s %12s %12s %12s\n",
++			"------------------------------",
+ 			"------------------------------",
+-			"----------",
+-			"----------",
+ 			"---------------",
+ 			"----------",
+ 			"------------",
+@@ -1698,8 +1696,7 @@ static int devfreq_summary_show(struct s
+ 		mutex_unlock(&devfreq->lock);
  
+ 		seq_printf(s,
+-			"%-30s %-10s %-10s %-15s %10d %12ld %12ld %12ld\n",
+-			dev_name(devfreq->dev.parent),
++			"%-30s %-30s %-15s %10d %12ld %12ld %12ld\n",
+ 			dev_name(&devfreq->dev),
+ 			p_devfreq ? dev_name(&p_devfreq->dev) : "null",
+ 			devfreq->governor_name,
 
 
