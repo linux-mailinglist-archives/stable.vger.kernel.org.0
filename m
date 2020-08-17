@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F71F247307
+	by mail.lfdr.de (Postfix) with ESMTP id 32499247306
 	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391618AbgHQSuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40880 "EHLO mail.kernel.org"
+        id S2391506AbgHQSuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387945AbgHQPxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:53:48 -0400
+        id S2387954AbgHQPxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:53:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 481AB2063A;
-        Mon, 17 Aug 2020 15:53:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E19720882;
+        Mon, 17 Aug 2020 15:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679628;
-        bh=Y5Peo0FyvYcqmpLjG3BPytrck9wreRRxTDg3f8cOFTw=;
+        s=default; t=1597679633;
+        bh=bBnBdwc8fgDqOQIX/VuGZYQBTY3MkI6HpQsAxL6o+vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEaJQPieo2y9NqQGamkb5Zs3MR9Y+LmWjBr3DPy3mEXHogZRyaIE3p4haQV5vUa24
-         n6W7J4LJH4ya/qjhulX3bjuEBjP1PoVrUsy0B3Xu+QtucH+hwbu++ZqPflDibdKMSs
-         p775qeNCxr0hzXP1NHtCGxqYjTqyaxLbXl34GqGg=
+        b=YA2hTCxVE8VjAPyCZDVemzY2f8QuSc9YLWh6Xemo9SjVVrT1eZfeARJRU10trAOTj
+         dINTjC5Aftea8mo9mRZlnWguCzUQU+HT5y1wUhRDyfp6Nw4hvj4FMqediofIM6OT3V
+         NdElxhJiJrK0RoUsdgDxbftyqpbuwiFDD14zrC3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Crunchtime <jerry.c.t@web.de>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 279/393] libbpf: Fix register in PT_REGS MIPS macros
-Date:   Mon, 17 Aug 2020 17:15:29 +0200
-Message-Id: <20200817143833.153013152@linuxfoundation.org>
+Subject: [PATCH 5.7 281/393] s390/qeth: tolerate pre-filled RX buffer
+Date:   Mon, 17 Aug 2020 17:15:31 +0200
+Message-Id: <20200817143833.250363826@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,45 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Crunchtime <jerry.c.t@web.de>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 1acf8f90ea7ee59006d0474275922145ac291331 ]
+[ Upstream commit eff73e16ee116f6eafa2be48fab42659a27cb453 ]
 
-The o32, n32 and n64 calling conventions require the return
-value to be stored in $v0 which maps to $2 register, i.e.,
-the register 2.
+When preparing a buffer for RX refill, tolerate that it already has a
+pool_entry attached. Otherwise we could easily leak such a pool_entry
+when re-driving the RX refill after an error (from eg. do_qdio()).
 
-Fixes: c1932cd ("bpf: Add MIPS support to samples/bpf.")
-Signed-off-by: Jerry Crunchtime <jerry.c.t@web.de>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/43707d31-0210-e8f0-9226-1af140907641@web.de
+This needs some minor adjustment in the code that drains RX buffer(s)
+prior to RX refill and during teardown, so that ->pool_entry is NULLed
+accordingly.
+
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf_tracing.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/tools/lib/bpf/bpf_tracing.h b/tools/lib/bpf/bpf_tracing.h
-index 48a9c7c69ef1f..e6ec7cb4aa4aa 100644
---- a/tools/lib/bpf/bpf_tracing.h
-+++ b/tools/lib/bpf/bpf_tracing.h
-@@ -215,7 +215,7 @@ struct pt_regs;
- #define PT_REGS_PARM5(x) ((x)->regs[8])
- #define PT_REGS_RET(x) ((x)->regs[31])
- #define PT_REGS_FP(x) ((x)->regs[30]) /* Works only with CONFIG_FRAME_POINTER */
--#define PT_REGS_RC(x) ((x)->regs[1])
-+#define PT_REGS_RC(x) ((x)->regs[2])
- #define PT_REGS_SP(x) ((x)->regs[29])
- #define PT_REGS_IP(x) ((x)->cp0_epc)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 60d675fefac7d..40ddd17864304 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -202,12 +202,17 @@ EXPORT_SYMBOL_GPL(qeth_threads_running);
+ void qeth_clear_working_pool_list(struct qeth_card *card)
+ {
+ 	struct qeth_buffer_pool_entry *pool_entry, *tmp;
++	struct qeth_qdio_q *queue = card->qdio.in_q;
++	unsigned int i;
  
-@@ -226,7 +226,7 @@ struct pt_regs;
- #define PT_REGS_PARM5_CORE(x) BPF_CORE_READ((x), regs[8])
- #define PT_REGS_RET_CORE(x) BPF_CORE_READ((x), regs[31])
- #define PT_REGS_FP_CORE(x) BPF_CORE_READ((x), regs[30])
--#define PT_REGS_RC_CORE(x) BPF_CORE_READ((x), regs[1])
-+#define PT_REGS_RC_CORE(x) BPF_CORE_READ((x), regs[2])
- #define PT_REGS_SP_CORE(x) BPF_CORE_READ((x), regs[29])
- #define PT_REGS_IP_CORE(x) BPF_CORE_READ((x), cp0_epc)
+ 	QETH_CARD_TEXT(card, 5, "clwrklst");
+ 	list_for_each_entry_safe(pool_entry, tmp,
+ 			    &card->qdio.in_buf_pool.entry_list, list){
+ 			list_del(&pool_entry->list);
+ 	}
++
++	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
++		queue->bufs[i].pool_entry = NULL;
+ }
+ EXPORT_SYMBOL_GPL(qeth_clear_working_pool_list);
+ 
+@@ -2671,7 +2676,7 @@ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
+ static int qeth_init_input_buffer(struct qeth_card *card,
+ 		struct qeth_qdio_buffer *buf)
+ {
+-	struct qeth_buffer_pool_entry *pool_entry;
++	struct qeth_buffer_pool_entry *pool_entry = buf->pool_entry;
+ 	int i;
+ 
+ 	if ((card->options.cq == QETH_CQ_ENABLED) && (!buf->rx_skb)) {
+@@ -2682,9 +2687,13 @@ static int qeth_init_input_buffer(struct qeth_card *card,
+ 			return -ENOMEM;
+ 	}
+ 
+-	pool_entry = qeth_find_free_buffer_pool_entry(card);
+-	if (!pool_entry)
+-		return -ENOBUFS;
++	if (!pool_entry) {
++		pool_entry = qeth_find_free_buffer_pool_entry(card);
++		if (!pool_entry)
++			return -ENOBUFS;
++
++		buf->pool_entry = pool_entry;
++	}
+ 
+ 	/*
+ 	 * since the buffer is accessed only from the input_tasklet
+@@ -2692,8 +2701,6 @@ static int qeth_init_input_buffer(struct qeth_card *card,
+ 	 * the QETH_IN_BUF_REQUEUE_THRESHOLD we should never run  out off
+ 	 * buffers
+ 	 */
+-
+-	buf->pool_entry = pool_entry;
+ 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
+ 		buf->buffer->element[i].length = PAGE_SIZE;
+ 		buf->buffer->element[i].addr =
+@@ -5521,6 +5528,7 @@ static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
+ 		if (done) {
+ 			QETH_CARD_STAT_INC(card, rx_bufs);
+ 			qeth_put_buffer_pool_entry(card, buffer->pool_entry);
++			buffer->pool_entry = NULL;
+ 			qeth_queue_input_buffer(card, card->rx.b_index);
+ 			card->rx.b_count--;
  
 -- 
 2.25.1
