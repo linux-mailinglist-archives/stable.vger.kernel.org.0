@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E88692469AC
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29DA2469AE
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 17:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729692AbgHQPYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 11:24:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
+        id S1729698AbgHQPYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 11:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729686AbgHQPYr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:24:47 -0400
+        id S1729695AbgHQPYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:24:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16ED523384;
-        Mon, 17 Aug 2020 15:24:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4E8020855;
+        Mon, 17 Aug 2020 15:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677887;
-        bh=v0QKmyZbjTqae5qzYAsrlug6hBwSbq3eR+6nXGiXYbs=;
+        s=default; t=1597677890;
+        bh=Md//2SsM3pTbIACxtDC5zWBoU63z75KHf/1QgDR+418=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHOYyOd/ERgS0J91yb0n0JGhLUrmtdknlRwFyl+vJNTcJ5zuVY5j9mfkh4fpWZzPv
-         LGRYI0zL+L28xmJKDTTuYGkrlH8KMyWe9yjBPOCmY5ge03PrEwtHauPDraLYaIhn0c
-         CboHUMX8zCCUA3n0XdmtkSDUhIFPikawNwYLD67A=
+        b=sXnpD81xNB/XyE64W6FfSg+cOCuRvS2WGFB3hWvIxjvf5ox/ObAbEmM7GOI2CD01a
+         tQ9xvT/OasT5I2BLJcilx5VCqKLCWocFDJfGwmQRpIhksGmlLxq6Pb10iyogV6T7iI
+         SuvFb4TJoKJmyVAS1Ia0iLo+96jPpsjxUfX37clA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 144/464] agp/intel: Fix a memory leak on module initialisation failure
-Date:   Mon, 17 Aug 2020 17:11:37 +0200
-Message-Id: <20200817143840.712283432@linuxfoundation.org>
+Subject: [PATCH 5.8 145/464] mwifiex: Fix firmware filename for sd8977 chipset
+Date:   Mon, 17 Aug 2020 17:11:38 +0200
+Message-Id: <20200817143840.759405986@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -44,41 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit b975abbd382fe442713a4c233549abb90e57c22b ]
+[ Upstream commit 47fd3ee25e13cc5add48ba2ed71f7ee964b9c3a4 ]
 
-In intel_gtt_setup_scratch_page(), pointer "page" is not released if
-pci_dma_mapping_error() return an error, leading to a memory leak on
-module initialisation failure.  Simply fix this issue by freeing "page"
-before return.
+Firmware for sd8977 chipset is distributed by Marvell package and also as
+part of the linux-firmware repository in filename sdsd8977_combo_v2.bin.
 
-Fixes: 0e87d2b06cb46 ("intel-gtt: initialize our own scratch page")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200522083451.7448-1-chris@chris-wilson.co.uk
+This patch fixes mwifiex driver to load correct firmware file for sd8977.
+
+Fixes: 1a0f547831dce ("mwifiex: add support for sd8977 chipset")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/agp/intel-gtt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/sdio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
-index 4b34a5195c653..5bfdf222d5f90 100644
---- a/drivers/char/agp/intel-gtt.c
-+++ b/drivers/char/agp/intel-gtt.c
-@@ -304,8 +304,10 @@ static int intel_gtt_setup_scratch_page(void)
- 	if (intel_private.needs_dmar) {
- 		dma_addr = pci_map_page(intel_private.pcidev, page, 0,
- 				    PAGE_SIZE, PCI_DMA_BIDIRECTIONAL);
--		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr))
-+		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr)) {
-+			__free_page(page);
- 			return -EINVAL;
-+		}
+diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.h b/drivers/net/wireless/marvell/mwifiex/sdio.h
+index 71cd8629b28ef..0cac2296ed53c 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sdio.h
++++ b/drivers/net/wireless/marvell/mwifiex/sdio.h
+@@ -36,7 +36,7 @@
+ #define SD8897_DEFAULT_FW_NAME "mrvl/sd8897_uapsta.bin"
+ #define SD8887_DEFAULT_FW_NAME "mrvl/sd8887_uapsta.bin"
+ #define SD8801_DEFAULT_FW_NAME "mrvl/sd8801_uapsta.bin"
+-#define SD8977_DEFAULT_FW_NAME "mrvl/sd8977_uapsta.bin"
++#define SD8977_DEFAULT_FW_NAME "mrvl/sdsd8977_combo_v2.bin"
+ #define SD8987_DEFAULT_FW_NAME "mrvl/sd8987_uapsta.bin"
+ #define SD8997_DEFAULT_FW_NAME "mrvl/sd8997_uapsta.bin"
  
- 		intel_private.scratch_page_dma = dma_addr;
- 	} else
 -- 
 2.25.1
 
