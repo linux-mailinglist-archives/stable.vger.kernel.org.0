@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 346882471DE
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F08F62473B8
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390887AbgHQSex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47142 "EHLO mail.kernel.org"
+        id S2389119AbgHQTAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730991AbgHQP7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:59:53 -0400
+        id S1730849AbgHQPsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:48:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D321A206FA;
-        Mon, 17 Aug 2020 15:59:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18DC92075B;
+        Mon, 17 Aug 2020 15:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679990;
-        bh=9Wfo/T5nRMTrgQs2EpSoH9Fb8QXefxTIJ/cvjSqMFsg=;
+        s=default; t=1597679295;
+        bh=Ev2MKrV3RTdHkwWtyN15qSAmclYuXz3Qy4/2nqB5rpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+82carvd4elV1M+bo5IgUFLmEA9PtO/UKmuOGTyom9Cbs01NyQP9LwMHYcvm7G3n
-         V0ov5SfxZZwrrldFO9wUJooq2D/6aufaYrFwqA4qIgBqFi5RHpgQpfXW/bisUejsQS
-         VFjIhkCzjjRMsYqwoJzp428Fcz/7HvFDNXWllWXI=
+        b=UcfqzE2GQ0WSExMMMq7uCOMmNHVmGJlFbyrG3Q+os0hz7JYf3cZJ7Ps/2c8yjIavi
+         SrG0Rf5ofrhIm8VQ9JdSzcTw31nIbae6vewRzmlT5/Vn/YwAR35lUaf+/vnYNM54sV
+         Vy0mqcpLk9EJ9qL5psgeDXf8i94v3h9ZtwKy8pyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        stable@vger.kernel.org, Robert Chiras <robert.chiras@nxp.com>,
+        Vinay Simha BN <simhavcs@gmail.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/270] arm64: dts: rockchip: fix rk3399-puma gmac reset gpio
-Date:   Mon, 17 Aug 2020 17:13:32 +0200
-Message-Id: <20200817143756.372058371@linuxfoundation.org>
+Subject: [PATCH 5.7 163/393] drm/mipi: use dcs write for mipi_dsi_dcs_set_tear_scanline
+Date:   Mon, 17 Aug 2020 17:13:33 +0200
+Message-Id: <20200817143827.524032519@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
-References: <20200817143755.807583758@linuxfoundation.org>
+In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
+References: <20200817143819.579311991@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+From: Emil Velikov <emil.velikov@collabora.com>
 
-[ Upstream commit 8a445086f8af0b7b9bd8d1901d6f306bb154f70d ]
+[ Upstream commit 7a05c3b6d24b8460b3cec436cf1d33fac43c8450 ]
 
-The puma gmac node currently uses opposite active-values for the
-gmac phy reset pin. The gpio-declaration uses active-high while the
-separate snps,reset-active-low property marks the pin as active low.
+The helper uses the MIPI_DCS_SET_TEAR_SCANLINE, although it's currently
+using the generic write. This does not look right.
 
-While on the kernel side this works ok, other DT users may get
-confused - as seen with uboot right now.
+Perhaps some platforms don't distinguish between the two writers?
 
-So bring this in line and make both properties match, similar to the
-other Rockchip board.
-
-Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
-Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20200603132836.362519-1-heiko@sntech.de
+Cc: Robert Chiras <robert.chiras@nxp.com>
+Cc: Vinay Simha BN <simhavcs@gmail.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Fixes: e83950816367 ("drm/dsi: Implement set tear scanline")
+Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200505160329.2976059-3-emil.l.velikov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_mipi_dsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index fb47e4046f4e4..45b86933c6ea0 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -157,7 +157,7 @@ &gmac {
- 	phy-mode = "rgmii";
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&rgmii_pins>;
--	snps,reset-gpio = <&gpio3 RK_PC0 GPIO_ACTIVE_HIGH>;
-+	snps,reset-gpio = <&gpio3 RK_PC0 GPIO_ACTIVE_LOW>;
- 	snps,reset-active-low;
- 	snps,reset-delays-us = <0 10000 50000>;
- 	tx_delay = <0x10>;
+diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
+index 55531895dde6d..37b03fefbdf6f 100644
+--- a/drivers/gpu/drm/drm_mipi_dsi.c
++++ b/drivers/gpu/drm/drm_mipi_dsi.c
+@@ -1082,11 +1082,11 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_pixel_format);
+  */
+ int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline)
+ {
+-	u8 payload[3] = { MIPI_DCS_SET_TEAR_SCANLINE, scanline >> 8,
+-			  scanline & 0xff };
++	u8 payload[2] = { scanline >> 8, scanline & 0xff };
+ 	ssize_t err;
+ 
+-	err = mipi_dsi_generic_write(dsi, payload, sizeof(payload));
++	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_TEAR_SCANLINE, payload,
++				 sizeof(payload));
+ 	if (err < 0)
+ 		return err;
+ 
 -- 
 2.25.1
 
