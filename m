@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5EA247047
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD4D247032
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388491AbgHQSGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58952 "EHLO mail.kernel.org"
+        id S2390246AbgHQSF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388283AbgHQQIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:08:54 -0400
+        id S2388498AbgHQQJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:09:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81AD20888;
-        Mon, 17 Aug 2020 16:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECBA122D02;
+        Mon, 17 Aug 2020 16:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680533;
-        bh=sEXgLNETWRnYr2UqSnDJpMZ7mhrKfcrWV3ANRgsVbAw=;
+        s=default; t=1597680553;
+        bh=lMGiXrzYGdWXjhjBqQbKNddRV33RGM0bKcrYbvO8UZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ff6Hzxl4TzF5Fpa1MrFayNWC9l2asMi1Y4cSIKFI1LmCHq15GVfFcu4MqvknKysmv
-         tFJdUYToSAGP2YCsWqX49hIkPI2VXiJztgYgtSJD6OMJKN2bEl76YnLBoKBshOkwjy
-         uID4XqtA+1xnEYttIX/5BemyhonIAvUS0rumhfQ0=
+        b=WNFa5F6Kf1cYMIgYRg2wCqfQltkEbLdHXkK/qZwHWOzLXVaWJdxTgaGvpm2fto53f
+         CP0DwmezAkol22JHbGC8mp8wIjIQTo92JAqZcPVr0qZrLq5lDfRCTndN6DgrgBG0xB
+         fvyDGaBtsBqQcdfYOZuuD8lD+blQQhbRlZbm16fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Ronak Doshi <doshir@vmware.com>,
+        Guolin Yang <gyang@vmware.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 223/270] net/tls: Fix kmap usage
-Date:   Mon, 17 Aug 2020 17:17:04 +0200
-Message-Id: <20200817143806.877325542@linuxfoundation.org>
+Subject: [PATCH 5.4 225/270] vmxnet3: use correct tcp hdr length when packet is encapsulated
+Date:   Mon, 17 Aug 2020 17:17:06 +0200
+Message-Id: <20200817143806.984713313@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
 References: <20200817143755.807583758@linuxfoundation.org>
@@ -44,43 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ira Weiny <ira.weiny@intel.com>
+From: Ronak Doshi <doshir@vmware.com>
 
-[ Upstream commit b06c19d9f827f6743122795570bfc0c72db482b0 ]
+[ Upstream commit 8a7f280f29a80f6e0798f5d6e07c5dd8726620fe ]
 
-When MSG_OOB is specified to tls_device_sendpage() the mapped page is
-never unmapped.
+Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
+support") added support for encapsulation offload. However, while
+calculating tcp hdr length, it does not take into account if the
+packet is encapsulated or not.
 
-Hold off mapping the page until after the flags are checked and the page
-is actually needed.
+This patch fixes this issue by using correct reference for inner
+tcp header.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
+Signed-off-by: Ronak Doshi <doshir@vmware.com>
+Acked-by: Guolin Yang <gyang@vmware.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_device.c |    3 ++-
+ drivers/net/vmxnet3/vmxnet3_drv.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -549,7 +549,7 @@ int tls_device_sendpage(struct sock *sk,
- {
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct iov_iter	msg_iter;
--	char *kaddr = kmap(page);
-+	char *kaddr;
- 	struct kvec iov;
- 	int rc;
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -861,7 +861,8 @@ vmxnet3_parse_hdr(struct sk_buff *skb, s
  
-@@ -564,6 +564,7 @@ int tls_device_sendpage(struct sock *sk,
- 		goto out;
- 	}
- 
-+	kaddr = kmap(page);
- 	iov.iov_base = kaddr + offset;
- 	iov.iov_len = size;
- 	iov_iter_kvec(&msg_iter, WRITE, &iov, 1, size);
+ 			switch (protocol) {
+ 			case IPPROTO_TCP:
+-				ctx->l4_hdr_size = tcp_hdrlen(skb);
++				ctx->l4_hdr_size = skb->encapsulation ? inner_tcp_hdrlen(skb) :
++						   tcp_hdrlen(skb);
+ 				break;
+ 			case IPPROTO_UDP:
+ 				ctx->l4_hdr_size = sizeof(struct udphdr);
 
 
