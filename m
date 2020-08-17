@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BA7246F80
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36259246F68
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:46:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390046AbgHQRrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:47:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
+        id S2388333AbgHQRqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 13:46:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388755AbgHQQNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 12:13:37 -0400
+        id S2388758AbgHQQNl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:13:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C27B22D74;
-        Mon, 17 Aug 2020 16:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FFFA207FB;
+        Mon, 17 Aug 2020 16:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597680816;
-        bh=rfUtZhsMXIoOiMMBGCFy1MRNH9HgQVcvEGbRUYRHj3A=;
+        s=default; t=1597680820;
+        bh=gGyiXxopYlQbJ6AbtM9O7utJiQiofQ+CDLgnBBOTWdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrrUj5XYIDygSl6DQH00QIGIk34G5/YdarbujrJf2X2dJy4V1MYCHA5gdAQzURjR5
-         fO4vx6yTT98gkni7gugPXgjGOt12jNzn/f9NiTmvrozIhMMoDOnXy11OYEYkoMjwB+
-         o7WcT2fF1kd1UNwmiAyuOwcBID9nXaM/l+vQW23M=
+        b=OZGyXM+gWHzkcqWtW4N8WhW13fVNVb/6gFFpi24GD38dkDtTaqG4Cvvr4omwoebQ+
+         bDG7p1jQGuz/DMbqW0D8/fqaMqXn+kBv3JFLk+nynTkyYvDhTOe5MDwtl7UVso0d8F
+         EwTMuqYyeNHOn8ujQp2biud6W8Zh92rKON1L/Gi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/168] usb: mtu3: clear dual mode of u3port when disable device
-Date:   Mon, 17 Aug 2020 17:16:09 +0200
-Message-Id: <20200817143735.681987236@linuxfoundation.org>
+Subject: [PATCH 4.19 040/168] drm/radeon: disable AGP by default
+Date:   Mon, 17 Aug 2020 17:16:11 +0200
+Message-Id: <20200817143735.768643197@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
 References: <20200817143733.692105228@linuxfoundation.org>
@@ -43,39 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit f1e51e99ed498d4aa9ae5df28e43d558ea627781 ]
+[ Upstream commit ba806f98f868ce107aa9c453fef751de9980e4af ]
 
-If not clear u3port's dual mode when disable device, the IP
-will fail to enter sleep mode when suspend.
+Always use the PCI GART instead. We just have to many cases
+where AGP still causes problems. This means a performance
+regression for some GPUs, but also a bug fix for some others.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1595834101-13094-10-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_drv.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_core.c b/drivers/usb/mtu3/mtu3_core.c
-index 8606935201326..408e964522ab9 100644
---- a/drivers/usb/mtu3/mtu3_core.c
-+++ b/drivers/usb/mtu3/mtu3_core.c
-@@ -128,8 +128,12 @@ static void mtu3_device_disable(struct mtu3 *mtu)
- 	mtu3_setbits(ibase, SSUSB_U2_CTRL(0),
- 		SSUSB_U2_PORT_DIS | SSUSB_U2_PORT_PDN);
- 
--	if (mtu->ssusb->dr_mode == USB_DR_MODE_OTG)
-+	if (mtu->ssusb->dr_mode == USB_DR_MODE_OTG) {
- 		mtu3_clrbits(ibase, SSUSB_U2_CTRL(0), SSUSB_U2_PORT_OTG_SEL);
-+		if (mtu->is_u3_ip)
-+			mtu3_clrbits(ibase, SSUSB_U3_CTRL(0),
-+				     SSUSB_U3_PORT_DUAL_MODE);
-+	}
- 
- 	mtu3_setbits(ibase, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
- }
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 54729acd0d4af..0cd33289c2b63 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -168,12 +168,7 @@ int radeon_no_wb;
+ int radeon_modeset = -1;
+ int radeon_dynclks = -1;
+ int radeon_r4xx_atom = 0;
+-#ifdef __powerpc__
+-/* Default to PCI on PowerPC (fdo #95017) */
+ int radeon_agpmode = -1;
+-#else
+-int radeon_agpmode = 0;
+-#endif
+ int radeon_vram_limit = 0;
+ int radeon_gart_size = -1; /* auto */
+ int radeon_benchmarking = 0;
 -- 
 2.25.1
 
