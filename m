@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA45247367
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6758324719D
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391543AbgHQSzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 14:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
+        id S2391087AbgHQSaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730896AbgHQPuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:50:52 -0400
+        id S2387941AbgHQQBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:01:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F5832054F;
-        Mon, 17 Aug 2020 15:50:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9987C207FB;
+        Mon, 17 Aug 2020 16:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597679452;
-        bh=kw06jVtb/jIPSntCZK3WXF6KXsRzue6VWinIXA0xhaw=;
+        s=default; t=1597680067;
+        bh=cjtdBc3RixVqwCdUJQihsAUyE8l5VSflaCE6otsLWuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S08URsXlDDHWoce6EjCcBzRZZvCT5INI2ZQX7kPXXxsyjaY56O/N/VcmmwELTdJeQ
-         lMoz6qlO0PkFITHeVZb5KSNkPHOEF8UcHkIcHZksfRZdkO4qE22m6FZ0aJYtIKosCQ
-         S0xSHUI1rRxgDCi3a+MGVaDsjA0WP0AQa0NNtd9g=
+        b=w3sSuv0LLn14wvg4LQIL0xKvFLI56Q8TawdwJMUlxR00X2DIkzvGN+li1M77YKlsQ
+         2cGfd/MxDSGGTHSOg7p29tRJf95F+slZZnP1WJKE5hQRXoaW+9rMY8npy/PDuIEycF
+         2oFKWldLm9CwyPElZZioNDaFYAZhfOxRjqkPQhwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjunz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 189/393] RDMA/rxe: Skip dgid check in loopback mode
-Date:   Mon, 17 Aug 2020 17:13:59 +0200
-Message-Id: <20200817143828.789045704@linuxfoundation.org>
+Subject: [PATCH 5.4 040/270] seccomp: Fix ioctl number for SECCOMP_IOCTL_NOTIF_ID_VALID
+Date:   Mon, 17 Aug 2020 17:14:01 +0200
+Message-Id: <20200817143757.801486980@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
-References: <20200817143819.579311991@linuxfoundation.org>
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjunz@mellanox.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5c99274be8864519328aa74bc550ba410095bc1c ]
+[ Upstream commit 47e33c05f9f07cac3de833e531bcac9ae052c7ca ]
 
-In the loopback tests, the following call trace occurs.
+When SECCOMP_IOCTL_NOTIF_ID_VALID was first introduced it had the wrong
+direction flag set. While this isn't a big deal as nothing currently
+enforces these bits in the kernel, it should be defined correctly. Fix
+the define and provide support for the old command until it is no longer
+needed for backward compatibility.
 
- Call Trace:
-  __rxe_do_task+0x1a/0x30 [rdma_rxe]
-  rxe_qp_destroy+0x61/0xa0 [rdma_rxe]
-  rxe_destroy_qp+0x20/0x60 [rdma_rxe]
-  ib_destroy_qp_user+0xcc/0x220 [ib_core]
-  uverbs_free_qp+0x3c/0xc0 [ib_uverbs]
-  destroy_hw_idr_uobject+0x24/0x70 [ib_uverbs]
-  uverbs_destroy_uobject+0x43/0x1b0 [ib_uverbs]
-  uobj_destroy+0x41/0x70 [ib_uverbs]
-  __uobj_get_destroy+0x39/0x70 [ib_uverbs]
-  ib_uverbs_destroy_qp+0x88/0xc0 [ib_uverbs]
-  ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0xb9/0xf0 [ib_uverbs]
-  ib_uverbs_cmd_verbs+0xb16/0xc30 [ib_uverbs]
-
-The root cause is that the actual RDMA connection is not created in the
-loopback tests and the rxe_match_dgid will fail randomly.
-
-To fix this call trace which appear in the loopback tests, skip check of
-the dgid.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200630123605.446959-1-leon@kernel.org
-Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/uapi/linux/seccomp.h                  | 3 ++-
+ kernel/seccomp.c                              | 9 +++++++++
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 2 +-
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index 831ad578a7b29..46e111c218fd4 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -330,10 +330,14 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
- 
- static int rxe_match_dgid(struct rxe_dev *rxe, struct sk_buff *skb)
- {
-+	struct rxe_pkt_info *pkt = SKB_TO_PKT(skb);
- 	const struct ib_gid_attr *gid_attr;
- 	union ib_gid dgid;
- 	union ib_gid *pdgid;
- 
-+	if (pkt->mask & RXE_LOOPBACK_MASK)
-+		return 0;
+diff --git a/include/uapi/linux/seccomp.h b/include/uapi/linux/seccomp.h
+index 90734aa5aa363..b5f901af79f0b 100644
+--- a/include/uapi/linux/seccomp.h
++++ b/include/uapi/linux/seccomp.h
+@@ -93,5 +93,6 @@ struct seccomp_notif_resp {
+ #define SECCOMP_IOCTL_NOTIF_RECV	SECCOMP_IOWR(0, struct seccomp_notif)
+ #define SECCOMP_IOCTL_NOTIF_SEND	SECCOMP_IOWR(1,	\
+ 						struct seccomp_notif_resp)
+-#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOR(2, __u64)
++#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOW(2, __u64)
 +
- 	if (skb->protocol == htons(ETH_P_IP)) {
- 		ipv6_addr_set_v4mapped(ip_hdr(skb)->daddr,
- 				       (struct in6_addr *)&dgid);
-@@ -366,7 +370,7 @@ void rxe_rcv(struct sk_buff *skb)
- 	if (unlikely(skb->len < pkt->offset + RXE_BTH_BYTES))
- 		goto drop;
+ #endif /* _UAPI_LINUX_SECCOMP_H */
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index 2c697ce7be21f..e0fd972356539 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -42,6 +42,14 @@
+ #include <linux/uaccess.h>
+ #include <linux/anon_inodes.h>
  
--	if (unlikely(rxe_match_dgid(rxe, skb) < 0)) {
-+	if (rxe_match_dgid(rxe, skb) < 0) {
- 		pr_warn_ratelimited("failed matching dgid\n");
- 		goto drop;
- 	}
++/*
++ * When SECCOMP_IOCTL_NOTIF_ID_VALID was first introduced, it had the
++ * wrong direction flag in the ioctl number. This is the broken one,
++ * which the kernel needs to keep supporting until all userspaces stop
++ * using the wrong command number.
++ */
++#define SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR	SECCOMP_IOR(2, __u64)
++
+ enum notify_state {
+ 	SECCOMP_NOTIFY_INIT,
+ 	SECCOMP_NOTIFY_SENT,
+@@ -1168,6 +1176,7 @@ static long seccomp_notify_ioctl(struct file *file, unsigned int cmd,
+ 		return seccomp_notify_recv(filter, buf);
+ 	case SECCOMP_IOCTL_NOTIF_SEND:
+ 		return seccomp_notify_send(filter, buf);
++	case SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR:
+ 	case SECCOMP_IOCTL_NOTIF_ID_VALID:
+ 		return seccomp_notify_id_valid(filter, buf);
+ 	default:
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 96bbda4f10fc6..19c7351eeb74b 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -177,7 +177,7 @@ struct seccomp_metadata {
+ #define SECCOMP_IOCTL_NOTIF_RECV	SECCOMP_IOWR(0, struct seccomp_notif)
+ #define SECCOMP_IOCTL_NOTIF_SEND	SECCOMP_IOWR(1,	\
+ 						struct seccomp_notif_resp)
+-#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOR(2, __u64)
++#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOW(2, __u64)
+ 
+ struct seccomp_notif {
+ 	__u64 id;
 -- 
 2.25.1
 
