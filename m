@@ -2,115 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D55246EC0
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 19:36:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13BE24718C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 20:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730096AbgHQRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 13:36:06 -0400
-Received: from mga05.intel.com ([192.55.52.43]:63451 "EHLO mga05.intel.com"
+        id S2390937AbgHQS3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 14:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729520AbgHQRfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 13:35:52 -0400
-IronPort-SDR: iZ2pkLIWgHb+zSuTuzJMGbddugSrXX70XPqpsjqLko2eejEvPfli81J6y/rN7E6UxP3FtY0SSz
- QVvI0H+0g4iA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="239586575"
-X-IronPort-AV: E=Sophos;i="5.76,324,1592895600"; 
-   d="scan'208";a="239586575"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2020 10:35:49 -0700
-IronPort-SDR: dvvwDmsrt5UqQV5AB+zOhs+Tfvhkis/zHiIHAJtkctXled78/ujgaUwhZDPT5n18ytZP9lc6x4
- Z05Ok352CRRA==
-X-IronPort-AV: E=Sophos;i="5.76,324,1592895600"; 
-   d="scan'208";a="292499642"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.160])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2020 10:35:49 -0700
-Date:   Mon, 17 Aug 2020 10:35:48 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        peterx@redhat.com, Yang Weijiang <weijiang.yang@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] selftests: kvm: Use a shorter encoding to clear RAX
-Message-ID: <20200817173548.GH22407@linux.intel.com>
-References: <20200817172034.26673-1-pbonzini@redhat.com>
+        id S2388164AbgHQQBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 12:01:51 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A6520748;
+        Mon, 17 Aug 2020 16:01:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597680111;
+        bh=i4zhqUPJ+dMplr2JiLDz7Y+XOtarvFX1bYE2TU8H5W8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HGrDIrupNetaG0VMjT55UOYGFI7Kq52pVgsIf6y4tWTHkDGFBaf6ATG3VOZaTvvoq
+         tvlHhiYPZLuT5HlGlQqhmgnzwCQ80f/4e1qa1gXZ6T2QhbydcncEblC8JiTxlggZEq
+         8MfiE3FzECssmL6563DZPS4mb0pd0kLFcCKO4aYU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 029/270] ARM: dts: sunxi: bananapi-m2-plus-v1.2: Add regulator supply to all CPU cores
+Date:   Mon, 17 Aug 2020 17:13:50 +0200
+Message-Id: <20200817143757.249740757@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200817143755.807583758@linuxfoundation.org>
+References: <20200817143755.807583758@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200817172034.26673-1-pbonzini@redhat.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 01:20:34PM -0400, Paolo Bonzini wrote:
-> From: Yang Weijiang <weijiang.yang@intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-This shouldn't be here without Weijiang's SOB.
+[ Upstream commit 55b271af765b0e03d1ff29502f81644b1a3c87fd ]
 
-> If debug_regs.c is built with newer binutils, the resulting binary is "optimized"
-> by the assembler:
-> 
-> asm volatile("ss_start: "
->              "xor %%rax,%%rax\n\t"
->              "cpuid\n\t"
->              "movl $0x1a0,%%ecx\n\t"
->              "rdmsr\n\t"
->              : : : "rax", "ecx");
-> 
-> is translated to :
-> 
->   000000000040194e <ss_start>:
->   40194e:       31 c0                   xor    %eax,%eax     <----- rax->eax?
->   401950:       0f a2                   cpuid
->   401952:       b9 a0 01 00 00          mov    $0x1a0,%ecx
->   401957:       0f 32                   rdmsr
-> 
-> As you can see rax is replaced with eax in target binary code.
-> This causes a difference is the length of xor instruction (2 Byte vs 3 Byte),
-> and makes the hard-coded instruction length check fail:
-> 
->         /* Instruction lengths starting at ss_start */
->         int ss_size[4] = {
->                 3,              /* xor */   <-------- 2 or 3?
->                 2,              /* cpuid */
->                 5,              /* mov */
->                 2,              /* rdmsr */
->         };
-> 
-> Encode the shorter version directly and, while at it, fix the "clobbers"
-> of the asm.
-> 
-> Reported-by: Yang Weijiang <weijiang.yang@intel.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+The device tree currently only assigns the a supply for the first CPU
+core, when in reality the regulator supply is shared by all four cores.
+This might cause an issue if the implementation does not realize the
+sharing of the supply.
 
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Assign the same regulator supply to the remaining CPU cores to address
+this.
 
-> ---
->  tools/testing/selftests/kvm/x86_64/debug_regs.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/x86_64/debug_regs.c b/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> index 8162c58a1234..b8d14f9db5f9 100644
-> --- a/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> +++ b/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> @@ -40,11 +40,11 @@ static void guest_code(void)
->  
->  	/* Single step test, covers 2 basic instructions and 2 emulated */
->  	asm volatile("ss_start: "
-> -		     "xor %%rax,%%rax\n\t"
-> +		     "xor %%eax,%%eax\n\t"
->  		     "cpuid\n\t"
->  		     "movl $0x1a0,%%ecx\n\t"
->  		     "rdmsr\n\t"
-> -		     : : : "rax", "ecx");
-> +		     : : : "eax", "ebx", "ecx", "edx");
->  
->  	/* DR6.BD test */
->  	asm volatile("bd_start: mov %%dr0, %%rax" : : : "rax");
-> -- 
-> 2.26.2
-> 
+Fixes: 6eeb4180d4b9 ("ARM: dts: sunxi: h3-h5: Add Bananapi M2+ v1.2 device trees")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20200717160053.31191-3-wens@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+index 22466afd38a3a..a628b5ee72b65 100644
+--- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
++++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus-v1.2.dtsi
+@@ -28,3 +28,15 @@ reg_vdd_cpux: vdd-cpux {
+ &cpu0 {
+ 	cpu-supply = <&reg_vdd_cpux>;
+ };
++
++&cpu1 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
++
++&cpu2 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
++
++&cpu3 {
++	cpu-supply = <&reg_vdd_cpux>;
++};
+-- 
+2.25.1
+
+
+
