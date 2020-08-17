@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E06C5247749
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 583C724774A
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732664AbgHQTrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732611AbgHQTrR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Aug 2020 15:47:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42572 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729207AbgHQPUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:20:44 -0400
+        id S1729290AbgHQPUq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:20:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FF1A207DA;
-        Mon, 17 Aug 2020 15:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6BED207FF;
+        Mon, 17 Aug 2020 15:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597677643;
-        bh=8JV+rmwC4TMJFgVYMg7/BZTrgWw4TMd4Hsvprj762is=;
+        s=default; t=1597677646;
+        bh=0/hszbWEWY+uc1pMJXENVvjhlqC59WOheY0I+GsN32Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0H4FHlt8u0Ct/km2/1NBNoHEJFubiJ5sopLZmCc7ZHp1RlcNyvG0ULELC8E4vad/
-         DWaxlsQhQQ5At5hEqkbHbsRbSA5Vpenn7vsFa/QCMu8x8CR9G6m57wrKbvnxqwo3Pf
-         U/MBdOhOPIbBLAOb776yCGpPTD+5FE6W4I9sqCLY=
+        b=Br5wSpYpGxSHA+dlaqG5ws97yRMzRk44twMKeXSLybz1xdG5fl58EwfLKAqTV8sX3
+         adcrhXzQE1DJkY9edwQ2duawJvmdvag9R+6WPQZ2G3omNymCvMb1vHfNW2guOrXem+
+         oKMz5K/JcorAS2ZvEpsvb5dtfgZ3Hk4IyVO1+cnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 026/464] firmware: arm_scmi: Fix SCMI genpd domain probing
-Date:   Mon, 17 Aug 2020 17:09:39 +0200
-Message-Id: <20200817143835.012940508@linuxfoundation.org>
+Subject: [PATCH 5.8 027/464] arm64: dts: sun50i-pinephone: dldo4 must not be >= 1.8V
+Date:   Mon, 17 Aug 2020 17:09:40 +0200
+Message-Id: <20200817143835.062529551@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
 References: <20200817143833.737102804@linuxfoundation.org>
@@ -45,99 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit e0f1a30cf184821499eeb67daedd7a3f21bbcb0b ]
+[ Upstream commit 86be5c789690eb08656b08c072c50a7b02bf41f1 ]
 
-When, at probe time, an SCMI communication failure inhibits the capacity
-to query power domains states, such domains should be skipped.
+Some outputs from the RTL8723CS are connected to the PL port (BT_WAKE_AP),
+which runs at 1.8V. When BT_WAKE_AP is high, the PL pin this signal is
+connected to is overdriven, and the whole PL port's voltage rises
+somewhat. This results in changing voltage on the R_PWM pin (PL10),
+which is the cause for backlight flickering very noticeably when typing
+on a Bluetooth keyboard, because backlight intensity is highly sensitive
+to the voltage of the R_PWM pin.
 
-Registering partially initialized SCMI power domains with genpd will
-causes kernel panic.
+Limit the maximum WiFi/BT I/O voltage to 1.8V to avoid overdriving
+the PL port pins via BT and WiFi IO port signals. WiFi and BT
+functionality is unaffected by this change.
 
- arm-scmi timed out in resp(caller: scmi_power_state_get+0xa4/0xd0)
- scmi-power-domain scmi_dev.2: failed to get state for domain 9
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
- Mem abort info:
-   ESR = 0x96000006
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000006
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=00000009f3691000
- [0000000000000000] pgd=00000009f1ca0003, p4d=00000009f1ca0003, pud=00000009f35ea003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- CPU: 2 PID: 381 Comm: bash Not tainted 5.8.0-rc1-00011-gebd118c2cca8 #2
- Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jan  3 2020
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- pstate: 80000005 (Nzcv daif -PAN -UAO BTYPE=--)
- pc : of_genpd_add_provider_onecell+0x98/0x1f8
- lr : of_genpd_add_provider_onecell+0x48/0x1f8
- Call trace:
-  of_genpd_add_provider_onecell+0x98/0x1f8
-  scmi_pm_domain_probe+0x174/0x1e8
-  scmi_dev_probe+0x90/0xe0
-  really_probe+0xe4/0x448
-  driver_probe_device+0xfc/0x168
-  device_driver_attach+0x7c/0x88
-  bind_store+0xe8/0x128
-  drv_attr_store+0x2c/0x40
-  sysfs_kf_write+0x4c/0x60
-  kernfs_fop_write+0x114/0x230
-  __vfs_write+0x24/0x50
-  vfs_write+0xbc/0x1e0
-  ksys_write+0x70/0xf8
-  __arm64_sys_write+0x24/0x30
-  el0_svc_common.constprop.3+0x94/0x160
-  do_el0_svc+0x2c/0x98
-  el0_sync_handler+0x148/0x1a8
-  el0_sync+0x158/0x180
+This completely stops the backlight flicker when using bluetooth.
 
-Do not register any power domain that failed to be queried with genpd.
-
-Fixes: 898216c97ed2 ("firmware: arm_scmi: add device power domain support using genpd")
-Link: https://lore.kernel.org/r/20200619220330.12217-1-cristian.marussi@arm.com
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 91f480d40942 ("arm64: dts: allwinner: Add initial support for Pine64 PinePhone")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Link: https://lore.kernel.org/r/20200703194842.111845-4-megous@megous.com
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/scmi_pm_domain.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-index bafbfe358f97d..9e44479f02842 100644
---- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
-+++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-@@ -85,7 +85,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 	for (i = 0; i < num_domains; i++, scmi_pd++) {
- 		u32 state;
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index cefda145c3c9d..342733a20c337 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -279,7 +279,7 @@ &reg_dldo3 {
  
--		domains[i] = &scmi_pd->genpd;
-+		if (handle->power_ops->state_get(handle, i, &state)) {
-+			dev_warn(dev, "failed to get state for domain %d\n", i);
-+			continue;
-+		}
+ &reg_dldo4 {
+ 	regulator-min-microvolt = <1800000>;
+-	regulator-max-microvolt = <3300000>;
++	regulator-max-microvolt = <1800000>;
+ 	regulator-name = "vcc-wifi-io";
+ };
  
- 		scmi_pd->domain = i;
- 		scmi_pd->handle = handle;
-@@ -94,13 +97,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 		scmi_pd->genpd.power_off = scmi_pd_power_off;
- 		scmi_pd->genpd.power_on = scmi_pd_power_on;
- 
--		if (handle->power_ops->state_get(handle, i, &state)) {
--			dev_warn(dev, "failed to get state for domain %d\n", i);
--			continue;
--		}
--
- 		pm_genpd_init(&scmi_pd->genpd, NULL,
- 			      state == SCMI_POWER_STATE_GENERIC_OFF);
-+
-+		domains[i] = &scmi_pd->genpd;
- 	}
- 
- 	scmi_pd_data->domains = domains;
 -- 
 2.25.1
 
