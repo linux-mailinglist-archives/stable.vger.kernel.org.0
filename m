@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3EB624748E
-	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5844224747C
+	for <lists+stable@lfdr.de>; Mon, 17 Aug 2020 21:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731705AbgHQTL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 15:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
+        id S2392094AbgHQTKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 15:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730716AbgHQPlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:41:08 -0400
+        id S1730768AbgHQPlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 11:41:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF7C120825;
-        Mon, 17 Aug 2020 15:41:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2122020760;
+        Mon, 17 Aug 2020 15:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597678868;
-        bh=K1Ma8cAdRm4cq5FiYwAP+gpk459mF5A3ggKalD13s7U=;
+        s=default; t=1597678904;
+        bh=RHEKZ6I/+5OeDI3eloga0sMl+G/igcSeiT7G2cBFdFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0y5y9z0g5wHE9RfdzPupqS8rhx+uz5mpTxt0e3yMYfK2i/UCFc83bQmRa9Pc93L3u
-         NKDRuaEjXymQCK04emfMT92pkGNEFR5JWR/GR+05jvii/Cf552B71HsStfD7zSfZ4x
-         fkvd5+6JDbUgb86rApw9o4i5X8uSJ9zq0w5+g2Rs=
+        b=R3kEyt1sGL0y3UmzOw/34p3rl6o044D+nyJzoxo3krQ3G+9kLg0wrWZtzsH6KFPZU
+         ecxwiSlYNJNuK5Das0tALYEXp+4ebt4xJ4V8j68IAYcM7L1PgeSwQ5IGsfV3qXRuVX
+         hIJ3dIVx/nFaHn5wXrrYIp/gBac4HB8Dl6ieOZxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thierry Reding <treding@nvidia.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 018/393] memory: tegra: Fix an error handling path in tegra186_emc_probe()
-Date:   Mon, 17 Aug 2020 17:11:08 +0200
-Message-Id: <20200817143820.472375761@linuxfoundation.org>
+Subject: [PATCH 5.7 022/393] rcu/tree: Repeat the monitor if any free channel is busy
+Date:   Mon, 17 Aug 2020 17:11:12 +0200
+Message-Id: <20200817143820.670019550@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200817143819.579311991@linuxfoundation.org>
 References: <20200817143819.579311991@linuxfoundation.org>
@@ -45,79 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Uladzislau Rezki (Sony) <urezki@gmail.com>
 
-[ Upstream commit c3d4eb3bf6ad32466555b31094f33a299444f795 ]
+[ Upstream commit 594aa5975b9b5cfe9edaec06170e43b8c0607377 ]
 
-The call to tegra_bpmp_get() must be balanced by a call to
-tegra_bpmp_put() in case of error, as already done in the remove
-function.
+It is possible that one of the channels cannot be detached
+because its free channel is busy and previously queued data
+has not been processed yet. On the other hand, another
+channel can be successfully detached causing the monitor
+work to stop.
 
-Add an error handling path and corresponding goto.
+Prevent that by rescheduling the monitor work if there are
+any channels in the pending state after a detach attempt.
 
-Fixes: 52d15dd23f0b ("memory: tegra: Support DVFS on Tegra186 and later")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 34c881745549e ("rcu: Support kfree_bulk() interface in kfree_rcu()")
+Acked-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra186-emc.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ kernel/rcu/tree.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra186-emc.c b/drivers/memory/tegra/tegra186-emc.c
-index 97f26bc77ad41..c900948881d5b 100644
---- a/drivers/memory/tegra/tegra186-emc.c
-+++ b/drivers/memory/tegra/tegra186-emc.c
-@@ -185,7 +185,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 	if (IS_ERR(emc->clk)) {
- 		err = PTR_ERR(emc->clk);
- 		dev_err(&pdev->dev, "failed to get EMC clock: %d\n", err);
--		return err;
-+		goto put_bpmp;
- 	}
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index d9a49cd6065a2..a3aa129cc8f5f 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2895,7 +2895,7 @@ static void kfree_rcu_work(struct work_struct *work)
+ static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
+ {
+ 	struct kfree_rcu_cpu_work *krwp;
+-	bool queued = false;
++	bool repeat = false;
+ 	int i;
  
- 	platform_set_drvdata(pdev, emc);
-@@ -201,7 +201,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 	err = tegra_bpmp_transfer(emc->bpmp, &msg);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to EMC DVFS pairs: %d\n", err);
--		return err;
-+		goto put_bpmp;
- 	}
- 
- 	emc->debugfs.min_rate = ULONG_MAX;
-@@ -211,8 +211,10 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 
- 	emc->dvfs = devm_kmalloc_array(&pdev->dev, emc->num_dvfs,
- 				       sizeof(*emc->dvfs), GFP_KERNEL);
--	if (!emc->dvfs)
--		return -ENOMEM;
-+	if (!emc->dvfs) {
-+		err = -ENOMEM;
-+		goto put_bpmp;
-+	}
- 
- 	dev_dbg(&pdev->dev, "%u DVFS pairs:\n", emc->num_dvfs);
- 
-@@ -237,7 +239,7 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 			"failed to set rate range [%lu-%lu] for %pC\n",
- 			emc->debugfs.min_rate, emc->debugfs.max_rate,
- 			emc->clk);
--		return err;
-+		goto put_bpmp;
- 	}
- 
- 	emc->debugfs.root = debugfs_create_dir("emc", NULL);
-@@ -254,6 +256,10 @@ static int tegra186_emc_probe(struct platform_device *pdev)
- 			    emc, &tegra186_emc_debug_max_rate_fops);
- 
- 	return 0;
+ 	lockdep_assert_held(&krcp->lock);
+@@ -2931,11 +2931,14 @@ static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
+ 			 * been detached following each other, one by one.
+ 			 */
+ 			queue_rcu_work(system_wq, &krwp->rcu_work);
+-			queued = true;
+ 		}
 +
-+put_bpmp:
-+	tegra_bpmp_put(emc->bpmp);
-+	return err;
++		/* Repeat if any "free" corresponding channel is still busy. */
++		if (krcp->bhead || krcp->head)
++			repeat = true;
+ 	}
+ 
+-	return queued;
++	return !repeat;
  }
  
- static int tegra186_emc_remove(struct platform_device *pdev)
+ static inline void kfree_rcu_drain_unlock(struct kfree_rcu_cpu *krcp,
 -- 
 2.25.1
 
