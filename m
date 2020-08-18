@@ -2,92 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5750F2480AD
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 10:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 509AB2480D3
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 10:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726408AbgHRIcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 04:32:21 -0400
-Received: from smtprelay0109.hostedemail.com ([216.40.44.109]:35686 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726043AbgHRIcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 04:32:19 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay05.hostedemail.com (Postfix) with ESMTP id 92E4E18029129;
-        Tue, 18 Aug 2020 08:32:17 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 50,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:967:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1538:1568:1593:1594:1711:1714:1730:1747:1777:1792:2393:2525:2553:2560:2563:2682:2685:2828:2859:2933:2937:2939:2942:2945:2947:2951:2954:3022:3138:3139:3140:3141:3142:3622:3866:3867:3873:3874:3934:3936:3938:3941:3944:3947:3950:3953:3956:3959:4321:5007:6742:7576:7903:8985:9025:10004:10400:10848:11232:11658:11914:12043:12048:12296:12297:12740:12760:12895:13069:13311:13357:13439:14181:14659:14721:21080:21627:21788:21939:30054:30090:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
-X-HE-Tag: brick48_020b1d72701d
-X-Filterd-Recvd-Size: 2975
-Received: from XPS-9350.home (unknown [47.151.133.149])
-        (Authenticated sender: joe@perches.com)
-        by omf11.hostedemail.com (Postfix) with ESMTPA;
-        Tue, 18 Aug 2020 08:32:14 +0000 (UTC)
-Message-ID: <3ae89ad82dca2cf0adeba9d7d07f3c76ce577c39.camel@perches.com>
-Subject: Re: [PATCH v2] lib/string.c: implement stpcpy
-From:   Joe Perches <joe@perches.com>
-To:     David Laight <David.Laight@ACULAB.COM>,
-        'Nick Desaulniers' <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Kees Cook <keescook@chromium.org>
-Cc:     Sedat Dilek <sedat.dilek@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?ISO-8859-1?Q?D=E1vid_Bolvansk=FD?= <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>, Ingo Molnar <mingo@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Date:   Tue, 18 Aug 2020 01:32:12 -0700
-In-Reply-To: <77557c29286140dea726cc334b4f59fc@AcuMS.aculab.com>
-References: <20200815014006.GB99152@rani.riverdale.lan>
-         <20200815020946.1538085-1-ndesaulniers@google.com>
-         <202008150921.B70721A359@keescook>
-         <CAKwvOdnyHfx6ayqEoOr3pb_ibKBAG9vj31LuKE+f712W=7LFKA@mail.gmail.com>
-         <457a91183581509abfa00575d0392be543acbe07.camel@perches.com>
-         <CAKwvOdk4PRi45MXCtg4kmeN6c1AK5w9EJ1XFBJ5GyUjwEtRj1g@mail.gmail.com>
-         <ccacb2a860151fdd6ce95371f1e0cd7658a308d1.camel@perches.com>
-         <CAKwvOd=QkpmdWHAvWVFtogsDom2z_fA4XmDF6aLqz1czjSgZbQ@mail.gmail.com>
-         <20200816001917.4krsnrik7hxxfqfm@google.com>
-         <CA+icZUW=rQ-e=mmYWsgVns8jDoQ=FJ7kdem1fWnW_i5jx-6JzQ@mail.gmail.com>
-         <20200816150217.GA1306483@rani.riverdale.lan>
-         <CABCJKucsXufD6rmv7qQZ=9kLC7XrngCJkKA_WzGOAn-KfcObeA@mail.gmail.com>
-         <CAKwvOd=Ns4_+amT8P-7yQ56xUdDmL=1zDUThF-OmFKhexhJPdg@mail.gmail.com>
-         <77557c29286140dea726cc334b4f59fc@AcuMS.aculab.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.36.4-0ubuntu1 
+        id S1726583AbgHRIjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 04:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53016 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726165AbgHRIjm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 04:39:42 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E77EC061342
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 01:39:41 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id v22so14607486edy.0
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 01:39:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=tessares-net.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=krt9y06sw5wM2zdZFK7qEmdsIbp+8Mc5QP6cjH66RXM=;
+        b=aH58BYaZShWH3cj1RrQx0g8nyuALUOKEKJNmmJ0ZcgEs7hH/S+7VcyXHBahIg8vEt8
+         giAkc5JtdgzqbGdSx3ut4A7jSccgRD8MqZF7bl38pTeU96DfqrC3CIDVxzX/MXxSguqW
+         KX9yggIVA5cmAibivEjF0Rcck4aHpgyccqutF6jJwjtRbvMvlyJBlyyYjg+iSO9mLasc
+         n2aNvT98w9OniATPNU4TQbbh22NJGKv+eI7RZgZ3zrKOgnL7yeAr9mPOtf/tB+1/fYkc
+         yIFt+5LN18clc7l1wP+vuaBXth9lYBjcy9hsimYznFssno0B702IPSSm8+JDqajK2uZc
+         ppMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=krt9y06sw5wM2zdZFK7qEmdsIbp+8Mc5QP6cjH66RXM=;
+        b=VDvc3pKfwOsO95HINb75ba6Z9gEmDi0LLn1hUuuHn9uIpzbelL8vciZ+7gri8ORtEf
+         jaPisDH+pFxD8N1XksFdGHnKTcKV+dz8Qs2StxQibvO3VIpIrhR2WEt9kKxjtmhexhWR
+         OytpBq8S6G9m1DvIUvmoCU+aAZhcisqNeXe+zVo8Y0Mtm4iC3Y4l0kyitnOflolw3SAo
+         YXhdB2rNN4wPXAcChlXsfHaA52lp+mL7LUlQh6iFWDzm/Q6dunCToVCZCto8Ruo5RziN
+         KT2D9KWBlo5nmYTArSbr/zmWVuGgHvcDGPHaYsxGrCOi0+CQi/V4L9WnLzZQvpODuBAV
+         KF/w==
+X-Gm-Message-State: AOAM530WJrH5RGiNfBh+SjclVVZ+7bmNToyCGxbKo8yhwLEC6HzBAIgR
+        Fb0JxtoSLE/0H2XNKVEIYKKTTQWRjKb9PePp
+X-Google-Smtp-Source: ABdhPJxN/TH+0WNfCS1NTLaJN2eVMsP73HpIhJZbmoUAK8L248zBAVsNcbUhObEWWURbLfBmDvhJoA==
+X-Received: by 2002:aa7:dc44:: with SMTP id g4mr19052600edu.273.1597739979894;
+        Tue, 18 Aug 2020 01:39:39 -0700 (PDT)
+Received: from tsr-lap-08.nix.tessares.net ([2a02:a03f:5a32:bd00:41f1:972d:5bac:bf85])
+        by smtp.gmail.com with ESMTPSA id rv14sm15928157ejb.33.2020.08.18.01.39.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Aug 2020 01:39:39 -0700 (PDT)
+Subject: Re: Patch "net: refactor bind_bucket fastreuse into helper" has been
+ added to the 4.14-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     davem@davemloft.net, tim.froidcoeur@tessares.net,
+        stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>
+References: <159765838685222@kroah.com>
+ <9f27fa03-b205-9195-758c-c9c67b384a21@tessares.net>
+ <20200818070831.GB3333@kroah.com>
+ <bf040796-d96b-d9a3-589f-317eed1e299b@tessares.net>
+ <20200818072007.GA9254@kroah.com>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Message-ID: <00e0aca1-4516-0a8f-f09d-8d3b69db96f7@tessares.net>
+Date:   Tue, 18 Aug 2020 10:39:38 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <20200818072007.GA9254@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-08-18 at 08:24 +0000, David Laight wrote:
-> From: Nick Desaulniers
-> > Sent: 17 August 2020 19:37
-> ..
-> > That said, this libcall optimization/transformation (sprintf->stpcpy)
-> > does look useful to me.
+On 18/08/2020 09:20, Greg KH wrote:
+> On Tue, Aug 18, 2020 at 09:11:36AM +0200, Matthieu Baerts wrote:
+>> On 18/08/2020 09:08, Greg KH wrote:
+>>> On Mon, Aug 17, 2020 at 09:28:48PM +0200, Matthieu Baerts wrote:
+>>>> Hi Greg,
+>>>>
+>>>> On 17/08/2020 11:59, gregkh@linuxfoundation.org wrote:
+>>>>>
+>>>>> This is a note to let you know that I've just added the patch titled
+>>>>>
+>>>>>        net: refactor bind_bucket fastreuse into helper
+>>>>>
+>>>>> to the 4.14-stable tree which can be found at:
+>>>>>        http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>>>>
+>>>>> The filename of the patch is:
+>>>>>         net-refactor-bind_bucket-fastreuse-into-helper.patch
+>>>>> and it can be found in the queue-4.14 subdirectory.
+>>>>>
+>>>>> If you, or anyone else, feels it should not be added to the stable tree,
+>>>>> please let <stable@vger.kernel.org> know about it.
+>>>>
+>>>> (...)
+>>>>
+>>>>> Patches currently in stable-queue which might be from tim.froidcoeur@tessares.net are
+>>>>>
+>>>>> queue-4.14/net-refactor-bind_bucket-fastreuse-into-helper.patch
+>>>>
+>>>> Thank you for backporting this patch!
+>>>>
+>>>> It seems the backport of the companion patch -- d76f3351cea2 ("net:
+>>>> initialize fastreuse on inet_inherit_port") -- was lost somewhere for 4.14
+>>>> version. It was backported in all other newer stable versions: 5.8, 5.7,
+>>>> 5.4, 4.19 but not in 4.14.
+>>>> The patch backported here is a preparation for the real fix which is the
+>>>> missing patch.
+>>>>
+>>>> I guess the intention is to backport d76f3351cea2 to v4.14 as well. If not,
+>>>> this refactoring is maybe not needed :)
+>>>
+>>> Ugh, that was my fault, thanks for catching this.  I've now queued this
+>>> up to 4.14.y.
+>>
+>> Thank you for having added it!
+>>
+>> All these backported patches look good to me!
 > 
-> I'd rather get a cow if I ask for a cow...
+> Thanks for checking.
 > 
-> Maybe checkpatch (etc) could report places where snprintf()
-> could be replaced by a simpler function.
+> I stopped at 4.14.y as the code for 4.9.y and 4.4.y changed a bunch in
+> this area, do you think it's worth doing the backport to those really
+> old kernels?  If not, no big deal, I figured I would ask, as I couldn't
+> tell how realistic devices running them would hit this issue.
 
-You mean sprintf no?
+To be honest, my colleague Tim found the issue when looking at something 
+else on a RHEL 7 (based on a v3.10) kernel :)
+We noticed the behaviour with TPROXY was the same on the latest kernel.
 
-Reminds me of seq_printf vs seq_puts...
+The fix for the RHEL 7 kernel was even simpler with the code looking 
+more like what we have in 4.4.y where we have to move only the if/else 
+block:
 
-https://lkml.org/lkml/2013/3/16/79
+https://elixir.bootlin.com/linux/v4.4.232/source/net/ipv4/inet_connection_sock.c#L219
 
+In 4.9.y, tb->fast* variables are set with other code. It is indeed not 
+as simple to backport:
 
+https://elixir.bootlin.com/linux/v4.9.232/source/net/ipv4/inet_connection_sock.c#L221
+
+I don't know if there are many devices doing a transparent proxy and 
+using a kernel 4.4.y or 4.9.y. If you think it is needed to backport 
+this fix and if you need help, we can look at sending patches when we 
+are back from holidays.
+
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
