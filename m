@@ -2,104 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AC524900D
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 23:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7638249032
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 23:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726542AbgHRVZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 17:25:54 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55260 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725554AbgHRVZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 17:25:53 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07IL1b70131726;
-        Tue, 18 Aug 2020 17:25:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uGKVjuTepox1hkrUJadKQr8jHUclT1lem8qgj9dAFzw=;
- b=IGXtA00L6tHnq/lwmVRXGz9cgjmnKztMwy9aYgJPPxcVO/PPEz9PtJFOnr/ISLtYaqzP
- e54XGty8hGJa3bn50skV2CubqYzQ359PSKKg4kgx7aij1XPtumY2qZ0zJi35gbJO8Kve
- 2kmMqXTtwg4Uzp5MSGKXAYxow6JtRfk37lCdOzc/5ilS7YYu4ESgLvk5BkxUEtd89HFE
- LApxpD+7CZnw1aJKj9l1FVUM9DPKlqBrGSw+md3lXbIPuqBXv/k/aXL/SzDR5xdtBQR0
- LJLjtlc3+ZmYJ9MVoqcq6tZ0YHYdW+FUC+R1TqSqk70Zd2UM2eVgwifpsmMbMTMcJxK3 Jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3304rtmhb3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Aug 2020 17:25:51 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07IL1doR131812;
-        Tue, 18 Aug 2020 17:25:51 -0400
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3304rtmhas-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Aug 2020 17:25:50 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07ILOl5c025601;
-        Tue, 18 Aug 2020 21:25:49 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma01wdc.us.ibm.com with ESMTP id 3304tkex9t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Aug 2020 21:25:49 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07ILPm8N66650466
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Aug 2020 21:25:48 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB1FA6E052;
-        Tue, 18 Aug 2020 21:25:48 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6B4856E050;
-        Tue, 18 Aug 2020 21:25:48 +0000 (GMT)
-Received: from sbct-3.pok.ibm.com (unknown [9.47.158.153])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Aug 2020 21:25:48 +0000 (GMT)
-Subject: Re: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space
- buffer sizes" failed to apply to 4.14-stable tree
-From:   Stefan Berger <stefanb@linux.ibm.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        gregkh@linuxfoundation.org
-Cc:     jsnitsel@redhat.com, stable@vger.kernel.org
-References: <1597659249143217@kroah.com>
- <20200818153602.GA137059@linux.intel.com>
- <2f57d860-95b8-f4cb-8f3a-2e5078dbc566@linux.ibm.com>
-Message-ID: <b77e0d7d-a11e-0edb-224c-91dcf8057a63@linux.ibm.com>
-Date:   Tue, 18 Aug 2020 17:25:47 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726766AbgHRVfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 17:35:00 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:44812 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726372AbgHRVe4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 17:34:56 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 748AC1C0BB8; Tue, 18 Aug 2020 23:34:54 +0200 (CEST)
+Date:   Tue, 18 Aug 2020 23:34:53 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 073/168] media: firewire: Using uninitialized values
+ in node_probe()
+Message-ID: <20200818213453.GB25182@amd>
+References: <20200817143733.692105228@linuxfoundation.org>
+ <20200817143737.355562192@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <2f57d860-95b8-f4cb-8f3a-2e5078dbc566@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-18_14:2020-08-18,2020-08-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 priorityscore=1501 suspectscore=0 phishscore=0 spamscore=0
- impostorscore=0 adultscore=0 mlxscore=0 clxscore=1015 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008180144
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
+Content-Disposition: inline
+In-Reply-To: <20200817143737.355562192@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/18/20 2:54 PM, Stefan Berger wrote:
-> On 8/18/20 11:36 AM, Jarkko Sakkinen wrote:
->> Stefan, are you concerned of not having this in 4.14 and 4.19?
->
-> Yes. The problematic scenario is when libtpms  is updated to a version 
-> (future v0.8.0) that supports 3072 bit RSA keys and software inside a 
-> VM is using /dev/tpmrm0 and things start failing because of this. My 
-> hope would be that the distro run inside the VM has a way forward and 
-> the long term stable kernels seem to help here. Because of this 
-> scenario I have to delay the release of libtpms v0.8.0 for several 
-> months.
->
-I just ported it to 4.19.139 and will try to do the port to 4.14.191++ 
-as well. I will post it here once I ran some (basic) tests with it.
 
-    Stefan
+--pvezYHf7grwyp3Bc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> From: Dan Carpenter <dan.carpenter@oracle.com>
+>=20
+> [ Upstream commit 2505a210fc126599013aec2be741df20aaacc490 ]
+>=20
+> If fw_csr_string() returns -ENOENT, then "name" is uninitialized.  So
+> then the "strlen(model_names[i]) <=3D name_len" is true because strlen()
+> is unsigned and -ENOENT is type promoted to a very high positive value.
+> Then the "strncmp(name, model_names[i], name_len)" uses uninitialized
+> data because "name" is uninitialized.
+
+This causes memory leak, AFAICT.
+
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+								Pavel
+
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/f=
+iredtv-fw.c
+index eaf94b817dbc..2ac9d24d3f0c 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -271,8 +271,10 @@ static int node_probe(struct fw_unit *unit, const stru=
+ct ieee1394_device_id *id)
+=20
+ 	name_len =3D fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
+-	if (name_len < 0)
+-		return name_len;
++	if (name_len < 0) {
++		err =3D name_len;
++		goto fail_free;
++	}
+ 	for (i =3D ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <=3D name_len &&
+ 		    strncmp(name, model_names[i], name_len) =3D=3D 0)
 
 
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--pvezYHf7grwyp3Bc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl88SX0ACgkQMOfwapXb+vI6YQCglanJAWy5M2+yqIDcVnaJjLnA
+cCcAnR5rfyY8Pk/j/uo1uVKXyK0zUtkw
+=XDJf
+-----END PGP SIGNATURE-----
+
+--pvezYHf7grwyp3Bc--
