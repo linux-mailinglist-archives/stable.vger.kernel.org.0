@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ACE2483D5
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523922483EA
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726568AbgHRLbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 07:31:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43906 "EHLO mail.kernel.org"
+        id S1726651AbgHRLdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 07:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726652AbgHRLac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 07:30:32 -0400
+        id S1726605AbgHRLcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 07:32:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C39B620706;
-        Tue, 18 Aug 2020 11:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0883820706;
+        Tue, 18 Aug 2020 11:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597749764;
-        bh=KYq/CpRYz8ekAGlZbuq57hmw3vYmHreGPGO00uWCNJI=;
+        s=default; t=1597750354;
+        bh=w1spHmsLGnmBuFMgWn45ulhif+nNBMDndtky+6rf9iM=;
         h=Subject:To:From:Date:From;
-        b=mEtPF8z8eslSABUu8Vj5HSdXNpqmLk8sno8vI1yzCI6/duucDvQut3K4OR8llkN38
-         JKTrzuqaHM5prlJEom+EXdUehGDU16f0MjB5/K0kpK5JmcTCpACZscGm2LMBfiR08b
-         Xtemw8Wxmyz9TzNnEaQ8EwbTaMwDzmGTfPUZf+1U=
-Subject: patch "fbcon: prevent user font height or width change from causing" added to tty-linus
-To:     george.kennedy@oracle.com, gregkh@linuxfoundation.org,
+        b=hxZJjo7zp05NqRxJ5SYr6soYwmzXDH8V9C7hMVPCXjSmYc4W56EU8q2PugS1DWZbI
+         T5dcQWyo+YKfaFVOjgZ7fHXuEWUKmoXnYRB+StHuf07kxXGw/FyRrBv2kitor4Ik4x
+         bjgvqRFH+glGesDYpB9HmVVRyjpBd/HdOnFrq1Ko=
+Subject: patch "serial: stm32: avoid kernel warning on absence of optional IRQ" added to tty-linus
+To:     h.assmann@pengutronix.de, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Aug 2020 13:23:08 +0200
-Message-ID: <159774978811011@kroah.com>
+Date:   Tue, 18 Aug 2020 13:32:53 +0200
+Message-ID: <15977503731225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    fbcon: prevent user font height or width change from causing
+    serial: stm32: avoid kernel warning on absence of optional IRQ
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,83 +55,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 39b3cffb8cf3111738ea993e2757ab382253d86a Mon Sep 17 00:00:00 2001
-From: George Kennedy <george.kennedy@oracle.com>
-Date: Fri, 31 Jul 2020 12:33:11 -0400
-Subject: fbcon: prevent user font height or width change from causing
- potential out-of-bounds access
+From fdf16d78941b4f380753053d229955baddd00712 Mon Sep 17 00:00:00 2001
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Thu, 13 Aug 2020 17:27:57 +0200
+Subject: serial: stm32: avoid kernel warning on absence of optional IRQ
 
-Add a check to fbcon_resize() to ensure that a possible change to user font
-height or user font width will not allow a font data out-of-bounds access.
-NOTE: must use original charcount in calculation as font charcount can
-change and cannot be used to determine the font data allocated size.
+stm32_init_port() of the stm32-usart may trigger a warning in
+platform_get_irq() when the device tree specifies no wakeup interrupt.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+The wakeup interrupt is usually a board-specific GPIO and the driver
+functions correctly in its absence. The mainline stm32mp151.dtsi does
+not specify it, so all mainline device trees trigger an unnecessary
+kernel warning. Use of platform_get_irq_optional() avoids this.
+
+Fixes: 2c58e56096dd ("serial: stm32: fix the get_irq error case")
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
 Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-1-git-send-email-george.kennedy@oracle.com
+Link: https://lore.kernel.org/r/20200813152757.32751-1-h.assmann@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 8a31fc2b2258..66167830fefd 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2191,6 +2191,9 @@ static void updatescrollmode(struct fbcon_display *p,
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 143300a80090..ba503dd04ce2 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -970,7 +970,7 @@ static int stm32_init_port(struct stm32_port *stm32port,
+ 		return ret;
+ 
+ 	if (stm32port->info->cfg.has_wakeup) {
+-		stm32port->wakeirq = platform_get_irq(pdev, 1);
++		stm32port->wakeirq = platform_get_irq_optional(pdev, 1);
+ 		if (stm32port->wakeirq <= 0 && stm32port->wakeirq != -ENXIO)
+ 			return stm32port->wakeirq ? : -ENODEV;
  	}
- }
- 
-+#define PITCH(w) (((w) + 7) >> 3)
-+#define CALC_FONTSZ(h, p, c) ((h) * (p) * (c)) /* size = height * pitch * charcount */
-+
- static int fbcon_resize(struct vc_data *vc, unsigned int width, 
- 			unsigned int height, unsigned int user)
- {
-@@ -2200,6 +2203,24 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
- 
-+	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+		int size;
-+		int pitch = PITCH(vc->vc_font.width);
-+
-+		/*
-+		 * If user font, ensure that a possible change to user font
-+		 * height or width will not allow a font data out-of-bounds access.
-+		 * NOTE: must use original charcount in calculation as font
-+		 * charcount can change and cannot be used to determine the
-+		 * font data allocated size.
-+		 */
-+		if (pitch <= 0)
-+			return -EINVAL;
-+		size = CALC_FONTSZ(vc->vc_font.height, pitch, FNTCHARCNT(vc->vc_font.data));
-+		if (size > FNTSIZE(vc->vc_font.data))
-+			return -EINVAL;
-+	}
-+
- 	virt_w = FBCON_SWAP(ops->rotate, width, height);
- 	virt_h = FBCON_SWAP(ops->rotate, height, width);
- 	virt_fw = FBCON_SWAP(ops->rotate, vc->vc_font.width,
-@@ -2652,7 +2673,7 @@ static int fbcon_set_font(struct vc_data *vc, struct console_font *font,
- 	int size;
- 	int i, csum;
- 	u8 *new_data, *data = font->data;
--	int pitch = (font->width+7) >> 3;
-+	int pitch = PITCH(font->width);
- 
- 	/* Is there a reason why fbconsole couldn't handle any charcount >256?
- 	 * If not this check should be changed to charcount < 256 */
-@@ -2668,7 +2689,7 @@ static int fbcon_set_font(struct vc_data *vc, struct console_font *font,
- 	if (fbcon_invalid_charcount(info, charcount))
- 		return -EINVAL;
- 
--	size = h * pitch * charcount;
-+	size = CALC_FONTSZ(h, pitch, charcount);
- 
- 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
- 
 -- 
 2.28.0
 
