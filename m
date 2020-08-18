@@ -2,226 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4DA2489F6
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B8D248A1A
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbgHRPgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 11:36:05 -0400
-Received: from mga12.intel.com ([192.55.52.136]:45697 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726585AbgHRPgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:36:05 -0400
-IronPort-SDR: 8ZHthcML3nNH8jY3sar1sMG0Skgryk/aqfUEE3WnKrDVvLeA8CMd3GI502uwWAqXZbAXfV0Cqv
- src3yvnFwB4g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="134451438"
-X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
-   d="scan'208";a="134451438"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2020 08:36:04 -0700
-IronPort-SDR: k0729j/64Nojw6qqEFlOkaNR7Eph6Y6yS8XDC/CqFnVtSbNxbFvuYe9ZL6kIZLRa5GvoTDOXzJ
- +Cb408QG4y8Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
-   d="scan'208";a="497408127"
-Received: from ribnhajh-mobl.ger.corp.intel.com (HELO localhost) ([10.249.47.113])
-  by fmsmga005.fm.intel.com with ESMTP; 18 Aug 2020 08:36:03 -0700
-Date:   Tue, 18 Aug 2020 18:36:02 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     gregkh@linuxfoundation.org, stefanb@linux.ibm.com
-Cc:     jsnitsel@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space
- buffer sizes" failed to apply to 4.14-stable tree
-Message-ID: <20200818153602.GA137059@linux.intel.com>
-References: <1597659249143217@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1597659249143217@kroah.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+        id S1726624AbgHRPkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 11:40:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34872 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726701AbgHRPjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 11:39:44 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1397AC061389
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:39:29 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id p25so18674642qkp.2
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:39:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=JlEbaHYaR5iCAEHZAy8fYMv93f5e3wjmXyGrPqhBCZY=;
+        b=G8WqgCJWf/cSOJWN1YwgLgYjl7wOqScGHsqWTRi0Oic2r+4MJ/iqaPsff45VFfef/5
+         JHxx40McViCZ8m/7Vt2xwrEHQLRjWP0QWHn+LMFfRGRTS0yTNkU1VeYZ1SbNC1hsdI0+
+         ybq8zraAr5I2inGeX+qhNqJRhd9b2bJx8A+w/+pmq7Tdk/E958S+PTl3U1beawBHzczw
+         brnXjYD9zWOju60MpHKxE91f51DcuwGloiXIllkaNMm5Q75+6Zj3qfk2+gwMlxFy0hWs
+         GkOkCc+xydDNUwFsZFszmFbPoiQpXoNYCIZr3+q3frtzGXNywPZA1oQQPRauNmVfoBxq
+         TCrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=JlEbaHYaR5iCAEHZAy8fYMv93f5e3wjmXyGrPqhBCZY=;
+        b=NxGwHd8FTZ8frAv0LsMxtWzNJJPMH169wUIk5/uXjWwcMAELdGbMa4ksg3n7nVzA7K
+         vzoxdOAxp/aCMZ+mk6t+bHbGW9ppnJK67K7MOVs0f/Kzorpo8Dh5WrPDws/KlbST6oOd
+         FETHRtueWol3zZRVIrDXKg53dmYZVbju0DD2mjtSUU4e3mzvQp1BH6FpebpXRpG2IEUq
+         82w3mzczsheWBCi1dSQ8jIz5yPKb8g6VQLJKboBQ+BV8KE/phnA5DGpA3J8pdAvhiYZA
+         6Npm+cl5iA4L98tFC+LtQVtxtlCJJmwF0MITI7dMg85UXixhGfOhcZbUWpPx2H0MMQ0d
+         4P8w==
+X-Gm-Message-State: AOAM531mEsvgcCV9WkmKH3/BOIehIiMg4RxuYS7X9n9qoekhUktLXaes
+        nnuqk1QG1/w+sU9qBapWc6qGwg==
+X-Google-Smtp-Source: ABdhPJyWrXPmAGKOml4LMyT67XExakcnnORvvugGrEJfCi/AFsob84q06g44W5yAWZ95MQk8gtT1sw==
+X-Received: by 2002:a37:a848:: with SMTP id r69mr17014058qke.58.1597765168772;
+        Tue, 18 Aug 2020 08:39:28 -0700 (PDT)
+Received: from localhost (mobile-166-170-57-144.mycingular.net. [166.170.57.144])
+        by smtp.gmail.com with ESMTPSA id a20sm23937189qtw.45.2020.08.18.08.39.28
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 18 Aug 2020 08:39:28 -0700 (PDT)
+From:   Sean Paul <sean@poorly.run>
+To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        juston.li@intel.com, jani.nikula@linux.intel.com,
+        joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com,
+        anshuman.gupta@intel.com
+Cc:     ville.syrjala@linux.intel.com, daniel.vetter@ffwll.ch,
+        Sean Paul <seanpaul@chromium.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Ramalingam C <ramalingm.c@intel.com>
+Subject: [PATCH v8 01/17] drm/i915: Fix sha_text population code
+Date:   Tue, 18 Aug 2020 11:38:49 -0400
+Message-Id: <20200818153910.27894-2-sean@poorly.run>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200818153910.27894-1-sean@poorly.run>
+References: <20200818153910.27894-1-sean@poorly.run>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stefan, are you concerned of not having this in 4.14 and 4.19?
+From: Sean Paul <seanpaul@chromium.org>
 
-/Jarkko
+This patch fixes a few bugs:
 
-On Mon, Aug 17, 2020 at 12:14:09PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 6c4e79d99e6f42b79040f1a33cd4018f5425030b Mon Sep 17 00:00:00 2001
-> From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Date: Fri, 3 Jul 2020 01:55:59 +0300
-> Subject: [PATCH] tpm: Unify the mismatching TPM space buffer sizes
-> 
-> The size of the buffers for storing context's and sessions can vary from
-> arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
-> maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
-> enough for most use with three handles (that is how many we allow at the
-> moment). Parametrize the buffer size while doing this, so that it is easier
-> to revisit this later on if required.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Stefan Berger <stefanb@linux.ibm.com>
-> Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
-> Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> Tested-by: Stefan Berger <stefanb@linux.ibm.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index 8c77e88012e9..ddaeceb7e109 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -386,13 +386,8 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	chip->cdev.owner = THIS_MODULE;
->  	chip->cdevs.owner = THIS_MODULE;
->  
-> -	chip->work_space.context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-> -	if (!chip->work_space.context_buf) {
-> -		rc = -ENOMEM;
-> -		goto out;
-> -	}
-> -	chip->work_space.session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-> -	if (!chip->work_space.session_buf) {
-> +	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
-> +	if (rc) {
->  		rc = -ENOMEM;
->  		goto out;
->  	}
-> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-> index 0fbcede241ea..947d1db0a5cc 100644
-> --- a/drivers/char/tpm/tpm.h
-> +++ b/drivers/char/tpm/tpm.h
-> @@ -59,6 +59,9 @@ enum tpm_addr {
->  
->  #define TPM_TAG_RQU_COMMAND 193
->  
-> +/* TPM2 specific constants. */
-> +#define TPM2_SPACE_BUFFER_SIZE		16384 /* 16 kB */
-> +
->  struct	stclear_flags_t {
->  	__be16	tag;
->  	u8	deactivated;
-> @@ -228,7 +231,7 @@ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
->  int tpm2_probe(struct tpm_chip *chip);
->  int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip);
->  int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
-> -int tpm2_init_space(struct tpm_space *space);
-> +int tpm2_init_space(struct tpm_space *space, unsigned int buf_size);
->  void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
->  void tpm2_flush_space(struct tpm_chip *chip);
->  int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
-> diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
-> index 982d341d8837..784b8b3cb903 100644
-> --- a/drivers/char/tpm/tpm2-space.c
-> +++ b/drivers/char/tpm/tpm2-space.c
-> @@ -38,18 +38,21 @@ static void tpm2_flush_sessions(struct tpm_chip *chip, struct tpm_space *space)
->  	}
->  }
->  
-> -int tpm2_init_space(struct tpm_space *space)
-> +int tpm2_init_space(struct tpm_space *space, unsigned int buf_size)
->  {
-> -	space->context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-> +	space->context_buf = kzalloc(buf_size, GFP_KERNEL);
->  	if (!space->context_buf)
->  		return -ENOMEM;
->  
-> -	space->session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-> +	space->session_buf = kzalloc(buf_size, GFP_KERNEL);
->  	if (space->session_buf == NULL) {
->  		kfree(space->context_buf);
-> +		/* Prevent caller getting a dangling pointer. */
-> +		space->context_buf = NULL;
->  		return -ENOMEM;
->  	}
->  
-> +	space->buf_size = buf_size;
->  	return 0;
->  }
->  
-> @@ -311,8 +314,10 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
->  	       sizeof(space->context_tbl));
->  	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
->  	       sizeof(space->session_tbl));
-> -	memcpy(chip->work_space.context_buf, space->context_buf, PAGE_SIZE);
-> -	memcpy(chip->work_space.session_buf, space->session_buf, PAGE_SIZE);
-> +	memcpy(chip->work_space.context_buf, space->context_buf,
-> +	       space->buf_size);
-> +	memcpy(chip->work_space.session_buf, space->session_buf,
-> +	       space->buf_size);
->  
->  	rc = tpm2_load_space(chip);
->  	if (rc) {
-> @@ -492,7 +497,7 @@ static int tpm2_save_space(struct tpm_chip *chip)
->  			continue;
->  
->  		rc = tpm2_save_context(chip, space->context_tbl[i],
-> -				       space->context_buf, PAGE_SIZE,
-> +				       space->context_buf, space->buf_size,
->  				       &offset);
->  		if (rc == -ENOENT) {
->  			space->context_tbl[i] = 0;
-> @@ -509,9 +514,8 @@ static int tpm2_save_space(struct tpm_chip *chip)
->  			continue;
->  
->  		rc = tpm2_save_context(chip, space->session_tbl[i],
-> -				       space->session_buf, PAGE_SIZE,
-> +				       space->session_buf, space->buf_size,
->  				       &offset);
-> -
->  		if (rc == -ENOENT) {
->  			/* handle error saving session, just forget it */
->  			space->session_tbl[i] = 0;
-> @@ -557,8 +561,10 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
->  	       sizeof(space->context_tbl));
->  	memcpy(&space->session_tbl, &chip->work_space.session_tbl,
->  	       sizeof(space->session_tbl));
-> -	memcpy(space->context_buf, chip->work_space.context_buf, PAGE_SIZE);
-> -	memcpy(space->session_buf, chip->work_space.session_buf, PAGE_SIZE);
-> +	memcpy(space->context_buf, chip->work_space.context_buf,
-> +	       space->buf_size);
-> +	memcpy(space->session_buf, chip->work_space.session_buf,
-> +	       space->buf_size);
->  
->  	return 0;
->  out:
-> diff --git a/drivers/char/tpm/tpmrm-dev.c b/drivers/char/tpm/tpmrm-dev.c
-> index 7a0a7051a06f..eef0fb06ea83 100644
-> --- a/drivers/char/tpm/tpmrm-dev.c
-> +++ b/drivers/char/tpm/tpmrm-dev.c
-> @@ -21,7 +21,7 @@ static int tpmrm_open(struct inode *inode, struct file *file)
->  	if (priv == NULL)
->  		return -ENOMEM;
->  
-> -	rc = tpm2_init_space(&priv->space);
-> +	rc = tpm2_init_space(&priv->space, TPM2_SPACE_BUFFER_SIZE);
->  	if (rc) {
->  		kfree(priv);
->  		return -ENOMEM;
-> diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-> index 03e9b184411b..8f4ff39f51e7 100644
-> --- a/include/linux/tpm.h
-> +++ b/include/linux/tpm.h
-> @@ -96,6 +96,7 @@ struct tpm_space {
->  	u8 *context_buf;
->  	u32 session_tbl[3];
->  	u8 *session_buf;
-> +	u32 buf_size;
->  };
->  
->  struct tpm_bios_log {
-> 
+1- We weren't taking into account sha_leftovers when adding multiple
+   ksvs to sha_text. As such, we were or'ing the end of ksv[j - 1] with
+   the beginning of ksv[j]
+
+2- In the sha_leftovers == 2 and sha_leftovers == 3 case, bstatus was
+   being placed on the wrong half of sha_text, overlapping the leftover
+   ksv value
+
+3- In the sha_leftovers == 2 case, we need to manually terminate the
+   byte stream with 0x80 since the hardware doesn't have enough room to
+   add it after writing M0
+
+The upside is that all of the HDCP supported HDMI repeaters I could
+find on Amazon just strip HDCP anyways, so it turns out to be _really_
+hard to hit any of these cases without an MST hub, which is not (yet)
+supported. Oh, and the sha_leftovers == 1 case works perfectly!
+
+Fixes: ee5e5e7a5e0f (drm/i915: Add HDCP framework + base implementation)
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.17+
+Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191203173638.94919-2-sean@poorly.run #v1
+Link: https://patchwork.freedesktop.org/patch/msgid/20191212190230.188505-2-sean@poorly.run #v2
+Link: https://patchwork.freedesktop.org/patch/msgid/20200117193103.156821-2-sean@poorly.run #v3
+Link: https://patchwork.freedesktop.org/patch/msgid/20200218220242.107265-2-sean@poorly.run #v4
+Link: https://patchwork.freedesktop.org/patch/msgid/20200305201236.152307-2-sean@poorly.run #v5
+Link: https://patchwork.freedesktop.org/patch/msgid/20200429195502.39919-2-sean@poorly.run #v6
+Link: https://patchwork.freedesktop.org/patch/msgid/20200623155907.22961-2-sean@poorly.run #v7
+
+Changes in v2:
+-None
+Changes in v3:
+-None
+Changes in v4:
+-Rebased on intel_de_write changes
+Changes in v5:
+-None
+Changes in v6:
+-None
+Changes in v7:
+-None
+Changes in v8:
+-None
+---
+ drivers/gpu/drm/i915/display/intel_hdcp.c | 26 +++++++++++++++++------
+ include/drm/drm_hdcp.h                    |  3 +++
+ 2 files changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
+index 89a4d294822d..6189b7583277 100644
+--- a/drivers/gpu/drm/i915/display/intel_hdcp.c
++++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
+@@ -336,8 +336,10 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 
+ 		/* Fill up the empty slots in sha_text and write it out */
+ 		sha_empty = sizeof(sha_text) - sha_leftovers;
+-		for (j = 0; j < sha_empty; j++)
+-			sha_text |= ksv[j] << ((sizeof(sha_text) - j - 1) * 8);
++		for (j = 0; j < sha_empty; j++) {
++			u8 off = ((sizeof(sha_text) - j - 1 - sha_leftovers) * 8);
++			sha_text |= ksv[j] << off;
++		}
+ 
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+@@ -435,7 +437,7 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 		/* Write 32 bits of text */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24 | bstatus[1] << 16;
++		sha_text |= bstatus[0] << 8 | bstatus[1];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+@@ -450,17 +452,29 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 				return ret;
+ 			sha_idx += sizeof(sha_text);
+ 		}
++
++		/*
++		 * Terminate the SHA-1 stream by hand. For the other leftover
++		 * cases this is appended by the hardware.
++		 */
++		intel_de_write(dev_priv, HDCP_REP_CTL,
++			       rep_ctl | HDCP_SHA1_TEXT_32);
++		sha_text = DRM_HDCP_SHA1_TERMINATOR << 24;
++		ret = intel_write_sha_text(dev_priv, sha_text);
++		if (ret < 0)
++			return ret;
++		sha_idx += sizeof(sha_text);
+ 	} else if (sha_leftovers == 3) {
+-		/* Write 32 bits of text */
++		/* Write 32 bits of text (filled from LSB) */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24;
++		sha_text |= bstatus[0];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+ 		sha_idx += sizeof(sha_text);
+ 
+-		/* Write 8 bits of text, 24 bits of M0 */
++		/* Write 8 bits of text (filled from LSB), 24 bits of M0 */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_8);
+ 		ret = intel_write_sha_text(dev_priv, bstatus[1]);
+diff --git a/include/drm/drm_hdcp.h b/include/drm/drm_hdcp.h
+index c6bab4986a65..fe58dbb46962 100644
+--- a/include/drm/drm_hdcp.h
++++ b/include/drm/drm_hdcp.h
+@@ -29,6 +29,9 @@
+ /* Slave address for the HDCP registers in the receiver */
+ #define DRM_HDCP_DDC_ADDR			0x3A
+ 
++/* Value to use at the end of the SHA-1 bytestream used for repeaters */
++#define DRM_HDCP_SHA1_TERMINATOR		0x80
++
+ /* HDCP register offsets for HDMI/DVI devices */
+ #define DRM_HDCP_DDC_BKSV			0x00
+ #define DRM_HDCP_DDC_RI_PRIME			0x08
+-- 
+Sean Paul, Software Engineer, Google / Chromium OS
+
