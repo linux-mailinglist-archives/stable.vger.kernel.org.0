@@ -2,92 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B30247BA6
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 02:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA64247BAA
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 02:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726314AbgHRAyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 20:54:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38006 "EHLO mail.kernel.org"
+        id S1726302AbgHRAzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 20:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbgHRAyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 20:54:52 -0400
+        id S1726228AbgHRAzi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Aug 2020 20:55:38 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCC5A2078B;
-        Tue, 18 Aug 2020 00:54:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E36D20789;
+        Tue, 18 Aug 2020 00:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597712092;
-        bh=VD62CXPwCkmJuAeTqgY5XHb25Dy+4IXcXfQdlHKK0QQ=;
+        s=default; t=1597712137;
+        bh=MyLBtOkx7MAh86cun2mYNwFMG7fn3zQ+n6TqXSjGeIg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s/BluTh/RbG2VQ8rEX/6UD+ZEOQBaI/hrDYl1dl+fO8GFvb3oXr8WPPJQxWhw16VU
-         dR3HZ1i63xGJ9NBqIrTVYhuuYJZ0jqd9m9Fliy8pAm1zEvL8tg0BIsk+h1ODXDpEHm
-         TJCYdK5v3IMWbkw9r6gfzQ0V8WbCfBcLY22eUme8=
-Date:   Mon, 17 Aug 2020 20:54:50 -0400
+        b=o2J1gd4XqlGYcZb90y5rRLrDFCfFtVicU5iebB9MB5qegXWippCwYNQzgjdlDBsxR
+         HkPVVDfVa9ONxh3uyxn+eqijNQVnYBM7KquMapK+fwJ0ecMlamcFrHjNcTgaN0cXAv
+         D1ic2QwnXTBuhz06InkT4Y2UtpFeEoawVVxyEdVM=
+Date:   Mon, 17 Aug 2020 20:55:36 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Michael Kelley <mikelley@microsoft.com>
+To:     Andreas =?iso-8859-1?Q?Gr=FCnbacher?= 
+        <andreas.gruenbacher@gmail.com>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "wei.liu@kernel.org" <wei.liu@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Wei Hu <weh@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: [PATCH 5.8 298/464] PCI: hv: Fix a timing issue which causes
- kdump to fail occasionally
-Message-ID: <20200818005450.GF4122976@sasha-vm>
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH 5.8 214/464] iomap: Make sure iomap_end is called after
+ iomap_begin
+Message-ID: <20200818005536.GG4122976@sasha-vm>
 References: <20200817143833.737102804@linuxfoundation.org>
- <20200817143848.081418490@linuxfoundation.org>
- <MW2PR2101MB1052E21C566EA4F1C31F356FD75F0@MW2PR2101MB1052.namprd21.prod.outlook.com>
+ <20200817143844.062314049@linuxfoundation.org>
+ <CAHpGcMJPQjfabb0_9n=rVBZXQqdnhvcaA3rgbNBemb4OqSYYgA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <MW2PR2101MB1052E21C566EA4F1C31F356FD75F0@MW2PR2101MB1052.namprd21.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHpGcMJPQjfabb0_9n=rVBZXQqdnhvcaA3rgbNBemb4OqSYYgA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 11:27:49PM +0000, Michael Kelley wrote:
->From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>  Sent: Monday, August 17, 2020 8:14 AM
->>
->> From: Wei Hu <weh@microsoft.com>
->>
->> [ Upstream commit d6af2ed29c7c1c311b96dac989dcb991e90ee195 ]
->>
->> Kdump could fail sometime on Hyper-V guest because the retry in
->> hv_pci_enter_d0() releases child device structures in hv_pci_bus_exit().
->>
->> Although there is a second asynchronous device relations message sending
->> from the host, if this message arrives to the guest after
->> hv_send_resource_allocated() is called, the retry would fail.
->>
->> Fix the problem by moving retry to hv_pci_probe() and start the retry
->> from hv_pci_query_relations() call.  This will cause a device relations
->> message to arrive to the guest synchronously; the guest would then be
->> able to rebuild the child device structures before calling
->> hv_send_resource_allocated().
->>
->> Link:
->> https://lore.kernel.org/linux-hyperv/20200727071731.18516-1-weh@microsoft.com/
->> Fixes: c81992e7f4aa ("PCI: hv: Retry PCI bus D0 entry on invalid device state")
->> Signed-off-by: Wei Hu <weh@microsoft.com>
->> [lorenzo.pieralisi@arm.com: fixed a comment and commit log]
->> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
->> Reviewed-by: Michael Kelley <mikelley@microsoft.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/pci/controller/pci-hyperv.c | 71 +++++++++++++++--------------
->>  1 file changed, 37 insertions(+), 34 deletions(-)
->>
+On Mon, Aug 17, 2020 at 09:56:02PM +0200, Andreas Grünbacher wrote:
+>Gerg,
 >
->Greg --
+>Am Mo., 17. Aug. 2020 um 21:39 Uhr schrieb Greg Kroah-Hartman
+><gregkh@linuxfoundation.org>:
+>> From: Andreas Gruenbacher <agruenba@redhat.com>
+>>
+>> [ Upstream commit 856473cd5d17dbbf3055710857c67a4af6d9fcc0 ]
+>>
+>> Make sure iomap_end is always called when iomap_begin succeeds.
+>>
+>> Without this fix, iomap_end won't be called when a filesystem's
+>> iomap_begin operation returns an invalid mapping, bypassing any
+>> unlocking done in iomap_end.  With this fix, the unlocking will still
+>> happen.
+>>
+>> This bug was found by Bob Peterson during code review.  It's unlikely
+>> that such iomap_begin bugs will survive to affect users, so backporting
+>> this fix seems unnecessary.
 >
->Don't backport this patch to 5.8 and earlier.  It doesn't break anything,
->but it doesn't fully accomplish what was intended either.  As such it will
->probably need a revision in 5.9.  Wei Hu is unavailable for a few days
->for personal reasons, so I'm jumping in here on his behalf.
+>this doesn't need to be backported.
 
-I've dropped it, will wait for the fix.
+Now dropped, thanks!
 
 -- 
 Thanks,
