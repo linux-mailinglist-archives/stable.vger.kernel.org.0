@@ -2,143 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F579248A1D
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE2B248A7E
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbgHRPkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 11:40:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34920 "EHLO
+        id S1728083AbgHRPvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 11:51:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726616AbgHRPjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 11:39:48 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCF1C061342
-        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:39:42 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id 62so18625574qkj.7
-        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:39:42 -0700 (PDT)
+        with ESMTP id S1728208AbgHRPtm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 11:49:42 -0400
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5498CC061389
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:49:42 -0700 (PDT)
+Received: by mail-oo1-xc30.google.com with SMTP id j16so4239265ooc.7
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:49:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=poorly.run; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=d1D5o/i++O2dx3r2jrsCjyH48f0K/OvhWUAjvxwi7TA=;
-        b=fJExf3k/eUOryvMwUDNci2WzXlvZY1vgpRFMmadp0eQxHC5ayVluggEEZRAcgZ2L8d
-         MQMVpVo2o3341cs9QtA8xN7YV1IvfKksh/jMzoKAoTpr7qU7r1Nieqsa3RDCzGTKj85j
-         xFRSkPfDZAznDZ9OqEkC6VblHnyfSFvq6hxDkpJnfflbEZdy0/NFf+h353QJB8iKm9Vg
-         yr5Uf/u1FNbwl98BV9hp3lRAQLB41agh3WEcUkp5p4Eur3q/WLXYjSwY3Yw0hRwJVE9f
-         ImnP3KM3C3ubNNsP+BGf+383MHN7Pvc0gjZ0AnWf6Cq8MTOY1dE9hMkiO6Eor3gCAGKe
-         igIA==
+        d=omnibond-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=g3VwsJbTQXlr/xYyeQqiVNLJfIs4abMhrTO2rfcqbq4=;
+        b=kut7EfFF9vaBIVd2T8e4HwkZZIRVh3ERLKLIrn9IF+C7z2iaAIhlj1DbEiDVzfqFLG
+         7hzlzRKTBSxmBmB6QD1mJFk/qadGGWBlTS5tHn3xwxxPlOjeEaQ216+5SSgrS10HQvKG
+         MNZy3rjh+5G4FmFBr+s7zF9RDS3w7Ll9ZuogDi76j2qy1VSCOK/ZI4h1ZMhu/hTw43P9
+         EKTSAB+oFwxNYAin9Gw6mbLhnucCltCgLelJhHp46G8+jA6A8P5tuKV8rlp63xOkZodo
+         lhcC+L4b+Ye7spIWf6XTGsb9ELOSj46iM2SG2Y93XpUIwJa44wuY45A3oY2fOaku32mH
+         QKzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=d1D5o/i++O2dx3r2jrsCjyH48f0K/OvhWUAjvxwi7TA=;
-        b=JBsSHPajfJEwe/JpZrio2krT2BoPtqryow/pi3xCSXHkMzIeSL4bVQIq/Ki76mOY4j
-         TTGHDRDdj7VoOW4wWZ2i2BtvT8jxINdGET87WHHblykCuBEjLsODLJG9cxW2jdmhCLxC
-         j9DgvVWcum04OX1TnrcdmkS5P5L6ST1IYc/Z6nsHkxJMo4xxInbs7uVLY16upjmigaN8
-         D7mPw3rOm8EH1V74LGKwOaXY44ksjDyKbYlv+ikEYClmaIZzFu+0q8xfTdQ2dyiQXjiY
-         0e7oOM6B0OUNCjEfMATPfYf5kCAL7IOTzS/TNQSjVxv6gwFoOy+hyaV5znttW9sg4gFA
-         atTQ==
-X-Gm-Message-State: AOAM533YdOGdkYcWbWVFHTORchEsuR2TX14SArREZckDXqFEogjhS77s
-        N/7mscvl/AcHL+nDUb9mqOPZ2w==
-X-Google-Smtp-Source: ABdhPJwQ47iPDVkmbwQrOI2scwtQvNd3mCOXPsjUxsngNOuNliDEgljntmpvaIsz/h/ynurJrJH5gg==
-X-Received: by 2002:a05:620a:16c8:: with SMTP id a8mr17926022qkn.81.1597765175049;
-        Tue, 18 Aug 2020 08:39:35 -0700 (PDT)
-Received: from localhost (mobile-166-170-57-144.mycingular.net. [166.170.57.144])
-        by smtp.gmail.com with ESMTPSA id d26sm24891349qtc.51.2020.08.18.08.39.34
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 18 Aug 2020 08:39:34 -0700 (PDT)
-From:   Sean Paul <sean@poorly.run>
-To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        juston.li@intel.com, jani.nikula@linux.intel.com,
-        joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com,
-        anshuman.gupta@intel.com
-Cc:     ville.syrjala@linux.intel.com, daniel.vetter@ffwll.ch,
-        Sean Paul <seanpaul@chromium.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Ramalingam C <ramalingam.c@intel.com>, stable@vger.kernel.org,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Ramalingam C <ramalingm.c@intel.com>
-Subject: [PATCH v8 02/17] drm/i915: Clear the repeater bit on HDCP disable
-Date:   Tue, 18 Aug 2020 11:38:50 -0400
-Message-Id: <20200818153910.27894-3-sean@poorly.run>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200818153910.27894-1-sean@poorly.run>
-References: <20200818153910.27894-1-sean@poorly.run>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=g3VwsJbTQXlr/xYyeQqiVNLJfIs4abMhrTO2rfcqbq4=;
+        b=fPB7jj0o5y7ZveVmUQVpYHYyBpllKNnVDMXPk84+ibclq/OYq1XbA4vFvppUokY1sL
+         oZJ1l78PyOAIdJw9GRhbrfu+3H4BqPwUt/vJv7+vRczgOZwl3yRMbPEAjsu+q6jwnaXE
+         f39nBJyT1VaBTaMymRHaUA/R2fhsIBv+IePUNN57rNvl3x7bF7VBYky81jd0qriuZRBP
+         LW8EekbvoxixXI+/GkPxn2RiQCOY9krE9Sfu5shmO7NxN0dQVZwWYJhKQIJSD38he0Si
+         AK7VHoFskjS+AKkhkCv2NrJ34ZqXIlIw/z3g5oNfHKA0rcs/JLDIX2dzgDil8g4ssV+l
+         4Yig==
+X-Gm-Message-State: AOAM5316x0NoWa5FcAnawWQcONy40FHZWRV3ogWk2eeCMWoUnOLSo4uH
+        WT2mWD9F6AMdkbCh8fSuQrOIU6oo0tKbTYttzktnrw6WAJkl8n7g
+X-Google-Smtp-Source: ABdhPJxjrpFbzCUthA+sI2tjp/EhTJLdywWXL5HbsG9ZYEBXZ2qy4ixkC+yObUp3tPjhkxnQ+cgtD4ITf+ZLkuwccEw=
+X-Received: by 2002:a4a:a201:: with SMTP id m1mr4054374ool.26.1597765780607;
+ Tue, 18 Aug 2020 08:49:40 -0700 (PDT)
+MIME-Version: 1.0
+From:   Mike Marshall <hubcap@omnibond.com>
+Date:   Tue, 18 Aug 2020 11:49:29 -0400
+Message-ID: <CAOg9mSR=rOCGhxuR+L8YXzvwTrg4KyO285vx2TTm20fh9EdtMA@mail.gmail.com>
+Subject: submission for 5.4 LTS
+To:     stable@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+upstream commit id: ec95f1dedc9c64ac5a8b0bdb7c276936c70fdedd
 
-On HDCP disable, clear the repeater bit. This ensures if we connect a
-non-repeater sink after a repeater, the bit is in the state we expect.
+I verified that ec95f1de "orangefs: get rid of knob code..."
+will apply to 5.4 and I compiled and ran a patched 5.4 kernel
+against my normal xfstests...  I wish that ec95f1de could be
+in the 5.4 long term stable kernel.
 
-Fixes: ee5e5e7a5e0f (drm/i915: Add HDCP framework + base implementation)
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.17+
-Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191212190230.188505-3-sean@poorly.run #v2
-Link: https://patchwork.freedesktop.org/patch/msgid/20200117193103.156821-3-sean@poorly.run #v3
-Link: https://patchwork.freedesktop.org/patch/msgid/20200218220242.107265-3-sean@poorly.run #v4
-Link: https://patchwork.freedesktop.org/patch/msgid/20200305201236.152307-3-sean@poorly.run #v5
-Link: https://patchwork.freedesktop.org/patch/msgid/20200429195502.39919-3-sean@poorly.run #v6
-Link: https://patchwork.freedesktop.org/patch/msgid/20200623155907.22961-3-sean@poorly.run #v7
+ec95f1de went upstream in 5.7. When I sent up the patch it was
+just a theoretical race condition to me: I accepted what Christoph
+said about it. We now have experienced in-the-real-world how
+important the patch is...
 
-Changes in v2:
--Added to the set
-Changes in v3:
--None
-  I had previously agreed that clearing the rep_ctl bits on enable would
-  also be a good idea. However when I committed that idea to code, it
-  didn't look right. So let's rely on enables and disables being paired
-  and everything outside of that will be considered a bug
-Changes in v4:
--s/I915_(READ|WRITE)/intel_de_(read|write)/
-Changes in v5:
--None
-Changes in v6:
--None
-Changes in v7:
--None
-Changes in v8:
--None
----
- drivers/gpu/drm/i915/display/intel_hdcp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Someone was trying to read a whole large (more than 100 meg)
+file from orangefs into some kind of cloud bucket. The
+resulting read failed with a "Bad address" error. I
+immediately thought of this patch. I reproduced the
+"Bad address" error with dd in kernel versions that
+lack ec95f1de. The "Bad address" error does not occur
+in kernels that include ec95f1de:
 
-diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
-index 6189b7583277..1a0d49af2a08 100644
---- a/drivers/gpu/drm/i915/display/intel_hdcp.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
-@@ -795,6 +795,7 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 	struct intel_hdcp *hdcp = &connector->hdcp;
- 	enum port port = dig_port->base.port;
- 	enum transcoder cpu_transcoder = hdcp->cpu_transcoder;
-+	u32 repeater_ctl;
- 	int ret;
- 
- 	drm_dbg_kms(&dev_priv->drm, "[%s:%d] HDCP is being disabled...\n",
-@@ -810,6 +811,11 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 		return -ETIMEDOUT;
- 	}
- 
-+	repeater_ctl = intel_hdcp_get_repeater_ctl(dev_priv, cpu_transcoder,
-+						   port);
-+	intel_de_write(dev_priv, HDCP_REP_CTL,
-+		       intel_de_read(dev_priv, HDCP_REP_CTL) & ~repeater_ctl);
-+
- 	ret = hdcp->shim->toggle_signalling(dig_port, false);
- 	if (ret) {
- 		drm_err(&dev_priv->drm, "Failed to disable HDCP signalling\n");
--- 
-Sean Paul, Software Engineer, Google / Chromium OS
+5.7.11-100.fc31.x86_64:
 
+$ ./wr.sh 10000000 > /pvfsmnt/wr.10000000
+$ dd if=/pvfsmnt/wr.10000000 of=/tmp/wr.10000000 count=10 bs=419430400
+$ ls -l /pvfsmnt/wr.10000000 /tmp/wr.10000000
+-rw-rw-r--. 1 hubcap hubcap 498888897 Aug 14 15:41 /pvfsmnt/wr.10000000
+-rw-rw-r--. 1 hubcap hubcap 498888897 Aug 14 16:51 /tmp/wr.10000000
+$ md5sum /pvfsmnt/wr.10000000 /tmp/wr.10000000
+669daa04f91f561f5fb2851fb30e4ffe  /pvfsmnt/wr.10000000
+669daa04f91f561f5fb2851fb30e4ffe  /tmp/wr.10000000
+
+5.6.0hubcap:
+
+$ ./wr.sh 10000000 > /pvfsmnt/wr.10000000
+$ dd if=/pvfsmnt/wr.10000000 of=/tmp/wr.10000000 count=10 bs=419430400
+dd: error reading '/pvfsmnt/wr.10000000': Bad address
+0+0 records in
+0+0 records out
+0 bytes copied, 10.3365 s, 0.0 kB/s
+
+Thanks!
+
+-Mike
