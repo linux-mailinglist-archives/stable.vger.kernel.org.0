@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3F722483C6
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4ED2483D6
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgHRL2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 07:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42690 "EHLO mail.kernel.org"
+        id S1726636AbgHRLbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 07:31:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726599AbgHRL1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 07:27:32 -0400
+        id S1726653AbgHRLac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 07:30:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A85D7207D3;
-        Tue, 18 Aug 2020 11:27:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30E182075E;
+        Tue, 18 Aug 2020 11:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597750038;
-        bh=M/pZuJ6qNcafAtYGGevYuspGD7ps4zPgqxO6a1dpw+w=;
+        s=default; t=1597749772;
+        bh=8oVMIev0mEl64EGhdFGy0jW2///3dhEt3/+C5T/XE7g=;
         h=Subject:To:From:Date:From;
-        b=OuwGtui7LMo3Ud2aAt0OvuZYQbHXEH/0yTxPqbL9kEfT4GXBXjdd1HbZOg7HeyFQj
-         Y7y5dOFxYTPYfAt91pGbbn9w4OR9gQBOYUoH3D4HRonP7pRKn46l7HBff8EUfhdgOt
-         NeB6lqXayZIUJcz/v6RzAsEKwFxhpFJlOOgcJ3VQ=
-Subject: patch "serial: 8250_exar: Fix number of ports for Commtech PCIe cards" added to tty-linus
-To:     valmer.huhn@concurrent-rt.com, gregkh@linuxfoundation.org,
+        b=wmOLvhDXzUMiLG+Y7DD4rjYXYvrPqTwqIgG5uj2iDkNTScvJBFvwvU8UwSbYR+g0g
+         mcuphhdwoqnhWpk9wvZWGGwZy8xe0UggczxW4o5dpvC6iGVqUbFB79lqeji2omNYnG
+         EynC8y4oWEvJ2KQrQBcj+GzUv6Q2dMPjVMBp3ta8=
+Subject: patch "vt_ioctl: change VT_RESIZEX ioctl to check for error return from" added to tty-linus
+To:     george.kennedy@oracle.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Aug 2020 13:27:42 +0200
-Message-ID: <1597750062247186@kroah.com>
+Date:   Tue, 18 Aug 2020 13:23:08 +0200
+Message-ID: <159774978822578@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250_exar: Fix number of ports for Commtech PCIe cards
+    vt_ioctl: change VT_RESIZEX ioctl to check for error return from
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,82 +55,53 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From c6b9e95dde7b54e6a53c47241201ab5a4035c320 Mon Sep 17 00:00:00 2001
-From: Valmer Huhn <valmer.huhn@concurrent-rt.com>
-Date: Thu, 13 Aug 2020 12:52:55 -0400
-Subject: serial: 8250_exar: Fix number of ports for Commtech PCIe cards
+From bc5269ca765057a1b762e79a1cfd267cd7bf1c46 Mon Sep 17 00:00:00 2001
+From: George Kennedy <george.kennedy@oracle.com>
+Date: Fri, 31 Jul 2020 12:33:12 -0400
+Subject: vt_ioctl: change VT_RESIZEX ioctl to check for error return from
+ vc_resize()
 
-The following in 8250_exar.c line 589 is used to determine the number
-of ports for each Exar board:
+vc_resize() can return with an error after failure. Change VT_RESIZEX ioctl
+to save struct vc_data values that are modified and restore the original
+values in case of error.
 
-nr_ports = board->num_ports ? board->num_ports : pcidev->device & 0x0f;
-
-If the number of ports a card has is not explicitly specified, it defaults
-to the rightmost 4 bits of the PCI device ID. This is prone to error since
-not all PCI device IDs contain a number which corresponds to the number of
-ports that card provides.
-
-This particular case involves COMMTECH_4222PCIE, COMMTECH_4224PCIE and
-COMMTECH_4228PCIE cards with device IDs 0x0022, 0x0020 and 0x0021.
-Currently the multiport cards receive 2, 0 and 1 port instead of 2, 4 and
-8 ports respectively.
-
-To fix this, each Commtech Fastcom PCIe card is given a struct where the
-number of ports is explicitly specified. This ensures 'board->num_ports'
-is used instead of the default 'pcidev->device & 0x0f'.
-
-Fixes: d0aeaa83f0b0 ("serial: exar: split out the exar code from 8250_pci")
-Signed-off-by: Valmer Huhn <valmer.huhn@concurrent-rt.com>
-Tested-by: Valmer Huhn <valmer.huhn@concurrent-rt.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200813165255.GC345440@icarus.concurrent-rt.com
+Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/1596213192-6635-2-git-send-email-george.kennedy@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_exar.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ drivers/tty/vt/vt_ioctl.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index 04b9af7ed941..2d0e7c7e408d 100644
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -744,6 +744,24 @@ static const struct exar8250_board pbn_exar_XR17V35x = {
- 	.exit		= pci_xr17v35x_exit,
- };
- 
-+static const struct exar8250_board pbn_fastcom35x_2 = {
-+	.num_ports	= 2,
-+	.setup		= pci_xr17v35x_setup,
-+	.exit		= pci_xr17v35x_exit,
-+};
+diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
+index 91c301775047..a4e520bdd521 100644
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -806,12 +806,22 @@ static int vt_resizex(struct vc_data *vc, struct vt_consize __user *cs)
+ 		console_lock();
+ 		vcp = vc_cons[i].d;
+ 		if (vcp) {
++			int ret;
++			int save_scan_lines = vcp->vc_scan_lines;
++			int save_font_height = vcp->vc_font.height;
 +
-+static const struct exar8250_board pbn_fastcom35x_4 = {
-+	.num_ports	= 4,
-+	.setup		= pci_xr17v35x_setup,
-+	.exit		= pci_xr17v35x_exit,
-+};
-+
-+static const struct exar8250_board pbn_fastcom35x_8 = {
-+	.num_ports	= 8,
-+	.setup		= pci_xr17v35x_setup,
-+	.exit		= pci_xr17v35x_exit,
-+};
-+
- static const struct exar8250_board pbn_exar_XR17V4358 = {
- 	.num_ports	= 12,
- 	.setup		= pci_xr17v35x_setup,
-@@ -811,9 +829,9 @@ static const struct pci_device_id exar_pci_tbl[] = {
- 	EXAR_DEVICE(EXAR, XR17V358, pbn_exar_XR17V35x),
- 	EXAR_DEVICE(EXAR, XR17V4358, pbn_exar_XR17V4358),
- 	EXAR_DEVICE(EXAR, XR17V8358, pbn_exar_XR17V8358),
--	EXAR_DEVICE(COMMTECH, 4222PCIE, pbn_exar_XR17V35x),
--	EXAR_DEVICE(COMMTECH, 4224PCIE, pbn_exar_XR17V35x),
--	EXAR_DEVICE(COMMTECH, 4228PCIE, pbn_exar_XR17V35x),
-+	EXAR_DEVICE(COMMTECH, 4222PCIE, pbn_fastcom35x_2),
-+	EXAR_DEVICE(COMMTECH, 4224PCIE, pbn_fastcom35x_4),
-+	EXAR_DEVICE(COMMTECH, 4228PCIE, pbn_fastcom35x_8),
- 
- 	EXAR_DEVICE(COMMTECH, 4222PCI335, pbn_fastcom335_2),
- 	EXAR_DEVICE(COMMTECH, 4224PCI335, pbn_fastcom335_4),
+ 			if (v.v_vlin)
+ 				vcp->vc_scan_lines = v.v_vlin;
+ 			if (v.v_clin)
+ 				vcp->vc_font.height = v.v_clin;
+ 			vcp->vc_resize_user = 1;
+-			vc_resize(vcp, v.v_cols, v.v_rows);
++			ret = vc_resize(vcp, v.v_cols, v.v_rows);
++			if (ret) {
++				vcp->vc_scan_lines = save_scan_lines;
++				vcp->vc_font.height = save_font_height;
++				console_unlock();
++				return ret;
++			}
+ 		}
+ 		console_unlock();
+ 	}
 -- 
 2.28.0
 
