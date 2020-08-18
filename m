@@ -2,53 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB9C2488C2
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DF112488EA
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 17:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbgHRPKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 11:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbgHRPKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:10:36 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E95082054F;
-        Tue, 18 Aug 2020 15:10:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597763436;
-        bh=ZOow0+cWPFiK7axgyXoFUv+2IXU185o7iF99pN1T8hw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BUkg4fW85fQwCT2Hnho4bcHBfssxM7vE+U7k3F++6iOVWxhbZrFs9r8mK9/qLJbh+
-         A0MEg9eMd0VZxhpaIb9Bhe2CxDS5wlWo5vcfRNoZeMFfSC4lQaJQzj+J8raPuQKBXC
-         idX12Vhl1WnyBOlZFHArZwjn2dUF0wu6TRtrcRK4=
-Date:   Tue, 18 Aug 2020 17:10:59 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: Build failure in v4.4.232-120-g11806ba5e43a (v4.4.y-queue)
-Message-ID: <20200818151059.GA689005@kroah.com>
-References: <463ae6ac-b8e4-c447-814e-89ef7bdf1078@roeck-us.net>
+        id S1726972AbgHRPQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 11:16:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59544 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726718AbgHRPQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 11:16:33 -0400
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D940C061389
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:16:33 -0700 (PDT)
+Received: by mail-yb1-xb42.google.com with SMTP id q16so11566847ybk.6
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 08:16:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
+        b=a0UMlQBFIxHcB8hHiJdn0JWj6xFo7wXzZpAXZhC0G+fNDikXVyNXb/plm84QakLEIH
+         DCp8nPFFwyKgVX2yK6yJ8cr1D5Q/MI+GFE5j0L7kSa/vjhzoKW9x7nNYiFkpEGL16hsT
+         87XW5aR/OwuSLbzTmoUFu/whdPgG9I6ZCY6CUlXkZS7+OgHdbA8vU8Xk9rWnp6dujayZ
+         TlFfL4tg63cI9vLQcGbvWZckVGCboD5ZLoZ+FQ2hbwNoziOOEXovOi2tGafohzn71sxg
+         68f0l4IYWJkdB2Ml5SkUDi4jBDaHWxFBbfaPdfSJazwezUCgi9MwhWxD9e3t31vFXCFd
+         Da6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
+        b=FNsNyFwQPzWAl3tbqog+vwMgXDUnKaNDqWFCHrKwFWLJVP/tdZBHre3urbV6PFfmVv
+         oosZZBtGM0egpjTBgfbErWgjpSPXRl7vQxcNTeebxth4TiLUngsBEjUqvt4LjIYvQNQ+
+         zCRpJNBhS3XXJbFMRo3DFbjhsHFhSfk+5e7ZN13CyNJwrE81Mb5cdKiwFZuijzytH1xZ
+         jlHlQztgZH19ru4xP8zjMSni0qoerC+3r4moDYPEQSIY260wMQ61Su2SIoxuhLjChdtb
+         sY+/KsrmGzUpXtBPDdjT69I+ntmYw31FH1sJsTqQXPgYq84FcwiZssFfQuA3O0qD4tQy
+         PfcA==
+X-Gm-Message-State: AOAM533RGbRWfALI29qlgNvxuVR5sh02IDnVsYvD7qBGcHn4RwRcT1rE
+        1ladTfCZGsoK/Y4gSvKHriRynD5r9GkIHotCfHs=
+X-Google-Smtp-Source: ABdhPJwBlU21HhtlaO8H+kI6PXHgfepm14BWn4uGqdo84tzOS1ns2HwbFu+mSep8NTEzbba+kiTCUy8bUnoPFDEB0b8=
+X-Received: by 2002:a25:b8d:: with SMTP id 135mr24677493ybl.481.1597763790958;
+ Tue, 18 Aug 2020 08:16:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <463ae6ac-b8e4-c447-814e-89ef7bdf1078@roeck-us.net>
+Received: by 2002:a05:7000:5285:0:0:0:0 with HTTP; Tue, 18 Aug 2020 08:16:30
+ -0700 (PDT)
+Reply-To: asita.hussain0@gmail.com
+From:   "Mr.Asita.Hussain" <spagnolorosalin1@gmail.com>
+Date:   Tue, 18 Aug 2020 08:16:30 -0700
+Message-ID: <CAGMOgv40SmsWnc+OYWP31TqLctLAnNGBv=ExvdfFzTAshrV5qg@mail.gmail.com>
+Subject: Hello my good friend,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 18, 2020 at 08:01:48AM -0700, Guenter Roeck wrote:
-> Seen with v4.4.232-120-g11806ba5e43a:
-> 
-> Building powerpc:defconfig ... failed
-> drivers/misc/cxl/sysfs.c: In function ‘cxl_sysfs_afu_new_cr’:
-> drivers/misc/cxl/sysfs.c:558:1: error: label ‘err’ defined but not used [-Werror=unused-label]
-
-Build warning stops the build?
-
-Anyway, I've fixed it up now, thanks!
-
-greg k-h
+Hello,
+From Mr. Asita Hussain
+This message might meet you in utmost surprise.
+I am a banker by profession in Burkina-Faso, West Africa and currently
+holding the post of manager in account and auditing department in our
+bank. I have the opportunity of transferring the left over funds ($
+25.5 Million Dollars 15 kilos of Gold bar) belonging to our deceased
+customer who died along with his entire family in a bomb attack.
+Please indicate your willingness by sending the below information for
+more clarification and easy communication.
+Please Contact me with the following information's for more details.
+(1) YOUR FULL NAME.......................
+(2) YOUR AGE AND SEX......................
+(3) YOUR CONTACT ADDRESS...............
+(4) YOUR PRIVATE PHONE N0..........
+(5) FAX NUMBER..............
+(6) YOUR COUNTRY OF ORIGIN.................
+(7) YOUR OCCUPATION.................... .....
+ Please Contact me for more details in this E-mail address
+(asita.hussain0@gmail.com)
+Trusting to hear from you immediately.
+Thanks & Best Regards,
+From Mr. Asita Hussain
