@@ -2,84 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB42248E54
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 20:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5F3248E60
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 21:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbgHRS5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 14:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38068 "EHLO
+        id S1726671AbgHRTCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 15:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726570AbgHRS5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 14:57:41 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6E9C061389;
-        Tue, 18 Aug 2020 11:57:41 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id v16so48494plo.1;
-        Tue, 18 Aug 2020 11:57:41 -0700 (PDT)
+        with ESMTP id S1726529AbgHRTCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 15:02:03 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F6FC061389
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 12:02:02 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id f26so22627364ljc.8
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 12:02:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=hv0wrh2UDV8sGlOu+yoYy9+0yg2fCQ5Tx2gwhOUkEp4=;
-        b=rNS0Httda08CwH1avgOMZF3I6fQ2IL9sMmTzfdkyCQIL8LyoTLt9sFJJEqKiHq6c0X
-         fcSn+zGzgFWFZEZ6xyWNDoE/5lzC/GrkzdztIi6q/BFuXjcyhZl96/9qs0xFfMClLM11
-         AY50e2d+FE7lyoI/he+0mMi0sl3QY8UASCWS7J+TiPPCui3JN8yPl+yXFq49XugA9kCr
-         qk1GDGvsrrhyEjDaR7HrLSBttgdmjmQ46us+NB2Zp3/WWdip9p9kteMkgxfEU2CBuPVl
-         ILpA6wK7iPuDv0nwqOM3isZouXArg3jDMmVAWcAtlvFhA5AfoPm3KztxhqX1JsVAInHr
-         SPqQ==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nQVuZWCOnlFwQnX2Zqx0X5sy3pLItQeKoPELobHQVGQ=;
+        b=OdFylsapCoULupAOYKw2uxh3CBvd6ctb0Q+oE4KHDc7exoz8gPT0JzpVzCs2UFYloZ
+         pdfG98SZ4TKORf3pZEGIPjJidGca60aMQLOi2nen+7fHRK9fQJKdqmCu+AFXvUdhjWjx
+         E0UpiJcscdcfZTXaD9DYNr+NvdEPSVQoYZIRg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=hv0wrh2UDV8sGlOu+yoYy9+0yg2fCQ5Tx2gwhOUkEp4=;
-        b=J4Cszm72IiOoQsBpe7ROJRdfduP0FiyA2FCxNIolw8AVvMU1KE3WJWsscaWuSHPyoo
-         Vha0imeM0yn1LRmq9FsuxVG/F9QPIjo5DFvAfsOE3SpzwmvDtYgNYm1Wq2+GKBoi3clB
-         B544YDryCUJmi5Tyoul2EZo9b5AS8XDbhHgmMKU/Fty7NwHBvNCtF09sDR3Yn5+KnZsa
-         VOktb+Kx/4pzrXDI17cRh6GNllPb/1l7J7kjg+ZwBVs0EW2T1ZzNWthe5Fci3VA9YfwT
-         V7QxmHwbc7KEMqmx47Lfr4CgjOCzjVdrLNmSck3jjGxExftWqAwg/w0UxcaUvzoyRtNw
-         l80g==
-X-Gm-Message-State: AOAM533k6PipyluRkYfrmyIQBPboz3Frd5Tr9wckk3rvYngM0HDqBEU+
-        8DFngbNSBPFU2r9iZ+amxIY=
-X-Google-Smtp-Source: ABdhPJwpUgfmP6DK4srwJ1Ecj1Vy7LnlvuajmDvnlEcPubihEcRAlDcYsJgIwEmohBHN2L5lDpMzQQ==
-X-Received: by 2002:a17:902:aa91:: with SMTP id d17mr16413273plr.27.1597777061378;
-        Tue, 18 Aug 2020 11:57:41 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n1sm25757745pfu.2.2020.08.18.11.57.40
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 18 Aug 2020 11:57:40 -0700 (PDT)
-Date:   Tue, 18 Aug 2020 11:57:39 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/464] 5.8.2-rc1 review
-Message-ID: <20200818185739.GD235171@roeck-us.net>
-References: <20200817143833.737102804@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nQVuZWCOnlFwQnX2Zqx0X5sy3pLItQeKoPELobHQVGQ=;
+        b=XYeR0uh4kIObFZEV3K+YH+BWI4mK42ofY+F3zLve6R0KzNLXo8+6dMQghgrJAOAeY2
+         bS3KQFto5LutiknVUm35cv9ZNqikpRA+lJpcRDMXIH0/K0F5Cd5pKyGJcnevQ6R8H++f
+         Iv+7UOvYs9K/arLbWC8DT0WWpbf+AsIy6Ok/cnoxWo0kY3rYa1z0VfEhrvP2CTfnCt37
+         WaJ3oxpfqxhFwo1gdpnCZXBct+m7Mn46o7c6vAfeblYtNI/jtEsaKo7IwzOPojlWgQBH
+         R90x6t5/ehDMwrbIrVvrdm14EKqu3ujb0rqANStAHwT9lUzj4F+TuOjnKVsf8/qrVQmn
+         L1qQ==
+X-Gm-Message-State: AOAM531IHAbAqNBknJhq9EI3e0e8BVhOnM0ERyn1oT4yh2O8NQb4OzQE
+        GDaV09oldL2qJbJOmigh74CYupD5n58jrQ==
+X-Google-Smtp-Source: ABdhPJwKMXV8M+VyU3R+sfryMBwxmRxM3xQRqKeCOWpjZTzl1gpRtWOI9k/O5G5bSEw8ZhEwS97aSQ==
+X-Received: by 2002:a2e:a54f:: with SMTP id e15mr9391185ljn.115.1597777320885;
+        Tue, 18 Aug 2020 12:02:00 -0700 (PDT)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id m142sm6739849lfa.47.2020.08.18.12.01.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Aug 2020 12:01:59 -0700 (PDT)
+Received: by mail-lj1-f179.google.com with SMTP id g6so22591147ljn.11
+        for <stable@vger.kernel.org>; Tue, 18 Aug 2020 12:01:59 -0700 (PDT)
+X-Received: by 2002:a2e:7615:: with SMTP id r21mr9769511ljc.371.1597777319256;
+ Tue, 18 Aug 2020 12:01:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200817143833.737102804@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20200815043041.132195-1-shy828301@gmail.com>
+In-Reply-To: <20200815043041.132195-1-shy828301@gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 18 Aug 2020 12:01:43 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjbaptBBKYS+XdCgdjU_RbFPaAd8EkT6_Un6CtNmezt9A@mail.gmail.com>
+Message-ID: <CAHk-=wjbaptBBKYS+XdCgdjU_RbFPaAd8EkT6_Un6CtNmezt9A@mail.gmail.com>
+Subject: Re: [v3 PATCH] mm/memory.c: skip spurious TLB flush for retried page fault
+To:     Yang Shi <shy828301@gmail.com>
+Cc:     Yu Xu <xuyu@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 05:09:13PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.2 release.
-> There are 464 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 19 Aug 2020 14:36:49 +0000.
-> Anything received after that time might be too late.
-> 
+On Mon, Aug 17, 2020 at 2:04 PM Yang Shi <shy828301@gmail.com> wrote:
+>
+> We could just skip the spurious TLB flush to mitigate the regression.
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 429 pass: 429 fail: 0
+Ok, this patch I will apply.
 
-Guenter
+I still hope that arm64 fixes (maybe already fixed) their spurious TLB
+function, and I think we should rename it to make sure everybody
+understands it's local, but in the meantime this patch hides the
+regression and isn't wrong.
+
+Thanks,
+
+                Linus
