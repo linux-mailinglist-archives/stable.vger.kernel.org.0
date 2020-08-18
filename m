@@ -2,76 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9082485D9
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 15:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E75B2485C6
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 15:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726804AbgHRNN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 09:13:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33482 "EHLO mx2.suse.de"
+        id S1726838AbgHRNNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 09:13:37 -0400
+Received: from mga14.intel.com ([192.55.52.115]:24130 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726681AbgHRNNZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 09:13:25 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id EE92EB178;
-        Tue, 18 Aug 2020 13:13:48 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-        netdev@vger.kernel.org, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org, ceph-devel@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        "David S . Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Subject: [PATCH v7 3/6] tcp: use sendpage_ok() to detect misused .sendpage
-Date:   Tue, 18 Aug 2020 21:12:24 +0800
-Message-Id: <20200818131227.37020-4-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200818131227.37020-1-colyli@suse.de>
-References: <20200818131227.37020-1-colyli@suse.de>
+        id S1726705AbgHRNNf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 09:13:35 -0400
+IronPort-SDR: L/NiWsOp261toAA83p3LNFrAVLaeAFmuEbMN+hnY8YNzoDqQc+mipTMStXyUNSQ5rMlVCNk9k4
+ U1wmz5SnGr2Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="154153858"
+X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
+   d="scan'208";a="154153858"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2020 06:13:33 -0700
+IronPort-SDR: 3B2z/bqLkMdhodrcZ4CfC+QANpEMODAmQBVCiyO0i7uvZxrbHhwOzf7bIfi4RZV4JlkF8xP+9D
+ MSmeX3+j2rzg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
+   d="scan'208";a="320082635"
+Received: from local-michael-cet-test.sh.intel.com (HELO localhost) ([10.239.159.128])
+  by fmsmga004.fm.intel.com with ESMTP; 18 Aug 2020 06:13:31 -0700
+Date:   Tue, 18 Aug 2020 21:21:11 +0800
+From:   Yang Weijiang <weijiang.yang@intel.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        peterx@redhat.com, Yang Weijiang <weijiang.yang@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] selftests: kvm: Use a shorter encoding to clear RAX
+Message-ID: <20200818132111.GA14817@local-michael-cet-test.sh.intel.com>
+References: <20200817172034.26673-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200817172034.26673-1-pbonzini@redhat.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab
-objects") adds the checks for Slab pages, but the pages don't have
-page_count are still missing from the check.
+On Mon, Aug 17, 2020 at 01:20:34PM -0400, Paolo Bonzini wrote:
+> From: Yang Weijiang <weijiang.yang@intel.com>
+> 
+> If debug_regs.c is built with newer binutils, the resulting binary is "optimized"
+> by the assembler:
+> 
+> asm volatile("ss_start: "
+>              "xor %%rax,%%rax\n\t"
+>              "cpuid\n\t"
+>              "movl $0x1a0,%%ecx\n\t"
+>              "rdmsr\n\t"
+>              : : : "rax", "ecx");
+> 
+> is translated to :
+> 
+>   000000000040194e <ss_start>:
+>   40194e:       31 c0                   xor    %eax,%eax     <----- rax->eax?
+>   401950:       0f a2                   cpuid
+>   401952:       b9 a0 01 00 00          mov    $0x1a0,%ecx
+>   401957:       0f 32                   rdmsr
+> 
+> As you can see rax is replaced with eax in target binary code.
+> This causes a difference is the length of xor instruction (2 Byte vs 3 Byte),
+> and makes the hard-coded instruction length check fail:
+> 
+>         /* Instruction lengths starting at ss_start */
+>         int ss_size[4] = {
+>                 3,              /* xor */   <-------- 2 or 3?
+>                 2,              /* cpuid */
+>                 5,              /* mov */
+>                 2,              /* rdmsr */
+>         };
+> 
+> Encode the shorter version directly and, while at it, fix the "clobbers"
+> of the asm.
+> 
+> Reported-by: Yang Weijiang <weijiang.yang@intel.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  tools/testing/selftests/kvm/x86_64/debug_regs.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/x86_64/debug_regs.c b/tools/testing/selftests/kvm/x86_64/debug_regs.c
+> index 8162c58a1234..b8d14f9db5f9 100644
+> --- a/tools/testing/selftests/kvm/x86_64/debug_regs.c
+> +++ b/tools/testing/selftests/kvm/x86_64/debug_regs.c
+> @@ -40,11 +40,11 @@ static void guest_code(void)
+>  
+>  	/* Single step test, covers 2 basic instructions and 2 emulated */
+>  	asm volatile("ss_start: "
+> -		     "xor %%rax,%%rax\n\t"
+> +		     "xor %%eax,%%eax\n\t"
+>  		     "cpuid\n\t"
+>  		     "movl $0x1a0,%%ecx\n\t"
+>  		     "rdmsr\n\t"
+> -		     : : : "rax", "ecx");
+> +		     : : : "eax", "ebx", "ecx", "edx");
+>
+Hi, Paolo,
+Should we also change the below expected instruction length(xor) to 2 in
+accordance with above change?
 
-Network layer's sendpage method is not designed to send page_count 0
-pages neither, therefore both PageSlab() and page_count() should be
-both checked for the sending page. This is exactly what sendpage_ok()
-does.
+int ss_size[4] = {
+        3,              /* xor */
+        2,              /* cpuid */
+        5,              /* mov */
+        2,              /* rdmsr */
 
-This patch uses sendpage_ok() in do_tcp_sendpages() to detect misused
-.sendpage, to make the code more robust.
-
-Fixes: a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab objects")
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: stable@vger.kernel.org
----
- net/ipv4/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 31f3b858db81..2135ee7c806d 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -970,7 +970,8 @@ ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
- 	long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
- 
- 	if (IS_ENABLED(CONFIG_DEBUG_VM) &&
--	    WARN_ONCE(PageSlab(page), "page must not be a Slab one"))
-+	    WARN_ONCE(!sendpage_ok(page),
-+		      "page must not be a Slab one and have page_count > 0"))
- 		return -EINVAL;
- 
- 	/* Wait for a connection to finish. One exception is TCP Fast Open
--- 
-2.26.2
-
+>  	/* DR6.BD test */
+>  	asm volatile("bd_start: mov %%dr0, %%rax" : : : "rax");
+> -- 
+> 2.26.2
