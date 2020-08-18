@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 523922483EA
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 072EB2483F1
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbgHRLdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 07:33:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45026 "EHLO mail.kernel.org"
+        id S1726634AbgHRLfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 07:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726605AbgHRLcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 07:32:35 -0400
+        id S1726569AbgHRLdX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 07:33:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0883820706;
-        Tue, 18 Aug 2020 11:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB009205CB;
+        Tue, 18 Aug 2020 11:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597750354;
+        s=default; t=1597750392;
         bh=w1spHmsLGnmBuFMgWn45ulhif+nNBMDndtky+6rf9iM=;
         h=Subject:To:From:Date:From;
-        b=hxZJjo7zp05NqRxJ5SYr6soYwmzXDH8V9C7hMVPCXjSmYc4W56EU8q2PugS1DWZbI
-         T5dcQWyo+YKfaFVOjgZ7fHXuEWUKmoXnYRB+StHuf07kxXGw/FyRrBv2kitor4Ik4x
-         bjgvqRFH+glGesDYpB9HmVVRyjpBd/HdOnFrq1Ko=
+        b=JVuD3t9fkSBT1xZ2B5D1xPIFa68Jnc/3rGnOS7jlL7mnxRHgXV9YzeovzGovJR3mn
+         +ji872fB5pKf1gVKumULb+vqRdL09d+cTKF1xnBbNtsSL4nL4zl9C8gUhSB47bl8Wf
+         srHQcv6a3zX23+VwfEBQbebX69k+L81IgdMVyFcc=
 Subject: patch "serial: stm32: avoid kernel warning on absence of optional IRQ" added to tty-linus
 To:     h.assmann@pengutronix.de, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Aug 2020 13:32:53 +0200
-Message-ID: <15977503731225@kroah.com>
+Date:   Tue, 18 Aug 2020 13:33:33 +0200
+Message-ID: <159775041358166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
