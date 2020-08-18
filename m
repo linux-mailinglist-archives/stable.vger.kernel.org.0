@@ -2,125 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3C5247F8D
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 09:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B32248007
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 09:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgHRHdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 03:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
+        id S1726203AbgHRH4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 03:56:15 -0400
+Received: from mga07.intel.com ([134.134.136.100]:36584 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726401AbgHRHdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 03:33:45 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00D2B206B5;
-        Tue, 18 Aug 2020 07:33:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597736024;
-        bh=+l8ZIHYYdE8RD9Qj/I64++AlJvGHPOqSiV3mJ2HpmNQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=adtLg8XGFdMJbAYwQ+USeWVHO6NJasnpN07UEjD5SyBJk/l55Cyn+jXV7Zsbuyfsf
-         9swaGL4dFOyfw4m8JELBW45/YfY66lEL1n7z1a8qWfDnRwyNp8SVu/X/LOUKv+5Qnw
-         kZSl+rMuFLYRfnbJywcZ11LdpXjqXbOoyo0hqsmA=
-Date:   Tue, 18 Aug 2020 09:34:08 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Joe Perches <joe@perches.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>, X86 ML <x86@kernel.org>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Daniel Kiper <daniel.kiper@oracle.com>,
-        Bruce Ashfield <bruce.ashfield@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Andi Kleen <ak@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?iso-8859-1?Q?D=E1vid_Bolvansk=FD?= <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>
-Subject: Re: [PATCH 1/4] Makefile: add -fno-builtin-stpcpy
-Message-ID: <20200818073408.GA12514@kroah.com>
-References: <20200817220212.338670-1-ndesaulniers@google.com>
- <20200817220212.338670-2-ndesaulniers@google.com>
- <CAMj1kXH0gRCaoF0NziC870=eSEy0ghi8b0b6A+LMu8PMd58C0Q@mail.gmail.com>
- <20200818072531.GC9254@kroah.com>
- <CAMj1kXF_RhV7D8D8J_fwTruiKWbHapeGe-omwyBoR8t4gRv7QA@mail.gmail.com>
+        id S1726043AbgHRH4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 03:56:14 -0400
+IronPort-SDR: /SGiGL+/x2EYD0rFgVRlrPygr4i9Td1NXQwxK4sNfIc7xyGb6GTuYP+YBL5lKfJ4NwMibUiRb8
+ KylGB1q+LcUA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="219174401"
+X-IronPort-AV: E=Sophos;i="5.76,326,1592895600"; 
+   d="scan'208";a="219174401"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2020 00:56:13 -0700
+IronPort-SDR: 4tYE53XSB6YAiPbWPaMciN12HkT7ZYYCf7k8Ae7IpAZCTWS09uaC5r847Uwmki8KWpY0nFBP5l
+ FeNh0UgDFGeg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,326,1592895600"; 
+   d="scan'208";a="326657452"
+Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
+  by orsmga008.jf.intel.com with ESMTP; 18 Aug 2020 00:56:11 -0700
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        stable@vger.kernel.org,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>
+Subject: [char-misc V5] mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
+Date:   Tue, 18 Aug 2020 10:54:06 +0300
+Message-Id: <20200818075406.2532605-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXF_RhV7D8D8J_fwTruiKWbHapeGe-omwyBoR8t4gRv7QA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 18, 2020 at 09:29:39AM +0200, Ard Biesheuvel wrote:
-> On Tue, 18 Aug 2020 at 09:25, Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Aug 18, 2020 at 09:10:01AM +0200, Ard Biesheuvel wrote:
-> > > On Tue, 18 Aug 2020 at 00:02, Nick Desaulniers <ndesaulniers@google.com> wrote:
-> > > >
-> > > > LLVM implemented a recent "libcall optimization" that lowers calls to
-> > > > `sprintf(dest, "%s", str)` where the return value is used to
-> > > > `stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-> > > > in parsing format strings. This optimization was introduced into
-> > > > clang-12. Because the kernel does not provide an implementation of
-> > > > stpcpy, we observe linkage failures for almost all targets when building
-> > > > with ToT clang.
-> > > >
-> > > > The interface is unsafe as it does not perform any bounds checking.
-> > > > Disable this "libcall optimization" via `-fno-builtin-stpcpy`.
-> > > >
-> > > > Unlike
-> > > > commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
-> > > > which cited failures with `-fno-builtin-*` flags being retained in LLVM
-> > > > LTO, that bug seems to have been fixed by
-> > > > https://reviews.llvm.org/D71193, so the above sha can now be reverted in
-> > > > favor of `-fno-builtin-bcmp`.
-> > > >
-> > > > Cc: stable@vger.kernel.org # 4.4
-> > >
-> > > Why does a fix for Clang-12 have to be backported all the way to v4.4?
-> > > How does that meet the requirements for stable patches?
-> >
-> > Because people like to build older kernels with new compliler versions.
-> >
-> > And those "people" include me, who doesn't want to keep around old
-> > compilers just because my distro moved to the latest one...
-> >
-> > We've been doing this for the past 4+ years, for new versions of gcc,
-> > keeping 4.4.y building properly with the bleeding edge of that compiler,
-> > why is clang any different here?
-> >
-> 
-> Fair enough. I am just struggling to match stable-kernel-rules.rst
-> with the actual practices - perhaps it is time to update that
-> document?
+wired_cmd_repeater_auth_stream_req_in has a variable
+length array at the end. we use struct_size() overflow
+macro to determine the size for the allocation and sending
+size.
+This also fixes bug in case number of streams is > 0 in the original
+submission. This bug was not triggered as the number of streams is
+always one.
 
-The rules are tiny and simple for 99% of the issues involved.  Stuff
-like "add patches to fix build failures and warnings for newer compiler
-versions" are so rare (they only happen every 2 years or so), it's not
-worth it.
+Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
+Fixes: 0a1af1b5c18d (misc/mei/hdcp: Verify M_prime)
+Cc: <stable@vger.kernel.org> # v5.1+: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+---
+V5:
+1. Add reference to depending patch for stable
+V4:
+1. Fix typo in the subject. (Gustavo)
+2. Fix dereferencing pointer in send. (Gustavo)
+V3:
+1. Fix commit message with more info and another patch it fixes 
+(Gustavo) 2. Target stable. (Gustavo)
+V2:
+1. Check for allocation failure.
 
-thanks,
+ drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-greg k-h
+diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
+index d1d3e025ca0e..9ae9669e46ea 100644
+--- a/drivers/misc/mei/hdcp/mei_hdcp.c
++++ b/drivers/misc/mei/hdcp/mei_hdcp.c
+@@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
+ 				  struct hdcp_port_data *data,
+ 				  struct hdcp2_rep_stream_ready *stream_ready)
+ {
+-	struct wired_cmd_repeater_auth_stream_req_in
+-					verify_mprime_in = { { 0 } };
++	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
+ 	struct wired_cmd_repeater_auth_stream_req_out
+ 					verify_mprime_out = { { 0 } };
+ 	struct mei_cl_device *cldev;
+ 	ssize_t byte;
++	size_t cmd_size;
+ 
+ 	if (!dev || !stream_ready || !data)
+ 		return -EINVAL;
+ 
+ 	cldev = to_mei_cl_device(dev);
+ 
+-	verify_mprime_in.header.api_version = HDCP_API_VERSION;
+-	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
+-	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
+-	verify_mprime_in.header.buffer_len =
++	cmd_size = struct_size(verify_mprime_in, streams, data->k);
++	if (cmd_size == SIZE_MAX)
++		return -EINVAL;
++
++	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
++	if (!verify_mprime_in)
++		return -ENOMEM;
++
++	verify_mprime_in->header.api_version = HDCP_API_VERSION;
++	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
++	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
++	verify_mprime_in->header.buffer_len =
+ 			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
+ 
+-	verify_mprime_in.port.integrated_port_type = data->port_type;
+-	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
+-	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
++	verify_mprime_in->port.integrated_port_type = data->port_type;
++	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
++	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
++
++	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
++	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
+ 
+-	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
+-	       HDCP_2_2_MPRIME_LEN);
+-	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
+-	memcpy(verify_mprime_in.streams, data->streams,
++	memcpy(verify_mprime_in->streams, data->streams,
+ 	       array_size(data->k, sizeof(*data->streams)));
+ 
+-	verify_mprime_in.k = cpu_to_be16(data->k);
++	verify_mprime_in->k = cpu_to_be16(data->k);
+ 
+-	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
+-			      sizeof(verify_mprime_in));
++	byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
++	kfree(verify_mprime_in);
+ 	if (byte < 0) {
+ 		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
+ 		return byte;
+-- 
+2.25.4
+
