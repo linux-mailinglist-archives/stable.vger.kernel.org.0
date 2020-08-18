@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E18B24851C
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 14:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B34452485E3
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 15:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbgHRMsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 08:48:21 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49524 "EHLO mx2.suse.de"
+        id S1726699AbgHRNNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 09:13:14 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33284 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726476AbgHRMsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 08:48:18 -0400
+        id S1726145AbgHRNNN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 09:13:13 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 240E1ADF2;
-        Tue, 18 Aug 2020 12:48:42 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id DC6E4B15D;
+        Tue, 18 Aug 2020 13:13:36 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
         netdev@vger.kernel.org, open-iscsi@googlegroups.com,
         linux-scsi@vger.kernel.org, ceph-devel@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        "David S . Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Subject: [PATCH v6 3/6] tcp: use sendpage_ok() to detect misused .sendpage
-Date:   Tue, 18 Aug 2020 20:47:33 +0800
-Message-Id: <20200818124736.5790-4-colyli@suse.de>
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
+Subject: [PATCH v7 1/6] net: introduce helper sendpage_ok() in include/linux/net.h
+Date:   Tue, 18 Aug 2020 21:12:22 +0800
+Message-Id: <20200818131227.37020-2-colyli@suse.de>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200818124736.5790-1-colyli@suse.de>
-References: <20200818124736.5790-1-colyli@suse.de>
+In-Reply-To: <20200818131227.37020-1-colyli@suse.de>
+References: <20200818131227.37020-1-colyli@suse.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -36,42 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab
-objects") adds the checks for Slab pages, but the pages don't have
-page_count are still missing from the check.
+The original problem was from nvme-over-tcp code, who mistakenly uses
+kernel_sendpage() to send pages allocated by __get_free_pages() without
+__GFP_COMP flag. Such pages don't have refcount (page_count is 0) on
+tail pages, sending them by kernel_sendpage() may trigger a kernel panic
+from a corrupted kernel heap, because these pages are incorrectly freed
+in network stack as page_count 0 pages.
 
-Network layer's sendpage method is not designed to send page_count 0
-pages neither, therefore both PageSlab() and page_count() should be
-both checked for the sending page. This is exactly what sendpage_ok()
-does.
+This patch introduces a helper sendpage_ok(), it returns true if the
+checking page,
+- is not slab page: PageSlab(page) is false.
+- has page refcount: page_count(page) is not zero
 
-This patch uses sendpage_ok() in do_tcp_sendpages() to detect misused
-.sendpage, to make the code more robust.
+All drivers who want to send page to remote end by kernel_sendpage()
+may use this helper to check whether the page is OK. If the helper does
+not return true, the driver should try other non sendpage method (e.g.
+sock_no_sendpage()) to handle the page.
 
-Fixes: a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab objects")
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
 Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: David S. Miller <davem@davemloft.net>
+Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Jan Kara <jack@suse.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Cc: Vlastimil Babka <vbabka@suse.com>
 Cc: stable@vger.kernel.org
 ---
- net/ipv4/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/net.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 31f3b858db81..d96c7549895a 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -970,7 +970,8 @@ ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
- 	long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+diff --git a/include/linux/net.h b/include/linux/net.h
+index d48ff1180879..05db8690f67e 100644
+--- a/include/linux/net.h
++++ b/include/linux/net.h
+@@ -21,6 +21,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/once.h>
+ #include <linux/fs.h>
++#include <linux/mm.h>
+ #include <linux/sockptr.h>
  
- 	if (IS_ENABLED(CONFIG_DEBUG_VM) &&
--	    WARN_ONCE(PageSlab(page), "page must not be a Slab one"))
-+	    WARN_ONCE(!sendpage_ok(page)),
-+		      "page must not be a Slab one and have page_count > 0")
- 		return -EINVAL;
+ #include <uapi/linux/net.h>
+@@ -286,6 +287,21 @@ do {									\
+ #define net_get_random_once_wait(buf, nbytes)			\
+ 	get_random_once_wait((buf), (nbytes))
  
- 	/* Wait for a connection to finish. One exception is TCP Fast Open
++/*
++ * E.g. XFS meta- & log-data is in slab pages, or bcache meta
++ * data pages, or other high order pages allocated by
++ * __get_free_pages() without __GFP_COMP, which have a page_count
++ * of 0 and/or have PageSlab() set. We cannot use send_page for
++ * those, as that does get_page(); put_page(); and would cause
++ * either a VM_BUG directly, or __page_cache_release a page that
++ * would actually still be referenced by someone, leading to some
++ * obscure delayed Oops somewhere else.
++ */
++static inline bool sendpage_ok(struct page *page)
++{
++	return  !PageSlab(page) && page_count(page) >= 1;
++}
++
+ int kernel_sendmsg(struct socket *sock, struct msghdr *msg, struct kvec *vec,
+ 		   size_t num, size_t len);
+ int kernel_sendmsg_locked(struct sock *sk, struct msghdr *msg,
 -- 
 2.26.2
 
