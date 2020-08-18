@@ -2,144 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B32248007
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 09:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B18248034
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 10:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726203AbgHRH4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 03:56:15 -0400
-Received: from mga07.intel.com ([134.134.136.100]:36584 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726043AbgHRH4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 03:56:14 -0400
-IronPort-SDR: /SGiGL+/x2EYD0rFgVRlrPygr4i9Td1NXQwxK4sNfIc7xyGb6GTuYP+YBL5lKfJ4NwMibUiRb8
- KylGB1q+LcUA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="219174401"
-X-IronPort-AV: E=Sophos;i="5.76,326,1592895600"; 
-   d="scan'208";a="219174401"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2020 00:56:13 -0700
-IronPort-SDR: 4tYE53XSB6YAiPbWPaMciN12HkT7ZYYCf7k8Ae7IpAZCTWS09uaC5r847Uwmki8KWpY0nFBP5l
- FeNh0UgDFGeg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,326,1592895600"; 
-   d="scan'208";a="326657452"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
-  by orsmga008.jf.intel.com with ESMTP; 18 Aug 2020 00:56:11 -0700
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        id S1726620AbgHRIIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 04:08:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726398AbgHRII2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 04:08:28 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F691C061389;
+        Tue, 18 Aug 2020 01:08:28 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id u128so9583551pfb.6;
+        Tue, 18 Aug 2020 01:08:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=m313s21wEJmxuhmPKtbGUqqWEllj2MTtaFTQwb2enIE=;
+        b=OtufONajKNzIP6gr7YDun/QW3ro9rpD04mkuKT4cs+IerR6bXb0EEfSZrBS86/akD4
+         40cKAY+zckJTFvGRxXLDJV5Q6EKJOWF826rEIUXiuWkZ6++GkoSndNCSw9ZU7GBtrnPJ
+         i7MJyDe0rLgw2grjYZR04unLuVxIcEUuJWxvksVfW0sRqqkrgLpkzBjI8BfX1/iJSifw
+         x6S/P+uJlioFkC+WA1Ir9HVeYPsD6P717k5LZaF9FJcVQv1OrOheoeQGF4fa2YbyLGcB
+         lYGWp9L6RNZmuRKTngHOMi8necWZDhCHsD1I5gDGscs5KYPXc22len0n7aTY2UhIP8u4
+         hx8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=m313s21wEJmxuhmPKtbGUqqWEllj2MTtaFTQwb2enIE=;
+        b=HGzsKhEQK6GjaTuxtmRbBqZ0PsmBO+lmz6VfFuXNkamZbb+iQzYO3+ytHAZupokyqE
+         1okAGiYAahJ/YZt//C5oKFwKaRA+C9t8/vrpzqqoF+scEEysa0/DuG2k/n5XawHNmTFn
+         hB3nQ66U4IjS7cWwmEf0BzZFWl4pi8DmQSIz35bPfhReRr8tjTv7JLbDkNIF7ftPId0Y
+         sFi2ApcFsXDP5wg3V2equSO1Mo7IM9sxT3hH9sqWj48WID8ytcflf54qamuYR/nFfV1A
+         /ijHWGypFzDL9Kvdatb7cxW767yRQQpx+tNtof1GN1RVzJpgwRxZv4SPDOw/RteBuXh0
+         gfMg==
+X-Gm-Message-State: AOAM5319r30R3tDzPV3RyyheTIgNhoaXjlSUlPe6u8S6o4TxTxbW6HYn
+        Adr8cxHkgv/oLqQcmzCaR3E=
+X-Google-Smtp-Source: ABdhPJwQ0ucHp+nnSbkI/I+/r1bCwZGaElzEDSzF9ufRJ5nFtWB5QNUo904wdRubof6ip0h0WAbsIQ==
+X-Received: by 2002:a63:7d3:: with SMTP id 202mr8695071pgh.230.1597738107451;
+        Tue, 18 Aug 2020 01:08:27 -0700 (PDT)
+Received: from [10.1.10.11] (c-73-241-150-58.hsd1.ca.comcast.net. [73.241.150.58])
+        by smtp.gmail.com with ESMTPSA id x28sm23667645pfj.73.2020.08.18.01.08.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Aug 2020 01:08:26 -0700 (PDT)
+Subject: Re: [PATCH v5 1/3] net: introduce helper sendpage_ok() in
+ include/linux/net.h
+To:     Coly Li <colyli@suse.de>, linux-block@vger.kernel.org,
+        linux-nvme@lists.infradead.org
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        stable@vger.kernel.org,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>
-Subject: [char-misc V5] mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
-Date:   Tue, 18 Aug 2020 10:54:06 +0300
-Message-Id: <20200818075406.2532605-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.25.4
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Vlastimil Babka <vbabka@suse.com>
+References: <20200816070814.6806-1-colyli@suse.de>
+From:   Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <66b4f454-dc97-a23e-81d6-0c547dced694@gmail.com>
+Date:   Tue, 18 Aug 2020 01:08:25 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200816070814.6806-1-colyli@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-wired_cmd_repeater_auth_stream_req_in has a variable
-length array at the end. we use struct_size() overflow
-macro to determine the size for the allocation and sending
-size.
-This also fixes bug in case number of streams is > 0 in the original
-submission. This bug was not triggered as the number of streams is
-always one.
 
-Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
-Fixes: 0a1af1b5c18d (misc/mei/hdcp: Verify M_prime)
-Cc: <stable@vger.kernel.org> # v5.1+: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
----
-V5:
-1. Add reference to depending patch for stable
-V4:
-1. Fix typo in the subject. (Gustavo)
-2. Fix dereferencing pointer in send. (Gustavo)
-V3:
-1. Fix commit message with more info and another patch it fixes 
-(Gustavo) 2. Target stable. (Gustavo)
-V2:
-1. Check for allocation failure.
 
- drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+On 8/16/20 12:08 AM, Coly Li wrote:
+> The original problem was from nvme-over-tcp code, who mistakenly uses
+> kernel_sendpage() to send pages allocated by __get_free_pages() without
+> __GFP_COMP flag. Such pages don't have refcount (page_count is 0) on
+> tail pages, sending them by kernel_sendpage() may trigger a kernel panic
+> from a corrupted kernel heap, because these pages are incorrectly freed
+> in network stack as page_count 0 pages.
+> 
+> This patch introduces a helper sendpage_ok(), it returns true if the
+> checking page,
+> - is not slab page: PageSlab(page) is false.
+> - has page refcount: page_count(page) is not zero
+> 
+> All drivers who want to send page to remote end by kernel_sendpage()
+> may use this helper to check whether the page is OK. If the helper does
+> not return true, the driver should try other non sendpage method (e.g.
+> sock_no_sendpage()) to handle the page.
+> 
+>
+> 
+> diff --git a/include/linux/net.h b/include/linux/net.h
+> index d48ff1180879..a807fad31958 100644
+> --- a/include/linux/net.h
+> +++ b/include/linux/net.h
+> @@ -21,6 +21,7 @@
+>  #include <linux/rcupdate.h>
+>  #include <linux/once.h>
+>  #include <linux/fs.h>
+> +#include <linux/mm.h>
+>  #include <linux/sockptr.h>
+>  
+>  #include <uapi/linux/net.h>
+> @@ -286,6 +287,21 @@ do {									\
+>  #define net_get_random_once_wait(buf, nbytes)			\
+>  	get_random_once_wait((buf), (nbytes))
+>  
+> +/*
+> + * E.g. XFS meta- & log-data is in slab pages, or bcache meta
+> + * data pages, or other high order pages allocated by
+> + * __get_free_pages() without __GFP_COMP, which have a page_count
+> + * of 0 and/or have PageSlab() set. We cannot use send_page for
+> + * those, as that does get_page(); put_page(); and would cause
+> + * either a VM_BUG directly, or __page_cache_release a page that
+> + * would actually still be referenced by someone, leading to some
+> + * obscure delayed Oops somewhere else.
+> + */
+> +static inline bool sendpage_ok(struct page *page)
+> +{
+> +	return  (!PageSlab(page) && page_count(page) >= 1);
+> +}
+>
 
-diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-index d1d3e025ca0e..9ae9669e46ea 100644
---- a/drivers/misc/mei/hdcp/mei_hdcp.c
-+++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-@@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
- 				  struct hdcp_port_data *data,
- 				  struct hdcp2_rep_stream_ready *stream_ready)
- {
--	struct wired_cmd_repeater_auth_stream_req_in
--					verify_mprime_in = { { 0 } };
-+	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
- 	struct wired_cmd_repeater_auth_stream_req_out
- 					verify_mprime_out = { { 0 } };
- 	struct mei_cl_device *cldev;
- 	ssize_t byte;
-+	size_t cmd_size;
- 
- 	if (!dev || !stream_ready || !data)
- 		return -EINVAL;
- 
- 	cldev = to_mei_cl_device(dev);
- 
--	verify_mprime_in.header.api_version = HDCP_API_VERSION;
--	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
--	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
--	verify_mprime_in.header.buffer_len =
-+	cmd_size = struct_size(verify_mprime_in, streams, data->k);
-+	if (cmd_size == SIZE_MAX)
-+		return -EINVAL;
-+
-+	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
-+	if (!verify_mprime_in)
-+		return -ENOMEM;
-+
-+	verify_mprime_in->header.api_version = HDCP_API_VERSION;
-+	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
-+	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
-+	verify_mprime_in->header.buffer_len =
- 			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
- 
--	verify_mprime_in.port.integrated_port_type = data->port_type;
--	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
--	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
-+	verify_mprime_in->port.integrated_port_type = data->port_type;
-+	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
-+	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
-+
-+	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
-+	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
- 
--	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
--	       HDCP_2_2_MPRIME_LEN);
--	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
--	memcpy(verify_mprime_in.streams, data->streams,
-+	memcpy(verify_mprime_in->streams, data->streams,
- 	       array_size(data->k, sizeof(*data->streams)));
- 
--	verify_mprime_in.k = cpu_to_be16(data->k);
-+	verify_mprime_in->k = cpu_to_be16(data->k);
- 
--	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
--			      sizeof(verify_mprime_in));
-+	byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
-+	kfree(verify_mprime_in);
- 	if (byte < 0) {
- 		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
- 		return byte;
--- 
-2.25.4
+return (A);
 
+Can simply be written :
+
+return A;
+
+In this case :
+
+return !PageSlab(page) && page_count(page) >= 1;
+
+BTW, do you have plans to refine code added with commit a10674bf2406afc2554f9c7d31b2dc65d6a27fd9
+("tcp: detecting the misuse of .sendpage for Slab objects")
