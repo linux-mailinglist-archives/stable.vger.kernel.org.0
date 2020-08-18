@@ -2,129 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E17024822C
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 11:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC7124823F
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 11:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726203AbgHRJtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 05:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726145AbgHRJtC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 05:49:02 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B4CD206B5;
-        Tue, 18 Aug 2020 09:49:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597744142;
-        bh=vOeSaQ6NCCwXvmS1IoDa5jzXbs/iXWpzZoUj8D4enMI=;
-        h=Subject:To:From:Date:From;
-        b=qC4uqqcqtKZ2vfSs7/M5OfCHl/giypU/pFvJd38fSyDTE/4CsM5FP3F+xelSzfFre
-         Zktr3RPhYmkr7/2E5DMWnML//RFIfDpxjvMZmAQrtJ5SyxVkNYPhmuP2TakTdCgys8
-         knEFwThMf0JrsjZ4lRF5kobpK8RdufvRVI0CEE8k=
-Subject: patch "USB: yurex: Fix bad gfp argument" added to usb-linus
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Aug 2020 11:49:25 +0200
-Message-ID: <1597744165101107@kroah.com>
+        id S1726651AbgHRJv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 05:51:29 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:48908 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726353AbgHRJv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 05:51:28 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 0EEFE1C0BB7; Tue, 18 Aug 2020 11:51:25 +0200 (CEST)
+Date:   Tue, 18 Aug 2020 11:51:24 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        jbaron@akamai.com, Jim Cromie <jim.cromie@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 051/168] dyndbg: fix a BUG_ON in
+ ddebug_describe_flags
+Message-ID: <20200818095124.GD10974@amd>
+References: <20200817143733.692105228@linuxfoundation.org>
+ <20200817143736.291298404@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="UfEAyuTBtIjiZzX6"
+Content-Disposition: inline
+In-Reply-To: <20200817143736.291298404@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+--UfEAyuTBtIjiZzX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    USB: yurex: Fix bad gfp argument
+On Mon 2020-08-17 17:16:22, Greg Kroah-Hartman wrote:
+> From: Jim Cromie <jim.cromie@gmail.com>
+>=20
+> [ Upstream commit f678ce8cc3cb2ad29df75d8824c74f36398ba871 ]
+>=20
+> ddebug_describe_flags() currently fills a caller provided string buffer,
+> after testing its size (also passed) in a BUG_ON.  Fix this by
+> replacing them with a known-big-enough string buffer wrapped in a
+> struct, and passing that instead.
+>=20
+> Also simplify ddebug_describe_flags() flags parameter from a struct to
+> a member in that struct, and hoist the member deref up to the caller.
+> This makes the function reusable (soon) where flags are unpacked.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Original code was correct, passing explicit size, this passes strange
+structure. BUG_ON can never trigger in the origianl code, so this is
+not a bugfix.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Best regards,
+								Pavel
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+> +++ b/lib/dynamic_debug.c
+> @@ -85,22 +85,22 @@ static struct { unsigned flag:8; char opt_char; } opt=
+_array[] =3D {
+>  	{ _DPRINTK_FLAGS_NONE, '_' },
+>  };
+> =20
+> +struct flagsbuf { char buf[ARRAY_SIZE(opt_array)+1]; };
+> +
+>  /* format a string into buf[] which describes the _ddebug's flags */
+> -static char *ddebug_describe_flags(struct _ddebug *dp, char *buf,
+> -				    size_t maxlen)
+> +static char *ddebug_describe_flags(unsigned int flags, struct flagsbuf *=
+fb)
+>  {
+> -	char *p =3D buf;
+> +	char *p =3D fb->buf;
+>  	int i;
+> =20
+> -	BUG_ON(maxlen < 6);
+>  	for (i =3D 0; i < ARRAY_SIZE(opt_array); ++i)
+> -		if (dp->flags & opt_array[i].flag)
+> +		if (flags & opt_array[i].flag)
+>  			*p++ =3D opt_array[i].opt_char;
+> -	if (p =3D=3D buf)
+> +	if (p =3D=3D fb->buf)
+>  		*p++ =3D '_';
+>  	*p =3D '\0';
+> =20
+> -	return buf;
+> +	return fb->buf;
+>  }
+> =20
+>  #define vpr_info(fmt, ...)					\
+> @@ -142,7 +142,7 @@ static int ddebug_change(const struct ddebug_query *q=
+uery,
+>  	struct ddebug_table *dt;
+>  	unsigned int newflags;
+>  	unsigned int nfound =3D 0;
+> -	char flagbuf[10];
+> +	struct flagsbuf fbuf;
+> =20
+>  	/* search for matching ddebugs */
+>  	mutex_lock(&ddebug_lock);
+> @@ -199,8 +199,7 @@ static int ddebug_change(const struct ddebug_query *q=
+uery,
+>  			vpr_info("changed %s:%d [%s]%s =3D%s\n",
+>  				 trim_prefix(dp->filename), dp->lineno,
+>  				 dt->mod_name, dp->function,
+> -				 ddebug_describe_flags(dp, flagbuf,
+> -						       sizeof(flagbuf)));
+> +				 ddebug_describe_flags(dp->flags, &fbuf));
+>  		}
+>  	}
+>  	mutex_unlock(&ddebug_lock);
+> @@ -779,7 +778,7 @@ static int ddebug_proc_show(struct seq_file *m, void =
+*p)
+>  {
+>  	struct ddebug_iter *iter =3D m->private;
+>  	struct _ddebug *dp =3D p;
+> -	char flagsbuf[10];
+> +	struct flagsbuf flags;
+> =20
+>  	vpr_info("called m=3D%p p=3D%p\n", m, p);
+> =20
+> @@ -792,7 +791,7 @@ static int ddebug_proc_show(struct seq_file *m, void =
+*p)
+>  	seq_printf(m, "%s:%u [%s]%s =3D%s \"",
+>  		   trim_prefix(dp->filename), dp->lineno,
+>  		   iter->table->mod_name, dp->function,
+> -		   ddebug_describe_flags(dp, flagsbuf, sizeof(flagsbuf)));
+> +		   ddebug_describe_flags(dp->flags, &flags));
+>  	seq_escape(m, dp->format, "\t\r\n\"");
+>  	seq_puts(m, "\"\n");
+> =20
 
-If you have any questions about this process, please let me know.
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
+--UfEAyuTBtIjiZzX6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-From f176ede3a3bde5b398a6777a7f9ff091baa2d3ff Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Mon, 10 Aug 2020 14:29:54 -0400
-Subject: USB: yurex: Fix bad gfp argument
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-The syzbot fuzzer identified a bug in the yurex driver: It passes
-GFP_KERNEL as a memory-allocation flag to usb_submit_urb() at a time
-when its state is TASK_INTERRUPTIBLE, not TASK_RUNNING:
+iEYEARECAAYFAl87pJwACgkQMOfwapXb+vK8egCeOuLFXFZ8DrogqMjVa0su9IUM
+VC8AoJu7I0GDnLFTdQOaAoQVu+f6tfKS
+=XkW2
+-----END PGP SIGNATURE-----
 
-do not call blocking ops when !TASK_RUNNING; state=1 set at [<00000000370c7c68>] prepare_to_wait+0xb1/0x2a0 kernel/sched/wait.c:247
-WARNING: CPU: 1 PID: 340 at kernel/sched/core.c:7253 __might_sleep+0x135/0x190
-kernel/sched/core.c:7253
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 1 PID: 340 Comm: syz-executor677 Not tainted 5.8.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
-01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xf6/0x16e lib/dump_stack.c:118
- panic+0x2aa/0x6e1 kernel/panic.c:231
- __warn.cold+0x20/0x50 kernel/panic.c:600
- report_bug+0x1bd/0x210 lib/bug.c:198
- handle_bug+0x41/0x80 arch/x86/kernel/traps.c:234
- exc_invalid_op+0x14/0x40 arch/x86/kernel/traps.c:254
- asm_exc_invalid_op+0x12/0x20 arch/x86/include/asm/idtentry.h:536
-RIP: 0010:__might_sleep+0x135/0x190 kernel/sched/core.c:7253
-Code: 65 48 8b 1c 25 40 ef 01 00 48 8d 7b 10 48 89 fe 48 c1 ee 03 80 3c 06 00 75
-2b 48 8b 73 10 48 c7 c7 e0 9e 06 86 e8 ed 12 f6 ff <0f> 0b e9 46 ff ff ff e8 1f
-b2 4b 00 e9 29 ff ff ff e8 15 b2 4b 00
-RSP: 0018:ffff8881cdb77a28 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: ffff8881c6458000 RCX: 0000000000000000
-RDX: ffff8881c6458000 RSI: ffffffff8129ec93 RDI: ffffed1039b6ef37
-RBP: ffffffff86fdade2 R08: 0000000000000001 R09: ffff8881db32f54f
-R10: 0000000000000000 R11: 0000000030343354 R12: 00000000000001f2
-R13: 0000000000000000 R14: 0000000000000068 R15: ffffffff83c1b1aa
- slab_pre_alloc_hook.constprop.0+0xea/0x200 mm/slab.h:498
- slab_alloc_node mm/slub.c:2816 [inline]
- slab_alloc mm/slub.c:2900 [inline]
- kmem_cache_alloc_trace+0x46/0x220 mm/slub.c:2917
- kmalloc include/linux/slab.h:554 [inline]
- dummy_urb_enqueue+0x7a/0x880 drivers/usb/gadget/udc/dummy_hcd.c:1251
- usb_hcd_submit_urb+0x2b2/0x22d0 drivers/usb/core/hcd.c:1547
- usb_submit_urb+0xb4e/0x13e0 drivers/usb/core/urb.c:570
- yurex_write+0x3ea/0x820 drivers/usb/misc/yurex.c:495
-
-This patch changes the call to use GFP_ATOMIC instead of GFP_KERNEL.
-
-Reported-and-tested-by: syzbot+c2c3302f9c601a4b1be2@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200810182954.GB307778@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/misc/yurex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/misc/yurex.c b/drivers/usb/misc/yurex.c
-index 6e7d34e7fec4..b2e09883c7e2 100644
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -492,7 +492,7 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
- 	prepare_to_wait(&dev->waitq, &wait, TASK_INTERRUPTIBLE);
- 	dev_dbg(&dev->interface->dev, "%s - submit %c\n", __func__,
- 		dev->cntl_buffer[0]);
--	retval = usb_submit_urb(dev->cntl_urb, GFP_KERNEL);
-+	retval = usb_submit_urb(dev->cntl_urb, GFP_ATOMIC);
- 	if (retval >= 0)
- 		timeout = schedule_timeout(YUREX_WRITE_TIMEOUT);
- 	finish_wait(&dev->waitq, &wait);
--- 
-2.28.0
-
-
+--UfEAyuTBtIjiZzX6--
