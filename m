@@ -2,76 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA64247BAA
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 02:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FF2247C53
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 04:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726302AbgHRAzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 20:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726228AbgHRAzi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Aug 2020 20:55:38 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E36D20789;
-        Tue, 18 Aug 2020 00:55:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597712137;
-        bh=MyLBtOkx7MAh86cun2mYNwFMG7fn3zQ+n6TqXSjGeIg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o2J1gd4XqlGYcZb90y5rRLrDFCfFtVicU5iebB9MB5qegXWippCwYNQzgjdlDBsxR
-         HkPVVDfVa9ONxh3uyxn+eqijNQVnYBM7KquMapK+fwJ0ecMlamcFrHjNcTgaN0cXAv
-         D1ic2QwnXTBuhz06InkT4Y2UtpFeEoawVVxyEdVM=
-Date:   Mon, 17 Aug 2020 20:55:36 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Andreas =?iso-8859-1?Q?Gr=FCnbacher?= 
-        <andreas.gruenbacher@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH 5.8 214/464] iomap: Make sure iomap_end is called after
- iomap_begin
-Message-ID: <20200818005536.GG4122976@sasha-vm>
-References: <20200817143833.737102804@linuxfoundation.org>
- <20200817143844.062314049@linuxfoundation.org>
- <CAHpGcMJPQjfabb0_9n=rVBZXQqdnhvcaA3rgbNBemb4OqSYYgA@mail.gmail.com>
+        id S1726365AbgHRCvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 22:51:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726367AbgHRCvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 22:51:43 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DDEC061389
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:51:43 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id v6so15091652ota.13
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:51:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
+        b=iNywxguY2vLOb82BZnhnQBYV45Nz0UmeJT06x7KVOCN/UGqb41+Ap5UnQ84n16iBRG
+         SlGs+W2n4inQQzeGlssVq+ZfC3prVrVYM2+VWDsqcCx9JoadNfImGujhM9NwAeMvgU5a
+         cRHg0FoUb1WQbwr6O6ccbNF55oPeYB3re8UR52Eu9Z5ET+oyrpXx2EwIO6p8N6meuk1I
+         4J9z4DFQjPDsbn4kT3yWfmm7m5/4D6Yjrw+3zESH9UtvX0g+hfRulNTARaYk2xI+bB2c
+         n8zpGf7NJSk6g8CMvg0XTqG9aqcSZJ3KB3n8eaFmGhs6+xhXh7T/B/B7yavojNONcbSA
+         Qubg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
+        b=jS5DriuPwrPsHFP4cTa+dtiY2nCqrsXr9aZR3idTwLqGMFnP9Exg+tsjK/eioDtKmW
+         H/lGpCeC6g7RF4vdD3Az6Kp5SxBCbkl9db9uZt+fxoDqTi0kBJo7cLsOF/uNLGaKZhYA
+         3L3M98kZZ9/gDIncdzBKc1x9b1A6rm6IFW04pxs7NQpU4JFTckePwYi6bMFYZFKomRcT
+         xLzzyl0gUrPbQr9LHVfn1VpU0Xxp4RR5TCgcYKu0ssgTwszAMAPvcl3KPRZYl/AKingD
+         mbn8XzjhAOonngETwZCZbS5164e4h28k9b4lMM5nCDZrWAQ85+ql0+o9xdQjZpFXo2R4
+         rI2Q==
+X-Gm-Message-State: AOAM530a/TdV05SYYVNjWxOP5Pc8mXFhGjqGwTriFcinRGSqcxHYCtmI
+        tNYD6rCfVB49ktVcOL6sFdAOCsOCXCc1Vcm5oMo=
+X-Google-Smtp-Source: ABdhPJyh7FyPoIxAHlbYrIp/+rXgObrBHhgmth2OIRzUXbjKEkkMABQzTa8OYboIFSIFjWXhnye8VORNUQNB14wnnwQ=
+X-Received: by 2002:a05:6830:1e4c:: with SMTP id e12mr12829513otj.193.1597719102052;
+ Mon, 17 Aug 2020 19:51:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHpGcMJPQjfabb0_9n=rVBZXQqdnhvcaA3rgbNBemb4OqSYYgA@mail.gmail.com>
+Received: by 2002:ac9:4b06:0:0:0:0:0 with HTTP; Mon, 17 Aug 2020 19:51:41
+ -0700 (PDT)
+Reply-To: ayishagddafio@mail.ru
+From:   AISHA GADDAFI <evangelicalurtheranchurch@gmail.com>
+Date:   Mon, 17 Aug 2020 19:51:41 -0700
+Message-ID: <CAB+rQNy1ktJ-7a1s2MPQnC21aSivRJe375AHkQ=394s+_SUGyQ@mail.gmail.com>
+Subject: Lieber Freund (Assalamu Alaikum),?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 09:56:02PM +0200, Andreas Grünbacher wrote:
->Gerg,
->
->Am Mo., 17. Aug. 2020 um 21:39 Uhr schrieb Greg Kroah-Hartman
-><gregkh@linuxfoundation.org>:
->> From: Andreas Gruenbacher <agruenba@redhat.com>
->>
->> [ Upstream commit 856473cd5d17dbbf3055710857c67a4af6d9fcc0 ]
->>
->> Make sure iomap_end is always called when iomap_begin succeeds.
->>
->> Without this fix, iomap_end won't be called when a filesystem's
->> iomap_begin operation returns an invalid mapping, bypassing any
->> unlocking done in iomap_end.  With this fix, the unlocking will still
->> happen.
->>
->> This bug was found by Bob Peterson during code review.  It's unlikely
->> that such iomap_begin bugs will survive to affect users, so backporting
->> this fix seems unnecessary.
->
->this doesn't need to be backported.
+--=20
+Lieber Freund (Assalamu Alaikum),
 
-Now dropped, thanks!
+Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
+Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
+Mutter und eine Witwe
+mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
+hen
+Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
 
--- 
-Thanks,
-Sasha
+Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
+f=C3=BCnfhunderttausend
+United State Dollar ($ 27.500.000.00) und ich brauche eine
+vertrauensw=C3=BCrdige Investition
+Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
+jedoch
+M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
+von
+Investitionsprojekten in Ihrem Land
+Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
+bauen.
+
+Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
+n und
+Unternehmensgewinn zu verhandeln
+Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
+
+Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
+antworten Sie bitte dringend
+Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
+.
+
+Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
+esse (
+ayishagddafio@mail.ru ) zur weiteren Diskussion.
+
+Freundliche Gr=C3=BC=C3=9Fe
+Frau Aisha Al-Qaddafi
