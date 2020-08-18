@@ -2,182 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214C4247E46
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 08:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 693AD247EC8
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 08:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgHRGL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 02:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726374AbgHRGL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 02:11:27 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF636C061342
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 23:11:26 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id y8so9527563vsq.8
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 23:11:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=07CIAwk5ZAShga4EuMYCBLMQcZzdl6+RnOJwmsnH2IU=;
-        b=gkndf02aUgbSzRo2saxmLFXDwSD8uNTGq++DCi5hbWqlGCjIS/3V3lLkelJlgl750Q
-         7zHUMJmn10N9TRepxD5G5whIbhoA4Zn0KsYzqlb8jcsJjLrb0bIMEiwB7UPAVkL3OZQF
-         hGjJcQlsiBb0BaDGXHife7uU6O9U4HlKZ4hHD4dDYRtm902g+8MrrZ3jkbiCw5tQNwmq
-         a92j7dHMA2SpLsIImpumN+wemKB532KONkX0nplqFb8xath93Q9HINIj2qVCiYb48gSt
-         03Q3dCe4VpaIEtwthMbyi8WWmJudHgVeet5HBxOoz+p5LA7mnk0FBwPFqtJminBKU1EN
-         B1gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=07CIAwk5ZAShga4EuMYCBLMQcZzdl6+RnOJwmsnH2IU=;
-        b=MFRUwskz7WFegebt5Rb9s+vodXGKfjaJesizT35ghA1sih7O73gqZP64yh1bzJAkjo
-         hi9hvnM8HBrFoFvwKmZoyoS7IpCwPzrSf3AIAn0H2s4It87MnE0FXo1m/etWHDb17yE7
-         YS5eeTN6TSKN9r11C/Z3QfM6GLGjUfjeOeE6Fw0zQsO5jYFkVE3hIBCyxUjIOf37ZpSj
-         aHLHTYA8d3hHrOCdNf9JauIYlwDsyvnP1MSJ0ttH+x23PiStqxKT+1Z9GWV2gExjUbuY
-         m/eRG4U6EaXJNxGgWyvRoix2pRuRFk9Cr9I/0H9lsWBpE0CdmhzLNfDZ/bBJz9a4hCAt
-         bVGw==
-X-Gm-Message-State: AOAM533KVAU9NoUBY7XloQvjxYmRagm9YMPZgSQ6YSJuhVmzKXQjq+hu
-        6HNUW0WwFW/eoOr5ystuMNvNSfsxkF5OdnhnfKO2bw==
-X-Google-Smtp-Source: ABdhPJy0NaPbpWawVwD+lAAwYzraE8SBFH/fNa1e24SIqisIh25yFMGdEDM1q/mwxhIe5mfH4k8txc+AErITWPD5aM0=
-X-Received: by 2002:a67:d84:: with SMTP id 126mr640475vsn.69.1597731086117;
- Mon, 17 Aug 2020 23:11:26 -0700 (PDT)
+        id S1726261AbgHRG5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 02:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46992 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726228AbgHRG47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 02:56:59 -0400
+Received: from saruman (unknown [85.206.163.145])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C938220639;
+        Tue, 18 Aug 2020 06:56:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597733819;
+        bh=b0DcgzAO/FotIJkO9ER4sAW02nmMq8dbhqQ3phtzeGk=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=ig5we8dAV4MNPkkqogN0Q3cVOwIU5GDNau4yLML55D7WNxom6P4aqeGSYdzrKo+oA
+         HZbq94ejoZFIZl1aGeo0tZ/g1891a7+xgz3dTHAKp+S+VcRTawf4/mlx19tf1krfKK
+         xIaxCBrYUcJp/gjeC74+nwOCAfwHhaxfpM0S3gys=
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 0/3] usb: dwc3: gadget: Fix halt/clear_stall handling
+In-Reply-To: <988d2d58-59f6-3d1e-bc66-ab424cc0fff4@synopsys.com>
+References: <cover.1596151437.git.thinhn@synopsys.com>
+ <988d2d58-59f6-3d1e-bc66-ab424cc0fff4@synopsys.com>
+Date:   Tue, 18 Aug 2020 09:56:41 +0300
+Message-ID: <87364kzbkm.fsf@kernel.org>
 MIME-Version: 1.0
-References: <20200817143733.692105228@linuxfoundation.org>
-In-Reply-To: <20200817143733.692105228@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 18 Aug 2020 11:41:14 +0530
-Message-ID: <CA+G9fYtuBjTxYQ=MkzWJbOvrKbdW4r3i7N0d+ZAjouqENNMZ_Q@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/168] 4.19.140-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 Aug 2020 at 21:44, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+
+> Hi Felipe,
 >
-> This is the start of the stable review cycle for the 4.19.140 release.
-> There are 168 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Thinh Nguyen wrote:
+>> This series fixes a couple of driver issues handling ClearFeature(halt)
+>> request:
+>>
+>> 1) A function driver often uses set_halt() to reject a class driver prot=
+ocol
+>> command. After set_halt(), the endpoint will be stalled. It can queue new
+>> requests while the endpoint is stalled. However, dwc3 currently drops th=
+ose
+>> requests after CLEAR_STALL. The driver should only drop started requests=
+. Keep
+>> the pending requests in the pending list to resume and process them afte=
+r the
+>> host issues ClearFeature(Halt) to the endpoint.
+>>
+>> 2) DWC3 should issue CLEAR_STALL command _after_ END_TRANSFER command co=
+mpletes.
+>>
+>>
+>> Thinh Nguyen (3):
+>>   usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
+>>   usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command
 >
-> Responses should be made by Wed, 19 Aug 2020 14:36:49 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.140-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> Since you're picking the fix patches for RC cycle, can you pick up these
+> 2 patches of this series also? We can leave the refactoring patch in
+> this series for v5.10.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+just to be sure: you did run these through usbcv and usb3 compliance
+suite, right? Which gadget drivers did you use?
 
-Summary
-------------------------------------------------------------------------
+=2D-=20
+balbi
 
-kernel: 4.19.140-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 9950f9b4d350ca9b4f05daa2d16b090000b1d2d7
-git describe: v4.19.139-169-g9950f9b4d350
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.139-169-g9950f9b4d350
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-No regressions (compared to build v4.19.139)
+-----BEGIN PGP SIGNATURE-----
 
-No fixes (compared to build v4.19.139)
-
-
-Ran 33782 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* ltp-controllers-tests
-* ltp-cve-tests
-* ltp-fs-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* igt-gpu-tools
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAl87e6kRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQYkQhAAqmt387pE4WPQmp4CQ4sqMtaw8AosnrbB
+oxQdvTeF0+rQ8dRZEGA5NYyWaZDNSMI0ZxX0AKGOeqrRFOBYmHy44LzWXu9SbouF
+/Q2cwQ29IT9UMjJWlL8UYHf+dAEACPKZ2Pw3zduADl6QX2TYLRxTVE/cpK17HbgH
+9mRIdsOgHHzKDZ9yBmmfH3AmoO6aQ+XhWCYe3C9oWRwEvI6ECwSVlbCNvugCPLQJ
+Jr41XFyg/Qex5rvhD6CD+oa/dAJ12RghWfyaz4VPQ5B7E74TJr/thak/P6I9HuTF
+2p+4GApLkBmO2Wl8UNN+cB/A92P24dHkwTBbQlAoxM4AGdG6cgQPf8ac5pYO6Kcy
+FGY3L+LcxBFcwjX+8cyspAJrxNEgo3eRysIO/CyyW73FyzgRzPKDafqy04fAQSNb
+mP0GpkDmp4QNx2E01QO67nrEFRazsFUNlG2HEruOW031LY1tNsw6cgUvqRdejvNU
+J4XIIgtrPzAXsX47bQ1MGavqDXlf8hBnFiHwh4zxsc61wDTg0yXDX6w8Hj1WowZU
+hL575WGG8a7FcISTiqtyQbOkePF/of5dD6Z+I7fxDxw8BiHlyb5uUd1fVW2MZH6+
+n3/5MWH3UqhVITmP4BJVWyWJrvm4ROJeqM6KF2m0PdF+uJG/FA1qWHZHwl+Pt83/
+YZavKE5V79w=
+=V81P
+-----END PGP SIGNATURE-----
+--=-=-=--
