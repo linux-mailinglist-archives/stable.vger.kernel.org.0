@@ -2,98 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FF2247C53
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 04:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C868247C57
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 04:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbgHRCvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Aug 2020 22:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726367AbgHRCvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 22:51:43 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DDEC061389
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:51:43 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id v6so15091652ota.13
-        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:51:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=iNywxguY2vLOb82BZnhnQBYV45Nz0UmeJT06x7KVOCN/UGqb41+Ap5UnQ84n16iBRG
-         SlGs+W2n4inQQzeGlssVq+ZfC3prVrVYM2+VWDsqcCx9JoadNfImGujhM9NwAeMvgU5a
-         cRHg0FoUb1WQbwr6O6ccbNF55oPeYB3re8UR52Eu9Z5ET+oyrpXx2EwIO6p8N6meuk1I
-         4J9z4DFQjPDsbn4kT3yWfmm7m5/4D6Yjrw+3zESH9UtvX0g+hfRulNTARaYk2xI+bB2c
-         n8zpGf7NJSk6g8CMvg0XTqG9aqcSZJ3KB3n8eaFmGhs6+xhXh7T/B/B7yavojNONcbSA
-         Qubg==
+        id S1726367AbgHRC4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Aug 2020 22:56:03 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52958 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726365AbgHRC4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Aug 2020 22:56:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597719360;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tTS4kUxBIacME4nPsCb/ggAGvoDIx/15keGtZzANr+4=;
+        b=NuoSqE61ZROqpcqSa2RRIOirhuBs+vxia88a+UznHdkEn4W0JUEoRgiDSM9cisrb7Rap4X
+        BefGm1L9TWJPwe1wLty1MReZqgwL55C1rfhsxYzYkiF6U7fLnra74Epy+AQynm4erPY4tP
+        D8ghe8k6FaEcTV8dYlv9oeaE2MyMmn4=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-371-jqnPfgeVOz-b3uOmuM5N7g-1; Mon, 17 Aug 2020 22:55:58 -0400
+X-MC-Unique: jqnPfgeVOz-b3uOmuM5N7g-1
+Received: by mail-pj1-f71.google.com with SMTP id a6so12018387pjd.1
+        for <stable@vger.kernel.org>; Mon, 17 Aug 2020 19:55:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=jS5DriuPwrPsHFP4cTa+dtiY2nCqrsXr9aZR3idTwLqGMFnP9Exg+tsjK/eioDtKmW
-         H/lGpCeC6g7RF4vdD3Az6Kp5SxBCbkl9db9uZt+fxoDqTi0kBJo7cLsOF/uNLGaKZhYA
-         3L3M98kZZ9/gDIncdzBKc1x9b1A6rm6IFW04pxs7NQpU4JFTckePwYi6bMFYZFKomRcT
-         xLzzyl0gUrPbQr9LHVfn1VpU0Xxp4RR5TCgcYKu0ssgTwszAMAPvcl3KPRZYl/AKingD
-         mbn8XzjhAOonngETwZCZbS5164e4h28k9b4lMM5nCDZrWAQ85+ql0+o9xdQjZpFXo2R4
-         rI2Q==
-X-Gm-Message-State: AOAM530a/TdV05SYYVNjWxOP5Pc8mXFhGjqGwTriFcinRGSqcxHYCtmI
-        tNYD6rCfVB49ktVcOL6sFdAOCsOCXCc1Vcm5oMo=
-X-Google-Smtp-Source: ABdhPJyh7FyPoIxAHlbYrIp/+rXgObrBHhgmth2OIRzUXbjKEkkMABQzTa8OYboIFSIFjWXhnye8VORNUQNB14wnnwQ=
-X-Received: by 2002:a05:6830:1e4c:: with SMTP id e12mr12829513otj.193.1597719102052;
- Mon, 17 Aug 2020 19:51:42 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tTS4kUxBIacME4nPsCb/ggAGvoDIx/15keGtZzANr+4=;
+        b=U4diL0izqpIXE6MpCOmAEs3h0Ff1/yAasrCgoQPKMhikxVB6LQb2guzwH6Sw8apGaw
+         toAeU+CkCgNRnd/cgeh7fezoAsC1vVpXDVISw3IDvQ3+yYEwKfQH2soDdec95CDUZfIh
+         YA1NFkFzkNHboxHFUww0agVGftG7+yD4tx5yFPPUKcBBU/wo6tk91izm8qR8kS8lON/f
+         67gySpezzBloq/9p3IhUgxygeVZH3nUzU4UYKqxn/9Lzh1YvjzgOy85IyWJip2qMsOwR
+         +PdS98kBgk+7hFnT9tbL8//yUA1neExDiDG6BZB+1/kj3Lpg5ziBHQZmtdg3bwlpSIul
+         cSnQ==
+X-Gm-Message-State: AOAM532fMpztBDA56tFkH6ENdg929XU0gmpSVYoGMupM/dl6K7ozYaU1
+        46/0b1UGabmye/uNBy7RsSpUa9qGqbHab8mPOJJ5GmiJhSQDjbqVNA5bBRsDCRmIAXmtRh/TTkO
+        BzI5hnd4injcbuENy
+X-Received: by 2002:a63:f44b:: with SMTP id p11mr7580099pgk.324.1597719357304;
+        Mon, 17 Aug 2020 19:55:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwqQMJfYvM9k9/9TjsuxkVZUCQwUTlIBrnW1m2TdXIbvhJfDLq7QTE/YpTBqRKEMRtZsNR8VA==
+X-Received: by 2002:a63:f44b:: with SMTP id p11mr7580086pgk.324.1597719357044;
+        Mon, 17 Aug 2020 19:55:57 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id u5sm7555640pfm.149.2020.08.17.19.55.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Aug 2020 19:55:56 -0700 (PDT)
+Date:   Tue, 18 Aug 2020 10:55:46 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, yuchao0@huawei.com
+Subject: Re: FAILED: patch "[PATCH] erofs: fix extended inode could cross
+ boundary" failed to apply to 4.19-stable tree
+Message-ID: <20200818025546.GA6339@xiangao.remote.csb>
+References: <159766792693116@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ac9:4b06:0:0:0:0:0 with HTTP; Mon, 17 Aug 2020 19:51:41
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <evangelicalurtheranchurch@gmail.com>
-Date:   Mon, 17 Aug 2020 19:51:41 -0700
-Message-ID: <CAB+rQNy1ktJ-7a1s2MPQnC21aSivRJe375AHkQ=394s+_SUGyQ@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <159766792693116@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+On Mon, Aug 17, 2020 at 02:38:46PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 0dcd3c94e02438f4a571690e26f4ee997524102a Mon Sep 17 00:00:00 2001
+> From: Gao Xiang <hsiangkao@redhat.com>
+> Date: Thu, 30 Jul 2020 01:58:01 +0800
+> Subject: [PATCH] erofs: fix extended inode could cross boundary
+> 
+> Each ondisk inode should be aligned with inode slot boundary
+> (32-byte alignment) because of nid calculation formula, so all
+> compact inodes (32 byte) cannot across page boundary. However,
+> extended inode is now 64-byte form, which can across page boundary
+> in principle if the location is specified on purpose, although
+> it's hard to be generated by mkfs due to the allocation policy
+> and rarely used by Android use case now mainly for > 4GiB files.
+> 
+> For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
+> be read from disk properly and cause out-of-bound memory read
+> with random value.
+> 
+> Let's fix now.
+> 
+> Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+> Cc: <stable@vger.kernel.org> # 4.19+
+> Link: https://lore.kernel.org/r/20200729175801.GA23973@xiangao.remote.csb
+> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
-Mutter und eine Witwe
-mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
-hen
-Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
+Yeah, due to code difference, will manually backport this later...
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
-f=C3=BCnfhunderttausend
-United State Dollar ($ 27.500.000.00) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
-jedoch
-M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
-von
-Investitionsprojekten in Ihrem Land
-Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
-bauen.
+Thanks,
+Gao Xiang
 
-Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
-n und
-Unternehmensgewinn zu verhandeln
-Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
-
-Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
-esse (
-ayishagddafio@mail.ru ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Qaddafi
