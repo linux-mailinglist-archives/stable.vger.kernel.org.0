@@ -2,85 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D2724824A
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 11:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2566E248252
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 11:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgHRJw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 05:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S1726273AbgHRJzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 05:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726484AbgHRJwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 05:52:55 -0400
+        id S1726043AbgHRJzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 05:55:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5ED420738;
-        Tue, 18 Aug 2020 09:52:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FB7C206B5;
+        Tue, 18 Aug 2020 09:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597744375;
-        bh=xdS+b75ghYmvRyp5w9RPdxKoug0EJ/G+RiOriB8x2Hk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=G2nzMHixlR6257icH9egqpc70o0BhDsW4O8+t+2Ivyzzp7ScpRlqfPKrVthkuEJst
-         1tngXqow2SmSDX0R9ZAAOq47rOq0J8lZ5kghwqVli8sXOW8WcX7Ee/KzcO9XXmaoY3
-         48Q+5RkPW2HFSN5b0NaKLDTTLHUjoTIVMufaB0oU=
-Date:   Tue, 18 Aug 2020 11:53:18 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+96414aa0033c363d8458@syzkaller.appspotmail.com,
-        Lihong Kou <koulihong@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 027/168] Bluetooth: add a mutex lock to avoid UAF in
- do_enale_set
-Message-ID: <20200818095318.GA57268@kroah.com>
-References: <20200817143733.692105228@linuxfoundation.org>
- <20200817143735.099152549@linuxfoundation.org>
- <20200818094024.GB10974@amd>
+        s=default; t=1597744517;
+        bh=YdeFNodbMw3+5vdZJalInuBsR22EJALQtVkFBtgWiEs=;
+        h=Subject:To:From:Date:From;
+        b=dIzpwBtRJEIgDtmaVg6YhdokbIzsRrYpr/A+5bMw8x6VwL+xHeHMnqukiYGZTpy5B
+         GldcGTaOy12tiB871OpKWAmtKHY+8nEXfsnFpWEZNvgTRokee1pimhGQ0e+JSiDALm
+         kKyBXwoA+TRN/6voBGiclgh1Q7leH/XJl5Gl7mm4=
+Subject: patch "USB: quirks: Add no-lpm quirk for another Raydium touchscreen" added to usb-linus
+To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 18 Aug 2020 11:55:40 +0200
+Message-ID: <1597744540196250@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200818094024.GB10974@amd>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 18, 2020 at 11:40:25AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Lihong Kou <koulihong@huawei.com>
-> > 
-> > [ Upstream commit f9c70bdc279b191da8d60777c627702c06e4a37d ]
-> > 
-> > In the case we set or free the global value listen_chan in
-> > different threads, we can encounter the UAF problems because
-> > the method is not protected by any lock, add one to avoid
-> > this bug.
-> 
-> For this to be safe, bt_6lowpan_exit() needs same handling, no?
-> 
-> Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-> 
-> diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-> index 9a75f9b00b51..2402ef5ac072 100644
-> --- a/net/bluetooth/6lowpan.c
-> +++ b/net/bluetooth/6lowpan.c
-> @@ -1304,10 +1304,12 @@ static void __exit bt_6lowpan_exit(void)
->  	debugfs_remove(lowpan_enable_debugfs);
->  	debugfs_remove(lowpan_control_debugfs);
->  
-> +	mutex_lock(&set_lock);
->  	if (listen_chan) {
->  		l2cap_chan_close(listen_chan, 0);
->  		l2cap_chan_put(listen_chan);
->  	}
-> +	mutex_unlock(&set_lock);
->  
->  	disconnect_devices();
->  
-> 
-> 
 
-Why you are sending this in this format seems very odd to me, you know
-better...
+This is a note to let you know that I've just added the patch titled
+
+    USB: quirks: Add no-lpm quirk for another Raydium touchscreen
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 5967116e8358899ebaa22702d09b0af57fef23e1 Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date: Fri, 31 Jul 2020 13:16:20 +0800
+Subject: USB: quirks: Add no-lpm quirk for another Raydium touchscreen
+
+There's another Raydium touchscreen needs the no-lpm quirk:
+[    1.339149] usb 1-9: New USB device found, idVendor=2386, idProduct=350e, bcdDevice= 0.00
+[    1.339150] usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.339151] usb 1-9: Product: Raydium Touch System
+[    1.339152] usb 1-9: Manufacturer: Raydium Corporation
+...
+[    6.450497] usb 1-9: can't set config #1, error -110
+
+BugLink: https://bugs.launchpad.net/bugs/1889446
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200731051622.28643-1-kai.heng.feng@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/quirks.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 7c1198f80c23..d1f38956b210 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -465,6 +465,8 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 
+ 	{ USB_DEVICE(0x2386, 0x3119), .driver_info = USB_QUIRK_NO_LPM },
+ 
++	{ USB_DEVICE(0x2386, 0x350e), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+ 
+-- 
+2.28.0
+
+
