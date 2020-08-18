@@ -2,121 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E75B2485C6
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 15:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B04924863D
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 15:40:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726838AbgHRNNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 09:13:37 -0400
-Received: from mga14.intel.com ([192.55.52.115]:24130 "EHLO mga14.intel.com"
+        id S1726398AbgHRNk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 09:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726705AbgHRNNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 09:13:35 -0400
-IronPort-SDR: L/NiWsOp261toAA83p3LNFrAVLaeAFmuEbMN+hnY8YNzoDqQc+mipTMStXyUNSQ5rMlVCNk9k4
- U1wmz5SnGr2Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9716"; a="154153858"
-X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
-   d="scan'208";a="154153858"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2020 06:13:33 -0700
-IronPort-SDR: 3B2z/bqLkMdhodrcZ4CfC+QANpEMODAmQBVCiyO0i7uvZxrbHhwOzf7bIfi4RZV4JlkF8xP+9D
- MSmeX3+j2rzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,327,1592895600"; 
-   d="scan'208";a="320082635"
-Received: from local-michael-cet-test.sh.intel.com (HELO localhost) ([10.239.159.128])
-  by fmsmga004.fm.intel.com with ESMTP; 18 Aug 2020 06:13:31 -0700
-Date:   Tue, 18 Aug 2020 21:21:11 +0800
-From:   Yang Weijiang <weijiang.yang@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        peterx@redhat.com, Yang Weijiang <weijiang.yang@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] selftests: kvm: Use a shorter encoding to clear RAX
-Message-ID: <20200818132111.GA14817@local-michael-cet-test.sh.intel.com>
-References: <20200817172034.26673-1-pbonzini@redhat.com>
+        id S1726612AbgHRNkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 09:40:12 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E203A206B5;
+        Tue, 18 Aug 2020 13:40:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597758011;
+        bh=Mfor1aJi+OpkKSi/XJjUAzsMcNX21INixvXSv4acO+8=;
+        h=Subject:To:From:Date:From;
+        b=kng3WXaeQbpb8wCSW68Io8P0t+RwP1WPo95SsMSmD7nHxou7u8bP0jddIT2eQBHmA
+         ce7k+hKLSr+PywklDcZ8csxsLcovuCtD0TsB1rwHf0DmPKrfMVHMMek5EC+iALJ1VK
+         fchb9iDJIJlhmlyuLPfxbxXWRUm5SLllygo9iY8o=
+Subject: patch "mei: hdcp: fix mei_hdcp_verify_mprime() input parameter" added to char-misc-linus
+To:     tomas.winkler@intel.com, gregkh@linuxfoundation.org,
+        gustavoars@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 18 Aug 2020 15:40:35 +0200
+Message-ID: <15977580352193@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200817172034.26673-1-pbonzini@redhat.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 01:20:34PM -0400, Paolo Bonzini wrote:
-> From: Yang Weijiang <weijiang.yang@intel.com>
-> 
-> If debug_regs.c is built with newer binutils, the resulting binary is "optimized"
-> by the assembler:
-> 
-> asm volatile("ss_start: "
->              "xor %%rax,%%rax\n\t"
->              "cpuid\n\t"
->              "movl $0x1a0,%%ecx\n\t"
->              "rdmsr\n\t"
->              : : : "rax", "ecx");
-> 
-> is translated to :
-> 
->   000000000040194e <ss_start>:
->   40194e:       31 c0                   xor    %eax,%eax     <----- rax->eax?
->   401950:       0f a2                   cpuid
->   401952:       b9 a0 01 00 00          mov    $0x1a0,%ecx
->   401957:       0f 32                   rdmsr
-> 
-> As you can see rax is replaced with eax in target binary code.
-> This causes a difference is the length of xor instruction (2 Byte vs 3 Byte),
-> and makes the hard-coded instruction length check fail:
-> 
->         /* Instruction lengths starting at ss_start */
->         int ss_size[4] = {
->                 3,              /* xor */   <-------- 2 or 3?
->                 2,              /* cpuid */
->                 5,              /* mov */
->                 2,              /* rdmsr */
->         };
-> 
-> Encode the shorter version directly and, while at it, fix the "clobbers"
-> of the asm.
-> 
-> Reported-by: Yang Weijiang <weijiang.yang@intel.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  tools/testing/selftests/kvm/x86_64/debug_regs.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/x86_64/debug_regs.c b/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> index 8162c58a1234..b8d14f9db5f9 100644
-> --- a/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> +++ b/tools/testing/selftests/kvm/x86_64/debug_regs.c
-> @@ -40,11 +40,11 @@ static void guest_code(void)
->  
->  	/* Single step test, covers 2 basic instructions and 2 emulated */
->  	asm volatile("ss_start: "
-> -		     "xor %%rax,%%rax\n\t"
-> +		     "xor %%eax,%%eax\n\t"
->  		     "cpuid\n\t"
->  		     "movl $0x1a0,%%ecx\n\t"
->  		     "rdmsr\n\t"
-> -		     : : : "rax", "ecx");
-> +		     : : : "eax", "ebx", "ecx", "edx");
->
-Hi, Paolo,
-Should we also change the below expected instruction length(xor) to 2 in
-accordance with above change?
 
-int ss_size[4] = {
-        3,              /* xor */
-        2,              /* cpuid */
-        5,              /* mov */
-        2,              /* rdmsr */
+This is a note to let you know that I've just added the patch titled
 
->  	/* DR6.BD test */
->  	asm volatile("bd_start: mov %%dr0, %%rax" : : : "rax");
-> -- 
-> 2.26.2
+    mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 51072c0f5b5e98a035c6f63b83ba2afedbb7accd Mon Sep 17 00:00:00 2001
+From: Tomas Winkler <tomas.winkler@intel.com>
+Date: Tue, 18 Aug 2020 10:54:06 +0300
+Subject: mei: hdcp: fix mei_hdcp_verify_mprime() input parameter
+
+wired_cmd_repeater_auth_stream_req_in has a variable
+length array at the end. we use struct_size() overflow
+macro to determine the size for the allocation and sending
+size.
+This also fixes bug in case number of streams is > 0 in the original
+submission. This bug was not triggered as the number of streams is
+always one.
+
+Fixes: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
+Fixes: 0a1af1b5c18d (misc/mei/hdcp: Verify M_prime)
+Cc: <stable@vger.kernel.org> # v5.1+: c56967d674e3 (mei: hdcp: Replace one-element array with flexible-array member)
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/r/20200818075406.2532605-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/misc/mei/hdcp/mei_hdcp.c | 40 +++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
+index d1d3e025ca0e..9ae9669e46ea 100644
+--- a/drivers/misc/mei/hdcp/mei_hdcp.c
++++ b/drivers/misc/mei/hdcp/mei_hdcp.c
+@@ -546,38 +546,46 @@ static int mei_hdcp_verify_mprime(struct device *dev,
+ 				  struct hdcp_port_data *data,
+ 				  struct hdcp2_rep_stream_ready *stream_ready)
+ {
+-	struct wired_cmd_repeater_auth_stream_req_in
+-					verify_mprime_in = { { 0 } };
++	struct wired_cmd_repeater_auth_stream_req_in *verify_mprime_in;
+ 	struct wired_cmd_repeater_auth_stream_req_out
+ 					verify_mprime_out = { { 0 } };
+ 	struct mei_cl_device *cldev;
+ 	ssize_t byte;
++	size_t cmd_size;
+ 
+ 	if (!dev || !stream_ready || !data)
+ 		return -EINVAL;
+ 
+ 	cldev = to_mei_cl_device(dev);
+ 
+-	verify_mprime_in.header.api_version = HDCP_API_VERSION;
+-	verify_mprime_in.header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
+-	verify_mprime_in.header.status = ME_HDCP_STATUS_SUCCESS;
+-	verify_mprime_in.header.buffer_len =
++	cmd_size = struct_size(verify_mprime_in, streams, data->k);
++	if (cmd_size == SIZE_MAX)
++		return -EINVAL;
++
++	verify_mprime_in = kzalloc(cmd_size, GFP_KERNEL);
++	if (!verify_mprime_in)
++		return -ENOMEM;
++
++	verify_mprime_in->header.api_version = HDCP_API_VERSION;
++	verify_mprime_in->header.command_id = WIRED_REPEATER_AUTH_STREAM_REQ;
++	verify_mprime_in->header.status = ME_HDCP_STATUS_SUCCESS;
++	verify_mprime_in->header.buffer_len =
+ 			WIRED_CMD_BUF_LEN_REPEATER_AUTH_STREAM_REQ_MIN_IN;
+ 
+-	verify_mprime_in.port.integrated_port_type = data->port_type;
+-	verify_mprime_in.port.physical_port = (u8)data->fw_ddi;
+-	verify_mprime_in.port.attached_transcoder = (u8)data->fw_tc;
++	verify_mprime_in->port.integrated_port_type = data->port_type;
++	verify_mprime_in->port.physical_port = (u8)data->fw_ddi;
++	verify_mprime_in->port.attached_transcoder = (u8)data->fw_tc;
++
++	memcpy(verify_mprime_in->m_prime, stream_ready->m_prime, HDCP_2_2_MPRIME_LEN);
++	drm_hdcp_cpu_to_be24(verify_mprime_in->seq_num_m, data->seq_num_m);
+ 
+-	memcpy(verify_mprime_in.m_prime, stream_ready->m_prime,
+-	       HDCP_2_2_MPRIME_LEN);
+-	drm_hdcp_cpu_to_be24(verify_mprime_in.seq_num_m, data->seq_num_m);
+-	memcpy(verify_mprime_in.streams, data->streams,
++	memcpy(verify_mprime_in->streams, data->streams,
+ 	       array_size(data->k, sizeof(*data->streams)));
+ 
+-	verify_mprime_in.k = cpu_to_be16(data->k);
++	verify_mprime_in->k = cpu_to_be16(data->k);
+ 
+-	byte = mei_cldev_send(cldev, (u8 *)&verify_mprime_in,
+-			      sizeof(verify_mprime_in));
++	byte = mei_cldev_send(cldev, (u8 *)verify_mprime_in, cmd_size);
++	kfree(verify_mprime_in);
+ 	if (byte < 0) {
+ 		dev_dbg(dev, "mei_cldev_send failed. %zd\n", byte);
+ 		return byte;
+-- 
+2.28.0
+
+
