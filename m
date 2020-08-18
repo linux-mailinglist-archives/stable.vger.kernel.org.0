@@ -2,108 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4EF24843F
-	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 13:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 731792484AE
+	for <lists+stable@lfdr.de>; Tue, 18 Aug 2020 14:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726612AbgHRLxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 07:53:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S1726611AbgHRMYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 08:24:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39814 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726473AbgHRLxb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 07:53:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA4E206B5;
-        Tue, 18 Aug 2020 11:53:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597751610;
-        bh=Xe61cljOQT5Jr855FdIsMgYQj/Lrk3Ve20zrwLufcRI=;
-        h=Subject:To:From:Date:From;
-        b=fdaKiQw4KI/842zZRCt9k4H2HPUUEsWFLsoHuBPqeZnNf2rHpzB3LUMSDJTg6j4iA
-         SEaoYVTWOC+qXQEED7R1E85wAkTxP8nxzJRIeL9A3vKyGhKjoe/lmazLqX1bBzJZ3B
-         8dfzBSXk+szf3L1t5PTWw0PzBoTZtF/JGD0ObXLc=
-Subject: patch "serial: samsung: Removes the IRQ not found warning" added to tty-linus
-To:     m.shams@samsung.com, alim.akhtar@samsung.com,
-        gregkh@linuxfoundation.org, krzk@kernel.org,
-        m.szyprowski@samsung.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Aug 2020 13:53:54 +0200
-Message-ID: <159775163498230@kroah.com>
+        id S1726336AbgHRMYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Aug 2020 08:24:50 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 66D09AC79;
+        Tue, 18 Aug 2020 12:25:12 +0000 (UTC)
+Date:   Tue, 18 Aug 2020 14:24:46 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Oscar Salvador <osalvador@suse.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, vbabka@suse.com, david@redhat.com,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH STABLE 4.9] mm: Avoid calling build_all_zonelists_init
+ under hotplug context
+Message-ID: <20200818122446.GA15067@dhcp22.suse.cz>
+References: <20200818110046.6664-1-osalvador@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200818110046.6664-1-osalvador@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue 18-08-20 13:00:46, Oscar Salvador wrote:
+> Recently a customer of ours experienced a crash when booting the
+> system while enabling memory-hotplug.
+> 
+> The problem is that Normal zones on different nodes don't get their private
+> zone->pageset allocated, and keep sharing the initial boot_pageset.
+> The sharing between zones is normally safe as explained by the comment for
+> boot_pageset - it's a percpu structure, and manipulations are done with
+> disabled interrupts, and boot_pageset is set up in a way that any page placed
+> on its pcplist is immediately flushed to shared zone's freelist, because
+> pcp->high == 1.
+> However, the hotplug operation updates pcp->high to a higher value as it
+> expects to be operating on a private pageset.
+> 
+> The problem is in build_all_zonelists(), which is called when the first range
+> of pages is onlined for the Normal zone of node X or Y:
+> 
+> 	if (system_state == SYSTEM_BOOTING) {
+> 		build_all_zonelists_init();
+> 	} else {
+> 	#ifdef CONFIG_MEMORY_HOTPLUG
+> 		if (zone)
+> 			setup_zone_pageset(zone);
+> 	#endif
+> 		/* we have to stop all cpus to guarantee there is no user
+> 		of zonelist */
+> 		stop_machine(__build_all_zonelists, pgdat, NULL);
+> 		/* cpuset refresh routine should be here */
+> 	}
+> 
+> When called during hotplug, it should execute the setup_zone_pageset(zone)
+> which allocates the private pageset.
+> However, with memhp_default_state=online, this happens early while
+> system_state == SYSTEM_BOOTING is still true, hence this step is skipped.
+> (and build_all_zonelists_init() is probably unsafe anyway at this point).
+> 
+> Another hotplug operation on the same zone then leads to zone_pcp_update(zone)
+> called from online_pages(), which updates the pcp->high for the shared
+> boot_pageset to a value higher than 1.
+> At that point, pages freed from Node X and Y Normal zones can end up on the same
+> pcplist and from there they can be freed to the wrong zone's freelist,
+> leading to the corruption and crashes.
+> 
+> Please, note that upstream has fixed that differently (and unintentionally) by
+> adding another boot state (SYSTEM_SCHEDULING), which is set before smp_init().
+> That should happen before memory hotplug events even with memhp_default_state=online.
+> Backporting that would be too intrusive.
+> 
+> Signed-off-by: Oscar Salvador <osalvador@suse.de>
+> Debugged-by: Vlastimil Babka <vbabka@suse.cz>
 
-This is a note to let you know that I've just added the patch titled
+Yes, I believe this is the easiest and the least scary way to fix the
+issue for stable kernel users. Feel free to add
+Acked-by: Michal Hocko <mhocko@suse.com> # for stable trees
 
-    serial: samsung: Removes the IRQ not found warning
+for that purpose.
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
+Thanks a lot!
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+> ---
+>  include/linux/mmzone.h |  3 ++-
+>  init/main.c            |  2 +-
+>  mm/memory_hotplug.c    | 10 +++++-----
+>  mm/page_alloc.c        |  7 ++++---
+>  4 files changed, 12 insertions(+), 10 deletions(-)
+> 
+> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+> index e3d7754f25f0..5c7645e156a5 100644
+> --- a/include/linux/mmzone.h
+> +++ b/include/linux/mmzone.h
+> @@ -756,7 +756,8 @@ static inline bool is_dev_zone(const struct zone *zone)
+>  #include <linux/memory_hotplug.h>
+>  
+>  extern struct mutex zonelists_mutex;
+> -void build_all_zonelists(pg_data_t *pgdat, struct zone *zone);
+> +void build_all_zonelists(pg_data_t *pgdat, struct zone *zone,
+> +			 bool hotplug_context);
+>  void wakeup_kswapd(struct zone *zone, int order, enum zone_type classzone_idx);
+>  bool __zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
+>  			 int classzone_idx, unsigned int alloc_flags,
+> diff --git a/init/main.c b/init/main.c
+> index d47860dbe896..7ad08957dd18 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -512,7 +512,7 @@ asmlinkage __visible void __init start_kernel(void)
+>  	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
+>  	boot_cpu_hotplug_init();
+>  
+> -	build_all_zonelists(NULL, NULL);
+> +	build_all_zonelists(NULL, NULL, false);
+>  	page_alloc_init();
+>  
+>  	pr_notice("Kernel command line: %s\n", boot_command_line);
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index 449999657c0b..a4ffe5996317 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1125,7 +1125,7 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
+>  	mutex_lock(&zonelists_mutex);
+>  	if (!populated_zone(zone)) {
+>  		need_zonelists_rebuild = 1;
+> -		build_all_zonelists(NULL, zone);
+> +		build_all_zonelists(NULL, zone, true);
+>  	}
+>  
+>  	ret = walk_system_ram_range(pfn, nr_pages, &onlined_pages,
+> @@ -1146,7 +1146,7 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
+>  	if (onlined_pages) {
+>  		node_states_set_node(nid, &arg);
+>  		if (need_zonelists_rebuild)
+> -			build_all_zonelists(NULL, NULL);
+> +			build_all_zonelists(NULL, NULL, true);
+>  		else
+>  			zone_pcp_update(zone);
+>  	}
+> @@ -1220,7 +1220,7 @@ static pg_data_t __ref *hotadd_new_pgdat(int nid, u64 start)
+>  	 * to access not-initialized zonelist, build here.
+>  	 */
+>  	mutex_lock(&zonelists_mutex);
+> -	build_all_zonelists(pgdat, NULL);
+> +	build_all_zonelists(pgdat, NULL, true);
+>  	mutex_unlock(&zonelists_mutex);
+>  
+>  	/*
+> @@ -1276,7 +1276,7 @@ int try_online_node(int nid)
+>  
+>  	if (pgdat->node_zonelists->_zonerefs->zone == NULL) {
+>  		mutex_lock(&zonelists_mutex);
+> -		build_all_zonelists(NULL, NULL);
+> +		build_all_zonelists(NULL, NULL, true);
+>  		mutex_unlock(&zonelists_mutex);
+>  	}
+>  
+> @@ -2016,7 +2016,7 @@ static int __ref __offline_pages(unsigned long start_pfn,
+>  	if (!populated_zone(zone)) {
+>  		zone_pcp_reset(zone);
+>  		mutex_lock(&zonelists_mutex);
+> -		build_all_zonelists(NULL, NULL);
+> +		build_all_zonelists(NULL, NULL, true);
+>  		mutex_unlock(&zonelists_mutex);
+>  	} else
+>  		zone_pcp_update(zone);
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index de00e0fec484..f394dd87fa03 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4608,7 +4608,7 @@ int numa_zonelist_order_handler(struct ctl_table *table, int write,
+>  			user_zonelist_order = oldval;
+>  		} else if (oldval != user_zonelist_order) {
+>  			mutex_lock(&zonelists_mutex);
+> -			build_all_zonelists(NULL, NULL);
+> +			build_all_zonelists(NULL, NULL, false);
+>  			mutex_unlock(&zonelists_mutex);
+>  		}
+>  	}
+> @@ -4988,11 +4988,12 @@ build_all_zonelists_init(void)
+>   * (2) call of __init annotated helper build_all_zonelists_init
+>   * [protected by SYSTEM_BOOTING].
+>   */
+> -void __ref build_all_zonelists(pg_data_t *pgdat, struct zone *zone)
+> +void __ref build_all_zonelists(pg_data_t *pgdat, struct zone *zone,
+> +			       bool hotplug_context)
+>  {
+>  	set_zonelist_order();
+>  
+> -	if (system_state == SYSTEM_BOOTING) {
+> +	if (system_state == SYSTEM_BOOTING && !hotplug_context) {
+>  		build_all_zonelists_init();
+>  	} else {
+>  #ifdef CONFIG_MEMORY_HOTPLUG
+> -- 
+> 2.26.2
+> 
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 8c6c378b0cbe0c9f1390986b5f8ffb5f6ff7593b Mon Sep 17 00:00:00 2001
-From: Tamseel Shams <m.shams@samsung.com>
-Date: Mon, 10 Aug 2020 08:30:21 +0530
-Subject: serial: samsung: Removes the IRQ not found warning
-
-In few older Samsung SoCs like s3c2410, s3c2412
-and s3c2440, UART IP is having 2 interrupt lines.
-However, in other SoCs like s3c6400, s5pv210,
-exynos5433, and exynos4210 UART is having only 1
-interrupt line. Due to this, "platform_get_irq(platdev, 1)"
-call in the driver gives the following false-positive error:
-"IRQ index 1 not found" on newer SoC's.
-
-This patch adds the condition to check for Tx interrupt
-only for the those SoC's which have 2 interrupt lines.
-
-Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Tamseel Shams <m.shams@samsung.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200810030021.45348-1-m.shams@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/samsung_tty.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
-index 8ed3482d2e1e..8ae3e03fbd8c 100644
---- a/drivers/tty/serial/samsung_tty.c
-+++ b/drivers/tty/serial/samsung_tty.c
-@@ -1905,9 +1905,11 @@ static int s3c24xx_serial_init_port(struct s3c24xx_uart_port *ourport,
- 		ourport->tx_irq = ret + 1;
- 	}
- 
--	ret = platform_get_irq(platdev, 1);
--	if (ret > 0)
--		ourport->tx_irq = ret;
-+	if (!s3c24xx_serial_has_interrupt_mask(port)) {
-+		ret = platform_get_irq(platdev, 1);
-+		if (ret > 0)
-+			ourport->tx_irq = ret;
-+	}
- 	/*
- 	 * DMA is currently supported only on DT platforms, if DMA properties
- 	 * are specified.
 -- 
-2.28.0
-
-
+Michal Hocko
+SUSE Labs
