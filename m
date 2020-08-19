@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607B224AA15
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4583024AA18
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726862AbgHSX4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 19:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S1726823AbgHSX4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 19:56:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726815AbgHSX4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:56:33 -0400
+        id S1726820AbgHSX4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 19:56:34 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E359021734;
-        Wed, 19 Aug 2020 23:56:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0728208E4;
+        Wed, 19 Aug 2020 23:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881393;
-        bh=Ff3pPByYsjxQjLFzhs86VHkGguD+kfERdf1KDCRglXo=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
-         References:From;
-        b=sitrSwRU8lzxNJcKOS1YXI1+IwJACDAZEwBSJX01Ffb0JQHBrAWJfipl5cmOb9ihq
-         fmuMxFlNZ4HirHR3kO7vaqEzjrPQKb1wNoVS9vmMm+TpfIlFVaL02XXpYkjoW+/RZL
-         UIKmOtCDYutnUGd+59RyNpW46jfPFn2HBPHGLlCM=
-Date:   Wed, 19 Aug 2020 23:56:32 +0000
+        s=default; t=1597881394;
+        bh=oVc6ym2q7NbjxlRfHAZ2qSnyFjwrkAaZBdEXMyYaTOo=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=obIo1eSNFcBW7Sp5At/bCFJcD8/sdTxbOOa63MkNPTiiIL8Lh11lsQkSzh3IHsiHb
+         SGJhiKtRTcwkdu6sNPIM1LfZ77ApeYSsWaytL545Bu0WAPXS6DiF+EZ15zM9mj/MKI
+         NPJLynmDyyXgZoh32Ocz4hNdurgjs1jYc6ej5SjY=
+Date:   Wed, 19 Aug 2020 23:56:33 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-To:     airlied@redhat.com, daniel@ffwll.ch, sam@ravnborg.org
-Cc:     dri-devel@lists.freedesktop.org
-Cc:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     Gerd Hoffmann <kraxel@redhat.com>
-Cc:     Dave Airlie <airlied@redhat.com>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     Emil Velikov <emil.l.velikov@gmail.com>
-Cc:     "Y.C. Chen" <yc_chen@aspeedtech.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v1 4/4] drm/ast: Disable planes while switching display modes
-In-Reply-To: <20200805105428.2590-5-tzimmermann@suse.de>
-References: <20200805105428.2590-5-tzimmermann@suse.de>
-Message-Id: <20200819235632.E359021734@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command
+In-Reply-To: <5c1c044097118dfa6d56e5235a746f9fb16fc8e8.1596151437.git.thinhn@synopsys.com>
+References: <5c1c044097118dfa6d56e5235a746f9fb16fc8e8.1596151437.git.thinhn@synopsys.com>
+Message-Id: <20200819235633.D0728208E4@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -52,28 +45,28 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 4961eb60f145 ("drm/ast: Enable atomic modesetting").
+fixing commit: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)").
 
-The bot has tested the following trees: v5.8.1, v5.7.15.
+The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58.
 
 v5.8.1: Failed to apply! Possible dependencies:
-    05f13f5b5996 ("drm/ast: Remove unused code paths for AST 1180")
-    1728bf6402c3 ("drm/ast: Use managed mode-config init")
-    2ccebf561e4a ("drm/ast: Move cursor functions to ast_cursor.c")
-    6bb18c9be6d2 ("drm/ast: Init cursors before creating modesetting structures")
-    beb2355eecbf ("drm/ast: Pass struct ast_private instance to cursor init/fini functions")
-    e6949ff3ca85 ("drm/ast: Initialize mode setting in ast_mode_config_init()")
-    fa7dbd768884 ("drm/ast: Upcast from DRM device to ast structure via to_ast_private()")
+    Unable to calculate
 
 v5.7.15: Failed to apply! Possible dependencies:
-    05f13f5b5996 ("drm/ast: Remove unused code paths for AST 1180")
-    1728bf6402c3 ("drm/ast: Use managed mode-config init")
-    2ccebf561e4a ("drm/ast: Move cursor functions to ast_cursor.c")
-    3a53230e1c4b ("drm/ast: Make ast_primary_plane_helper_atomic_update static")
-    6bb18c9be6d2 ("drm/ast: Init cursors before creating modesetting structures")
-    beb2355eecbf ("drm/ast: Pass struct ast_private instance to cursor init/fini functions")
-    e6949ff3ca85 ("drm/ast: Initialize mode setting in ast_mode_config_init()")
-    fa7dbd768884 ("drm/ast: Upcast from DRM device to ast structure via to_ast_private()")
+    140ca4cfea8a ("usb: dwc3: gadget: Handle stream transfers")
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+
+v5.4.58: Failed to apply! Possible dependencies:
+    140ca4cfea8a ("usb: dwc3: gadget: Handle stream transfers")
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
