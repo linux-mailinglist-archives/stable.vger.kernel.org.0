@@ -2,33 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0F3249D7C
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8084C249D9E
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728068AbgHSMJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:09:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbgHSMJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 08:09:46 -0400
+        id S1727970AbgHSMRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:17:13 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:43171 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726794AbgHSMRL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:17:11 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 509089E5;
+        Wed, 19 Aug 2020 08:17:05 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:17:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=j2CBPd
+        Iof0FS+Jz9nfmTwp1quiZ2H5o7LAfZ3jR191A=; b=W9dYKi2oLSDVnY6bjRgsqd
+        rTCJtJO8WJ2COTGlqsqGXPHrFktEIuRVJE3p4uoctwcDDqCm7tWdkxhXe/yQ8RnO
+        9R4A1Dy/srI1+i1SyVJOGsGCP2GkL33KzsNbLBQTBM4cylJNF8buA5F75KXAVVdc
+        2F5F1R+04hQZfb8ZuMNggacJmTzNSRoS92fS4HlurmS5wV8egSVxEJE/NwHkcXLv
+        mQtOWX9S50AUVFgHMeVz9VrXVHiotoOBknKQO4WbBPRfABi+jm8z5kb22K31hz0I
+        BLGemsUIUxzmW/QmSGiV0iis6VPk4lqrkM+/gN6mKSZoxytUlihmHfM061K2Wm+w
+        ==
+X-ME-Sender: <xms:QBg9XxutIuKvb7-o9eYrl9Bcvnrqb8Cs6kbCh5ISsxMCZJYbc_Z9Pg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepgfehgeeiteeufeekfeffffegjeevteejkeekgfejud
+    efieduueduveegjefhudeinecuffhomhgrihhnpehrvgguhhgrthdrtghomhenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:QBg9X6cSJLexjMLT8NrP1k5Fd7nA5UCiUDtoXj1Yr-0kiq3kZz3MsQ>
+    <xmx:QBg9X0xTcl4PPTczlJdzntqZhYjf_gx3_ggBOAijRp_jF1Ri2oNm_w>
+    <xmx:QBg9X4Mrd-Qo-ZQ2mL3r8v0zna1r63HxH9w9lxEleztDjmvKy_LIVw>
+    <xmx:QBg9X-ENwpTqPPRU9VbBNIkrrWY8k4U0snSHaSTh7S23ViWWzkNwCVIa2lk>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6929206DA;
-        Wed, 19 Aug 2020 12:09:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597838986;
-        bh=autCodJDsrVbEFyykDrw6S9MkeJc5ucDXy6H4NfMiJg=;
-        h=Subject:To:From:Date:From;
-        b=NOEfXcYyq4Vix3tRAPk0JsWxgyHU/aSRKEK0RR7j0uVLMZ1eXttZjYlTPGqTZ1I2X
-         lWLLTcD8nvPdv47ZKSdeDUPFIhzK4o9btyQxQwXtM8SV//oGQMiGCzvYkJFVDjcjWz
-         wiLAqD4sCLyE+23o6FjTxSEdzDxu1kwA/ojLrGzI=
-Subject: patch "usb: dwc3: gadget: Handle ZLP for sg requests" added to usb-linus
-To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
-        stable@vger.kernel.org, thinhn@synopsys.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 14AE130600B1;
+        Wed, 19 Aug 2020 08:17:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bcache: avoid nr_stripes overflow in bcache_device_init()" failed to apply to 5.7-stable tree
+To:     colyli@suse.de, axboe@kernel.dk, raeburn@redhat.com
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:09:56 +0200
-Message-ID: <15978389961011@kroah.com>
+Date:   Wed, 19 Aug 2020 14:17:25 +0200
+Message-ID: <1597839445818@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,82 +58,66 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 5.7-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    usb: dwc3: gadget: Handle ZLP for sg requests
+thanks,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+From 65f0f017e7be8c70330372df23bcb2a407ecf02d Mon Sep 17 00:00:00 2001
+From: Coly Li <colyli@suse.de>
+Date: Sat, 25 Jul 2020 20:00:21 +0800
+Subject: [PATCH] bcache: avoid nr_stripes overflow in bcache_device_init()
 
-If you have any questions about this process, please let me know.
+For some block devices which large capacity (e.g. 8TB) but small io_opt
+size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
+lated by,
+	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+might be overflow to the unsigned int bcache_device->nr_stripes.
 
+This patch uses the uint64_t variable to store DIV_ROUND_UP_ULL()
+and after the value is checked to be available in unsigned int range,
+sets it to bache_device->nr_stripes. Then the overflow is avoided.
 
-From bc9a2e226ea95e1699f7590845554de095308b75 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Thu, 6 Aug 2020 19:46:35 -0700
-Subject: usb: dwc3: gadget: Handle ZLP for sg requests
+Reported-and-tested-by: Ken Raeburn <raeburn@redhat.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783075
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Currently dwc3 doesn't handle usb_request->zero for SG requests. This
-change checks and prepares extra TRBs for the ZLP for SG requests.
-
-Cc: <stable@vger.kernel.org> # v4.5+
-Fixes: 04c03d10e507 ("usb: dwc3: gadget: handle request->zero")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
----
- drivers/usb/dwc3/gadget.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index df603a817a98..c2a0f64f8d1e 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1143,6 +1143,37 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 					req->request.short_not_ok,
- 					req->request.no_interrupt,
- 					req->request.is_last);
-+		} else if (req->request.zero && req->request.length &&
-+			   !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-+			   !rem && !chain) {
-+			struct dwc3	*dwc = dep->dwc;
-+			struct dwc3_trb	*trb;
-+
-+			req->needs_extra_trb = true;
-+
-+			/* Prepare normal TRB */
-+			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
-+
-+			/* Prepare one extra TRB to handle ZLP */
-+			trb = &dep->trb_pool[dep->trb_enqueue];
-+			req->num_trbs++;
-+			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
-+					       !req->direction, 1,
-+					       req->request.stream_id,
-+					       req->request.short_not_ok,
-+					       req->request.no_interrupt,
-+					       req->request.is_last);
-+
-+			/* Prepare one more TRB to handle MPS alignment */
-+			if (!req->direction) {
-+				trb = &dep->trb_pool[dep->trb_enqueue];
-+				req->num_trbs++;
-+				__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp,
-+						       false, 1, req->request.stream_id,
-+						       req->request.short_not_ok,
-+						       req->request.no_interrupt,
-+						       req->request.is_last);
-+			}
- 		} else {
- 			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
- 		}
--- 
-2.28.0
-
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 4a77bfd4009f..0f90616dc8d3 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -835,19 +835,19 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+ 	struct request_queue *q;
+ 	const size_t max_stripes = min_t(size_t, INT_MAX,
+ 					 SIZE_MAX / sizeof(atomic_t));
+-	size_t n;
++	uint64_t n;
+ 	int idx;
+ 
+ 	if (!d->stripe_size)
+ 		d->stripe_size = 1 << 31;
+ 
+-	d->nr_stripes = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
+-
+-	if (!d->nr_stripes || d->nr_stripes > max_stripes) {
+-		pr_err("nr_stripes too large or invalid: %u (start sector beyond end of disk?)\n",
+-			(unsigned int)d->nr_stripes);
++	n = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
++	if (!n || n > max_stripes) {
++		pr_err("nr_stripes too large or invalid: %llu (start sector beyond end of disk?)\n",
++			n);
+ 		return -ENOMEM;
+ 	}
++	d->nr_stripes = n;
+ 
+ 	n = d->nr_stripes * sizeof(atomic_t);
+ 	d->stripe_sectors_dirty = kvzalloc(n, GFP_KERNEL);
 
