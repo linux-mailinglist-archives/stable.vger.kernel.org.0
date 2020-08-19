@@ -2,53 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62608249F8B
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE97249FA1
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728249AbgHSNWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 09:22:55 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:38029 "EHLO
+        id S1728203AbgHSNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 09:23:48 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:48243 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728377AbgHSNWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:22:47 -0400
+        by vger.kernel.org with ESMTP id S1728473AbgHSNXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:23:43 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id E0652B13;
-        Wed, 19 Aug 2020 09:22:43 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 89F30C3C;
+        Wed, 19 Aug 2020 09:23:36 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:22:44 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:23:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Pm8+zF
-        1NN/reRwf/GiPON3mc1TsR93lxN3ORGO85s0o=; b=HDD7kp4wwIyqvzVp02pwxo
-        zR7GLoE6cw5BrV7W/fjw4Ow+ljzBaVJ9pJGVaTWY88YVbbeCI9rxTscLTOHoHwo5
-        U3F5MU4hl0jG5PoTcF+s0Qnsz8D+jV+8T0z8c9PChKgB6yM+kdz0fb2h5wfrWzyy
-        948doRGZghYN/nAziViFX6EGHANzsbXwvzg3MmkbWVC1q+J54+BBJK1rgiWcYCUD
-        78woOcsN4mKt3fIlX3blw01dV1bq0nDeLKFhw4RxtzSlojEWytrj2UJ3Jln+OLp3
-        GICzKbw8uHMcmdOb2lTDMjpGVotU3anIwBo9/dTLuI+2Ls34dlGhoayVaA28kxfQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GGxP2P
+        qbCfStbJ1M6ThDuVhp1nXiBqerAhH5KQ1vr18=; b=iYUr9oOg+sTuKDAzX7gczo
+        Fdv598qXBVeP3OWh50IdgICYvbvHzi0HhmXDE71dsgySDB/GuRpadYTrzqEJBErV
+        1ntZtOW4U912AHzvIoEtA/bMc9IuTbfgMMgKgLqiNtJNRxfC/Hz0NLZPXTCXggIc
+        2mzXrr0vVaMSlaTt4pYnMZkC8L3nKzt9pHmicOTV/VATfZiZPPDce3jgzgIxqF9Q
+        jL/R8Fb3ndOIPuDHi/QZBR+cy+oRkfbe81ZyIlOI/cZ3iBdyy7ZvX8LnEvbLHqxk
+        r6C8Bt+lVG2nqP7Ytsnbh1KDXj11s580RD3Gu89GPLcpiCGWP3ajH4AZSLq5d4Jw
         ==
-X-ME-Sender: <xms:oyc9X6hoC6UZXI8T3bAWXJkuFo67QkdHTmWY1KJbsIFeT9UaYU99sw>
+X-ME-Sender: <xms:2Cc9XxCqPOwKyVFfCm6JECtSXpKodFSLsV1vn3K91X1tALLku_ctjw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:oyc9X7CbuPiFmonhxC2OrRkyKGg4G6NSRZPF9DiseIvuPgVExrMu9g>
-    <xmx:oyc9XyHCGuAPWEeJsmDzaAFxyZfutKYXt6CqyxovFgQuZ8fdDr2kEg>
-    <xmx:oyc9XzS6HU-5Ps3dNObINYVBLaFF83GIKUHNWXCWpemsdpGSp25z2g>
-    <xmx:oyc9X4uUsvi_htGroqi_RYcN6HGnd_BoqMYYxefRjA0mrf7oRnhkyrKB-sE>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:2Cc9X_jkVAV5R8qSc2yzKqUdWC8wl9MErHaPc-FlUP3vb7_IAhzecQ>
+    <xmx:2Cc9X8ml3KYcsuADLy5SdgKQzKNOz3Y18CSJOSW-OUKcCGzSMoV5DQ>
+    <xmx:2Cc9X7yYFLF3VG55eNTV7ab3MjcQgXobgkkL2TYvBGECMWko19Rdgg>
+    <xmx:2Cc9X0ff7UuUnQvwvOYnZ8FSPFj1k8iDezPuxxudpOZ5ouS1W0qqeqtkBs4>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2D029306005F;
-        Wed, 19 Aug 2020 09:22:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] remoteproc: qcom_q6v5_mss: Validate modem blob firmware size" failed to apply to 4.14-stable tree
-To:     sibis@codeaurora.org, bjorn.andersson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id AFABC30600B1;
+        Wed, 19 Aug 2020 09:23:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] libnvdimm: Validate command family indices" failed to apply to 4.14-stable tree
+To:     dan.j.williams@intel.com, dave.jiang@intel.com,
+        ira.weiny@intel.com, lenb@kernel.org, rjw@rjwysocki.net,
+        stable@vger.kernel.org, vishal.l.verma@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 15:22:57 +0200
-Message-ID: <159784337759141@kroah.com>
+Date:   Wed, 19 Aug 2020 15:23:56 +0200
+Message-ID: <159784343621726@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,59 +71,153 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 135b9e8d1cd8ba5ac9ad9bcf24b464b7b052e5b8 Mon Sep 17 00:00:00 2001
-From: Sibi Sankar <sibis@codeaurora.org>
-Date: Thu, 23 Jul 2020 01:40:46 +0530
-Subject: [PATCH] remoteproc: qcom_q6v5_mss: Validate modem blob firmware size
- before load
+From 92fe2aa859f52ce6aa595ca97fec110dc7100e63 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Mon, 20 Jul 2020 15:07:30 -0700
+Subject: [PATCH] libnvdimm: Validate command family indices
 
-The following mem abort is observed when one of the modem blob firmware
-size exceeds the allocated mpss region. Fix this by restricting the copy
-size to segment size using request_firmware_into_buf before load.
+The ND_CMD_CALL format allows for a general passthrough of passlisted
+commands targeting a given command set. However there is no validation
+of the family index relative to what the bus supports.
 
-Err Logs:
-Unable to handle kernel paging request at virtual address
-Mem abort info:
-...
-Call trace:
-  __memcpy+0x110/0x180
-  rproc_start+0xd0/0x190
-  rproc_boot+0x404/0x550
-  state_store+0x54/0xf8
-  dev_attr_store+0x44/0x60
-  sysfs_kf_write+0x58/0x80
-  kernfs_fop_write+0x140/0x230
-  vfs_write+0xc4/0x208
-  ksys_write+0x74/0xf8
-...
+- Update the NFIT bus implementation (the only one that supports
+  ND_CMD_CALL passthrough) to also passlist the valid set of command
+  family indices.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: 051fb70fd4ea4 ("remoteproc: qcom: Driver for the self-authenticating Hexagon v5")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20200722201047.12975-3-sibis@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+- Update the generic __nd_ioctl() path to validate that field on behalf
+  of all implementations.
 
-diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index 7826f229957d..8199d9f59209 100644
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -1173,15 +1173,14 @@ static int q6v5_mpss_load(struct q6v5 *qproc)
- 		} else if (phdr->p_filesz) {
- 			/* Replace "xxx.xxx" with "xxx.bxx" */
- 			sprintf(fw_name + fw_name_len - 3, "b%02d", i);
--			ret = request_firmware(&seg_fw, fw_name, qproc->dev);
-+			ret = request_firmware_into_buf(&seg_fw, fw_name, qproc->dev,
-+							ptr, phdr->p_filesz);
- 			if (ret) {
- 				dev_err(qproc->dev, "failed to load %s\n", fw_name);
- 				iounmap(ptr);
- 				goto release_firmware;
- 			}
+Fixes: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism")
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 7c138a4edc03..1f72ce1a782b 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -1823,6 +1823,7 @@ static void populate_shutdown_status(struct nfit_mem *nfit_mem)
+ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
+ 		struct nfit_mem *nfit_mem, u32 device_handle)
+ {
++	struct nvdimm_bus_descriptor *nd_desc = &acpi_desc->nd_desc;
+ 	struct acpi_device *adev, *adev_dimm;
+ 	struct device *dev = acpi_desc->dev;
+ 	unsigned long dsm_mask, label_mask;
+@@ -1834,6 +1835,7 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
+ 	/* nfit test assumes 1:1 relationship between commands and dsms */
+ 	nfit_mem->dsm_mask = acpi_desc->dimm_cmd_force_en;
+ 	nfit_mem->family = NVDIMM_FAMILY_INTEL;
++	set_bit(NVDIMM_FAMILY_INTEL, &nd_desc->dimm_family_mask);
  
--			memcpy(ptr, seg_fw->data, seg_fw->size);
--
- 			release_firmware(seg_fw);
- 		}
+ 	if (dcr->valid_fields & ACPI_NFIT_CONTROL_MFG_INFO_VALID)
+ 		sprintf(nfit_mem->id, "%04x-%02x-%04x-%08x",
+@@ -1886,10 +1888,13 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
+ 	 * Note, that checking for function0 (bit0) tells us if any commands
+ 	 * are reachable through this GUID.
+ 	 */
++	clear_bit(NVDIMM_FAMILY_INTEL, &nd_desc->dimm_family_mask);
+ 	for (i = 0; i <= NVDIMM_FAMILY_MAX; i++)
+-		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1))
++		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1)) {
++			set_bit(i, &nd_desc->dimm_family_mask);
+ 			if (family < 0 || i == default_dsm_family)
+ 				family = i;
++		}
  
+ 	/* limit the supported commands to those that are publicly documented */
+ 	nfit_mem->family = family;
+@@ -2153,6 +2158,9 @@ static void acpi_nfit_init_dsms(struct acpi_nfit_desc *acpi_desc)
+ 
+ 	nd_desc->cmd_mask = acpi_desc->bus_cmd_force_en;
+ 	nd_desc->bus_dsm_mask = acpi_desc->bus_nfit_cmd_force_en;
++	set_bit(ND_CMD_CALL, &nd_desc->cmd_mask);
++	set_bit(NVDIMM_BUS_FAMILY_NFIT, &nd_desc->bus_family_mask);
++
+ 	adev = to_acpi_dev(acpi_desc);
+ 	if (!adev)
+ 		return;
+@@ -2160,7 +2168,6 @@ static void acpi_nfit_init_dsms(struct acpi_nfit_desc *acpi_desc)
+ 	for (i = ND_CMD_ARS_CAP; i <= ND_CMD_CLEAR_ERROR; i++)
+ 		if (acpi_check_dsm(adev->handle, guid, 1, 1ULL << i))
+ 			set_bit(i, &nd_desc->cmd_mask);
+-	set_bit(ND_CMD_CALL, &nd_desc->cmd_mask);
+ 
+ 	dsm_mask =
+ 		(1 << ND_CMD_ARS_CAP) |
+diff --git a/drivers/acpi/nfit/nfit.h b/drivers/acpi/nfit/nfit.h
+index f5525f8bb770..5c5e7ebba8dc 100644
+--- a/drivers/acpi/nfit/nfit.h
++++ b/drivers/acpi/nfit/nfit.h
+@@ -33,7 +33,6 @@
+ 		| ACPI_NFIT_MEM_RESTORE_FAILED | ACPI_NFIT_MEM_FLUSH_FAILED \
+ 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
+ 
+-#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
+ #define NVDIMM_CMD_MAX 31
+ 
+ #define NVDIMM_STANDARD_CMDMASK \
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index 09087c38fabd..955265656b96 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -1037,9 +1037,25 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		dimm_name = "bus";
+ 	}
+ 
++	/* Validate command family support against bus declared support */
+ 	if (cmd == ND_CMD_CALL) {
++		unsigned long *mask;
++
+ 		if (copy_from_user(&pkg, p, sizeof(pkg)))
+ 			return -EFAULT;
++
++		if (nvdimm) {
++			if (pkg.nd_family > NVDIMM_FAMILY_MAX)
++				return -EINVAL;
++			mask = &nd_desc->dimm_family_mask;
++		} else {
++			if (pkg.nd_family > NVDIMM_BUS_FAMILY_MAX)
++				return -EINVAL;
++			mask = &nd_desc->bus_family_mask;
++		}
++
++		if (!test_bit(pkg.nd_family, mask))
++			return -EINVAL;
+ 	}
+ 
+ 	if (!desc ||
+diff --git a/include/linux/libnvdimm.h b/include/linux/libnvdimm.h
+index 18da4059be09..bd39a2cf7972 100644
+--- a/include/linux/libnvdimm.h
++++ b/include/linux/libnvdimm.h
+@@ -78,6 +78,8 @@ struct nvdimm_bus_descriptor {
+ 	const struct attribute_group **attr_groups;
+ 	unsigned long bus_dsm_mask;
+ 	unsigned long cmd_mask;
++	unsigned long dimm_family_mask;
++	unsigned long bus_family_mask;
+ 	struct module *module;
+ 	char *provider_name;
+ 	struct device_node *of_node;
+diff --git a/include/uapi/linux/ndctl.h b/include/uapi/linux/ndctl.h
+index 0e09dc5cec19..e9468b9332bd 100644
+--- a/include/uapi/linux/ndctl.h
++++ b/include/uapi/linux/ndctl.h
+@@ -245,6 +245,10 @@ struct nd_cmd_pkg {
+ #define NVDIMM_FAMILY_MSFT 3
+ #define NVDIMM_FAMILY_HYPERV 4
+ #define NVDIMM_FAMILY_PAPR 5
++#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_PAPR
++
++#define NVDIMM_BUS_FAMILY_NFIT 0
++#define NVDIMM_BUS_FAMILY_MAX NVDIMM_BUS_FAMILY_NFIT
+ 
+ #define ND_IOCTL_CALL			_IOWR(ND_IOCTL, ND_CMD_CALL,\
+ 					struct nd_cmd_pkg)
 
