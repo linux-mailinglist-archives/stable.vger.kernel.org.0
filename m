@@ -2,73 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7BEA24A0A4
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E32924A105
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 16:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728212AbgHSNwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 09:52:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
+        id S1726209AbgHSOCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 10:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728119AbgHSNwo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 09:52:44 -0400
+        id S1726899AbgHSOCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 10:02:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E52AA204FD;
-        Wed, 19 Aug 2020 13:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C732E2076E;
+        Wed, 19 Aug 2020 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597845164;
-        bh=AQXzKeWBzvXuVHP0MSrtfWDISiuU6TUZIMZ8zROumpw=;
+        s=default; t=1597845741;
+        bh=Eg6ikpBkB7Xas8XZDMecFJ4XVl0wBAxUBwNV1kJRTis=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JN2/g/ZWkXZoAuGV9Ujxlhmw6Buse9YPnU1sz5WJSYoChoH/s1Ejv0PZPVbwr6bDJ
-         uabxrP+lM7z2fXeLub28JY/RgWZhAnYTlT8PiQlZa1RRf9X6LmECEezGRCF5+fVwtG
-         6MiiLmp/TraVNkpmD0OGWNhxwjRdNcZlufo/yCj8=
-Date:   Wed, 19 Aug 2020 15:53:06 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     aarcange@redhat.com, akpm@linux-foundation.org,
-        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
-        songliubraving@fb.com, torvalds@linux-foundation.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Patch "khugepaged: khugepaged_test_exit() check
- mmget_still_valid()" has been added to the 5.8-stable tree
-Message-ID: <20200819135306.GA3311904@kroah.com>
-References: <1597841669128213@kroah.com>
- <alpine.LSU.2.11.2008190625060.24442@eggly.anvils>
+        b=HnvnRs/+N02eZ5ozRch2zMh4kzXnL6a17f09rOwHnmoO9KhTyHDwtYZo68R9JE/Dk
+         DJyVbRr0pL5gKxjHPhkD3hO5gFeFFVYwRQRbFIFUl5O7o+n3VoRa045kROgxuiZisv
+         YDTtSEBZmc2DxIgPobofpypkz4ZaFkMg4Q1Uo7ng=
+Date:   Wed, 19 Aug 2020 16:02:43 +0200
+From:   gregkh <gregkh@linuxfoundation.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     =?iso-8859-1?Q?Jo=E3o?= Henrique <johnnyonflame@hotmail.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [BACKPORT v5.4 PATCH] pinctrl: ingenic: Properly detect GPIO
+ direction when configured for IRQ
+Message-ID: <20200819140243.GA3333888@kroah.com>
+References: <1597837696152155@kroah.com>
+ <20200819134953.25842-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.11.2008190625060.24442@eggly.anvils>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200819134953.25842-1-paul@crapouillou.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 19, 2020 at 06:32:26AM -0700, Hugh Dickins wrote:
-> On Wed, 19 Aug 2020, gregkh@linuxfoundation.org wrote:
-> > 
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >     khugepaged: khugepaged_test_exit() check mmget_still_valid()
-> > 
-> > to the 5.8-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >      khugepaged-khugepaged_test_exit-check-mmget_still_valid.patch
-> > and it can be found in the queue-5.8 subdirectory.
-> > 
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
+On Wed, Aug 19, 2020 at 03:49:53PM +0200, Paul Cercueil wrote:
+> The PAT1 register contains information about the IRQ type (edge/level)
+> for input GPIOs with IRQ enabled, and the direction for non-IRQ GPIOs.
+> So it makes sense to read it only if the GPIO has no interrupt
+> configured, otherwise input GPIOs configured for level IRQs are
+> misdetected as output GPIOs.
 > 
-> Please hold this one back for the moment: we shall want it, but syzbot
-> detected one place where it can lead to a VM_BUG_ON_MM().  The fix to
-> that is currently in Andrew's tree, but not yet in Linus's - when it
-> gets there, I'll send you its git commit id in reply to this mail.
+> Fixes: ebd6651418b6 ("pinctrl: ingenic: Implement .get_direction for GPIO chips")
+> Reported-by: João Henrique <johnnyonflame@hotmail.com>
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/20200622214548.265417-2-paul@crapouillou.net
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
 > 
-> This patch failed to apply to earlier releases: I'll send the fixup for
-> those at that time.  (Fixups for another patch to follow later today.)
+> Notes:
+>     Original git commit ID: 84e7a946da71f678affacea301f6d5cb4d9784e8
 
-Now dropped, thanks!
+Now queued up, thanks!
 
 greg k-h
