@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C76024AA4D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE95924AA51
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727050AbgHSX5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726925AbgHSX5m (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Aug 2020 19:57:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726799AbgHSX4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:56:47 -0400
+        id S1726903AbgHSX4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 19:56:48 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 968E820888;
-        Wed, 19 Aug 2020 23:56:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8133F214F1;
+        Wed, 19 Aug 2020 23:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881406;
-        bh=0k4c7W4ooXO69s5LxNYdetIo44m07ngIgdRVu+ukni0=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=qPiwVRx6fA7DHguqzKPyNlWeEvoxyrJX7hUH6wlFSCOY+7N6YAgwg8EPvWRvN0DKd
-         2v5WvP2l18vf4dfXxT9XDZqJ0ZgwOrus8rwHHgzbCdZj/wTYeXy2MbWZSGkGCOASDB
-         OIi77JhhBBpJztNEGh/GYX8aEn4qBUeEiOCmq09o=
+        s=default; t=1597881407;
+        bh=BWQqT2hfUPz/FnOrLNxl3Gr5RwH9ggdjPtCEsujHg68=;
+        h=Date:From:To:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=0k0pBxNKX0tWoCM4riKpFJBRM2HZO+gY1JwnTsy1df3/wvV/YzJlo1fX8jJrlvFiS
+         31s6gsLl8wKLiBOTtqTYY1i929O8aEsw9XxLkugy5G3qpWr5+aFZze3cGngsKfEUyC
+         lEAOD9duzijS0DDlzJru4z/FEMTShzgJ4sbNS/Vg=
 Date:   Wed, 19 Aug 2020 23:56:46 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org
+To:     Qingqing Zhuo <qingqing.zhuo@amd.com>
+To:     Stylon Wang <stylon.wang@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4/4] usb: typec: ucsi: Hold con->lock for the entire duration of ucsi_register_port()
-In-Reply-To: <20200809141904.4317-5-hdegoede@redhat.com>
-References: <20200809141904.4317-5-hdegoede@redhat.com>
-Message-Id: <20200819235646.968E820888@mail.kernel.org>
+Subject: Re: [PATCH 8/9] drm/amd/display: Fix EDID parsing after resume from suspend
+In-Reply-To: <20200805174058.11736-9-qingqing.zhuo@amd.com>
+References: <20200805174058.11736-9-qingqing.zhuo@amd.com>
+Message-Id: <20200819235647.8133F214F1@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,24 +46,60 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race during registration").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58.
+The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193, v4.9.232, v4.4.232.
 
 v5.8.1: Build OK!
-v5.7.15: Failed to apply! Possible dependencies:
-    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
-    992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
+v5.7.15: Build OK!
+v5.4.58: Build OK!
+v4.19.139: Failed to apply! Possible dependencies:
+    1f6010a96273 ("drm/amd/display: Improve spelling, grammar, and formatting of amdgpu_dm.c comments")
+    8c3db1284a01 ("drm/amdgpu: fill in amdgpu_dm_remove_sink_from_freesync_module")
+    98e6436d3af5 ("drm/amd/display: Refactor FreeSync module")
+    dcd5fb82ffb4 ("drm/amd/display: Fix reference counting for struct dc_sink.")
+    e6142dd51142 ("drm/amd/display: Prevent dpcd reads with passive dongles")
 
-v5.4.58: Failed to apply! Possible dependencies:
-    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
-    3cf657f07918 ("usb: typec: ucsi: Remove all bit-fields")
-    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
-    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
-    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
-    992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
-    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+v4.14.193: Failed to apply! Possible dependencies:
+    1b0c0f9dc5ca ("drm/amdgpu: move userptr BOs to CPU domain during CS v2")
+    1ed3d2567c80 ("drm/amdgpu: keep the MMU lock until the update ends v4")
+    3fe89771cb0a ("drm/amdgpu: stop reserving the BO in the MMU callback v3")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    60de1c1740f3 ("drm/amdgpu: use a rw_semaphore for MMU notifiers")
+    9a18999640fa ("drm/amdgpu: move MMU notifier related defines to amdgpu_mn.h")
+    9cca0b8e5df0 ("drm/amdgpu: move amdgpu_cs_sysvm_access_required into find_mapping")
+    a216ab09955d ("drm/amdgpu: fix userptr put_page handling")
+    b72cf4fca2bb ("drm/amdgpu: move taking mmap_sem into get_user_pages v2")
+    ca666a3c298f ("drm/amdgpu: stop using BO status for user pages")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    0f477c6dea70 ("staging/android/sync: add sync_fence_create_dma")
+    1f7371b2a5fa ("drm/amd/powerplay: add basic powerplay framework")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    288912cb95d1 ("drm/amdgpu: use $(src) in Makefile (v2)")
+    375fb53ec1be ("staging: android: replace explicit NULL comparison")
+    395dec6f6bc5 ("Documentation: add doc for sync_file_get_fence()")
+    4325198180e5 ("drm/amdgpu: remove GART page addr array")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    62304fb1fc08 ("dma-buf/sync_file: de-stage sync_file")
+    a1d29476d666 ("drm/amdgpu: optionally enable GART debugfs file")
+    a8fe58cec351 ("drm/amd: add ACP driver support")
+    b70f014d58b9 ("drm/amdgpu: change default sched jobs to 32")
+    c784c82a3fd6 ("Documentation: add Sync File doc")
+    d4cab38e153d ("staging/android: prepare sync_file for de-staging")
+    d7fdb0ae9d11 ("staging/android: rename sync_fence to sync_file")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fac8434dab96 ("Documentation: Fix some grammar mistakes in sync_file.txt")
+    fdba11f4079e ("drm/amdgpu: move all Kconfig options to amdgpu/Kconfig")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
