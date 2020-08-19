@@ -2,128 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7010824A6B2
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 21:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C111A24A6BE
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 21:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbgHSTRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 15:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726991AbgHSTRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 15:17:10 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1A4C061342
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 12:17:09 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id g127so26790878ybf.11
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 12:17:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc:content-transfer-encoding;
-        bh=AYTx8OTXrfy1fkjiQ/QJZUTx1nYyS440PAIctrO8h/4=;
-        b=hU5/8DJYdBVIul76iBEmEZ0CUUQxYYOOHdwBe4d4zyPtB5gIZh8vrm6Ccwlw+L7mfG
-         jT4Y2xyv2gvx6x+GF1XuIP6lvuA20HdADAoN96ldTrsTtbKn1/+bcvafV0ipxVGPvx5T
-         OVGD/OW/Rm/RcYoUIfpfQAlOuAUQ5mPdB6lE+Pq/kfD1VWh7KsAWKxXxroLPwLw40+1i
-         kvI45eNE7kkOgbXRICBXBMXLPlBDZYoiRoJLP51z6Bh+cy81LCawEG//TZN3rxPJtz6E
-         aLLhREs3LcMxpShnPm0ZN5pRx9wDMtIvvkd7xgXg9RTXshqTL+GmUQ2DHv1Dd734CK3p
-         ZQEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc:content-transfer-encoding;
-        bh=AYTx8OTXrfy1fkjiQ/QJZUTx1nYyS440PAIctrO8h/4=;
-        b=b4GGEAoqbFBwfZwzsRC0AFUqj/dnaIy07IBcJ7mpfQro3QBgvRXPaAE/oH7QcNadN/
-         kQqQTw3q4pImmgaiK2/VVZqaZAHu19m3zbA12Vc5+IPW8hqDCtLh4GlMxt/dAvjNpTRa
-         bisPMzLofvRRCgpBo0Z0BijyNIMKVO95AA8HkiiWowLSvoTlFSeA+zFsgYO6FnjHd2/R
-         9iS3TwiMCxvgg6H55FlN3AhhjJmeCWOK+G9E3sG8XCbht7eRa1714pGeJlK+fYifpk23
-         lJep/wwbmwiGHbS7BoiCKPYv2DPfLBFPF9hR2tY3sdqSNLZ7BRpfF5J6mz1cFe66LW7H
-         wYow==
-X-Gm-Message-State: AOAM53339I9XWMguTak+82TOp0TaOi/ITSkdAlecQ74yOqkUmwaZxgXx
-        fuJ9KObbp9KOkO7TuUAdyCE0/nGQIthPzkXDfSM=
-X-Google-Smtp-Source: ABdhPJxETf8t+SYq21D8M+YylDYX3q4MAl4M/CU8Tsm+guyliSGVos5yJOYpig0Mf0L2E13QKLQC7j9HxW70uBCx9fg=
-X-Received: by 2002:a5b:c08:: with SMTP id f8mr34030464ybq.198.1597864628624;
- Wed, 19 Aug 2020 12:17:08 -0700 (PDT)
-Date:   Wed, 19 Aug 2020 12:16:50 -0700
-In-Reply-To: <20200819191654.1130563-1-ndesaulniers@google.com>
-Message-Id: <20200819191654.1130563-2-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20200819191654.1130563-1-ndesaulniers@google.com>
-X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
-Subject: [PATCH v2 1/5] Makefile: add -fno-builtin-stpcpy
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-Cc:     Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Joe Perches <joe@perches.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Daniel Kiper <daniel.kiper@oracle.com>,
-        Bruce Ashfield <bruce.ashfield@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Andi Kleen <ak@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "=?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?=" <david.bolvansky@gmail.com>,
-        Eli Friedman <efriedma@quicinc.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1726903AbgHSTRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 15:17:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58922 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726731AbgHSTRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 15:17:05 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B4592078D;
+        Wed, 19 Aug 2020 19:17:03 +0000 (UTC)
+Date:   Wed, 19 Aug 2020 15:17:01 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Jakub Kicinski" <kuba@kernel.org>, <lkft-triage@lists.linaro.org>,
+        LTP List <ltp@lists.linux.it>
+Subject: Re: NETDEV WATCHDOG: WARNING: at net/sched/sch_generic.c:442
+ dev_watchdog
+Message-ID: <20200819151701.747769ce@oasis.local.home>
+In-Reply-To: <20200819102909.000016ac@intel.com>
+References: <CA+G9fYtS_nAX=sPV8zTTs-nOdpJ4uxk9sqeHOZNuS4WLvBcPGg@mail.gmail.com>
+        <20200819125732.1c296ce7@oasis.local.home>
+        <20200819102909.000016ac@intel.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to
-`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-in parsing format strings. This optimization was introduced into
-clang-12. Because the kernel does not provide an implementation of
-stpcpy, we observe linkage failures for almost all targets when building
-with ToT clang.
+On Wed, 19 Aug 2020 10:29:09 -0700
+Jesse Brandeburg <jesse.brandeburg@intel.com> wrote:
 
-The interface is unsafe as it does not perform any bounds checking.
-Disable this "libcall optimization" via `-fno-builtin-stpcpy`.
 
-Cc: stable@vger.kernel.org # 4.4
-Link: https://bugs.llvm.org/show_bug.cgi?id=3D47162
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://reviews.llvm.org/D85963
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Suggested-by: D=C3=A1vid Bolvansk=C3=BD <david.bolvansky@gmail.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- Makefile | 1 +
- 1 file changed, 1 insertion(+)
+> What I don't understand in the stack trace is this:
+> > > [  107.654661] Call Trace:
+> > > [  107.657735]  <IRQ>
+> > > [  107.663155]  ? ftrace_graph_caller+0xc0/0xc0
+> > > [  107.667929]  call_timer_fn+0x3b/0x1b0
+> > > [  107.672238]  ? netif_carrier_off+0x70/0x70
+> > > [  107.677771]  ? netif_carrier_off+0x70/0x70
+> > > [  107.682656]  ? ftrace_graph_caller+0xc0/0xc0
+> > > [  107.687379]  run_timer_softirq+0x3e8/0xa10
+> > > [  107.694653]  ? call_timer_fn+0x1b0/0x1b0
+> > > [  107.699382]  ? trace_event_raw_event_softirq+0xdd/0x150
+> > > [  107.706768]  ? ring_buffer_unlock_commit+0xf5/0x210
+> > > [  107.712213]  ? call_timer_fn+0x1b0/0x1b0
+> > > [  107.716625]  ? __do_softirq+0x155/0x467  
+> 
+> 
+> If the carrier was turned off by something, that could cause the stack
+> to timeout since it appears the driver didn't call this itself after
+> finishing all transmits like it normally would have.
+> 
+> Is the trace above correct? Usually the ? indicate unsure backtrace due
+> to missing symbols, right?
 
-diff --git a/Makefile b/Makefile
-index 9cac6fde3479..e523dc8d30e0 100644
---- a/Makefile
-+++ b/Makefile
-@@ -578,6 +578,7 @@ ifneq ($(LLVM_IAS),1)
- CLANG_FLAGS	+=3D -no-integrated-as
- endif
- CLANG_FLAGS	+=3D -Werror=3Dunknown-warning-option
-+CLANG_FLAGS	+=3D -fno-builtin-stpcpy
- KBUILD_CFLAGS	+=3D $(CLANG_FLAGS)
- KBUILD_AFLAGS	+=3D $(CLANG_FLAGS)
- export CLANG_FLAGS
---=20
-2.28.0.297.g1956fa8f8d-goog
+The "?" means that there wasn't a stack frame to confirm that this was
+the true call stack. What happens is that the scan of the stack will
+look for any address in the stack that is for a function. If it finds
+one, it will print it and add a "?" to that address. Basically, those
+functions with the "?" are just addresses found in the stack but was not
+part of a stack frame link.
 
+-- Steve
