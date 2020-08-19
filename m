@@ -2,53 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED694249D9F
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 554A2249DAD
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726794AbgHSMRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:17:19 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:58107 "EHLO
+        id S1727019AbgHSMVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:21:01 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:47845 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727944AbgHSMRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:17:13 -0400
+        by vger.kernel.org with ESMTP id S1726794AbgHSMVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:21:00 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id C739DA13;
-        Wed, 19 Aug 2020 08:17:11 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:17:12 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id D93DFA51;
+        Wed, 19 Aug 2020 08:20:58 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:20:59 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VXwQ70
-        v9AI9FSzOoPBjyFYBjplHzcIhdGM/Av7dL84c=; b=gksUbhxcfNDJDDT3iiBbm9
-        7GxYLYnguHWCocpUw8v+SvzaGLlmfkuhAl1LqHR1ZLFbYFFhzEChGLYDOGWb2L4W
-        0cjSTVVk2FtoOlRG+wmy9OZ+9k2s7tzeKrlaF33lrc7mVIY+s2a5DnKpiYWhCRTv
-        nH+qWkJ2GxkbWQeDQiVCOafHmzOF9m/gnRZwmX6m/eH9MCgmqa6lOcmUQhEHO7xh
-        1xczwXgjl4ajwTfxaCbkryNauLdaw3T2+vFgNeygaJiye9ff/IJzhmlOS05A9uWw
-        yUtoSUjVwQCHlgqqtiqhM4g6EleisTqFV1Hz4hLXlvhWVRVSOFSVryfr41tFOXbQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UrZ/5X
+        pzl0BtnhWAiYHjeoMPrh5V02cl4U+ikNXMIwk=; b=nIkQiY21v3GeFGwlNIw/vV
+        8pxIkJnvF6JIqNyNwxTS1Uw9xynJSvskjEAdDUb19lms9egNb9Ur71tHbht+rAgW
+        e5uJWPmFxbuOjjwHVCc7H+J3+mPGjMO4jKFLFI6sZa3tu1+17cdkPzhWp82TUCXG
+        4nOCYhuRbWebN9eBoUc04O6hkrxH6KgvvDPFR3Bmj12ZzxWktDYr0lEUPGDh8cPD
+        zQ7lPbN+bxjD9SkESf5HYQhZbh33LfRm6DFVpjDAo8W+uqe1GCDJGesreNt6jN9m
+        xcnwogDR19A1juxQuq8wBLrCWttex3RFyLtdSh88XNHfZATmSs00ooPpvEvwEmdA
         ==
-X-ME-Sender: <xms:Rxg9X1nl5FC8LP-6fl6GJ7JNeVYR1-jcvdsJlFCEbNdPSz_9JNaXNw>
+X-ME-Sender: <xms:Khk9X84Aidj6DQUGRJ9vhWIBxqppchgipx6KqkXHG0MXMyvxb3YovQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepgfehgeeiteeufeekfeffffegjeevteejkeekgfejud
-    efieduueduveegjefhudeinecuffhomhgrihhnpehrvgguhhgrthdrtghomhenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Rxg9Xw25hfvvFQPujPnSOtnC4mB6rg3pRgLKD7atiAAaP00nP3nVWA>
-    <xmx:Rxg9X7rQjRHRWXK1Qh3E96zthg_wfmFShb0QaF1OieNgAlvfqx3q3w>
-    <xmx:Rxg9X1lnRN8eibDWOWltvzRrt9ZxktkbkH-RuDMC8U7Lw7UpbGnyRA>
-    <xmx:Rxg9Xw-LGjFXzo95KjoMmHaz-dPOgv7BPKEPKGM7tNEOF6eYfA20ZIcMI-8>
+X-ME-Proxy: <xmx:Khk9X96H7PLskAHQ1gQJvjMGhcTv-Wb4LQPZyzGTBzhhtUhW_FwBOQ>
+    <xmx:Khk9X7elz6yn4VRtBxqcUAar3nm3rbcb8Z4265fKroa67G2JiWkutw>
+    <xmx:Khk9XxJl496bo5zAAfXT5xJS1NyH-LA2gYHzL0qaX1k1sVJjx85Q5w>
+    <xmx:Khk9X03tnuyn7UR5d2oqIqZhmnl1sxo65D11zOXc1KxsRaAfr5HrvZHbY-w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1743D30600B1;
-        Wed, 19 Aug 2020 08:17:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bcache: avoid nr_stripes overflow in bcache_device_init()" failed to apply to 5.4-stable tree
-To:     colyli@suse.de, axboe@kernel.dk, raeburn@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id B6B39328005D;
+        Wed, 19 Aug 2020 08:20:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/hugetlb: fix calculation of" failed to apply to 5.4-stable tree
+To:     peterx@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
+        mike.kravetz@oracle.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:17:26 +0200
-Message-ID: <1597839446156203@kroah.com>
+Date:   Wed, 19 Aug 2020 14:21:19 +0200
+Message-ID: <159783967949188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,55 +71,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65f0f017e7be8c70330372df23bcb2a407ecf02d Mon Sep 17 00:00:00 2001
-From: Coly Li <colyli@suse.de>
-Date: Sat, 25 Jul 2020 20:00:21 +0800
-Subject: [PATCH] bcache: avoid nr_stripes overflow in bcache_device_init()
+From 75802ca66354a39ab8e35822747cd08b3384a99a Mon Sep 17 00:00:00 2001
+From: Peter Xu <peterx@redhat.com>
+Date: Thu, 6 Aug 2020 23:26:11 -0700
+Subject: [PATCH] mm/hugetlb: fix calculation of
+ adjust_range_if_pmd_sharing_possible
 
-For some block devices which large capacity (e.g. 8TB) but small io_opt
-size (e.g. 8 sectors), in bcache_device_init() the stripes number calcu-
-lated by,
-	DIV_ROUND_UP_ULL(sectors, d->stripe_size);
-might be overflow to the unsigned int bcache_device->nr_stripes.
+This is found by code observation only.
 
-This patch uses the uint64_t variable to store DIV_ROUND_UP_ULL()
-and after the value is checked to be available in unsigned int range,
-sets it to bache_device->nr_stripes. Then the overflow is avoided.
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
 
-Reported-and-tested-by: Ken Raeburn <raeburn@redhat.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783075
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 4a77bfd4009f..0f90616dc8d3 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -835,19 +835,19 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 	struct request_queue *q;
- 	const size_t max_stripes = min_t(size_t, INT_MAX,
- 					 SIZE_MAX / sizeof(atomic_t));
--	size_t n;
-+	uint64_t n;
- 	int idx;
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+:
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+:
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+:
+: 1) for a single page
+: 2) for range == entire vma
+:
+: In those cases, the current code should produce the correct results.
+:
+: To be safe, let's just cc stable.
+
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 27556d4d49fe..e52c878940bb 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5314,25 +5314,21 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr;
++	unsigned long a_start, a_end;
  
- 	if (!d->stripe_size)
- 		d->stripe_size = 1 << 31;
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
  
--	d->nr_stripes = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
--
--	if (!d->nr_stripes || d->nr_stripes > max_stripes) {
--		pr_err("nr_stripes too large or invalid: %u (start sector beyond end of disk?)\n",
--			(unsigned int)d->nr_stripes);
-+	n = DIV_ROUND_UP_ULL(sectors, d->stripe_size);
-+	if (!n || n > max_stripes) {
-+		pr_err("nr_stripes too large or invalid: %llu (start sector beyond end of disk?)\n",
-+			n);
- 		return -ENOMEM;
- 	}
-+	d->nr_stripes = n;
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
  
- 	n = d->nr_stripes * sizeof(atomic_t);
- 	d->stripe_sectors_dirty = kvzalloc(n, GFP_KERNEL);
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
 
