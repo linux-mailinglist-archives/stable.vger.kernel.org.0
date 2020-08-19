@@ -2,115 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A41F92492D2
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 04:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AF12492E2
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 04:27:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbgHSCSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Aug 2020 22:18:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41062 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726531AbgHSCSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Aug 2020 22:18:46 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726918AbgHSC1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Aug 2020 22:27:52 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:56132 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726372AbgHSC1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Aug 2020 22:27:51 -0400
+Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5A99205CB;
-        Wed, 19 Aug 2020 02:18:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597803523;
-        bh=DTvzP00JB4bLs9fhk+oXibtsPOxdlN5fCD3Y5A5lhbk=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=f2PP0KloUJEBUe08gxT3clnhYZje4QkG5SAn5Lj6kL4VNL1X1yRFyw+A0nLabprqj
-         E/o18Q9IEZON45cRk7yjX2gfNUcy7yaYzvaGmzmB3fVsCzS5ZyeLf6jR8Y0Wot59JB
-         ed3HW65pzfvAn10Lj0Y9mh9RT28oNMZBIPWbXsVs=
-Date:   Tue, 18 Aug 2020 19:18:43 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     dhowells@redhat.com, gregkh@linuxfoundation.org, jannh@google.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- romfs-fix-uninitialized-memory-leak-in-romfs_dev_read.patch added to -mm
- tree
-Message-ID: <20200819021843.hSn2BuO_-%akpm@linux-foundation.org>
-In-Reply-To: <20200814172939.55d6d80b6e21e4241f1ee1f3@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 0A7CC401AA;
+        Wed, 19 Aug 2020 02:27:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1597804070; bh=QZEExHTjul/kr+pWOJMKovdVXYqInJHMRRAuQIgoA1I=;
+        h=Date:From:Subject:To:Cc:From;
+        b=cW5l80mWndzzq6Uvrir+3jOpyIy27aKZmH54xbB8WX7UtW0j3jjxG0vhm7MsH40QJ
+         8/TapbOK0P4izjaUiwtAi8KthPZOdU8hITi4WGikoJBpwavdDqXCgqdIpbx3HM6GKh
+         BofWB0BJz7YIOK45nEpkn7sXke88n354yY6OaZq4uGbLSholN5mIhAW/AC3cQzpjHI
+         hAlGejQ0TqLWgIUXSH5Xo6WZoE7f3BGLYiir26NziQXhC8gKhrA+3jz4wcMFLkaxQT
+         88GyFv3qnkzQx5iYtfnR4M0zMXD1+okP7EaiJ0x6lMDRXoRvBx1tNddv1B+hJZ0M6V
+         bFCI3KSDWXe/Q==
+Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id A9D26A006B;
+        Wed, 19 Aug 2020 02:27:47 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Tue, 18 Aug 2020 19:27:47 -0700
+Date:   Tue, 18 Aug 2020 19:27:47 -0700
+Message-Id: <2b0585228b003eedcc82db84697b31477df152e0.1597803605.git.thinhn@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH] usb: uas: Add quirk for PNY Pro Elite
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        usb-storage@lists.one-eyed-alien.net
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>, stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+PNY Pro Elite USB 3.1 Gen 2 device (SSD) doesn't respond to ATA_12
+pass-through command (i.e. it just hangs). If it doesn't support this
+command, it should respond properly to the host. Let's just add a quirk
+to be able to move forward with other operations.
 
-The patch titled
-     Subject: romfs: fix uninitialized memory leak in romfs_dev_read()
-has been added to the -mm tree.  Its filename is
-     romfs-fix-uninitialized-memory-leak-in-romfs_dev_read.patch
-
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/romfs-fix-uninitialized-memory-leak-in-romfs_dev_read.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/romfs-fix-uninitialized-memory-leak-in-romfs_dev_read.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Jann Horn <jannh@google.com>
-Subject: romfs: fix uninitialized memory leak in romfs_dev_read()
-
-romfs has a superblock field that limits the size of the filesystem; data
-beyond that limit is never accessed.
-
-romfs_dev_read() fetches a caller-supplied number of bytes from the
-backing device.  It returns 0 on success or an error code on failure;
-therefore, its API can't represent short reads, it's all-or-nothing.
-
-However, when romfs_dev_read() detects that the requested operation would
-cross the filesystem size limit, it currently silently truncates the
-requested number of bytes.  This e.g.  means that when the content of a
-file with size 0x1000 starts one byte before the filesystem size limit,
-->readpage() will only fill a single byte of the supplied page while
-leaving the rest uninitialized, leaking that uninitialized memory to
-userspace.
-
-Fix it by returning an error code instead of truncating the read when the
-requested read operation would go beyond the end of the filesystem.
-
-Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
-Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 ---
+ drivers/usb/storage/unusual_uas.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
- fs/romfs/storage.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
---- a/fs/romfs/storage.c~romfs-fix-uninitialized-memory-leak-in-romfs_dev_read
-+++ a/fs/romfs/storage.c
-@@ -217,10 +217,8 @@ int romfs_dev_read(struct super_block *s
- 	size_t limit;
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index 162b09d69f62..971f8a4354c8 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -80,6 +80,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
  
- 	limit = romfs_maxsize(sb);
--	if (pos >= limit)
-+	if (pos >= limit || buflen > limit - pos)
- 		return -EIO;
--	if (buflen > limit - pos)
--		buflen = limit - pos;
- 
- #ifdef CONFIG_ROMFS_ON_MTD
- 	if (sb->s_mtd)
-_
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
+ /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+ UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
+ 		"VIA",
 
-Patches currently in -mm which might be from jannh@google.com are
-
-romfs-fix-uninitialized-memory-leak-in-romfs_dev_read.patch
+base-commit: d5643d2249b279077427b2c2b2ffae9b70c95b0b
+-- 
+2.28.0
 
