@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD91249B6B
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A32249B6C
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726782AbgHSLNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:13:49 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:57323 "EHLO
+        id S1726752AbgHSLOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:14:25 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:40443 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726820AbgHSLNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:13:48 -0400
+        by vger.kernel.org with ESMTP id S1726710AbgHSLOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:14:24 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7D68D19425A5;
-        Wed, 19 Aug 2020 07:13:46 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:13:46 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 303171942747;
+        Wed, 19 Aug 2020 07:14:23 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:14:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=i0wXf/
-        Wx8ou8qTiHk10oO/4qF8eSskUiqZgyku+unzk=; b=cmxaflQK16ZIjdPZw/ztNH
-        gFt5e35DXbiZFuOO65Tgij32gDHejg4MAiHiLrq5zvm6piYmVvjbQZ+PY44pTCxV
-        wiBEH6XfhFiTOWFVGKcVJ+yYo0nuzZRVjV2N4EfdEO3dp1joJfn1MUGpfcb8CS/q
-        jahXx7GsHQkz9Y5SVpZuFk4Ss6AvnIryEj1a8kJiy260pXeg6HEbu9cT2zB3tsmn
-        JTgAsbakUUEZ5USErgq3Eed0TFoUfQStQyY1ekgtHwnm8HzaV2VarKyyP+SItuRt
-        A8SI3CNB7dQgg6R/Et0GUYmeaBZzDKuAQTYIz7inydz5v1+y67bfMaYYoAidMY9w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pmLqwf
+        qJ/6SzS9SAO3F/87ImkfJAUyhBb9QTRXIfvL8=; b=dU92fHYj0eHu9Lsl1unkyf
+        3M3XuPcu+6y4vW6tPiXJWEi+cs1L1Qh/7sPgojAixBIgdULWKPaV75LmGsndxLug
+        r+NTTFHxRKtwfYfH/gVT54jJyW3S1cNIZpM36TPOwiCsj1Um2XI55tP+iXTI2O7/
+        lTa4u16Uhnuq2KLEb3XNwey6OeZpZlV0n1WhmIPIlX7ksXX/exIFkkKP+tGBn/F4
+        8+bbDrmNnXGl2pcnJIV6HoqvcJTQmd0yIMiuVNElsX/kn3Dju9wzRWGwQr5F2glT
+        rNSgr4AnlmC1ahNS5wA+WPmTT/GjJ/FlSoY994qQ2mznoOCnfm44DW515CtPrCxQ
         ==
-X-ME-Sender: <xms:agk9Xxk2CCQ6fILpsyUagoB80mPaAJl7MRR-6HDGJJsbKWDNBf-EdQ>
+X-ME-Sender: <xms:jgk9XzZaGzUmVn0iCdlQ_HkwPmIw-phmGIC8kGpayhhkf043BiSP5Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:agk9X82aG43x5W67ho6-vZILcbMSalN6zI9-HYwcxOA5rLkkRXhXZw>
-    <xmx:agk9X3pvMVS7tM_N_L_yUloynOdW4MUNtvSp791oUI-uoe301dIuOw>
-    <xmx:agk9Xxl_jxgQEMF09dA668Lp079FWuMluV-K7bcvRITF-YPLNhvwQg>
-    <xmx:agk9X4_0Y0shmo9EMH65x9e5ZpPy-GKbTnFJl5PIwlHkv8g8BSdrGg>
+X-ME-Proxy: <xmx:jgk9XyYJcHX_37Uq-348GCPrstbN73vL5rDSdWo-UHhZ_X3_yrV17A>
+    <xmx:jgk9X19hVAMMQwEGHUmd-HexgbYGOAQ3C_axidqXv8EWkkZxJVpBbw>
+    <xmx:jgk9X5o74KQWyobFAjZOz18saL3prQjSFQNIcUds4aRlBuvUjmFe-Q>
+    <xmx:jwk9XzBgheRY2iltpTl3nX7JzeRuJaFcho01GgbFXJbJJROYfJTs7A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 05DFC328005D;
-        Wed, 19 Aug 2020 07:13:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: free anon block device right after subvolume deletion" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4318930600A9;
+        Wed, 19 Aug 2020 07:14:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: don't allocate anonymous block device for user" failed to apply to 4.4-stable tree
 To:     wqu@suse.com, dsterba@suse.com, greedrong@gmail.com,
         josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 13:14:06 +0200
-Message-ID: <1597835646191217@kroah.com>
+Date:   Wed, 19 Aug 2020 13:14:45 +0200
+Message-ID: <1597835685194255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,14 +70,15 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 082b6c970f02fefd278c7833880cda29691a5f34 Mon Sep 17 00:00:00 2001
+From 851fd730a743e072badaf67caf39883e32439431 Mon Sep 17 00:00:00 2001
 From: Qu Wenruo <wqu@suse.com>
-Date: Tue, 16 Jun 2020 10:17:37 +0800
-Subject: [PATCH] btrfs: free anon block device right after subvolume deletion
+Date: Tue, 16 Jun 2020 10:17:34 +0800
+Subject: [PATCH] btrfs: don't allocate anonymous block device for user
+ invisible roots
 
 [BUG]
 When a lot of subvolumes are created, there is a user report about
-transaction aborted caused by slow anonymous block device reclaim:
+transaction aborted:
 
   BTRFS: Transaction aborted (error -24)
   WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
@@ -101,14 +102,25 @@ transaction aborted caused by slow anonymous block device reclaim:
   BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
 
 [CAUSE]
-The anonymous device pool is shared and its size is 1M. It's possible to
-hit that limit if the subvolume deletion is not fast enough and the
-subvolumes to be cleaned keep the ids allocated.
+The error is EMFILE (Too many files open) and comes from the anonymous
+block device allocation. The ids are in a shared pool of size 1<<20.
+
+The ids are assigned to live subvolumes, ie. the root structure exists
+in memory (eg. after creation or after the root appears in some path).
+The pool could be exhausted if the numbers are not reclaimed fast
+enough, after subvolume deletion or if other system component uses the
+anon block devices.
 
 [WORKAROUND]
-We can't avoid the anon device pool exhaustion but we can shorten the
-time the id is attached to the subvolume root once the subvolume becomes
-invisible to the user.
+Since it's not possible to completely solve the problem, we can only
+minimize the time the id is allocated to a subvolume root.
+
+Firstly, we can reduce the use of anon_dev by trees that are not
+subvolume roots, like data reloc tree.
+
+This patch will do extra check on root objectid, to skip roots that
+don't need anon_dev.  Currently it's only data reloc tree and orphan
+roots.
 
 Reported-by: Greed Rong <greedrong@gmail.com>
 Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
@@ -118,17 +130,28 @@ Signed-off-by: Qu Wenruo <wqu@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 5d2ce8092531..f066cad2d039 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4026,6 +4026,8 @@ int btrfs_delete_subvolume(struct inode *dir, struct dentry *dentry)
- 		}
- 	}
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index dbf90cd49513..c90edf04a9db 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1424,9 +1424,16 @@ static int btrfs_init_fs_root(struct btrfs_root *root)
+ 	spin_lock_init(&root->ino_cache_lock);
+ 	init_waitqueue_head(&root->ino_cache_wait);
  
-+	free_anon_bdev(dest->anon_dev);
-+	dest->anon_dev = 0;
- out_end_trans:
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
+-	ret = get_anon_bdev(&root->anon_dev);
+-	if (ret)
+-		goto fail;
++	/*
++	 * Don't assign anonymous block device to roots that are not exposed to
++	 * userspace, the id pool is limited to 1M
++	 */
++	if (is_fstree(root->root_key.objectid) &&
++	    btrfs_root_refs(&root->root_item) > 0) {
++		ret = get_anon_bdev(&root->anon_dev);
++		if (ret)
++			goto fail;
++	}
+ 
+ 	mutex_lock(&root->objectid_mutex);
+ 	ret = btrfs_find_highest_objectid(root,
 
