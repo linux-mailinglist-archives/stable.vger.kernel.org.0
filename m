@@ -2,77 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FBB24A087
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAAEE24A09E
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728504AbgHSNuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 09:50:22 -0400
-Received: from crapouillou.net ([89.234.176.41]:41790 "EHLO crapouillou.net"
+        id S1728060AbgHSNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 09:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728603AbgHSNuQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 09:50:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1597845011; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZMa1miHqnp0hsyQzcWODgfb3fE7vf8/LcAi3x0FvuYM=;
-        b=B0VZgs64FpdRgndxTwlzRuO717hGlf3RkMKNxRG5ecOiYfUcJn2pSz85wBWZEa3GU2t+Qn
-        35fL8uQDmFKDso6uweAOaIwZ8G6wWcs9777oJb57IorSjCSXICPueiiKUoqlvu/bOqfDaS
-        UB4Ubmn7+II2gNqYAp/QNTiVu5Nu8sA=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     gregkh <gregkh@linuxfoundation.org>
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        =?UTF-8?q?Jo=C3=A3o=20Henrique?= <johnnyonflame@hotmail.com>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
-Subject: [BACKPORT v5.4 PATCH] pinctrl: ingenic: Properly detect GPIO direction when configured for IRQ
-Date:   Wed, 19 Aug 2020 15:49:53 +0200
-Message-Id: <20200819134953.25842-1-paul@crapouillou.net>
-In-Reply-To: <1597837696152155@kroah.com>
-References: <1597837696152155@kroah.com>
+        id S1728558AbgHSNv2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 09:51:28 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14B0D204FD;
+        Wed, 19 Aug 2020 13:51:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597845087;
+        bh=VktUV2RvbLai2DJr9DTti3cBG/h+11YFC9/Tav0GfSk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Gaw6QL76QYzsTx8y1ZWwr1lLX95QYGWXfpnR7XnvU2BKEXi8p/Cqia57Ga2AYZpXL
+         WHg5/kjMgaS3M+oJtEfVyi/HEvl7gbMpn/ehUIv3fKKKOaFK51b87YdP5xxRVmYlxc
+         oXmNwDYNHKvNVQlQ0wAl4hERHsulW/AUuU25rIIQ=
+Date:   Wed, 19 Aug 2020 15:51:49 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mike Marshall <hubcap@omnibond.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: submission for 5.4 LTS
+Message-ID: <20200819135149.GA3311577@kroah.com>
+References: <CAOg9mSR=rOCGhxuR+L8YXzvwTrg4KyO285vx2TTm20fh9EdtMA@mail.gmail.com>
+ <20200818171646.GA744123@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200818171646.GA744123@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PAT1 register contains information about the IRQ type (edge/level)
-for input GPIOs with IRQ enabled, and the direction for non-IRQ GPIOs.
-So it makes sense to read it only if the GPIO has no interrupt
-configured, otherwise input GPIOs configured for level IRQs are
-misdetected as output GPIOs.
+On Tue, Aug 18, 2020 at 07:16:46PM +0200, Greg KH wrote:
+> On Tue, Aug 18, 2020 at 11:49:29AM -0400, Mike Marshall wrote:
+> > upstream commit id: ec95f1dedc9c64ac5a8b0bdb7c276936c70fdedd
+> > 
+> > I verified that ec95f1de "orangefs: get rid of knob code..."
+> > will apply to 5.4 and I compiled and ran a patched 5.4 kernel
+> > against my normal xfstests...  I wish that ec95f1de could be
+> > in the 5.4 long term stable kernel.
+> > 
+> > ec95f1de went upstream in 5.7. When I sent up the patch it was
+> > just a theoretical race condition to me: I accepted what Christoph
+> > said about it. We now have experienced in-the-real-world how
+> > important the patch is...
+> > 
+> > Someone was trying to read a whole large (more than 100 meg)
+> > file from orangefs into some kind of cloud bucket. The
+> > resulting read failed with a "Bad address" error. I
+> > immediately thought of this patch. I reproduced the
+> > "Bad address" error with dd in kernel versions that
+> > lack ec95f1de. The "Bad address" error does not occur
+> > in kernels that include ec95f1de:
+> > 
+> > 5.7.11-100.fc31.x86_64:
+> > 
+> > $ ./wr.sh 10000000 > /pvfsmnt/wr.10000000
+> > $ dd if=/pvfsmnt/wr.10000000 of=/tmp/wr.10000000 count=10 bs=419430400
+> > $ ls -l /pvfsmnt/wr.10000000 /tmp/wr.10000000
+> > -rw-rw-r--. 1 hubcap hubcap 498888897 Aug 14 15:41 /pvfsmnt/wr.10000000
+> > -rw-rw-r--. 1 hubcap hubcap 498888897 Aug 14 16:51 /tmp/wr.10000000
+> > $ md5sum /pvfsmnt/wr.10000000 /tmp/wr.10000000
+> > 669daa04f91f561f5fb2851fb30e4ffe  /pvfsmnt/wr.10000000
+> > 669daa04f91f561f5fb2851fb30e4ffe  /tmp/wr.10000000
+> > 
+> > 5.6.0hubcap:
+> > 
+> > $ ./wr.sh 10000000 > /pvfsmnt/wr.10000000
+> > $ dd if=/pvfsmnt/wr.10000000 of=/tmp/wr.10000000 count=10 bs=419430400
+> > dd: error reading '/pvfsmnt/wr.10000000': Bad address
+> > 0+0 records in
+> > 0+0 records out
+> > 0 bytes copied, 10.3365 s, 0.0 kB/s
+> 
+> Sounds reasonable, I'll queue this up after this next round of releases
+> in the next few days, thanks!
 
-Fixes: ebd6651418b6 ("pinctrl: ingenic: Implement .get_direction for GPIO chips")
-Reported-by: João Henrique <johnnyonflame@hotmail.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200622214548.265417-2-paul@crapouillou.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
+Now queued up, thanks.
 
-Notes:
-    Original git commit ID: 84e7a946da71f678affacea301f6d5cb4d9784e8
-
- drivers/pinctrl/pinctrl-ingenic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index 6e2683016c1f..bfa0c5b7ad04 100644
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -1644,7 +1644,8 @@ static int ingenic_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
- 	unsigned int pin = gc->base + offset;
- 
- 	if (jzpc->version >= ID_JZ4760)
--		return ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1);
-+		return ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
-+			ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1);
- 
- 	if (ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_SELECT))
- 		return true;
--- 
-2.28.0
-
+greg k-h
