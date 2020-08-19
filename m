@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AF0249BA9
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B16C4249BAD
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbgHSLXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:23:45 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:48855 "EHLO
+        id S1727019AbgHSLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:25:19 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:35023 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726710AbgHSLXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:23:42 -0400
+        by vger.kernel.org with ESMTP id S1726710AbgHSLZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:25:14 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6CCB71941CBD;
-        Wed, 19 Aug 2020 07:23:40 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id BB9771941FBF;
+        Wed, 19 Aug 2020 07:25:12 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:23:40 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:25:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uGASNi
-        Hy2G90v5Smc+sE93cDYAHFxqqjjTgHkg/mqtI=; b=AwoYKHJ2vYDcbWeMWUS3GF
-        uBcaKMqoVRTgAeAKMa5IteLbwg6yS1hZMk/cWUMLlaRbqTIfmIYOLp3DJTRtCgRY
-        dm3K3FpRlqDqnM55fI5+uxVXvRoE7AlQBumPFcfsZtuX287f9PYyXlQVuM/qNlGG
-        GV9fPyHD4IBBXXvXPNiQiQJ72bUtLcZuILzWjoDEToDDZBPUjWbtATwROJWxcTFh
-        u2FcWck2gJ0pxugJO3bc3RWwJofbzJI3YZMR5Y12rIY3VeuTbiaZd3iDapW3mSFU
-        A/9QqNWszjDsCocYwfWjtXPCN+w6GOUmgL6B8XCMxNPY6KGnKc8L2WQOHF8xze3A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xGw5rN
+        Zvcv0dtToOIbc5ZC3Qo0FotPfaIi/J7Sls98M=; b=JSpEnlThRXM3WiWl9PibwY
+        8TpU7cMPWDMrILG3U4d8JIdnQ65Wou7opsDZD7ybW73394q68hLwSC3dz7jsI0vT
+        b0891J3sByVFci8Q8znxKfdy/6zxI6K2EvF9629QBObYhiLdcTIE221T4n3nD4Rp
+        y34DVRqArTZ5mwEif1e8M4gk3THFwwugp98KAPTGqiIRwjt/gH2hdSkZQXItStKP
+        WsxCQOiPv9k13rhdsMe8y0vfY26VLdleLX8FOnxq3ds5HTtpXnz74YbQbFSYXxeU
+        MOOLylcQOgdZmuRXSkBUkHaRgPCQlH5BLt1NW/3RJzenDVLkQmgIHq4vfjK9/+Gg
         ==
-X-ME-Sender: <xms:vAs9X26yIN8OxyDUhx8_LUE_YbbCsgD1SpdwE9PPtCbENhq--OO4vA>
+X-ME-Sender: <xms:GAw9X-fDIYCymR4xcdOQQdwattX7e61o2H0HsPMrHnHIM7nshK_jQQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnheptdevtefhjeffvdefuedvgfefueektddthffhtdegie
     ffvedvtdekffehueejfefhnecuffhomhgrihhnpehophgvnhhsuhhsvgdrohhrghenucfk
-    phepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrg
+    phepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrg
     hmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:vAs9X_7omIq9xz64dvLSkJ7z8dMScPPxTMiMEB6W7t1aFTAQlzeUZQ>
-    <xmx:vAs9X1fA92kH1PQXYh2LB4LgwLL4WCx7ZCtmAtVz-xpYrW84_6pfvg>
-    <xmx:vAs9XzJ7YrzIY82SWr31msftk6NAUDfxSA3i-_6ZlpEqlR0C6OwkxQ>
-    <xmx:vAs9X5n95bRryjAcMcrt21q5UnuXGXKJ5COIwgq-RkCyagZjtfcPKQ>
+X-ME-Proxy: <xmx:GAw9X4MPTBeav5QzkuoQw3KeqagaF4QLjdzmjmmzLjW8dSmYbeZYIA>
+    <xmx:GAw9X_ikdh8FjT2c8mueZCa5zmckj3POguVuWdjuER1BNoqt9Q5juA>
+    <xmx:GAw9X795PmfYZOHsB3WpDNv7buPjRoUZ9BIcTb0fJmm9iO2qef-dEA>
+    <xmx:GAw9Xw1p5sZ9E_W2oZSAr45302oQ7946or_8eMAOe-eiJiFU3Nbvtg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0AACE328005E;
-        Wed, 19 Aug 2020 07:23:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: sysfs: use NOFS for device creation" failed to apply to 4.19-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1EFE63280064;
+        Wed, 19 Aug 2020 07:25:12 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: return EROFS for BTRFS_FS_STATE_ERROR cases" failed to apply to 5.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, esandeen@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 13:24:03 +0200
-Message-ID: <1597836243179250@kroah.com>
+Date:   Wed, 19 Aug 2020 13:25:35 +0200
+Message-ID: <159783633527237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,178 +69,151 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a47bd78d0c44621efb98b525d04d60dc4d1a79b0 Mon Sep 17 00:00:00 2001
+From fbabd4a36faaf74c83142d0b3d950c11ec14fda1 Mon Sep 17 00:00:00 2001
 From: Josef Bacik <josef@toxicpanda.com>
-Date: Tue, 21 Jul 2020 10:17:50 -0400
-Subject: [PATCH] btrfs: sysfs: use NOFS for device creation
+Date: Tue, 21 Jul 2020 10:38:37 -0400
+Subject: [PATCH] btrfs: return EROFS for BTRFS_FS_STATE_ERROR cases
 
-Dave hit this splat during testing btrfs/078:
+Eric reported seeing this message while running generic/475
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc6-default+ #1191 Not tainted
-  ------------------------------------------------------
-  kswapd0/75 is trying to acquire lock:
-  ffffa040e9d04ff8 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+  BTRFS: error (device dm-3) in btrfs_sync_log:3084: errno=-117 Filesystem corrupted
 
-  but task is already holding lock:
-  ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+Full stack trace:
 
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #2 (fs_reclaim){+.+.}-{0:0}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 fs_reclaim_acquire.part.0+0x25/0x30
-	 __kmalloc_track_caller+0x49/0x330
-	 kstrdup+0x2e/0x60
-	 __kernfs_new_node.constprop.0+0x44/0x250
-	 kernfs_new_node+0x25/0x50
-	 kernfs_create_link+0x34/0xa0
-	 sysfs_do_create_link_sd+0x5e/0xd0
-	 btrfs_sysfs_add_devices_dir+0x65/0x100 [btrfs]
-	 btrfs_init_new_device+0x44c/0x12b0 [btrfs]
-	 btrfs_ioctl+0xc3c/0x25c0 [btrfs]
-	 ksys_ioctl+0x68/0xa0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0xe0
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 btrfs_chunk_alloc+0x137/0x3e0 [btrfs]
-	 find_free_extent+0xb44/0xfb0 [btrfs]
-	 btrfs_reserve_extent+0x9b/0x180 [btrfs]
-	 btrfs_alloc_tree_block+0xc1/0x350 [btrfs]
-	 alloc_tree_block_no_bg_flush+0x4a/0x60 [btrfs]
-	 __btrfs_cow_block+0x143/0x7a0 [btrfs]
-	 btrfs_cow_block+0x15f/0x310 [btrfs]
-	 push_leaf_right+0x150/0x240 [btrfs]
-	 split_leaf+0x3cd/0x6d0 [btrfs]
-	 btrfs_search_slot+0xd14/0xf70 [btrfs]
-	 btrfs_insert_empty_items+0x64/0xc0 [btrfs]
-	 __btrfs_commit_inode_delayed_items+0xb2/0x840 [btrfs]
-	 btrfs_async_run_delayed_root+0x10e/0x1d0 [btrfs]
-	 btrfs_work_helper+0x2f9/0x650 [btrfs]
-	 process_one_work+0x22c/0x600
-	 worker_thread+0x50/0x3b0
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
-
-  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
-	 check_prev_add+0x98/0xa20
-	 validate_chain+0xa8c/0x2a00
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-	 btrfs_evict_inode+0x3bf/0x560 [btrfs]
-	 evict+0xd6/0x1c0
-	 dispose_list+0x48/0x70
-	 prune_icache_sb+0x54/0x80
-	 super_cache_scan+0x121/0x1a0
-	 do_shrink_slab+0x175/0x420
-	 shrink_slab+0xb1/0x2e0
-	 shrink_node+0x192/0x600
-	 balance_pgdat+0x31f/0x750
-	 kswapd+0x206/0x510
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
-
-  other info that might help us debug this:
-
-  Chain exists of:
-    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(fs_reclaim);
-				 lock(&fs_info->chunk_mutex);
-				 lock(fs_reclaim);
-    lock(&delayed_node->mutex);
-
-   *** DEADLOCK ***
-
-  3 locks held by kswapd0/75:
-   #0: ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
-   #1: ffffffff8b0b50b8 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x54/0x2e0
-   #2: ffffa040e057c0e8 (&type->s_umount_key#26){++++}-{3:3}, at: trylock_super+0x16/0x50
-
-  stack backtrace:
-  CPU: 2 PID: 75 Comm: kswapd0 Not tainted 5.8.0-rc6-default+ #1191
+  BTRFS: error (device dm-0) in btrfs_commit_transaction:2323: errno=-5 IO failure (Error while writing out transaction)
+  BTRFS info (device dm-0): forced readonly
+  BTRFS warning (device dm-0): Skipping commit of aborted transaction.
+  ------------[ cut here ]------------
+  BTRFS: error (device dm-0) in cleanup_transaction:1894: errno=-5 IO failure
+  BTRFS: Transaction aborted (error -117)
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6480 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6488 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6490 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6498 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64a0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64a8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64b0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64b8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64c0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3572 rw 0,0 sector 0x1b85e8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3572 rw 0,0 sector 0x1b85f0 len 4096 err no 10
+  WARNING: CPU: 3 PID: 23985 at fs/btrfs/tree-log.c:3084 btrfs_sync_log+0xbc8/0xd60 [btrfs]
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4288 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4290 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4298 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42a0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42a8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42b0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42b8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42c0 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42c8 len 4096 err no 10
+  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42d0 len 4096 err no 10
+  CPU: 3 PID: 23985 Comm: fsstress Tainted: G        W    L    5.8.0-rc4-default+ #1181
   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+  RIP: 0010:btrfs_sync_log+0xbc8/0xd60 [btrfs]
+  RSP: 0018:ffff909a44d17bd0 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000001
+  RDX: ffff8f3be41cb940 RSI: ffffffffb0108d2b RDI: ffffffffb0108ff7
+  RBP: ffff909a44d17e70 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000037988 R12: ffff8f3bd20e4000
+  R13: ffff8f3bd20e4428 R14: 00000000ffffff8b R15: ffff909a44d17c70
+  FS:  00007f6a6ed3fb80(0000) GS:ffff8f3c3dc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f6a6ed3e000 CR3: 00000000525c0003 CR4: 0000000000160ee0
   Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x16f/0x190
-   check_prev_add+0x98/0xa20
-   validate_chain+0xa8c/0x2a00
-   __lock_acquire+0x56f/0xaa0
-   lock_acquire+0xa3/0x440
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __mutex_lock+0xa0/0xaf0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? __lock_acquire+0x56f/0xaa0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? lock_acquire+0xa3/0x440
-   ? btrfs_evict_inode+0x138/0x560 [btrfs]
-   ? btrfs_evict_inode+0x2fe/0x560 [btrfs]
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   btrfs_evict_inode+0x3bf/0x560 [btrfs]
-   evict+0xd6/0x1c0
-   dispose_list+0x48/0x70
-   prune_icache_sb+0x54/0x80
-   super_cache_scan+0x121/0x1a0
-   do_shrink_slab+0x175/0x420
-   shrink_slab+0xb1/0x2e0
-   shrink_node+0x192/0x600
-   balance_pgdat+0x31f/0x750
-   kswapd+0x206/0x510
-   ? _raw_spin_unlock_irqrestore+0x3e/0x50
    ? finish_wait+0x90/0x90
-   ? balance_pgdat+0x750/0x750
-   kthread+0x137/0x150
-   ? kthread_stop+0x2a0/0x2a0
-   ret_from_fork+0x1f/0x30
+   ? __mutex_unlock_slowpath+0x45/0x2a0
+   ? lock_acquire+0xa3/0x440
+   ? lockref_put_or_lock+0x9/0x30
+   ? dput+0x20/0x4a0
+   ? dput+0x20/0x4a0
+   ? do_raw_spin_unlock+0x4b/0xc0
+   ? _raw_spin_unlock+0x1f/0x30
+   btrfs_sync_file+0x335/0x490 [btrfs]
+   do_fsync+0x38/0x70
+   __x64_sys_fsync+0x10/0x20
+   do_syscall_64+0x50/0xe0
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f6a6ef1b6e3
+  Code: Bad RIP value.
+  RSP: 002b:00007ffd01e20038 EFLAGS: 00000246 ORIG_RAX: 000000000000004a
+  RAX: ffffffffffffffda RBX: 000000000007a120 RCX: 00007f6a6ef1b6e3
+  RDX: 00007ffd01e1ffa0 RSI: 00007ffd01e1ffa0 RDI: 0000000000000003
+  RBP: 0000000000000003 R08: 0000000000000001 R09: 00007ffd01e2004c
+  R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000009f
+  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  irq event stamp: 0
+  hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+  hardirqs last disabled at (0): [<ffffffffb007fe0b>] copy_process+0x67b/0x1b00
+  softirqs last  enabled at (0): [<ffffffffb007fe0b>] copy_process+0x67b/0x1b00
+  softirqs last disabled at (0): [<0000000000000000>] 0x0
+  ---[ end trace af146e0e38433456 ]---
+  BTRFS: error (device dm-0) in btrfs_sync_log:3084: errno=-117 Filesystem corrupted
 
-This is because we're holding the chunk_mutex while adding this device
-and adding its sysfs entries.  We actually hold different locks in
-different places when calling this function, the dev_replace semaphore
-for instance in dev replace, so instead of moving this call around
-simply wrap it's operations in NOFS.
+This ret came from btrfs_write_marked_extents().  If we get an aborted
+transaction via EIO before, we'll see it in btree_write_cache_pages()
+and return EUCLEAN, which gets printed as "Filesystem corrupted".
 
-CC: stable@vger.kernel.org # 4.14+
-Reported-by: David Sterba <dsterba@suse.com>
+Except we shouldn't be returning EUCLEAN here, we need to be returning
+EROFS because EUCLEAN is reserved for actual corruption, not IO errors.
+
+We are inconsistent about our handling of BTRFS_FS_STATE_ERROR
+elsewhere, but we want to use EROFS for this particular case.  The
+original transaction abort has the real error code for why we ended up
+with an aborted transaction, all subsequent actions just need to return
+EROFS because they may not have a trans handle and have no idea about
+the original cause of the abort.
+
+After patch "btrfs: don't WARN if we abort a transaction with EROFS" the
+stacktrace will not be dumped either.
+
+Reported-by: Eric Sandeen <esandeen@redhat.com>
+CC: stable@vger.kernel.org # 5.4+
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ add full test stacktrace ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/sysfs.c b/fs/btrfs/sysfs.c
-index 38c0b95e0e7f..104c80caaa74 100644
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -1278,7 +1278,9 @@ int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
- {
- 	int error = 0;
- 	struct btrfs_device *dev;
-+	unsigned int nofs_flag;
- 
-+	nofs_flag = memalloc_nofs_save();
- 	list_for_each_entry(dev, &fs_devices->devices, dev_list) {
- 
- 		if (one_device && one_device != dev)
-@@ -1306,6 +1308,7 @@ int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
- 			break;
- 		}
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 73c9c59cd535..3fbc37692592 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4119,7 +4119,7 @@ int btree_write_cache_pages(struct address_space *mapping,
+ 	if (!test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state)) {
+ 		ret = flush_write_bio(&epd);
+ 	} else {
+-		ret = -EUCLEAN;
++		ret = -EROFS;
+ 		end_write_bio(&epd, ret);
  	}
-+	memalloc_nofs_restore(nofs_flag);
+ 	return ret;
+diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
+index d935ac06323f..5a6cb9db512e 100644
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -3691,7 +3691,7 @@ static noinline_for_stack int scrub_supers(struct scrub_ctx *sctx,
+ 	struct btrfs_fs_info *fs_info = sctx->fs_info;
  
- 	return error;
- }
+ 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+-		return -EIO;
++		return -EROFS;
+ 
+ 	/* Seed devices of a new filesystem has their own generation. */
+ 	if (scrub_dev->fs_devices != fs_info->fs_devices)
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index efafc286323c..20c6ac1a5de7 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -937,7 +937,10 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
+ 	if (TRANS_ABORTED(trans) ||
+ 	    test_bit(BTRFS_FS_STATE_ERROR, &info->fs_state)) {
+ 		wake_up_process(info->transaction_kthread);
+-		err = -EIO;
++		if (TRANS_ABORTED(trans))
++			err = trans->aborted;
++		else
++			err = -EROFS;
+ 	}
+ 
+ 	kmem_cache_free(btrfs_trans_handle_cachep, trans);
 
