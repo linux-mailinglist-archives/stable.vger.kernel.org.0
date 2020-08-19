@@ -2,130 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B057324AA36
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5522324AA67
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726990AbgHSX5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 19:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726987AbgHSX5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:57:06 -0400
-Received: from localhost (unknown [70.37.104.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81746214F1;
-        Wed, 19 Aug 2020 23:57:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881425;
-        bh=wRIeCId+LGO7Hn8sD6X/dRYQCCdyvlfe/NUcIoPq9OE=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
-         References:From;
-        b=gH5pV1aUFjRriPe0EuUybV43Bue3tqhsSgulwu0xcJpYoRzSqAkliOA1YGXaHUVz6
-         +8GFnvnLDPkkqhqNfU5KH1gAm2h/SVeKoOVAQdK4wp0NDCMnq8mjugTe/kroRuJmhS
-         qEvtF+czTjBBRRYuqTl0WDF+J3uRZDp/NQWJykfw=
-Date:   Wed, 19 Aug 2020 23:57:04 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Will Deacon <will@kernel.org>
-To:     kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
-Cc:     <stable@vger.kernel.org>
-Cc:     Marc Zyngier <maz@kernel.org>
-Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     James Morse <james.morse@arm.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
-In-Reply-To: <20200811102725.7121-2-will@kernel.org>
-References: <20200811102725.7121-2-will@kernel.org>
-Message-Id: <20200819235705.81746214F1@mail.kernel.org>
+        id S1726617AbgHSX7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 19:59:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726675AbgHSX7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 19:59:15 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA2DC061383
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 16:59:14 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id y6so190283plt.3
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 16:59:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=j725WwtlabuWLqYj1RC375p05vg0VyfQqgbjcc1E20U=;
+        b=gpbMdWDd1F41eqn99wPm8l1j+W+XZF0hntjY+itZgt1YrMn3B0aYpfCz8ntslu455t
+         zCA3i8tvlgm86rWGc9kby93dNCmPT4UZiXntTOyW0UgDRGlkSxEofeSqiJmS9Huo9ciu
+         +evIAm85FN7LOrEj6vCWYsGTs6oROLaWqdpq6f2Q9PseuFdAbXeJ6sDoLMa8KZ4rAERk
+         TakB4nUZINTiPR8I3+GZq9XK0W7PsZ58paVDPEpWm0lz9NOM/qOrtxGwUilLN4pOVHPi
+         Tb+ZHSqwtUC9L80dOHq8IOA3Z9bZNDMjd7bn83pYzDLZzpcf3DbWsGO1slw0rHB4EvQ6
+         HLdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=j725WwtlabuWLqYj1RC375p05vg0VyfQqgbjcc1E20U=;
+        b=MvAuIGW+PLAsfeNnlYGZIoUotw6kDR/vl/jNoX6KUa0CL7KZLbHTJ53nfjfXQeYH/F
+         EUpF5ydYh9paAbkVVhLq8yTM6VyPkiJesPASvRFTWXEBC2mcvyar/M8WBczm5uGyPmnx
+         clz9dIkKW2NaRybuZva9XUvdgAKLfvixZzH5emMrfoHXnMCkwefZgmtNOdmKuPqdHcCy
+         bKordlxIJXyjsyIrfEA/VCtBhy5TLRh+abOMaB5E+KUGZoBY/jTWGnV1CQhEIf4c/R70
+         XPM4f7JMMJ8KPBvanMxAx0tHt3ybmUYApSUSoyVR4QU9deo9FTbrA9WyA4xA1aZUmQNj
+         bAkA==
+X-Gm-Message-State: AOAM533uuAceZAt8CLj5c4nnN4KP3U1R8OXlGDdP8ozhtkKjG9X1Tble
+        O7e+esp2vFUQZ/Z4UMP1pn+Bvdn+k5oCtW6FL7E=
+X-Google-Smtp-Source: ABdhPJw3hq4CSx5myJjCPwUfsMlICDiiKHt0KId3QeTo6QktX+l2OW2kI7gcZxdmBb5Y0K2woEiiAA==
+X-Received: by 2002:a17:902:d883:: with SMTP id b3mr508688plz.154.1597881553795;
+        Wed, 19 Aug 2020 16:59:13 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id 22sm300501pgd.59.2020.08.19.16.59.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Aug 2020 16:59:13 -0700 (PDT)
+Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
+ isn't running
+To:     Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
+Cc:     peterz@infradead.org, stable@vger.kernel.org
+References: <20200808183439.342243-3-axboe@kernel.dk>
+ <20200819235703.AA48120B1F@mail.kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <073069ae-6de9-811d-b22e-c4d992ba3110@kernel.dk>
+Date:   Wed, 19 Aug 2020 17:59:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200819235703.AA48120B1F@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On 8/19/20 4:57 PM, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: 5.7+
+> 
+> The bot has tested the following trees: v5.8.1, v5.7.15.
+> 
+> v5.8.1: Failed to apply! Possible dependencies:
+>     3fa5e0f33128 ("io_uring: optimise io_req_find_next() fast check")
+>     4503b7676a2e ("io_uring: catch -EIO from buffered issue request failure")
+>     7c86ffeeed30 ("io_uring: deduplicate freeing linked timeouts")
+>     9b0d911acce0 ("io_uring: kill REQ_F_LINK_NEXT")
+>     9b5f7bd93272 ("io_uring: replace find_next() out param with ret")
+>     a1d7c393c471 ("io_uring: enable READ/WRITE to use deferred completions")
+>     b63534c41e20 ("io_uring: re-issue block requests that failed because of resources")
+>     bcf5a06304d6 ("io_uring: support true async buffered reads, if file provides it")
+>     c2c4c83c58cb ("io_uring: use new io_req_task_work_add() helper throughout")
+>     c40f63790ec9 ("io_uring: use task_work for links if possible")
+>     e1e16097e265 ("io_uring: provide generic io_req_complete() helper")
+> 
+> v5.7.15: Failed to apply! Possible dependencies:
+>     0cdaf760f42e ("io_uring: remove req->needs_fixed_files")
+>     310672552f4a ("io_uring: async task poll trigger cleanup")
+>     3fa5e0f33128 ("io_uring: optimise io_req_find_next() fast check")
+>     405a5d2b2762 ("io_uring: avoid unnecessary io_wq_work copy for fast poll feature")
+>     4a38aed2a0a7 ("io_uring: batch reap of dead file registrations")
+>     4dd2824d6d59 ("io_uring: lazy get task")
+>     7c86ffeeed30 ("io_uring: deduplicate freeing linked timeouts")
+>     7cdaf587de7c ("io_uring: avoid whole io_wq_work copy for requests completed inline")
+>     7d01bd745a8f ("io_uring: remove obsolete 'state' parameter")
+>     9b0d911acce0 ("io_uring: kill REQ_F_LINK_NEXT")
+>     9b5f7bd93272 ("io_uring: replace find_next() out param with ret")
+>     c2c4c83c58cb ("io_uring: use new io_req_task_work_add() helper throughout")
+>     c40f63790ec9 ("io_uring: use task_work for links if possible")
+>     d4c81f38522f ("io_uring: don't arm a timeout through work.func")
+>     f5fa38c59cb0 ("io_wq: add per-wq work handler instead of per work")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-[This is an automated email]
-
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
-
-The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193, v4.9.232, v4.4.232.
-
-v5.8.1: Build OK!
-v5.7.15: Build OK!
-v5.4.58: Build OK!
-v4.19.139: Failed to apply! Possible dependencies:
-    18fc7bf8e041 ("arm64: KVM: Allow for direct call of HYP functions when using VHE")
-    208243c752a7 ("KVM: arm64: Move hyp-init.S to nVHE")
-    25357de01b95 ("KVM: arm64: Clean up kvm makefiles")
-    33e45234987e ("arm64: initialize and switch ptrauth kernel keys")
-    396244692232 ("arm64: preempt: Provide our own implementation of asm/preempt.h")
-    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
-    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
-    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
-    750319756256 ("arm64: add basic pointer authentication support")
-    7621712918ad ("KVM: arm64: Add build rules for separate VHE/nVHE object files")
-    7aa8d1464165 ("arm/arm64: KVM: Introduce kvm_call_hyp_ret()")
-    86d0dd34eaff ("arm64: cpufeature: add feature for CRC32 instructions")
-    90776dd1c427 ("arm64/efi: Move variable assignments after SECTIONS")
-    95b861a4a6d9 ("arm64: arch_timer: Add workaround for ARM erratum 1188873")
-    a0e50aa3f4a8 ("KVM: arm64: Factor out stage 2 page table data from struct kvm")
-    b877e9849d41 ("KVM: arm64: Build hyp-entry.S separately for VHE/nVHE")
-    bd4fb6d270bc ("arm64: Add support for SB barrier and patch in over DSB; ISB sequences")
-    be1298425665 ("arm64: install user ptrauth keys at kernel exit time")
-    d82755b2e781 ("KVM: arm64: Kill off CONFIG_KVM_ARM_HOST")
-    f50b6f6ae131 ("KVM: arm64: Handle calls to prefixed hyp functions")
-    f56063c51f9f ("arm64: add image head flag definitions")
-    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
-
-v4.14.193: Failed to apply! Possible dependencies:
-    0db9dd8a0fbd ("KVM: arm/arm64: Stop using the kernel's {pmd,pud,pgd}_populate helpers")
-    17ab9d57deba ("KVM: arm/arm64: Drop vcpu parameter from guest cache maintenance operartions")
-    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
-    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
-    694556d54f35 ("KVM: arm/arm64: Clean dcache to PoC when changing PTE due to CoW")
-    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
-    88dc25e8ea7c ("KVM: arm/arm64: Consolidate page-table accessors")
-    91c703e0382a ("arm: KVM: Add optimized PIPT icache flushing")
-    a15f693935a9 ("KVM: arm/arm64: Split dcache/icache flushing")
-    a9c0e12ebee5 ("KVM: arm/arm64: Only clean the dcache on translation fault")
-    d0e22b4ac3ba ("KVM: arm/arm64: Limit icache invalidation to prefetch aborts")
-    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
-
-v4.9.232: Failed to apply! Possible dependencies:
-    1534b3964901 ("KVM: MIPS/MMU: Simplify ASID restoration")
-    1581ff3dbf69 ("KVM: MIPS/MMU: Move preempt/ASID handling to implementation")
-    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
-    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
-    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
-    91cdee5710d5 ("KVM: MIPS/T&E: Restore host asid on return to host")
-    a2c046e40ff1 ("KVM: MIPS: Add vcpu_run() & vcpu_reenter() callbacks")
-    a31b50d741bd ("KVM: MIPS/MMU: Invalidate GVA PTs on ASID changes")
-    a60b8438bdba ("KVM: MIPS: Convert get/set_regs -> vcpu_load/put")
-    a7ebb2e410f8 ("KVM: MIPS/T&E: active_mm = init_mm in guest context")
-    aba8592950f1 ("KVM: MIPS/MMU: Invalidate stale GVA PTEs on TLBW")
-    c550d53934d8 ("KVM: MIPS: Remove duplicated ASIDs from vcpu")
-
-v4.4.232: Failed to apply! Possible dependencies:
-    16d100db245a ("MIPS: Move Cause.ExcCode trap codes to mipsregs.h")
-    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
-    19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
-    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
-    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
-    8cffd1974851 ("MIPS: KVM: Convert code to kernel sized types")
-    9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
-    ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
-    bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
-    ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
-    caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
+It's already queued for 5.7 and 5.8 stable. At least it should be, I'll double
+check!
 
 -- 
-Thanks
-Sasha
+Jens Axboe
+
