@@ -2,118 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A99E4249DD9
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1F75249DDC
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728088AbgHSM3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:29:45 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52937 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727020AbgHSM3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:29:44 -0400
+        id S1726798AbgHSMaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:30:55 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:33571 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726794AbgHSMay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:30:54 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 77F829CD;
-        Wed, 19 Aug 2020 08:29:43 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 4ABD39E7;
+        Wed, 19 Aug 2020 08:30:52 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:29:43 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:30:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=IgeXLGe8cKlDFzKuL46wSUmqJJE
+        h9VXmyd03EfjTTBI=; b=cqpa5AHuZiUrzSszQs7Mu7HD35CQZv1Zz0+IZhiHeac
+        p3/NWEwN3gVl42hJFLRPzq5USIMfvb1X/THnhuy1kh+bB6MuZfiAajURokJdyzMU
+        Erzjkn5IkMkWH+Kp3QTs03QH8bSHXGJaCMDo7gqV2Zya0eh4Uy4BRAWSyhGlbR1y
+        9pUsM/AsalDda+HaKBPPi/z3xjVtqJPuJxwI8L6wR541RpqVRGWOMdLP9EG4NhLH
+        5COtXl4Zr8sIvx5Y/Dmi4XZGjS4d6H8UNEq5gDN4Frk2LAtNxI2paCQKCHwHyoWY
+        jid1fUDPclt7LjHIyNETdSteS7DLpVDiMXTpJvt4zmQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0YOxsP
-        2oLMk5NB76b6Sh2OXvwiGRnCsGRsakEREqn/4=; b=kfbkG9eKNRsRNKu4GPXNdI
-        v6ZKTduuVdjaPN31srOXpDeZP9+P9XiJJvi9ese4aiYMlYNp1iRMaC+DMl4ZWr5S
-        X+WecWKtn8kw7RQ2mp4veEMz6QGbImXBcAhTrg94V9inFNjsZflaF6sKTDr1Kjfr
-        QegbDlBc2u6SLnK0rQiQoOVunsiQk5psCzgiplTJf7ioaWycNuyppB7hxI5T3OXS
-        mPNwcI0j9Oxl4LVTHpI/T8zgwacRsmw+5mR8qjwRD2HzmjKNL7geXCh6PCTGxdpu
-        vI6l/+/zR44HM/W4WYWIqYpj0hPV1+ae7X8OY6QO6ePI61dYAa41DWLBou3kVOmg
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IgeXLG
+        e8cKlDFzKuL46wSUmqJJEh9VXmyd03EfjTTBI=; b=d4hFPAiDCCKmx2tvcCRznM
+        +oIoE89uur/AklRJzcS6ea8OVIiR9nrL6x4NuSrlWkhOsqMtnJX/7ZvdHqjN5RxO
+        SGgiIiTHF1cT1lhW5u3QBMSiggNeHVR8IeWuBybOpwbUs5DhEfF0aFxZ1xAmFnNs
+        Bz9gUvdFfpQE076jM1OFM5FdHLZpWeYLZlDpitVKg+dPolGwWIUrMyAB7YbaiI+e
+        MVuxZYnk/tjrkO9g9Vx3ZehqbaJS9evUU7aPwndiqVRs4JdOSd0RJ2WDP9j8OI41
+        3mjhqRZsEuXI5pBaEbeWXpo5w10xmdVNpilyGGQ1uhZydmCbtolAvJmCf69Cxjtw
         ==
-X-ME-Sender: <xms:Nhs9X5GZhAVcjWPB_Mfgh6tRryH5Ll6aE5BEJ9MOI7YNIId7d91blQ>
+X-ME-Sender: <xms:exs9Xx9VwpNdbB4ddMjk24D13uMV8w1LrTOMW0h68CWN6UBrmOsfUQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Nhs9X-XEDxOVxmgzDgEU1WlMIGBH_PdUvmG9PIw1ZsBiCcMY5luu8w>
-    <xmx:Nhs9X7LrGFmRKkTPDrXFYws-0VKo7-AGFlhzVhaMcW3gMTC5kpgP5A>
-    <xmx:Nhs9X_GyWTw49hPcEeuIbnwpV3772La4nNrEojItk5Keessjd0pxpw>
-    <xmx:Nxs9XwcNob3UKAxuyHx9n0W52_gjFEb_wuBoxwTKQEjWOlUsmLW3EWj3o1c>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:exs9X1s0wiQ3fdytMXRo5Wtl-GdKGCrsL43htyN_CQoMTBVowm3AgQ>
+    <xmx:exs9X_Bk_kYxgNqS0uAx81XaxPLL2Ty-s4LSEBKMsEtHMfTqzTtorQ>
+    <xmx:exs9X1cGJDusyHJ0zYcXi2zePUuCgWzqKijeqIDtIXFZ57kBVZO_Qg>
+    <xmx:exs9X5Z3eOF35KUkBiIfFrERBFwYz6iroVD5YGzeConH5SSaCcfgrA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 83BF5328005E;
-        Wed, 19 Aug 2020 08:29:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tracing/hwlat: Honor the tracing_cpumask" failed to apply to 4.9-stable tree
-To:     haokexin@gmail.com, mingo@redhat.com, rostedt@goodmis.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:30:05 +0200
-Message-ID: <1597840205103185@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3CBC83280063;
+        Wed, 19 Aug 2020 08:30:51 -0400 (EDT)
+Date:   Wed, 19 Aug 2020 14:31:14 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     dann frazier <dann.frazier@canonical.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4] tracing: Move pipe reference to trace array instead
+ of current_tracer
+Message-ID: <20200819123114.GA964875@kroah.com>
+References: <20200812205322.229101-1-dann.frazier@canonical.com>
+ <20200812165936.39e2203f@oasis.local.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200812165936.39e2203f@oasis.local.home>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Aug 12, 2020 at 04:59:36PM -0400, Steven Rostedt wrote:
+> On Wed, 12 Aug 2020 14:53:22 -0600
+> dann frazier <dann.frazier@canonical.com> wrote:
+> 
+> > From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+> > 
+> > commit 7ef282e05132d56b6f6b71e3873f317664bea78b upstream
+> > 
+> > If a process has the trace_pipe open on a trace_array, the current tracer
+> > for that trace array should not be changed. This was original enforced by a
+> > global lock, but when instances were introduced, it was moved to the
+> > current_trace. But this structure is shared by all instances, and a
+> > trace_pipe is for a single instance. There's no reason that a process that
+> > has trace_pipe open on one instance should prevent another instance from
+> > changing its current tracer. Move the reference counter to the trace_array
+> > instead.
+> > 
+> > This is marked as "Fixes" but is more of a clean up than a true fix.
+> > Backport if you want, but its not critical.
+> > 
+> 
+> A note to stable maintainers. I originally thought this was just a
+> clean up, but it was then found that it actually does fix a bug.
+> (See below)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks!
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 96b4833b6827a62c295b149213c68b559514c929 Mon Sep 17 00:00:00 2001
-From: Kevin Hao <haokexin@gmail.com>
-Date: Thu, 30 Jul 2020 16:23:18 +0800
-Subject: [PATCH] tracing/hwlat: Honor the tracing_cpumask
-
-In calculation of the cpu mask for the hwlat kernel thread, the wrong
-cpu mask is used instead of the tracing_cpumask, this causes the
-tracing/tracing_cpumask useless for hwlat tracer. Fixes it.
-
-Link: https://lkml.kernel.org/r/20200730082318.42584-2-haokexin@gmail.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 0330f7aa8ee6 ("tracing: Have hwlat trace migrate across tracing_cpumask CPUs")
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
-diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
-index ddb528a6cd51..17873e5d0353 100644
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -283,6 +283,7 @@ static bool disable_migrate;
- static void move_to_next_cpu(void)
- {
- 	struct cpumask *current_mask = &save_cpumask;
-+	struct trace_array *tr = hwlat_trace;
- 	int next_cpu;
- 
- 	if (disable_migrate)
-@@ -296,7 +297,7 @@ static void move_to_next_cpu(void)
- 		goto disable;
- 
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	next_cpu = cpumask_next(smp_processor_id(), current_mask);
- 	put_online_cpus();
- 
-@@ -372,7 +373,7 @@ static int start_kthread(struct trace_array *tr)
- 
- 	/* Just pick the first CPU on first iteration */
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	put_online_cpus();
- 	next_cpu = cpumask_first(current_mask);
- 
-
