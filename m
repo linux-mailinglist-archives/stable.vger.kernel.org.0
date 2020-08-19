@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F6924AA33
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B057324AA36
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726806AbgHSX5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 19:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54164 "EHLO mail.kernel.org"
+        id S1726990AbgHSX5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 19:57:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726982AbgHSX5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:57:05 -0400
+        id S1726987AbgHSX5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 19:57:06 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 942BE21734;
-        Wed, 19 Aug 2020 23:57:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81746214F1;
+        Wed, 19 Aug 2020 23:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881424;
-        bh=ukN3halQ9c2/MT7k5I4Yt5KGEe94oC2vpHtOs6FQWAQ=;
-        h=Date:From:To:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=Pn0xORcBEyT+JzoGgLzyjsk3MKcs48KYlab2Fsw58Kw2g/4YJpEsIvUsSBq1zIB9P
-         a9GH+TuVtCv+2ryKzV4T6Vp46GrAf1/u0jtGa7xUl3fke4HtPI9xshzA28dsh7/0DN
-         xn39x30uKnnmOdT+0cONh2NnIk/ihUABgCQgBvH8=
+        s=default; t=1597881425;
+        bh=wRIeCId+LGO7Hn8sD6X/dRYQCCdyvlfe/NUcIoPq9OE=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
+         References:From;
+        b=gH5pV1aUFjRriPe0EuUybV43Bue3tqhsSgulwu0xcJpYoRzSqAkliOA1YGXaHUVz6
+         +8GFnvnLDPkkqhqNfU5KH1gAm2h/SVeKoOVAQdK4wp0NDCMnq8mjugTe/kroRuJmhS
+         qEvtF+czTjBBRRYuqTl0WDF+J3uRZDp/NQWJykfw=
 Date:   Wed, 19 Aug 2020 23:57:04 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Qingqing Zhuo <qingqing.zhuo@amd.com>
-To:     Aric Cyr <aric.cyr@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>
+To:     Will Deacon <will@kernel.org>
+To:     kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org
+Cc:     Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
+Cc:     <stable@vger.kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     James Morse <james.morse@arm.com>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 2/9] drm/amd/display: Fix incorrect backlight register offset for DCN
-In-Reply-To: <20200805174058.11736-3-qingqing.zhuo@amd.com>
-References: <20200805174058.11736-3-qingqing.zhuo@amd.com>
-Message-Id: <20200819235704.942BE21734@mail.kernel.org>
+Subject: Re: [PATCH 1/2] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
+In-Reply-To: <20200811102725.7121-2-will@kernel.org>
+References: <20200811102725.7121-2-will@kernel.org>
+Message-Id: <20200819235705.81746214F1@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -52,95 +54,72 @@ The stable tag indicates that it's relevant for the following trees: all
 The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193, v4.9.232, v4.4.232.
 
 v5.8.1: Build OK!
-v5.7.15: Failed to apply! Possible dependencies:
-    16012806e697 ("drm/amd/display: Add ABM driver implementation")
-    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
-    9ec420d83341 ("drm/amd/display: code cleanup of dc_link file on func dc_link_construct")
-    d1ebfdd8d0fc ("drm/amd/display: Unify psr feature flags")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    efc3ec87a937 ("drm/amd/display: Remove unused defines")
-    fe8db3bcf2e5 ("drm/amd/display: query hdcp capability during link detect")
-
-v5.4.58: Failed to apply! Possible dependencies:
-    2b77dcc5e5aa ("drm/amd/display: rename core_dc to dc")
-    48af9b91b129 ("drm/amd/display: Don't allocate payloads if link lost")
-    4c1a1335dfe0 ("drm/amd/display: Driverside changes to support PSR in DMCUB")
-    7f7652ee8c8c ("drm/amd/display: enable single dp seamless boot")
-    9ae1b27f31d0 ("drm/amd/display: fix hotplug during display off")
-    9dac88d8792a ("drm/amd/display: Add driver support for enabling PSR on DMCUB")
-    ab4a4072f260 ("drm/amd/display: exit PSR during detection")
-    d4252eee1f7c ("drm/amd/display: Add debugfs entry to force YUV420 output")
-    d462fcf5012b ("drm/amd/display: Update hdcp display config")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    e0d08a40a63b ("drm/amd/display: Add debugfs entry for reading psr state")
-    e78a312f81c8 ("drm/amd/display: use requested_dispclk_khz instead of clk")
-    ef5a7d266e82 ("drm/amd/display: skip enable stream on disconnected display")
-
+v5.7.15: Build OK!
+v5.4.58: Build OK!
 v4.19.139: Failed to apply! Possible dependencies:
-    1f6010a96273 ("drm/amd/display: Improve spelling, grammar, and formatting of amdgpu_dm.c comments")
-    813d20dccf93 ("drm/amd/display: Fix multi-thread writing to 1 state")
-    8c3db1284a01 ("drm/amdgpu: fill in amdgpu_dm_remove_sink_from_freesync_module")
-    98e6436d3af5 ("drm/amd/display: Refactor FreeSync module")
-    a87fa9938749 ("drm/amd/display: Build stream update and plane updates in dm")
-    a94d5569b232 ("drm/amd: Add DM DMCU support")
-    b8592b48450b ("drm/amd/display: Initial documentation for AMDgpu DC")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
-    eb3dc8978596 ("drm/amd/display: Use private obj helpers for dm_atomic_state")
+    18fc7bf8e041 ("arm64: KVM: Allow for direct call of HYP functions when using VHE")
+    208243c752a7 ("KVM: arm64: Move hyp-init.S to nVHE")
+    25357de01b95 ("KVM: arm64: Clean up kvm makefiles")
+    33e45234987e ("arm64: initialize and switch ptrauth kernel keys")
+    396244692232 ("arm64: preempt: Provide our own implementation of asm/preempt.h")
+    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
+    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    750319756256 ("arm64: add basic pointer authentication support")
+    7621712918ad ("KVM: arm64: Add build rules for separate VHE/nVHE object files")
+    7aa8d1464165 ("arm/arm64: KVM: Introduce kvm_call_hyp_ret()")
+    86d0dd34eaff ("arm64: cpufeature: add feature for CRC32 instructions")
+    90776dd1c427 ("arm64/efi: Move variable assignments after SECTIONS")
+    95b861a4a6d9 ("arm64: arch_timer: Add workaround for ARM erratum 1188873")
+    a0e50aa3f4a8 ("KVM: arm64: Factor out stage 2 page table data from struct kvm")
+    b877e9849d41 ("KVM: arm64: Build hyp-entry.S separately for VHE/nVHE")
+    bd4fb6d270bc ("arm64: Add support for SB barrier and patch in over DSB; ISB sequences")
+    be1298425665 ("arm64: install user ptrauth keys at kernel exit time")
+    d82755b2e781 ("KVM: arm64: Kill off CONFIG_KVM_ARM_HOST")
+    f50b6f6ae131 ("KVM: arm64: Handle calls to prefixed hyp functions")
+    f56063c51f9f ("arm64: add image head flag definitions")
+    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
 
 v4.14.193: Failed to apply! Possible dependencies:
-    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
-    1b0c0f9dc5ca ("drm/amdgpu: move userptr BOs to CPU domain during CS v2")
-    3fe89771cb0a ("drm/amdgpu: stop reserving the BO in the MMU callback v3")
-    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
-    60de1c1740f3 ("drm/amdgpu: use a rw_semaphore for MMU notifiers")
-    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
-    9a18999640fa ("drm/amdgpu: move MMU notifier related defines to amdgpu_mn.h")
-    9cca0b8e5df0 ("drm/amdgpu: move amdgpu_cs_sysvm_access_required into find_mapping")
-    a216ab09955d ("drm/amdgpu: fix userptr put_page handling")
-    b72cf4fca2bb ("drm/amdgpu: move taking mmap_sem into get_user_pages v2")
-    ca666a3c298f ("drm/amdgpu: stop using BO status for user pages")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
-    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
+    0db9dd8a0fbd ("KVM: arm/arm64: Stop using the kernel's {pmd,pud,pgd}_populate helpers")
+    17ab9d57deba ("KVM: arm/arm64: Drop vcpu parameter from guest cache maintenance operartions")
+    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
+    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
+    694556d54f35 ("KVM: arm/arm64: Clean dcache to PoC when changing PTE due to CoW")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    88dc25e8ea7c ("KVM: arm/arm64: Consolidate page-table accessors")
+    91c703e0382a ("arm: KVM: Add optimized PIPT icache flushing")
+    a15f693935a9 ("KVM: arm/arm64: Split dcache/icache flushing")
+    a9c0e12ebee5 ("KVM: arm/arm64: Only clean the dcache on translation fault")
+    d0e22b4ac3ba ("KVM: arm/arm64: Limit icache invalidation to prefetch aborts")
+    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
 
 v4.9.232: Failed to apply! Possible dependencies:
-    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
-    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
-    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
-    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
-    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
-    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
-    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
-    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
-    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
+    1534b3964901 ("KVM: MIPS/MMU: Simplify ASID restoration")
+    1581ff3dbf69 ("KVM: MIPS/MMU: Move preempt/ASID handling to implementation")
+    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
+    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    91cdee5710d5 ("KVM: MIPS/T&E: Restore host asid on return to host")
+    a2c046e40ff1 ("KVM: MIPS: Add vcpu_run() & vcpu_reenter() callbacks")
+    a31b50d741bd ("KVM: MIPS/MMU: Invalidate GVA PTs on ASID changes")
+    a60b8438bdba ("KVM: MIPS: Convert get/set_regs -> vcpu_load/put")
+    a7ebb2e410f8 ("KVM: MIPS/T&E: active_mm = init_mm in guest context")
+    aba8592950f1 ("KVM: MIPS/MMU: Invalidate stale GVA PTEs on TLBW")
+    c550d53934d8 ("KVM: MIPS: Remove duplicated ASIDs from vcpu")
 
 v4.4.232: Failed to apply! Possible dependencies:
-    0f477c6dea70 ("staging/android/sync: add sync_fence_create_dma")
-    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
-    1f7371b2a5fa ("drm/amd/powerplay: add basic powerplay framework")
-    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
-    288912cb95d1 ("drm/amdgpu: use $(src) in Makefile (v2)")
-    375fb53ec1be ("staging: android: replace explicit NULL comparison")
-    395dec6f6bc5 ("Documentation: add doc for sync_file_get_fence()")
-    4325198180e5 ("drm/amdgpu: remove GART page addr array")
-    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
-    62304fb1fc08 ("dma-buf/sync_file: de-stage sync_file")
-    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
-    a1d29476d666 ("drm/amdgpu: optionally enable GART debugfs file")
-    a8fe58cec351 ("drm/amd: add ACP driver support")
-    b70f014d58b9 ("drm/amdgpu: change default sched jobs to 32")
-    c784c82a3fd6 ("Documentation: add Sync File doc")
-    d4caa72e275c ("drm/amd/display: change from panel to panel cntl")
-    d4cab38e153d ("staging/android: prepare sync_file for de-staging")
-    d7fdb0ae9d11 ("staging/android: rename sync_fence to sync_file")
-    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
-    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
-    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
-    fac8434dab96 ("Documentation: Fix some grammar mistakes in sync_file.txt")
-    fdba11f4079e ("drm/amdgpu: move all Kconfig options to amdgpu/Kconfig")
+    16d100db245a ("MIPS: Move Cause.ExcCode trap codes to mipsregs.h")
+    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
+    19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
+    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    8cffd1974851 ("MIPS: KVM: Convert code to kernel sized types")
+    9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
+    ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
+    bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
+    ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
+    caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
