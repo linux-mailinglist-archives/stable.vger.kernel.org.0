@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5059E249F86
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F9E249F7C
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728442AbgHSNWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 09:22:37 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:38889 "EHLO
+        id S1728364AbgHSNV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 09:21:56 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39359 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727872AbgHSNTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:19:49 -0400
+        by vger.kernel.org with ESMTP id S1728310AbgHSNUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:20:05 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id A00F2BBE;
-        Wed, 19 Aug 2020 09:18:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:18:48 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 72792B03;
+        Wed, 19 Aug 2020 09:19:16 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:19:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lqMBXd
-        MtrPD8GTxuddcc0LnJtDPrSxBDGE9vXb6RW+A=; b=eY0ieFbeXLjav4ubrd3qGk
-        /DNGAgiEF+SR6y6fOKlpmB6wvXnlp46/t0t5SpIa0zI6j7oHD9mKp2umMBPM52E/
-        0lOpH8ELJd6jCBAeqGtaTMR+Fs9xPfxvoIlxf2trV7Zcot+9ZRYm1tmhYj9yhjSK
-        Ssy13/a2C+1Z3uQlnKE3cY8Fzf9i+RXOoodkNUOrwcvDVpvk2R6E32+tfYuYT+kF
-        jYvkr4Cis59JLDnUG6NsJTvWDaOB/tJ3jK6Pwaa1Yb+96r7I7Vez5s69LlAuWruE
-        toTysjJlD50cC4jxNF98s+yXJP4pLlFiL6zN3oLT3zgkFjbNjD8LbFNxaDkL0hRw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=P5GmWi
+        r39aI+e7wcM5Ls0lc/gLNjHLyPTJuK07UsP5A=; b=Rd0SFxmNeu5PAXMR9nbh4p
+        gvsXUeaViNs32sS3rEojXdy4BFVm8rPGM1mWeXDhDnFfgiFXBXoyTPKEYBQXpZ/4
+        BxbAKF7LvlyYrq8fin+JszJOR6SBS5D4PvzMmbIJ0kWZwYXbKjo92f0WoDZmS62A
+        idoTuUhgIEJUVRMQ5cM4A6DO4kkOtRnQB+4wgonWCSxLaH3G8GZFltf2gtsFgK2F
+        sLtKgj4Q4TDd1aqMoC3NMlCZnoSNsuzNiYMgKhnZMXyGcJOYPk56ANYo9esGQ6kB
+        niNyixcjeJfSE6eyxAQFE/pjO/l/c38CxxZ9aboFxVCMxAYdgVlCdyWoAepH8BAQ
         ==
-X-ME-Sender: <xms:uCY9X_7gBj3V5P3tYY7T7E3baCur6ZOiBBiZShE9N6Xn1PzdDe1qrw>
+X-ME-Sender: <xms:0yY9XzOReITJk3Qltsg1SiizLxR46rwNROEn1BCHMzK954_bGJ3qHQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedggeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:uCY9X04cMCBR3RefjcRUghwY7b9-qhqpoHPtMj64-SquY5SnpLNb6w>
-    <xmx:uCY9X2d5MqFanmeHxIJf4vLJ3BeISIgeW6GHL1lLthiqjPmXX5EECg>
-    <xmx:uCY9XwKnZ31pCTGGGd03XnpF-0wXFI56rgw3NfKc9mVs8YDiwFvqLQ>
-    <xmx:uCY9X-lK0gAoTSBbk_YbPSFLZSuz6B6TFDoEtW7_ul3gR0hyAp6zyjllYPo>
+    gheqnecuggftrfgrthhtvghrnhepueelleetteehudfgffeujedtgeehueekgfdtvdegle
+    ekgfegudffteffveetueejnecuffhomhgrihhnpehnthgvvhhsrdhinhdpkhgvrhhnvghl
+    rdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:0yY9X9_AwxYhlJ14UwSVMl7MRYcwfCpEQqdcjwx43_oAA1FJ_B7yrw>
+    <xmx:0yY9XyTRlbfvPYgNgGckMfzAP8lJEuW4gYCZwqKiNKQZLmEzjEbQPA>
+    <xmx:0yY9X3vQww7nHPCxMfC5it43dwHxVfeU1LF83j-dbOljK0J55IOEhA>
+    <xmx:1CY9X8oX_Xsbr1wRW6Ad8C5GDbK8NDI5l8PeqiYAG9WfIDpXSprMh5gkVhw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DECDA328005A;
-        Wed, 19 Aug 2020 09:18:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dt-bindings: power: supply: bq25890: Document required" failed to apply to 5.8-stable tree
-To:     krzk@kernel.org, sebastian.reichel@collabora.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6740D3060067;
+        Wed, 19 Aug 2020 09:19:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf probe: Fix memory leakage when the probe point is not" failed to apply to 4.4-stable tree
+To:     mhiramat@kernel.org, acme@redhat.com, ak@linux.intel.com,
+        oleg@redhat.com, srikar@linux.vnet.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 15:18:56 +0200
-Message-ID: <1597843136236@kroah.com>
+Date:   Wed, 19 Aug 2020 15:19:38 +0200
+Message-ID: <15978431789184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.8-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,40 +70,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0768e6e4934e239f1a7f8ba83150a7c46765bb3e Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Wed, 17 Jun 2020 12:23:05 +0200
-Subject: [PATCH] dt-bindings: power: supply: bq25890: Document required
- interrupt
+From 12d572e785b15bc764e956caaa8a4c846fd15694 Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Fri, 10 Jul 2020 22:11:23 +0900
+Subject: [PATCH] perf probe: Fix memory leakage when the probe point is not
+ found
 
-The driver requires interrupts (fails probe if it is not provided) so
-document this requirement in bindings.
+Fix the memory leakage in debuginfo__find_trace_events() when the probe
+point is not found in the debuginfo. If there is no probe point found in
+the debuginfo, debuginfo__find_probes() will NOT return -ENOENT, but 0.
 
-Fixes: 4aeae9cb0dad ("power_supply: Add support for TI BQ25890 charger chip")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Thus the caller of debuginfo__find_probes() must check the tf.ntevs and
+release the allocated memory for the array of struct probe_trace_event.
 
-diff --git a/Documentation/devicetree/bindings/power/supply/bq25890.txt b/Documentation/devicetree/bindings/power/supply/bq25890.txt
-index 51ecc756521f..3b4c69a7fa70 100644
---- a/Documentation/devicetree/bindings/power/supply/bq25890.txt
-+++ b/Documentation/devicetree/bindings/power/supply/bq25890.txt
-@@ -10,6 +10,7 @@ Required properties:
-     * "ti,bq25895"
-     * "ti,bq25896"
- - reg: integer, i2c address of the device.
-+- interrupts: interrupt line;
- - ti,battery-regulation-voltage: integer, maximum charging voltage (in uV);
- - ti,charge-current: integer, maximum charging current (in uA);
- - ti,termination-current: integer, charge will be terminated when current in
-@@ -39,6 +40,9 @@ bq25890 {
- 	compatible = "ti,bq25890";
- 	reg = <0x6a>;
+The current code releases the memory only if the debuginfo__find_probes()
+hits an error but not checks tf.ntevs. In the result, the memory allocated
+on *tevs are not released if tf.ntevs == 0.
+
+This fixes the memory leakage by checking tf.ntevs == 0 in addition to
+ret < 0.
+
+Fixes: ff741783506c ("perf probe: Introduce debuginfo to encapsulate dwarf information")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/159438668346.62703.10887420400718492503.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index 9963e4e8ea20..659024342e9a 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1467,7 +1467,7 @@ int debuginfo__find_trace_events(struct debuginfo *dbg,
+ 	if (ret >= 0 && tf.pf.skip_empty_arg)
+ 		ret = fill_empty_trace_arg(pev, tf.tevs, tf.ntevs);
  
-+	interrupt-parent = <&gpio1>;
-+	interrupts = <16 IRQ_TYPE_EDGE_FALLING>;
-+
- 	ti,battery-regulation-voltage = <4200000>;
- 	ti,charge-current = <1000000>;
- 	ti,termination-current = <50000>;
+-	if (ret < 0) {
++	if (ret < 0 || tf.ntevs == 0) {
+ 		for (i = 0; i < tf.ntevs; i++)
+ 			clear_probe_trace_event(&tf.tevs[i]);
+ 		zfree(tevs);
 
