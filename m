@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6AE249B8E
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31E2249B8C
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727818AbgHSLSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:18:50 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:42647 "EHLO
+        id S1726710AbgHSLSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:18:46 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:51599 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727807AbgHSLSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:18:46 -0400
+        by vger.kernel.org with ESMTP id S1727818AbgHSLSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:18:39 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1102E19426ED;
-        Wed, 19 Aug 2020 07:18:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:18:43 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1AD6E19426ED;
+        Wed, 19 Aug 2020 07:18:37 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:18:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kv+q+v
-        a3r9JORf5WGU1QH4jtFIT84rfGKFr8Ao6udpQ=; b=dJdwqp9LLsLx4Ec6LA7ofB
-        4APuMAk+JbVEpRp2CwYI9V3JAl1tdmk/2/lAKePIiatihE2T3uHiZryUJUNFWWIU
-        CNPtl80Ms4UNbeuW8aA7NZ8bxgUPhZzDKv/laHdnjFhfUDdsglsTTNtKYGoj5a7r
-        8tXljwgYCni9pqEE9TcavlHtHWDzrv7iAlNT6AaxeA9Ji29pSN/buaPyBPLlgCpS
-        Ic4dYfY5ao+JewZRgVCol4ag8bJgfNwvD70nHrr3RGPVx1Ta24NTpBDpc8MJcCBO
-        BwJvvuhszV9xjbQLL7hnNB0LPWnTHJTTHohh3wys1xw7DbB+xOCiQB1G+eW5ipOQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZE5zA1
+        dDXW4w6jclLQzfosgOdvaxOa+I8XHMy2pG2Qg=; b=hkmUUiOKKzwVxRubKWI1/z
+        TRoqKTpS76RbUp7IGMVxK50LfQrKXFzZnRhIZga+WSzf9Ns+E18cPIrDFZMIjaW2
+        S2m0u3YTz6cY2YTrr2ZYDKOspKYV96MxY+yhlQEmlSpVTDdbt8RLjLRK/nuBlI27
+        zuuxF517kdhWWZm3r9i/Oq/i7qOOl3QASM2v4ZXNsGMUl+1QRfsySl2LiBPqXKik
+        oX6kqN4rDr6ZVW5dTR5uXSdY3TQiCiU8qxRxCZf+tsPT44Fs56CqNcjZ6yHuN+7j
+        AEnsoX88NU+unlsoRI6Z67aveiOKoajwxnMpkF7o0nh8Uo+mnh6EpALxaZfLG+rg
         ==
-X-ME-Sender: <xms:kgo9X6pPYyNySWPSn3lGvi91RpgVcTrIp_J_2M3vYb1mmeSJR7zGLw>
+X-ME-Sender: <xms:jAo9Xzq4GuESnEzCrYoWiPG05kzN5fuV8CxDzgU8bG0hA5EYHnOqGA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:kgo9X4rDiW81F25D9mmtB_UGZaIQR6A8nBc7kINSiAa5HziTD09-cQ>
-    <xmx:kgo9X_OV7imYRdfOVhaSZRk1YGhYVlQXksZF-E2Lsky-dhXlvb7_Fg>
-    <xmx:kgo9X56WNXBNwUbSZe7SDz6C7Y74OZ7gXno5SpZdvALqOUbkF8IcYg>
-    <xmx:kwo9X7FFKuQEtZLccT7Df59KOc48txm4jF1YIQGOHVZbE4vgDiP3Mw>
+X-ME-Proxy: <xmx:jQo9X9qoUkPw6RkX_yIENs0IDB5JTIoSIds_LlmiUPsy48SZAY2nrQ>
+    <xmx:jQo9XwMZPpr74ZQZlw9YEzVPo0U5S1xpJ6Cm2IrNU-9rxoU8XE6iCw>
+    <xmx:jQo9X27EkGQ477_Zrc-kKa9pSdOHcovhQ68-G-fP6W1_5I2xLcRWeA>
+    <xmx:jQo9X0EwkM-YPlIC4SkO-COW_KC90Z7wrAUa1w44HYS-GlqjaL0MYg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A38133060067;
-        Wed, 19 Aug 2020 07:18:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: add missing check for nocow and compression inode" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B472E3280063;
+        Wed, 19 Aug 2020 07:18:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: add missing check for nocow and compression inode" failed to apply to 4.14-stable tree
 To:     dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 19 Aug 2020 13:18:58 +0200
-Message-ID: <1597835938147204@kroah.com>
+Message-ID: <159783593848109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
