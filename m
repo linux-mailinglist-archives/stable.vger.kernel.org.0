@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31E2249B8C
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71BA249B9A
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbgHSLSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:18:46 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:51599 "EHLO
+        id S1726987AbgHSLUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:20:36 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:33209 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727818AbgHSLSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:18:39 -0400
+        by vger.kernel.org with ESMTP id S1726746AbgHSLUe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:20:34 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1AD6E19426ED;
-        Wed, 19 Aug 2020 07:18:37 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 402DE1942781;
+        Wed, 19 Aug 2020 07:20:33 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:18:37 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:20:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZE5zA1
-        dDXW4w6jclLQzfosgOdvaxOa+I8XHMy2pG2Qg=; b=hkmUUiOKKzwVxRubKWI1/z
-        TRoqKTpS76RbUp7IGMVxK50LfQrKXFzZnRhIZga+WSzf9Ns+E18cPIrDFZMIjaW2
-        S2m0u3YTz6cY2YTrr2ZYDKOspKYV96MxY+yhlQEmlSpVTDdbt8RLjLRK/nuBlI27
-        zuuxF517kdhWWZm3r9i/Oq/i7qOOl3QASM2v4ZXNsGMUl+1QRfsySl2LiBPqXKik
-        oX6kqN4rDr6ZVW5dTR5uXSdY3TQiCiU8qxRxCZf+tsPT44Fs56CqNcjZ6yHuN+7j
-        AEnsoX88NU+unlsoRI6Z67aveiOKoajwxnMpkF7o0nh8Uo+mnh6EpALxaZfLG+rg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rko6XK
+        2ZIz7E/DG+tWgpTx4FkNjK5/4Q+rh3xOYTbPA=; b=rPqEdP+ljMjiZEOLhSedaV
+        Bxxt2PgLdtWa2SO1b3L5oxm67oiY7Por7UdhgQVRA4V1mWSBgX18slz5ywd9X/aH
+        IH4jfVPtpOIBaFkReUp9u95k+9IAVhhYTTKyB9dz43qFIEtA5QszOrfcI/JsNY/j
+        8ZFQPJZFv+XYOwzHQ54Sh03Yw/VvYo19va64EpAuZUWStZhQ4SyZabwtGoNENJIg
+        2egAELtw092H7Jkb6jPXM0tfQVAN4c/x6V19Jy8PSBoLvoYy/XllqDVTa5fYWK2T
+        UF0LrTnbNozeEyhQ/+6nTR7xUp4Aq7Ky6NlDKQOPthnTrV7Kp+9PneGYmb8gGDCg
         ==
-X-ME-Sender: <xms:jAo9Xzq4GuESnEzCrYoWiPG05kzN5fuV8CxDzgU8bG0hA5EYHnOqGA>
+X-ME-Sender: <xms:AAs9X939xtmhIChFma5PZG_QJCqc2PIFF-oi7_u57EtN_PGyAbCZMA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:jQo9X9qoUkPw6RkX_yIENs0IDB5JTIoSIds_LlmiUPsy48SZAY2nrQ>
-    <xmx:jQo9XwMZPpr74ZQZlw9YEzVPo0U5S1xpJ6Cm2IrNU-9rxoU8XE6iCw>
-    <xmx:jQo9X27EkGQ477_Zrc-kKa9pSdOHcovhQ68-G-fP6W1_5I2xLcRWeA>
-    <xmx:jQo9X0EwkM-YPlIC4SkO-COW_KC90Z7wrAUa1w44HYS-GlqjaL0MYg>
+X-ME-Proxy: <xmx:AAs9X0HBgHfJYzspdy9Hz3U0uNFNnXt8mOlTIVvGcOiUHzVaM_solg>
+    <xmx:AAs9X94Gvww0iBo947qfqdo2iEX-I88yzk2HNt9X9Mlz8cYzmLNOpQ>
+    <xmx:AAs9X63MDCsq8oAnxmEvemtEujudTxoVBs3OnRlPdEEMCRE-JuTNdg>
+    <xmx:AQs9Xzx7yRzA39VBHHX7-LThFaK0kRhyTyzkil82uC47bglTcjhtpw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B472E3280063;
-        Wed, 19 Aug 2020 07:18:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: add missing check for nocow and compression inode" failed to apply to 4.14-stable tree
-To:     dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 882C33280059;
+        Wed, 19 Aug 2020 07:20:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: allow use of global block reserve for balance item" failed to apply to 4.4-stable tree
+To:     dsterba@suse.com, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 13:18:58 +0200
-Message-ID: <159783593848109@kroah.com>
+Date:   Wed, 19 Aug 2020 13:20:55 +0200
+Message-ID: <1597836055184180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,109 +69,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f37c563bab4297024c300b05c8f48430e323809d Mon Sep 17 00:00:00 2001
+From 3502a8c0dc1bd4b4970b59b06e348f22a1c05581 Mon Sep 17 00:00:00 2001
 From: David Sterba <dsterba@suse.com>
-Date: Fri, 10 Jul 2020 09:49:56 +0200
-Subject: [PATCH] btrfs: add missing check for nocow and compression inode
- flags
+Date: Thu, 25 Jun 2020 12:35:28 +0200
+Subject: [PATCH] btrfs: allow use of global block reserve for balance item
+ deletion
 
-User Forza reported on IRC that some invalid combinations of file
-attributes are accepted by chattr.
+On a filesystem with exhausted metadata, but still enough to start
+balance, it's possible to hit this error:
 
-The NODATACOW and compression file flags/attributes are mutually
-exclusive, but they could be set by 'chattr +c +C' on an empty file. The
-nodatacow will be in effect because it's checked first in
-btrfs_run_delalloc_range.
+[324402.053842] BTRFS info (device loop0): 1 enospc errors during balance
+[324402.060769] BTRFS info (device loop0): balance: ended with status: -28
+[324402.172295] BTRFS: error (device loop0) in reset_balance_state:3321: errno=-28 No space left
 
-Extend the flag validation to catch the following cases:
+It fails inside reset_balance_state and turns the filesystem to
+read-only, which is unnecessary and should be fixed too, but the problem
+is caused by lack for space when the balance item is deleted. This is a
+one-time operation and from the same rank as unlink that is allowed to
+use the global block reserve. So do the same for the balance item.
 
-  - input flags are conflicting
-  - old and new flags are conflicting
-  - initialize the local variable with inode flags after inode ls locked
+Status of the filesystem (100GiB) just after the balance fails:
 
-Inode attributes take precedence over mount options and are an
-independent setting.
-
-Nocompress would be a no-op with nodatacow, but we don't want to mix
-any compression-related options with nodatacow.
+$ btrfs fi df mnt
+Data, single: total=80.01GiB, used=38.58GiB
+System, single: total=4.00MiB, used=16.00KiB
+Metadata, single: total=19.99GiB, used=19.48GiB
+GlobalReserve, single: total=512.00MiB, used=50.11MiB
 
 CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index b4ddf51ae377..bd3511c5ca81 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -164,8 +164,11 @@ static int btrfs_ioctl_getflags(struct file *file, void __user *arg)
- 	return 0;
- }
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index f403fb1e6d37..62ae89b078f4 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -3231,7 +3231,7 @@ static int del_balance_item(struct btrfs_fs_info *fs_info)
+ 	if (!path)
+ 		return -ENOMEM;
  
--/* Check if @flags are a supported and valid set of FS_*_FL flags */
--static int check_fsflags(unsigned int flags)
-+/*
-+ * Check if @flags are a supported and valid set of FS_*_FL flags and that
-+ * the old and new flags are not conflicting
-+ */
-+static int check_fsflags(unsigned int old_flags, unsigned int flags)
- {
- 	if (flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL | \
- 		      FS_NOATIME_FL | FS_NODUMP_FL | \
-@@ -174,9 +177,19 @@ static int check_fsflags(unsigned int flags)
- 		      FS_NOCOW_FL))
- 		return -EOPNOTSUPP;
- 
-+	/* COMPR and NOCOMP on new/old are valid */
- 	if ((flags & FS_NOCOMP_FL) && (flags & FS_COMPR_FL))
- 		return -EINVAL;
- 
-+	if ((flags & FS_COMPR_FL) && (flags & FS_NOCOW_FL))
-+		return -EINVAL;
-+
-+	/* NOCOW and compression options are mutually exclusive */
-+	if ((old_flags & FS_NOCOW_FL) && (flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-+		return -EINVAL;
-+	if ((flags & FS_NOCOW_FL) && (old_flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-@@ -190,7 +203,7 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
- 	unsigned int fsflags, old_fsflags;
- 	int ret;
- 	const char *comp = NULL;
--	u32 binode_flags = binode->flags;
-+	u32 binode_flags;
- 
- 	if (!inode_owner_or_capable(inode))
- 		return -EPERM;
-@@ -201,22 +214,23 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
- 	if (copy_from_user(&fsflags, arg, sizeof(fsflags)))
- 		return -EFAULT;
- 
--	ret = check_fsflags(fsflags);
--	if (ret)
--		return ret;
--
- 	ret = mnt_want_write_file(file);
- 	if (ret)
- 		return ret;
- 
- 	inode_lock(inode);
--
- 	fsflags = btrfs_mask_fsflags_for_type(inode, fsflags);
- 	old_fsflags = btrfs_inode_flags_to_fsflags(binode->flags);
-+
- 	ret = vfs_ioc_setflags_prepare(inode, old_fsflags, fsflags);
- 	if (ret)
- 		goto out_unlock;
- 
-+	ret = check_fsflags(old_fsflags, fsflags);
-+	if (ret)
-+		goto out_unlock;
-+
-+	binode_flags = binode->flags;
- 	if (fsflags & FS_SYNC_FL)
- 		binode_flags |= BTRFS_INODE_SYNC;
- 	else
+-	trans = btrfs_start_transaction(root, 0);
++	trans = btrfs_start_transaction_fallback_global_rsv(root, 0);
+ 	if (IS_ERR(trans)) {
+ 		btrfs_free_path(path);
+ 		return PTR_ERR(trans);
 
