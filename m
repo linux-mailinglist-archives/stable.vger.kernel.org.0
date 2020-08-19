@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B892249A24
+	by mail.lfdr.de (Postfix) with ESMTP id A81F6249A25
 	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 12:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbgHSKVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726642AbgHSKVj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Aug 2020 06:21:39 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40345 "EHLO
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50599 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726642AbgHSKVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:21:37 -0400
+        by vger.kernel.org with ESMTP id S1726923AbgHSKVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:21:39 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 299341941DBC;
-        Wed, 19 Aug 2020 06:21:36 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id EFFAB1941E5D;
+        Wed, 19 Aug 2020 06:21:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:21:36 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:21:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jqruQx
-        /9k4zT7T2KSkfF1IFv8f0J6QEgOyhLUaqXn2M=; b=HOi83rKLQC+3yCamsZyId3
-        pMbwrUeLMhIEu1S9grGu1aCoWmNUMXy/xe6rFy1XBWKSsH+rpfbZPH6W8jGMO/f7
-        ACIFh88tZP3KXosyMklloCbRYv3fgnnukue6EqtbpfxTcW1P8Z5SoScPmky0dSn9
-        Y+yyibcXbjTCWl9u3UUtsP3AF6yC2JyzHei2KKePLQlVoHt/PPDiVaboh0zqWS4b
-        eW/urIupWGiMBZVZxBYpchocwqDhsTPtvztL5o+rJ6uW8DqIcJdngCrdkAjrgprE
-        pD804Y2a1fD5e5/fdrS1GNUzqAdzcw/igEQVlmp4douyYHV5y1N/tzcmY/dIFd+g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RENzN+
+        zfqehvjTceK6AyqqAZeD0U83yHMvI29BD95l4=; b=tG3Z8SfzoJcPrxfz7zOloB
+        VA73siW8b5FwIETE+HLQ11UE7UzwcNOGsRxRcAmWPwGreEW8F0s+QtElKSEXQ85K
+        1hdQC61HPUkusZrWL25nN9ht8eVHs98c4Hwqe6UrKKPod0k0bYLs/8VAz5CHxF8A
+        brnDV3KFtkRIMCiNgO/oKTat9vTTEiAVTSseg8WW8LtvEj+o+JAnSzw9sUstmUrU
+        gx1o6tYR0sRFij9ehBasBRo2Yu5DEEmLp5XXXZXvUNcT4A2I/MbOxHdJjZS//Lpq
+        pczZLMpBXudHEvQXOgn07u7PB7xFOXh5evbpQmgKEU7DnZI1Qya98b24P6la2N0g
         ==
-X-ME-Sender: <xms:L_08X1RqnuAnFGU6j-TPjAS5vnBpdMgG-uTPa5CRWs4OPfkbwMDIeQ>
+X-ME-Sender: <xms:Mf08X0QcoC9Qx9dG6IlH4X7zvHG_1Efql1gIxaAYN_n-wZFd31NYfA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvddvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:L_08X-zZYByq5nuLAwfdEFQrGvT3osQJ81tFisppcMEEEUPLMWPS9g>
-    <xmx:L_08X60p951UkQM27hibSUqB4Y4D5zNHOjuHxppJp9g_Q3phWFHcoA>
-    <xmx:L_08X9CYDQhH8SLsFM3b20-uHjcC1OLE0KfxI9vgPDGDIWf-sXiwsQ>
-    <xmx:MP08XybuEN3sndP0KL3Y-Le3MuxCYiN0OexKgTYSLxd4cbtt8MMS-A>
+X-ME-Proxy: <xmx:Mf08Xxw9N2-sSoMV2amTR0JqnQ5uv4ugbNw9UtzF3GKrjWs2KyPTmg>
+    <xmx:Mf08Xx2FnJDA2pQj7W-X5aqzNxPIG0gAApNnKzhQBjvZCONkXI029Q>
+    <xmx:Mf08X4An3FM0mf6Qg07qGUeGbW4YLsDC57LA1sfquy8OkXd0pEpqnw>
+    <xmx:Mf08X9aiwNwA34pMBy60q7JDAvso_-lJjaJYL6nCVM4vYx4dbTLYmQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 39B343280059;
-        Wed, 19 Aug 2020 06:21:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI/ATS: Add pci_pri_supported() to check device or" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8F96A3280059;
+        Wed, 19 Aug 2020 06:21:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI/ATS: Add pci_pri_supported() to check device or" failed to apply to 4.14-stable tree
 To:     ashok.raj@intel.com, baolu.lu@linux.intel.com, bhelgaas@google.com,
         jroedel@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 12:21:58 +0200
-Message-ID: <1597832518133135@kroah.com>
+Date:   Wed, 19 Aug 2020 12:21:59 +0200
+Message-ID: <159783251922454@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
