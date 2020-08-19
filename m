@@ -2,63 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2295249DCF
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A223249DD5
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727046AbgHSM2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:28:17 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52449 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727019AbgHSM2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:28:17 -0400
+        id S1728063AbgHSM2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:28:53 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:48117 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727986AbgHSM2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:28:51 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id DE115194284A;
-        Wed, 19 Aug 2020 08:28:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:28:15 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 656D9A39;
+        Wed, 19 Aug 2020 08:28:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:28:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0h4XmN
-        ZrVhfHqK0F9yLkEQwF11EUjbmthxF4gZDkAEs=; b=cqAjPlesnuPJTOwd6od3+2
-        q7oTSp6RTo1vHTVEXXnk3+cOnq7Pt40e7WKxJRae8H9t39pP7+jfjoU4pDVdfrBH
-        tvWHil4jfVDR9g5e9d5xpHCcVz2shBabWBTVj9nS9QrKiHVKMQdPjoRzewAHykBV
-        i73gouXj8vNAblF43MrULbjTX3OcAD9kIks1X7x/GsRU2068ONLsL6+T826jSzRT
-        uE4i7KIHM55KBhclJQKuqDzEhheT6FmS/dCOLXChmIVO5kft/DZgMKpQXoBQbh3d
-        Haf7xVDsPHRNjxL6YMjL7BQrSH17sU3JUXMPSdKfWGkDm2owJp65mHV54XYgv06g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0URN/o
+        489LHyEW09+EPIWCL/wRb2bz1eQCaQeeUs2nE=; b=ct0cxvHALS7Vs/fJeERolV
+        NvdDJxLCVYU6xFRJGFh2hgq5u+yjiHUFSXdgEN+TFih7GoNBO+FcY7AMbfda5pdi
+        sqUFJGOEpVEvvzkdxS47eigrC+R6pTutzmPd9JId+vvLJPFOWwRWQt/y4q22Ad7e
+        E8unBy6IYaO2gkxQ8b36OJtUxgUUZs1l4M7sl7Exif8kiLW/HJ43VCnIvNuvvnLM
+        e+2ysxqzoBV/Zhi+Eoe9WrMn8ytfeqbh7N+6Tw7WalAeNOQhDBmzftfoUyNjJiPG
+        EiOGyqZUIibwFQORNuXC7b/I7UkYfoSxG1qiTsnMOUgTH1zi6vV5kIhoN/Z7Qo2Q
         ==
-X-ME-Sender: <xms:3ho9X4CosKfaXcID8pwBL8ycK8q1cKO6sF8hmZmlJcL-EEKNytr3oQ>
+X-ME-Sender: <xms:ARs9X4qPA2-MN_hdmLBAbfPUhuPUfFPQteNGzXeEr-RpIQ-Jr4Xj9A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:3ho9X6jakLue9S8T8fq-JMyb_7zNfjXZLg4pOXnTVoX82AcNmI4C6g>
-    <xmx:3ho9X7lhYDsgZWVXdR4iPlJXEtAsvH1bRjQECDag360ZZIhVHpSF3g>
-    <xmx:3ho9X-w9Ram5W_s3jT2788k_k-GXm10DOQjV2efqSniATlMm-m_cPA>
-    <xmx:3xo9X9oplm6AZLgxzma_6ZoRaSp-i3NDorbqD2_OjMwW0lrdUqvmwvaYyCg>
+X-ME-Proxy: <xmx:ARs9X-o1qL4a7X07w7mmjt6GjAJWXjCVXoA5I4hyamf0tosYteqQcg>
+    <xmx:ARs9X9OIJ-Xlpn_1ccNHlvZzF_e6taRa20-bjQvB55ljeivXnt0K5g>
+    <xmx:ARs9X_4_Kng06H7x8JbCJZ1lYhUls0eHK4WuG5TLcMVLGivtu-vXJw>
+    <xmx:Ahs9X0jN3xM0tc1lyQJFb1Qoy_VtyBaXAtAQ3xDI8FrPLtbDC7r3xcsJz1U>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1130C328005D;
-        Wed, 19 Aug 2020 08:28:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done" failed to apply to 4.19-stable tree
-To:     justin.he@arm.com, Jonathan.Cameron@Huawei.com, Kaly.Xin@arm.com,
-        akpm@linux-foundation.org, bhe@redhat.com, bp@alien8.de,
-        catalin.marinas@arm.com, dalias@libc.org, dan.j.williams@intel.com,
-        dave.hansen@linux.intel.com, dave.jiang@intel.com,
-        david@redhat.com, fenghua.yu@intel.com, hpa@zytor.com,
-        hslester96@gmail.com, logang@deltatee.com, luto@kernel.org,
-        masahiroy@kernel.org, mhocko@suse.com, mingo@redhat.com,
-        peterz@infradead.org, rppt@linux.ibm.com, stable@vger.kernel.org,
-        tglx@linutronix.de, tony.luck@intel.com,
-        torvalds@linux-foundation.org, vishal.l.verma@intel.com,
-        will@kernel.org, ysato@users.sourceforge.jp
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5888430600B7;
+        Wed, 19 Aug 2020 08:28:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ftrace: Setup correct FTRACE_FL_REGS flags for module" failed to apply to 4.4-stable tree
+To:     zhouchengming@bytedance.com, rostedt@goodmis.org,
+        songmuchun@bytedance.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:28:37 +0200
-Message-ID: <1597840117224138@kroah.com>
+Date:   Wed, 19 Aug 2020 14:29:11 +0200
+Message-ID: <159784015193138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -79,89 +70,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b4223a510e2ab1bf0f971d50af7c1431014b25ad Mon Sep 17 00:00:00 2001
-From: Jia He <justin.he@arm.com>
-Date: Tue, 11 Aug 2020 18:32:20 -0700
-Subject: [PATCH] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
+From 8a224ffb3f52b0027f6b7279854c71a31c48fc97 Mon Sep 17 00:00:00 2001
+From: Chengming Zhou <zhouchengming@bytedance.com>
+Date: Wed, 29 Jul 2020 02:05:53 +0800
+Subject: [PATCH] ftrace: Setup correct FTRACE_FL_REGS flags for module
 
-When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
-online at that time), mem_hotplug_begin/done is unpaired in such case.
+When module loaded and enabled, we will use __ftrace_replace_code
+for module if any ftrace_ops referenced it found. But we will get
+wrong ftrace_addr for module rec in ftrace_get_addr_new, because
+rec->flags has not been setup correctly. It can cause the callback
+function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
+with pt_regs set to NULL.
+So setup correct FTRACE_FL_REGS flags for rec when we call
+referenced_filters to find ftrace_ops references it.
 
-Therefore a warning:
- Call Trace:
-  percpu_up_write+0x33/0x40
-  try_remove_memory+0x66/0x120
-  ? _cond_resched+0x19/0x30
-  remove_memory+0x2b/0x40
-  dev_dax_kmem_remove+0x36/0x72 [kmem]
-  device_release_driver_internal+0xf0/0x1c0
-  device_release_driver+0x12/0x20
-  bus_remove_device+0xe1/0x150
-  device_del+0x17b/0x3e0
-  unregister_dev_dax+0x29/0x60
-  devm_action_release+0x15/0x20
-  release_nodes+0x19a/0x1e0
-  devres_release_all+0x3f/0x50
-  device_release_driver_internal+0x100/0x1c0
-  driver_detach+0x4c/0x8f
-  bus_remove_driver+0x5c/0xd0
-  driver_unregister+0x31/0x50
-  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
+Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
 
-Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
-Signed-off-by: Jia He <justin.he@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Cc: <stable@vger.kernel.org>	[5.6+]
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-Cc: Kaly Xin <Kaly.Xin@arm.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: http://lkml.kernel.org/r/20200710031619.18762-3-justin.he@arm.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 6289a909ea36..ce3d858319bd 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1757,7 +1757,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	 */
- 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
- 	if (rc)
--		goto done;
-+		return rc;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index c141d347f71a..d052f856f1cf 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6198,8 +6198,11 @@ static int referenced_filters(struct dyn_ftrace *rec)
+ 	int cnt = 0;
  
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
-@@ -1781,9 +1781,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
+-		if (ops_references_rec(ops, rec))
+-		    cnt++;
++		if (ops_references_rec(ops, rec)) {
++			cnt++;
++			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
++				rec->flags |= FTRACE_FL_REGS;
++		}
+ 	}
  
- 	try_offline_node(nid);
+ 	return cnt;
+@@ -6378,8 +6381,8 @@ void ftrace_module_enable(struct module *mod)
+ 		if (ftrace_start_up)
+ 			cnt += referenced_filters(rec);
  
--done:
- 	mem_hotplug_done();
--	return rc;
-+	return 0;
- }
+-		/* This clears FTRACE_FL_DISABLED */
+-		rec->flags = cnt;
++		rec->flags &= ~FTRACE_FL_DISABLED;
++		rec->flags += cnt;
  
- /**
+ 		if (ftrace_start_up && cnt) {
+ 			int failed = __ftrace_replace_code(rec, 1);
 
