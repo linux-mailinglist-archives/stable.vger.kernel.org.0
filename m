@@ -2,120 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3893824A79A
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 22:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A022C24A7B9
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 22:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbgHSUP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 16:15:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49338 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726435AbgHSUPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 16:15:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597868124;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6wZSRsOZbW0ppoxwbf389BsXiaVqGjFLolCHa9KVfRI=;
-        b=YXxWdcY4HFERidCUvivy2lAFiT9sXrCtM0CK/AmL6kUoEWhaG+fIW4x0YTqvfVAYBzQklc
-        I2Embfj6ifM2Q14ueEhocZGy3f4hZj2HwTUbfF5HcbhHUSrnAzFaKmBv7gLIYJkJg86X52
-        JzjR4gxWQOcdUSJasVNzKl9Tlo6g25I=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-340-BXEPkRQiNu-TeoYnFbjzCg-1; Wed, 19 Aug 2020 16:15:22 -0400
-X-MC-Unique: BXEPkRQiNu-TeoYnFbjzCg-1
-Received: by mail-pj1-f72.google.com with SMTP id mu14so2071773pjb.7
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:15:22 -0700 (PDT)
+        id S1727086AbgHSUaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 16:30:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727082AbgHSUaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 16:30:13 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C024EC061757
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:30:13 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id y206so12239499pfb.10
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:30:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7r03ZXxk/hPUNUCo/NU7/cw02oQSuKFyrqNNc6y1oKE=;
+        b=Z4k14CwzhurejalM9fRGPtJhLrCfSPyvfdLQQS2OIck/X0u0dbSKC+NU5BMNfeDwJG
+         L6X6txESJ7XFzjfUbPqo2Ur9C9lEHTgYnXgMMU8N7tFFjLTeVEHDJdVSiPVhNPKi1gTu
+         L71VfsnprhWLWAvJFwHciOhfS0Ibpf1dhw5XL7CXiXyJPBsvedQUPEcGNbWdWrZycD/3
+         ONqy/d0NX9rb8p9Kx6zLjLD3TpRny+GP+vRl/AhKnvxFbsozR+X6HMKG64RtaogxBmXw
+         VgLb03ajCPNeeuS2L5DBMneS/PM3z9DC3tAd6o/HH1BRxmOIr3Vq4vkNGhGIPNmx1IXO
+         GEcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=6wZSRsOZbW0ppoxwbf389BsXiaVqGjFLolCHa9KVfRI=;
-        b=P2hxow14M/sD/IR/qpQRwUlmtI1Kzlg9YtyLPv26CG7dKD89VVczXxvpfwmaP3bn0m
-         LyF0fl5UDQJndYZ5v+pK8WtM0ciFN9LZM80Y/ov6Mp+bB5wtqJzM/iCfxmGnVLRzcMeq
-         8QvSqlIVfjGyeOJG9sYmINi69w4FN5jk2IceG+Vb2XVFoDpYX+19UOTKfLDR0c1r/FTi
-         xVs9Cy7EnPhBeQw6Yu6dqIyPnhdCa2pZWgoYDp2RvMJilYYOFQnRQqXUstWFVdCQ3Q6K
-         CzQNja4roO99fPHRnwyqjs7Ou98M7oOnPHGSwokg2yomzZUjV91KFNK3k+1B9jSUkrN5
-         k3ng==
-X-Gm-Message-State: AOAM530xAScIaiWNWVRC2uF8UCG07QQxhIji94nvhDxqoZ6/nqguChYL
-        fTvSp6JtNmbFPmW3iqDR6ghBsan0CSk/dAAAV9SNX37egKh8PaaEXihhQzHFPd4dJfrdoqezKfW
-        RsXvD5mok6pjRPxoK
-X-Received: by 2002:a17:90a:fa06:: with SMTP id cm6mr5515128pjb.129.1597868121452;
-        Wed, 19 Aug 2020 13:15:21 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxZ6K3xi/zuEXaLDp+AhVXh18fIyTkt9TT32R+RhUbJpOr/tX/cuBKSRunO6DGE9U7OgqK+kw==
-X-Received: by 2002:a17:90a:fa06:: with SMTP id cm6mr5515108pjb.129.1597868121185;
-        Wed, 19 Aug 2020 13:15:21 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id s125sm56651pfc.63.2020.08.19.13.15.17
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7r03ZXxk/hPUNUCo/NU7/cw02oQSuKFyrqNNc6y1oKE=;
+        b=ffsK9HKsp0Lsrc8c17goouXpfjY/hMSBDIH8jWfaRmPSp0lCocAuWTf1j5Tu/asOGY
+         kj3UkCdDISdZPutQknk6WVZfPU19Rssdk6H/7A8aVP3qn+5zPN1Hy1MZrhwxSZUr1KcN
+         wBJk+ck45j3Y94RvgZVajwwB+0l5Y5stMpZu3OFD/HTRtZ3TOEtrvBt9dJtADequoiaq
+         SvO6R5trwiFK6XEbp85PuV2Oo/9ETQb/iwMQGfFOynZAV35JLPwn2yGt3XIyUWG6sq6F
+         Sh/xSY+x7hE4f1n8gd5pkZKCqSzyyNE0+3xibR7fLf0/NUjm21dHxNGeuTyE3GRwlRr/
+         nFDQ==
+X-Gm-Message-State: AOAM533obAIu4ZSbuTVMO2h43z683LaPIhJeNXcVBPOm5pVHD6QdQBqD
+        v8G3dZypL97NgIH2ijNWD28vplebbif46g==
+X-Google-Smtp-Source: ABdhPJy1d6JV7+AuxTfZA4C371fdd1QpkA24KRF5KNmFIVcSburjes4x/na9WkJO9BODlXZ49S7/kQ==
+X-Received: by 2002:a62:90:: with SMTP id 138mr20612577pfa.0.1597869012154;
+        Wed, 19 Aug 2020 13:30:12 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id cu8sm2696587pjb.47.2020.08.19.13.30.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2020 13:15:20 -0700 (PDT)
-Date:   Thu, 20 Aug 2020 04:15:09 +0800
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Rafael Aquini <aquini@redhat.com>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] mm, THP, swap: fix allocating cluster for swapfile by
- mistake
-Message-ID: <20200819201509.GA26216@xiangao.remote.csb>
-References: <20200819195613.24269-1-hsiangkao@redhat.com>
- <20200819130506.eea076dd618644cd7ff875b6@linux-foundation.org>
+        Wed, 19 Aug 2020 13:30:11 -0700 (PDT)
+Message-ID: <5f3d8bd3.1c69fb81.234b5.5dde@mx.google.com>
+Date:   Wed, 19 Aug 2020 13:30:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200819130506.eea076dd618644cd7ff875b6@linux-foundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.7.16-99-gc5aad81e7f2d
+X-Kernelci-Branch: linux-5.7.y
+Subject: stable-rc/linux-5.7.y baseline: 195 runs,
+ 1 regressions (v5.7.16-99-gc5aad81e7f2d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrew,
+stable-rc/linux-5.7.y baseline: 195 runs, 1 regressions (v5.7.16-99-gc5aad8=
+1e7f2d)
 
-On Wed, Aug 19, 2020 at 01:05:06PM -0700, Andrew Morton wrote:
-> On Thu, 20 Aug 2020 03:56:13 +0800 Gao Xiang <hsiangkao@redhat.com> wrote:
-> 
-> > SWP_FS doesn't mean the device is file-backed swap device,
-> > which just means each writeback request should go through fs
-> > by DIO. Or it'll just use extents added by .swap_activate(),
-> > but it also works as file-backed swap device.
-> 
-> This is very hard to understand :(
+Regressions Summary
+-------------------
 
-Thanks for your reply...
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
 
-The related logic is in __swap_writepage() and setup_swap_extents(),
-and also see e.g generic_swapfile_activate() or iomap_swapfile_activate()...
 
-I will also talk with "Huang, Ying" in person if no response here.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
+el/v5.7.16-99-gc5aad81e7f2d/plan/baseline/
 
-> 
-> > So in order to achieve the goal of the original patch,
-> > SWP_BLKDEV should be used instead.
-> > 
-> > FS corruption can be observed with SSD device + XFS +
-> > fragmented swapfile due to CONFIG_THP_SWAP=y.
-> > 
-> > Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
-> > Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
-> 
-> Why do you think it has taken three years to discover this?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.7.y
+  Describe: v5.7.16-99-gc5aad81e7f2d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c5aad81e7f2df22cbf7b4e5305b8c372d7f8ac4c =
 
-I'm not sure if the Redhat BZ is available for public, it can be reproduced
-since rhel 8
-https://bugzilla.redhat.com/show_bug.cgi?id=1855474
 
-It seems hard to believe, but I think just because rare user uses the SSD device +
-THP + file-backed swap device combination... maybe I'm wrong here, but my test
-shows as it is.
 
-Thanks,
-Gao Xiang
+Test Regressions
+---------------- =
 
-> 
-> 
-> 
 
+
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f3d58541e79dfd1d6d99a47
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.16-=
+99-gc5aad81e7f2d/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.16-=
+99-gc5aad81e7f2d/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f3d58541e79dfd1d6d99=
+a48
+      failing since 34 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
+l: v5.7.9)  =20
