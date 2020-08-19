@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91BE2249A42
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 12:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19051249A4A
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 12:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727116AbgHSKXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 06:23:47 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:43325 "EHLO
+        id S1727794AbgHSKYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 06:24:31 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50037 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726782AbgHSKXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:23:46 -0400
+        by vger.kernel.org with ESMTP id S1727843AbgHSKYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:24:30 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3D589194240A;
-        Wed, 19 Aug 2020 06:23:44 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id EDDFA1942128;
+        Wed, 19 Aug 2020 06:24:28 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:23:44 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:24:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=8O48LX
-        jXjNBHG25cldbGmK/x1ZpxeOPqAlm6v622s4o=; b=Rgh/uTlbkGzxxxIOAUhsC+
-        GHloYDUWjaRBIM4wkcPsnMn1bH24gjeqkGDjDXK2XPBObEuYH3G81eAUmP/7TgYA
-        5cBJ1XAtQj5ovrw2ZhF8E1TL1DZObX9qh0i8znRk7Xlw4Sd5WV9PnvZKhHOaE9KV
-        SuriWfMekjW+2LXUAVBwTuSpLR6+DYCIXE0lOHtNHLiPGxZdVhWZiVQhegPGe4b3
-        gU7JE47KIAINEy+8cwJ80XO/ze1PBe9TmyO/Dc9Hr7tl87JjbdHC7iM7+a6QkJBB
-        a6DFGDsA/hL4rGbgVKTZ+DYBLvhYZk8KfEw8MRn9i3f435aKFn1RoSVqtDCEaLfQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=EGmEc2
+        2bSw0kMVpzLBREceq1CEidcPOx7AFlb2SGT9E=; b=ZRfYPURlrvfN5rXsOXQw5h
+        Oud678T0olYfQVM5SJKDaiNVjUr+aus6T03e6CxPb/dlSPThllgVc3exG6TaTOPW
+        TEDy4AfgJWhv+17Zey4MNBjOoOpqQ9kWZC1wKx1UU4k2jKwU7yliWffbarrE8L/M
+        45hAeDy0aHz/XBM59KOrs3uAfkn6tLHW29+u4Mpz2usbl5OEC/J3g2OQvsViUjp5
+        ha0UGmDCXfE4SaE5+xGVaxkhEtDc5QjY+C66PhXWj3vg6NALWK3zvs0dsIbSglQm
+        F5M2kyUrpOsUrihGQs/bL1gcOitT9omMds7YsSTkuNy1r3JIXMMzmRDSM2AJU6zA
         ==
-X-ME-Sender: <xms:sP08Xxs-pMN8uuPKFvBW8HWZFFxlEkdbxt8wjauoiCjIXPOunJB_og>
+X-ME-Sender: <xms:3P08Xy0NLQC3-K7bE1jRqduycSaBGOrOM3UCt3tmFVeaIuSiLDpzjw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepleenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:sP08X6fPlM-z6fJYubufC6gp_-YCNVIIrYSR36v0vZCnaYu2ytt63Q>
-    <xmx:sP08X0zMQExDiAHU2SN6Sm__YGuZwOCwcVkgiJsewYXbAb4EoIJfmQ>
-    <xmx:sP08X4OwFjLhsVqbH0RF5k8RYl_nY3fRIFdu9sa4BmMb4689eDodFQ>
-    <xmx:sP08Xzkp1IcceKdm1pWVbgZuCm_8Wd-MZM8P_qPh6CCTx3c4KkcE7Q>
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddunecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:3P08X1EmdwBJeQyMrLK9oqlpYYZVqWkCP6jspZKExxYvrsuBzCTqWA>
+    <xmx:3P08X65uNMejw4vReA7nclU8L-mi3hOT4ficryQtOdiivg9zym6ZeQ>
+    <xmx:3P08Xz3gDh7RSgILMzqMIZUIoKpnYFNvy4TSDQVYtKrEcCOJnJMyuA>
+    <xmx:3P08XzPWWITAN2IeX-906XzmtT2axeMGqAbJKaScqxHWwPRafNF6sQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D1A0F328005E;
-        Wed, 19 Aug 2020 06:23:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: qcom: Define some PARF params needed for ipq8064 SoC" failed to apply to 4.9-stable tree
-To:     ansuelsmth@gmail.com, lorenzo.pieralisi@arm.com, robh@kernel.org,
-        svarbanov@mm-sol.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 60163328005D;
+        Wed, 19 Aug 2020 06:24:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: qcom: Add support for tx term offset for rev 2.1.0" failed to apply to 4.9-stable tree
+To:     ansuelsmth@gmail.com, lorenzo.pieralisi@arm.com,
+        smuthayy@codeaurora.org, svarbanov@mm-sol.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 12:23:59 +0200
-Message-ID: <159783263919336@kroah.com>
+Date:   Wed, 19 Aug 2020 12:24:43 +0200
+Message-ID: <159783268310925@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,70 +70,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5149901e9e6deca487c01cc434a3ac4125c7b00b Mon Sep 17 00:00:00 2001
+From de3c4bf648975ea0b1d344d811e9b0748907b47c Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
-Date: Mon, 15 Jun 2020 23:06:03 +0200
-Subject: [PATCH] PCI: qcom: Define some PARF params needed for ipq8064 SoC
+Date: Mon, 15 Jun 2020 23:06:04 +0200
+Subject: [PATCH] PCI: qcom: Add support for tx term offset for rev 2.1.0
 
-Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
-needed on some ipq8064 based device (Netgear R7800 for example). Without
-this the system locks on kernel load.
+Add tx term offset support to pcie qcom driver need in some revision of
+the ipq806x SoC. Ipq8064 needs tx term offset set to 7.
 
-Link: https://lore.kernel.org/r/20200615210608.21469-8-ansuelsmth@gmail.com
+Link: https://lore.kernel.org/r/20200615210608.21469-9-ansuelsmth@gmail.com
 Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
 Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
 Cc: stable@vger.kernel.org # v4.5+
 
 diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index 8cb36cbcde46..69c7b119e81a 100644
+index 69c7b119e81a..34d961e492fd 100644
 --- a/drivers/pci/controller/dwc/pcie-qcom.c
 +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -77,6 +77,18 @@
- #define DBI_RO_WR_EN				1
+@@ -45,7 +45,13 @@
+ #define PCIE_CAP_CPL_TIMEOUT_DISABLE		0x10
  
- #define PERST_DELAY_US				1000
-+/* PARF registers */
-+#define PCIE20_PARF_PCS_DEEMPH			0x34
-+#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
+ #define PCIE20_PARF_PHY_CTRL			0x40
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK	GENMASK(20, 16)
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET(x)		((x) << 16)
 +
-+#define PCIE20_PARF_PCS_SWING			0x38
-+#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
-+#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
+ #define PCIE20_PARF_PHY_REFCLK			0x4C
++#define PHY_REFCLK_SSP_EN			BIT(16)
++#define PHY_REFCLK_USE_PAD			BIT(12)
 +
-+#define PCIE20_PARF_CONFIG_BITS		0x50
-+#define PHY_RX0_EQ(x)				((x) << 24)
- 
- #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
- #define SLV_ADDR_SPACE_SZ			0x10000000
-@@ -293,6 +305,7 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
- 	struct dw_pcie *pci = pcie->pci;
- 	struct device *dev = pci->dev;
-+	struct device_node *node = dev->of_node;
- 	u32 val;
- 	int ret;
- 
-@@ -347,6 +360,17 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 	val &= ~BIT(0);
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+ #define PCIE20_PARF_DBI_BASE_ADDR		0x168
+ #define PCIE20_PARF_SLV_ADDR_SPACE_SIZE		0x16C
+ #define PCIE20_PARF_MHI_CLOCK_RESET_CTRL	0x174
+@@ -371,9 +377,18 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
+ 	}
  
 +	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
-+		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
-+		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
-+		writel(PCS_SWING_TX_SWING_FULL(120) |
-+			       PCS_SWING_TX_SWING_LOW(120),
-+		       pcie->parf + PCIE20_PARF_PCS_SWING);
-+		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
++		/* set TX termination offset */
++		val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
++		val &= ~PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK;
++		val |= PHY_CTRL_PHY_TX0_TERM_OFFSET(7);
++		writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
 +	}
 +
  	/* enable external reference clock */
  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
- 	val |= BIT(16);
+-	val |= BIT(16);
++	val &= ~PHY_REFCLK_USE_PAD;
++	val |= PHY_REFCLK_SSP_EN;
+ 	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
+ 
+ 	/* wait for clock acquisition */
 
