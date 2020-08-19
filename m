@@ -2,134 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD54724A74B
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 21:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1FB24A75F
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 22:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725997AbgHST5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 15:57:02 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:22860 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726435AbgHST5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 15:57:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597867019;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=JDGvX0s3CfGuroZ3WjQYFXy/cRxyJCVnz+Pf0p7uSV8=;
-        b=X814kFKuMN/Z0/kGf6MCndWN5lwbbTPHI2MpZR9bbDVq+H7MNjVrBjG/WGaYni+He9REL6
-        jvgc+cZVmF7UsFDjwGJx29AupLz1iInno4cbnEq9azF5uS8X5BKtkwcCuUSquG3cQWK0bj
-        7gUyLcD5GRRu4asl9rri90NfvTI2h8s=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-349-I2fBgEa9O2CpmQl3CLnDlg-1; Wed, 19 Aug 2020 15:56:58 -0400
-X-MC-Unique: I2fBgEa9O2CpmQl3CLnDlg-1
-Received: by mail-pg1-f199.google.com with SMTP id k32so14799978pgm.15
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 12:56:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=JDGvX0s3CfGuroZ3WjQYFXy/cRxyJCVnz+Pf0p7uSV8=;
-        b=c2PPLF0Kz5/acCLmxeZk6KvwecqXj1dI9p7t0fj37NI+zSqkQr9zm1LB2wm7xZnes6
-         hSq0yyE+kU28pmYtuDYvNfk1vWxLpHQiYyowJYoR4qfbwOEDRWZz+86BCxNgURQUGW9e
-         VRQBXqUdijTgDj8L830hRGJwWXIRP+wYmSIsHw5zLHjFqqJkfIRP0ZN46isW53grCKi7
-         8L210ivIOdofB0gNR22ohB6G8xorb6GW0psoItJFWaUa41EqhUnJitjE85swUo4FT/ps
-         XdFbdUnr1R2qko2qrOEbMe+K8QB/n61/7p3k0zt7KbUs9IxyKy3LbYT8r2fTbODnQsjf
-         du3w==
-X-Gm-Message-State: AOAM533cYVHAbx2VS3PYkHATCsG2F96JulFAtTlHf18Zof2oUxiNzVHd
-        eWjut+u8PTdCTnvdvhtfh2Pb1zRVhJ+MBdLdBa79yy/b0jBngL+zVRNfjCSKFbw21rOGz887Z+F
-        fVV+Fy9gDDYJv84OE
-X-Received: by 2002:a63:7d3:: with SMTP id 202mr32011pgh.230.1597867017032;
-        Wed, 19 Aug 2020 12:56:57 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz+3Pl230CH6ILGZIOeiNaXL82ndPKRgPsgS1lrqvcaMUejchfEYQFco8vhnakaJtiE2tTzPw==
-X-Received: by 2002:a63:7d3:: with SMTP id 202mr31995pgh.230.1597867016665;
-        Wed, 19 Aug 2020 12:56:56 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id i39sm3906880pje.8.2020.08.19.12.56.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2020 12:56:56 -0700 (PDT)
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Rafael Aquini <aquini@redhat.com>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] mm, THP, swap: fix allocating cluster for swapfile by mistake
-Date:   Thu, 20 Aug 2020 03:56:13 +0800
-Message-Id: <20200819195613.24269-1-hsiangkao@redhat.com>
-X-Mailer: git-send-email 2.18.1
+        id S1725275AbgHSUCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 16:02:14 -0400
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:35520 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725997AbgHSUCN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 16:02:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1597867334; x=1629403334;
+  h=date:from:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=/WuUsWWRaL1RoCuSGDbDXqbB2zUmPQ8qHvxQ39aJ2XE=;
+  b=AhYV0PVHNkVCU2qoecWSYTMUsd1bOP4FOe564k2GFdd+zH7cB68HOAUh
+   VSx3kd1BdJm8pC4eJaHJHh/KNdf8NU+j8R9Opj3ENZq1IGQ8Uv/8Zpsbn
+   HhlfjEwdjDwkbBkSSDIwCt1hmfe2vmqQ03CB7Q7TCuf38pLjoKq9e4ijR
+   qWCtqDC7xXYVDR1RE8Tij22nwzoqV03Inx4f/oDjjqaFkqFh042j1Bs5U
+   TvQjHK60IFpEpPTOVRuXZ1/zccS2cSYZP8VNWm6JQQhVzKe/YLsQVvyBj
+   UHFcgVC8KQj/KG8paltEXySZhvmctxyDihJASjRy4CWXiQ0XnBbUG/k0A
+   w==;
+IronPort-SDR: vhsi6WmrJ7uoCStof2WRmBXZL1Axfa4kjHuO/aAWJdg8iBTEuQyHgYI8ylCESQ9OabQAHQIfyK
+ WKeIDvbkWfASy6mz179hx7GyQby1kPDdRjNac3DgtTHwNbHjqXsElh24C6Upyjx00xmHthy6hy
+ kvSFtnnn51fUClwJaTKD3qpa9cEPaJqneJCrxAeAcHMPO/iPVRGd27nutf0mC+2z4p5YUGzGoQ
+ G8VBelJBTsb9DCVSWLxiedIRfQTMxnh267gLVHI+DldxwQeOuasOGKFx6KP6Pkwf19EJXgvPYX
+ z3U=
+X-IronPort-AV: E=Sophos;i="5.76,332,1592841600"; 
+   d="scan'208";a="149675228"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 20 Aug 2020 04:02:14 +0800
+IronPort-SDR: 85AtiEJc3UwCZU8SCbF1XXG2j55Vh5hd6N/Rz8WnN4tZGIA4jSZAO6iCqNNli2QjI75MSfmvHF
+ JsPIIXEokGVA==
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2020 12:49:09 -0700
+IronPort-SDR: lgC0qzfmt+LZzgs6kv/HBx4AvEFDNKPlHG7WS3l2eueThUpIpnLKMnCur05odAaPlQfkGCiGdB
+ +xazf3+SHAFw==
+WDCIronportException: Internal
+Received: from unknown (HELO redsun52) ([10.149.66.28])
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2020 13:02:12 -0700
+Date:   Wed, 19 Aug 2020 21:00:46 +0100 (BST)
+From:   "Maciej W. Rozycki" <macro@wdc.com>
+To:     Palmer Dabbelt <palmer@dabbelt.com>
+cc:     viro@zeniv.linux.org.uk, linux-riscv@lists.infradead.org,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] riscv: ptrace: Use the correct API for `fcsr'
+ access
+In-Reply-To: <mhng-6e42b0e6-1f3b-41a3-a023-4145fb4d8980@palmerdabbelt-glaptop1>
+Message-ID: <alpine.LFD.2.21.2008190019480.24175@redsun52.ssa.fujisawa.hgst.com>
+References: <mhng-6e42b0e6-1f3b-41a3-a023-4145fb4d8980@palmerdabbelt-glaptop1>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SWP_FS doesn't mean the device is file-backed swap device,
-which just means each writeback request should go through fs
-by DIO. Or it'll just use extents added by .swap_activate(),
-but it also works as file-backed swap device.
+On Wed, 5 Aug 2020, Palmer Dabbelt wrote:
 
-So in order to achieve the goal of the original patch,
-SWP_BLKDEV should be used instead.
+> >  I can push linux-next through regression-testing with RISC-V gdbserver
+> > and/or native GDB if that would help.  This is also used with core dumps,
+> > but honestly I don't know what state RISC-V support is in in the BFD/GDB's
+> > core dump interpreter, as people tend to forget about the core dump
+> > feature nowadays.
+> 
+> IIRC Andrew does GDB test suite runs sometimes natively on Linux as part of
+> general GDB maintiance and we don't see major issues, but I'm pretty checked
+> out of GDB development these days so he would know better than I do.  It's
+> always great to have someone test stuff, though -- and I doubt he's testing
+> linux-next.  It's been on my TODO list for a long time now to put together
+> tip-of-tree testing for the various projects but I've never gotten around to
+> doing it.
 
-FS corruption can be observed with SSD device + XFS +
-fragmented swapfile due to CONFIG_THP_SWAP=y.
+ I have now run GDB regression testing with remote `gdbserver' on a HiFive 
+Unleashed, lp64d ABI only, comparing 5.8.0-next-20200814 against 5.8.0-rc5 
+with no issues observed.
 
-Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
-Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
----
+> Oddly enough, despite not really using GDB I have used it for core dumps -- I
+> was writing a tool to convert commit logs to coredumps with the GDB reverse
+> debugging annotations, but I never got around to finishing it.
 
-I reproduced the issue with the following details:
+ I fiddled with core dump handling verification for GDB back in my MIPS 
+days expanding an existing test case to interpret an OS-generated core 
+dump in addition to one produced by GDB's `gcore' command, although in the 
+case of local testing only (i.e. either native or running `gdbserver' on 
+the same test machine GDB runs); this restriction is due to the need to 
+isolate the core file produced, as it may or may not have a .$pid suffix 
+attached (or may have yet another name variation with non-Linux targets), 
+which is somewhat complicated with commands run remotely (though I imagine 
+the restriction could be lifted by someone sufficiently inclined).
 
-Environment:
-QEMU + upstream kernel + buildroot + NVMe (2 GB)
+ The relevant tests results are as follows (on a successful run):
 
-Kernel config:
-CONFIG_BLK_DEV_NVME=y
-CONFIG_THP_SWAP=y
+PASS: gdb.threads/tls-core.exp: native: load core file
+PASS: gdb.threads/tls-core.exp: native: print thread-local storage variable
+PASS: gdb.threads/tls-core.exp: gcore: load core file
+PASS: gdb.threads/tls-core.exp: gcore: print thread-local storage variable
 
-Some reproducable steps:
-mkfs.xfs -f /dev/nvme0n1
-mkdir /tmp/mnt
-mount /dev/nvme0n1 /tmp/mnt
-bs="32k"
-sz="1024m"    # doesn't matter too much, I also tried 16m
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
+and the binutils-gdb change is commit d9f6d7f8b636 ("testsuite: Extend TLS 
+core file testing with an OS-generated dump").  So that part should be 
+covered at least to some extent by automated testing.
 
-mkswap /tmp/mnt/sw
-swapon /tmp/mnt/sw
+ However something is not exactly right and I recall having an issue 
+recorded for later investigation (which may not happen given the recent 
+turn of events) that RISC-V/Linux does not actually dump cores even in the 
+circumstances it is supposed to (i.e. the combination of the specific 
+signal delivered and RLIMIT_CORE set to infinity imply it).
 
-stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
+ Indeed I have run the test natively now and I got:
 
-Symptoms:
- - FS corruption (e.g. checksum failure)
- - memory corruption at: 0xd2808010
- - segfault
- ... 
+PASS: gdb.threads/tls-core.exp: successfully compiled posix threads test case
+WARNING: can't generate a core file - core tests suppressed - check ulimit -c
+PASS: gdb.threads/tls-core.exp: gcore
+UNSUPPORTED: gdb.threads/tls-core.exp: native: load core file
+UNSUPPORTED: gdb.threads/tls-core.exp: native: print thread-local storage variable
+PASS: gdb.threads/tls-core.exp: gcore: load core file
+PASS: gdb.threads/tls-core.exp: gcore: print thread-local storage variable
 
- mm/swapfile.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+which means things are not actually sound.  Likewise if I run the test 
+program manually:
 
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 6c26916e95fd..2937daf3ca02 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
- 			goto nextsi;
- 		}
- 		if (size == SWAPFILE_CLUSTER) {
--			if (!(si->flags & SWP_FS))
-+			if (si->flags & SWP_BLKDEV)
- 				n_ret = swap_alloc_cluster(si, swp_entries);
- 		} else
- 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
--- 
-2.18.1
+$ ulimit -c
+unlimited
+$ ./tls-core
+Aborted (core dumped)
+$ ls -la core*
+ls: cannot access 'core*': No such file or directory
+$ 
 
+-- oops!
+
+ [As it turned out MIPS core dump handling was completely messed up both 
+on the Linux and the GDB side.  See binutils-gdb commit d8dab6c3bbe6 
+("MIPS/Linux: Correct o32 core file FGR interpretation") if interested; 
+there are further Linux commit references there.]
+
+  Maciej
