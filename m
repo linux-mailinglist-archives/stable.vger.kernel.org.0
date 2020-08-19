@@ -2,103 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF4E24A613
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 20:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF7524A616
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 20:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726732AbgHSSg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 14:36:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35584 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725997AbgHSSg0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 14:36:26 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726603AbgHSSht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 14:37:49 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36425 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725997AbgHSSht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 14:37:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597862266;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FxgGSDryJkDh70y6QnKbqwJ0hEwpPii7jSAnMjdWcFI=;
+        b=Zr6JXrlyimAYuI6cubeWBHPKsaZlWJljhBCeGI0GqCaOUdzS3mFnqKI3hc2PMSrBy3+R+B
+        GiKf5NVf9a2CfgMNvKV49b5ypNlmjMfnstTORK2J1xfmA4cwQczdNCOYBpYrGB0g4Te3qF
+        GZFi+mqOfPsizvaKMg4ebtptPQ1rTPY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-56-amnHkRbnP_aU14m6cUfJXw-1; Wed, 19 Aug 2020 14:37:31 -0400
+X-MC-Unique: amnHkRbnP_aU14m6cUfJXw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABF8320658;
-        Wed, 19 Aug 2020 18:36:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597862185;
-        bh=Sr+YQc/ZD/a1tvYxhh12zNoYcDgKbi/Gm2goAZkxqBM=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=oteiuLFeuwobNGhOHveSDY7CuU6Wt5b6qjQDcmdjM1Mdbp3WuEavnfdHNSAMwskUZ
-         zCqzW4s8ctBpOQ0PQWTM9Agss7RlccXFAgOCVrf0Hd40q1CrqK55808/IJ3KCvdkd8
-         X6G3PsBYSiRnYuvUWGlVvlqb3IjojqJ3VMUVL3H8=
-Date:   Wed, 19 Aug 2020 11:36:25 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     fenghua.yu@intel.com, krzk@kernel.org, lkp@intel.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        tony.luck@intel.com
-Subject:  + ia64-fix-build-error-with-coredump.patch added to -mm
- tree
-Message-ID: <20200819183625.szXpQfuMb%akpm@linux-foundation.org>
-In-Reply-To: <20200814172939.55d6d80b6e21e4241f1ee1f3@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1A161885D81;
+        Wed, 19 Aug 2020 18:37:30 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-114-232.rdu2.redhat.com [10.10.114.232])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D769810013C4;
+        Wed, 19 Aug 2020 18:37:23 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e8=2e2-?=
+ =?UTF-8?Q?ad8c735=2ecki_=28stable=29?=
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        David Arcari <darcari@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+References: <cki.81A545788B.TQBX9O8LVS@redhat.com>
+ <3774b716-4440-f6c7-0c9b-60d3b599196e@redhat.com>
+ <20200819165013.GB3698439@kroah.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Message-ID: <6bbf4acf-46f3-6269-e6ce-489a13c49c20@redhat.com>
+Date:   Wed, 19 Aug 2020 14:37:23 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <20200819165013.GB3698439@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: ia64: fix build error with !COREDUMP
-has been added to the -mm tree.  Its filename is
-     ia64-fix-build-error-with-coredump.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/ia64-fix-build-error-with-coredump.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/ia64-fix-build-error-with-coredump.patch
+On 8/19/20 12:50 PM, Greg KH wrote:
+> On Wed, Aug 19, 2020 at 11:54:18AM -0400, Rachel Sibley wrote:
+>>
+>>
+>> On 8/19/20 11:48 AM, CKI Project wrote:
+>>>
+>>> Hello,
+>>>
+>>> We ran automated tests on a recent commit from this kernel tree:
+>>>
+>>>          Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>>>               Commit: ad8c735b1497 - Linux 5.8.2
+>>>
+>>> The results of these automated tests are provided below.
+>>>
+>>>       Overall result: FAILED (see details below)
+>>>                Merge: OK
+>>>              Compile: OK
+>>>                Tests: FAILED
+>>>
+>>> All kernel binaries, config files, and logs are available for download here:
+>>>
+>>>     https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/08/19/612293
+>>>
+>>> One or more kernel tests failed:
+>>>
+>>>       s390x:
+>>>        ❌ LTP
+>>>
+>>>       ppc64le:
+>>>        ❌ LTP
+>>>
+>>>       aarch64:
+>>>        ❌ LTP
+>>
+>> For both s390x/aarch64 failures looks like we're missing the following kernel fixes for stable:
+>>
+>>       1	<<<test_start>>>
+>>       2	tag=ioctl_loop01 stime=1597824830
+>>       3	cmdline="ioctl_loop01"
+>>       4	contacts=""
+>>       5	analysis=exit
+>>       6	<<<test_output>>>
+>>       7	tst_test.c:1245: INFO: Timeout per run is 0h 05m 00s
+>>       8	tst_device.c:88: INFO: Found free device 0 '/dev/loop0'
+>>       9	ioctl_loop01.c:85: PASS: /sys/block/loop0/loop/partscan = 0
+>>      10	ioctl_loop01.c:86: PASS: /sys/block/loop0/loop/autoclear = 0
+>>      11	ioctl_loop01.c:87: PASS: /sys/block/loop0/loop/backing_file = '/mnt/testarea/ltp-4l1XyCNbu8/h6pPv5/test.img'
+>>      12	ioctl_loop01.c:57: PASS: get expected lo_flag 12
+>>      13	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
+>>      14	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 1
+>>      15	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
+>>      16	ioctl_loop01.c:75: PASS: access /sys/block/loop0/loop0p1 succeeds
+>>      17	ioctl_loop01.c:91: INFO: Test flag can be clear
+>>      18	ioctl_loop01.c:57: PASS: get expected lo_flag 8
+>>      19	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
+>>      20	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 0
+>>      21	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
+>>      22	ioctl_loop01.c:77: FAIL: access /sys/block/loop0/loop0p1 fails
+>>      23	
+>>      24	HINT: You _MAY_ be missing kernel fixes, see:
+>>      25	
+>>      26	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=10c70d95c0f2
+>>      27	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6ac92fb5cdff
+>>
+>> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_aarch64_redhat%3A958531/tests/LTP/8699601_aarch64_1_syscalls.fail.log
+>>
+>> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_s390x_redhat%3A958533/tests/LTP/8699609_s390x_1_syscalls.fail.log
+> 
+> 
+> That doesn't make much sense as 10c70d95c0f2 ("block: remove the
+> bd_openers checks in blk_drop_partitions") was in the 5.7 kernel release
+> (and 5.6.11) and 6ac92fb5cdff ("loop: Fix wrong masking of status
+> flags") is in the 5.8 kernel release.
+> 
+> So if you were testing 5.8.2, those hints aren't that relevant :)
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Oops, should have double checked the hints to confirm it's truth, following up with the LTP folks now, sorry for the noise :-)
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: ia64: fix build error with !COREDUMP
-
-Fix linkage error when CONFIG_BINFMT_ELF is selected but CONFIG_COREDUMP
-is not:
-
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_phdrs':
-    elfcore.c:(.text+0x172): undefined reference to `dump_emit'
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_data':
-    elfcore.c:(.text+0x2b2): undefined reference to `dump_emit'
-
-Link: https://lkml.kernel.org/r/20200819064146.12529-1-krzk@kernel.org
-Fixes: 1fcccbac89f5 ("elf coredump: replace ELF_CORE_EXTRA_* macros by functions")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/ia64/kernel/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/ia64/kernel/Makefile~ia64-fix-build-error-with-coredump
-+++ a/arch/ia64/kernel/Makefile
-@@ -41,7 +41,7 @@ obj-y				+= esi_stub.o	# must be in kern
- endif
- obj-$(CONFIG_INTEL_IOMMU)	+= pci-dma.o
- 
--obj-$(CONFIG_BINFMT_ELF)	+= elfcore.o
-+obj-$(CONFIG_ELF_CORE)		+= elfcore.o
- 
- # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
- CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31
-_
-
-Patches currently in -mm which might be from krzk@kernel.org are
-
-ia64-fix-build-error-with-coredump.patch
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
