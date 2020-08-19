@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAFE5249DCA
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8CE249DCB
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbgHSM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:27:47 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:40157 "EHLO
+        id S1727022AbgHSM1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:27:55 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56393 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726961AbgHSM1q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:27:46 -0400
+        by vger.kernel.org with ESMTP id S1726961AbgHSM1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:27:52 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 11FA6A13;
-        Wed, 19 Aug 2020 08:27:44 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 455FA9CD;
+        Wed, 19 Aug 2020 08:27:49 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:27:44 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:27:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bWAqsJ
-        XbL9xk8NFz3F+tXisMd5yeEOVLKgAdge+vXAg=; b=N08gvxEenPFdqj29zCjQ4c
-        /D4/tvNvaN3gpJMgtVG297J6g3F9c7KqrOXidQD0XazU1uC1lCc2iGH1vHe7jr4F
-        jQkPKPK051zpef7U8T/2/nYbIMoBD9LB6L1vlhwy/5FJm87Ik0PmCkVVS9AHY6UE
-        pJD+Y52/gU65hqSUK84pvYy3e8d8fOIHZjihF37LblosYj0EzNjP6mKhKe/tuwQO
-        1jysyaxolAAdsI3Ko7MH3loiOOFzt64pJr/d6Ejt/m08WbQ3HUHsbq8qEbDiGEm2
-        Poa+BqobSPa9wcWFnx9bAsh2waQyY/t9sSrmeNlVY5HIMBWzHwHlghMvxKw9LlHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XN3vR3
+        4ySDHs6ZztmDQA+8TlyJCv5hExLwooj3W73Lk=; b=epXXzZlu4PQV77vCZGuuNO
+        zAh3g7dqpMjS3+PAjljj7XOWUpC3FMNUtZFBtFj5qj4MQEQ/xUG3/YSzWnm/pT3e
+        4wNG1DHKBblOIPTMs62UhOo7o+nYO3VQMW02ypqaxD5645/5hMKOpDGvnrpMB+ro
+        Qmx1A1loFKc9iXxUcDmSPnFfv1EBrjujjc6g2bd/4TV11ZfEcbaM1/wQnNLlEqGX
+        Zbiy08tnRRHFNpiStgDmCENFAcRSqxcB5Da/hMdXlurIHYHltHk9nULrutqd/97j
+        lF2FBAw7mDDuSzC7L3jZ9pgTd9rfIr4pt+r1jiYFaWBC/NeKCRwBL9ur18NiIlHw
         ==
-X-ME-Sender: <xms:vxo9X9WOWzz9c2tGorBKa1LmaFnLLRuq30UIz3Za2DfvpA-u3nbscw>
+X-ME-Sender: <xms:xBo9X6mVPZVZpZXPDsbYlB6Nq3chwaAKyTNoJzOTlcwostwGq_A_ag>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:vxo9X9lKoZ-TNIQhcLdqXHoVo7AzM0MAjvoCWr9rlwjPHr-rjKuGwQ>
-    <xmx:vxo9X5YsWAYOsvZRoyAa6uD-Pbq80RRHRmv8VtkTKBpztBXmIR6RtQ>
-    <xmx:vxo9XwUsxV4PZTo6l6S-lh7icuM1Bzg3XnRpt0uG-R28fYeH3bTRMQ>
-    <xmx:vxo9X1ZTTk4rjL8tYKx4fKfxykt6eEzFt5olFOl6sSAqGdGJcVN3ZZrxIwQ>
+X-ME-Proxy: <xmx:xBo9Xx2rcK16RIDsyy4mjgIS7S-VHYU7Ay58oquIt6zMc5z63Wn5Fw>
+    <xmx:xBo9X4pB0e4adc51A7_MkF-A7MNvGIQF3YKJnAZFW9I9e8U5jiRDvw>
+    <xmx:xBo9X-lPFgxIUKEELO2UEsFEuCEtNMi4dQYiTvkAa7IjmngJ4f3KlQ>
+    <xmx:xBo9Xyq3zztY54TZy9LOXK8Hggk-khg1s9UeeDgoda7fgiIixw5BC6a2ykE>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3272F30600A6;
-        Wed, 19 Aug 2020 08:27:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drivers: add Contiguous Memory Allocator" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6A93930600A3;
+        Wed, 19 Aug 2020 08:27:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drivers: add Contiguous Memory Allocator" failed to apply to 4.19-stable tree
 To:     m.szyprowski@samsung.com, Baohua.Song@csr.com, arnd@arndb.de,
         benjamin.gaignard@linaro.org, kyungmin.park@samsung.com,
         mina86@mina86.com, ohad@wizery.com, rob.clark@linaro.org,
         robertcnelson@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:28:04 +0200
-Message-ID: <1597840084205143@kroah.com>
+Date:   Wed, 19 Aug 2020 14:28:05 +0200
+Message-ID: <159784008520581@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
