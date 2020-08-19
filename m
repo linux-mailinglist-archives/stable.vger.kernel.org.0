@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D39024AA43
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCAF24AA42
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbgHSX5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727034AbgHSX5e (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Aug 2020 19:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53250 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726952AbgHSX4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:56:52 -0400
+        id S1726956AbgHSX4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 19:56:55 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C78420B1F;
-        Wed, 19 Aug 2020 23:56:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB9EC21741;
+        Wed, 19 Aug 2020 23:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881412;
-        bh=k/AVvnUd600jX5YYHnIljZO+eTT7xIFfD57X+RHnyC4=;
-        h=Date:From:To:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=PZzhOYg0eWJAHGrnPsCusNLHIEaj8kcy0f6bRFV7KTLrHxmv/TpAQ0lmUsj7TT9r6
-         v6gPWo/5YhqQZxdB8LsQfXc+y5E4zBOdtVfyjffLQ4g8M6UDiI3qJnRjv4y8tqDhpv
-         TuHXOv/5dy1K+9Ik1kplGmxQDJiZreHQbjwQ//0Q=
-Date:   Wed, 19 Aug 2020 23:56:51 +0000
+        s=default; t=1597881413;
+        bh=GNFtdUuopSygc5xS/T1Fe/wiphE90KVFiVdMoMVmr04=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=tC6eq3ihiJwgiYgXD61jVhjKCyoR89TyLSndE6yh5OWAXZtAKWDPo9/35/7f2Cu8r
+         fYWyA8x1uDSKA52PvHwtGoyFEX4qzTAaVe7WzGD+D9DgQrA2F1cye/VmTRBDW2U98o
+         FUktiLz76wsn3Rvi8CtqzKxbZMB8EF1ArsYtKifM=
+Date:   Wed, 19 Aug 2020 23:56:52 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Andrei Botila <andrei.botila@oss.nxp.com>
-To:     Andrei Botila <andrei.botila@nxp.com>
-To:     Horia Geanta <horia.geanta@nxp.com>
-Cc:     linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH RESEND 5/9] crypto: caam/qi - add support for more XTS key lengths
-In-Reply-To: <20200806163551.14395-6-andrei.botila@oss.nxp.com>
-References: <20200806163551.14395-6-andrei.botila@oss.nxp.com>
-Message-Id: <20200819235652.0C78420B1F@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/7] usb: dwc3: gadget: Don't setup more than requested
+In-Reply-To: <c279d8bdbe0f18cdd6944a6b71265e2309c96059.1596767991.git.thinhn@synopsys.com>
+References: <c279d8bdbe0f18cdd6944a6b71265e2309c96059.1596767991.git.thinhn@synopsys.com>
+Message-Id: <20200819235652.EB9EC21741@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,67 +45,34 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: b189817cf789 ("crypto: caam/qi - add ablkcipher and authenc algorithms").
+fixing commit: a31e63b608ff ("usb: dwc3: gadget: Correct handling of scattergather lists").
 
-The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193.
+The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139.
 
-v5.8.1: Failed to apply! Possible dependencies:
-    297142490236 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    528f776df67c ("crypto: qat - allow xts requests not multiple of block")
-    a85211f36f3d ("crypto: qat - fallback for xts with 192 bit keys")
-    b185a68710e0 ("crypto: qat - validate xts key")
-    b8aa7dc5c753 ("crypto: drivers - set the flag CRYPTO_ALG_ALLOCATES_MEMORY")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-
+v5.8.1: Build OK!
 v5.7.15: Failed to apply! Possible dependencies:
-    297142490236 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    528f776df67c ("crypto: qat - allow xts requests not multiple of block")
-    a85211f36f3d ("crypto: qat - fallback for xts with 192 bit keys")
-    b185a68710e0 ("crypto: qat - validate xts key")
-    b8aa7dc5c753 ("crypto: drivers - set the flag CRYPTO_ALG_ALLOCATES_MEMORY")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
 
 v5.4.58: Failed to apply! Possible dependencies:
-    297142490236 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    64db5e7439fb ("crypto: sparc/aes - convert to skcipher API")
-    66d7fb94e4ff ("crypto: blake2s - generic C library implementation and selftest")
-    674f368a952c ("crypto: remove CRYPTO_TFM_RES_BAD_KEY_LEN")
-    746b2e024c67 ("crypto: lib - tidy up lib/crypto Kconfig and Makefile")
-    7988fb2c03c8 ("crypto: s390/aes - convert to skcipher API")
-    7f725f41f627 ("crypto: powerpc - convert SPE AES algorithms to skcipher API")
-    7f9b0880925f ("crypto: blake2s - implement generic shash driver")
-    91d689337fe8 ("crypto: blake2b - add blake2b generic implementation")
-    b4d0c0aad57a ("crypto: arm - use Kconfig based compiler checks for crypto opcodes")
-    b95bba5d0114 ("crypto: skcipher - rename the crypto_blkcipher module and kconfig option")
-    d00c06398154 ("crypto: s390/paes - convert to skcipher API")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-    ed0356eda153 ("crypto: blake2s - x86_64 SIMD implementation")
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
 
 v4.19.139: Failed to apply! Possible dependencies:
-    0a5dff9882e5 ("crypto: arm/ghash - provide a synchronous version")
-    1ca1b917940c ("crypto: chacha20-generic - refactor to allow varying number of rounds")
-    297142490236 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    5ca7badb1f62 ("crypto: caam/jr - ablkcipher -> skcipher conversion")
-    674f368a952c ("crypto: remove CRYPTO_TFM_RES_BAD_KEY_LEN")
-    8a5a79d5556b ("crypto: x86/chacha20 - Add a 4-block AVX2 variant")
-    99680c5e9182 ("crypto: arm - convert to use crypto_simd_usable()")
-    9b17608f15b9 ("crypto: x86/chacha20 - Use larger block functions more aggressively")
-    9dbe3072c6b1 ("crypto: caam/qi - ablkcipher -> skcipher conversion")
-    a5dd97f86211 ("crypto: x86/chacha20 - Add a 2-block AVX2 variant")
-    aec48adce85d ("crypto: caam/qi - remove ablkcipher IV generation")
-    c3b734dd325d ("crypto: x86/chacha20 - Support partial lengths in 8-block AVX2 variant")
-    cf5448b5c3d8 ("crypto: caam/jr - remove ablkcipher IV generation")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-    db8e15a24957 ("crypto: x86/chacha20 - Support partial lengths in 4-block SSSE3 variant")
-    e4e72063d3c0 ("crypto: x86/chacha20 - Support partial lengths in 1-block SSSE3 variant")
-
-v4.14.193: Failed to apply! Possible dependencies:
-    297142490236 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    5ca7badb1f62 ("crypto: caam/jr - ablkcipher -> skcipher conversion")
-    662f70ede597 ("crypto: caam - remove needless ablkcipher key copy")
-    7e0880b9fbbe ("crypto: caam - add Derived Key Protocol (DKP) support")
-    9dbe3072c6b1 ("crypto: caam/qi - ablkcipher -> skcipher conversion")
-    cf5448b5c3d8 ("crypto: caam/jr - remove ablkcipher IV generation")
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3aec99154db3 ("usb: dwc3: gadget: remove DWC3_EP_END_TRANSFER_PENDING")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    974a1368c33e ("usb: dwc3: gadget: don't use resource_index as a flag")
+    a3af5e3ad3f1 ("usb: dwc3: gadget: add dwc3_request status tracking")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    c58d8bfc77a2 ("usb: dwc3: gadget: Check END_TRANSFER completion")
+    d3abda5a98a1 ("usb: dwc3: gadget: Clear started flag for non-IOC")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    da10bcdd6f70 ("usb: dwc3: gadget: Delay starting transfer")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
