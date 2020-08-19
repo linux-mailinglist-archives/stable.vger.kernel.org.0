@@ -2,148 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF7524A616
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 20:37:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7010824A6B2
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 21:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726603AbgHSSht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 14:37:49 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36425 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725997AbgHSSht (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 14:37:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597862266;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FxgGSDryJkDh70y6QnKbqwJ0hEwpPii7jSAnMjdWcFI=;
-        b=Zr6JXrlyimAYuI6cubeWBHPKsaZlWJljhBCeGI0GqCaOUdzS3mFnqKI3hc2PMSrBy3+R+B
-        GiKf5NVf9a2CfgMNvKV49b5ypNlmjMfnstTORK2J1xfmA4cwQczdNCOYBpYrGB0g4Te3qF
-        GZFi+mqOfPsizvaKMg4ebtptPQ1rTPY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-56-amnHkRbnP_aU14m6cUfJXw-1; Wed, 19 Aug 2020 14:37:31 -0400
-X-MC-Unique: amnHkRbnP_aU14m6cUfJXw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1A161885D81;
-        Wed, 19 Aug 2020 18:37:30 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-114-232.rdu2.redhat.com [10.10.114.232])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D769810013C4;
-        Wed, 19 Aug 2020 18:37:23 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e8=2e2-?=
- =?UTF-8?Q?ad8c735=2ecki_=28stable=29?=
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        David Arcari <darcari@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-References: <cki.81A545788B.TQBX9O8LVS@redhat.com>
- <3774b716-4440-f6c7-0c9b-60d3b599196e@redhat.com>
- <20200819165013.GB3698439@kroah.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <6bbf4acf-46f3-6269-e6ce-489a13c49c20@redhat.com>
-Date:   Wed, 19 Aug 2020 14:37:23 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
-MIME-Version: 1.0
-In-Reply-To: <20200819165013.GB3698439@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+        id S1726973AbgHSTRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 15:17:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726991AbgHSTRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 15:17:10 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1A4C061342
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 12:17:09 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id g127so26790878ybf.11
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 12:17:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc:content-transfer-encoding;
+        bh=AYTx8OTXrfy1fkjiQ/QJZUTx1nYyS440PAIctrO8h/4=;
+        b=hU5/8DJYdBVIul76iBEmEZ0CUUQxYYOOHdwBe4d4zyPtB5gIZh8vrm6Ccwlw+L7mfG
+         jT4Y2xyv2gvx6x+GF1XuIP6lvuA20HdADAoN96ldTrsTtbKn1/+bcvafV0ipxVGPvx5T
+         OVGD/OW/Rm/RcYoUIfpfQAlOuAUQ5mPdB6lE+Pq/kfD1VWh7KsAWKxXxroLPwLw40+1i
+         kvI45eNE7kkOgbXRICBXBMXLPlBDZYoiRoJLP51z6Bh+cy81LCawEG//TZN3rxPJtz6E
+         aLLhREs3LcMxpShnPm0ZN5pRx9wDMtIvvkd7xgXg9RTXshqTL+GmUQ2DHv1Dd734CK3p
+         ZQEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc:content-transfer-encoding;
+        bh=AYTx8OTXrfy1fkjiQ/QJZUTx1nYyS440PAIctrO8h/4=;
+        b=b4GGEAoqbFBwfZwzsRC0AFUqj/dnaIy07IBcJ7mpfQro3QBgvRXPaAE/oH7QcNadN/
+         kQqQTw3q4pImmgaiK2/VVZqaZAHu19m3zbA12Vc5+IPW8hqDCtLh4GlMxt/dAvjNpTRa
+         bisPMzLofvRRCgpBo0Z0BijyNIMKVO95AA8HkiiWowLSvoTlFSeA+zFsgYO6FnjHd2/R
+         9iS3TwiMCxvgg6H55FlN3AhhjJmeCWOK+G9E3sG8XCbht7eRa1714pGeJlK+fYifpk23
+         lJep/wwbmwiGHbS7BoiCKPYv2DPfLBFPF9hR2tY3sdqSNLZ7BRpfF5J6mz1cFe66LW7H
+         wYow==
+X-Gm-Message-State: AOAM53339I9XWMguTak+82TOp0TaOi/ITSkdAlecQ74yOqkUmwaZxgXx
+        fuJ9KObbp9KOkO7TuUAdyCE0/nGQIthPzkXDfSM=
+X-Google-Smtp-Source: ABdhPJxETf8t+SYq21D8M+YylDYX3q4MAl4M/CU8Tsm+guyliSGVos5yJOYpig0Mf0L2E13QKLQC7j9HxW70uBCx9fg=
+X-Received: by 2002:a5b:c08:: with SMTP id f8mr34030464ybq.198.1597864628624;
+ Wed, 19 Aug 2020 12:17:08 -0700 (PDT)
+Date:   Wed, 19 Aug 2020 12:16:50 -0700
+In-Reply-To: <20200819191654.1130563-1-ndesaulniers@google.com>
+Message-Id: <20200819191654.1130563-2-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <20200819191654.1130563-1-ndesaulniers@google.com>
+X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
+Subject: [PATCH v2 1/5] Makefile: add -fno-builtin-stpcpy
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Michal Marek <michal.lkml@markovi.net>,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Joe Perches <joe@perches.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Daniel Kiper <daniel.kiper@oracle.com>,
+        Bruce Ashfield <bruce.ashfield@gmail.com>,
+        Marco Elver <elver@google.com>,
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        Andi Kleen <ak@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "=?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?=" <david.bolvansky@gmail.com>,
+        Eli Friedman <efriedma@quicinc.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+LLVM implemented a recent "libcall optimization" that lowers calls to
+`sprintf(dest, "%s", str)` where the return value is used to
+`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
+in parsing format strings. This optimization was introduced into
+clang-12. Because the kernel does not provide an implementation of
+stpcpy, we observe linkage failures for almost all targets when building
+with ToT clang.
 
+The interface is unsafe as it does not perform any bounds checking.
+Disable this "libcall optimization" via `-fno-builtin-stpcpy`.
 
-On 8/19/20 12:50 PM, Greg KH wrote:
-> On Wed, Aug 19, 2020 at 11:54:18AM -0400, Rachel Sibley wrote:
->>
->>
->> On 8/19/20 11:48 AM, CKI Project wrote:
->>>
->>> Hello,
->>>
->>> We ran automated tests on a recent commit from this kernel tree:
->>>
->>>          Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->>>               Commit: ad8c735b1497 - Linux 5.8.2
->>>
->>> The results of these automated tests are provided below.
->>>
->>>       Overall result: FAILED (see details below)
->>>                Merge: OK
->>>              Compile: OK
->>>                Tests: FAILED
->>>
->>> All kernel binaries, config files, and logs are available for download here:
->>>
->>>     https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/08/19/612293
->>>
->>> One or more kernel tests failed:
->>>
->>>       s390x:
->>>        ❌ LTP
->>>
->>>       ppc64le:
->>>        ❌ LTP
->>>
->>>       aarch64:
->>>        ❌ LTP
->>
->> For both s390x/aarch64 failures looks like we're missing the following kernel fixes for stable:
->>
->>       1	<<<test_start>>>
->>       2	tag=ioctl_loop01 stime=1597824830
->>       3	cmdline="ioctl_loop01"
->>       4	contacts=""
->>       5	analysis=exit
->>       6	<<<test_output>>>
->>       7	tst_test.c:1245: INFO: Timeout per run is 0h 05m 00s
->>       8	tst_device.c:88: INFO: Found free device 0 '/dev/loop0'
->>       9	ioctl_loop01.c:85: PASS: /sys/block/loop0/loop/partscan = 0
->>      10	ioctl_loop01.c:86: PASS: /sys/block/loop0/loop/autoclear = 0
->>      11	ioctl_loop01.c:87: PASS: /sys/block/loop0/loop/backing_file = '/mnt/testarea/ltp-4l1XyCNbu8/h6pPv5/test.img'
->>      12	ioctl_loop01.c:57: PASS: get expected lo_flag 12
->>      13	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
->>      14	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 1
->>      15	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
->>      16	ioctl_loop01.c:75: PASS: access /sys/block/loop0/loop0p1 succeeds
->>      17	ioctl_loop01.c:91: INFO: Test flag can be clear
->>      18	ioctl_loop01.c:57: PASS: get expected lo_flag 8
->>      19	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
->>      20	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 0
->>      21	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
->>      22	ioctl_loop01.c:77: FAIL: access /sys/block/loop0/loop0p1 fails
->>      23	
->>      24	HINT: You _MAY_ be missing kernel fixes, see:
->>      25	
->>      26	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=10c70d95c0f2
->>      27	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6ac92fb5cdff
->>
->> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_aarch64_redhat%3A958531/tests/LTP/8699601_aarch64_1_syscalls.fail.log
->>
->> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_s390x_redhat%3A958533/tests/LTP/8699609_s390x_1_syscalls.fail.log
-> 
-> 
-> That doesn't make much sense as 10c70d95c0f2 ("block: remove the
-> bd_openers checks in blk_drop_partitions") was in the 5.7 kernel release
-> (and 5.6.11) and 6ac92fb5cdff ("loop: Fix wrong masking of status
-> flags") is in the 5.8 kernel release.
-> 
-> So if you were testing 5.8.2, those hints aren't that relevant :)
+Cc: stable@vger.kernel.org # 4.4
+Link: https://bugs.llvm.org/show_bug.cgi?id=3D47162
+Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+Link: https://reviews.llvm.org/D85963
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: D=C3=A1vid Bolvansk=C3=BD <david.bolvansky@gmail.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-Oops, should have double checked the hints to confirm it's truth, following up with the LTP folks now, sorry for the noise :-)
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
+diff --git a/Makefile b/Makefile
+index 9cac6fde3479..e523dc8d30e0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -578,6 +578,7 @@ ifneq ($(LLVM_IAS),1)
+ CLANG_FLAGS	+=3D -no-integrated-as
+ endif
+ CLANG_FLAGS	+=3D -Werror=3Dunknown-warning-option
++CLANG_FLAGS	+=3D -fno-builtin-stpcpy
+ KBUILD_CFLAGS	+=3D $(CLANG_FLAGS)
+ KBUILD_AFLAGS	+=3D $(CLANG_FLAGS)
+ export CLANG_FLAGS
+--=20
+2.28.0.297.g1956fa8f8d-goog
 
