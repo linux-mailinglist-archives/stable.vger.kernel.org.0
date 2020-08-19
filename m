@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80576249BE7
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BA6249BEA
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgHSLfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:35:40 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:50087 "EHLO
+        id S1726752AbgHSLgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:36:13 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:57783 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726820AbgHSLfj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:35:39 -0400
+        by vger.kernel.org with ESMTP id S1727116AbgHSLgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:36:12 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5D9A41941DB2;
-        Wed, 19 Aug 2020 07:35:38 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 4C6161940219;
+        Wed, 19 Aug 2020 07:36:10 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:35:38 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:36:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=oMzn14
-        Wiu+G+kZ3qWGg767cJrb1PsEXDCila0FJ+8rw=; b=a4+ohRKQ5tYL/RKdBx1vMp
-        C4nnXAAoRNIsGeC+0PACEJTXsm51h7HUypi6E+Ssxu8C3RCai6FwNUcFpVoIidXg
-        sXm3V3JOf6KDrRpt2hgr7k52ylqgwZMCbkbLk0F8FVKKnCogq39PdZpl9iEnrPpF
-        ps9dibcWG1YW1NcPUM9g7/CL8X55356kPm4txYYkkPlIfPMT1Z80UYKB9vfXvwqg
-        UK9v9QABZyYb66JQyRoIVtpFC/HzR0Aum6VM5PGDncL0QXsnlExeFNkJ1SDQAaEZ
-        F7feNYIvdvbsk948x6KumE/xhsggSZ4AntlCacVZ5d+jfD6X0nS8iN/hkkojL9Ow
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=E3EpVt
+        J35MSLLZ+Qc3o/CZIpSzX4yeg+ksQTNB/Iaj4=; b=Bq3ZzKV5tuPQi2yMKJDSh1
+        3/lJc7dOLIjCjdl0MPpks/d5c+U1S3o2Zr/YVl8wd12s0d0AYh/bRaHHvLYm7yzS
+        PVQgedUF0hroAJWNPCA1D7iOnwKivNBUbdYJgdSl5AYl/gbqriXor6Oa73kSWFP8
+        2UZDFauUtyAs1PDGN3qqLtDF2GfrppI08WsMu6+HH7fL0VE0ea2Gt4ZKE17d5SZC
+        ibI9m2qVdi/1QUdtPzmnfKVYW2cnpkU37DubGJyJT1fMgkbg8LLICeTsHcbasyyD
+        hfiVxG6et+PO3OmC0zruERXRA2MwKsLFanPGyfojgmC+oeLNYvaT67xIdwFaSxTw
         ==
-X-ME-Sender: <xms:ig49X_3jL3toNxibWsz1Wd0BPnY8GCjhgr4lWYHmYFrBbGR8CMF1xA>
+X-ME-Sender: <xms:qg49XwvoPcujaGs3LDqyCERugzseMY9_hL-kCP6xOd96A_X9EKxJnw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:ig49X-F8a1VSN7RbwVln77eIMLFwX6aCuKgexjql-duinZi26IHQBQ>
-    <xmx:ig49X_6pwiWq039erV_GTFXs_W3Nj-51P8v0x7KDAQMgJclgDNIeOQ>
-    <xmx:ig49X00BqDcVelT3bdTUb2k8c2S0cf-v_tPSso0gzyi9nF3M7qUhaQ>
-    <xmx:ig49X9PIr0Hng34eR5_QwjJJSLiufj1qYFQ0dy2A1sDPP8-2j1cUpg>
+    gheqnecuggftrfgrthhtvghrnhepiedtffetffduvdfgkeevgfdtieekueduffehffeftd
+    egvdejuedvudegudeltdeinecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:qg49X9fK7-O0WLpNW3mCB9j1-MjXCwJCk6J3bCwz2nR79itMtjW0vg>
+    <xmx:qg49X7zf6uSL8ZHoDHZtgmcdmKQYalnsO4aOCiVeyUcuwxXt1eYlLw>
+    <xmx:qg49XzOXNwv8Ae0KVEF_CmnKeELBkMQX7rwmnOPYIr1vsGOrL-NiHw>
+    <xmx:qg49X1G4taUECOBbbgoHzXzRGsqgrHT2xZvnTd6AQ5JOPOK1iZnV3g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D787230600A6;
-        Wed, 19 Aug 2020 07:35:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: inode: fix NULL pointer dereference if inode doesn't" failed to apply to 4.14-stable tree
-To:     wqu@suse.com, chavez@us.ibm.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id CA10F30600B1;
+        Wed, 19 Aug 2020 07:36:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: trim: fix underflow in trim length to prevent access" failed to apply to 5.4-stable tree
+To:     wqu@suse.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 13:35:53 +0200
-Message-ID: <1597836953109138@kroah.com>
+Date:   Wed, 19 Aug 2020 13:36:33 +0200
+Message-ID: <15978369934613@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,103 +69,114 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1e6e238c3002ea3611465ce5f32777ddd6a40126 Mon Sep 17 00:00:00 2001
+From c57dd1f2f6a7cd1bb61802344f59ccdc5278c983 Mon Sep 17 00:00:00 2001
 From: Qu Wenruo <wqu@suse.com>
-Date: Tue, 28 Jul 2020 16:39:26 +0800
-Subject: [PATCH] btrfs: inode: fix NULL pointer dereference if inode doesn't
- need compression
+Date: Fri, 31 Jul 2020 19:29:11 +0800
+Subject: [PATCH] btrfs: trim: fix underflow in trim length to prevent access
+ beyond device boundary
 
 [BUG]
-There is a bug report of NULL pointer dereference caused in
-compress_file_extent():
+The following script can lead to tons of beyond device boundary access:
 
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  Workqueue: btrfs-delalloc btrfs_delalloc_helper [btrfs]
-  NIP [c008000006dd4d34] compress_file_range.constprop.41+0x75c/0x8a0 [btrfs]
-  LR [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs]
-  Call Trace:
-  [c000000c69093b00] [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs] (unreliable)
-  [c000000c69093bd0] [c008000006dd4ebc] async_cow_start+0x44/0xa0 [btrfs]
-  [c000000c69093c10] [c008000006e14824] normal_work_helper+0xdc/0x598 [btrfs]
-  [c000000c69093c80] [c0000000001608c0] process_one_work+0x2c0/0x5b0
-  [c000000c69093d10] [c000000000160c38] worker_thread+0x88/0x660
-  [c000000c69093db0] [c00000000016b55c] kthread+0x1ac/0x1c0
-  [c000000c69093e20] [c00000000000b660] ret_from_kernel_thread+0x5c/0x7c
-  ---[ end trace f16954aa20d822f6 ]---
+  mkfs.btrfs -f $dev -b 10G
+  mount $dev $mnt
+  trimfs $mnt
+  btrfs filesystem resize 1:-1G $mnt
+  trimfs $mnt
 
 [CAUSE]
-For the following execution route of compress_file_range(), it's
-possible to hit NULL pointer dereference:
+Since commit 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to
+find_first_clear_extent_bit"), we try to avoid trimming ranges that's
+already trimmed.
 
- compress_file_extent()
- |- pages = NULL;
- |- start = async_chunk->start = 0;
- |- end = async_chunk = 4095;
- |- nr_pages = 1;
- |- inode_need_compress() == false; <<< Possible, see later explanation
- |  Now, we have nr_pages = 1, pages = NULL
- |- cont:
- |- 		ret = cow_file_range_inline();
- |- 		if (ret <= 0) {
- |-		for (i = 0; i < nr_pages; i++) {
- |-			WARN_ON(pages[i]->mapping);	<<< Crash
+So we check device->alloc_state by finding the first range which doesn't
+have CHUNK_TRIMMED and CHUNK_ALLOCATED not set.
 
-To enter above call execution branch, we need the following race:
+But if we shrunk the device, that bits are not cleared, thus we could
+easily got a range starts beyond the shrunk device size.
 
-    Thread 1 (chattr)     |            Thread 2 (writeback)
---------------------------+------------------------------
-                          | btrfs_run_delalloc_range
-                          | |- inode_need_compress = true
-                          | |- cow_file_range_async()
-btrfs_ioctl_set_flag()    |
-|- binode_flags |=        |
-   BTRFS_INODE_NOCOMPRESS |
-                          | compress_file_range()
-                          | |- inode_need_compress = false
-                          | |- nr_page = 1 while pages = NULL
-                          | |  Then hit the crash
+This results the returned @start and @end are all beyond device size,
+then we call "end = min(end, device->total_bytes -1);" making @end
+smaller than device size.
+
+Then finally we goes "len = end - start + 1", totally underflow the
+result, and lead to the beyond-device-boundary access.
 
 [FIX]
-This patch will fix it by checking @pages before doing accessing it.
-This patch is only designed as a hot fix and easy to backport.
+This patch will fix the problem in two ways:
 
-More elegant fix may make btrfs only check inode_need_compress() once to
-avoid such race, but that would be another story.
+- Clear CHUNK_TRIMMED | CHUNK_ALLOCATED bits when shrinking device
+  This is the root fix
 
-Reported-by: Luciano Chavez <chavez@us.ibm.com>
-Fixes: 4d3a800ebb12 ("btrfs: merge nr_pages input and output parameter in compress_pages")
-CC: stable@vger.kernel.org # 4.14.x: cecc8d9038d16: btrfs: Move free_pages_out label in inline extent handling branch in compress_file_range
-CC: stable@vger.kernel.org # 4.14+
+- Add extra safety check when trimming free device extents
+  We check and warn if the returned range is already beyond current
+  device.
+
+Link: https://github.com/kdave/btrfs-progs/issues/282
+Fixes: 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to find_first_clear_extent_bit")
+CC: stable@vger.kernel.org # 5.4+
 Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 611b3412fbfd..9988d754e465 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -653,12 +653,18 @@ static noinline int compress_file_range(struct async_chunk *async_chunk)
- 						     page_error_op |
- 						     PAGE_END_WRITEBACK);
+diff --git a/fs/btrfs/extent-io-tree.h b/fs/btrfs/extent-io-tree.h
+index f39d47a2d01a..219a09a2b734 100644
+--- a/fs/btrfs/extent-io-tree.h
++++ b/fs/btrfs/extent-io-tree.h
+@@ -34,6 +34,8 @@ struct io_failure_record;
+  */
+ #define CHUNK_ALLOCATED				EXTENT_DIRTY
+ #define CHUNK_TRIMMED				EXTENT_DEFRAG
++#define CHUNK_STATE_MASK			(CHUNK_ALLOCATED |		\
++						 CHUNK_TRIMMED)
  
--			for (i = 0; i < nr_pages; i++) {
--				WARN_ON(pages[i]->mapping);
--				put_page(pages[i]);
-+			/*
-+			 * Ensure we only free the compressed pages if we have
-+			 * them allocated, as we can still reach here with
-+			 * inode_need_compress() == false.
-+			 */
-+			if (pages) {
-+				for (i = 0; i < nr_pages; i++) {
-+					WARN_ON(pages[i]->mapping);
-+					put_page(pages[i]);
-+				}
-+				kfree(pages);
- 			}
--			kfree(pages);
--
- 			return 0;
- 		}
+ enum {
+ 	IO_TREE_FS_PINNED_EXTENTS,
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 61ede335f6c3..de6fe176fdfb 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -33,6 +33,7 @@
+ #include "delalloc-space.h"
+ #include "block-group.h"
+ #include "discard.h"
++#include "rcu-string.h"
+ 
+ #undef SCRAMBLE_DELAYED_REFS
+ 
+@@ -5668,6 +5669,19 @@ static int btrfs_trim_free_extents(struct btrfs_device *device, u64 *trimmed)
+ 					    &start, &end,
+ 					    CHUNK_TRIMMED | CHUNK_ALLOCATED);
+ 
++		/* Check if there are any CHUNK_* bits left */
++		if (start > device->total_bytes) {
++			WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++			btrfs_warn_in_rcu(fs_info,
++"ignoring attempt to trim beyond device size: offset %llu length %llu device %s device size %llu",
++					  start, end - start + 1,
++					  rcu_str_deref(device->name),
++					  device->total_bytes);
++			mutex_unlock(&fs_info->chunk_mutex);
++			ret = 0;
++			break;
++		}
++
+ 		/* Ensure we skip the reserved area in the first 1M */
+ 		start = max_t(u64, start, SZ_1M);
+ 
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index d7670e2a9f39..ee96c5869f57 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4720,6 +4720,10 @@ int btrfs_shrink_device(struct btrfs_device *device, u64 new_size)
  	}
+ 
+ 	mutex_lock(&fs_info->chunk_mutex);
++	/* Clear all state bits beyond the shrunk device size */
++	clear_extent_bits(&device->alloc_state, new_size, (u64)-1,
++			  CHUNK_STATE_MASK);
++
+ 	btrfs_device_set_disk_total_bytes(device, new_size);
+ 	if (list_empty(&device->post_commit_list))
+ 		list_add_tail(&device->post_commit_list,
 
