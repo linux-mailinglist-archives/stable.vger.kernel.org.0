@@ -2,162 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0979824A794
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 22:12:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3893824A79A
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 22:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgHSUMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 16:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47110 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727103AbgHSUMR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 16:12:17 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33013C061757
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:12:17 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id 3so3388407wmi.1
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:12:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qrQXRn5lOnY3rc4h/MhdAYwAb/oRdgRb50i+BRwPLlY=;
-        b=smHpgz7IsNtgl7jq9W9VsX+6ttggz6oJb6oWdSsVjJA25LJOIyogl0n3MJe1FDxGze
-         7Ph8UuM/nuVfZCujSW2jJHn37t68hx+LukhhBAUFW27leSkffwImrMqoLeQT0ER2/sBG
-         Sl76zSwT24vbi2BD4ZV0pfeX67VLenjrjIOhChLs1Ex6DtS4OCMN3wvHv3xGu4AMUkCy
-         7xmW3AKf7D0wBFAGx0v4JyIfPy4h5kAcex9BgXvQrFWIRQDfRFnwakgaOkFa9Z4taoSz
-         w5WLzev78lr0bAuE+M+6FAhVfve1CChm372HqyVS7EGNpmlX/AYQ8Uw/fds9clrA31dl
-         pASw==
+        id S1726617AbgHSUP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 16:15:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49338 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726435AbgHSUPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 16:15:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597868124;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6wZSRsOZbW0ppoxwbf389BsXiaVqGjFLolCHa9KVfRI=;
+        b=YXxWdcY4HFERidCUvivy2lAFiT9sXrCtM0CK/AmL6kUoEWhaG+fIW4x0YTqvfVAYBzQklc
+        I2Embfj6ifM2Q14ueEhocZGy3f4hZj2HwTUbfF5HcbhHUSrnAzFaKmBv7gLIYJkJg86X52
+        JzjR4gxWQOcdUSJasVNzKl9Tlo6g25I=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-340-BXEPkRQiNu-TeoYnFbjzCg-1; Wed, 19 Aug 2020 16:15:22 -0400
+X-MC-Unique: BXEPkRQiNu-TeoYnFbjzCg-1
+Received: by mail-pj1-f72.google.com with SMTP id mu14so2071773pjb.7
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 13:15:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qrQXRn5lOnY3rc4h/MhdAYwAb/oRdgRb50i+BRwPLlY=;
-        b=ilsOvetUXzN0HBSjhPqdXNv7btdKLVNLqaXqJvkTij7fwonOJSoc6uLF7QU2QY4kg7
-         8Pve0DbkoFbsxaqOq6l4nwvWqNvwAzB/J2UWaKyP4zTsc/1mYC7Nf431UVKJi9Ozrn4E
-         Ou2PROzgMr2qaGOdQJ2qZvE5AHE8vWw6SGBqT9Bg4ycq+3obuVB/jeU4C3PX88mjKHab
-         NmjIxTQTIALpxAcIUgarB0djjGjYsSg90gP0cIDnKDjBHreL6LjAit/EzLEnCqcNZn3Z
-         fM8GTiJB1uuDcXIBumUK0X5wysH+VOhny1vYMm1vfT9K/g1yWJLXHavSIbc0qSV/zxTj
-         i8vw==
-X-Gm-Message-State: AOAM530/+MBvsyJ0ZZAbkAVluZHls81o4ITQBuvtd9D3ZzspcPYbFz1B
-        U1/l6TW0eDlK5l4t6KI9c85bgQ==
-X-Google-Smtp-Source: ABdhPJyNi0NN5dFpKaUw7hhO1TpYlI3tXeEzIi4jz0mBwVmZTjywxAIjFA/OU39S54EtY5AY+Ed9ig==
-X-Received: by 2002:a1c:ddc3:: with SMTP id u186mr14573wmg.72.1597867935874;
-        Wed, 19 Aug 2020 13:12:15 -0700 (PDT)
-Received: from balsini.lon.corp.google.com ([2a00:79e0:d:210:7220:84ff:fe09:7d5c])
-        by smtp.gmail.com with ESMTPSA id t14sm40569209wrv.14.2020.08.19.13.12.15
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=6wZSRsOZbW0ppoxwbf389BsXiaVqGjFLolCHa9KVfRI=;
+        b=P2hxow14M/sD/IR/qpQRwUlmtI1Kzlg9YtyLPv26CG7dKD89VVczXxvpfwmaP3bn0m
+         LyF0fl5UDQJndYZ5v+pK8WtM0ciFN9LZM80Y/ov6Mp+bB5wtqJzM/iCfxmGnVLRzcMeq
+         8QvSqlIVfjGyeOJG9sYmINi69w4FN5jk2IceG+Vb2XVFoDpYX+19UOTKfLDR0c1r/FTi
+         xVs9Cy7EnPhBeQw6Yu6dqIyPnhdCa2pZWgoYDp2RvMJilYYOFQnRQqXUstWFVdCQ3Q6K
+         CzQNja4roO99fPHRnwyqjs7Ou98M7oOnPHGSwokg2yomzZUjV91KFNK3k+1B9jSUkrN5
+         k3ng==
+X-Gm-Message-State: AOAM530xAScIaiWNWVRC2uF8UCG07QQxhIji94nvhDxqoZ6/nqguChYL
+        fTvSp6JtNmbFPmW3iqDR6ghBsan0CSk/dAAAV9SNX37egKh8PaaEXihhQzHFPd4dJfrdoqezKfW
+        RsXvD5mok6pjRPxoK
+X-Received: by 2002:a17:90a:fa06:: with SMTP id cm6mr5515128pjb.129.1597868121452;
+        Wed, 19 Aug 2020 13:15:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxZ6K3xi/zuEXaLDp+AhVXh18fIyTkt9TT32R+RhUbJpOr/tX/cuBKSRunO6DGE9U7OgqK+kw==
+X-Received: by 2002:a17:90a:fa06:: with SMTP id cm6mr5515108pjb.129.1597868121185;
+        Wed, 19 Aug 2020 13:15:21 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id s125sm56651pfc.63.2020.08.19.13.15.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2020 13:12:15 -0700 (PDT)
-From:   Alessio Balsini <balsini@android.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     WANG Cong <xiyou.wangcong@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        syzbot+01400f5fc51cf4747bec@syzkaller.appspotmail.com,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Alessio Balsini <balsini@android.com>
-Subject: [PATCH 4.4] ipv6: check skb->protocol before lookup for nexthop
-Date:   Wed, 19 Aug 2020 21:11:17 +0100
-Message-Id: <20200819201117.1511154-1-balsini@android.com>
-X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
+        Wed, 19 Aug 2020 13:15:20 -0700 (PDT)
+Date:   Thu, 20 Aug 2020 04:15:09 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Rafael Aquini <aquini@redhat.com>,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm, THP, swap: fix allocating cluster for swapfile by
+ mistake
+Message-ID: <20200819201509.GA26216@xiangao.remote.csb>
+References: <20200819195613.24269-1-hsiangkao@redhat.com>
+ <20200819130506.eea076dd618644cd7ff875b6@linux-foundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200819130506.eea076dd618644cd7ff875b6@linux-foundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: WANG Cong <xiyou.wangcong@gmail.com>
+Hi Andrew,
 
-[ Upstream commit 199ab00f3cdb6f154ea93fa76fd80192861a821d ]
+On Wed, Aug 19, 2020 at 01:05:06PM -0700, Andrew Morton wrote:
+> On Thu, 20 Aug 2020 03:56:13 +0800 Gao Xiang <hsiangkao@redhat.com> wrote:
+> 
+> > SWP_FS doesn't mean the device is file-backed swap device,
+> > which just means each writeback request should go through fs
+> > by DIO. Or it'll just use extents added by .swap_activate(),
+> > but it also works as file-backed swap device.
+> 
+> This is very hard to understand :(
 
-Andrey reported a out-of-bound access in ip6_tnl_xmit(), this
-is because we use an ipv4 dst in ip6_tnl_xmit() and cast an IPv4
-neigh key as an IPv6 address:
+Thanks for your reply...
 
-        neigh = dst_neigh_lookup(skb_dst(skb),
-                                 &ipv6_hdr(skb)->daddr);
-        if (!neigh)
-                goto tx_err_link_failure;
+The related logic is in __swap_writepage() and setup_swap_extents(),
+and also see e.g generic_swapfile_activate() or iomap_swapfile_activate()...
 
-        addr6 = (struct in6_addr *)&neigh->primary_key; // <=== HERE
-        addr_type = ipv6_addr_type(addr6);
+I will also talk with "Huang, Ying" in person if no response here.
 
-        if (addr_type == IPV6_ADDR_ANY)
-                addr6 = &ipv6_hdr(skb)->daddr;
+> 
+> > So in order to achieve the goal of the original patch,
+> > SWP_BLKDEV should be used instead.
+> > 
+> > FS corruption can be observed with SSD device + XFS +
+> > fragmented swapfile due to CONFIG_THP_SWAP=y.
+> > 
+> > Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+> > Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
+> 
+> Why do you think it has taken three years to discover this?
 
-        memcpy(&fl6->daddr, addr6, sizeof(fl6->daddr));
+I'm not sure if the Redhat BZ is available for public, it can be reproduced
+since rhel 8
+https://bugzilla.redhat.com/show_bug.cgi?id=1855474
 
-Also the network header of the skb at this point should be still IPv4
-for 4in6 tunnels, we shold not just use it as IPv6 header.
+It seems hard to believe, but I think just because rare user uses the SSD device +
+THP + file-backed swap device combination... maybe I'm wrong here, but my test
+shows as it is.
 
-This patch fixes it by checking if skb->protocol is ETH_P_IPV6: if it
-is, we are safe to do the nexthop lookup using skb_dst() and
-ipv6_hdr(skb)->daddr; if not (aka IPv4), we have no clue about which
-dest address we can pick here, we have to rely on callers to fill it
-from tunnel config, so just fall to ip6_route_output() to make the
-decision.
+Thanks,
+Gao Xiang
 
-Fixes: ea3dc9601bda ("ip6_tunnel: Add support for wildcard tunnel endpoints.")
-Reported-by: Andrey Konovalov <andreyknvl@google.com>
-Reported-by: syzbot+01400f5fc51cf4747bec@syzkaller.appspotmail.com
-Tested-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Alessio Balsini <balsini@android.com>
----
- net/ipv6/ip6_tunnel.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
-
-diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-index f072a4c4575c..96563990d654 100644
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -972,26 +972,28 @@ static int ip6_tnl_xmit2(struct sk_buff *skb,
- 
- 	/* NBMA tunnel */
- 	if (ipv6_addr_any(&t->parms.raddr)) {
--		struct in6_addr *addr6;
--		struct neighbour *neigh;
--		int addr_type;
-+		if (skb->protocol == htons(ETH_P_IPV6)) {
-+			struct in6_addr *addr6;
-+			struct neighbour *neigh;
-+			int addr_type;
- 
--		if (!skb_dst(skb))
--			goto tx_err_link_failure;
-+			if (!skb_dst(skb))
-+				goto tx_err_link_failure;
- 
--		neigh = dst_neigh_lookup(skb_dst(skb),
--					 &ipv6_hdr(skb)->daddr);
--		if (!neigh)
--			goto tx_err_link_failure;
-+			neigh = dst_neigh_lookup(skb_dst(skb),
-+						 &ipv6_hdr(skb)->daddr);
-+			if (!neigh)
-+				goto tx_err_link_failure;
- 
--		addr6 = (struct in6_addr *)&neigh->primary_key;
--		addr_type = ipv6_addr_type(addr6);
-+			addr6 = (struct in6_addr *)&neigh->primary_key;
-+			addr_type = ipv6_addr_type(addr6);
- 
--		if (addr_type == IPV6_ADDR_ANY)
--			addr6 = &ipv6_hdr(skb)->daddr;
-+			if (addr_type == IPV6_ADDR_ANY)
-+				addr6 = &ipv6_hdr(skb)->daddr;
- 
--		memcpy(&fl6->daddr, addr6, sizeof(fl6->daddr));
--		neigh_release(neigh);
-+			memcpy(&fl6->daddr, addr6, sizeof(fl6->daddr));
-+			neigh_release(neigh);
-+		}
- 	} else if (!fl6->flowi6_mark)
- 		dst = dst_cache_get(&t->dst_cache);
- 
--- 
-2.28.0.297.g1956fa8f8d-goog
+> 
+> 
+> 
 
