@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 346EE249F82
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:22:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6CA249F7F
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 15:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728292AbgHSNVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 09:21:53 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:40031 "EHLO
+        id S1728450AbgHSNWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 09:22:19 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42435 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728548AbgHSNVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:21:42 -0400
+        by vger.kernel.org with ESMTP id S1728477AbgHSNWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 09:22:16 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8DDCEC2B;
-        Wed, 19 Aug 2020 09:21:31 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 458A2309;
+        Wed, 19 Aug 2020 09:22:14 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:21:31 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 09:22:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+OpZLh
-        GmIlBLYfY7mgSd0d+YkB5oSJD5ud7d9RYUryU=; b=qTJCRdXoItbc9fu/vTyIzn
-        OQa/uOlCEnOVIqN5x13VuO7lO4CUyb1UIcDyQzhvH4k4aONzEObYihthRPy7Ps10
-        vUavbfY4XmvoElpC3EiCy6rlFxJKOIk/a1LkR3dMdBrNOWJNbLIe7tj2p+izu3uJ
-        cqjY7RhxzE0SNotxzWhAyHJuEWp3DqoYuvloiNCacX18AHTXglCzZOWI3qOpegit
-        vthPKewV2CgN0c4KDFfl2G1cqyQiD/BU/0iCPpQ/5K/oPtcOJ6cFqbNX5O//zpOP
-        rkUzO82nXu7XtHER8CUnPylVdwEhdT1lcL24f4beTcLTHV3mdLWTtgJcC7ObKCbg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=oNNjL7
+        I9zo6kWhalK7C98i4IWaikwNaTVG1CpD8eqzk=; b=kGrWSNPbo2YjYTn4go6qA2
+        jhkSpqt7jFu1tcAgvEu4JGEPU8J8CtDaAaEBhMFQ2oHEOlFN3ktIFFSxSUvi6BjY
+        HDoZG9rC+7bkVxhQl36EfGwRKLLriTPW36g1mAiiOjEqQYnKk+n4oPM40gToWtyn
+        ko/xTnkbx8TG0Yi5Z+MiguhYsC1tCRVzX21zEI3bqgz+Mwll+uEGS4R3DW7rKRxH
+        q4gjXQ3BNLenjs6Pdn1p8fBKxf/dqibXmyu3BgJtEN5s5qSHwMdZiJE6OPzQal23
+        qwDnmHqaBRaqhArIQzc5UwGQKE72+j6rq+piZ4UKd5jpYE3ev/JthCTCl1o1AyWA
         ==
-X-ME-Sender: <xms:Wic9X5MRwDQa-YGiw75zD3P7PXIYlIdP5WG_oUwBMiFI9d6td5GBNw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedggeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:hSc9Xx_YFX-rVo4HTK2KMb5cHh8nDR_SnLmmBOz9C5qS7HSphcZwog>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:Wic9X7-pC_tLGVthJff7Q_Ik_RXUfBBbJuiveyj1L6SebODau8DEew>
-    <xmx:Wic9X4Q47XP_jhFV5NrPlMRzBoDDRZLUT7hiAFNi4Lhmf-tsV0YDTw>
-    <xmx:Wic9X1sUW1N94st5fIIgY_uUvVAi4NxqZTVbVwWLvrH5r-uQCKUKMA>
-    <xmx:Wyc9X3q1TTR0mGOy2-up56jJlU7AFgYlwM0s8p566J-gnkiawr62CXfJGoM>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:hSc9X1v7AiNedqbqL0BxF8FsA8-i8uzpjar_vYFvl8VC2u-Cy5PhAA>
+    <xmx:hSc9X_AfXS_-6SYpdEuNKrpT4YI03a6BI9opeW5JAc8J8Lv5u1QY3A>
+    <xmx:hSc9X1ele6twHDXmYmtHTfSb0dDHBKhOvj6JlqUjjt57PPldJRVcvA>
+    <xmx:hSc9X5Yea6ZbsSuoI4kKkwUJqxLFI5lBVL8HW_SbljkfoU0c-RlNoaZg1_A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8F8A330600A9;
-        Wed, 19 Aug 2020 09:21:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] gfs2: Never call gfs2_block_zero_range with an open" failed to apply to 5.4-stable tree
-To:     rpeterso@redhat.com, agruenba@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5E9ED306005F;
+        Wed, 19 Aug 2020 09:22:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] remoteproc: qcom_q6v5_mss: Validate MBA firmware size before" failed to apply to 4.19-stable tree
+To:     sibis@codeaurora.org, bjorn.andersson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 15:21:52 +0200
-Message-ID: <1597843312243105@kroah.com>
+Date:   Wed, 19 Aug 2020 15:22:36 +0200
+Message-ID: <1597843356243112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,152 +69,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 70499cdfeb3625c87eebe4f7a7ea06fa7447e5df Mon Sep 17 00:00:00 2001
-From: Bob Peterson <rpeterso@redhat.com>
-Date: Fri, 24 Jul 2020 12:06:31 -0500
-Subject: [PATCH] gfs2: Never call gfs2_block_zero_range with an open
- transaction
+From e013f455d95add874f310dc47c608e8c70692ae5 Mon Sep 17 00:00:00 2001
+From: Sibi Sankar <sibis@codeaurora.org>
+Date: Thu, 23 Jul 2020 01:40:45 +0530
+Subject: [PATCH] remoteproc: qcom_q6v5_mss: Validate MBA firmware size before
+ load
 
-Before this patch, some functions started transactions then they called
-gfs2_block_zero_range. However, gfs2_block_zero_range, like writes, can
-start transactions, which results in a recursive transaction error.
-For example:
+The following mem abort is observed when the mba firmware size exceeds
+the allocated mba region. MBA firmware size is restricted to a maximum
+size of 1M and remaining memory region is used by modem debug policy
+firmware when available. Hence verify whether the MBA firmware size lies
+within the allocated memory region and is not greater than 1M before
+loading.
 
-do_shrink
-   trunc_start
-      gfs2_trans_begin <------------------------------------------------
-         gfs2_block_zero_range
-            iomap_zero_range(inode, from, length, NULL, &gfs2_iomap_ops);
-               iomap_apply ... iomap_zero_range_actor
-                  iomap_begin
-                     gfs2_iomap_begin
-                        gfs2_iomap_begin_write
-                  actor (iomap_zero_range_actor)
-		     iomap_zero
-			iomap_write_begin
-			   gfs2_iomap_page_prepare
-			      gfs2_trans_begin <------------------------
+Err Logs:
+Unable to handle kernel paging request at virtual address
+Mem abort info:
+...
+Call trace:
+  __memcpy+0x110/0x180
+  rproc_start+0x40/0x218
+  rproc_boot+0x5b4/0x608
+  state_store+0x54/0xf8
+  dev_attr_store+0x44/0x60
+  sysfs_kf_write+0x58/0x80
+  kernfs_fop_write+0x140/0x230
+  vfs_write+0xc4/0x208
+  ksys_write+0x74/0xf8
+  __arm64_sys_write+0x24/0x30
+...
 
-This patch reorders the callers of gfs2_block_zero_range so that they
-only start their transactions after the call. It also adds a BUG_ON to
-ensure this doesn't happen again.
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 051fb70fd4ea4 ("remoteproc: qcom: Driver for the self-authenticating Hexagon v5")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200722201047.12975-2-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-Fixes: 2257e468a63b ("gfs2: implement gfs2_block_zero_range using iomap_zero_range")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index 6306eaae378b..6d2ea788d0a1 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -1351,9 +1351,15 @@ int gfs2_extent_map(struct inode *inode, u64 lblock, int *new, u64 *dblock, unsi
- 	return ret;
- }
- 
-+/*
-+ * NOTE: Never call gfs2_block_zero_range with an open transaction because it
-+ * uses iomap write to perform its actions, which begin their own transactions
-+ * (iomap_begin, page_prepare, etc.)
-+ */
- static int gfs2_block_zero_range(struct inode *inode, loff_t from,
- 				 unsigned int length)
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index 03d7f3d702b3..7826f229957d 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -411,6 +411,12 @@ static int q6v5_load(struct rproc *rproc, const struct firmware *fw)
  {
-+	BUG_ON(current->journal_info);
- 	return iomap_zero_range(inode, from, length, NULL, &gfs2_iomap_ops);
- }
+ 	struct q6v5 *qproc = rproc->priv;
  
-@@ -1414,6 +1420,16 @@ static int trunc_start(struct inode *inode, u64 newsize)
- 	u64 oldsize = inode->i_size;
- 	int error;
- 
-+	if (!gfs2_is_stuffed(ip)) {
-+		unsigned int blocksize = i_blocksize(inode);
-+		unsigned int offs = newsize & (blocksize - 1);
-+		if (offs) {
-+			error = gfs2_block_zero_range(inode, newsize,
-+						      blocksize - offs);
-+			if (error)
-+				return error;
-+		}
-+	}
- 	if (journaled)
- 		error = gfs2_trans_begin(sdp, RES_DINODE + RES_JDATA, GFS2_JTRUNC_REVOKES);
- 	else
-@@ -1427,19 +1443,10 @@ static int trunc_start(struct inode *inode, u64 newsize)
- 
- 	gfs2_trans_add_meta(ip->i_gl, dibh);
- 
--	if (gfs2_is_stuffed(ip)) {
-+	if (gfs2_is_stuffed(ip))
- 		gfs2_buffer_clear_tail(dibh, sizeof(struct gfs2_dinode) + newsize);
--	} else {
--		unsigned int blocksize = i_blocksize(inode);
--		unsigned int offs = newsize & (blocksize - 1);
--		if (offs) {
--			error = gfs2_block_zero_range(inode, newsize,
--						      blocksize - offs);
--			if (error)
--				goto out;
--		}
-+	else
- 		ip->i_diskflags |= GFS2_DIF_TRUNC_IN_PROG;
--	}
- 
- 	i_size_write(inode, newsize);
- 	ip->i_inode.i_mtime = ip->i_inode.i_ctime = current_time(&ip->i_inode);
-@@ -2448,25 +2455,7 @@ int __gfs2_punch_hole(struct file *file, loff_t offset, loff_t length)
- 	loff_t start, end;
- 	int error;
- 
--	start = round_down(offset, blocksize);
--	end = round_up(offset + length, blocksize) - 1;
--	error = filemap_write_and_wait_range(inode->i_mapping, start, end);
--	if (error)
--		return error;
--
--	if (gfs2_is_jdata(ip))
--		error = gfs2_trans_begin(sdp, RES_DINODE + 2 * RES_JDATA,
--					 GFS2_JTRUNC_REVOKES);
--	else
--		error = gfs2_trans_begin(sdp, RES_DINODE, 0);
--	if (error)
--		return error;
--
--	if (gfs2_is_stuffed(ip)) {
--		error = stuffed_zero_range(inode, offset, length);
--		if (error)
--			goto out;
--	} else {
-+	if (!gfs2_is_stuffed(ip)) {
- 		unsigned int start_off, end_len;
- 
- 		start_off = offset & (blocksize - 1);
-@@ -2489,6 +2478,26 @@ int __gfs2_punch_hole(struct file *file, loff_t offset, loff_t length)
- 		}
- 	}
- 
-+	start = round_down(offset, blocksize);
-+	end = round_up(offset + length, blocksize) - 1;
-+	error = filemap_write_and_wait_range(inode->i_mapping, start, end);
-+	if (error)
-+		return error;
-+
-+	if (gfs2_is_jdata(ip))
-+		error = gfs2_trans_begin(sdp, RES_DINODE + 2 * RES_JDATA,
-+					 GFS2_JTRUNC_REVOKES);
-+	else
-+		error = gfs2_trans_begin(sdp, RES_DINODE, 0);
-+	if (error)
-+		return error;
-+
-+	if (gfs2_is_stuffed(ip)) {
-+		error = stuffed_zero_range(inode, offset, length);
-+		if (error)
-+			goto out;
++	/* MBA is restricted to a maximum size of 1M */
++	if (fw->size > qproc->mba_size || fw->size > SZ_1M) {
++		dev_err(qproc->dev, "MBA firmware load failed\n");
++		return -EINVAL;
 +	}
 +
- 	if (gfs2_is_jdata(ip)) {
- 		BUG_ON(!current->journal_info);
- 		gfs2_journaled_truncate_range(inode, offset, length);
+ 	memcpy(qproc->mba_region, fw->data, fw->size);
+ 
+ 	return 0;
 
