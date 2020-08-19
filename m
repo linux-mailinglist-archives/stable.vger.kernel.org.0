@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C71BA249B9A
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BCD9249B9B
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 13:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726987AbgHSLUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 07:20:36 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:33209 "EHLO
+        id S1726746AbgHSLU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 07:20:59 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:46399 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726746AbgHSLUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:20:34 -0400
+        by vger.kernel.org with ESMTP id S1726752AbgHSLU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 07:20:58 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 402DE1942781;
-        Wed, 19 Aug 2020 07:20:33 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 619D31942792;
+        Wed, 19 Aug 2020 07:20:56 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:20:33 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 07:20:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rko6XK
-        2ZIz7E/DG+tWgpTx4FkNjK5/4Q+rh3xOYTbPA=; b=rPqEdP+ljMjiZEOLhSedaV
-        Bxxt2PgLdtWa2SO1b3L5oxm67oiY7Por7UdhgQVRA4V1mWSBgX18slz5ywd9X/aH
-        IH4jfVPtpOIBaFkReUp9u95k+9IAVhhYTTKyB9dz43qFIEtA5QszOrfcI/JsNY/j
-        8ZFQPJZFv+XYOwzHQ54Sh03Yw/VvYo19va64EpAuZUWStZhQ4SyZabwtGoNENJIg
-        2egAELtw092H7Jkb6jPXM0tfQVAN4c/x6V19Jy8PSBoLvoYy/XllqDVTa5fYWK2T
-        UF0LrTnbNozeEyhQ/+6nTR7xUp4Aq7Ky6NlDKQOPthnTrV7Kp+9PneGYmb8gGDCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pT/ZRn
+        cD269hTjxCmUxbI9rWb7BWy3Glj5Ffww0BSNM=; b=gavdVpASYyiAvS4S1PYjag
+        Zei4/C2jDNaLVq5y8IBnRFLoTmzw20cItyZ2NaIb/NOjOX2WpCKc1kO5Nn7HDaiT
+        OSiQekG/sCgqgLC9j8XXEbpNRWZDWlIP8CFvTgVcTN+e2JbcGs11ZIzWHe9lm/QR
+        xpg2vT2f+XS2GOo6P+imGLEeFYhS32wqJ2v+kfGldFBqrH7g7qIU8vNl+yUvSZmC
+        wWUBYSN1X84gAu6PGexTiLJ73IFnVjw1Qwoq0oYBUGkXHZ4y5Vhl1EY0tfhoYLVm
+        DZoykZEBBAvOWiff/YN3/rQc/mDXrGjw7AlAMiVU2FeijJLds6Dgf2UI1GcPhdTw
         ==
-X-ME-Sender: <xms:AAs9X939xtmhIChFma5PZG_QJCqc2PIFF-oi7_u57EtN_PGyAbCZMA>
+X-ME-Sender: <xms:GAs9X1zyVNQ9R0mSANRHlA0D0f8ChoWns56SGjFdaEwYzpm1xdbRow>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:AAs9X0HBgHfJYzspdy9Hz3U0uNFNnXt8mOlTIVvGcOiUHzVaM_solg>
-    <xmx:AAs9X94Gvww0iBo947qfqdo2iEX-I88yzk2HNt9X9Mlz8cYzmLNOpQ>
-    <xmx:AAs9X63MDCsq8oAnxmEvemtEujudTxoVBs3OnRlPdEEMCRE-JuTNdg>
-    <xmx:AQs9Xzx7yRzA39VBHHX7-LThFaK0kRhyTyzkil82uC47bglTcjhtpw>
+X-ME-Proxy: <xmx:GAs9X1T1rzav6aRkvu7FRU-j75rbtB7rDalwFDq_8or4vosxUXKP3g>
+    <xmx:GAs9X_VEJVgJ4ZIBPiTieR9krW1A5aGW9VJoDuLWiaQUDckXTGmIVQ>
+    <xmx:GAs9X3jmkVB13MfG-s8Z6Id5Q7c1BA9Y6WnTQwG-rTlvHVGp-npTVQ>
+    <xmx:GAs9X6_-9WYuBS7TsJYcAKv6BPI3kj5fGlqxWB-Xkrq_RrERiDF5Yw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 882C33280059;
-        Wed, 19 Aug 2020 07:20:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: allow use of global block reserve for balance item" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 032373280059;
+        Wed, 19 Aug 2020 07:20:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: allow use of global block reserve for balance item" failed to apply to 4.9-stable tree
 To:     dsterba@suse.com, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 13:20:55 +0200
-Message-ID: <1597836055184180@kroah.com>
+Date:   Wed, 19 Aug 2020 13:21:19 +0200
+Message-ID: <15978360791838@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
