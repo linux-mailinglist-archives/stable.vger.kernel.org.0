@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C8E249DB2
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C78C249DBA
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 14:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727869AbgHSMVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 08:21:11 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:33233 "EHLO
+        id S1727046AbgHSMYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 08:24:05 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42715 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727046AbgHSMVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:21:09 -0400
+        by vger.kernel.org with ESMTP id S1726710AbgHSMYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 08:24:04 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id DEADCA8B;
-        Wed, 19 Aug 2020 08:21:07 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 2F983896;
+        Wed, 19 Aug 2020 08:24:03 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:21:08 -0400
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 08:24:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=D3RTxT
-        FeAimecwmMZSmPdgoF2IHDM/7NIbj3MVMwkMk=; b=s7TSd5nHS3SExdPAlFivtA
-        548LdL8mSulXhWhT4XeQkrZf4kNcaaZfQgnD0dLRt73NAgI1Caq5oJrPa5oIzXdI
-        CBjVntA38Hzny7gkmKVEqdtnBzgNymX0JNbrZuAebcIY/Mghq/VwVXWjS+kAV2m+
-        yvY1b2aNsi/sXVviq8cHdV5xKOFxvhO5OvaMe6D7SyqkEfH37fzADV6N3X79nelM
-        NPVSrKwR17HAqZv2bQ4iQu4vpg1D60mOawNCb3nRRPTfXK+t72esghsyUvHa12aj
-        Lc2cYGSsXrlxr1M3uTsefBvzc4xv5f5fcfpL5vZtMylY3WnbaiDofz26zw9uuYpQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5z/Q34
+        7Smu9El2blQdYK+EDLFeLR2hR5W9YoPvOg0SQ=; b=Svti6L4fX1TCWGK+/AVNdy
+        6AhD9tzQZ46vBSWXVxjtZ4FLcNm7DFCXD1CBGlg/RBp7D+vryDc4OMbLKA95EjxU
+        9rZLIsDwYORI893rslxC+hu15IiX3Cm6UXIlPHks37p5iCstFfH7nVTSK880rELW
+        dFOvfh7mL0WhvABCoKsr7YBZ1SwcMuiC+DEvsp/goedUVFVkSizpTQcgjTew3J+y
+        NaJdEDoWsjBudGFx7Y1op3D5DHA9XSrYFTDg30077AVrN8Jc6pySH/NU9KDzsu8o
+        CNDeJT6LaYibY40aDoe19Rt20D3oC7vpGZHbJo3lGgoGOwDU/YFPve1icg1Kr84A
         ==
-X-ME-Sender: <xms:Mxk9X_4QZjEpanivIERuuR2UPRtS8JML66bCCwh3729QSKNdErPuuA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:4hk9X2AYmpYLIxEBVd979CseXUkfwLOI_tXzdpJRBxujdrx3-Rja_g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Mxk9X06M1_EcnbrabXkj7abCGFmaG2mh_Lxd3R8YVHWfynLfhFxdhA>
-    <xmx:Mxk9X2cpHZSJmzzRR1eQHcj73L8wyjC0fHaThaOOEkAYDW_yg6nmmQ>
-    <xmx:Mxk9XwKXdAUm5lDS3ds3l-uEqYrGtMc6B2jFyp5wZx4Y2DR94tp2rQ>
-    <xmx:Mxk9X73GtSPlcSQfTHB3_7Y2WJ3zuex8714cXqjYZZmdDlkoD33oHb1Br8A>
+X-ME-Proxy: <xmx:4hk9Xwi9-JFANjQ36dHGURLN4UmQ56s0KxISOFBjLUhum5-WDFXYLg>
+    <xmx:4hk9X5kEfsvx6fv4AcX6xUvjztGBsRidacRHNiP0ot2YsUbZbXow8g>
+    <xmx:4hk9X0zXuAz9dmxTCM0bi7XelDb3S8LQYfZkfsreid9IbrXHJzVnEw>
+    <xmx:4hk9X5OgVaiOiN-fg2fxz3e_xTkMo_HM4yjref58iKp-vjjngLMnPoUauMs>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0D9073280060;
-        Wed, 19 Aug 2020 08:21:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/hugetlb: fix calculation of" failed to apply to 4.4-stable tree
-To:     peterx@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
-        mike.kravetz@oracle.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, willy@infradead.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id CEF743280059;
+        Wed, 19 Aug 2020 08:24:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] khugepaged: retract_page_tables() remember to test exit" failed to apply to 5.7-stable tree
+To:     hughd@google.com, aarcange@redhat.com, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
+        songliubraving@fb.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 14:21:25 +0200
-Message-ID: <1597839685158224@kroah.com>
+Date:   Wed, 19 Aug 2020 14:24:24 +0200
+Message-ID: <1597839864213170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,89 +72,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 75802ca66354a39ab8e35822747cd08b3384a99a Mon Sep 17 00:00:00 2001
-From: Peter Xu <peterx@redhat.com>
-Date: Thu, 6 Aug 2020 23:26:11 -0700
-Subject: [PATCH] mm/hugetlb: fix calculation of
- adjust_range_if_pmd_sharing_possible
+From 18e77600f7a1ed69f8ce46c9e11cad0985712dfa Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 6 Aug 2020 23:26:22 -0700
+Subject: [PATCH] khugepaged: retract_page_tables() remember to test exit
 
-This is found by code observation only.
+Only once have I seen this scenario (and forgot even to notice what forced
+the eventual crash): a sequence of "BUG: Bad page map" alerts from
+vm_normal_page(), from zap_pte_range() servicing exit_mmap();
+pmd:00000000, pte values corresponding to data in physical page 0.
 
-Firstly, the worst case scenario should assume the whole range was covered
-by pmd sharing.  The old algorithm might not work as expected for ranges
-like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
-expected range should be (0, 2g).
+The pte mappings being zapped in this case were supposed to be from a huge
+page of ext4 text (but could as well have been shmem): my belief is that
+it was racing with collapse_file()'s retract_page_tables(), found *pmd
+pointing to a page table, locked it, but *pmd had become 0 by the time
+start_pte was decided.
 
-Since at it, remove the loop since it should not be required.  With that,
-the new code should be faster too when the invalidating range is huge.
+In most cases, that possibility is excluded by holding mmap lock; but
+exit_mmap() proceeds without mmap lock.  Most of what's run by khugepaged
+checks khugepaged_test_exit() after acquiring mmap lock:
+khugepaged_collapse_pte_mapped_thps() and hugepage_vma_revalidate() do so,
+for example.  But retract_page_tables() did not: fix that.
 
-Mike said:
+The fix is for retract_page_tables() to check khugepaged_test_exit(),
+after acquiring mmap lock, before doing anything to the page table.
+Getting the mmap lock serializes with __mmput(), which briefly takes and
+drops it in __khugepaged_exit(); then the khugepaged_test_exit() check on
+mm_users makes sure we don't touch the page table once exit_mmap() might
+reach it, since exit_mmap() will be proceeding without mmap lock, not
+expecting anyone to be racing with it.
 
-: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
-: adjust to (0, 1g+2m) which is incorrect.
-:
-: We should cc stable.  The original reason for adjusting the range was to
-: prevent data corruption (getting wrong page).  Since the range is not
-: always adjusted correctly, the potential for corruption still exists.
-:
-: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
-: is only gong to be called in two cases:
-:
-: 1) for a single page
-: 2) for range == entire vma
-:
-: In those cases, the current code should produce the correct results.
-:
-: To be safe, let's just cc stable.
-
-Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
+Signed-off-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021215400.27773@eggly.anvils
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 27556d4d49fe..e52c878940bb 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5314,25 +5314,21 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index a9aca9b71d6f..ac04b332a373 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1532,6 +1532,7 @@ static int khugepaged_collapse_pte_mapped_thps(struct mm_slot *mm_slot)
+ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
  {
--	unsigned long check_addr;
-+	unsigned long a_start, a_end;
+ 	struct vm_area_struct *vma;
++	struct mm_struct *mm;
+ 	unsigned long addr;
+ 	pmd_t *pmd, _pmd;
  
- 	if (!(vma->vm_flags & VM_MAYSHARE))
- 		return;
- 
--	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
--		unsigned long a_start = check_addr & PUD_MASK;
--		unsigned long a_end = a_start + PUD_SIZE;
-+	/* Extend the range to be PUD aligned for a worst case scenario */
-+	a_start = ALIGN_DOWN(*start, PUD_SIZE);
-+	a_end = ALIGN(*end, PUD_SIZE);
- 
--		/*
--		 * If sharing is possible, adjust start/end if necessary.
--		 */
--		if (range_in_vma(vma, a_start, a_end)) {
--			if (a_start < *start)
--				*start = a_start;
--			if (a_end > *end)
--				*end = a_end;
--		}
--	}
-+	/*
-+	 * Intersect the range with the vma range, since pmd sharing won't be
-+	 * across vma after all
-+	 */
-+	*start = max(vma->vm_start, a_start);
-+	*end = min(vma->vm_end, a_end);
- }
- 
- /*
+@@ -1560,7 +1561,8 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 			continue;
+ 		if (vma->vm_end < addr + HPAGE_PMD_SIZE)
+ 			continue;
+-		pmd = mm_find_pmd(vma->vm_mm, addr);
++		mm = vma->vm_mm;
++		pmd = mm_find_pmd(mm, addr);
+ 		if (!pmd)
+ 			continue;
+ 		/*
+@@ -1570,17 +1572,19 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		 * mmap_lock while holding page lock. Fault path does it in
+ 		 * reverse order. Trylock is a way to avoid deadlock.
+ 		 */
+-		if (mmap_write_trylock(vma->vm_mm)) {
+-			spinlock_t *ptl = pmd_lock(vma->vm_mm, pmd);
+-			/* assume page table is clear */
+-			_pmd = pmdp_collapse_flush(vma, addr, pmd);
+-			spin_unlock(ptl);
+-			mmap_write_unlock(vma->vm_mm);
+-			mm_dec_nr_ptes(vma->vm_mm);
+-			pte_free(vma->vm_mm, pmd_pgtable(_pmd));
++		if (mmap_write_trylock(mm)) {
++			if (!khugepaged_test_exit(mm)) {
++				spinlock_t *ptl = pmd_lock(mm, pmd);
++				/* assume page table is clear */
++				_pmd = pmdp_collapse_flush(vma, addr, pmd);
++				spin_unlock(ptl);
++				mm_dec_nr_ptes(mm);
++				pte_free(mm, pmd_pgtable(_pmd));
++			}
++			mmap_write_unlock(mm);
+ 		} else {
+ 			/* Try again later */
+-			khugepaged_add_pte_mapped_thp(vma->vm_mm, addr);
++			khugepaged_add_pte_mapped_thp(mm, addr);
+ 		}
+ 	}
+ 	i_mmap_unlock_write(mapping);
 
