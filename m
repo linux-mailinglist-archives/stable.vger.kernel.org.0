@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9073124AA29
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF0524AA49
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgHSX44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 19:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53128 "EHLO mail.kernel.org"
+        id S1726952AbgHSX5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 19:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726806AbgHSX4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 19:56:49 -0400
+        id S1726925AbgHSX4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 19:56:50 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67A9A208DB;
-        Wed, 19 Aug 2020 23:56:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5009320FC3;
+        Wed, 19 Aug 2020 23:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881408;
-        bh=KlYzMXj0bC+UeKyUzGXC1M1RugoEVvDouVKT0aOYNJY=;
-        h=Date:From:To:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=DuPxbe5Gr6CV5O1J+hqrAPvgFWy1qoCpY9SBOfaT3gZZlbddJvhDlsVVGO+AljYCI
-         Anqr963dBU3FbAVXx8G4G9d75OtPZrsE+PpEal/stv1Az3IuuV0oGoo/efHDScwkOi
-         J4IZKeE84NYfd9DDliQyGIpaZA/xXQRSAOr0QVyU=
-Date:   Wed, 19 Aug 2020 23:56:47 +0000
+        s=default; t=1597881409;
+        bh=5WEvpbNUegRa3M08IE92CZsJKXR0z7FkPwFG1repnIk=;
+        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=EvckwcYN1ee/8rcSHlzccNLjc8rXU6B9Y49cH3yziGhL85oZiXjxsoY+oh/L1NjN8
+         NhRnvG/p/u6JkPppn21VtuFd7mmo/5i7poe1JUi9PHc00TwiGB+djDcXCOEg8rA3oK
+         cHFdFabi/aQS0JdwVvCnZc71G5yQhAKXvO+u+HkE=
+Date:   Wed, 19 Aug 2020 23:56:48 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Andrei Botila <andrei.botila@oss.nxp.com>
-To:     Andrei Botila <andrei.botila@nxp.com>
-To:     Horia Geanta <horia.geanta@nxp.com>
-Cc:     linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+To:     Kees Cook <keescook@chromium.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+To:     Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5/9] crypto: caam/qi - add support for more XTS key lengths
-In-Reply-To: <20200806114127.8650-6-andrei.botila@oss.nxp.com>
-References: <20200806114127.8650-6-andrei.botila@oss.nxp.com>
-Message-Id: <20200819235648.67A9A208DB@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5 13/36] vmlinux.lds.h: add PGO and AutoFDO input sections
+In-Reply-To: <20200731230820.1742553-14-keescook@chromium.org>
+References: <20200731230820.1742553-14-keescook@chromium.org>
+Message-Id: <20200819235649.5009320FC3@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,68 +46,85 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: b189817cf789 ("crypto: caam/qi - add ablkcipher and authenc algorithms").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193.
+The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58, v4.19.139, v4.14.193, v4.9.232, v4.4.232.
 
-v5.8.1: Failed to apply! Possible dependencies:
-    528f776df67c ("crypto: qat - allow xts requests not multiple of block")
-    6359e4e1bca8 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    a85211f36f3d ("crypto: qat - fallback for xts with 192 bit keys")
-    b185a68710e0 ("crypto: qat - validate xts key")
-    b8aa7dc5c753 ("crypto: drivers - set the flag CRYPTO_ALG_ALLOCATES_MEMORY")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-
+v5.8.1: Build OK!
 v5.7.15: Failed to apply! Possible dependencies:
-    528f776df67c ("crypto: qat - allow xts requests not multiple of block")
-    6359e4e1bca8 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    a85211f36f3d ("crypto: qat - fallback for xts with 192 bit keys")
-    b185a68710e0 ("crypto: qat - validate xts key")
-    b8aa7dc5c753 ("crypto: drivers - set the flag CRYPTO_ALG_ALLOCATES_MEMORY")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
 
 v5.4.58: Failed to apply! Possible dependencies:
-    6359e4e1bca8 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    64db5e7439fb ("crypto: sparc/aes - convert to skcipher API")
-    66d7fb94e4ff ("crypto: blake2s - generic C library implementation and selftest")
-    674f368a952c ("crypto: remove CRYPTO_TFM_RES_BAD_KEY_LEN")
-    746b2e024c67 ("crypto: lib - tidy up lib/crypto Kconfig and Makefile")
-    7988fb2c03c8 ("crypto: s390/aes - convert to skcipher API")
-    7f725f41f627 ("crypto: powerpc - convert SPE AES algorithms to skcipher API")
-    7f9b0880925f ("crypto: blake2s - implement generic shash driver")
-    91d689337fe8 ("crypto: blake2b - add blake2b generic implementation")
-    b4d0c0aad57a ("crypto: arm - use Kconfig based compiler checks for crypto opcodes")
-    b95bba5d0114 ("crypto: skcipher - rename the crypto_blkcipher module and kconfig option")
-    d00c06398154 ("crypto: s390/paes - convert to skcipher API")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-    ed0356eda153 ("crypto: blake2s - x86_64 SIMD implementation")
+    441110a547f8 ("vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes")
+    6434efbd9aef ("s390: Move RO_DATA into "text" PT_LOAD Program Header")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    6fc4000656a1 ("powerpc: Remove PT_NOTE workaround")
+    7a42d41d9dc2 ("x86/vmlinux: Restore "text" Program Header with dummy section")
+    eaf937075c9a ("vmlinux.lds.h: Move NOTES into RO_DATA")
+    fbe6a8e618a2 ("vmlinux.lds.h: Move Program Header restoration into NOTES macro")
 
 v4.19.139: Failed to apply! Possible dependencies:
-    0a5dff9882e5 ("crypto: arm/ghash - provide a synchronous version")
-    1ca1b917940c ("crypto: chacha20-generic - refactor to allow varying number of rounds")
-    5ca7badb1f62 ("crypto: caam/jr - ablkcipher -> skcipher conversion")
-    6359e4e1bca8 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    674f368a952c ("crypto: remove CRYPTO_TFM_RES_BAD_KEY_LEN")
-    8a5a79d5556b ("crypto: x86/chacha20 - Add a 4-block AVX2 variant")
-    99680c5e9182 ("crypto: arm - convert to use crypto_simd_usable()")
-    9b17608f15b9 ("crypto: x86/chacha20 - Use larger block functions more aggressively")
-    9dbe3072c6b1 ("crypto: caam/qi - ablkcipher -> skcipher conversion")
-    a5dd97f86211 ("crypto: x86/chacha20 - Add a 2-block AVX2 variant")
-    aec48adce85d ("crypto: caam/qi - remove ablkcipher IV generation")
-    c3b734dd325d ("crypto: x86/chacha20 - Support partial lengths in 8-block AVX2 variant")
-    cf5448b5c3d8 ("crypto: caam/jr - remove ablkcipher IV generation")
-    da6a66853a38 ("crypto: caam - silence .setkey in case of bad key length")
-    db8e15a24957 ("crypto: x86/chacha20 - Support partial lengths in 4-block SSSE3 variant")
-    e4e72063d3c0 ("crypto: x86/chacha20 - Support partial lengths in 1-block SSSE3 variant")
+    15426ca43d88 ("s390: rescue initrd as early as possible")
+    369f91c37451 ("s390/decompressor: rework uncompressed image info collection")
+    3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
+    441110a547f8 ("vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes")
+    4e62d4588500 ("s390: clean up stacks setup")
+    5f69e38885c3 ("powerpc/prom_init: Move __prombss to it's own section and store it in .bss")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    8f75582a2fb6 ("s390: remove decompressor's head.S")
+    d1b52a4388ff ("s390: introduce .boot.data section")
+    e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
+    eaf937075c9a ("vmlinux.lds.h: Move NOTES into RO_DATA")
+    fbe6a8e618a2 ("vmlinux.lds.h: Move Program Header restoration into NOTES macro")
 
 v4.14.193: Failed to apply! Possible dependencies:
-    5ca7badb1f62 ("crypto: caam/jr - ablkcipher -> skcipher conversion")
-    6359e4e1bca8 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-    662f70ede597 ("crypto: caam - remove needless ablkcipher key copy")
-    7e0880b9fbbe ("crypto: caam - add Derived Key Protocol (DKP) support")
-    9dbe3072c6b1 ("crypto: caam/qi - ablkcipher -> skcipher conversion")
-    cf5448b5c3d8 ("crypto: caam/jr - remove ablkcipher IV generation")
+    01417c6cc7dc ("powerpc/64: Change soft_enabled from flag to bitmask")
+    0b63acf4a0eb ("powerpc/64: Move set_soft_enabled() and rename")
+    1696d0fb7fcd ("powerpc/64: Set DSCR default initially from SPR")
+    4e26bc4a4ed6 ("powerpc/64: Rename soft_enabled to irq_soft_mask")
+    5080332c2c89 ("powerpc/64s: Add workaround for P9 vector CI load issue")
+    5633e85b2c31 ("powerpc64: Add .opd based function descriptor dereference")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    9f83e00f4cc1 ("powerpc/64: Improve inline asm in arch_local_irq_disable")
+    ae30cc05bed2 ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b5c1bd62c054 ("powerpc/64: Fix arch_local_irq_disable() prototype")
+    c2e480ba8227 ("powerpc/64: Add #defines for paca->soft_enabled flags")
+    ea678ac627e0 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
+    ff967900c9d4 ("powerpc/64: Fix latency tracing for lazy irq replay")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    096ff2ddba83 ("powerpc/ftrace/64: Split further based on -mprofile-kernel")
+    2f59be5b970b ("powerpc/ftrace: Restore LR from pt_regs")
+    454656155110 ("powerpc/asm: Use OFFSET macro in asm-offsets.c")
+    5633e85b2c31 ("powerpc64: Add .opd based function descriptor dereference")
+    655389666643 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf80712 ("powerpc/ftrace: Handle large kernel configs")
+    700e64377c2c ("powerpc/ftrace: Move stack setup and teardown code into ftrace_graph_caller()")
+    7853f9c029ac ("powerpc: Split ftrace bits into a separate file")
+    99ad503287da ("powerpc: Add a prototype for mcount() so it can be versioned")
+    a97a65d53d9f ("KVM: PPC: Book3S: 64-bit CONFIG_RELOCATABLE support for interrupts")
+    ae30cc05bed2 ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b3a7864c6feb ("powerpc/ftrace: Add prototype for prepare_ftrace_return()")
+    c02e0349d7e9 ("powerpc/ftrace: Fix the comments for ftrace_modify_code")
+    c4f3b52ce7b1 ("powerpc/64s: Disallow system reset vs system reset reentrancy")
+    d3918e7fd4a2 ("KVM: PPC: Book3S: Change interrupt call to reduce scratch space use on HV")
+    ea678ac627e0 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    0f4c4af06eec ("kbuild: -ffunction-sections fix for archs with conflicting sections")
+    2aedcd098a94 ("kbuild: suppress annoying "... is up to date." message")
+    9895c03d4811 ("kbuild: record needed exported symbols for modules")
+    a5967db9af51 ("kbuild: allow architectures to use thin archives instead of ld -r")
+    b67067f1176d ("kbuild: allow archs to select link dead code/data elimination")
+    b9ab5ebb14ec ("objtool: Add CONFIG_STACK_VALIDATION option")
+    c1a95fda2a40 ("kbuild: add fine grained build dependencies for exported symbols")
+    cb87481ee89d ("kbuild: linker script do not match C names unless LD_DEAD_CODE_DATA_ELIMINATION is configured")
+    cf4f21938e13 ("kbuild: Allow to specify composite modules with modname-m")
+    e4aca4595005 ("kbuild: de-duplicate fixdep usage")
+    f235541699bc ("export.h: allow for per-symbol configurable EXPORT_SYMBOL()")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
