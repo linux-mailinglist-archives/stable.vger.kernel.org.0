@@ -2,130 +2,391 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 426B424A385
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 17:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61DE124A395
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 17:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbgHSPtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 11:49:09 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33268 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726636AbgHSPtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 11:49:07 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07JFW0EJ098082;
-        Wed, 19 Aug 2020 11:49:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=mrCz55JbBGosTYnHvBkbJJ/5pUPRY2oUXKxdGhFYxrw=;
- b=lMhsIKV+m2yuTjeBdgYZgUx5h0PNh6A6kPoj+blIm4KPPowXA4Lcw6aXtiT/o2pZRk7v
- +nmabHMivcY6a6jTD0VGxynFbWoINzFN2jEshgcsdBUcpAfed9KSqEw+8d++eHi0jGMs
- Tn1GfxuG7oCBgr4jwhPfx6MpXc+qwurGHFd4b1jp+NBLlcWeqQfNg1q4+JvP8cHCnaFW
- bkufT0W1C/NJtFVZ5R1TEciGj3JVhJx1RzLcp3RiHrVfU+SZBnzsCOzK7qlM/4vH0Faz
- X9qItW2tNBwTo42nPEt5lcR4XfCgrplXe5r+/rxH+fefPuf7gEZxQjx9iQ6t6ecJo7E3 zw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3313kxqt4n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Aug 2020 11:49:07 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07JFa2Ii111471;
-        Wed, 19 Aug 2020 11:49:06 -0400
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3313kxqt46-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Aug 2020 11:49:06 -0400
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07JFZiFi012349;
-        Wed, 19 Aug 2020 15:49:05 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma02dal.us.ibm.com with ESMTP id 3304ccrdnw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Aug 2020 15:49:05 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07JFn4mX54591914
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Aug 2020 15:49:04 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9F23112062;
-        Wed, 19 Aug 2020 15:49:04 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAA2F112061;
-        Wed, 19 Aug 2020 15:49:04 +0000 (GMT)
-Received: from sbct-3.pok.ibm.com (unknown [9.47.158.153])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 19 Aug 2020 15:49:04 +0000 (GMT)
-Subject: Re: FAILED: patch "[PATCH] tpm: Unify the mismatching TPM space
- buffer sizes" failed to apply to 4.14-stable tree
-From:   Stefan Berger <stefanb@linux.ibm.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        gregkh@linuxfoundation.org
-Cc:     jsnitsel@redhat.com, stable@vger.kernel.org
-References: <1597659249143217@kroah.com>
- <20200818153602.GA137059@linux.intel.com>
- <2f57d860-95b8-f4cb-8f3a-2e5078dbc566@linux.ibm.com>
- <b77e0d7d-a11e-0edb-224c-91dcf8057a63@linux.ibm.com>
-Message-ID: <9ed444e7-3866-b132-f0a7-995c29e5d4ba@linux.ibm.com>
-Date:   Wed, 19 Aug 2020 11:49:04 -0400
+        id S1728764AbgHSPys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 11:54:48 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35199 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726636AbgHSPyr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 11:54:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597852483;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/VNJRwo/GVEwxoFl2F1d5iQu2dSOlCxgijzbElC3Vtw=;
+        b=KH1QJUYv/GSLnPuYcbLYqOimOMYKDCM7LUSpGQo+2Qc9Qnp/+nGMdloz8APn7/bjjYQjZH
+        hRNZHShL3ElbBLQPfJldMIvTCnQsXnLShArwUFiUuyN+ku25qD5pJ0AGdc0HgcWRinQ0fH
+        EMdzNB32FBqMviR1E2hz7CTuav/zRBc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-1-zOYJBUOpM9GJwSuSFBd2qA-1; Wed, 19 Aug 2020 11:54:28 -0400
+X-MC-Unique: zOYJBUOpM9GJwSuSFBd2qA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76C86801AE5
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 15:54:27 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-114-232.rdu2.redhat.com [10.10.114.232])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 79D8A5C1A3;
+        Wed, 19 Aug 2020 15:54:19 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e8=2e2-?=
+ =?UTF-8?Q?ad8c735=2ecki_=28stable=29?=
+To:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Cc:     David Arcari <darcari@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+References: <cki.81A545788B.TQBX9O8LVS@redhat.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Message-ID: <3774b716-4440-f6c7-0c9b-60d3b599196e@redhat.com>
+Date:   Wed, 19 Aug 2020 11:54:18 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <b77e0d7d-a11e-0edb-224c-91dcf8057a63@linux.ibm.com>
+In-Reply-To: <cki.81A545788B.TQBX9O8LVS@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-19_08:2020-08-19,2020-08-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 impostorscore=0 adultscore=0 bulkscore=0 clxscore=1015
- mlxlogscore=999 malwarescore=0 suspectscore=0 phishscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008190131
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/18/20 5:25 PM, Stefan Berger wrote:
-> On 8/18/20 2:54 PM, Stefan Berger wrote:
->> On 8/18/20 11:36 AM, Jarkko Sakkinen wrote:
->>> Stefan, are you concerned of not having this in 4.14 and 4.19?
->>
->> Yes. The problematic scenario is when libtpms  is updated to a 
->> version (future v0.8.0) that supports 3072 bit RSA keys and software 
->> inside a VM is using /dev/tpmrm0 and things start failing because of 
->> this. My hope would be that the distro run inside the VM has a way 
->> forward and the long term stable kernels seem to help here. Because 
->> of this scenario I have to delay the release of libtpms v0.8.0 for 
->> several months.
->>
-> I just ported it to 4.19.139 and will try to do the port to 4.14.191++ 
-> as well. I will post it here once I ran some (basic) tests with it.
-
-The porting is done and I tested the changes. The problem on these 
-kernel versions is that I cannot recreate the problem (inside a VM).
-
-On a host with libtpms-0.8.0 (tip of master) running a VM with attached 
-vTPM and the guest running kernel 5.6.18-300.fc2 the following command 
-line just hangs:
-
-echo test | clevis encrypt tpm2 '{"key":"rsa"}' | clevis decrypt
 
 
-dmesg shows:
+On 8/19/20 11:48 AM, CKI Project wrote:
+> 
+> Hello,
+> 
+> We ran automated tests on a recent commit from this kernel tree:
+> 
+>         Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>              Commit: ad8c735b1497 - Linux 5.8.2
+> 
+> The results of these automated tests are provided below.
+> 
+>      Overall result: FAILED (see details below)
+>               Merge: OK
+>             Compile: OK
+>               Tests: FAILED
+> 
+> All kernel binaries, config files, and logs are available for download here:
+> 
+>    https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/08/19/612293
+> 
+> One or more kernel tests failed:
+> 
+>      s390x:
+>       ❌ LTP
+> 
+>      ppc64le:
+>       ❌ LTP
+> 
+>      aarch64:
+>       ❌ LTP
 
-tpm tpm0: tpm2_save_context: out of backing store
+For both s390x/aarch64 failures looks like we're missing the following kernel fixes for stable:
 
-tpm2_commit_space: error -12
+      1	<<<test_start>>>
+      2	tag=ioctl_loop01 stime=1597824830
+      3	cmdline="ioctl_loop01"
+      4	contacts=""
+      5	analysis=exit
+      6	<<<test_output>>>
+      7	tst_test.c:1245: INFO: Timeout per run is 0h 05m 00s
+      8	tst_device.c:88: INFO: Found free device 0 '/dev/loop0'
+      9	ioctl_loop01.c:85: PASS: /sys/block/loop0/loop/partscan = 0
+     10	ioctl_loop01.c:86: PASS: /sys/block/loop0/loop/autoclear = 0
+     11	ioctl_loop01.c:87: PASS: /sys/block/loop0/loop/backing_file = '/mnt/testarea/ltp-4l1XyCNbu8/h6pPv5/test.img'
+     12	ioctl_loop01.c:57: PASS: get expected lo_flag 12
+     13	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
+     14	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 1
+     15	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
+     16	ioctl_loop01.c:75: PASS: access /sys/block/loop0/loop0p1 succeeds
+     17	ioctl_loop01.c:91: INFO: Test flag can be clear
+     18	ioctl_loop01.c:57: PASS: get expected lo_flag 8
+     19	ioctl_loop01.c:59: PASS: /sys/block/loop0/loop/partscan = 1
+     20	ioctl_loop01.c:60: PASS: /sys/block/loop0/loop/autoclear = 0
+     21	ioctl_loop01.c:71: FAIL: access /dev/loop0p1 fails
+     22	ioctl_loop01.c:77: FAIL: access /sys/block/loop0/loop0p1 fails
+     23	
+     24	HINT: You _MAY_ be missing kernel fixes, see:
+     25	
+     26	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=10c70d95c0f2
+     27	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6ac92fb5cdff
 
+https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_aarch64_redhat%3A958531/tests/LTP/8699601_aarch64_1_syscalls.fail.log
 
-On these 4.14 and 4.19 kernels the expected output of 'test' just 
-appears on the screen. The context swapping behavior seems to be different.
+https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/08/19/612293/build_s390x_redhat%3A958533/tests/LTP/8699609_s390x_1_syscalls.fail.log
 
-Though based on the benefits of the larger buffer size that may prevent 
-unnecessary problems, if context swapping somehow kicks in, we should 
-apply the patches there as well.
+-Rachel
 
-    Stefan
-
+> 
+> We hope that these logs can help you find the problem quickly. For the full
+> detail on our testing procedures, please scroll to the bottom of this message.
+> 
+> Please reply to this email if you have any questions about the tests that we
+> ran or if you have any suggestions on how to make future tests more effective.
+> 
+>          ,-.   ,-.
+>         ( C ) ( K )  Continuous
+>          `-',-.`-'   Kernel
+>            ( I )     Integration
+>             `-'
+> ______________________________________________________________________________
+> 
+> Compile testing
+> ---------------
+> 
+> We compiled the kernel for 4 architectures:
+> 
+>      aarch64:
+>        make options: make -j30 INSTALL_MOD_STRIP=1 targz-pkg
+> 
+>      ppc64le:
+>        make options: make -j30 INSTALL_MOD_STRIP=1 targz-pkg
+> 
+>      s390x:
+>        make options: make -j30 INSTALL_MOD_STRIP=1 targz-pkg
+> 
+>      x86_64:
+>        make options: make -j30 INSTALL_MOD_STRIP=1 targz-pkg
+> 
+> 
+> 
+> Hardware testing
+> ----------------
+> We booted each kernel and ran the following tests:
+> 
+>    aarch64:
+>      Host 1:
+>         ✅ Boot test
+>         ✅ xfstests - ext4
+>         ✅ xfstests - xfs
+>         ✅ selinux-policy: serge-testsuite
+>         ✅ storage: software RAID testing
+>         ✅ stress: stress-ng
+>         🚧 ✅ xfstests - btrfs
+>         🚧 ✅ IPMI driver test
+>         🚧 ✅ IPMItool loop stress test
+>         🚧 ✅ Storage blktests
+> 
+>      Host 2:
+>         ✅ Boot test
+>         ✅ ACPI table test
+>         ✅ ACPI enabled test
+>         ✅ Podman system integration test - as root
+>         ✅ Podman system integration test - as user
+>         ❌ LTP
+>         ✅ Loopdev Sanity
+>         ✅ Memory function: memfd_create
+>         ✅ AMTU (Abstract Machine Test Utility)
+>         ✅ Networking bridge: sanity
+>         ✅ Ethernet drivers sanity
+>         ✅ Networking socket: fuzz
+>         ✅ Networking: igmp conformance test
+>         ✅ Networking route: pmtu
+>         ✅ Networking route_func - local
+>         ✅ Networking route_func - forward
+>         ✅ Networking TCP: keepalive test
+>         ✅ Networking UDP: socket
+>         ✅ Networking tunnel: geneve basic test
+>         ✅ Networking tunnel: gre basic
+>         ✅ L2TP basic test
+>         ✅ Networking tunnel: vxlan basic
+>         ✅ Networking ipsec: basic netns - transport
+>         ✅ Networking ipsec: basic netns - tunnel
+>         ✅ Libkcapi AF_ALG test
+>         ✅ pciutils: update pci ids test
+>         ✅ ALSA PCM loopback test
+>         ✅ ALSA Control (mixer) Userspace Element test
+>         ✅ storage: SCSI VPD
+>         🚧 ✅ CIFS Connectathon
+>         🚧 ✅ POSIX pjd-fstest suites
+>         🚧 ✅ jvm - jcstress tests
+>         🚧 ✅ Memory function: kaslr
+>         🚧 ✅ Networking firewall: basic netfilter test
+>         🚧 ✅ audit: audit testsuite test
+>         🚧 ✅ trace: ftrace/tracer
+>         🚧 ✅ kdump - kexec_boot
+> 
+>    ppc64le:
+>      Host 1:
+>         ✅ Boot test
+>         ✅ Podman system integration test - as root
+>         ✅ Podman system integration test - as user
+>         ❌ LTP
+>         ✅ Loopdev Sanity
+>         ✅ Memory function: memfd_create
+>         ✅ AMTU (Abstract Machine Test Utility)
+>         ✅ Networking bridge: sanity
+>         ✅ Ethernet drivers sanity
+>         ✅ Networking socket: fuzz
+>         ✅ Networking route: pmtu
+>         ✅ Networking route_func - local
+>         ✅ Networking route_func - forward
+>         ✅ Networking TCP: keepalive test
+>         ✅ Networking UDP: socket
+>         ✅ Networking tunnel: geneve basic test
+>         ✅ Networking tunnel: gre basic
+>         ✅ L2TP basic test
+>         ✅ Networking tunnel: vxlan basic
+>         ✅ Networking ipsec: basic netns - tunnel
+>         ✅ Libkcapi AF_ALG test
+>         ✅ pciutils: update pci ids test
+>         ✅ ALSA PCM loopback test
+>         ✅ ALSA Control (mixer) Userspace Element test
+>         🚧 ✅ CIFS Connectathon
+>         🚧 ✅ POSIX pjd-fstest suites
+>         🚧 ✅ jvm - jcstress tests
+>         🚧 ✅ Memory function: kaslr
+>         🚧 ✅ Networking firewall: basic netfilter test
+>         🚧 ✅ audit: audit testsuite test
+>         🚧 ✅ trace: ftrace/tracer
+> 
+>      Host 2:
+>         ✅ Boot test
+>         ✅ xfstests - ext4
+>         ✅ xfstests - xfs
+>         ✅ selinux-policy: serge-testsuite
+>         ✅ storage: software RAID testing
+>         🚧 ✅ xfstests - btrfs
+>         🚧 ✅ IPMI driver test
+>         🚧 ✅ IPMItool loop stress test
+>         🚧 ✅ Storage blktests
+> 
+>      Host 3:
+>         ✅ Boot test
+>         🚧 ✅ kdump - sysrq-c
+> 
+>    s390x:
+>      Host 1:
+>         ✅ Boot test
+>         ✅ selinux-policy: serge-testsuite
+>         ✅ stress: stress-ng
+>         🚧 ✅ Storage blktests
+> 
+>      Host 2:
+>         ✅ Boot test
+>         ✅ Podman system integration test - as root
+>         ✅ Podman system integration test - as user
+>         ❌ LTP
+>         ✅ Loopdev Sanity
+>         ✅ Memory function: memfd_create
+>         ✅ AMTU (Abstract Machine Test Utility)
+>         ✅ Networking bridge: sanity
+>         ✅ Ethernet drivers sanity
+>         ✅ Networking route: pmtu
+>         ✅ Networking route_func - local
+>         ✅ Networking route_func - forward
+>         ✅ Networking TCP: keepalive test
+>         ✅ Networking UDP: socket
+>         ✅ Networking tunnel: geneve basic test
+>         ✅ Networking tunnel: gre basic
+>         ✅ L2TP basic test
+>         ✅ Networking tunnel: vxlan basic
+>         ✅ Networking ipsec: basic netns - transport
+>         ✅ Networking ipsec: basic netns - tunnel
+>         ✅ Libkcapi AF_ALG test
+>         🚧 ✅ CIFS Connectathon
+>         🚧 ✅ POSIX pjd-fstest suites
+>         🚧 ✅ jvm - jcstress tests
+>         🚧 ✅ Memory function: kaslr
+>         🚧 ✅ Networking firewall: basic netfilter test
+>         🚧 ✅ audit: audit testsuite test
+>         🚧 ✅ trace: ftrace/tracer
+> 
+>    x86_64:
+>      Host 1:
+>         ✅ Boot test
+>         ✅ ACPI table test
+>         ✅ Podman system integration test - as root
+>         ✅ Podman system integration test - as user
+>         ✅ LTP
+>         ✅ Loopdev Sanity
+>         ✅ Memory function: memfd_create
+>         ✅ AMTU (Abstract Machine Test Utility)
+>         ✅ Networking bridge: sanity
+>         ✅ Ethernet drivers sanity
+>         ✅ Networking socket: fuzz
+>         ✅ Networking: igmp conformance test
+>         ✅ Networking route: pmtu
+>         ✅ Networking route_func - local
+>         ✅ Networking route_func - forward
+>         ✅ Networking TCP: keepalive test
+>         ✅ Networking UDP: socket
+>         ✅ Networking tunnel: geneve basic test
+>         ✅ Networking tunnel: gre basic
+>         ✅ L2TP basic test
+>         ✅ Networking tunnel: vxlan basic
+>         ✅ Networking ipsec: basic netns - transport
+>         ✅ Networking ipsec: basic netns - tunnel
+>         ✅ Libkcapi AF_ALG test
+>         ✅ pciutils: sanity smoke test
+>         ✅ pciutils: update pci ids test
+>         ✅ ALSA PCM loopback test
+>         ✅ ALSA Control (mixer) Userspace Element test
+>         ✅ storage: SCSI VPD
+>         🚧 ✅ CIFS Connectathon
+>         🚧 ✅ POSIX pjd-fstest suites
+>         🚧 ✅ jvm - jcstress tests
+>         🚧 ✅ Memory function: kaslr
+>         🚧 ✅ Networking firewall: basic netfilter test
+>         🚧 ✅ audit: audit testsuite test
+>         🚧 ✅ trace: ftrace/tracer
+>         🚧 ✅ kdump - kexec_boot
+> 
+>      Host 2:
+>         ✅ Boot test
+>         🚧 ✅ kdump - sysrq-c
+>         🚧 ✅ kdump - file-load
+> 
+>      Host 3:
+> 
+>         ⚡ Internal infrastructure issues prevented one or more tests (marked
+>         with ⚡⚡⚡) from running on this architecture.
+>         This is not the fault of the kernel that was tested.
+> 
+>         ✅ Boot test
+>         ✅ xfstests - ext4
+>         ✅ xfstests - xfs
+>         ✅ selinux-policy: serge-testsuite
+>         ✅ storage: software RAID testing
+>         ✅ stress: stress-ng
+>         🚧 ❌ CPU: Frequency Driver Test
+>         🚧 ✅ CPU: Idle Test
+>         🚧 ✅ xfstests - btrfs
+>         🚧 ⚡⚡⚡ IOMMU boot test
+>         🚧 ⚡⚡⚡ IPMI driver test
+>         🚧 ⚡⚡⚡ IPMItool loop stress test
+>         🚧 ⚡⚡⚡ power-management: cpupower/sanity test
+>         🚧 ⚡⚡⚡ Storage blktests
+> 
+>    Test sources: https://gitlab.com/cki-project/kernel-tests
+>      💚 Pull requests are welcome for new tests or improvements to existing tests!
+> 
+> Aborted tests
+> -------------
+> Tests that didn't complete running successfully are marked with ⚡⚡⚡.
+> If this was caused by an infrastructure issue, we try to mark that
+> explicitly in the report.
+> 
+> Waived tests
+> ------------
+> If the test run included waived tests, they are marked with 🚧. Such tests are
+> executed but their results are not taken into account. Tests are waived when
+> their results are not reliable enough, e.g. when they're just introduced or are
+> being fixed.
+> 
+> Testing timeout
+> ---------------
+> We aim to provide a report within reasonable timeframe. Tests that haven't
+> finished running yet are marked with ⏱.
+> 
+> 
 
