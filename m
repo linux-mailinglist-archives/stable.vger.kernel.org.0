@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E61C249A2E
-	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 12:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07215249A2F
+	for <lists+stable@lfdr.de>; Wed, 19 Aug 2020 12:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727841AbgHSKWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 06:22:38 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:41937 "EHLO
+        id S1727846AbgHSKWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 06:22:52 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45283 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726702AbgHSKWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:22:36 -0400
+        by vger.kernel.org with ESMTP id S1727817AbgHSKWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 06:22:44 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9A3BB1942371;
-        Wed, 19 Aug 2020 06:22:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:22:34 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id D9B61194228C;
+        Wed, 19 Aug 2020 06:22:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 19 Aug 2020 06:22:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=W79s/M
-        be7FwKNpwRiDx/oGAYX1b9uGXcrQirbH3+hv0=; b=c7SjhRkautHj4LluIuy/P2
-        0Pk2GUwA/7KtpwiIqGgQ5XC/95/8XPm7PL3mRCDCWZTnE4F4jkoz5xvkR0dBF/pV
-        LQs18FJSWu/S229aIbOQykg+KJ9JZ9kgWFJ+oit0cwAl9a5vjjt45RR0U8iGh4Ss
-        VtOLu4Shjr4AW60RJ5rvx7U8d7pz3yWNbEFSG0IcixPA/LqaiiNES+68qxhFfwZp
-        ruoRsJtIYfiUXr90iK6+36j8qYhp9BEjtgp6fXhtQsPuWPf6NUhd7xaHqZ6yInW9
-        TRNHwVqJMQC0RLiogiHGv4N5XIHuBnkyhMeEg0LX+qnWBDHkdnLsD9Z205wos20g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+J/78q
+        QpfwL2DtSYSo+pm+C2IAF2z8mZbphd/Z/3BX0=; b=YLL1F3LUya5GYLTQvoiTq8
+        oN+ApgkhcOzk26RDDF+Xm+yrg4VBCWFa6oZrGTTLGcMdyrqk9yluEdtL/yyO6Rzk
+        5tCWeCs7T82rnyCiIkgpEoiWmpZzTKDu0idAtIhs3gzKM7/NEPuJU0Xv1K8ykfV0
+        wuYjMRKbu58q0VifhbHBcw2hJjUtNHeYNiDgiqhMTV9Cyixsaw01ya2XdPfWad0i
+        aCzUb0trzDwTMOqoEI+Y0iNsZtpVyc6IQzTay1x3ldJfXuKWhXaBIz1QvuOrLRM+
+        d0qSIrwKwP0jzV7Qk+076T0gUUMMxptW0L10EuuF9mFPvnCLAIdRBgidQDnwJ0DA
         ==
-X-ME-Sender: <xms:av08Xwh-M1jqFoIp-FbxurSuN012iU4vXKaMXpqport-05VMI9b3VQ>
+X-ME-Sender: <xms:cv08X0Mn6uDfYwswHUlh2J7rUV6JWzgCXLp43WgoiEIUpRqw1qX0Bg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddtkedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:av08X5D1fTjEjEDol1WZXyn_TqDaM-D-ySD7zp-o2GJWhhVFQ3-0NQ>
-    <xmx:av08X4FGYXCrFL6lVBEohAGs-nfTcn51dN8-euWLj-r1mHTgPPTA8g>
-    <xmx:av08XxRXkmCU9p7iyi6TEj7LIh26ctoaNGMfevbQkrirWrsiijXX2Q>
-    <xmx:av08X7ZSRl_j5nKvadMRm1toHaMM3jv9xobHMTJ4xrtaLC3jqTuo1A>
+X-ME-Proxy: <xmx:cv08X68Fs7bYZUxCnE6yt741zwWx3ojknp4E0T3vJDPAthURQ5iFrA>
+    <xmx:cv08X7T9CJiEolTLdK5fJ7hB4_HXlfNax7RoSQ8dHz_dGqEqCOjRiw>
+    <xmx:cv08X8splw4C1mdbckzetjH48wz2m-TCcJSGvEtItsUkMyJyO1dqcA>
+    <xmx:cv08X0mdDM7sdc8Hd7hr0sDI0xO0YAIOqp-PjusV5iWlpwVtCwYO1Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1D88930600A9;
-        Wed, 19 Aug 2020 06:22:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: Add device even if driver attach failed" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 796C33280060;
+        Wed, 19 Aug 2020 06:22:42 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: Add device even if driver attach failed" failed to apply to 4.9-stable tree
 To:     rajatja@google.com, bhelgaas@google.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 19 Aug 2020 12:22:56 +0200
-Message-ID: <1597832576184218@kroah.com>
+Date:   Wed, 19 Aug 2020 12:22:57 +0200
+Message-ID: <159783257796182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
