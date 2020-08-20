@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4263724BC67
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D1A24BC60
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728847AbgHTMpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46886 "EHLO mail.kernel.org"
+        id S1727829AbgHTMpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729304AbgHTJpl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729247AbgHTJpl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:45:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B027F2224D;
-        Thu, 20 Aug 2020 09:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE9442173E;
+        Thu, 20 Aug 2020 09:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916720;
-        bh=LhrVJjLW4k5wufY+4/30vf1lucgNllhSgPLioVFX6kg=;
+        s=default; t=1597916723;
+        bh=n/aoNVZjfCE/diuBa2MGG510bp8Ugndra1dCjBCqQjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vN5ykeMPKOlLXFt8CtrQ1BzDjrIClISCqbWqvoFpIyMSvubithD6dSuT//IjKFxSF
-         4dhNGTLhyFV3UY/nLJGhFB5mzUdjz9zCCU2I5VJLsdSV8fHd2ppsJ2ZqRy38p62Jfd
-         6DfrneyTtD3H1qDc7JR4mH4Q2O0NyCLFbKf9Rvf4=
+        b=kAlrIKjDSlBcgUssn/26swpfSmNuZH0+TjrztdIiojbTGtWST0jcjUBSYgosJqgH2
+         xSXgfCqt5O1g4bt7E+PospSSdflQSTJn/6Fa9Bn1VlOCxwHG9QSeabjmPm7qi0Mg/a
+         vuKtjhrN+c3J9c7ZVdtMHuaG+ZE/jDqjuWgs43D8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 023/152] btrfs: fix race between page release and a fast fsync
-Date:   Thu, 20 Aug 2020 11:19:50 +0200
-Message-Id: <20200820091554.828551254@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 024/152] btrfs: fix messages after changing compression level by remount
+Date:   Thu, 20 Aug 2020 11:19:51 +0200
+Message-Id: <20200820091554.880192147@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -43,92 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: David Sterba <dsterba@suse.com>
 
-commit 3d6448e631591756da36efb3ea6355ff6f383c3a upstream.
+commit 27942c9971cc405c60432eca9395e514a2ae9f5e upstream.
 
-When releasing an extent map, done through the page release callback, we
-can race with an ongoing fast fsync and cause the fsync to miss a new
-extent and not log it. The steps for this to happen are the following:
+Reported by Forza on IRC that remounting with compression options does
+not reflect the change in level, or at least it does not appear to do so
+according to the messages:
 
-1) A page is dirtied for some inode I;
+  mount -o compress=zstd:1 /dev/sda /mnt
+  mount -o remount,compress=zstd:15 /mnt
 
-2) Writeback for that page is triggered by a path other than fsync, for
-   example by the system due to memory pressure;
+does not print the change to the level to syslog:
 
-3) When the ordered extent for the extent (a single 4K page) finishes,
-   we unpin the corresponding extent map and set its generation to N,
-   the current transaction's generation;
+  [   41.366060] BTRFS info (device vda): use zstd compression, level 1
+  [   41.368254] BTRFS info (device vda): disk space caching is enabled
+  [   41.390429] BTRFS info (device vda): disk space caching is enabled
 
-4) The btrfs_releasepage() callback is invoked by the system due to
-   memory pressure for that no longer dirty page of inode I;
+What really happens is that the message is lost but the level is actualy
+changed.
 
-5) At the same time, some task calls fsync on inode I, joins transaction
-   N, and at btrfs_log_inode() it sees that the inode does not have the
-   full sync flag set, so we proceed with a fast fsync. But before we get
-   into btrfs_log_changed_extents() and lock the inode's extent map tree:
+There's another weird output, if compression is reset to 'no':
 
-6) Through btrfs_releasepage() we end up at try_release_extent_mapping()
-   and we remove the extent map for the new 4Kb extent, because it is
-   neither pinned anymore nor locked. By calling remove_extent_mapping(),
-   we remove the extent map from the list of modified extents, since the
-   extent map does not have the logging flag set. We unlock the inode's
-   extent map tree;
+  [   45.413776] BTRFS info (device vda): use no compression, level 4
 
-7) The task doing the fast fsync now enters btrfs_log_changed_extents(),
-   locks the inode's extent map tree and iterates its list of modified
-   extents, which no longer has the 4Kb extent in it, so it does not log
-   the extent;
+To fix that, save the previous compression level and print the message
+in that case too and use separate message for 'no' compression.
 
-8) The fsync finishes;
-
-9) Before transaction N is committed, a power failure happens. After
-   replaying the log, the 4K extent of inode I will be missing, since
-   it was not logged due to the race with try_release_extent_mapping().
-
-So fix this by teaching try_release_extent_mapping() to not remove an
-extent map if it's still in the list of modified extents.
-
-Fixes: ff44c6e36dc9dc ("Btrfs: do not hold the write_lock on the extent tree while logging")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+CC: stable@vger.kernel.org # 4.19+
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/btrfs/super.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4467,15 +4467,25 @@ int try_release_extent_mapping(struct pa
- 				free_extent_map(em);
- 				break;
- 			}
--			if (!test_range_bit(tree, em->start,
--					    extent_map_end(em) - 1,
--					    EXTENT_LOCKED, 0, NULL)) {
-+			if (test_range_bit(tree, em->start,
-+					   extent_map_end(em) - 1,
-+					   EXTENT_LOCKED, 0, NULL))
-+				goto next;
-+			/*
-+			 * If it's not in the list of modified extents, used
-+			 * by a fast fsync, we can remove it. If it's being
-+			 * logged we can safely remove it since fsync took an
-+			 * extra reference on the em.
-+			 */
-+			if (list_empty(&em->list) ||
-+			    test_bit(EXTENT_FLAG_LOGGING, &em->flags)) {
- 				set_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
- 					&btrfs_inode->runtime_flags);
- 				remove_extent_mapping(map, em);
- 				/* once for the rb tree */
- 				free_extent_map(em);
- 			}
-+next:
- 			start = extent_map_end(em);
- 			write_unlock(&map->lock);
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -435,6 +435,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 	char *compress_type;
+ 	bool compress_force = false;
+ 	enum btrfs_compression_type saved_compress_type;
++	int saved_compress_level;
+ 	bool saved_compress_force;
+ 	int no_compress = 0;
  
+@@ -517,6 +518,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				info->compress_type : BTRFS_COMPRESS_NONE;
+ 			saved_compress_force =
+ 				btrfs_test_opt(info, FORCE_COMPRESS);
++			saved_compress_level = info->compress_level;
+ 			if (token == Opt_compress ||
+ 			    token == Opt_compress_force ||
+ 			    strncmp(args[0].from, "zlib", 4) == 0) {
+@@ -561,6 +563,8 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				no_compress = 0;
+ 			} else if (strncmp(args[0].from, "no", 2) == 0) {
+ 				compress_type = "no";
++				info->compress_level = 0;
++				info->compress_type = 0;
+ 				btrfs_clear_opt(info->mount_opt, COMPRESS);
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 				compress_force = false;
+@@ -581,11 +585,11 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				 */
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 			}
+-			if ((btrfs_test_opt(info, COMPRESS) &&
+-			     (info->compress_type != saved_compress_type ||
+-			      compress_force != saved_compress_force)) ||
+-			    (!btrfs_test_opt(info, COMPRESS) &&
+-			     no_compress == 1)) {
++			if (no_compress == 1) {
++				btrfs_info(info, "use no compression");
++			} else if ((info->compress_type != saved_compress_type) ||
++				   (compress_force != saved_compress_force) ||
++				   (info->compress_level != saved_compress_level)) {
+ 				btrfs_info(info, "%s %s compression, level %d",
+ 					   (compress_force) ? "force" : "use",
+ 					   compress_type, info->compress_level);
 
 
