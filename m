@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E5824B274
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FC224B305
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbgHTJaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
+        id S1729040AbgHTJke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:40:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgHTJ36 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:58 -0400
+        id S1729034AbgHTJk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A547422CA1;
-        Thu, 20 Aug 2020 09:29:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 606B3207DE;
+        Thu, 20 Aug 2020 09:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915798;
-        bh=WbXt8Ib5yN5cpTvhe/9oHmMjDtvq/mhODJSbnCMBbf4=;
+        s=default; t=1597916429;
+        bh=nfgCGoTCSYZV/HWOTSgdJtuoqoTvoAl+MUxVncVuKnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSSLjHSdgznU75octr1s+1JRBd78A6F1dgBBtgIwcvfbVg77MsOnhEzkneXkbEb5j
-         +9Nv+cRwTc5hxYw34i/AbukMvkFYSYH+KHeV8sPGMQz6FxNLTjmyErPWfyO3xaJ6R7
-         8dl0PdjxjUMKP1z92yWYn4mEHm84IuGriyDPcuYg=
+        b=CKMRaZghwTOJJLuV/dYPiJ3tE7EE286Ce5os5vM+QkslNm6B5CPo5UbDPl6zbFBg2
+         6ft0XsNtGX8705bXpguTMnUtHzIZTN3SJ3KsAOYQZUAwsO/wEOeth+wki8MGD4aiVf
+         KCtyqfXPpiPafnRslyEEqSnN87Ebhn6FAZ6Btcsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 138/232] crypto: af_alg - Fix regression on empty requests
-Date:   Thu, 20 Aug 2020 11:19:49 +0200
-Message-Id: <20200820091619.509042985@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.7 094/204] remoteproc: qcom: q6v5: Update running state before requesting stop
+Date:   Thu, 20 Aug 2020 11:19:51 +0200
+Message-Id: <20200820091611.029928743@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit 662bb52f50bca16a74fe92b487a14d7dccb85e1a ]
+commit 5b7be880074c73540948f8fc597e0407b98fabfa upstream.
 
-Some user-space programs rely on crypto requests that have no
-control metadata.  This broke when a check was added to require
-the presence of control metadata with the ctx->init flag.
+Sometimes the stop triggers a watchdog rather than a stop-ack. Update
+the running state to false on requesting stop to skip the watchdog
+instead.
 
-This patch fixes the regression by setting ctx->init as long as
-one sendmsg(2) has been made, with or without a control message.
+Error Logs:
+$ echo stop > /sys/class/remoteproc/remoteproc0/state
+ipa 1e40000.ipa: received modem stopping event
+remoteproc-modem: watchdog received: sys_m_smsm_mpss.c:291:APPS force stop
+qcom-q6v5-mss 4080000.remoteproc-modem: port failed halt
+ipa 1e40000.ipa: received modem offline event
+remoteproc0: stopped remote processor 4080000.remoteproc-modem
 
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Fixes: 3b415c8fb263 ("remoteproc: q6v5: Extract common resource handling")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200602163257.26978-1-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- crypto/af_alg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/remoteproc/qcom_q6v5.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index 9fcb91ea10c41..5882ed46f1adb 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -851,6 +851,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		err = -EINVAL;
- 		goto unlock;
- 	}
-+	ctx->init = true;
+--- a/drivers/remoteproc/qcom_q6v5.c
++++ b/drivers/remoteproc/qcom_q6v5.c
+@@ -153,6 +153,8 @@ int qcom_q6v5_request_stop(struct qcom_q
+ {
+ 	int ret;
  
- 	if (init) {
- 		ctx->enc = enc;
-@@ -858,7 +859,6 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 			memcpy(ctx->iv, con.iv->iv, ivsize);
++	q6v5->running = false;
++
+ 	qcom_smem_state_update_bits(q6v5->state,
+ 				    BIT(q6v5->stop_bit), BIT(q6v5->stop_bit));
  
- 		ctx->aead_assoclen = con.aead_assoclen;
--		ctx->init = true;
- 	}
- 
- 	while (size) {
--- 
-2.25.1
-
 
 
