@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E3A24BC46
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F57224BC32
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728276AbgHTMne (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:43:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48054 "EHLO mail.kernel.org"
+        id S1729320AbgHTMlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729173AbgHTJqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:09 -0400
+        id S1729279AbgHTJqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C86422B43;
-        Thu, 20 Aug 2020 09:46:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7FD822B43;
+        Thu, 20 Aug 2020 09:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916768;
-        bh=hKw4VeEPTvlU9LP6XXahCcYoetS6SUJD6tZ/nSvmgRE=;
+        s=default; t=1597916783;
+        bh=nuLVN4QynDi1YhgBJ7MBWKP7AHyVPHdF4t3T2ZcG6v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifofEWdQGFn0QjImxRDDB+JyhgfBg3Y1f3wCT2YnV0QsSkJxsbjO7T1zEbBFXvuWP
-         1lMjGZluCnZuMxSTTCKnbLLKHvuqpUTp5wCcwxJAvKThc4w7veiGVJ0XM15s4qg1TV
-         2A6T/pFBMbH44t0uDxs3LL8hWC5ub7kXBdtk6Sys=
+        b=kH0CUzuHP28blT9MXC4gWSONixRtnM+xChYkqVNNt6HpW54g9Vg/Y/j5SLSbgI85r
+         IFQlOSsFyNn6P3dSKup8IxCGVxpxloQyIcneUHBOXXU0+y1zQUZrnRbVwpj+qmwsvY
+         31/cUO/v20+FHQJwRE4Dcj376Q1iH0HNoS4c0sFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 012/152] btrfs: ref-verify: fix memory leak in add_block_entry
-Date:   Thu, 20 Aug 2020 11:19:39 +0200
-Message-Id: <20200820091554.266984251@linuxfoundation.org>
+Subject: [PATCH 5.4 014/152] btrfs: remove no longer needed use of log_writers for the log root tree
+Date:   Thu, 20 Aug 2020 11:19:41 +0200
+Message-Id: <20200820091554.375473600@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -43,50 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit d60ba8de1164e1b42e296ff270c622a070ef8fe7 upstream.
+commit a93e01682e283f6de09d6ce8f805dc52a2e942fb upstream.
 
-clang static analysis flags this error
+When syncing the log, we used to update the log root tree without holding
+neither the log_mutex of the subvolume root nor the log_mutex of log root
+tree.
 
-fs/btrfs/ref-verify.c:290:3: warning: Potential leak of memory pointed to by 're' [unix.Malloc]
-                kfree(be);
-                ^~~~~
+We used to have two critical sections delimited by the log_mutex of the
+log root tree, so in the first one we incremented the log_writers of the
+log root tree and on the second one we decremented it and waited for the
+log_writers counter to go down to zero. This was because the update of
+the log root tree happened between the two critical sections.
 
-The problem is in this block of code:
+The use of two critical sections allowed a little bit more of parallelism
+and required the use of the log_writers counter, necessary to make sure
+we didn't miss any log root tree update when we have multiple tasks trying
+to sync the log in parallel.
 
-	if (root_objectid) {
-		struct root_entry *exist_re;
+However after commit 06989c799f0481 ("Btrfs: fix race updating log root
+item during fsync") the log root tree update was moved into a critical
+section delimited by the subvolume's log_mutex. Later another commit
+moved the log tree update from that critical section into the second
+critical section delimited by the log_mutex of the log root tree. Both
+commits addressed different bugs.
 
-		exist_re = insert_root_entry(&exist->roots, re);
-		if (exist_re)
-			kfree(re);
-	}
+The end result is that the first critical section delimited by the
+log_mutex of the log root tree became pointless, since there's nothing
+done between it and the second critical section, we just have an unlock
+of the log_mutex followed by a lock operation. This means we can merge
+both critical sections, as the first one does almost nothing now, and we
+can stop using the log_writers counter of the log root tree, which was
+incremented in the first critical section and decremented in the second
+criticial section, used to make sure no one in the second critical section
+started writeback of the log root tree before some other task updated it.
 
-There is no 'else' block freeing when root_objectid is 0. Add the
-missing kfree to the else branch.
+So just remove the mutex_unlock() followed by mutex_lock() of the log root
+tree, as well as the use of the log_writers counter for the log root tree.
 
-Fixes: fd708b81d972 ("Btrfs: add a extent ref verify tool")
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+This patch is part of a series that has the following patches:
+
+1/4 btrfs: only commit the delayed inode when doing a full fsync
+2/4 btrfs: only commit delayed items at fsync if we are logging a directory
+3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
+4/4 btrfs: remove no longer needed use of log_writers for the log root tree
+
+After the entire patchset applied I saw about 12% decrease on max latency
+reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
+ram, using kvm and using a raw NVMe device directly (no intermediary fs on
+the host). The test was invoked like the following:
+
+  mkfs.btrfs -f /dev/sdk
+  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
+  dbench -D /mnt/sdk -t 300 8
+  umount /mnt/dsk
+
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ref-verify.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/ctree.h    |    1 +
+ fs/btrfs/tree-log.c |   13 -------------
+ 2 files changed, 1 insertion(+), 13 deletions(-)
 
---- a/fs/btrfs/ref-verify.c
-+++ b/fs/btrfs/ref-verify.c
-@@ -286,6 +286,8 @@ static struct block_entry *add_block_ent
- 			exist_re = insert_root_entry(&exist->roots, re);
- 			if (exist_re)
- 				kfree(re);
-+		} else {
-+			kfree(re);
- 		}
- 		kfree(be);
- 		return exist;
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -990,6 +990,7 @@ struct btrfs_root {
+ 	wait_queue_head_t log_writer_wait;
+ 	wait_queue_head_t log_commit_wait[2];
+ 	struct list_head log_ctxs[2];
++	/* Used only for log trees of subvolumes, not for the log root tree */
+ 	atomic_t log_writers;
+ 	atomic_t log_commit[2];
+ 	/* Used only for log trees of subvolumes, not for the log root tree */
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3140,28 +3140,17 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	btrfs_init_log_ctx(&root_log_ctx, NULL);
+ 
+ 	mutex_lock(&log_root_tree->log_mutex);
+-	atomic_inc(&log_root_tree->log_writers);
+ 
+ 	index2 = log_root_tree->log_transid % 2;
+ 	list_add_tail(&root_log_ctx.list, &log_root_tree->log_ctxs[index2]);
+ 	root_log_ctx.log_transid = log_root_tree->log_transid;
+ 
+-	mutex_unlock(&log_root_tree->log_mutex);
+-
+-	mutex_lock(&log_root_tree->log_mutex);
+-
+ 	/*
+ 	 * Now we are safe to update the log_root_tree because we're under the
+ 	 * log_mutex, and we're a current writer so we're holding the commit
+ 	 * open until we drop the log_mutex.
+ 	 */
+ 	ret = update_log_root(trans, log, &new_root_item);
+-
+-	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
+-		/* atomic_dec_and_test implies a barrier */
+-		cond_wake_up_nomb(&log_root_tree->log_writer_wait);
+-	}
+-
+ 	if (ret) {
+ 		if (!list_empty(&root_log_ctx.list))
+ 			list_del_init(&root_log_ctx.list);
+@@ -3207,8 +3196,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 				root_log_ctx.log_transid - 1);
+ 	}
+ 
+-	wait_for_writer(log_root_tree);
+-
+ 	/*
+ 	 * now that we've moved on to the tree of log tree roots,
+ 	 * check the full commit flag again
 
 
