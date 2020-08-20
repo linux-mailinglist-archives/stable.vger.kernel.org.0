@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA7F24BB43
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1467924BB44
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730036AbgHTJww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34384 "EHLO mail.kernel.org"
+        id S1729953AbgHTM0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730031AbgHTJwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:52:51 -0400
+        id S1729474AbgHTJxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:53:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5E152078D;
-        Thu, 20 Aug 2020 09:52:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEC422067C;
+        Thu, 20 Aug 2020 09:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917171;
-        bh=MLUYmEQIpQQ0tKxgI28mt6VzfhC6majPmLwjwORvujM=;
+        s=default; t=1597917183;
+        bh=Ioa8RekqZZPooY2b/9Qub7r0er0Y5L/4+KS2IvOM9s8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9IvIX8BHCjIDiTnItLprIrLd5A7DeQydHPArC4yiGLQ/Q6dIymSpqnZ3bOM+eLQs
-         k/n4P7Zketwn78L4fMVQVtbJOvsAbQ1RCGDXNz0KH+mR1fC/3MwBImPiYofo+07G94
-         QUmN1Pegdm5iQnfsLqbisXSaWQp5HAkwD1/Hhhck=
+        b=xrvSMPRTdzXFhFbNmEHffdgVyW6go/+4hOiCYys8bod0bZPAwN56zkWRo7zZVszPB
+         V+KxU3Sh0wLTSgEMjlLspOEIN8kKOTW6qVNXKcbLJwrHnJdrI1X6WtBbUEYuTCDBV+
+         GaOnSxTvNMLPaafLH9C70goVJgmkQG7FJMaspu+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 29/92] bcache: allocate meta data pages as compound pages
-Date:   Thu, 20 Aug 2020 11:21:14 +0200
-Message-Id: <20200820091539.069604338@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Subject: [PATCH 4.19 32/92] driver core: Avoid binding drivers to dead devices
+Date:   Thu, 20 Aug 2020 11:21:17 +0200
+Message-Id: <20200820091539.256776256@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -43,80 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 5fe48867856367142d91a82f2cbf7a57a24cbb70 upstream.
+commit 654888327e9f655a9d55ad477a9583e90e8c9b5c upstream.
 
-There are some meta data of bcache are allocated by multiple pages,
-and they are used as bio bv_page for I/Os to the cache device. for
-example cache_set->uuids, cache->disk_buckets, journal_write->data,
-bset_tree->data.
+Commit 3451a495ef24 ("driver core: Establish order of operations for
+device_add and device_del via bitflag") sought to prevent asynchronous
+driver binding to a device which is being removed.  It added a
+per-device "dead" flag which is checked in the following code paths:
 
-For such meta data memory, all the allocated pages should be treated
-as a single memory block. Then the memory management and underlying I/O
-code can treat them more clearly.
+* asynchronous binding in __driver_attach_async_helper()
+*  synchronous binding in device_driver_attach()
+* asynchronous binding in __device_attach_async_helper()
 
-This patch adds __GFP_COMP flag to all the location allocating >0 order
-pages for the above mentioned meta data. Then their pages are treated
-as compound pages now.
+It did *not* check the flag upon:
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+*  synchronous binding in __device_attach()
+
+However __device_attach() may also be called asynchronously from:
+
+deferred_probe_work_func()
+  bus_probe_device()
+    device_initial_probe()
+      __device_attach()
+
+So if the commit's intention was to check the "dead" flag in all
+asynchronous code paths, then a check is also necessary in
+__device_attach().  Add the missing check.
+
+Fixes: 3451a495ef24 ("driver core: Establish order of operations for device_add and device_del via bitflag")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v5.1+
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Link: https://lore.kernel.org/r/de88a23a6fe0ef70f7cfd13c8aea9ab51b4edab6.1594214103.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bset.c    |    2 +-
- drivers/md/bcache/btree.c   |    2 +-
- drivers/md/bcache/journal.c |    4 ++--
- drivers/md/bcache/super.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/base/dd.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -321,7 +321,7 @@ int bch_btree_keys_alloc(struct btree_ke
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -792,7 +792,9 @@ static int __device_attach(struct device
+ 	int ret = 0;
  
- 	b->page_order = page_order;
- 
--	t->data = (void *) __get_free_pages(gfp, b->page_order);
-+	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
- 	if (!t->data)
- 		goto err;
- 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -830,7 +830,7 @@ int bch_btree_cache_alloc(struct cache_s
- 	mutex_init(&c->verify_lock);
- 
- 	c->verify_ondisk = (void *)
--		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
-+		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
- 
- 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
- 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -864,8 +864,8 @@ int bch_journal_alloc(struct cache_set *
- 	j->w[1].c = c;
- 
- 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
--	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
--	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
-+	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
-+	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
- 		return -ENOMEM;
- 
- 	return 0;
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1693,7 +1693,7 @@ void bch_cache_set_unregister(struct cac
- }
- 
- #define alloc_bucket_pages(gfp, c)			\
--	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
-+	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
- 
- struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- {
+ 	device_lock(dev);
+-	if (dev->driver) {
++	if (dev->p->dead) {
++		goto out_unlock;
++	} else if (dev->driver) {
+ 		if (device_is_bound(dev)) {
+ 			ret = 1;
+ 			goto out_unlock;
 
 
