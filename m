@@ -2,64 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0835624B4FF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B0E24B5CC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbgHTKQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
+        id S1731508AbgHTK2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:28:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730639AbgHTKQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:09 -0400
+        id S1731576AbgHTKV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09410208E4;
-        Thu, 20 Aug 2020 10:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DC6A20658;
+        Thu, 20 Aug 2020 10:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918568;
-        bh=hAHgVOWfNzZJr03v5cMvaqxdLXR40PEOLqcTAMy3kP0=;
+        s=default; t=1597918916;
+        bh=OE314dlREHwftamZAUJHXC4kUWq7DSSXV5toaxDKDP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zpw//n8ZgCoKOmtgxBqi38hBJB0dpPIlbJqXNHudMbJU3QhiHXE11/xqbgLwouQlK
-         TPUwzDwo/dcQPqHa9CO7LOwf/+zm/G36kaWvbnJG8Lfa2MLA+leLr6FHeVWcwSEbvU
-         3GoGVGiODyyXeBsE4xVDnhLIUYCc0gObji1qV8Mk=
+        b=QxwFEKHz5XJvu1hO6H4j8573oAyv7bvOqxxMiUlXOvSrY0T0cTur6/osmzA3+sP6q
+         sev3AdViADScViq02zNeRqIXyW1OA91T/uEWQhWZmqhFqsg3uk9pxIH+aYZonjzr8b
+         iNpnY05i9uKy8gg+r38n58ePqjWgbuzstbH19dcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kees Cook <keescook@chromium.org>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Sergey Kvachonok <ravenexp@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Tony Vroon <chainsaw@gentoo.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 215/228] test_kmod: avoid potential double free in trigger_config_run_type()
-Date:   Thu, 20 Aug 2020 11:23:10 +0200
-Message-Id: <20200820091618.264115068@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 114/149] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
+Date:   Thu, 20 Aug 2020 11:23:11 +0200
+Message-Id: <20200820092131.220609205@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,65 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 0776d1231bec0c7ab43baf440a3f5ef5f49dd795 ]
+commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
 
-Reset the member "test_fs" of the test configuration after a call of the
-function "kfree_const" to a null pointer so that a double memory release
-will not be performed.
+Further investigation of the L-R swap problem on the MS2109 reveals that
+the problem isn't that the channels are swapped, but rather that they
+are swapped and also out of phase by one sample. In other words, the
+issue is actually that the very first frame that comes from the hardware
+is a half-frame containing only the right channel, and after that
+everything becomes offset.
 
-Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Chuck Lever <chuck.lever@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: James Morris <jmorris@namei.org>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: J. Bruce Fields <bfields@fieldses.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Sergey Kvachonok <ravenexp@gmail.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Tony Vroon <chainsaw@gentoo.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Link: http://lkml.kernel.org/r/20200610154923.27510-4-mcgrof@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So introduce a new quirk field to drop the very first 2 bytes that come
+in after the format is configured and a capture stream starts. This puts
+the channels in phase and in the correct order.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- lib/test_kmod.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/card.h   |    1 +
+ sound/usb/pcm.c    |    6 ++++++
+ sound/usb/quirks.c |    3 +++
+ sound/usb/stream.c |    1 +
+ 4 files changed, 11 insertions(+)
 
-diff --git a/lib/test_kmod.c b/lib/test_kmod.c
-index cf619795a1822..c0ce0156d54bb 100644
---- a/lib/test_kmod.c
-+++ b/lib/test_kmod.c
-@@ -747,7 +747,7 @@ static int trigger_config_run_type(struct kmod_test_device *test_dev,
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -125,6 +125,7 @@ struct snd_usb_substream {
+ 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
+ 	unsigned int fmt_type;		/* USB audio format type (1-3) */
+ 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
++	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
+ 
+ 	unsigned int running: 1;	/* running status */
+ 
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1302,6 +1302,12 @@ static void retire_capture_urb(struct sn
+ 			// continue;
+ 		}
+ 		bytes = urb->iso_frame_desc[i].actual_length;
++		if (subs->stream_offset_adj > 0) {
++			unsigned int adj = min(subs->stream_offset_adj, bytes);
++			cp += adj;
++			bytes -= adj;
++			subs->stream_offset_adj -= adj;
++		}
+ 		frames = bytes / stride;
+ 		if (!subs->txfr_quirk)
+ 			bytes = frames * stride;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1122,6 +1122,9 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
  		break;
- 	case TEST_KMOD_FS_TYPE:
- 		kfree_const(config->test_fs);
--		config->test_driver = NULL;
-+		config->test_fs = NULL;
- 		copied = config_copy_test_fs(config, test_str,
- 					     strlen(test_str));
- 		break;
--- 
-2.25.1
-
++	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
++		subs->stream_offset_adj = 2;
++		break;
+ 	}
+ }
+ 
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -95,6 +95,7 @@ static void snd_usb_init_substream(struc
+ 	subs->tx_length_quirk = as->chip->tx_length_quirk;
+ 	subs->speed = snd_usb_get_speed(subs->dev);
+ 	subs->pkt_offset_adj = 0;
++	subs->stream_offset_adj = 0;
+ 
+ 	snd_usb_set_pcm_ops(as->pcm, stream);
+ 
 
 
