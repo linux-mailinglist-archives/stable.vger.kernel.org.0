@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8964C24BEC5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC1324BEC0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729311AbgHTNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729045AbgHTNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44914 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728268AbgHTJcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728271AbgHTJcc (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:32:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21EF322B43;
-        Thu, 20 Aug 2020 09:32:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D90A22BED;
+        Thu, 20 Aug 2020 09:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915948;
-        bh=oXeyNpkxSpAQTKEQp60xwWYuLDvULSId889n38AnUOk=;
+        s=default; t=1597915952;
+        bh=yNimt8oteiua9Ywn8PfbraGv1Dkc6uXM8n1oYGvyJHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dndZZdeRv9i4fI25FG/YRe1hZxo1+cnAqaD3KdyyK1AmkMc8xrjCm+X7p5FPbuHaG
-         sy8f5DdthX40ZY4PPnBcVynl6RalX6Q2xbGP8D4v5a3o1RfbzHX2Eu+yMcTQ+LrPE3
-         h6SG06MyY07cz3y7d0RHPArUYT2j6/ccHCEelgsw=
+        b=WmNOoKFp8KkD3okx9IZeH+71Tn+0LGrIQttC1uh+9WQTssb2We8cSz170rKuRPPYc
+         uBpJInrK+3heo9oquJRMFyIjrp+rOK+8Wd7m81TAFbIxQjrIeEQcTwkAf8lGFiBTZw
+         Sk7G6qaihw91ZJTBPsUhS4q44HLzsMao+e7EYafs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Yi L <yi.l.liu@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 161/232] iommu/vt-d: Disable multiple GPASID-dev bind
-Date:   Thu, 20 Aug 2020 11:20:12 +0200
-Message-Id: <20200820091620.610996163@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 162/232] i2c: rcar: slave: only send STOP event when we have been addressed
+Date:   Thu, 20 Aug 2020 11:20:13 +0200
+Message-Id: <20200820091620.658340785@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,77 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit d315e9e684d1efd4cb2e8cd70b8d71dec02fcf1f ]
+[ Upstream commit 314139f9f0abdba61ed9a8463bbcb0bf900ac5a2 ]
 
-For the unlikely use case where multiple aux domains from the same pdev
-are attached to a single guest and then bound to a single process
-(thus same PASID) within that guest, we cannot easily support this case
-by refcounting the number of users. As there is only one SL page table
-per PASID while we have multiple aux domains thus multiple SL page tables
-for the same PASID.
+When the SSR interrupt is activated, it will detect every STOP condition
+on the bus, not only the ones after we have been addressed. So, enable
+this interrupt only after we have been addressed, and disable it
+otherwise.
 
-Extra unbinding guest PASID can happen due to race between normal and
-exception cases. Termination of one aux domain may affect others unless
-we actively track and switch aux domains to ensure the validity of SL
-page tables and TLB states in the shared PASID entry.
-
-Support for sharing second level PGDs across domains can reduce the
-complexity but this is not available due to the limitations on VFIO
-container architecture. We can revisit this decision once sharing PGDs
-are available.
-
-Overall, the complexity and potential glitch do not warrant this unlikely
-use case thereby removed by this patch.
-
-Fixes: 56722a4398a30 ("iommu/vt-d: Add bind guest PASID support")
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20200724014925.15523-8-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/svm.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
-index 6c87c807a0abb..d386853121a26 100644
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -277,20 +277,16 @@ int intel_svm_bind_gpasid(struct iommu_domain *domain, struct device *dev,
- 			goto out;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 2e3e1bb750134..76c615be5acae 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -583,13 +583,14 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ 			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
  		}
  
-+		/*
-+		 * Do not allow multiple bindings of the same device-PASID since
-+		 * there is only one SL page tables per PASID. We may revisit
-+		 * once sharing PGD across domains are supported.
-+		 */
- 		for_each_svm_dev(sdev, svm, dev) {
--			/*
--			 * For devices with aux domains, we should allow
--			 * multiple bind calls with the same PASID and pdev.
--			 */
--			if (iommu_dev_feature_enabled(dev,
--						      IOMMU_DEV_FEAT_AUX)) {
--				sdev->users++;
--			} else {
--				dev_warn_ratelimited(dev,
--						     "Already bound with PASID %u\n",
--						     svm->pasid);
--				ret = -EBUSY;
--			}
-+			dev_warn_ratelimited(dev,
-+					     "Already bound with PASID %u\n",
-+					     svm->pasid);
-+			ret = -EBUSY;
- 			goto out;
- 		}
- 	} else {
+-		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
++		/* Clear SSR, too, because of old STOPs to other clients than us */
++		rcar_i2c_write(priv, ICSSR, ~(SAR | SSR) & 0xff);
+ 	}
+ 
+ 	/* master sent stop */
+ 	if (ssr_filtered & SSR) {
+ 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
+-		rcar_i2c_write(priv, ICSIER, SAR | SSR);
++		rcar_i2c_write(priv, ICSIER, SAR);
+ 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
+ 	}
+ 
+@@ -853,7 +854,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
+ 	priv->slave = slave;
+ 	rcar_i2c_write(priv, ICSAR, slave->addr);
+ 	rcar_i2c_write(priv, ICSSR, 0);
+-	rcar_i2c_write(priv, ICSIER, SAR | SSR);
++	rcar_i2c_write(priv, ICSIER, SAR);
+ 	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
+ 
+ 	return 0;
 -- 
 2.25.1
 
