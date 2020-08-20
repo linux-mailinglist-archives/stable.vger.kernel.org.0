@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7017824B4D5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2586D24B461
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbgHTKNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54292 "EHLO mail.kernel.org"
+        id S1730492AbgHTKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:04:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731054AbgHTKMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:31 -0400
+        id S1730293AbgHTKCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:02:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B810120738;
-        Thu, 20 Aug 2020 10:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7D7420855;
+        Thu, 20 Aug 2020 10:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918351;
-        bh=wEHEpnY21BIQiJBhHTEDRxYaJnYW3PivCC0GcHmkWe0=;
+        s=default; t=1597917737;
+        bh=0BuGBNYRRfCZkWroIdzu90x55iYIIgyR6zQdAe8liMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xyCMXaoAbmDbsoOtSE3xTXI5MDLOqUTEUpwSbXInTfw6Z4UyY/mV8Wch7RIpUKplz
-         jzNtX/Fn+NFxbFba87CAQiQFM2ZMgyxLSZUGfSD4ESSsYLFJ/6X1Vzh4PGsopijxsu
-         o5OolsrWwsSIbt8YiUxyMjA47VPY0/QkHrUTvOxY=
+        b=DbIuRohNVW5fj22kNc2Bg5APHCu2CN4lliUR/bSjmf7FPjRj3F2BTpzuFP4/XKoPd
+         4noYOnJ2GoRNew16gaQYZNFQEK7T4Trp0IBYGNK90q60UcqyKfxexXynKUnu8ureFn
+         Hch+K8JmKAYUJ20IKy5HwjAloD6uOUR+EHWeqL4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Jian Cai <caij2003@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/228] crypto: aesni - add compatibility with IAS
+Subject: [PATCH 4.9 140/212] s390/qeth: dont process empty bridge port events
 Date:   Thu, 20 Aug 2020 11:21:53 +0200
-Message-Id: <20200820091614.486103051@linuxfoundation.org>
+Message-Id: <20200820091609.417418761@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Cai <caij2003@gmail.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 44069737ac9625a0f02f0f7f5ab96aae4cd819bc ]
+[ Upstream commit 02472e28b9a45471c6d8729ff2c7422baa9be46a ]
 
-Clang's integrated assembler complains "invalid reassignment of
-non-absolute variable 'var_ddq_add'" while assembling
-arch/x86/crypto/aes_ctrby8_avx-x86_64.S. It was because var_ddq_add was
-reassigned with non-absolute values several times, which IAS did not
-support. We can avoid the reassignment by replacing the uses of
-var_ddq_add with its definitions accordingly to have compatilibility
-with IAS.
+Discard events that don't contain any entries. This shouldn't happen,
+but subsequent code relies on being able to use entry 0. So better
+be safe than accessing garbage.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1008
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reported-by: Fangrui Song <maskray@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot Linux v5.7.5; clang v11.0.0-git
-Signed-off-by: Jian Cai <caij2003@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: b4d72c08b358 ("qeth: bridgeport support - basic control")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/aes_ctrby8_avx-x86_64.S | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-index 5f6a5af9c489b..77043a82da510 100644
---- a/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-+++ b/arch/x86/crypto/aes_ctrby8_avx-x86_64.S
-@@ -127,10 +127,6 @@ ddq_add_8:
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 51152681aba6e..c878c87966163 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1675,6 +1675,10 @@ static void qeth_bridge_state_change(struct qeth_card *card,
+ 	int extrasize;
  
- /* generate a unique variable for ddq_add_x */
- 
--.macro setddq n
--	var_ddq_add = ddq_add_\n
--.endm
--
- /* generate a unique variable for xmm register */
- .macro setxdata n
- 	var_xdata = %xmm\n
-@@ -140,9 +136,7 @@ ddq_add_8:
- 
- .macro club name, id
- .altmacro
--	.if \name == DDQ_DATA
--		setddq %\id
--	.elseif \name == XDATA
-+	.if \name == XDATA
- 		setxdata %\id
- 	.endif
- .noaltmacro
-@@ -165,9 +159,8 @@ ddq_add_8:
- 
- 	.set i, 1
- 	.rept (by - 1)
--		club DDQ_DATA, i
- 		club XDATA, i
--		vpaddq	var_ddq_add(%rip), xcounter, var_xdata
-+		vpaddq	(ddq_add_1 + 16 * (i - 1))(%rip), xcounter, var_xdata
- 		vptest	ddq_low_msk(%rip), var_xdata
- 		jnz 1f
- 		vpaddq	ddq_high_add_1(%rip), var_xdata, var_xdata
-@@ -180,8 +173,7 @@ ddq_add_8:
- 	vmovdqa	1*16(p_keys), xkeyA
- 
- 	vpxor	xkey0, xdata0, xdata0
--	club DDQ_DATA, by
--	vpaddq	var_ddq_add(%rip), xcounter, xcounter
-+	vpaddq	(ddq_add_1 + 16 * (by - 1))(%rip), xcounter, xcounter
- 	vptest	ddq_low_msk(%rip), xcounter
- 	jnz	1f
- 	vpaddq	ddq_high_add_1(%rip), xcounter, xcounter
+ 	QETH_CARD_TEXT(card, 2, "brstchng");
++	if (qports->num_entries == 0) {
++		QETH_CARD_TEXT(card, 2, "BPempty");
++		return;
++	}
+ 	if (qports->entry_length != sizeof(struct qeth_sbp_port_entry)) {
+ 		QETH_CARD_TEXT_(card, 2, "BPsz%04x", qports->entry_length);
+ 		return;
 -- 
 2.25.1
 
