@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8002524B249
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD41E24B25A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727941AbgHTJ05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:26:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
+        id S1727013AbgHTJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:27:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727841AbgHTJ0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:02 -0400
+        id S1727841AbgHTJ1E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 998C322D02;
-        Thu, 20 Aug 2020 09:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7609022CF6;
+        Thu, 20 Aug 2020 09:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915556;
-        bh=qSvUBKDi00WIyAyry/sv6rrACXvKCMoL036mv2tgZ7o=;
+        s=default; t=1597915624;
+        bh=tnabjO7JEjY1lDcg7PZdz46k5I4+nn34zgqTPaqIAqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OymSgv5jVwcJIxrgtNQPeBJPz4dUU5SViPZONIJ9ltnVMPJk9OkATsP5h1dZpHXf0
-         OB8I1TjPIU/BypOCx/Phb912i5m9pcsqnTvFBSE1M1/FzG6fGTbR9yyTbKFSiXJAjc
-         qMKO+OQY/mQHIxAIqmYwbbwPkVBPo0NNwSTy3tcU=
+        b=DM11x6Y8JQpXhK2Rl6i+8PKmW8odDc4Jp9X/RkjG1cIBT7D+S2/MLXPRNfEZnz19F
+         UYw2PfywfCqN0G/T7bapyW7nfL1ir+LzOJI0TinyvB7YHZw+O6sC1KiLZG/nhl9koM
+         XQVmgzqvZ+TYGja8XcQ7NHbNDgWhb+ucUVHGaGPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Mansur Alisha Shaik <mansur@codeaurora.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.8 055/232] media: venus: fix multiple encoder crash
-Date:   Thu, 20 Aug 2020 11:18:26 +0200
-Message-Id: <20200820091615.450774241@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.8 061/232] pidfd: Add missing sock updates for pidfd_getfd()
+Date:   Thu, 20 Aug 2020 11:18:32 +0200
+Message-Id: <20200820091615.744240580@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,42 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mansur Alisha Shaik <mansur@codeaurora.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit e0eb34810113dbbf1ace57440cf48d514312a373 upstream.
+commit 4969f8a073977123504609d7310b42a588297aa4 upstream.
 
-Currently we are considering the instances which are available
-in core->inst list for load calculation in min_loaded_core()
-function, but this is incorrect because by the time we call
-decide_core() for second instance, the third instance not
-filled yet codec_freq_data pointer.
+The sock counting (sock_update_netprioidx() and sock_update_classid())
+was missing from pidfd's implementation of received fd installation. Add
+a call to the new __receive_sock() helper.
 
-Solve this by considering the instances whose session has started.
-
-Cc: stable@vger.kernel.org # v5.7+
-Fixes: 4ebf969375bc ("media: venus: introduce core selection")
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Mansur Alisha Shaik <mansur@codeaurora.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Sargun Dhillon <sargun@sargun.me>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 8649c322f75c ("pid: Implement pidfd_getfd syscall")
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/qcom/venus/pm_helpers.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/pid.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/pm_helpers.c
-+++ b/drivers/media/platform/qcom/venus/pm_helpers.c
-@@ -496,6 +496,10 @@ min_loaded_core(struct venus_inst *inst,
- 	list_for_each_entry(inst_pos, &core->instances, list) {
- 		if (inst_pos == inst)
- 			continue;
-+
-+		if (inst_pos->state != INST_START)
-+			continue;
-+
- 		vpp_freq = inst_pos->clk_data.codec_freq_data->vpp_freq;
- 		coreid = inst_pos->clk_data.core_id;
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -42,6 +42,7 @@
+ #include <linux/sched/signal.h>
+ #include <linux/sched/task.h>
+ #include <linux/idr.h>
++#include <net/sock.h>
  
+ struct pid init_struct_pid = {
+ 	.count		= REFCOUNT_INIT(1),
+@@ -642,10 +643,12 @@ static int pidfd_getfd(struct pid *pid,
+ 	}
+ 
+ 	ret = get_unused_fd_flags(O_CLOEXEC);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		fput(file);
+-	else
++	} else {
++		__receive_sock(file);
+ 		fd_install(ret, file);
++	}
+ 
+ 	return ret;
+ }
 
 
