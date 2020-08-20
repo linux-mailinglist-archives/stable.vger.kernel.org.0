@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E17024B436
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5A124B384
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729668AbgHTJ7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:59:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46448 "EHLO mail.kernel.org"
+        id S1729519AbgHTJsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:48:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729362AbgHTJ7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:41 -0400
+        id S1729557AbgHTJs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25123208DB;
-        Thu, 20 Aug 2020 09:59:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4840E2078D;
+        Thu, 20 Aug 2020 09:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917580;
-        bh=BmFvSYOC5avABBb19lAm61NvJ0ZOipqaWWp6VsdLIJA=;
+        s=default; t=1597916908;
+        bh=kDSAgY3T2N8pzGL+AufxB3nLV2xVHcmx/Br5SerSUBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRi8R1Ppwxfrr9et1ynmS4tbqMjQuKCBfQbGJxw5NGeZy0E7Avsnnf1N4yH3nbmd6
-         8wM41VrAGDZ9O3/6i3YmMxjcaHOxpC+fPDzwVIzpuZeUTftQVm9bHWOTTIVqXta3GR
-         ipuKo24sQOkm075vblnt/rfAvVhvtNbs6q02WCmM=
+        b=p7Z01Xvkx1A2O3h033xRTdSI1vNj3Jc3Wy+0Y+kjt49WqLvL+tUv+J/yMydy6RVsd
+         4GYVrTLxkl+tZ7o0HQQRapAd6nxgEcoDlygst24+9HHKfLM0IgzzfHbX7eYHavk1pB
+         okT91J6MIya6h7oIah8X0Q1XhdfiC3vwR47OAtKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 082/212] EDAC: Fix reference count leaks
-Date:   Thu, 20 Aug 2020 11:20:55 +0200
-Message-Id: <20200820091606.504127526@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/152] USB: serial: ftdi_sio: make process-packet buffer unsigned
+Date:   Thu, 20 Aug 2020 11:20:56 +0200
+Message-Id: <20200820091558.295106724@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 17ed808ad243192fb923e4e653c1338d3ba06207 ]
+[ Upstream commit ab4cc4ef6724ea588e835fc1e764c4b4407a70b7 ]
 
-When kobject_init_and_add() returns an error, it should be handled
-because kobject_init_and_add() takes a reference even when it fails. If
-this function returns an error, kobject_put() must be called to properly
-clean up the memory associated with the object.
+Use an unsigned type for the process-packet buffer argument and give it
+a more apt name.
 
-Therefore, replace calling kfree() and call kobject_put() and add a
-missing kobject_put() in the edac_device_register_sysfs_main_kobj()
-error path.
-
- [ bp: Massage and merge into a single patch. ]
-
-Fixes: b2ed215a3338 ("Kobject: change drivers/edac to use kobject_init_and_add")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200528202238.18078-1-wu000273@umn.edu
-Link: https://lkml.kernel.org/r/20200528203526.20908-1-wu000273@umn.edu
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_device_sysfs.c | 1 +
- drivers/edac/edac_pci_sysfs.c    | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/edac/edac_device_sysfs.c b/drivers/edac/edac_device_sysfs.c
-index 93da1a45c7161..470b02fc2de96 100644
---- a/drivers/edac/edac_device_sysfs.c
-+++ b/drivers/edac/edac_device_sysfs.c
-@@ -275,6 +275,7 @@ int edac_device_register_sysfs_main_kobj(struct edac_device_ctl_info *edac_dev)
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 9ad44a96dfe3a..96b9e2768ac5c 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -2480,12 +2480,12 @@ static int ftdi_prepare_write_buffer(struct usb_serial_port *port,
+ #define FTDI_RS_ERR_MASK (FTDI_RS_BI | FTDI_RS_PE | FTDI_RS_FE | FTDI_RS_OE)
  
- 	/* Error exit stack */
- err_kobj_reg:
-+	kobject_put(&edac_dev->kobj);
- 	module_put(edac_dev->owner);
+ static int ftdi_process_packet(struct usb_serial_port *port,
+-		struct ftdi_private *priv, char *packet, int len)
++		struct ftdi_private *priv, unsigned char *buf, int len)
+ {
++	unsigned char status;
++	unsigned char *ch;
+ 	int i;
+-	char status;
+ 	char flag;
+-	char *ch;
  
- err_out:
-diff --git a/drivers/edac/edac_pci_sysfs.c b/drivers/edac/edac_pci_sysfs.c
-index 6e3428ba400f3..622d117e25335 100644
---- a/drivers/edac/edac_pci_sysfs.c
-+++ b/drivers/edac/edac_pci_sysfs.c
-@@ -386,7 +386,7 @@ static int edac_pci_main_kobj_setup(void)
+ 	if (len < 2) {
+ 		dev_dbg(&port->dev, "malformed packet\n");
+@@ -2495,7 +2495,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	/* Compare new line status to the old one, signal if different/
+ 	   N.B. packet may be processed more than once, but differences
+ 	   are only processed once.  */
+-	status = packet[0] & FTDI_STATUS_B0_MASK;
++	status = buf[0] & FTDI_STATUS_B0_MASK;
+ 	if (status != priv->prev_status) {
+ 		char diff_status = status ^ priv->prev_status;
  
- 	/* Error unwind statck */
- kobject_init_and_add_fail:
--	kfree(edac_pci_top_main_kobj);
-+	kobject_put(edac_pci_top_main_kobj);
+@@ -2521,7 +2521,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	}
  
- kzalloc_fail:
- 	module_put(THIS_MODULE);
+ 	/* save if the transmitter is empty or not */
+-	if (packet[1] & FTDI_RS_TEMT)
++	if (buf[1] & FTDI_RS_TEMT)
+ 		priv->transmit_empty = 1;
+ 	else
+ 		priv->transmit_empty = 0;
+@@ -2535,29 +2535,29 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	 * data payload to avoid over-reporting.
+ 	 */
+ 	flag = TTY_NORMAL;
+-	if (packet[1] & FTDI_RS_ERR_MASK) {
++	if (buf[1] & FTDI_RS_ERR_MASK) {
+ 		/* Break takes precedence over parity, which takes precedence
+ 		 * over framing errors */
+-		if (packet[1] & FTDI_RS_BI) {
++		if (buf[1] & FTDI_RS_BI) {
+ 			flag = TTY_BREAK;
+ 			port->icount.brk++;
+ 			usb_serial_handle_break(port);
+-		} else if (packet[1] & FTDI_RS_PE) {
++		} else if (buf[1] & FTDI_RS_PE) {
+ 			flag = TTY_PARITY;
+ 			port->icount.parity++;
+-		} else if (packet[1] & FTDI_RS_FE) {
++		} else if (buf[1] & FTDI_RS_FE) {
+ 			flag = TTY_FRAME;
+ 			port->icount.frame++;
+ 		}
+ 		/* Overrun is special, not associated with a char */
+-		if (packet[1] & FTDI_RS_OE) {
++		if (buf[1] & FTDI_RS_OE) {
+ 			port->icount.overrun++;
+ 			tty_insert_flip_char(&port->port, 0, TTY_OVERRUN);
+ 		}
+ 	}
+ 
+ 	port->icount.rx += len;
+-	ch = packet + 2;
++	ch = buf + 2;
+ 
+ 	if (port->port.console && port->sysrq) {
+ 		for (i = 0; i < len; i++, ch++) {
 -- 
 2.25.1
 
