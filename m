@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD3424B3FF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B3B24B405
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbgHTJzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S1729976AbgHTJzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:55:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729777AbgHTJzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:55:06 -0400
+        id S1730048AbgHTJzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:55:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96962207FB;
-        Thu, 20 Aug 2020 09:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 931022078D;
+        Thu, 20 Aug 2020 09:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917306;
-        bh=yQHTfJGTG1oXfFMvYb/hVHTVR3T7k0IztaZU2NlQ/XI=;
+        s=default; t=1597917348;
+        bh=SVS21djZw9/LqBL4/NWJn5UrOM1V2Waxvqw8K5pIbbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGhs2P5+wsqXYMJ1jHvV3YLNRxKitDlTef4JHCe5fyrnX6YAIEnCKjs5tVmB23HNv
-         bgOIL3DI6BOJP687NYdQERDOTlQ2X6RLBkHC07hJEXM72ndJ4L2pY0EqYMAOup2764
-         0epnfcbTpNOt3jZ+e/iWAOEw3z/Eeyf265JS0PCU=
+        b=dD/7Owz//WfdzrFRUK3pQwyqu3NtOrJMwgL0ZXEVtKR8aFFoMIXdr9q6Wk4Npj3QO
+         I3yuxdcEyi20B1onDFSlk70Zl1MM2TOWVqf0NPQa6wP4BJi2lT9pO8VCb805l6HWy+
+         937pctVKbjJEiGzADNEzeFdzWq7d0nkFKLs+upNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Roland Scheidegger <sroland@vmware.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 75/92] drm/vmwgfx: Fix two list_for_each loop exit tests
-Date:   Thu, 20 Aug 2020 11:22:00 +0200
-Message-Id: <20200820091541.571565375@linuxfoundation.org>
+Subject: [PATCH 4.19 78/92] fs/minix: set s_maxbytes correctly
+Date:   Thu, 20 Aug 2020 11:22:03 +0200
+Message-Id: <20200820091541.715985654@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -44,60 +47,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 4437c1152ce0e57ab8f401aa696ea6291cc07ab1 ]
+[ Upstream commit 32ac86efff91a3e4ef8c3d1cadd4559e23c8e73a ]
 
-These if statements are supposed to be true if we ended the
-list_for_each_entry() loops without hitting a break statement but they
-don't work.
+The minix filesystem leaves super_block::s_maxbytes at MAX_NON_LFS rather
+than setting it to the actual filesystem-specific limit.  This is broken
+because it means userspace doesn't see the standard behavior like getting
+EFBIG and SIGXFSZ when exceeding the maximum file size.
 
-In the first loop, we increment "i" after the "if (i == unit)" condition
-so we don't necessarily know that "i" is not equal to unit at the end of
-the loop.
+Fix this by setting s_maxbytes correctly.
 
-In the second loop we exit when mode is not pointing to a valid
-drm_display_mode struct so it doesn't make sense to check "mode->type".
-
-Fixes: a278724aa23c ("drm/vmwgfx: Implement fbdev on kms v2")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Roland Scheidegger <sroland@vmware.com>
-Signed-off-by: Roland Scheidegger <sroland@vmware.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Link: http://lkml.kernel.org/r/20200628060846.682158-5-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/minix/inode.c    | 12 +++++++-----
+ fs/minix/itree_v1.c |  2 +-
+ fs/minix/itree_v2.c |  3 +--
+ fs/minix/minix.h    |  1 -
+ 4 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-index 6a712a8d59e93..e486b6517ac55 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-@@ -2861,7 +2861,7 @@ int vmw_kms_fbdev_init_data(struct vmw_private *dev_priv,
- 		++i;
- 	}
+diff --git a/fs/minix/inode.c b/fs/minix/inode.c
+index 4f994de46e6b9..03fe8bac36cf4 100644
+--- a/fs/minix/inode.c
++++ b/fs/minix/inode.c
+@@ -155,8 +155,10 @@ static int minix_remount (struct super_block * sb, int * flags, char * data)
+ 	return 0;
+ }
  
--	if (i != unit) {
-+	if (&con->head == &dev_priv->dev->mode_config.connector_list) {
- 		DRM_ERROR("Could not find initial display unit.\n");
- 		ret = -EINVAL;
- 		goto out_unlock;
-@@ -2885,13 +2885,13 @@ int vmw_kms_fbdev_init_data(struct vmw_private *dev_priv,
- 			break;
- 	}
+-static bool minix_check_superblock(struct minix_sb_info *sbi)
++static bool minix_check_superblock(struct super_block *sb)
+ {
++	struct minix_sb_info *sbi = minix_sb(sb);
++
+ 	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
+ 		return false;
  
--	if (mode->type & DRM_MODE_TYPE_PREFERRED)
--		*p_mode = mode;
--	else {
-+	if (&mode->head == &con->modes) {
- 		WARN_ONCE(true, "Could not find initial preferred mode.\n");
- 		*p_mode = list_first_entry(&con->modes,
- 					   struct drm_display_mode,
- 					   head);
-+	} else {
-+		*p_mode = mode;
- 	}
+@@ -166,7 +168,7 @@ static bool minix_check_superblock(struct minix_sb_info *sbi)
+ 	 * of indirect blocks which places the limit well above U32_MAX.
+ 	 */
+ 	if (sbi->s_version == MINIX_V1 &&
+-	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
++	    sb->s_maxbytes > (7 + 512 + 512*512) * BLOCK_SIZE)
+ 		return false;
  
-  out_unlock:
+ 	return true;
+@@ -207,7 +209,7 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
+ 	sbi->s_zmap_blocks = ms->s_zmap_blocks;
+ 	sbi->s_firstdatazone = ms->s_firstdatazone;
+ 	sbi->s_log_zone_size = ms->s_log_zone_size;
+-	sbi->s_max_size = ms->s_max_size;
++	s->s_maxbytes = ms->s_max_size;
+ 	s->s_magic = ms->s_magic;
+ 	if (s->s_magic == MINIX_SUPER_MAGIC) {
+ 		sbi->s_version = MINIX_V1;
+@@ -238,7 +240,7 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
+ 		sbi->s_zmap_blocks = m3s->s_zmap_blocks;
+ 		sbi->s_firstdatazone = m3s->s_firstdatazone;
+ 		sbi->s_log_zone_size = m3s->s_log_zone_size;
+-		sbi->s_max_size = m3s->s_max_size;
++		s->s_maxbytes = m3s->s_max_size;
+ 		sbi->s_ninodes = m3s->s_ninodes;
+ 		sbi->s_nzones = m3s->s_zones;
+ 		sbi->s_dirsize = 64;
+@@ -250,7 +252,7 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
+ 	} else
+ 		goto out_no_fs;
+ 
+-	if (!minix_check_superblock(sbi))
++	if (!minix_check_superblock(s))
+ 		goto out_illegal_sb;
+ 
+ 	/*
+diff --git a/fs/minix/itree_v1.c b/fs/minix/itree_v1.c
+index 046cc96ee7adb..c0d418209ead1 100644
+--- a/fs/minix/itree_v1.c
++++ b/fs/minix/itree_v1.c
+@@ -29,7 +29,7 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
+ 	if (block < 0) {
+ 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
+ 			block, inode->i_sb->s_bdev);
+-	} else if (block >= (minix_sb(inode->i_sb)->s_max_size/BLOCK_SIZE)) {
++	} else if (block >= inode->i_sb->s_maxbytes/BLOCK_SIZE) {
+ 		if (printk_ratelimit())
+ 			printk("MINIX-fs: block_to_path: "
+ 			       "block %ld too big on dev %pg\n",
+diff --git a/fs/minix/itree_v2.c b/fs/minix/itree_v2.c
+index f7fc7eccccccd..ee8af2f9e2828 100644
+--- a/fs/minix/itree_v2.c
++++ b/fs/minix/itree_v2.c
+@@ -32,8 +32,7 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
+ 	if (block < 0) {
+ 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
+ 			block, sb->s_bdev);
+-	} else if ((u64)block * (u64)sb->s_blocksize >=
+-			minix_sb(sb)->s_max_size) {
++	} else if ((u64)block * (u64)sb->s_blocksize >= sb->s_maxbytes) {
+ 		if (printk_ratelimit())
+ 			printk("MINIX-fs: block_to_path: "
+ 			       "block %ld too big on dev %pg\n",
+diff --git a/fs/minix/minix.h b/fs/minix/minix.h
+index df081e8afcc3c..168d45d3de73e 100644
+--- a/fs/minix/minix.h
++++ b/fs/minix/minix.h
+@@ -32,7 +32,6 @@ struct minix_sb_info {
+ 	unsigned long s_zmap_blocks;
+ 	unsigned long s_firstdatazone;
+ 	unsigned long s_log_zone_size;
+-	unsigned long s_max_size;
+ 	int s_dirsize;
+ 	int s_namelen;
+ 	struct buffer_head ** s_imap;
 -- 
 2.25.1
 
