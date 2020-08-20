@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B97C24C041
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 16:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29FA24C039
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 16:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731000AbgHTNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:54:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
+        id S1727946AbgHTNyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726364AbgHTJ0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:03 -0400
+        id S1727875AbgHTJ0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7764022CF6;
-        Thu, 20 Aug 2020 09:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 310962173E;
+        Thu, 20 Aug 2020 09:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915562;
-        bh=OGnNAjt7BUi+N9zuLYNWDESIkV5UmTPsnw0JewNKDnc=;
+        s=default; t=1597915581;
+        bh=3MdOltG8YQMna49ftWkPa7aprubDtN2/vcl8KDI5weg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZ6kFoLJg+7AiayNuV92TkkLl1AQaUrikHI3hP2Ge+UNDOrOeLK0egeROy9NVwTOL
-         C8wm3cB73SGquO2ff9bmXcL6TWZHJ+kxhbL4wY1bCXlpqFMR9iT2gr9yidCEDqaGKj
-         TCqHOIKH/JpO8D3CbOeSTyVinEWM14vPQiFD74ns=
+        b=eMaVGDUf7arVHt/cQ5aQHelyz9vrEfUXc6HRhbipZ8AMRslJQmsfEdOhNGJ8GUWbm
+         T+CCEv+op9NjiX49eCjcD2+mGjtB/+t5PDHtJHOW1CdZcaNHwSNZFC6InQo2wme7PN
+         4uqF+KRnvh+K9SXtHFHYeYy+ibiRlvnhT5EPDogo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH 5.8 030/232] btrfs: sysfs: use NOFS for device creation
-Date:   Thu, 20 Aug 2020 11:18:01 +0200
-Message-Id: <20200820091614.216385081@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 034/232] btrfs: fix messages after changing compression level by remount
+Date:   Thu, 20 Aug 2020 11:18:05 +0200
+Message-Id: <20200820091614.418036047@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,181 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: David Sterba <dsterba@suse.com>
 
-commit a47bd78d0c44621efb98b525d04d60dc4d1a79b0 upstream.
+commit 27942c9971cc405c60432eca9395e514a2ae9f5e upstream.
 
-Dave hit this splat during testing btrfs/078:
+Reported by Forza on IRC that remounting with compression options does
+not reflect the change in level, or at least it does not appear to do so
+according to the messages:
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc6-default+ #1191 Not tainted
-  ------------------------------------------------------
-  kswapd0/75 is trying to acquire lock:
-  ffffa040e9d04ff8 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+  mount -o compress=zstd:1 /dev/sda /mnt
+  mount -o remount,compress=zstd:15 /mnt
 
-  but task is already holding lock:
-  ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+does not print the change to the level to syslog:
 
-  which lock already depends on the new lock.
+  [   41.366060] BTRFS info (device vda): use zstd compression, level 1
+  [   41.368254] BTRFS info (device vda): disk space caching is enabled
+  [   41.390429] BTRFS info (device vda): disk space caching is enabled
 
-  the existing dependency chain (in reverse order) is:
+What really happens is that the message is lost but the level is actualy
+changed.
 
-  -> #2 (fs_reclaim){+.+.}-{0:0}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 fs_reclaim_acquire.part.0+0x25/0x30
-	 __kmalloc_track_caller+0x49/0x330
-	 kstrdup+0x2e/0x60
-	 __kernfs_new_node.constprop.0+0x44/0x250
-	 kernfs_new_node+0x25/0x50
-	 kernfs_create_link+0x34/0xa0
-	 sysfs_do_create_link_sd+0x5e/0xd0
-	 btrfs_sysfs_add_devices_dir+0x65/0x100 [btrfs]
-	 btrfs_init_new_device+0x44c/0x12b0 [btrfs]
-	 btrfs_ioctl+0xc3c/0x25c0 [btrfs]
-	 ksys_ioctl+0x68/0xa0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0xe0
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+There's another weird output, if compression is reset to 'no':
 
-  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 btrfs_chunk_alloc+0x137/0x3e0 [btrfs]
-	 find_free_extent+0xb44/0xfb0 [btrfs]
-	 btrfs_reserve_extent+0x9b/0x180 [btrfs]
-	 btrfs_alloc_tree_block+0xc1/0x350 [btrfs]
-	 alloc_tree_block_no_bg_flush+0x4a/0x60 [btrfs]
-	 __btrfs_cow_block+0x143/0x7a0 [btrfs]
-	 btrfs_cow_block+0x15f/0x310 [btrfs]
-	 push_leaf_right+0x150/0x240 [btrfs]
-	 split_leaf+0x3cd/0x6d0 [btrfs]
-	 btrfs_search_slot+0xd14/0xf70 [btrfs]
-	 btrfs_insert_empty_items+0x64/0xc0 [btrfs]
-	 __btrfs_commit_inode_delayed_items+0xb2/0x840 [btrfs]
-	 btrfs_async_run_delayed_root+0x10e/0x1d0 [btrfs]
-	 btrfs_work_helper+0x2f9/0x650 [btrfs]
-	 process_one_work+0x22c/0x600
-	 worker_thread+0x50/0x3b0
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+  [   45.413776] BTRFS info (device vda): use no compression, level 4
 
-  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
-	 check_prev_add+0x98/0xa20
-	 validate_chain+0xa8c/0x2a00
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-	 btrfs_evict_inode+0x3bf/0x560 [btrfs]
-	 evict+0xd6/0x1c0
-	 dispose_list+0x48/0x70
-	 prune_icache_sb+0x54/0x80
-	 super_cache_scan+0x121/0x1a0
-	 do_shrink_slab+0x175/0x420
-	 shrink_slab+0xb1/0x2e0
-	 shrink_node+0x192/0x600
-	 balance_pgdat+0x31f/0x750
-	 kswapd+0x206/0x510
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+To fix that, save the previous compression level and print the message
+in that case too and use separate message for 'no' compression.
 
-  other info that might help us debug this:
-
-  Chain exists of:
-    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(fs_reclaim);
-				 lock(&fs_info->chunk_mutex);
-				 lock(fs_reclaim);
-    lock(&delayed_node->mutex);
-
-   *** DEADLOCK ***
-
-  3 locks held by kswapd0/75:
-   #0: ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
-   #1: ffffffff8b0b50b8 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x54/0x2e0
-   #2: ffffa040e057c0e8 (&type->s_umount_key#26){++++}-{3:3}, at: trylock_super+0x16/0x50
-
-  stack backtrace:
-  CPU: 2 PID: 75 Comm: kswapd0 Not tainted 5.8.0-rc6-default+ #1191
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x16f/0x190
-   check_prev_add+0x98/0xa20
-   validate_chain+0xa8c/0x2a00
-   __lock_acquire+0x56f/0xaa0
-   lock_acquire+0xa3/0x440
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __mutex_lock+0xa0/0xaf0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? __lock_acquire+0x56f/0xaa0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? lock_acquire+0xa3/0x440
-   ? btrfs_evict_inode+0x138/0x560 [btrfs]
-   ? btrfs_evict_inode+0x2fe/0x560 [btrfs]
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   btrfs_evict_inode+0x3bf/0x560 [btrfs]
-   evict+0xd6/0x1c0
-   dispose_list+0x48/0x70
-   prune_icache_sb+0x54/0x80
-   super_cache_scan+0x121/0x1a0
-   do_shrink_slab+0x175/0x420
-   shrink_slab+0xb1/0x2e0
-   shrink_node+0x192/0x600
-   balance_pgdat+0x31f/0x750
-   kswapd+0x206/0x510
-   ? _raw_spin_unlock_irqrestore+0x3e/0x50
-   ? finish_wait+0x90/0x90
-   ? balance_pgdat+0x750/0x750
-   kthread+0x137/0x150
-   ? kthread_stop+0x2a0/0x2a0
-   ret_from_fork+0x1f/0x30
-
-This is because we're holding the chunk_mutex while adding this device
-and adding its sysfs entries.  We actually hold different locks in
-different places when calling this function, the dev_replace semaphore
-for instance in dev replace, so instead of moving this call around
-simply wrap it's operations in NOFS.
-
-CC: stable@vger.kernel.org # 4.14+
-Reported-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+CC: stable@vger.kernel.org # 4.19+
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/sysfs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/btrfs/super.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -1273,7 +1273,9 @@ int btrfs_sysfs_add_devices_dir(struct b
- {
- 	int error = 0;
- 	struct btrfs_device *dev;
-+	unsigned int nofs_flag;
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -449,6 +449,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 	char *compress_type;
+ 	bool compress_force = false;
+ 	enum btrfs_compression_type saved_compress_type;
++	int saved_compress_level;
+ 	bool saved_compress_force;
+ 	int no_compress = 0;
  
-+	nofs_flag = memalloc_nofs_save();
- 	list_for_each_entry(dev, &fs_devices->devices, dev_list) {
- 
- 		if (one_device && one_device != dev)
-@@ -1301,6 +1303,7 @@ int btrfs_sysfs_add_devices_dir(struct b
- 			break;
- 		}
- 	}
-+	memalloc_nofs_restore(nofs_flag);
- 
- 	return error;
- }
+@@ -531,6 +532,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				info->compress_type : BTRFS_COMPRESS_NONE;
+ 			saved_compress_force =
+ 				btrfs_test_opt(info, FORCE_COMPRESS);
++			saved_compress_level = info->compress_level;
+ 			if (token == Opt_compress ||
+ 			    token == Opt_compress_force ||
+ 			    strncmp(args[0].from, "zlib", 4) == 0) {
+@@ -575,6 +577,8 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				no_compress = 0;
+ 			} else if (strncmp(args[0].from, "no", 2) == 0) {
+ 				compress_type = "no";
++				info->compress_level = 0;
++				info->compress_type = 0;
+ 				btrfs_clear_opt(info->mount_opt, COMPRESS);
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 				compress_force = false;
+@@ -595,11 +599,11 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				 */
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 			}
+-			if ((btrfs_test_opt(info, COMPRESS) &&
+-			     (info->compress_type != saved_compress_type ||
+-			      compress_force != saved_compress_force)) ||
+-			    (!btrfs_test_opt(info, COMPRESS) &&
+-			     no_compress == 1)) {
++			if (no_compress == 1) {
++				btrfs_info(info, "use no compression");
++			} else if ((info->compress_type != saved_compress_type) ||
++				   (compress_force != saved_compress_force) ||
++				   (info->compress_level != saved_compress_level)) {
+ 				btrfs_info(info, "%s %s compression, level %d",
+ 					   (compress_force) ? "force" : "use",
+ 					   compress_type, info->compress_level);
 
 
