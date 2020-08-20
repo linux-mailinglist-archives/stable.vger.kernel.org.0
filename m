@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D400224BFBB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:53:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A6A24BFA5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbgHTNxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:53:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59916 "EHLO mail.kernel.org"
+        id S1726957AbgHTJY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:24:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726735AbgHTJX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:23:59 -0400
+        id S1726905AbgHTJYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:24:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B682222D02;
-        Thu, 20 Aug 2020 09:23:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF6D822CB2;
+        Thu, 20 Aug 2020 09:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915439;
-        bh=yKmAMZWwCOzOAmbAJPyXG2Z9j6Mu8i6EZ/wMCEjEhhM=;
+        s=default; t=1597915453;
+        bh=79vjTGqCALhCjjQuXM0iFlKNzKmobrwLY9mfAF9im6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aMdTWsMzF0+ccw/wp86aOS3twRhTJp/5AGuxev5xrePU4ecc9lsirsCv0H6yj3ad
-         zFX8mOp6wedkpw006Zv1/V9MkjGrTNReiCCB31KzEHWbdrYP7SVBD1KMz62m8PYreB
-         vl7l9DXMHGlIzAMJfvkW31aUipgZyAJn4n/JHPtQ=
+        b=ZnR4dO3yLd2snCkBRdrCgOhj3puXP0xu1iVZkZBNAanVg9xZVsJZcOwtqSkPOHHLi
+         AMB1NOxrh6RgkLCAUZI/T0CBB2mIJnr5ro00JwcMpwSclUlH8v7iGZGvmNRDKn+VOX
+         Y6pu+hT8Cau8ynVtY3M6DqWErq9ZeT/P6cWG+7qM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
-        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 014/232] btrfs: free anon block device right after subvolume deletion
-Date:   Thu, 20 Aug 2020 11:17:45 +0200
-Message-Id: <20200820091613.418255504@linuxfoundation.org>
+Subject: [PATCH 5.8 019/232] btrfs: stop incremening log_batch for the log root tree when syncing log
+Date:   Thu, 20 Aug 2020 11:17:50 +0200
+Message-Id: <20200820091613.667356588@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,68 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 082b6c970f02fefd278c7833880cda29691a5f34 upstream.
+commit 28a9579561bcb9082715e720eac93012e708ab94 upstream.
 
-[BUG]
-When a lot of subvolumes are created, there is a user report about
-transaction aborted caused by slow anonymous block device reclaim:
+We are incrementing the log_batch atomic counter of the root log tree but
+we never use that counter, it's used only for the log trees of subvolume
+roots. We started doing it when we moved the log_batch and log_write
+counters from the global, per fs, btrfs_fs_info structure, into the
+btrfs_root structure in commit 7237f1833601dc ("Btrfs: fix tree logs
+parallel sync").
 
-  BTRFS: Transaction aborted (error -24)
-  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  Call Trace:
-   create_pending_snapshots+0x82/0xa0 [btrfs]
-   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
-   btrfs_mksubvol+0x4b9/0x500 [btrfs]
-   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
-   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
-   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
-   do_vfs_ioctl+0xa9/0x640
-   ksys_ioctl+0x67/0x90
-   __x64_sys_ioctl+0x1a/0x20
-   do_syscall_64+0x5a/0x110
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace 33f2f83f3d5250e9 ]---
-  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
-  BTRFS info (device sda1): forced readonly
-  BTRFS warning (device sda1): Skipping commit of aborted transaction.
-  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
+So just stop doing it for the log root tree and add a comment over the
+field declaration so inform it's used only for log trees of subvolume
+roots.
 
-[CAUSE]
-The anonymous device pool is shared and its size is 1M. It's possible to
-hit that limit if the subvolume deletion is not fast enough and the
-subvolumes to be cleaned keep the ids allocated.
+This patch is part of a series that has the following patches:
 
-[WORKAROUND]
-We can't avoid the anon device pool exhaustion but we can shorten the
-time the id is attached to the subvolume root once the subvolume becomes
-invisible to the user.
+1/4 btrfs: only commit the delayed inode when doing a full fsync
+2/4 btrfs: only commit delayed items at fsync if we are logging a directory
+3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
+4/4 btrfs: remove no longer needed use of log_writers for the log root tree
 
-Reported-by: Greed Rong <greedrong@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.4+
+After the entire patchset applied I saw about 12% decrease on max latency
+reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
+ram, using kvm and using a raw NVMe device directly (no intermediary fs on
+the host). The test was invoked like the following:
+
+  mkfs.btrfs -f /dev/sdk
+  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
+  dbench -D /mnt/sdk -t 300 8
+  umount /mnt/dsk
+
+CC: stable@vger.kernel.org # 5.4+
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/ctree.h    |    1 +
+ fs/btrfs/tree-log.c |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4041,6 +4041,8 @@ int btrfs_delete_subvolume(struct inode
- 		}
- 	}
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -1061,6 +1061,7 @@ struct btrfs_root {
+ 	struct list_head log_ctxs[2];
+ 	atomic_t log_writers;
+ 	atomic_t log_commit[2];
++	/* Used only for log trees of subvolumes, not for the log root tree */
+ 	atomic_t log_batch;
+ 	int log_transid;
+ 	/* No matter the commit succeeds or not*/
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3116,7 +3116,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	btrfs_init_log_ctx(&root_log_ctx, NULL);
  
-+	free_anon_bdev(dest->anon_dev);
-+	dest->anon_dev = 0;
- out_end_trans:
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
+ 	mutex_lock(&log_root_tree->log_mutex);
+-	atomic_inc(&log_root_tree->log_batch);
+ 	atomic_inc(&log_root_tree->log_writers);
+ 
+ 	index2 = log_root_tree->log_transid % 2;
 
 
