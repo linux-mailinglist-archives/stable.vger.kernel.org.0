@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B8A24BA66
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4397824BA63
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbgHTMH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42794 "EHLO mail.kernel.org"
+        id S1730354AbgHTMGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730405AbgHTJ63 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:58:29 -0400
+        id S1730111AbgHTJ6f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:58:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89B2A207FB;
-        Thu, 20 Aug 2020 09:58:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 237192067C;
+        Thu, 20 Aug 2020 09:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917509;
-        bh=Gg+kEkswDRxTKOBGrIllN4zRgEO19H9gT8252jAy1aY=;
+        s=default; t=1597917514;
+        bh=zo6pltTSim6Y8TsnJDxGpq+mDQQrhpbRbxryvqJAlSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUCwQpc8eXATsEOvC8NvUfiaogGgRAnqKJqo9wirdfItfbADoHcHpTgl/z+OT/fIu
-         oqouXl4mZQQXMkV4ZOhxf4bPsllvAkZvqkvFNo8SkvpCdSMGJkm1at4+4ZdyLVyBTd
-         V+7vIARfFW0kL8zxdcr8MR+haS8Cb0icl1PYJWt0=
+        b=T7V7Jb0Li6maFs4FDIUxurKekqv7akKSCqAR8q0mpnBjwIkrrRe7prNCZAzuM68r1
+         WBPk82UM73h0wwGcdH0koYpOrUSjroiKnkil7xv32OFfRv0d3HLBBlrvMqvGRgYLm/
+         828rui20tRSai2AFm0DUQImzRMrWMZgfiyoHYFM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.9 055/212] Bluetooth: Prevent out-of-bounds read in hci_inquiry_result_evt()
-Date:   Thu, 20 Aug 2020 11:20:28 +0200
-Message-Id: <20200820091605.150679931@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Dave Airlie <airlied@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.9 057/212] omapfb: dss: Fix max fclk divider for omap36xx
+Date:   Thu, 20 Aug 2020 11:20:30 +0200
+Message-Id: <20200820091605.252122996@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,31 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 75bbd2ea50ba1c5d9da878a17e92eac02fe0fd3a upstream.
+commit 254503a2b186caa668a188dbbd7ab0d25149c0a5 upstream.
 
-Check `num_rsp` before using it as for-loop counter.
+The drm/omap driver was fixed to correct an issue where using a
+divider of 32 breaks the DSS despite the TRM stating 32 is a valid
+number.  Through experimentation, it appears that 31 works, and
+it is consistent with the value used by the drm/omap driver.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This patch fixes the divider for fbdev driver instead of the drm.
+
+Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
+Cc: <stable@vger.kernel.org> #4.5+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Dave Airlie <airlied@gmail.com>
+Cc: Rob Clark <robdclark@gmail.com>
+[b.zolnierkie: mark patch as applicable to stable 4.5+ (was 4.9+)]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200630182636.439015-1-aford173@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_event.c |    2 +-
+ drivers/video/fbdev/omap2/omapfb/dss/dss.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2094,7 +2094,7 @@ static void hci_inquiry_result_evt(struc
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+@@ -843,7 +843,7 @@ static const struct dss_features omap34x
+ };
  
- 	BT_DBG("%s num_rsp %d", hdev->name, num_rsp);
- 
--	if (!num_rsp)
-+	if (!num_rsp || skb->len < num_rsp * sizeof(*info) + 1)
- 		return;
- 
- 	if (hci_dev_test_flag(hdev, HCI_PERIODIC_INQ))
+ static const struct dss_features omap3630_dss_feats = {
+-	.fck_div_max		=	32,
++	.fck_div_max		=	31,
+ 	.dss_fck_multiplier	=	1,
+ 	.parent_clk_name	=	"dpll4_ck",
+ 	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
 
 
