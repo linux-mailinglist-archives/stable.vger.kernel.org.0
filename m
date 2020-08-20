@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6572124B326
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F1F24B434
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728655AbgHTJl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S1730154AbgHTJ7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:59:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729128AbgHTJlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:52 -0400
+        id S1728060AbgHTJ71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:59:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E15DF2075E;
-        Thu, 20 Aug 2020 09:41:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C0A0208DB;
+        Thu, 20 Aug 2020 09:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916511;
-        bh=raWJJA6x4ZbEavM1RWR+iCgk2M8/9qEcmjWQtjyRcOE=;
+        s=default; t=1597917567;
+        bh=CF0K9DLAiVFuQL24PrDR4QPlTU3LUPidNE+WG6IEwVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAUzPSLjWGURKroHNsJdB84pkWqo8/iZcW29tDDzgHUpL6x3rCtTJKGq8tmb6OonG
-         9gTfQoHAHhjXHKNBSy8pCV6/seGLLxYR8q4kALRoUJs3GvVv3c4UWFVRVKhwOxmj+4
-         6J/Bvv5YthN1uaSKBqVvTcrEUOpK8rvzm38kPtaM=
+        b=Er9F4klMwCOghosXy4whnjEjUBXYuKhDyC8Bp/ESsEaljzivw6fzdcQJY4j+elx9b
+         +iVeU5Eh6bbMu0Uzm1BWhI/toLvqA8i4TkPrWrM8pOewbUKfv8XWnAAyUpaG/JUJPz
+         Ypbv5dF/Fc3qVqqDJNXkFCiCxoCz5NWtlWRsJHhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 152/204] clk: bcm2835: Do not use prediv with bcm2711s PLLs
-Date:   Thu, 20 Aug 2020 11:20:49 +0200
-Message-Id: <20200820091613.834101105@linuxfoundation.org>
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 077/212] usb: hso: check for return value in hso_serial_common_create()
+Date:   Thu, 20 Aug 2020 11:20:50 +0200
+Message-Id: <20200820091606.255659045@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,112 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit f34e4651ce66a754f41203284acf09b28b9dd955 ]
+[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
 
-Contrary to previous SoCs, bcm2711 doesn't have a prescaler in the PLL
-feedback loop. Bypass it by zeroing fb_prediv_mask when running on
-bcm2711.
+in case of an error tty_register_device_attr() returns ERR_PTR(),
+add IS_ERR() check
 
-Note that, since the prediv configuration bits were re-purposed, this
-was triggering miscalculations on all clocks hanging from the VPU clock,
-notably the aux UART, making its output unintelligible.
-
-Fixes: 42de9ad400af ("clk: bcm2835: Add BCM2711_CLOCK_EMMC2 support")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20200730182619.23246-1-nsaenzjulienne@suse.de
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ drivers/net/usb/hso.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 7c845c293af00..798f0b419c79f 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -314,6 +314,7 @@ struct bcm2835_cprman {
- 	struct device *dev;
- 	void __iomem *regs;
- 	spinlock_t regs_lock; /* spinlock for all clocks */
-+	unsigned int soc;
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2274,12 +2274,14 @@ static int hso_serial_common_create(stru
  
- 	/*
- 	 * Real names of cprman clock parents looked up through
-@@ -525,6 +526,20 @@ static int bcm2835_pll_is_on(struct clk_hw *hw)
- 		A2W_PLL_CTRL_PRST_DISABLE;
+ 	minor = get_free_serial_index();
+ 	if (minor < 0)
+-		goto exit;
++		goto exit2;
+ 
+ 	/* register our minor number */
+ 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
+ 			tty_drv, minor, &serial->parent->interface->dev,
+ 			serial->parent, hso_serial_dev_groups);
++	if (IS_ERR(serial->parent->dev))
++		goto exit2;
+ 	dev = serial->parent->dev;
+ 
+ 	/* fill in specific data for later use */
+@@ -2325,6 +2327,7 @@ static int hso_serial_common_create(stru
+ 	return 0;
+ exit:
+ 	hso_serial_tty_unregister(serial);
++exit2:
+ 	hso_serial_common_free(serial);
+ 	return -1;
  }
- 
-+static u32 bcm2835_pll_get_prediv_mask(struct bcm2835_cprman *cprman,
-+				       const struct bcm2835_pll_data *data)
-+{
-+	/*
-+	 * On BCM2711 there isn't a pre-divisor available in the PLL feedback
-+	 * loop. Bits 13:14 of ANA1 (PLLA,PLLB,PLLC,PLLD) have been re-purposed
-+	 * for to for VCO RANGE bits.
-+	 */
-+	if (cprman->soc & SOC_BCM2711)
-+		return 0;
-+
-+	return data->ana->fb_prediv_mask;
-+}
-+
- static void bcm2835_pll_choose_ndiv_and_fdiv(unsigned long rate,
- 					     unsigned long parent_rate,
- 					     u32 *ndiv, u32 *fdiv)
-@@ -582,7 +597,7 @@ static unsigned long bcm2835_pll_get_rate(struct clk_hw *hw,
- 	ndiv = (a2wctrl & A2W_PLL_CTRL_NDIV_MASK) >> A2W_PLL_CTRL_NDIV_SHIFT;
- 	pdiv = (a2wctrl & A2W_PLL_CTRL_PDIV_MASK) >> A2W_PLL_CTRL_PDIV_SHIFT;
- 	using_prediv = cprman_read(cprman, data->ana_reg_base + 4) &
--		data->ana->fb_prediv_mask;
-+		       bcm2835_pll_get_prediv_mask(cprman, data);
- 
- 	if (using_prediv) {
- 		ndiv *= 2;
-@@ -665,6 +680,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	struct bcm2835_pll *pll = container_of(hw, struct bcm2835_pll, hw);
- 	struct bcm2835_cprman *cprman = pll->cprman;
- 	const struct bcm2835_pll_data *data = pll->data;
-+	u32 prediv_mask = bcm2835_pll_get_prediv_mask(cprman, data);
- 	bool was_using_prediv, use_fb_prediv, do_ana_setup_first;
- 	u32 ndiv, fdiv, a2w_ctl;
- 	u32 ana[4];
-@@ -682,7 +698,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	for (i = 3; i >= 0; i--)
- 		ana[i] = cprman_read(cprman, data->ana_reg_base + i * 4);
- 
--	was_using_prediv = ana[1] & data->ana->fb_prediv_mask;
-+	was_using_prediv = ana[1] & prediv_mask;
- 
- 	ana[0] &= ~data->ana->mask0;
- 	ana[0] |= data->ana->set0;
-@@ -692,10 +708,10 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	ana[3] |= data->ana->set3;
- 
- 	if (was_using_prediv && !use_fb_prediv) {
--		ana[1] &= ~data->ana->fb_prediv_mask;
-+		ana[1] &= ~prediv_mask;
- 		do_ana_setup_first = true;
- 	} else if (!was_using_prediv && use_fb_prediv) {
--		ana[1] |= data->ana->fb_prediv_mask;
-+		ana[1] |= prediv_mask;
- 		do_ana_setup_first = false;
- 	} else {
- 		do_ana_setup_first = true;
-@@ -2232,6 +2248,7 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, cprman);
- 
- 	cprman->onecell.num = asize;
-+	cprman->soc = pdata->soc;
- 	hws = cprman->onecell.hws;
- 
- 	for (i = 0; i < asize; i++) {
--- 
-2.25.1
-
 
 
