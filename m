@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C07624B2BD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FA624B2C2
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726810AbgHTJgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:36:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50506 "EHLO mail.kernel.org"
+        id S1728626AbgHTJgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728580AbgHTJgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:36:07 -0400
+        id S1726132AbgHTJgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A899B208E4;
-        Thu, 20 Aug 2020 09:36:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C1922075E;
+        Thu, 20 Aug 2020 09:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916166;
-        bh=OGnNAjt7BUi+N9zuLYNWDESIkV5UmTPsnw0JewNKDnc=;
+        s=default; t=1597916201;
+        bh=ZF7fIbxPHaUXniRTO6yvOsfLh+iz09ZMAnI6TM/7UzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXQ3OsOAsVcHQI3mTWs0tWbeGaS7Vbr1aivdZ/vGwiZCsE91R1QXDGvNkj6yjo58k
-         vHUtAgoBa9esBsHnGX1ZEMPtyerKXkMhkRqwKHcI02J135HzLX+CFY3DFnOCrHgnf0
-         KSZ4H8OvhL+06NZ7kHknYLsqe1jPD1LGy+mvSNBU=
+        b=df3XqUVL+SLcSkkef4qPGqU8IB0VEc1dba2ZFRA0K/KqbTPvjUCoLvO2z6rUGk8Bz
+         j61poUJ8bVIGnTS56usNCosYhj3xQYKddxlco/N2FoTBtcIIe5ba0VVbkH8WBXDwuq
+         TW6m+8LScv/XJpyGsHgy41WIz0plwDu7kCaz7T0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH 5.7 026/204] btrfs: sysfs: use NOFS for device creation
-Date:   Thu, 20 Aug 2020 11:18:43 +0200
-Message-Id: <20200820091607.571139417@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lane <tgl@sss.pgh.pa.us>,
+        Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.7 045/204] powerpc: Allow 4224 bytes of stack expansion for the signal frame
+Date:   Thu, 20 Aug 2020 11:19:02 +0200
+Message-Id: <20200820091608.524504213@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,181 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit a47bd78d0c44621efb98b525d04d60dc4d1a79b0 upstream.
+commit 63dee5df43a31f3844efabc58972f0a206ca4534 upstream.
 
-Dave hit this splat during testing btrfs/078:
+We have powerpc specific logic in our page fault handling to decide if
+an access to an unmapped address below the stack pointer should expand
+the stack VMA.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc6-default+ #1191 Not tainted
-  ------------------------------------------------------
-  kswapd0/75 is trying to acquire lock:
-  ffffa040e9d04ff8 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+The code was originally added in 2004 "ported from 2.4". The rough
+logic is that the stack is allowed to grow to 1MB with no extra
+checking. Over 1MB the access must be within 2048 bytes of the stack
+pointer, or be from a user instruction that updates the stack pointer.
 
-  but task is already holding lock:
-  ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+The 2048 byte allowance below the stack pointer is there to cover the
+288 byte "red zone" as well as the "about 1.5kB" needed by the signal
+delivery code.
 
-  which lock already depends on the new lock.
+Unfortunately since then the signal frame has expanded, and is now
+4224 bytes on 64-bit kernels with transactional memory enabled. This
+means if a process has consumed more than 1MB of stack, and its stack
+pointer lies less than 4224 bytes from the next page boundary, signal
+delivery will fault when trying to expand the stack and the process
+will see a SEGV.
 
-  the existing dependency chain (in reverse order) is:
+The total size of the signal frame is the size of struct rt_sigframe
+(which includes the red zone) plus __SIGNAL_FRAMESIZE (128 bytes on
+64-bit).
 
-  -> #2 (fs_reclaim){+.+.}-{0:0}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 fs_reclaim_acquire.part.0+0x25/0x30
-	 __kmalloc_track_caller+0x49/0x330
-	 kstrdup+0x2e/0x60
-	 __kernfs_new_node.constprop.0+0x44/0x250
-	 kernfs_new_node+0x25/0x50
-	 kernfs_create_link+0x34/0xa0
-	 sysfs_do_create_link_sd+0x5e/0xd0
-	 btrfs_sysfs_add_devices_dir+0x65/0x100 [btrfs]
-	 btrfs_init_new_device+0x44c/0x12b0 [btrfs]
-	 btrfs_ioctl+0xc3c/0x25c0 [btrfs]
-	 ksys_ioctl+0x68/0xa0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0xe0
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The 2048 byte allowance was correct until 2008 as the signal frame
+was:
 
-  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 btrfs_chunk_alloc+0x137/0x3e0 [btrfs]
-	 find_free_extent+0xb44/0xfb0 [btrfs]
-	 btrfs_reserve_extent+0x9b/0x180 [btrfs]
-	 btrfs_alloc_tree_block+0xc1/0x350 [btrfs]
-	 alloc_tree_block_no_bg_flush+0x4a/0x60 [btrfs]
-	 __btrfs_cow_block+0x143/0x7a0 [btrfs]
-	 btrfs_cow_block+0x15f/0x310 [btrfs]
-	 push_leaf_right+0x150/0x240 [btrfs]
-	 split_leaf+0x3cd/0x6d0 [btrfs]
-	 btrfs_search_slot+0xd14/0xf70 [btrfs]
-	 btrfs_insert_empty_items+0x64/0xc0 [btrfs]
-	 __btrfs_commit_inode_delayed_items+0xb2/0x840 [btrfs]
-	 btrfs_async_run_delayed_root+0x10e/0x1d0 [btrfs]
-	 btrfs_work_helper+0x2f9/0x650 [btrfs]
-	 process_one_work+0x22c/0x600
-	 worker_thread+0x50/0x3b0
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1440 */
+        /* --- cacheline 11 boundary (1408 bytes) was 32 bytes ago --- */
+        long unsigned int          _unused[2];           /*  1440    16 */
+        unsigned int               tramp[6];             /*  1456    24 */
+        struct siginfo *           pinfo;                /*  1480     8 */
+        void *                     puc;                  /*  1488     8 */
+        struct siginfo     info;                         /*  1496   128 */
+        /* --- cacheline 12 boundary (1536 bytes) was 88 bytes ago --- */
+        char                       abigap[288];          /*  1624   288 */
 
-  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
-	 check_prev_add+0x98/0xa20
-	 validate_chain+0xa8c/0x2a00
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-	 btrfs_evict_inode+0x3bf/0x560 [btrfs]
-	 evict+0xd6/0x1c0
-	 dispose_list+0x48/0x70
-	 prune_icache_sb+0x54/0x80
-	 super_cache_scan+0x121/0x1a0
-	 do_shrink_slab+0x175/0x420
-	 shrink_slab+0xb1/0x2e0
-	 shrink_node+0x192/0x600
-	 balance_pgdat+0x31f/0x750
-	 kswapd+0x206/0x510
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+        /* size: 1920, cachelines: 15, members: 7 */
+        /* padding: 8 */
+};
 
-  other info that might help us debug this:
+1920 + 128 = 2048
 
-  Chain exists of:
-    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
+Then in commit ce48b2100785 ("powerpc: Add VSX context save/restore,
+ptrace and signal support") (Jul 2008) the signal frame expanded to
+2304 bytes:
 
-   Possible unsafe locking scenario:
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */	<--
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        long unsigned int          _unused[2];           /*  1696    16 */
+        unsigned int               tramp[6];             /*  1712    24 */
+        struct siginfo *           pinfo;                /*  1736     8 */
+        void *                     puc;                  /*  1744     8 */
+        struct siginfo     info;                         /*  1752   128 */
+        /* --- cacheline 14 boundary (1792 bytes) was 88 bytes ago --- */
+        char                       abigap[288];          /*  1880   288 */
 
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(fs_reclaim);
-				 lock(&fs_info->chunk_mutex);
-				 lock(fs_reclaim);
-    lock(&delayed_node->mutex);
+        /* size: 2176, cachelines: 17, members: 7 */
+        /* padding: 8 */
+};
 
-   *** DEADLOCK ***
+2176 + 128 = 2304
 
-  3 locks held by kswapd0/75:
-   #0: ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
-   #1: ffffffff8b0b50b8 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x54/0x2e0
-   #2: ffffa040e057c0e8 (&type->s_umount_key#26){++++}-{3:3}, at: trylock_super+0x16/0x50
+At this point we should have been exposed to the bug, though as far as
+I know it was never reported. I no longer have a system old enough to
+easily test on.
 
-  stack backtrace:
-  CPU: 2 PID: 75 Comm: kswapd0 Not tainted 5.8.0-rc6-default+ #1191
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x16f/0x190
-   check_prev_add+0x98/0xa20
-   validate_chain+0xa8c/0x2a00
-   __lock_acquire+0x56f/0xaa0
-   lock_acquire+0xa3/0x440
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __mutex_lock+0xa0/0xaf0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? __lock_acquire+0x56f/0xaa0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? lock_acquire+0xa3/0x440
-   ? btrfs_evict_inode+0x138/0x560 [btrfs]
-   ? btrfs_evict_inode+0x2fe/0x560 [btrfs]
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   btrfs_evict_inode+0x3bf/0x560 [btrfs]
-   evict+0xd6/0x1c0
-   dispose_list+0x48/0x70
-   prune_icache_sb+0x54/0x80
-   super_cache_scan+0x121/0x1a0
-   do_shrink_slab+0x175/0x420
-   shrink_slab+0xb1/0x2e0
-   shrink_node+0x192/0x600
-   balance_pgdat+0x31f/0x750
-   kswapd+0x206/0x510
-   ? _raw_spin_unlock_irqrestore+0x3e/0x50
-   ? finish_wait+0x90/0x90
-   ? balance_pgdat+0x750/0x750
-   kthread+0x137/0x150
-   ? kthread_stop+0x2a0/0x2a0
-   ret_from_fork+0x1f/0x30
+Then in 2010 commit 320b2b8de126 ("mm: keep a guard page below a
+grow-down stack segment") caused our stack expansion code to never
+trigger, as there was always a VMA found for a write up to PAGE_SIZE
+below r1.
 
-This is because we're holding the chunk_mutex while adding this device
-and adding its sysfs entries.  We actually hold different locks in
-different places when calling this function, the dev_replace semaphore
-for instance in dev replace, so instead of moving this call around
-simply wrap it's operations in NOFS.
+That meant the bug was hidden as we continued to expand the signal
+frame in commit 2b0a576d15e0 ("powerpc: Add new transactional memory
+state to the signal context") (Feb 2013):
 
-CC: stable@vger.kernel.org # 4.14+
-Reported-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        struct ucontext    uc_transact;                  /*  1696  1696 */	<--
+        /* --- cacheline 26 boundary (3328 bytes) was 64 bytes ago --- */
+        long unsigned int          _unused[2];           /*  3392    16 */
+        unsigned int               tramp[6];             /*  3408    24 */
+        struct siginfo *           pinfo;                /*  3432     8 */
+        void *                     puc;                  /*  3440     8 */
+        struct siginfo     info;                         /*  3448   128 */
+        /* --- cacheline 27 boundary (3456 bytes) was 120 bytes ago --- */
+        char                       abigap[288];          /*  3576   288 */
+
+        /* size: 3872, cachelines: 31, members: 8 */
+        /* padding: 8 */
+        /* last cacheline: 32 bytes */
+};
+
+3872 + 128 = 4000
+
+And commit 573ebfa6601f ("powerpc: Increase stack redzone for 64-bit
+userspace to 512 bytes") (Feb 2014):
+
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        struct ucontext    uc_transact;                  /*  1696  1696 */
+        /* --- cacheline 26 boundary (3328 bytes) was 64 bytes ago --- */
+        long unsigned int          _unused[2];           /*  3392    16 */
+        unsigned int               tramp[6];             /*  3408    24 */
+        struct siginfo *           pinfo;                /*  3432     8 */
+        void *                     puc;                  /*  3440     8 */
+        struct siginfo     info;                         /*  3448   128 */
+        /* --- cacheline 27 boundary (3456 bytes) was 120 bytes ago --- */
+        char                       abigap[512];          /*  3576   512 */	<--
+
+        /* size: 4096, cachelines: 32, members: 8 */
+        /* padding: 8 */
+};
+
+4096 + 128 = 4224
+
+Then finally in 2017, commit 1be7107fbe18 ("mm: larger stack guard
+gap, between vmas") exposed us to the existing bug, because it changed
+the stack VMA to be the correct/real size, meaning our stack expansion
+code is now triggered.
+
+Fix it by increasing the allowance to 4224 bytes.
+
+Hard-coding 4224 is obviously unsafe against future expansions of the
+signal frame in the same way as the existing code. We can't easily use
+sizeof() because the signal frame structure is not in a header. We
+will either fix that, or rip out all the custom stack expansion
+checking logic entirely.
+
+Fixes: ce48b2100785 ("powerpc: Add VSX context save/restore, ptrace and signal support")
+Cc: stable@vger.kernel.org # v2.6.27+
+Reported-by: Tom Lane <tgl@sss.pgh.pa.us>
+Tested-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200724092528.1578671-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/sysfs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/mm/fault.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -1273,7 +1273,9 @@ int btrfs_sysfs_add_devices_dir(struct b
- {
- 	int error = 0;
- 	struct btrfs_device *dev;
-+	unsigned int nofs_flag;
- 
-+	nofs_flag = memalloc_nofs_save();
- 	list_for_each_entry(dev, &fs_devices->devices, dev_list) {
- 
- 		if (one_device && one_device != dev)
-@@ -1301,6 +1303,7 @@ int btrfs_sysfs_add_devices_dir(struct b
- 			break;
- 		}
- 	}
-+	memalloc_nofs_restore(nofs_flag);
- 
- 	return error;
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -241,6 +241,9 @@ static bool bad_kernel_fault(struct pt_r
+ 	return false;
  }
+ 
++// This comes from 64-bit struct rt_sigframe + __SIGNAL_FRAMESIZE
++#define SIGFRAME_MAX_SIZE	(4096 + 128)
++
+ static bool bad_stack_expansion(struct pt_regs *regs, unsigned long address,
+ 				struct vm_area_struct *vma, unsigned int flags,
+ 				bool *must_retry)
+@@ -248,7 +251,7 @@ static bool bad_stack_expansion(struct p
+ 	/*
+ 	 * N.B. The POWER/Open ABI allows programs to access up to
+ 	 * 288 bytes below the stack pointer.
+-	 * The kernel signal delivery code writes up to about 1.5kB
++	 * The kernel signal delivery code writes a bit over 4KB
+ 	 * below the stack pointer (r1) before decrementing it.
+ 	 * The exec code can write slightly over 640kB to the stack
+ 	 * before setting the user r1.  Thus we allow the stack to
+@@ -273,7 +276,7 @@ static bool bad_stack_expansion(struct p
+ 		 * between the last mapped region and the stack will
+ 		 * expand the stack rather than segfaulting.
+ 		 */
+-		if (address + 2048 >= uregs->gpr[1])
++		if (address + SIGFRAME_MAX_SIZE >= uregs->gpr[1])
+ 			return false;
+ 
+ 		if ((flags & FAULT_FLAG_WRITE) && (flags & FAULT_FLAG_USER) &&
 
 
