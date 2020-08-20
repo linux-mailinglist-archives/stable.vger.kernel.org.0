@@ -2,101 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A0624BAEF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AACA924BA7C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729486AbgHTMUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:20:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729924AbgHTJzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:55:46 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0895D2067C;
-        Thu, 20 Aug 2020 09:55:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917345;
-        bh=HAPb4srVV8co5wIjXy1C6+XY4jLcuHnudIAZvr0Xsrg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFYqhWfgdXMz4/ZuixwQxcr0bPDYVkS7k9IcuqLlXXfSXV3MyNb/H8ViAJ26AQPsb
-         Ohc3BHESfnzkbYm8jo1xelEL6R32H9i7zY6NITIUzo8BXH7Ldq8/jI89DNQLRczyBY
-         NNMVSEThFxCLD+1082nnxTHenjCKHhXMH3NHnI3A=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 92/92] drm/amdgpu: Fix bug where DPM is not enabled after hibernate and resume
-Date:   Thu, 20 Aug 2020 11:22:17 +0200
-Message-Id: <20200820091542.424191325@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729679AbgHTMJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:09:55 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:4427 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730612AbgHTMJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 08:09:10 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f3e67ab0003>; Thu, 20 Aug 2020 05:08:11 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 20 Aug 2020 05:09:10 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 20 Aug 2020 05:09:10 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 20 Aug
+ 2020 12:09:10 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 20 Aug 2020 12:09:07 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 000/149] 4.4.233-rc1 review
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <4fc7700c268547b98b246c7db0981b1a@HQMAIL101.nvidia.com>
+Date:   Thu, 20 Aug 2020 12:09:07 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1597925291; bh=thGoBeq76LfxuxdrjPtN8chojzu2uHy4lLhU70ggHA4=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=mHzIGCicHVV2zmcLBybeQbmmXKKwyApbWp7QloOdJJO6LPKsE5cfgx59ww+GMVked
+         aNr+TDhIfdIJlAiVsQz4elQ04lEEYV1GB2d094hlEiwxplIamUzneHK1hUruKtfFfA
+         erv8C15CcXDKTguy8ZxRnT4Oj31Ku0pRJfu9FYxEEDutz76rnf3snSV+/8MXUyPdLS
+         hDwQfXBtmYQ2oGvE9jsacTMQ59QCq8H+l8Tx9Mr6BBAbvyzF0UV6n7G6NlYpTW4IZD
+         iB7p8LY7OweA9zXbUHlMSBHOKxuVPJ5k/ITsAZAJFY0/ucbI3KBsvwiReN07Y6ZSkA
+         Gm5mSylNsFOaw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandeep Raghuraman <sandy.8925@gmail.com>
+On Thu, 20 Aug 2020 11:21:17 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.233 release.
+> There are 149 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 22 Aug 2020 09:21:01 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.233-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-commit f87812284172a9809820d10143b573d833cd3f75 upstream.
+All tests passing for Tegra ...
 
-Reproducing bug report here:
-After hibernating and resuming, DPM is not enabled. This remains the case
-even if you test hibernate using the steps here:
-https://www.kernel.org/doc/html/latest/power/basic-pm-debugging.html
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    28 tests:	28 pass, 0 fail
 
-I debugged the problem, and figured out that in the file hardwaremanager.c,
-in the function, phm_enable_dynamic_state_management(), the check
-'if (!hwmgr->pp_one_vf && smum_is_dpm_running(hwmgr) && !amdgpu_passthrough(adev) && adev->in_suspend)'
-returns true for the hibernate case, and false for the suspend case.
+Linux version:	4.4.233-rc1-g1c57f0a7ac38
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-This means that for the hibernate case, the AMDGPU driver doesn't enable DPM
-(even though it should) and simply returns from that function.
-In the suspend case, it goes ahead and enables DPM, even though it doesn't need to.
-
-I debugged further, and found out that in the case of suspend, for the
-CIK/Hawaii GPUs, smum_is_dpm_running(hwmgr) returns false, while in the case of
-hibernate, smum_is_dpm_running(hwmgr) returns true.
-
-For CIK, the ci_is_dpm_running() function calls the ci_is_smc_ram_running() function,
-which is ultimately used to determine if DPM is currently enabled or not,
-and this seems to provide the wrong answer.
-
-I've changed the ci_is_dpm_running() function to instead use the same method that
-some other AMD GPU chips do (e.g Fiji), which seems to read the voltage controller.
-I've tested on my R9 390 and it seems to work correctly for both suspend and
-hibernate use cases, and has been stable so far.
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=208839
-Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -2723,7 +2723,10 @@ static int ci_initialize_mc_reg_table(st
- 
- static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
- {
--	return ci_is_smc_ram_running(hwmgr);
-+	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
-+					     CGS_IND_REG__SMC, FEATURE_STATUS,
-+					     VOLTAGE_CONTROLLER_ON))
-+		? true : false;
- }
- 
- static int ci_smu_init(struct pp_hwmgr *hwmgr)
-
-
+Jon
