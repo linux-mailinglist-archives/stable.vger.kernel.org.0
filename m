@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA92124BF02
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9183824BF7F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729176AbgHTNjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
+        id S1729063AbgHTNjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727070AbgHTJ2P (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727943AbgHTJ2P (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:28:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 617F322D2C;
-        Thu, 20 Aug 2020 09:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 732EC22D3E;
+        Thu, 20 Aug 2020 09:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915688;
-        bh=Q3c3fttEFPNEraViiHJuygJ4IAfzf6gyNW01lwb61AE=;
+        s=default; t=1597915692;
+        bh=4PcJebeh/Ll0u6T2COoRTK6XyspIHlBi+EwMv6Zg/BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IeJreRrsaMx7HAiMzU9ZeQy7xyQo0aTtiaPEZkYRrFtusEwy/A6y3nVEkh1cUQFmQ
-         QXhdFsj6nwyXPwtd/korL6bTHxbH+fFXtagSKqABV+thTs23KHjXJOZGEySi/oeioI
-         q/jaWzMK/UzzJ+pCAoOiTOM4jZt6jAIMNpleAQN4=
+        b=HScMFZLuucr8SU/DyhCfHwhReS++DCj6EXuunKXVyjuKMKburRKl1wzjwxRFfHEdE
+         un6lwtvEDvt16r+1KMtSHaAhHB88I9WUgOukOhext0781D1aYHuTR8PrbHFVE557uf
+         CK+Dqj1c0kygeNJlCKw4qBNaXi1Sjzktst/JC6P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        stable@vger.kernel.org, Andi Kleen <andi@firstfloor.org>,
         Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.8 101/232] bootconfig: Fix to find the initargs correctly
-Date:   Thu, 20 Aug 2020 11:19:12 +0200
-Message-Id: <20200820091617.724127174@linuxfoundation.org>
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.8 102/232] perf probe: Fix wrong variable warning when the probe point is not found
+Date:   Thu, 20 Aug 2020 11:19:13 +0200
+Message-Id: <20200820091617.773551777@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -46,70 +49,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 477d08478170469d10b533624342d13701e24b34 upstream.
+commit 11fd3eb874e73ee8069bcfd54e3c16fa7ce56fe6 upstream.
 
-Since the parse_args() stops parsing at '--', bootconfig_params()
-will never get the '--' as param and initargs_found never be true.
-In the result, if we pass some init arguments via the bootconfig,
-those are always appended to the kernel command line with '--'
-even if the kernel command line already has '--'.
+Fix a wrong "variable not found" warning when the probe point is not
+found in the debuginfo.
 
-To fix this correctly, check the return value of parse_args()
-and set initargs_found true if the return value is not an error
-but a valid address.
+Since the debuginfo__find_probes() can return 0 even if it does not find
+given probe point in the debuginfo, fill_empty_trace_arg() can be called
+with tf.ntevs == 0 and it can emit a wrong warning.  To fix this, reject
+ntevs == 0 in fill_empty_trace_arg().
 
-Link: https://lkml.kernel.org/r/159650953285.270383.14822353843556363851.stgit@devnote2
+E.g. without this patch;
 
-Fixes: f61872bb58a1 ("bootconfig: Use parse_args() to find bootconfig and '--'")
-Cc: stable@vger.kernel.org
-Reported-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
+  Failed to find the location of the '%di' variable at this address.
+   Perhaps it has been optimized out.
+   Use -V with the --range option to show '%di' location range.
+  Added new events:
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe_libc:memcpy -aR sleep 1
+
+With this;
+
+  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
+  Added new events:
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe_libc:memcpy -aR sleep 1
+
+Fixes: cb4027308570 ("perf probe: Trace a magic number if variable is not found")
+Reported-by: Andi Kleen <andi@firstfloor.org>
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Tested-by: Andi Kleen <ak@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/159438667364.62703.2200642186798763202.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- init/main.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ tools/perf/util/probe-finder.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/init/main.c
-+++ b/init/main.c
-@@ -387,8 +387,6 @@ static int __init bootconfig_params(char
- {
- 	if (strcmp(param, "bootconfig") == 0) {
- 		bootconfig_found = true;
--	} else if (strcmp(param, "--") == 0) {
--		initargs_found = true;
- 	}
- 	return 0;
- }
-@@ -399,19 +397,23 @@ static void __init setup_boot_config(con
- 	const char *msg;
- 	int pos;
- 	u32 size, csum;
--	char *data, *copy;
-+	char *data, *copy, *err;
- 	int ret;
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1408,6 +1408,9 @@ static int fill_empty_trace_arg(struct p
+ 	char *type;
+ 	int i, j, ret;
  
- 	/* Cut out the bootconfig data even if we have no bootconfig option */
- 	data = get_boot_config_from_initrd(&size, &csum);
- 
- 	strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);
--	parse_args("bootconfig", tmp_cmdline, NULL, 0, 0, 0, NULL,
--		   bootconfig_params);
-+	err = parse_args("bootconfig", tmp_cmdline, NULL, 0, 0, 0, NULL,
-+			 bootconfig_params);
- 
--	if (!bootconfig_found)
-+	if (IS_ERR(err) || !bootconfig_found)
- 		return;
- 
-+	/* parse_args() stops at '--' and returns an address */
-+	if (err)
-+		initargs_found = true;
++	if (!ntevs)
++		return -ENOENT;
 +
- 	if (!data) {
- 		pr_err("'bootconfig' found on command line, but no bootconfig found\n");
- 		return;
+ 	for (i = 0; i < pev->nargs; i++) {
+ 		type = NULL;
+ 		for (j = 0; j < ntevs; j++) {
 
 
