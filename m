@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E87724BE4F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9508E24BE83
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730734AbgHTNXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:23:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
+        id S1730744AbgHTNXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728444AbgHTJeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728122AbgHTJeL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:34:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79135207DE;
-        Thu, 20 Aug 2020 09:33:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08E2F22B49;
+        Thu, 20 Aug 2020 09:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916040;
-        bh=IiYFq2Urt7CVFWhnRx7Sf4p1sOBGWy+A0gkv82MJwEw=;
+        s=default; t=1597916042;
+        bh=K7VqwQrctBXFFVmyi6gy4VuQCsQ6TS3YyqT4D9EiO44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+BOCZgE/zNav6UOrPkEY+xgp3krx7x6gVbuYJaglHCmWiSMITI1SoJzdKCiQ6MQO
-         /TxSefcLELRozIY/+McKC2HjWJffReFOVbivIpzrhYKzPIL75KpAdzcV1GvAOpMxtq
-         6effkBDWSsluNXkbku0skZewKoLG+/rPsFzjLQm8=
+        b=t++5L7udo45d+EjHghw0HjL3+kNc7ixFMYeRCJnCztxDcbaz6n1eMO74rfAE2N2ZG
+         Pihr8qivWagfVUDTxpmqd08mnpaUD4Qx9lloa7W1uFphnAV5meXJXIooH5YBcxpaND
+         zvQ6nJv8V2WGpo03+2TLC4u3NPKv0fW7rBc4qyeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 193/232] perf record: Skip side-band event setup if HAVE_LIBBPF_SUPPORT is not set
-Date:   Thu, 20 Aug 2020 11:20:44 +0200
-Message-Id: <20200820091622.140479237@linuxfoundation.org>
+Subject: [PATCH 5.8 194/232] selftests/bpf: Fix silent Makefile output
+Date:   Thu, 20 Aug 2020 11:20:45 +0200
+Message-Id: <20200820091622.187340412@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -49,95 +44,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit 1101c872c8c7869c78dc106ae820040f36807eda ]
+[ Upstream commit d5ca590525cfbd87ca307dcf498a566e2e7c1767 ]
 
-We received an error report that perf-record caused 'Segmentation fault'
-on a newly system (e.g. on the new installed ubuntu).
+99aacebecb75 ("selftests: do not use .ONESHELL") removed .ONESHELL, which
+changes how Makefile "silences" multi-command target recipes. selftests/bpf's
+Makefile relied (a somewhat unknowingly) on .ONESHELL behavior of silencing
+all commands within the recipe if the first command contains @ symbol.
+Removing .ONESHELL exposed this hack.
 
-  (gdb) backtrace
-  #0  __read_once_size (size=4, res=<synthetic pointer>, p=0x14) at /root/0-jinyao/acme/tools/include/linux/compiler.h:139
-  #1  atomic_read (v=0x14) at /root/0-jinyao/acme/tools/include/asm/../../arch/x86/include/asm/atomic.h:28
-  #2  refcount_read (r=0x14) at /root/0-jinyao/acme/tools/include/linux/refcount.h:65
-  #3  perf_mmap__read_init (map=map@entry=0x0) at mmap.c:177
-  #4  0x0000561ce5c0de39 in perf_evlist__poll_thread (arg=0x561ce68584d0) at util/sideband_evlist.c:62
-  #5  0x00007fad78491609 in start_thread (arg=<optimized out>) at pthread_create.c:477
-  #6  0x00007fad7823c103 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+This patch fixes the issue by explicitly silencing each command with $(Q).
 
-The root cause is, evlist__add_bpf_sb_event() just returns 0 if
-HAVE_LIBBPF_SUPPORT is not defined (inline function path). So it will
-not create a valid evsel for side-band event.
+Also explicitly define fallback rule for building *.o from *.c, instead of
+relying on non-silent inherited rule. This was causing a non-silent output for
+bench.o object file.
 
-But perf-record still creates BPF side band thread to process the
-side-band event, then the error happpens.
-
-We can reproduce this issue by removing the libelf-dev. e.g.
-1. apt-get remove libelf-dev
-2. perf record -a -- sleep 1
-
-  root@test:~# ./perf record -a -- sleep 1
-  perf: Segmentation fault
-  Obtained 6 stack frames.
-  ./perf(+0x28eee8) [0x5562d6ef6ee8]
-  /lib/x86_64-linux-gnu/libc.so.6(+0x46210) [0x7fbfdc65f210]
-  ./perf(+0x342e74) [0x5562d6faae74]
-  ./perf(+0x257e39) [0x5562d6ebfe39]
-  /lib/x86_64-linux-gnu/libpthread.so.0(+0x9609) [0x7fbfdc990609]
-  /lib/x86_64-linux-gnu/libc.so.6(clone+0x43) [0x7fbfdc73b103]
-  Segmentation fault (core dumped)
-
-To fix this issue,
-
-1. We either install the missing libraries to let HAVE_LIBBPF_SUPPORT
-   be defined.
-   e.g. apt-get install libelf-dev and install other related libraries.
-
-2. Use this patch to skip the side-band event setup if HAVE_LIBBPF_SUPPORT
-   is not set.
-
-Committer notes:
-
-The side band thread is not used just with BPF, it is also used with
---switch-output-event, so narrow the ifdef to the BPF specific part.
-
-Fixes: 23cbb41c939a ("perf record: Move side band evlist setup to separate routine")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200805022937.29184-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 92f7440ecc93 ("selftests/bpf: More succinct Makefile output")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20200807033058.848677-1-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-record.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/Makefile | 44 +++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 20 deletions(-)
 
-diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index a37e7910e9e90..23ea934f30b34 100644
---- a/tools/perf/builtin-record.c
-+++ b/tools/perf/builtin-record.c
-@@ -1489,7 +1489,7 @@ static int record__setup_sb_evlist(struct record *rec)
- 		evlist__set_cb(rec->sb_evlist, record__process_signal_event, rec);
- 		rec->thread_id = pthread_self();
- 	}
--
-+#ifdef HAVE_LIBBPF_SUPPORT
- 	if (!opts->no_bpf_event) {
- 		if (rec->sb_evlist == NULL) {
- 			rec->sb_evlist = evlist__new();
-@@ -1505,7 +1505,7 @@ static int record__setup_sb_evlist(struct record *rec)
- 			return -1;
- 		}
- 	}
--
-+#endif
- 	if (perf_evlist__start_sb_thread(rec->sb_evlist, &rec->opts.target)) {
- 		pr_debug("Couldn't start the BPF side band thread:\nBPF programs starting from now on won't be annotatable\n");
- 		opts->no_bpf_event = true;
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index dab182ffec320..4f322d5388757 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -102,7 +102,7 @@ endif
+ OVERRIDE_TARGETS := 1
+ override define CLEAN
+ 	$(call msg,CLEAN)
+-	$(RM) -r $(TEST_GEN_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(EXTRA_CLEAN)
++	$(Q)$(RM) -r $(TEST_GEN_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(EXTRA_CLEAN)
+ endef
+ 
+ include ../lib.mk
+@@ -122,17 +122,21 @@ $(notdir $(TEST_GEN_PROGS)						\
+ 	 $(TEST_GEN_PROGS_EXTENDED)					\
+ 	 $(TEST_CUSTOM_PROGS)): %: $(OUTPUT)/% ;
+ 
++$(OUTPUT)/%.o: %.c
++	$(call msg,CC,,$@)
++	$(Q)$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
++
+ $(OUTPUT)/%:%.c
+ 	$(call msg,BINARY,,$@)
+-	$(LINK.c) $^ $(LDLIBS) -o $@
++	$(Q)$(LINK.c) $^ $(LDLIBS) -o $@
+ 
+ $(OUTPUT)/urandom_read: urandom_read.c
+ 	$(call msg,BINARY,,$@)
+-	$(CC) $(LDFLAGS) -o $@ $< $(LDLIBS) -Wl,--build-id
++	$(Q)$(CC) $(LDFLAGS) -o $@ $< $(LDLIBS) -Wl,--build-id
+ 
+ $(OUTPUT)/test_stub.o: test_stub.c $(BPFOBJ)
+ 	$(call msg,CC,,$@)
+-	$(CC) -c $(CFLAGS) -o $@ $<
++	$(Q)$(CC) -c $(CFLAGS) -o $@ $<
+ 
+ VMLINUX_BTF_PATHS := $(if $(O),$(O)/vmlinux)				\
+ 		     $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux)	\
+@@ -180,11 +184,11 @@ $(BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)		       \
+ 
+ $(BUILD_DIR)/libbpf $(BUILD_DIR)/bpftool $(INCLUDE_DIR):
+ 	$(call msg,MKDIR,,$@)
+-	mkdir -p $@
++	$(Q)mkdir -p $@
+ 
+ $(INCLUDE_DIR)/vmlinux.h: $(VMLINUX_BTF) | $(BPFTOOL) $(INCLUDE_DIR)
+ 	$(call msg,GEN,,$@)
+-	$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
++	$(Q)$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
+ 
+ # Get Clang's default includes on this system, as opposed to those seen by
+ # '-target bpf'. This fixes "missing" files on some architectures/distros,
+@@ -222,28 +226,28 @@ $(OUTPUT)/flow_dissector_load.o: flow_dissector_load.h
+ # $4 - LDFLAGS
+ define CLANG_BPF_BUILD_RULE
+ 	$(call msg,CLNG-LLC,$(TRUNNER_BINARY),$2)
+-	($(CLANG) $3 -O2 -target bpf -emit-llvm				\
++	$(Q)($(CLANG) $3 -O2 -target bpf -emit-llvm			\
+ 		-c $1 -o - || echo "BPF obj compilation failed") | 	\
+ 	$(LLC) -mattr=dwarfris -march=bpf -mcpu=v3 $4 -filetype=obj -o $2
+ endef
+ # Similar to CLANG_BPF_BUILD_RULE, but with disabled alu32
+ define CLANG_NOALU32_BPF_BUILD_RULE
+ 	$(call msg,CLNG-LLC,$(TRUNNER_BINARY),$2)
+-	($(CLANG) $3 -O2 -target bpf -emit-llvm				\
++	$(Q)($(CLANG) $3 -O2 -target bpf -emit-llvm			\
+ 		-c $1 -o - || echo "BPF obj compilation failed") | 	\
+ 	$(LLC) -march=bpf -mcpu=v2 $4 -filetype=obj -o $2
+ endef
+ # Similar to CLANG_BPF_BUILD_RULE, but using native Clang and bpf LLC
+ define CLANG_NATIVE_BPF_BUILD_RULE
+ 	$(call msg,CLNG-BPF,$(TRUNNER_BINARY),$2)
+-	($(CLANG) $3 -O2 -emit-llvm					\
++	$(Q)($(CLANG) $3 -O2 -emit-llvm					\
+ 		-c $1 -o - || echo "BPF obj compilation failed") | 	\
+ 	$(LLC) -march=bpf -mcpu=v3 $4 -filetype=obj -o $2
+ endef
+ # Build BPF object using GCC
+ define GCC_BPF_BUILD_RULE
+ 	$(call msg,GCC-BPF,$(TRUNNER_BINARY),$2)
+-	$(BPF_GCC) $3 $4 -O2 -c $1 -o $2
++	$(Q)$(BPF_GCC) $3 $4 -O2 -c $1 -o $2
+ endef
+ 
+ SKEL_BLACKLIST := btf__% test_pinning_invalid.c test_sk_assign.c
+@@ -285,7 +289,7 @@ ifeq ($($(TRUNNER_OUTPUT)-dir),)
+ $(TRUNNER_OUTPUT)-dir := y
+ $(TRUNNER_OUTPUT):
+ 	$$(call msg,MKDIR,,$$@)
+-	mkdir -p $$@
++	$(Q)mkdir -p $$@
+ endif
+ 
+ # ensure we set up BPF objects generation rule just once for a given
+@@ -305,7 +309,7 @@ $(TRUNNER_BPF_SKELS): $(TRUNNER_OUTPUT)/%.skel.h:			\
+ 		      $(TRUNNER_OUTPUT)/%.o				\
+ 		      | $(BPFTOOL) $(TRUNNER_OUTPUT)
+ 	$$(call msg,GEN-SKEL,$(TRUNNER_BINARY),$$@)
+-	$$(BPFTOOL) gen skeleton $$< > $$@
++	$(Q)$$(BPFTOOL) gen skeleton $$< > $$@
+ endif
+ 
+ # ensure we set up tests.h header generation rule just once
+@@ -329,7 +333,7 @@ $(TRUNNER_TEST_OBJS): $(TRUNNER_OUTPUT)/%.test.o:			\
+ 		      $(TRUNNER_BPF_SKELS)				\
+ 		      $$(BPFOBJ) | $(TRUNNER_OUTPUT)
+ 	$$(call msg,TEST-OBJ,$(TRUNNER_BINARY),$$@)
+-	cd $$(@D) && $$(CC) -I. $$(CFLAGS) -c $(CURDIR)/$$< $$(LDLIBS) -o $$(@F)
++	$(Q)cd $$(@D) && $$(CC) -I. $$(CFLAGS) -c $(CURDIR)/$$< $$(LDLIBS) -o $$(@F)
+ 
+ $(TRUNNER_EXTRA_OBJS): $(TRUNNER_OUTPUT)/%.o:				\
+ 		       %.c						\
+@@ -337,20 +341,20 @@ $(TRUNNER_EXTRA_OBJS): $(TRUNNER_OUTPUT)/%.o:				\
+ 		       $(TRUNNER_TESTS_HDR)				\
+ 		       $$(BPFOBJ) | $(TRUNNER_OUTPUT)
+ 	$$(call msg,EXT-OBJ,$(TRUNNER_BINARY),$$@)
+-	$$(CC) $$(CFLAGS) -c $$< $$(LDLIBS) -o $$@
++	$(Q)$$(CC) $$(CFLAGS) -c $$< $$(LDLIBS) -o $$@
+ 
+ # only copy extra resources if in flavored build
+ $(TRUNNER_BINARY)-extras: $(TRUNNER_EXTRA_FILES) | $(TRUNNER_OUTPUT)
+ ifneq ($2,)
+ 	$$(call msg,EXT-COPY,$(TRUNNER_BINARY),$(TRUNNER_EXTRA_FILES))
+-	cp -a $$^ $(TRUNNER_OUTPUT)/
++	$(Q)cp -a $$^ $(TRUNNER_OUTPUT)/
+ endif
+ 
+ $(OUTPUT)/$(TRUNNER_BINARY): $(TRUNNER_TEST_OBJS)			\
+ 			     $(TRUNNER_EXTRA_OBJS) $$(BPFOBJ)		\
+ 			     | $(TRUNNER_BINARY)-extras
+ 	$$(call msg,BINARY,,$$@)
+-	$$(CC) $$(CFLAGS) $$(filter %.a %.o,$$^) $$(LDLIBS) -o $$@
++	$(Q)$$(CC) $$(CFLAGS) $$(filter %.a %.o,$$^) $$(LDLIBS) -o $$@
+ 
+ endef
+ 
+@@ -403,17 +407,17 @@ verifier/tests.h: verifier/*.c
+ 		) > verifier/tests.h)
+ $(OUTPUT)/test_verifier: test_verifier.c verifier/tests.h $(BPFOBJ) | $(OUTPUT)
+ 	$(call msg,BINARY,,$@)
+-	$(CC) $(CFLAGS) $(filter %.a %.o %.c,$^) $(LDLIBS) -o $@
++	$(Q)$(CC) $(CFLAGS) $(filter %.a %.o %.c,$^) $(LDLIBS) -o $@
+ 
+ # Make sure we are able to include and link libbpf against c++.
+ $(OUTPUT)/test_cpp: test_cpp.cpp $(OUTPUT)/test_core_extern.skel.h $(BPFOBJ)
+ 	$(call msg,CXX,,$@)
+-	$(CXX) $(CFLAGS) $^ $(LDLIBS) -o $@
++	$(Q)$(CXX) $(CFLAGS) $^ $(LDLIBS) -o $@
+ 
+ # Benchmark runner
+ $(OUTPUT)/bench_%.o: benchs/bench_%.c bench.h
+ 	$(call msg,CC,,$@)
+-	$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
++	$(Q)$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
+ $(OUTPUT)/bench_rename.o: $(OUTPUT)/test_overhead.skel.h
+ $(OUTPUT)/bench_trigger.o: $(OUTPUT)/trigger_bench.skel.h
+ $(OUTPUT)/bench_ringbufs.o: $(OUTPUT)/ringbuf_bench.skel.h \
+@@ -426,7 +430,7 @@ $(OUTPUT)/bench: $(OUTPUT)/bench.o $(OUTPUT)/testing_helpers.o \
+ 		 $(OUTPUT)/bench_trigger.o \
+ 		 $(OUTPUT)/bench_ringbufs.o
+ 	$(call msg,BINARY,,$@)
+-	$(CC) $(LDFLAGS) -o $@ $(filter %.a %.o,$^) $(LDLIBS)
++	$(Q)$(CC) $(LDFLAGS) -o $@ $(filter %.a %.o,$^) $(LDLIBS)
+ 
+ EXTRA_CLEAN := $(TEST_CUSTOM_PROGS) $(SCRATCH_DIR)			\
+ 	prog_tests/tests.h map_tests/tests.h verifier/tests.h		\
 -- 
 2.25.1
 
