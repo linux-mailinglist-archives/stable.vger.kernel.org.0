@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F1A24BB8B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58AF24BCF0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728245AbgHTMak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:30:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S1727078AbgHTMzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:55:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728589AbgHTJvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:12 -0400
+        id S1728829AbgHTJm5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:42:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0051C2075E;
-        Thu, 20 Aug 2020 09:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F98E22CAF;
+        Thu, 20 Aug 2020 09:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917071;
-        bh=5zDIADOTLQKE0vCNuwOkqvRT7Efysr/y1egeJ9G6Vnc=;
+        s=default; t=1597916576;
+        bh=n7wzPQ3M0ERQ59sffFXEWhQWFOF761BQYOzZAulle1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHqe7KLeT/apgf0tos8niFCMXyFgEJeoATsXKhDFyDTqlyMOHQ8o1Du19blVo2V7a
-         UuCtcCEFkdhixyEI3fLKZV242AHskK0+xgom0WZg69sNdFWDBTLg4Z7bLUp4150NXP
-         BjhOQlLUkxoU+z5T+RnPtEhHmgQg3l7c4GNKEq2Y=
+        b=tEFBcOzUVmycW9Xz7YCCHlApfXzHq5Q2aphTOgLlWd2snx6LmD28w7SmPc9bbPOLW
+         R4lfHPPwOfK5cmm7LqAvnEvEcWxhJcKZ5//XBAtDpJ0MrPZo2HcJY+SDGpUq1p8Xx2
+         TeETvp3GbQw6ZtzxwPoknnezV97BaWpZbbvLmMZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/152] clk: qcom: clk-alpha-pll: remove unused/incorrect PLL_CAL_VAL
+Subject: [PATCH 5.7 177/204] fs/minix: fix block limit check for V1 filesystems
 Date:   Thu, 20 Aug 2020 11:21:14 +0200
-Message-Id: <20200820091559.245470303@linuxfoundation.org>
+Message-Id: <20200820091615.045879304@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit c8b9002f44e4a1d2771b2f59f6de900864b1f9d7 ]
+[ Upstream commit 0a12c4a8069607247cb8edc3b035a664e636fd9a ]
 
-0x44 isn't a register offset, it is the value that goes into CAL_L_VAL.
+The minix filesystem reads its maximum file size from its on-disk
+superblock.  This value isn't necessarily a multiple of the block size.
+When it's not, the V1 block mapping code doesn't allow mapping the last
+possible block.  Commit 6ed6a722f9ab ("minixfs: fix block limit check")
+fixed this in the V2 mapping code.  Fix it in the V1 mapping code too.
 
-Fixes: 548a909597d5 ("clk: qcom: clk-alpha-pll: Add support for Trion PLLs")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20200709135251.643-3-jonathan@marek.ca
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Link: http://lkml.kernel.org/r/20200628060846.682158-6-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-alpha-pll.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/minix/itree_v1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/clk-alpha-pll.c b/drivers/clk/qcom/clk-alpha-pll.c
-index 055318f979915..a69f53e435ed5 100644
---- a/drivers/clk/qcom/clk-alpha-pll.c
-+++ b/drivers/clk/qcom/clk-alpha-pll.c
-@@ -55,7 +55,6 @@
- #define PLL_STATUS(p)		((p)->offset + (p)->regs[PLL_OFF_STATUS])
- #define PLL_OPMODE(p)		((p)->offset + (p)->regs[PLL_OFF_OPMODE])
- #define PLL_FRAC(p)		((p)->offset + (p)->regs[PLL_OFF_FRAC])
--#define PLL_CAL_VAL(p)		((p)->offset + (p)->regs[PLL_OFF_CAL_VAL])
- 
- const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
- 	[CLK_ALPHA_PLL_TYPE_DEFAULT] =  {
-@@ -114,7 +113,6 @@ const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
- 		[PLL_OFF_STATUS] = 0x30,
- 		[PLL_OFF_OPMODE] = 0x38,
- 		[PLL_OFF_ALPHA_VAL] = 0x40,
--		[PLL_OFF_CAL_VAL] = 0x44,
- 	},
- };
- EXPORT_SYMBOL_GPL(clk_alpha_pll_regs);
+diff --git a/fs/minix/itree_v1.c b/fs/minix/itree_v1.c
+index c0d418209ead1..405573a79aab4 100644
+--- a/fs/minix/itree_v1.c
++++ b/fs/minix/itree_v1.c
+@@ -29,7 +29,7 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
+ 	if (block < 0) {
+ 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
+ 			block, inode->i_sb->s_bdev);
+-	} else if (block >= inode->i_sb->s_maxbytes/BLOCK_SIZE) {
++	} else if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes) {
+ 		if (printk_ratelimit())
+ 			printk("MINIX-fs: block_to_path: "
+ 			       "block %ld too big on dev %pg\n",
 -- 
 2.25.1
 
