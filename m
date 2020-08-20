@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E31024B93A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B176324B935
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730655AbgHTLlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57734 "EHLO mail.kernel.org"
+        id S1730626AbgHTLlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730621AbgHTKEs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:04:48 -0400
+        id S1730625AbgHTKEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:04:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AE9020738;
-        Thu, 20 Aug 2020 10:04:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 414D2208E4;
+        Thu, 20 Aug 2020 10:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917887;
-        bh=mtsko70TWTc6ttCymmwY8gqp2jWH6kl8tFnY4Qf8wsY=;
+        s=default; t=1597917892;
+        bh=3RsVfoprjojnE+d3UkQ+cX/ApKPMU83mKZYAEoNuq7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgBUDJCZ6RYBwSDJFupOOihlMku+XPgK+bNX9pqeGMC6FscrAGu9+3VmTGmHvshIa
-         bxX4t/RfYOr6zmXl6qAxTN6WscjSS7EdS6Ug2T3z5ORPMK4YiapIeYo/p/njqIgXaY
-         SLfwSuxwYn9babjNHkjoTS0uqQ3jotIERrjbsjxI=
+        b=PIdn07qJucd/Vkm7Dpink/qsJc8TkFlKdFc8UINyJ+mqYBYnO9bKjxupCyWtkrNw9
+         9ym15YjTMCN3dgMnSUuiaauss+dJvjPHqL6/lMMrXooQY6oxTaIU0nt9s1YXv+y/4B
+         L7HrDtSL1nbvzYFL9F3eOh3hzgXfpFqEZLhNkvWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 192/212] mfd: arizona: Ensure 32k clock is put on driver unbind and error
-Date:   Thu, 20 Aug 2020 11:22:45 +0200
-Message-Id: <20200820091612.075808891@linuxfoundation.org>
+Subject: [PATCH 4.9 193/212] USB: serial: ftdi_sio: make process-packet buffer unsigned
+Date:   Thu, 20 Aug 2020 11:22:46 +0200
+Message-Id: <20200820091612.118861313@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,63 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit ddff6c45b21d0437ce0c85f8ac35d7b5480513d7 ]
+[ Upstream commit ab4cc4ef6724ea588e835fc1e764c4b4407a70b7 ]
 
-Whilst it doesn't matter if the internal 32k clock register settings
-are cleaned up on exit, as the part will be turned off losing any
-settings, hence the driver hasn't historially bothered. The external
-clock should however be cleaned up, as it could cause clocks to be
-left on, and will at best generate a warning on unbind.
+Use an unsigned type for the process-packet buffer argument and give it
+a more apt name.
 
-Add clean up on both the probe error path and unbind for the 32k
-clock.
-
-Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/arizona-core.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/usb/serial/ftdi_sio.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
-index 1f0c2b594654e..3382845d4b67d 100644
---- a/drivers/mfd/arizona-core.c
-+++ b/drivers/mfd/arizona-core.c
-@@ -1537,6 +1537,15 @@ int arizona_dev_init(struct arizona *arizona)
- 	arizona_irq_exit(arizona);
- err_pm:
- 	pm_runtime_disable(arizona->dev);
-+
-+	switch (arizona->pdata.clk32k_src) {
-+	case ARIZONA_32KZ_MCLK1:
-+	case ARIZONA_32KZ_MCLK2:
-+		arizona_clk32k_disable(arizona);
-+		break;
-+	default:
-+		break;
-+	}
- err_reset:
- 	arizona_enable_reset(arizona);
- 	regulator_disable(arizona->dcvdd);
-@@ -1558,6 +1567,15 @@ int arizona_dev_exit(struct arizona *arizona)
- 	regulator_disable(arizona->dcvdd);
- 	regulator_put(arizona->dcvdd);
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index a7cb0968259ee..2583d21382b06 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -2051,12 +2051,12 @@ static int ftdi_prepare_write_buffer(struct usb_serial_port *port,
+ #define FTDI_RS_ERR_MASK (FTDI_RS_BI | FTDI_RS_PE | FTDI_RS_FE | FTDI_RS_OE)
  
-+	switch (arizona->pdata.clk32k_src) {
-+	case ARIZONA_32KZ_MCLK1:
-+	case ARIZONA_32KZ_MCLK2:
-+		arizona_clk32k_disable(arizona);
-+		break;
-+	default:
-+		break;
-+	}
-+
- 	mfd_remove_devices(arizona->dev);
- 	arizona_free_irq(arizona, ARIZONA_IRQ_UNDERCLOCKED, arizona);
- 	arizona_free_irq(arizona, ARIZONA_IRQ_OVERCLOCKED, arizona);
+ static int ftdi_process_packet(struct usb_serial_port *port,
+-		struct ftdi_private *priv, char *packet, int len)
++		struct ftdi_private *priv, unsigned char *buf, int len)
+ {
++	unsigned char status;
++	unsigned char *ch;
+ 	int i;
+-	char status;
+ 	char flag;
+-	char *ch;
+ 
+ 	if (len < 2) {
+ 		dev_dbg(&port->dev, "malformed packet\n");
+@@ -2066,7 +2066,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	/* Compare new line status to the old one, signal if different/
+ 	   N.B. packet may be processed more than once, but differences
+ 	   are only processed once.  */
+-	status = packet[0] & FTDI_STATUS_B0_MASK;
++	status = buf[0] & FTDI_STATUS_B0_MASK;
+ 	if (status != priv->prev_status) {
+ 		char diff_status = status ^ priv->prev_status;
+ 
+@@ -2092,7 +2092,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	}
+ 
+ 	/* save if the transmitter is empty or not */
+-	if (packet[1] & FTDI_RS_TEMT)
++	if (buf[1] & FTDI_RS_TEMT)
+ 		priv->transmit_empty = 1;
+ 	else
+ 		priv->transmit_empty = 0;
+@@ -2106,29 +2106,29 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	 * data payload to avoid over-reporting.
+ 	 */
+ 	flag = TTY_NORMAL;
+-	if (packet[1] & FTDI_RS_ERR_MASK) {
++	if (buf[1] & FTDI_RS_ERR_MASK) {
+ 		/* Break takes precedence over parity, which takes precedence
+ 		 * over framing errors */
+-		if (packet[1] & FTDI_RS_BI) {
++		if (buf[1] & FTDI_RS_BI) {
+ 			flag = TTY_BREAK;
+ 			port->icount.brk++;
+ 			usb_serial_handle_break(port);
+-		} else if (packet[1] & FTDI_RS_PE) {
++		} else if (buf[1] & FTDI_RS_PE) {
+ 			flag = TTY_PARITY;
+ 			port->icount.parity++;
+-		} else if (packet[1] & FTDI_RS_FE) {
++		} else if (buf[1] & FTDI_RS_FE) {
+ 			flag = TTY_FRAME;
+ 			port->icount.frame++;
+ 		}
+ 		/* Overrun is special, not associated with a char */
+-		if (packet[1] & FTDI_RS_OE) {
++		if (buf[1] & FTDI_RS_OE) {
+ 			port->icount.overrun++;
+ 			tty_insert_flip_char(&port->port, 0, TTY_OVERRUN);
+ 		}
+ 	}
+ 
+ 	port->icount.rx += len;
+-	ch = packet + 2;
++	ch = buf + 2;
+ 
+ 	if (port->port.console && port->sysrq) {
+ 		for (i = 0; i < len; i++, ch++) {
 -- 
 2.25.1
 
