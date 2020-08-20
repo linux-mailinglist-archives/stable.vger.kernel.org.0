@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40AAB24BA50
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C0724BA46
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729117AbgHTMFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
+        id S1727829AbgHTJ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730164AbgHTJ7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:02 -0400
+        id S1729977AbgHTJ7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:59:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B3FD2067C;
-        Thu, 20 Aug 2020 09:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42C5B20855;
+        Thu, 20 Aug 2020 09:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917541;
-        bh=bTEMXvdIvyE2iqBAS9NC+cQYJQ88tOHYymR7wqxovZk=;
+        s=default; t=1597917547;
+        bh=AfPknJHdAKb1a61IvJ8rVc97ePVa5CPPTQ/JFx7t1yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVTyk6mdFgsFDDNZe4SnflryMILo2IsuRWtJad/KZmA7hfJxVHx9EO0pvh2xa/AKi
-         E9pr/4bq6X7ZBiOJ7dOrw2NC5h1DZ2CB9bXa1QZBOxYHhLqzXscoHtWlDHLMIVsMlW
-         AWRqfneop6PSbw4ef7JteVD2tCDPJObVnV0sZdiA=
+        b=NKdOM1iSeznX+CzyAvPnQ/zXzQfW/YBjLEA9bX0U88JF+hgMJjUAC5EY41iDVwWvX
+         hu3L5ii4mnQYChDC3uHegGFdX4iN87CVnaEW0mvgzUjV92/m1TUIEX4r8JmpNWmsuQ
+         PysQiljIQVJP//JzeFIDuvYbk6dJmoILmtHlrIag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/212] nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
-Date:   Thu, 20 Aug 2020 11:20:11 +0200
-Message-Id: <20200820091604.292013320@linuxfoundation.org>
+Subject: [PATCH 4.9 040/212] net: ethernet: ravb: exit if re-initialization fails in tx timeout
+Date:   Thu, 20 Aug 2020 11:20:13 +0200
+Message-Id: <20200820091604.386819049@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,32 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 1e8fd3a97f2d83a7197876ceb4f37b4c2b00a0f3 ]
+[ Upstream commit 015c5d5e6aa3523c758a70eb87b291cece2dbbb4 ]
 
-The implementation of s3fwrn5_recv_frame() is supposed to consume skb on
-all execution paths. Release skb before returning -ENODEV.
+According to the report of [1], this driver is possible to cause
+the following error in ravb_tx_timeout_work().
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+ravb e6800000.ethernet ethernet: failed to switch device to config mode
+
+This error means that the hardware could not change the state
+from "Operation" to "Configuration" while some tx and/or rx queue
+are operating. After that, ravb_config() in ravb_dmac_init() will fail,
+and then any descriptors will be not allocaled anymore so that NULL
+pointer dereference happens after that on ravb_start_xmit().
+
+To fix the issue, the ravb_tx_timeout_work() should check
+the return values of ravb_stop_dma() and ravb_dmac_init().
+If ravb_stop_dma() fails, ravb_tx_timeout_work() re-enables TX and RX
+and just exits. If ravb_dmac_init() fails, just exits.
+
+[1]
+https://lore.kernel.org/linux-renesas-soc/20200518045452.2390-1-dirk.behme@de.bosch.com/
+
+Reported-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/renesas/ravb_main.c | 26 ++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
-index 9d9c8d57a042d..64b58455e620b 100644
---- a/drivers/nfc/s3fwrn5/core.c
-+++ b/drivers/nfc/s3fwrn5/core.c
-@@ -209,6 +209,7 @@ int s3fwrn5_recv_frame(struct nci_dev *ndev, struct sk_buff *skb,
- 	case S3FWRN5_MODE_FW:
- 		return s3fwrn5_fw_recv_frame(ndev, skb);
- 	default:
-+		kfree_skb(skb);
- 		return -ENODEV;
- 	}
- }
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index 545cb6262cffd..93d3152752ff4 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1444,6 +1444,7 @@ static void ravb_tx_timeout_work(struct work_struct *work)
+ 	struct ravb_private *priv = container_of(work, struct ravb_private,
+ 						 work);
+ 	struct net_device *ndev = priv->ndev;
++	int error;
+ 
+ 	netif_tx_stop_all_queues(ndev);
+ 
+@@ -1452,15 +1453,36 @@ static void ravb_tx_timeout_work(struct work_struct *work)
+ 		ravb_ptp_stop(ndev);
+ 
+ 	/* Wait for DMA stopping */
+-	ravb_stop_dma(ndev);
++	if (ravb_stop_dma(ndev)) {
++		/* If ravb_stop_dma() fails, the hardware is still operating
++		 * for TX and/or RX. So, this should not call the following
++		 * functions because ravb_dmac_init() is possible to fail too.
++		 * Also, this should not retry ravb_stop_dma() again and again
++		 * here because it's possible to wait forever. So, this just
++		 * re-enables the TX and RX and skip the following
++		 * re-initialization procedure.
++		 */
++		ravb_rcv_snd_enable(ndev);
++		goto out;
++	}
+ 
+ 	ravb_ring_free(ndev, RAVB_BE);
+ 	ravb_ring_free(ndev, RAVB_NC);
+ 
+ 	/* Device init */
+-	ravb_dmac_init(ndev);
++	error = ravb_dmac_init(ndev);
++	if (error) {
++		/* If ravb_dmac_init() fails, descriptors are freed. So, this
++		 * should return here to avoid re-enabling the TX and RX in
++		 * ravb_emac_init().
++		 */
++		netdev_err(ndev, "%s: ravb_dmac_init() failed, error %d\n",
++			   __func__, error);
++		return;
++	}
+ 	ravb_emac_init(ndev);
+ 
++out:
+ 	/* Initialise PTP Clock driver */
+ 	if (priv->chip_id == RCAR_GEN2)
+ 		ravb_ptp_init(ndev, priv->pdev);
 -- 
 2.25.1
 
