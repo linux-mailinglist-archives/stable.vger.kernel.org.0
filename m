@@ -2,37 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB6D24B7D7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9CF24B7D4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729207AbgHTLFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53662 "EHLO mail.kernel.org"
+        id S1727914AbgHTLFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731049AbgHTKMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:23 -0400
+        id S1729964AbgHTKMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:12:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 924702067C;
-        Thu, 20 Aug 2020 10:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A751206DA;
+        Thu, 20 Aug 2020 10:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918342;
-        bh=OhCnyEGNkDaKfgca2OXRG6T83JJkSQNLRIyv8z42H40=;
+        s=default; t=1597918345;
+        bh=0HD+PdibKx0WpBI1QWnfb7b763tjZrSmw3YiJDUjSDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCVAgVO2whUUT6YVkDxFWEBfkBNTpfR+DXmLutSZZX/4Odpn+H+ISWXaNAVOtjccC
-         OW5od4Z9Ot3O712IPooom3I/WvCisOsB8rJa/ZK93sfPbcrPl06KmDW9XlFb7eUR0g
-         OwG3fbzcGcQO0GsVwgwtGbmz4OjDmAiWXzgJM9kY=
+        b=KphHcdfxT+4eYiqxXk27dw+tpnP7MP1cI3ofe5Whb4kKtTYxQdOqDE9xDRjR/o0mp
+         HaZwpVSsMzm2gT8eO2Z0TXOmlbgWifvPvmcmyhovdH3LNwYAzh8gWaDmthfbDRSYOT
+         v9p4eYIgRWyA3BhcJDLg+5WJm56ZTDD5jgygND9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Fustini <drew@beagleboard.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 136/228] pinctrl-single: fix pcs_parse_pinconf() return value
-Date:   Thu, 20 Aug 2020 11:21:51 +0200
-Message-Id: <20200820091614.384399253@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Brian Gerst <brgerst@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Denys Vlasenko <dvlasenk@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Markus T Metzger <markus.t.metzger@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Shankar <ravi.v.shankar@intel.com>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, Jann Horn <jannh@google.com>
+Subject: [PATCH 4.14 137/228] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
+Date:   Thu, 20 Aug 2020 11:21:52 +0200
+Message-Id: <20200820091614.435538879@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,141 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Fustini <drew@beagleboard.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f46fe79ff1b65692a65266a5bec6dbe2bf7fc70f ]
+[ Upstream commit 8ab49526b53d3172d1d8dd03a75c7d1f5bd21239 ]
 
-This patch causes pcs_parse_pinconf() to return -ENOTSUPP when no
-pinctrl_map is added.  The current behavior is to return 0 when
-!PCS_HAS_PINCONF or !nconfs.  Thus pcs_parse_one_pinctrl_entry()
-incorrectly assumes that a map was added and sets num_maps = 2.
+syzbot found its way in 86_fsgsbase_read_task() and triggered this oops:
 
-Analysis:
-=========
-The function pcs_parse_one_pinctrl_entry() calls pcs_parse_pinconf()
-if PCS_HAS_PINCONF is enabled.  The function pcs_parse_pinconf()
-returns 0 to indicate there was no error and num_maps is then set to 2:
+   KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+   CPU: 0 PID: 6866 Comm: syz-executor262 Not tainted 5.8.0-syzkaller #0
+   RIP: 0010:x86_fsgsbase_read_task+0x16d/0x310 arch/x86/kernel/process_64.c:393
+   Call Trace:
+     putreg32+0x3ab/0x530 arch/x86/kernel/ptrace.c:876
+     genregs32_set arch/x86/kernel/ptrace.c:1026 [inline]
+     genregs32_set+0xa4/0x100 arch/x86/kernel/ptrace.c:1006
+     copy_regset_from_user include/linux/regset.h:326 [inline]
+     ia32_arch_ptrace arch/x86/kernel/ptrace.c:1061 [inline]
+     compat_arch_ptrace+0x36c/0xd90 arch/x86/kernel/ptrace.c:1198
+     __do_compat_sys_ptrace kernel/ptrace.c:1420 [inline]
+     __se_compat_sys_ptrace kernel/ptrace.c:1389 [inline]
+     __ia32_compat_sys_ptrace+0x220/0x2f0 kernel/ptrace.c:1389
+     do_syscall_32_irqs_on arch/x86/entry/common.c:84 [inline]
+     __do_fast_syscall_32+0x57/0x80 arch/x86/entry/common.c:126
+     do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:149
+     entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
- 980 static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
- 981                                                 struct device_node *np,
- 982                                                 struct pinctrl_map **map,
- 983                                                 unsigned *num_maps,
- 984                                                 const char **pgnames)
- 985 {
-<snip>
-1053         (*map)->type = PIN_MAP_TYPE_MUX_GROUP;
-1054         (*map)->data.mux.group = np->name;
-1055         (*map)->data.mux.function = np->name;
-1056
-1057         if (PCS_HAS_PINCONF && function) {
-1058                 res = pcs_parse_pinconf(pcs, np, function, map);
-1059                 if (res)
-1060                         goto free_pingroups;
-1061                 *num_maps = 2;
-1062         } else {
-1063                 *num_maps = 1;
-1064         }
+This can happen if ptrace() or sigreturn() pokes an LDT selector into FS
+or GS for a task with no LDT and something tries to read the base before
+a return to usermode notices the bad selector and fixes it.
 
-However, pcs_parse_pinconf() will also return 0 if !PCS_HAS_PINCONF or
-!nconfs.  I believe these conditions should indicate that no map was
-added by returning -ENOTSUPP. Otherwise pcs_parse_one_pinctrl_entry()
-will set num_maps = 2 even though no maps were successfully added, as
-it does not reach "m++" on line 940:
+The fix is to make sure ldt pointer is not NULL.
 
- 895 static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
- 896                              struct pcs_function *func,
- 897                              struct pinctrl_map **map)
- 898
- 899 {
- 900         struct pinctrl_map *m = *map;
-<snip>
- 917         /* If pinconf isn't supported, don't parse properties in below. */
- 918         if (!PCS_HAS_PINCONF)
- 919                 return 0;
- 920
- 921         /* cacluate how much properties are supported in current node */
- 922         for (i = 0; i < ARRAY_SIZE(prop2); i++) {
- 923                 if (of_find_property(np, prop2[i].name, NULL))
- 924                         nconfs++;
- 925         }
- 926         for (i = 0; i < ARRAY_SIZE(prop4); i++) {
- 927                 if (of_find_property(np, prop4[i].name, NULL))
- 928                         nconfs++;
- 929         }
- 930         if (!nconfs)
- 919                 return 0;
- 932
- 933         func->conf = devm_kcalloc(pcs->dev,
- 934                                   nconfs, sizeof(struct pcs_conf_vals),
- 935                                   GFP_KERNEL);
- 936         if (!func->conf)
- 937                 return -ENOMEM;
- 938         func->nconfs = nconfs;
- 939         conf = &(func->conf[0]);
- 940         m++;
-
-This situtation will cause a boot failure [0] on the BeagleBone Black
-(AM3358) when am33xx_pinmux node in arch/arm/boot/dts/am33xx-l4.dtsi
-has compatible = "pinconf-single" instead of "pinctrl-single".
-
-The patch fixes this issue by returning -ENOSUPP when !PCS_HAS_PINCONF
-or !nconfs, so that pcs_parse_one_pinctrl_entry() will know that no
-map was added.
-
-Logic is also added to pcs_parse_one_pinctrl_entry() to distinguish
-between -ENOSUPP and other errors.  In the case of -ENOSUPP, num_maps
-is set to 1 as it is valid for pinconf to be enabled and a given pin
-group to not any pinconf properties.
-
-[0] https://lore.kernel.org/linux-omap/20200529175544.GA3766151@x1/
-
-Fixes: 9dddb4df90d1 ("pinctrl: single: support generic pinconf")
-Signed-off-by: Drew Fustini <drew@beagleboard.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20200608125143.GA2789203@x1
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 07e1d88adaae ("x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately")
+Co-developed-by: Jann Horn <jannh@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Chang S. Bae <chang.seok.bae@intel.com>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Denys Vlasenko <dvlasenk@redhat.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Markus T Metzger <markus.t.metzger@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Shankar <ravi.v.shankar@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-single.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/kernel/ptrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index b8b3d932cd73a..f751b5c3bf7e8 100644
---- a/drivers/pinctrl/pinctrl-single.c
-+++ b/drivers/pinctrl/pinctrl-single.c
-@@ -888,7 +888,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
- 
- 	/* If pinconf isn't supported, don't parse properties in below. */
- 	if (!PCS_HAS_PINCONF)
--		return 0;
-+		return -ENOTSUPP;
- 
- 	/* cacluate how much properties are supported in current node */
- 	for (i = 0; i < ARRAY_SIZE(prop2); i++) {
-@@ -900,7 +900,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
- 			nconfs++;
- 	}
- 	if (!nconfs)
--		return 0;
-+		return -ENOTSUPP;
- 
- 	func->conf = devm_kzalloc(pcs->dev,
- 				  sizeof(struct pcs_conf_vals) * nconfs,
-@@ -1024,9 +1024,12 @@ static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
- 
- 	if (PCS_HAS_PINCONF) {
- 		res = pcs_parse_pinconf(pcs, np, function, map);
--		if (res)
-+		if (res == 0)
-+			*num_maps = 2;
-+		else if (res == -ENOTSUPP)
-+			*num_maps = 1;
-+		else
- 			goto free_pingroups;
--		*num_maps = 2;
- 	} else {
- 		*num_maps = 1;
- 	}
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index 734549492a18b..dc4d27000aa35 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -374,7 +374,7 @@ static unsigned long task_seg_base(struct task_struct *task,
+ 		 */
+ 		mutex_lock(&task->mm->context.lock);
+ 		ldt = task->mm->context.ldt;
+-		if (unlikely(idx >= ldt->nr_entries))
++		if (unlikely(!ldt || idx >= ldt->nr_entries))
+ 			base = 0;
+ 		else
+ 			base = get_desc_base(ldt->entries + idx);
 -- 
 2.25.1
 
