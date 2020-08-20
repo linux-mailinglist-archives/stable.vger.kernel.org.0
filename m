@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B8D24B8B4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607F924B8AC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730411AbgHTLZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S1728830AbgHTLZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbgHTKG2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:06:28 -0400
+        id S1729738AbgHTKGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:06:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 066F920738;
-        Thu, 20 Aug 2020 10:06:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB45A20724;
+        Thu, 20 Aug 2020 10:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917987;
-        bh=HJjCP81rywixE/GLZjXGg0JY6wNzwcv1jdYMv2+9i1s=;
+        s=default; t=1597917993;
+        bh=72cAI67VtDDZt1mKfeA6RIpba9BunW+7lZj51ljgIhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmxpLf/BUgKprFx5AAaB+Qy9AdCqozqlGBoB4zHiy8AAEIoGZuHsQHdLzZJFKEpSR
-         /3sJOKTjqWkyLc/LlV4+vQAxHZf7uzaB1RF1AyzmtBvtKs0LreAXZegy0hF4RcKZ9+
-         9eUwcoVra51stjAYDeis9GfspuK4up9wu57qE7rw=
+        b=amPr52cx9dwtRZA616f1iXKptbtlwCFdU0QKouoOt0mnNBLSxaStoQyL2S0bQlzgA
+         SbhvsYuAvi/isMCKxp50zJwpA1kG5OSma9oglmh+2s49SOrkXuAI9CaCWjk42qoIll
+         pAJ1vZGE+up3ZyC5ZX/UTONhNU+W+qcRAKlW+BOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.14 014/228] mtd: properly check all write ioctls for permissions
-Date:   Thu, 20 Aug 2020 11:19:49 +0200
-Message-Id: <20200820091608.243525016@linuxfoundation.org>
+        stable@vger.kernel.org, Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 4.14 016/228] leds: da903x: fix use-after-free on unbind
+Date:   Thu, 20 Aug 2020 11:19:51 +0200
+Message-Id: <20200820091608.345582525@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,120 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit f7e6b19bc76471ba03725fe58e0c218a3d6266c3 upstream.
+commit 6f4aa35744f69ed9b0bf5a736c9ca9b44bc1dcea upstream.
 
-When doing a "write" ioctl call, properly check that we have permissions
-to do so before copying anything from userspace or anything else so we
-can "fail fast".  This includes also covering the MEMWRITE ioctl which
-previously missed checking for this.
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot blindly do devres conversions
+so that deregistration ends up being tied to the parent device,
+something which leads to use-after-free on driver unbind when the class
+device is released while still being registered.
 
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[rw: Fixed locking issue]
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: eed16255d66b ("leds: da903x: Use devm_led_classdev_register")
+Cc: stable <stable@vger.kernel.org>     # 4.6
+Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/mtdchar.c |   56 +++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 47 insertions(+), 9 deletions(-)
+ drivers/leds/leds-da903x.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/mtdchar.c
-+++ b/drivers/mtd/mtdchar.c
-@@ -372,9 +372,6 @@ static int mtdchar_writeoob(struct file
- 	uint32_t retlen;
- 	int ret = 0;
+--- a/drivers/leds/leds-da903x.c
++++ b/drivers/leds/leds-da903x.c
+@@ -113,12 +113,23 @@ static int da903x_led_probe(struct platf
+ 	led->flags = pdata->flags;
+ 	led->master = pdev->dev.parent;
  
--	if (!(file->f_mode & FMODE_WRITE))
--		return -EPERM;
--
- 	if (length > 4096)
- 		return -EINVAL;
- 
-@@ -681,6 +678,48 @@ static int mtdchar_ioctl(struct file *fi
- 			return -EFAULT;
+-	ret = devm_led_classdev_register(led->master, &led->cdev);
++	ret = led_classdev_register(led->master, &led->cdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register LED %d\n", id);
+ 		return ret;
  	}
  
-+	/*
-+	 * Check the file mode to require "dangerous" commands to have write
-+	 * permissions.
-+	 */
-+	switch (cmd) {
-+	/* "safe" commands */
-+	case MEMGETREGIONCOUNT:
-+	case MEMGETREGIONINFO:
-+	case MEMGETINFO:
-+	case MEMREADOOB:
-+	case MEMREADOOB64:
-+	case MEMLOCK:
-+	case MEMUNLOCK:
-+	case MEMISLOCKED:
-+	case MEMGETOOBSEL:
-+	case MEMGETBADBLOCK:
-+	case MEMSETBADBLOCK:
-+	case OTPSELECT:
-+	case OTPGETREGIONCOUNT:
-+	case OTPGETREGIONINFO:
-+	case OTPLOCK:
-+	case ECCGETLAYOUT:
-+	case ECCGETSTATS:
-+	case MTDFILEMODE:
-+	case BLKPG:
-+	case BLKRRPART:
-+		break;
++	platform_set_drvdata(pdev, led);
 +
-+	/* "dangerous" commands */
-+	case MEMERASE:
-+	case MEMERASE64:
-+	case MEMWRITEOOB:
-+	case MEMWRITEOOB64:
-+	case MEMWRITE:
-+		if (!(file->f_mode & FMODE_WRITE))
-+			return -EPERM;
-+		break;
++	return 0;
++}
 +
-+	default:
-+		return -ENOTTY;
-+	}
++static int da903x_led_remove(struct platform_device *pdev)
++{
++	struct da903x_led *led = platform_get_drvdata(pdev);
 +
- 	switch (cmd) {
- 	case MEMGETREGIONCOUNT:
- 		if (copy_to_user(argp, &(mtd->numeraseregions), sizeof(int)))
-@@ -728,9 +767,6 @@ static int mtdchar_ioctl(struct file *fi
- 	{
- 		struct erase_info *erase;
++	led_classdev_unregister(&led->cdev);
++
+ 	return 0;
+ }
  
--		if(!(file->f_mode & FMODE_WRITE))
--			return -EPERM;
--
- 		erase=kzalloc(sizeof(struct erase_info),GFP_KERNEL);
- 		if (!erase)
- 			ret = -ENOMEM;
-@@ -1051,9 +1087,6 @@ static int mtdchar_ioctl(struct file *fi
- 		ret = 0;
- 		break;
- 	}
--
--	default:
--		ret = -ENOTTY;
- 	}
+@@ -127,6 +138,7 @@ static struct platform_driver da903x_led
+ 		.name	= "da903x-led",
+ 	},
+ 	.probe		= da903x_led_probe,
++	.remove		= da903x_led_remove,
+ };
  
- 	return ret;
-@@ -1097,6 +1130,11 @@ static long mtdchar_compat_ioctl(struct
- 		struct mtd_oob_buf32 buf;
- 		struct mtd_oob_buf32 __user *buf_user = argp;
- 
-+		if (!(file->f_mode & FMODE_WRITE)) {
-+			ret = -EPERM;
-+			break;
-+		}
-+
- 		if (copy_from_user(&buf, argp, sizeof(buf)))
- 			ret = -EFAULT;
- 		else
+ module_platform_driver(da903x_led_driver);
 
 
