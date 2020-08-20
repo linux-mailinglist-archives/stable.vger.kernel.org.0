@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B176324B935
+	by mail.lfdr.de (Postfix) with ESMTP id 396FF24B934
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730626AbgHTLlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
+        id S1729928AbgHTLk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730625AbgHTKEx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:04:53 -0400
+        id S1726934AbgHTKE4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:04:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 414D2208E4;
-        Thu, 20 Aug 2020 10:04:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A91DD20724;
+        Thu, 20 Aug 2020 10:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917892;
-        bh=3RsVfoprjojnE+d3UkQ+cX/ApKPMU83mKZYAEoNuq7g=;
+        s=default; t=1597917896;
+        bh=/lDKPZagpOUc0tbDsE8Uyn8FowZEMAao8fwPWcXJ21I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIdn07qJucd/Vkm7Dpink/qsJc8TkFlKdFc8UINyJ+mqYBYnO9bKjxupCyWtkrNw9
-         9ym15YjTMCN3dgMnSUuiaauss+dJvjPHqL6/lMMrXooQY6oxTaIU0nt9s1YXv+y/4B
-         L7HrDtSL1nbvzYFL9F3eOh3hzgXfpFqEZLhNkvWU=
+        b=jsGW6XxRMBs2AUlXEGZ9pbK0b6iNBAMIvhjrICuPvD19WJz0LrxFwdrwE6ec2RqqF
+         LUYyCgae5GcdRe+yGcwS5k6TnEOGUE7xL7ZvPI/eU7D6L3lJJYRLk3D24+TMznTz1c
+         psXFEPQRxRTEYs46StEaiKWFhHxN1YB6CVL0SH3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 193/212] USB: serial: ftdi_sio: make process-packet buffer unsigned
-Date:   Thu, 20 Aug 2020 11:22:46 +0200
-Message-Id: <20200820091612.118861313@linuxfoundation.org>
+Subject: [PATCH 4.9 194/212] USB: serial: ftdi_sio: clean up receive processing
+Date:   Thu, 20 Aug 2020 11:22:47 +0200
+Message-Id: <20200820091612.159360146@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,92 +45,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit ab4cc4ef6724ea588e835fc1e764c4b4407a70b7 ]
+[ Upstream commit ce054039ba5e47b75a3be02a00274e52b06a6456 ]
 
-Use an unsigned type for the process-packet buffer argument and give it
-a more apt name.
+Clean up receive processing by dropping the character pointer and
+keeping the length argument unchanged throughout the function.
+
+Also make it more apparent that sysrq processing can consume a
+characters by adding an explicit continue.
 
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/usb/serial/ftdi_sio.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index a7cb0968259ee..2583d21382b06 100644
+index 2583d21382b06..0c8b24ff44a05 100644
 --- a/drivers/usb/serial/ftdi_sio.c
 +++ b/drivers/usb/serial/ftdi_sio.c
-@@ -2051,12 +2051,12 @@ static int ftdi_prepare_write_buffer(struct usb_serial_port *port,
- #define FTDI_RS_ERR_MASK (FTDI_RS_BI | FTDI_RS_PE | FTDI_RS_FE | FTDI_RS_OE)
- 
- static int ftdi_process_packet(struct usb_serial_port *port,
--		struct ftdi_private *priv, char *packet, int len)
-+		struct ftdi_private *priv, unsigned char *buf, int len)
+@@ -2054,7 +2054,6 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 		struct ftdi_private *priv, unsigned char *buf, int len)
  {
-+	unsigned char status;
-+	unsigned char *ch;
+ 	unsigned char status;
+-	unsigned char *ch;
  	int i;
--	char status;
  	char flag;
--	char *ch;
  
- 	if (len < 2) {
- 		dev_dbg(&port->dev, "malformed packet\n");
-@@ -2066,7 +2066,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	/* Compare new line status to the old one, signal if different/
- 	   N.B. packet may be processed more than once, but differences
- 	   are only processed once.  */
--	status = packet[0] & FTDI_STATUS_B0_MASK;
-+	status = buf[0] & FTDI_STATUS_B0_MASK;
- 	if (status != priv->prev_status) {
- 		char diff_status = status ^ priv->prev_status;
- 
-@@ -2092,7 +2092,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	}
- 
- 	/* save if the transmitter is empty or not */
--	if (packet[1] & FTDI_RS_TEMT)
-+	if (buf[1] & FTDI_RS_TEMT)
- 		priv->transmit_empty = 1;
+@@ -2097,8 +2096,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
  	else
  		priv->transmit_empty = 0;
-@@ -2106,29 +2106,29 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	 * data payload to avoid over-reporting.
- 	 */
- 	flag = TTY_NORMAL;
--	if (packet[1] & FTDI_RS_ERR_MASK) {
-+	if (buf[1] & FTDI_RS_ERR_MASK) {
- 		/* Break takes precedence over parity, which takes precedence
- 		 * over framing errors */
--		if (packet[1] & FTDI_RS_BI) {
-+		if (buf[1] & FTDI_RS_BI) {
- 			flag = TTY_BREAK;
- 			port->icount.brk++;
- 			usb_serial_handle_break(port);
--		} else if (packet[1] & FTDI_RS_PE) {
-+		} else if (buf[1] & FTDI_RS_PE) {
- 			flag = TTY_PARITY;
- 			port->icount.parity++;
--		} else if (packet[1] & FTDI_RS_FE) {
-+		} else if (buf[1] & FTDI_RS_FE) {
- 			flag = TTY_FRAME;
- 			port->icount.frame++;
- 		}
- 		/* Overrun is special, not associated with a char */
--		if (packet[1] & FTDI_RS_OE) {
-+		if (buf[1] & FTDI_RS_OE) {
- 			port->icount.overrun++;
- 			tty_insert_flip_char(&port->port, 0, TTY_OVERRUN);
+ 
+-	len -= 2;
+-	if (!len)
++	if (len == 2)
+ 		return 0;	/* status only */
+ 
+ 	/*
+@@ -2127,19 +2125,20 @@ static int ftdi_process_packet(struct usb_serial_port *port,
  		}
  	}
  
- 	port->icount.rx += len;
--	ch = packet + 2;
-+	ch = buf + 2;
+-	port->icount.rx += len;
+-	ch = buf + 2;
++	port->icount.rx += len - 2;
  
  	if (port->port.console && port->sysrq) {
- 		for (i = 0; i < len; i++, ch++) {
+-		for (i = 0; i < len; i++, ch++) {
+-			if (!usb_serial_handle_sysrq_char(port, *ch))
+-				tty_insert_flip_char(&port->port, *ch, flag);
++		for (i = 2; i < len; i++) {
++			if (usb_serial_handle_sysrq_char(port, buf[i]))
++				continue;
++			tty_insert_flip_char(&port->port, buf[i], flag);
+ 		}
+ 	} else {
+-		tty_insert_flip_string_fixed_flag(&port->port, ch, flag, len);
++		tty_insert_flip_string_fixed_flag(&port->port, buf + 2, flag,
++				len - 2);
+ 	}
+ 
+-	return len;
++	return len - 2;
+ }
+ 
+ static void ftdi_process_read_urb(struct urb *urb)
 -- 
 2.25.1
 
