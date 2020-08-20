@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA79324B45C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5090124B525
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728857AbgHTKER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50258 "EHLO mail.kernel.org"
+        id S1731442AbgHTKTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbgHTKBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:01:32 -0400
+        id S1731050AbgHTKRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:17:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 291372075E;
-        Thu, 20 Aug 2020 10:01:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFBC020885;
+        Thu, 20 Aug 2020 10:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917691;
-        bh=uD8BoJVFMMTmXhc0uvkBTZwrcwMK5/4DLUXVP/JoR4Y=;
+        s=default; t=1597918654;
+        bh=srXWZiN4UvRjQoGJzlyOEKNDr9gqff2/ELi12xw0MRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWX7YMitLFFvfdEQYgZYIF2Zr/zGmyC+05QdYwdgPqDFPNfRwMFNhja3Jtd1V///0
-         Eg1TShwW7v+IZjLfNenCXbiv6C0oNLVxutjDPiOOOCQ5AlRtKKbvPb9DqiJYRitf/0
-         X3Lb9sov7YZJkgObGT7XJkfYoQ+PwkB2kNrqAgDM=
+        b=xaN4BIIRiD5cCeyyFCW1uxLuIBnuXvkEHoqpqmO+mgPFIfnLoY5BgsStsN+hFiyq6
+         gY7AI2mSSiEMfeSoUpj5wqcppkuNuXqvbPwMPRW1p28drwGIOCOnpIYQcYyU2l0D9f
+         WTCsVcGW23MB1FmP8Y6KZd3OdrSv8vM8+yKDSYZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
+        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
+        Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/212] xfs: fix reflink quota reservation accounting error
-Date:   Thu, 20 Aug 2020 11:21:35 +0200
-Message-Id: <20200820091608.517390750@linuxfoundation.org>
+Subject: [PATCH 4.4 019/149] net: lan78xx: fix transfer-buffer memory leak
+Date:   Thu, 20 Aug 2020 11:21:36 +0200
+Message-Id: <20200820092126.635106821@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 83895227aba1ade33e81f586aa7b6b1e143096a5 ]
+[ Upstream commit 63634aa679ba8b5e306ad0727120309ae6ba8a8e ]
 
-Quota reservations are supposed to account for the blocks that might be
-allocated due to a bmap btree split.  Reflink doesn't do this, so fix
-this to make the quota accounting more accurate before we start
-rearranging things.
+The interrupt URB transfer-buffer was never freed on disconnect or after
+probe errors.
 
-Fixes: 862bb360ef56 ("xfs: reflink extents from one file to another")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_reflink.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/net/usb/lan78xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 6b753b969f7b8..aa99711a8ff96 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1108,6 +1108,7 @@ xfs_reflink_remap_extent(
- 	xfs_filblks_t		rlen;
- 	xfs_filblks_t		unmap_len;
- 	xfs_off_t		newlen;
-+	int64_t			qres;
- 	int			error;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 3f2f524c338d6..1fb5d5f3475cf 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3006,6 +3006,7 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 			usb_fill_int_urb(dev->urb_intr, dev->udev,
+ 					 dev->pipe_intr, buf, maxp,
+ 					 intr_complete, dev, period);
++			dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
+ 		}
+ 	}
  
- 	unmap_len = irec->br_startoff + irec->br_blockcount - destoff;
-@@ -1135,13 +1136,19 @@ xfs_reflink_remap_extent(
- 	xfs_ilock(ip, XFS_ILOCK_EXCL);
- 	xfs_trans_ijoin(tp, ip, 0);
- 
--	/* If we're not just clearing space, then do we have enough quota? */
--	if (real_extent) {
--		error = xfs_trans_reserve_quota_nblks(tp, ip,
--				irec->br_blockcount, 0, XFS_QMOPT_RES_REGBLKS);
--		if (error)
--			goto out_cancel;
--	}
-+	/*
-+	 * Reserve quota for this operation.  We don't know if the first unmap
-+	 * in the dest file will cause a bmap btree split, so we always reserve
-+	 * at least enough blocks for that split.  If the extent being mapped
-+	 * in is written, we need to reserve quota for that too.
-+	 */
-+	qres = XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK);
-+	if (real_extent)
-+		qres += irec->br_blockcount;
-+	error = xfs_trans_reserve_quota_nblks(tp, ip, qres, 0,
-+			XFS_QMOPT_RES_REGBLKS);
-+	if (error)
-+		goto out_cancel;
- 
- 	trace_xfs_reflink_remap(ip, irec->br_startoff,
- 				irec->br_blockcount, irec->br_startblock);
 -- 
 2.25.1
 
