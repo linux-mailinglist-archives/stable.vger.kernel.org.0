@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2196024B565
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9A124B581
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731737AbgHTKXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52482 "EHLO mail.kernel.org"
+        id S1731771AbgHTKYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730535AbgHTKXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:23:19 -0400
+        id S1731486AbgHTKXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:23:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7464A20658;
-        Thu, 20 Aug 2020 10:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B070F20738;
+        Thu, 20 Aug 2020 10:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918997;
-        bh=Mlre0NfdZn5TVHGLM/JcqLK5nl+zozSKCg2mXww6fb8=;
+        s=default; t=1597919000;
+        bh=k640J9cqOEVPJ1orsTEWIBrNMF4F3K4Xs6YwxMvaSG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tm3H42sWctg2E8VKcs45DkIIeYKHG1AoooMKVq042kANfPtzldsJhTBQd/5lG3ZBO
-         jISowNeewz6LrAR+iH1T4gwqp8hE9L3PRu7uG8oUqWJSQbnRvl0iYgBZzya5I1BDEK
-         MoMrhunJQ3wXG5iC2mqcavvbDSI4kdCcQ38fbJ9U=
+        b=bsXpnlolmMp0//sImXd6UVql5O+VnUZCwCtsVMxarmOPeRhRPvPscmIvUqHjR3tEo
+         vEwC3wRyvX4PRQJ8HgLGrCTuaDws4UUg/IFxoxhaYupuuD+B2jYxN3TcTzGOHF7ZiV
+         ODHzUvLLa4M5icy9LYOfejiFXOTzJJSdNl8//bg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 147/149] sh: landisk: Add missing initialization of sh_io_port_base
-Date:   Thu, 20 Aug 2020 11:23:44 +0200
-Message-Id: <20200820092132.812251168@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.4 148/149] drm/radeon: fix fb_div check in ni_init_smc_spll_table()
+Date:   Thu, 20 Aug 2020 11:23:45 +0200
+Message-Id: <20200820092132.860036377@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -44,45 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Denis Efremov <efremov@linux.com>
 
-[ Upstream commit 0c64a0dce51faa9c706fdf1f957d6f19878f4b81 ]
+commit f29aa08852e1953e461f2d47ab13c34e14bc08b3 upstream.
 
-The Landisk setup code maps the CF IDE area using ioremap_prot(), and
-passes the resulting virtual addresses to the pata_platform driver,
-disguising them as I/O port addresses.  Hence the pata_platform driver
-translates them again using ioport_map().
-As CONFIG_GENERIC_IOMAP=n, and CONFIG_HAS_IOPORT_MAP=y, the
-SuperH-specific mapping code in arch/sh/kernel/ioport.c translates
-I/O port addresses to virtual addresses by adding sh_io_port_base, which
-defaults to -1, thus breaking the assumption of an identity mapping.
+clk_s is checked twice in a row in ni_init_smc_spll_table().
+fb_div should be checked instead.
 
-Fix this by setting sh_io_port_base to zero.
+Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 37b7a97884ba64bf ("sh: machvec IO death.")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/boards/mach-landisk/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/radeon/ni_dpm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sh/boards/mach-landisk/setup.c b/arch/sh/boards/mach-landisk/setup.c
-index f1147caebacf0..af69fb7fef7c7 100644
---- a/arch/sh/boards/mach-landisk/setup.c
-+++ b/arch/sh/boards/mach-landisk/setup.c
-@@ -85,6 +85,9 @@ device_initcall(landisk_devices_setup);
+--- a/drivers/gpu/drm/radeon/ni_dpm.c
++++ b/drivers/gpu/drm/radeon/ni_dpm.c
+@@ -2125,7 +2125,7 @@ static int ni_init_smc_spll_table(struct
+ 		if (p_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_PDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_PDIV_SHIFT))
+ 			ret = -EINVAL;
  
- static void __init landisk_setup(char **cmdline_p)
- {
-+	/* I/O port identity mapping */
-+	__set_io_port_base(0);
-+
- 	/* LED ON */
- 	__raw_writeb(__raw_readb(PA_LED) | 0x03, PA_LED);
+-		if (clk_s & ~(SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_SHIFT))
++		if (fb_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_SHIFT))
+ 			ret = -EINVAL;
  
--- 
-2.25.1
-
+ 		if (fb_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_SHIFT))
 
 
