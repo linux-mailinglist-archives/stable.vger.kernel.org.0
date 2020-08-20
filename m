@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F44524BBA2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9AC524BCB6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728710AbgHTMbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:31:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
+        id S1728111AbgHTMvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729722AbgHTJuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:21 -0400
+        id S1728845AbgHTJnv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 368A12173E;
-        Thu, 20 Aug 2020 09:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18BF9207DE;
+        Thu, 20 Aug 2020 09:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917020;
-        bh=vlgI/GcQFDEuwsf31liFVaSoA4yqFdptOoUDqNhNW0E=;
+        s=default; t=1597916631;
+        bh=GtoAiz2dXQyGy3F3OjN1t/VVSZB76SNZaVG7ljVY/TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOVV68XIU1E2L4s5qVbPzT1/+iWFdPsEtSg1c7NDqLL7nl4czlbhbosap3TBaJc3q
-         EkpgIzNHKvwE4O+Qpy0oli0oolPqyCEgHKEGDy2dEe/ljPwCLpLDWk20tY+AxlTQfd
-         G7g+3AzKHjymPlfBM1OofhsfRlRSPejKpfAnCQGg=
+        b=XqZmmG1EPIUX2/57H/Pb/0sNIQHsxkuhIUJA0BXleK7wfCh53+hpPoJpnMGs4DDtN
+         6gigje0heGsppsRQ9Gdn3ILdmhwHSeGTt1IbpoKSzlePQez6OOYh2kfD0O1J7joQZW
+         PBQAuJ1AasKGbmvluvl7E172uQI6YnU2x8qZ4MaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Gregory Herrero <gregory.herrero@oracle.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/152] recordmcount: Fix build failure on non arm64
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 5.7 197/204] drm/amdgpu: fix ordering of psp suspend
 Date:   Thu, 20 Aug 2020 11:21:34 +0200
-Message-Id: <20200820091600.309833017@linuxfoundation.org>
+Message-Id: <20200820091616.019837757@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Alex Deucher <alexdeucher@gmail.com>
 
-[ Upstream commit 3df14264ad9930733a8166e5bd0eccc1727564bb ]
+The ordering of psp_tmr_terminate() and psp_asd_unload()
+got reversed when the patches were applied to stable.
 
-Commit ea0eada45632 leads to the following build failure on powerpc:
+This patch does not exist in Linus' tree because the ordering
+is correct there.  It got reversed when the patches were applied
+to stable.  This patch is for stable only.
 
-  HOSTCC  scripts/recordmcount
-scripts/recordmcount.c: In function 'arm64_is_fake_mcount':
-scripts/recordmcount.c:440: error: 'R_AARCH64_CALL26' undeclared (first use in this function)
-scripts/recordmcount.c:440: error: (Each undeclared identifier is reported only once
-scripts/recordmcount.c:440: error: for each function it appears in.)
-make[2]: *** [scripts/recordmcount] Error 1
+Fixes: 22ff658396b446 ("drm/amdgpu: asd function needs to be unloaded in suspend phase")
+Fixes: 2c41c968c6f648 ("drm/amdgpu: add TMR destory function for psp")
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.7.x
+Cc: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Make sure R_AARCH64_CALL26 is always defined.
-
-Fixes: ea0eada45632 ("recordmcount: only record relocation of type R_AARCH64_CALL26 on arm64.")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Gregory Herrero <gregory.herrero@oracle.com>
-Cc: Gregory Herrero <gregory.herrero@oracle.com>
-Link: https://lore.kernel.org/r/5ca1be21fa6ebf73203b45fd9aadd2bafb5e6b15.1597049145.git.christophe.leroy@csgroup.eu
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-index e59022b3f1254..b9c2ee7ab43fa 100644
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -42,6 +42,8 @@
- #define R_ARM_THM_CALL		10
- #define R_ARM_CALL		28
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1679,15 +1679,15 @@ static int psp_suspend(void *handle)
+ 		}
+ 	}
  
-+#define R_AARCH64_CALL26	283
-+
- static int fd_map;	/* File descriptor for file being modified. */
- static int mmap_failed; /* Boolean flag. */
- static char gpfx;	/* prefix for global symbol name (sometimes '_') */
--- 
-2.25.1
-
+-	ret = psp_tmr_terminate(psp);
++	ret = psp_asd_unload(psp);
+ 	if (ret) {
+-		DRM_ERROR("Falied to terminate tmr\n");
++		DRM_ERROR("Failed to unload asd\n");
+ 		return ret;
+ 	}
+ 
+-	ret = psp_asd_unload(psp);
++	ret = psp_tmr_terminate(psp);
+ 	if (ret) {
+-		DRM_ERROR("Failed to unload asd\n");
++		DRM_ERROR("Falied to terminate tmr\n");
+ 		return ret;
+ 	}
+ 
 
 
