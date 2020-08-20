@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4829B24BA0C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C02FA24B9EB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729680AbgHTL7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:59:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S1730386AbgHTKAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730470AbgHTKAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:00:30 -0400
+        id S1730472AbgHTKAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA85D2067C;
-        Thu, 20 Aug 2020 10:00:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 678B520724;
+        Thu, 20 Aug 2020 10:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917629;
-        bh=Ufv5Fx44hDnuVdzftqL2oVkVK3AeNeJDQaw3U2xVTXw=;
+        s=default; t=1597917632;
+        bh=YZnMjO/6zwXyl+KT3ibEE6f9gUR4An819JMKRFtDwDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfYye3vZGXJHVqY3VizcsjylHwwsVnulwtORk0JfYiWYLTl4DSYVuSXZhzpL3kvC1
-         Tw0ibp6qJNZqYl71bx4nHv0P21vSsp/A1aw/QlfYfOgn3GYJ/KEtHfUEgQCKs/i0oH
-         RbPXqY9YWE52V96fBekNgOzeafewZZKiW0+vqnWQ=
+        b=UmlDL0CJqxVrA341MRzBt4f1da9kq1YX358lMOe1O8hM9CHgwCmD+57pA1iYOtxgc
+         BJIbzlDlQpstBztbSuFkewTQwaqFwNmWp3UBtk+BMfjjxS1RJju2HVQH1UQCKF0T0d
+         XoqINVGvavpudlgKy9e2vJ9WFyfhJgMVYEtpNXXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Philippe Duplessis-Guindon <pduplessis@efficios.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/212] tools lib traceevent: Fix memory leak in process_dynamic_array_len
-Date:   Thu, 20 Aug 2020 11:20:42 +0200
-Message-Id: <20200820091605.848342296@linuxfoundation.org>
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Frank van der Linden <fllinden@amazon.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.9 070/212] xattr: break delegations in {set,remove}xattr
+Date:   Thu, 20 Aug 2020 11:20:43 +0200
+Message-Id: <20200820091605.901394859@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -46,72 +45,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philippe Duplessis-Guindon <pduplessis@efficios.com>
+From: Frank van der Linden <fllinden@amazon.com>
 
-[ Upstream commit e24c6447ccb7b1a01f9bf0aec94939e6450c0b4d ]
+commit 08b5d5014a27e717826999ad20e394a8811aae92 upstream.
 
-I compiled with AddressSanitizer and I had these memory leaks while I
-was using the tep_parse_format function:
+set/removexattr on an exported filesystem should break NFS delegations.
+This is true in general, but also for the upcoming support for
+RFC 8726 (NFSv4 extended attribute support). Make sure that they do.
 
-    Direct leak of 28 byte(s) in 4 object(s) allocated from:
-        #0 0x7fb07db49ffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
-        #1 0x7fb07a724228 in extend_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:985
-        #2 0x7fb07a724c21 in __read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1140
-        #3 0x7fb07a724f78 in read_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1206
-        #4 0x7fb07a725191 in __read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1291
-        #5 0x7fb07a7251df in read_expect_type /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1299
-        #6 0x7fb07a72e6c8 in process_dynamic_array_len /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:2849
-        #7 0x7fb07a7304b8 in process_function /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3161
-        #8 0x7fb07a730900 in process_arg_token /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3207
-        #9 0x7fb07a727c0b in process_arg /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:1786
-        #10 0x7fb07a731080 in event_read_print_args /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3285
-        #11 0x7fb07a731722 in event_read_print /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:3369
-        #12 0x7fb07a740054 in __tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6335
-        #13 0x7fb07a74047a in __parse_event /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6389
-        #14 0x7fb07a740536 in tep_parse_format /home/pduplessis/repo/linux/tools/lib/traceevent/event-parse.c:6431
-        #15 0x7fb07a785acf in parse_event ../../../src/fs-src/fs.c:251
-        #16 0x7fb07a785ccd in parse_systems ../../../src/fs-src/fs.c:284
-        #17 0x7fb07a786fb3 in read_metadata ../../../src/fs-src/fs.c:593
-        #18 0x7fb07a78760e in ftrace_fs_source_init ../../../src/fs-src/fs.c:727
-        #19 0x7fb07d90c19c in add_component_with_init_method_data ../../../../src/lib/graph/graph.c:1048
-        #20 0x7fb07d90c87b in add_source_component_with_initialize_method_data ../../../../src/lib/graph/graph.c:1127
-        #21 0x7fb07d90c92a in bt_graph_add_source_component ../../../../src/lib/graph/graph.c:1152
-        #22 0x55db11aa632e in cmd_run_ctx_create_components_from_config_components ../../../src/cli/babeltrace2.c:2252
-        #23 0x55db11aa6fda in cmd_run_ctx_create_components ../../../src/cli/babeltrace2.c:2347
-        #24 0x55db11aa780c in cmd_run ../../../src/cli/babeltrace2.c:2461
-        #25 0x55db11aa8a7d in main ../../../src/cli/babeltrace2.c:2673
-        #26 0x7fb07d5460b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
+Additionally, they need to grow a _locked variant, since callers might
+call this with i_rwsem held (like the NFS server code).
 
-The token variable in the process_dynamic_array_len function is
-allocated in the read_expect_type function, but is not freed before
-calling the read_token function.
+Cc: stable@vger.kernel.org # v4.9+
+Cc: linux-fsdevel@vger.kernel.org
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Free the token variable before calling read_token in order to plug the
-leak.
-
-Signed-off-by: Philippe Duplessis-Guindon <pduplessis@efficios.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/linux-trace-devel/20200730150236.5392-1-pduplessis@efficios.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/event-parse.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xattr.c            |   84 +++++++++++++++++++++++++++++++++++++++++++++-----
+ include/linux/xattr.h |    2 +
+ 2 files changed, 79 insertions(+), 7 deletions(-)
 
-diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
-index 62f4cacf253ab..b9db8739487dc 100644
---- a/tools/lib/traceevent/event-parse.c
-+++ b/tools/lib/traceevent/event-parse.c
-@@ -2764,6 +2764,7 @@ process_dynamic_array_len(struct event_format *event, struct print_arg *arg,
- 	if (read_expected(EVENT_DELIM, ")") < 0)
- 		goto out_err;
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -203,10 +203,22 @@ int __vfs_setxattr_noperm(struct dentry
+ 	return error;
+ }
  
-+	free_token(token);
- 	type = read_token(&token);
- 	*tok = token;
+-
++/**
++ * __vfs_setxattr_locked: set an extended attribute while holding the inode
++ * lock
++ *
++ *  @dentry - object to perform setxattr on
++ *  @name - xattr name to set
++ *  @value - value to set @name to
++ *  @size - size of @value
++ *  @flags - flags to pass into filesystem operations
++ *  @delegated_inode - on return, will contain an inode pointer that
++ *  a delegation was broken on, NULL if none.
++ */
+ int
+-vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+-		size_t size, int flags)
++__vfs_setxattr_locked(struct dentry *dentry, const char *name,
++		const void *value, size_t size, int flags,
++		struct inode **delegated_inode)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	int error;
+@@ -215,15 +227,40 @@ vfs_setxattr(struct dentry *dentry, cons
+ 	if (error)
+ 		return error;
  
--- 
-2.25.1
-
+-	inode_lock(inode);
+ 	error = security_inode_setxattr(dentry, name, value, size, flags);
+ 	if (error)
+ 		goto out;
+ 
++	error = try_break_deleg(inode, delegated_inode);
++	if (error)
++		goto out;
++
+ 	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
+ 
+ out:
++	return error;
++}
++EXPORT_SYMBOL_GPL(__vfs_setxattr_locked);
++
++int
++vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
++		size_t size, int flags)
++{
++	struct inode *inode = dentry->d_inode;
++	struct inode *delegated_inode = NULL;
++	int error;
++
++retry_deleg:
++	inode_lock(inode);
++	error = __vfs_setxattr_locked(dentry, name, value, size, flags,
++	    &delegated_inode);
+ 	inode_unlock(inode);
++
++	if (delegated_inode) {
++		error = break_deleg_wait(&delegated_inode);
++		if (!error)
++			goto retry_deleg;
++	}
+ 	return error;
+ }
+ EXPORT_SYMBOL_GPL(vfs_setxattr);
+@@ -379,8 +416,18 @@ __vfs_removexattr(struct dentry *dentry,
+ }
+ EXPORT_SYMBOL(__vfs_removexattr);
+ 
++/**
++ * __vfs_removexattr_locked: set an extended attribute while holding the inode
++ * lock
++ *
++ *  @dentry - object to perform setxattr on
++ *  @name - name of xattr to remove
++ *  @delegated_inode - on return, will contain an inode pointer that
++ *  a delegation was broken on, NULL if none.
++ */
+ int
+-vfs_removexattr(struct dentry *dentry, const char *name)
++__vfs_removexattr_locked(struct dentry *dentry, const char *name,
++		struct inode **delegated_inode)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	int error;
+@@ -389,11 +436,14 @@ vfs_removexattr(struct dentry *dentry, c
+ 	if (error)
+ 		return error;
+ 
+-	inode_lock(inode);
+ 	error = security_inode_removexattr(dentry, name);
+ 	if (error)
+ 		goto out;
+ 
++	error = try_break_deleg(inode, delegated_inode);
++	if (error)
++		goto out;
++
+ 	error = __vfs_removexattr(dentry, name);
+ 
+ 	if (!error) {
+@@ -402,12 +452,32 @@ vfs_removexattr(struct dentry *dentry, c
+ 	}
+ 
+ out:
++	return error;
++}
++EXPORT_SYMBOL_GPL(__vfs_removexattr_locked);
++
++int
++vfs_removexattr(struct dentry *dentry, const char *name)
++{
++	struct inode *inode = dentry->d_inode;
++	struct inode *delegated_inode = NULL;
++	int error;
++
++retry_deleg:
++	inode_lock(inode);
++	error = __vfs_removexattr_locked(dentry, name, &delegated_inode);
+ 	inode_unlock(inode);
++
++	if (delegated_inode) {
++		error = break_deleg_wait(&delegated_inode);
++		if (!error)
++			goto retry_deleg;
++	}
++
+ 	return error;
+ }
+ EXPORT_SYMBOL_GPL(vfs_removexattr);
+ 
+-
+ /*
+  * Extended attribute SET operations
+  */
+--- a/include/linux/xattr.h
++++ b/include/linux/xattr.h
+@@ -51,8 +51,10 @@ ssize_t vfs_getxattr(struct dentry *, co
+ ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
+ int __vfs_setxattr(struct dentry *, struct inode *, const char *, const void *, size_t, int);
+ int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
++int __vfs_setxattr_locked(struct dentry *, const char *, const void *, size_t, int, struct inode **);
+ int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
+ int __vfs_removexattr(struct dentry *, const char *);
++int __vfs_removexattr_locked(struct dentry *, const char *, struct inode **);
+ int vfs_removexattr(struct dentry *, const char *);
+ 
+ ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
 
 
