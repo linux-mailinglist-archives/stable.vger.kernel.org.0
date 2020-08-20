@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 671E124B92D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:40:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3CA124B92C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730475AbgHTLke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:40:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S1730399AbgHTLkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730554AbgHTKFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:05:05 -0400
+        id S1730557AbgHTKFI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:05:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EE2A22BEA;
-        Thu, 20 Aug 2020 10:05:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC7E022BEF;
+        Thu, 20 Aug 2020 10:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917905;
-        bh=izsPDXE/kv5fB/lp9O5mAjm5NcafBr6DiXNzeOK7yYM=;
+        s=default; t=1597917908;
+        bh=WiomYjt9sZvDbsHFAxtIDGIRJxfXz3CVkvFJZ7f488c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOBf3Eh5aSoF55eyYdCqxrHhERWV9aBwBYjaCrwLQMxq68y9P4Rl/qB6DaJ4lYJr7
-         LBphgrxt98ch4MAUgPkcuuDhKkPZ4SUz6dPNdicY3izq8cl11W4vNb2DrBiNArdqFv
-         cpzw4p/AtiZGlyUyzd5rgDW+fNI6JvjbBqCsLwM8=
+        b=TJ7S766XMm2ErCzmIMKF9V/3rdLwLTV9G9G7DbsMKeFJab/amiKZm/9ORMF4PoNUr
+         VaSIGPbqLJy9E2hzs4dEKslYAnrm2+zIyEPV+1F83q/rZ/aFcCYumBJ1nCVmwMBoXX
+         MorszOAZArfXpWeAszxIeXDdQ0NgUD9+6d1uIDDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 168/212] xen/balloon: make the balloon wait interruptible
-Date:   Thu, 20 Aug 2020 11:22:21 +0200
-Message-Id: <20200820091610.879485392@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 169/212] smb3: warn on confusing error scenario with sec=krb5
+Date:   Thu, 20 Aug 2020 11:22:22 +0200
+Message-Id: <20200820091610.925346715@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,41 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 88a479ff6ef8af7f07e11593d58befc644244ff7 upstream.
+commit 0a018944eee913962bce8ffebbb121960d5125d9 upstream.
 
-So it can be killed, or else processes can get hung indefinitely
-waiting for balloon pages.
+When mounting with Kerberos, users have been confused about the
+default error returned in scenarios in which either keyutils is
+not installed or the user did not properly acquire a krb5 ticket.
+Log a warning message in the case that "ENOKEY" is returned
+from the get_spnego_key upcall so that users can better understand
+why mount failed in those two cases.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200727091342.52325-3-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/balloon.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/cifs/smb2pdu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -634,11 +634,13 @@ static int add_ballooned_pages(int nr_pa
- 	if (xen_hotplug_unpopulated) {
- 		st = reserve_additional_memory();
- 		if (st != BP_ECANCELED) {
-+			int rc;
-+
- 			mutex_unlock(&balloon_mutex);
--			wait_event(balloon_wq,
-+			rc = wait_event_interruptible(balloon_wq,
- 				   !list_empty(&ballooned_pages));
- 			mutex_lock(&balloon_mutex);
--			return 0;
-+			return rc ? -ENOMEM : 0;
- 		}
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -776,6 +776,8 @@ SMB2_auth_kerberos(struct SMB2_sess_data
+ 	spnego_key = cifs_get_spnego_key(ses);
+ 	if (IS_ERR(spnego_key)) {
+ 		rc = PTR_ERR(spnego_key);
++		if (rc == -ENOKEY)
++			cifs_dbg(VFS, "Verify user has a krb5 ticket and keyutils is installed\n");
+ 		spnego_key = NULL;
+ 		goto out;
  	}
- 
 
 
