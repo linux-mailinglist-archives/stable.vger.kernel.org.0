@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1614624B98B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9F924B988
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730707AbgHTLsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S1730639AbgHTLsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:48:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729781AbgHTKDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:12 -0400
+        id S1728169AbgHTKDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:03:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13B662075E;
-        Thu, 20 Aug 2020 10:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59C1B208E4;
+        Thu, 20 Aug 2020 10:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917791;
-        bh=I1u7KrKmiRs+EAGchH0cOI6zub0hJe8cZx4vyEtoxF4=;
+        s=default; t=1597917796;
+        bh=biRqXmOebpO0pjYFSWAZMT/eOE9edb5Rb+V4jgapiJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYCeHANSHz+5bT/bBDUY295+5TxqLDLUlPhjcz9tzfWaorUTj66xD/7jD6uos634N
-         Qm5FShtily4xjlUWFR5ilZ1K4+cIIYL+6p+lI0vEDEe+ONT8gYW8SOnzxQIdvPWYy7
-         1TiJflIly4ifYEVVOzFDXswgXLheq+v21/GfR3iA=
+        b=GDZpkHiFZI6xg0JnVPRMEhxUXWL/IMnJMW+fb5VzJ9s705FAmBTEy45oXx6ItUKvU
+         Kxc/Lm6iWBvAiEghnMEzOA45flAzYMRlYMXXE3wghhTgMQdAtWUMKT6SQq9QSSYmDv
+         LiUh7mPLj34eIuvEOuOZn1FsWGey6nMsLsfAAnBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Allen <john.allen@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 159/212] crypto: ccp - Fix use of merged scatterlists
-Date:   Thu, 20 Aug 2020 11:22:12 +0200
-Message-Id: <20200820091610.431104506@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 160/212] fs/minix: check return value of sb_getblk()
+Date:   Thu, 20 Aug 2020 11:22:13 +0200
+Message-Id: <20200820091610.482578393@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,176 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Allen <john.allen@amd.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 8a302808c60d441d9884cb00ea7f2b534f2e3ca5 upstream.
+commit da27e0a0e5f655f0d58d4e153c3182bb2b290f64 upstream.
 
-Running the crypto manager self tests with
-CONFIG_CRYPTO_MANAGER_EXTRA_TESTS may result in several types of errors
-when using the ccp-crypto driver:
+Patch series "fs/minix: fix syzbot bugs and set s_maxbytes".
 
-alg: skcipher: cbc-des3-ccp encryption failed on test vector 0; expected_error=0, actual_error=-5 ...
+This series fixes all syzbot bugs in the minix filesystem:
 
-alg: skcipher: ctr-aes-ccp decryption overran dst buffer on test vector 0 ...
+	KASAN: null-ptr-deref Write in get_block
+	KASAN: use-after-free Write in get_block
+	KASAN: use-after-free Read in get_block
+	WARNING in inc_nlink
+	KMSAN: uninit-value in get_block
+	WARNING in drop_nlink
 
-alg: ahash: sha224-ccp test failed (wrong result) on test vector ...
+It also fixes the minix filesystem to set s_maxbytes correctly, so that
+userspace sees the correct behavior when exceeding the max file size.
 
-These errors are the result of improper processing of scatterlists mapped
-for DMA.
+This patch (of 6):
 
-Given a scatterlist in which entries are merged as part of mapping the
-scatterlist for DMA, the DMA length of a merged entry will reflect the
-combined length of the entries that were merged. The subsequent
-scatterlist entry will contain DMA information for the scatterlist entry
-after the last merged entry, but the non-DMA information will be that of
-the first merged entry.
+sb_getblk() can fail, so check its return value.
 
-The ccp driver does not take this scatterlist merging into account. To
-address this, add a second scatterlist pointer to track the current
-position in the DMA mapped representation of the scatterlist. Both the DMA
-representation and the original representation of the scatterlist must be
-tracked as while most of the driver can use just the DMA representation,
-scatterlist_map_and_copy() must use the original representation and
-expects the scatterlist pointer to be accurate to the original
-representation.
+This fixes a NULL pointer dereference.
 
-In order to properly walk the original scatterlist, the scatterlist must
-be walked until the combined lengths of the entries seen is equal to the
-DMA length of the current entry being processed in the DMA mapped
-representation.
+Originally from Qiujun Huang.
 
-Fixes: 63b945091a070 ("crypto: ccp - CCP device driver and interface support")
-Signed-off-by: John Allen <john.allen@amd.com>
-Cc: stable@vger.kernel.org
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200628060846.682158-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200628060846.682158-2-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccp/ccp-dev.h |    1 +
- drivers/crypto/ccp/ccp-ops.c |   37 ++++++++++++++++++++++++++-----------
- 2 files changed, 27 insertions(+), 11 deletions(-)
+ fs/minix/itree_common.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/ccp/ccp-dev.h
-+++ b/drivers/crypto/ccp/ccp-dev.h
-@@ -444,6 +444,7 @@ struct ccp_sg_workarea {
- 	int nents;
+--- a/fs/minix/itree_common.c
++++ b/fs/minix/itree_common.c
+@@ -74,6 +74,7 @@ static int alloc_branch(struct inode *in
+ 	int n = 0;
+ 	int i;
+ 	int parent = minix_new_block(inode);
++	int err = -ENOSPC;
  
- 	struct scatterlist *dma_sg;
-+	struct scatterlist *dma_sg_head;
- 	struct device *dma_dev;
- 	unsigned int dma_count;
- 	enum dma_data_direction dma_dir;
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -52,7 +52,7 @@ static u32 ccp_gen_jobid(struct ccp_devi
- static void ccp_sg_free(struct ccp_sg_workarea *wa)
- {
- 	if (wa->dma_count)
--		dma_unmap_sg(wa->dma_dev, wa->dma_sg, wa->nents, wa->dma_dir);
-+		dma_unmap_sg(wa->dma_dev, wa->dma_sg_head, wa->nents, wa->dma_dir);
- 
- 	wa->dma_count = 0;
+ 	branch[0].key = cpu_to_block(parent);
+ 	if (parent) for (n = 1; n < num; n++) {
+@@ -84,6 +85,11 @@ static int alloc_branch(struct inode *in
+ 			break;
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
++		if (!bh) {
++			minix_free_block(inode, nr);
++			err = -ENOMEM;
++			break;
++		}
+ 		lock_buffer(bh);
+ 		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+@@ -102,7 +108,7 @@ static int alloc_branch(struct inode *in
+ 		bforget(branch[i].bh);
+ 	for (i = 0; i < n; i++)
+ 		minix_free_block(inode, block_to_cpu(branch[i].key));
+-	return -ENOSPC;
++	return err;
  }
-@@ -81,6 +81,7 @@ static int ccp_init_sg_workarea(struct c
- 		return 0;
  
- 	wa->dma_sg = sg;
-+	wa->dma_sg_head = sg;
- 	wa->dma_dev = dev;
- 	wa->dma_dir = dma_dir;
- 	wa->dma_count = dma_map_sg(dev, sg, wa->nents, dma_dir);
-@@ -93,14 +94,28 @@ static int ccp_init_sg_workarea(struct c
- static void ccp_update_sg_workarea(struct ccp_sg_workarea *wa, unsigned int len)
- {
- 	unsigned int nbytes = min_t(u64, len, wa->bytes_left);
-+	unsigned int sg_combined_len = 0;
- 
- 	if (!wa->sg)
- 		return;
- 
- 	wa->sg_used += nbytes;
- 	wa->bytes_left -= nbytes;
--	if (wa->sg_used == wa->sg->length) {
--		wa->sg = sg_next(wa->sg);
-+	if (wa->sg_used == sg_dma_len(wa->dma_sg)) {
-+		/* Advance to the next DMA scatterlist entry */
-+		wa->dma_sg = sg_next(wa->dma_sg);
-+
-+		/* In the case that the DMA mapped scatterlist has entries
-+		 * that have been merged, the non-DMA mapped scatterlist
-+		 * must be advanced multiple times for each merged entry.
-+		 * This ensures that the current non-DMA mapped entry
-+		 * corresponds to the current DMA mapped entry.
-+		 */
-+		do {
-+			sg_combined_len += wa->sg->length;
-+			wa->sg = sg_next(wa->sg);
-+		} while (wa->sg_used > sg_combined_len);
-+
- 		wa->sg_used = 0;
- 	}
- }
-@@ -298,7 +313,7 @@ static unsigned int ccp_queue_buf(struct
- 	/* Update the structures and generate the count */
- 	buf_count = 0;
- 	while (sg_wa->bytes_left && (buf_count < dm_wa->length)) {
--		nbytes = min(sg_wa->sg->length - sg_wa->sg_used,
-+		nbytes = min(sg_dma_len(sg_wa->dma_sg) - sg_wa->sg_used,
- 			     dm_wa->length - buf_count);
- 		nbytes = min_t(u64, sg_wa->bytes_left, nbytes);
- 
-@@ -330,11 +345,11 @@ static void ccp_prepare_data(struct ccp_
- 	 * and destination. The resulting len values will always be <= UINT_MAX
- 	 * because the dma length is an unsigned int.
- 	 */
--	sg_src_len = sg_dma_len(src->sg_wa.sg) - src->sg_wa.sg_used;
-+	sg_src_len = sg_dma_len(src->sg_wa.dma_sg) - src->sg_wa.sg_used;
- 	sg_src_len = min_t(u64, src->sg_wa.bytes_left, sg_src_len);
- 
- 	if (dst) {
--		sg_dst_len = sg_dma_len(dst->sg_wa.sg) - dst->sg_wa.sg_used;
-+		sg_dst_len = sg_dma_len(dst->sg_wa.dma_sg) - dst->sg_wa.sg_used;
- 		sg_dst_len = min_t(u64, src->sg_wa.bytes_left, sg_dst_len);
- 		op_len = min(sg_src_len, sg_dst_len);
- 	} else {
-@@ -364,7 +379,7 @@ static void ccp_prepare_data(struct ccp_
- 		/* Enough data in the sg element, but we need to
- 		 * adjust for any previously copied data
- 		 */
--		op->src.u.dma.address = sg_dma_address(src->sg_wa.sg);
-+		op->src.u.dma.address = sg_dma_address(src->sg_wa.dma_sg);
- 		op->src.u.dma.offset = src->sg_wa.sg_used;
- 		op->src.u.dma.length = op_len & ~(block_size - 1);
- 
-@@ -385,7 +400,7 @@ static void ccp_prepare_data(struct ccp_
- 			/* Enough room in the sg element, but we need to
- 			 * adjust for any previously used area
- 			 */
--			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.sg);
-+			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.dma_sg);
- 			op->dst.u.dma.offset = dst->sg_wa.sg_used;
- 			op->dst.u.dma.length = op->src.u.dma.length;
- 		}
-@@ -1447,7 +1462,7 @@ static int ccp_run_passthru_cmd(struct c
- 	dst.sg_wa.sg_used = 0;
- 	for (i = 1; i <= src.sg_wa.dma_count; i++) {
- 		if (!dst.sg_wa.sg ||
--		    (dst.sg_wa.sg->length < src.sg_wa.sg->length)) {
-+		    (sg_dma_len(dst.sg_wa.sg) < sg_dma_len(src.sg_wa.sg))) {
- 			ret = -EINVAL;
- 			goto e_dst;
- 		}
-@@ -1473,8 +1488,8 @@ static int ccp_run_passthru_cmd(struct c
- 			goto e_dst;
- 		}
- 
--		dst.sg_wa.sg_used += src.sg_wa.sg->length;
--		if (dst.sg_wa.sg_used == dst.sg_wa.sg->length) {
-+		dst.sg_wa.sg_used += sg_dma_len(src.sg_wa.sg);
-+		if (dst.sg_wa.sg_used == sg_dma_len(dst.sg_wa.sg)) {
- 			dst.sg_wa.sg = sg_next(dst.sg_wa.sg);
- 			dst.sg_wa.sg_used = 0;
- 		}
+ static inline int splice_branch(struct inode *inode,
 
 
