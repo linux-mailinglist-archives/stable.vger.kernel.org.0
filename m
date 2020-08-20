@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4F224BD6A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 144B624BD43
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728705AbgHTNFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57870 "EHLO mail.kernel.org"
+        id S1728282AbgHTNCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbgHTJjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:39:09 -0400
+        id S1728528AbgHTJkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4D61208E4;
-        Thu, 20 Aug 2020 09:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6043F2075E;
+        Thu, 20 Aug 2020 09:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916349;
-        bh=hYpdoeMtS7l6OvSWp7k6NO+QjgxRPzAZL6142S/BCYE=;
+        s=default; t=1597916413;
+        bh=5AckTXm0iPCXnCFpyigvpzwr1s+pozYsuJuIRPH0wgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTG8XiOL8ob8FCDh4OGkEqEM4D42G75ObjSVI7J8SAGen8w9F9OFQC6SYbwJCRA0M
-         jYEsS49T65AvDHnLDGhwxt8FSHhcAufFjiZpmMhhGDOcpsecgdJrJV4m0ItBWWZJAQ
-         EWNYYvXdnWsL1vbf6pHLBdjboJBhMQ09qGq4eL8I=
+        b=BgTp/A7pWnJXvp1tTOm0QUuySRSOmuAjqgwUVCgPIHtB3BHeG/aSoRqhKv0LduqFf
+         zxD5notlbFuAnfL/n9K0MJAYsfld7TCLWN1K4d+u2l2DOzPrbifkXj8lxn9dQNc3N8
+         TxGPE20kCG9LND0e1GMwCTNVRI8BUIoOS8OEWCyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Andi Kleen <ak@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.7 090/204] perf probe: Fix memory leakage when the probe point is not found
-Date:   Thu, 20 Aug 2020 11:19:47 +0200
-Message-Id: <20200820091610.829509244@linuxfoundation.org>
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 5.7 092/204] perf intel-pt: Fix duplicate branch after CBR
+Date:   Thu, 20 Aug 2020 11:19:49 +0200
+Message-Id: <20200820091610.928636133@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -46,48 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 12d572e785b15bc764e956caaa8a4c846fd15694 upstream.
+commit a58a057ce65b52125dd355b7d8b0d540ea267a5f upstream.
 
-Fix the memory leakage in debuginfo__find_trace_events() when the probe
-point is not found in the debuginfo. If there is no probe point found in
-the debuginfo, debuginfo__find_probes() will NOT return -ENOENT, but 0.
+CBR events can result in a duplicate branch event, because the state
+type defaults to a branch. Fix by clearing the state type.
 
-Thus the caller of debuginfo__find_probes() must check the tf.ntevs and
-release the allocated memory for the array of struct probe_trace_event.
+Example: trace 'sleep' and hope for a frequency change
 
-The current code releases the memory only if the debuginfo__find_probes()
-hits an error but not checks tf.ntevs. In the result, the memory allocated
-on *tevs are not released if tf.ntevs == 0.
+ Before:
 
-This fixes the memory leakage by checking tf.ntevs == 0 in addition to
-ret < 0.
+   $ perf record -e intel_pt//u sleep 0.1
+   [ perf record: Woken up 1 times to write data ]
+   [ perf record: Captured and wrote 0.034 MB perf.data ]
+   $ perf script --itrace=bpe > before.txt
 
-Fixes: ff741783506c ("perf probe: Introduce debuginfo to encapsulate dwarf information")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
+ After:
+
+   $ perf script --itrace=bpe > after.txt
+   $ diff -u before.txt after.txt
+#  --- before.txt  2020-07-07 14:42:18.191508098 +0300
+#  +++ after.txt   2020-07-07 14:42:36.587891753 +0300
+   @@ -29673,7 +29673,6 @@
+               sleep 93431 [007] 15411.619905:          1  branches:u:                 0 [unknown] ([unknown]) =>     7f0818abb2e0 clock_nanosleep@@GLIBC_2.17+0x0 (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
+               sleep 93431 [007] 15411.619905:          1  branches:u:      7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>                0 [unknown] ([unknown])
+               sleep 93431 [007] 15411.720069:         cbr:  cbr: 15 freq: 1507 MHz ( 56%)         7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
+   -           sleep 93431 [007] 15411.720069:          1  branches:u:      7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>                0 [unknown] ([unknown])
+               sleep 93431 [007] 15411.720076:          1  branches:u:                 0 [unknown] ([unknown]) =>     7f0818abb30e clock_nanosleep@@GLIBC_2.17+0x2e (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
+               sleep 93431 [007] 15411.720077:          1  branches:u:      7f0818abb323 clock_nanosleep@@GLIBC_2.17+0x43 (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>     7f0818ac0eb7 __nanosleep+0x17 (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
+               sleep 93431 [007] 15411.720077:          1  branches:u:      7f0818ac0ebf __nanosleep+0x1f (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>     55cb7e4c2827 rpl_nanosleep+0x97 (/usr/bin/sleep)
+
+Fixes: 91de8684f1cff ("perf intel-pt: Cater for CBR change in PSB+")
+Fixes: abe5a1d3e4bee ("perf intel-pt: Decoder to output CBR changes immediately")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/159438668346.62703.10887420400718492503.stgit@devnote2
+Link: http://lore.kernel.org/lkml/20200710151104.15137-3-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-finder.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1467,7 +1467,7 @@ int debuginfo__find_trace_events(struct
- 	if (ret >= 0 && tf.pf.skip_empty_arg)
- 		ret = fill_empty_trace_arg(pev, tf.tevs, tf.ntevs);
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1977,8 +1977,10 @@ next:
+ 			 * possibility of another CBR change that gets caught up
+ 			 * in the PSB+.
+ 			 */
+-			if (decoder->cbr != decoder->cbr_seen)
++			if (decoder->cbr != decoder->cbr_seen) {
++				decoder->state.type = 0;
+ 				return 0;
++			}
+ 			break;
  
--	if (ret < 0) {
-+	if (ret < 0 || tf.ntevs == 0) {
- 		for (i = 0; i < tf.ntevs; i++)
- 			clear_probe_trace_event(&tf.tevs[i]);
- 		zfree(tevs);
+ 		case INTEL_PT_PIP:
+@@ -2019,8 +2021,10 @@ next:
+ 
+ 		case INTEL_PT_CBR:
+ 			intel_pt_calc_cbr(decoder);
+-			if (decoder->cbr != decoder->cbr_seen)
++			if (decoder->cbr != decoder->cbr_seen) {
++				decoder->state.type = 0;
+ 				return 0;
++			}
+ 			break;
+ 
+ 		case INTEL_PT_MODE_EXEC:
 
 
