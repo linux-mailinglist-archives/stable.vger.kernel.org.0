@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66EE424B292
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED22124B369
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728392AbgHTJc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43602 "EHLO mail.kernel.org"
+        id S1729360AbgHTJq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727112AbgHTJbf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:35 -0400
+        id S1729376AbgHTJq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6854122B4B;
-        Thu, 20 Aug 2020 09:31:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5AA12224D;
+        Thu, 20 Aug 2020 09:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915894;
-        bh=cCUOGE8MGkysAC94vp/q2pSVU3xfxlp5tQo6NvQEVZg=;
+        s=default; t=1597916816;
+        bh=mBruYFmI5oOlHdrSeRPr+j93XbsAw7qF/kEu5vjxUD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwX/cb+SdmekRmfw8X5tcjVPYn7xQPjwP927EZ47svfMY/YUYGkmCyp1lLbWdUsdq
-         QOLm7WhkswVdeEca/Yz4i9OEQGC+fTA3O6X2qcXUonzfmoTu6S+6QBNTdSY9SR9ptT
-         oaLFh7zXyeT/gcpxS/BAW7hvpfPfZBx9dc17APDo=
+        b=MiAnAk7IZA89OgSxbYKqkCdcSc+d3aBtJMLjMAId0QvexhUI3LOPUb1SMxjDVT3If
+         WL3d17q35IBJSig5ZBSir1nOFdeDmijrazvFj0pMEcM0WEC29XWzoYUMJO/mqsgYrw
+         6Sac1nL1nEedDReyn1j4cKCQuqvslAqkgIsXqKgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 173/232] nfs: ensure correct writeback errors are returned on close()
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 057/152] ftrace: Setup correct FTRACE_FL_REGS flags for module
 Date:   Thu, 20 Aug 2020 11:20:24 +0200
-Message-Id: <20200820091621.199408680@linuxfoundation.org>
+Message-Id: <20200820091556.646336482@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit 67dd23f9e6fbaf163431912ef5599c5e0693476c ]
+commit 8a224ffb3f52b0027f6b7279854c71a31c48fc97 upstream.
 
-nfs_wb_all() calls filemap_write_and_wait(), which uses
-filemap_check_errors() to determine the error to return.
-filemap_check_errors() only looks at the mapping->flags and will
-therefore only return either -ENOSPC or -EIO.  To ensure that the
-correct error is returned on close(), nfs{,4}_file_flush() should call
-filemap_check_wb_err() which looks at the errseq value in
-mapping->wb_err without consuming it.
+When module loaded and enabled, we will use __ftrace_replace_code
+for module if any ftrace_ops referenced it found. But we will get
+wrong ftrace_addr for module rec in ftrace_get_addr_new, because
+rec->flags has not been setup correctly. It can cause the callback
+function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
+with pt_regs set to NULL.
+So setup correct FTRACE_FL_REGS flags for rec when we call
+referenced_filters to find ftrace_ops references it.
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with
-generic one")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
+
+Cc: stable@vger.kernel.org
+Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/file.c     | 5 ++++-
- fs/nfs/nfs4file.c | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ kernel/trace/ftrace.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index f96367a2463e3..d72496efa17b0 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -140,6 +140,7 @@ static int
- nfs_file_flush(struct file *file, fl_owner_t id)
- {
- 	struct inode	*inode = file_inode(file);
-+	errseq_t since;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5699,8 +5699,11 @@ static int referenced_filters(struct dyn
+ 	int cnt = 0;
  
- 	dprintk("NFS: flush(%pD2)\n", file);
+ 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
+-		if (ops_references_rec(ops, rec))
+-		    cnt++;
++		if (ops_references_rec(ops, rec)) {
++			cnt++;
++			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
++				rec->flags |= FTRACE_FL_REGS;
++		}
+ 	}
  
-@@ -148,7 +149,9 @@ nfs_file_flush(struct file *file, fl_owner_t id)
- 		return 0;
+ 	return cnt;
+@@ -5877,8 +5880,8 @@ void ftrace_module_enable(struct module
+ 		if (ftrace_start_up)
+ 			cnt += referenced_filters(rec);
  
- 	/* Flush writes to the server and return any errors */
--	return nfs_wb_all(inode);
-+	since = filemap_sample_wb_err(file->f_mapping);
-+	nfs_wb_all(inode);
-+	return filemap_check_wb_err(file->f_mapping, since);
- }
+-		/* This clears FTRACE_FL_DISABLED */
+-		rec->flags = cnt;
++		rec->flags &= ~FTRACE_FL_DISABLED;
++		rec->flags += cnt;
  
- ssize_t
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 8e5d6223ddd35..a339707654673 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -110,6 +110,7 @@ static int
- nfs4_file_flush(struct file *file, fl_owner_t id)
- {
- 	struct inode	*inode = file_inode(file);
-+	errseq_t since;
- 
- 	dprintk("NFS: flush(%pD2)\n", file);
- 
-@@ -125,7 +126,9 @@ nfs4_file_flush(struct file *file, fl_owner_t id)
- 		return filemap_fdatawrite(file->f_mapping);
- 
- 	/* Flush writes to the server and return any errors */
--	return nfs_wb_all(inode);
-+	since = filemap_sample_wb_err(file->f_mapping);
-+	nfs_wb_all(inode);
-+	return filemap_check_wb_err(file->f_mapping, since);
- }
- 
- #ifdef CONFIG_NFS_V4_2
--- 
-2.25.1
-
+ 		if (ftrace_start_up && cnt) {
+ 			int failed = __ftrace_replace_code(rec, 1);
 
 
