@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925B924BD83
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:08:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07DE024BD6F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbgHTJiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:38:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
+        id S1728934AbgHTNFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728871AbgHTJiI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:38:08 -0400
+        id S1728928AbgHTJjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF5A020724;
-        Thu, 20 Aug 2020 09:38:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 121FF2075E;
+        Thu, 20 Aug 2020 09:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916288;
-        bh=OtKfn/HlWE2VGNAHgPxYKsaEjKVIIibS5w9DplZNHZE=;
+        s=default; t=1597916340;
+        bh=5PrAAv0+0REj+O0N8z/gfFLMgwdefzBCKDdUTLEPxUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EV6VwD5wiDNZeSetZa6kNrQBmEhTA3H0pyZhcSlspYTwwcm3KyLROL/hpeAEtL4gY
-         JSqKqFxTyHFB/gL0yPTO8KQ+EEJ0Yr+GL0f4Pz8UIbd8UwY5126fPXKquPeluv11aG
-         SMMsdKPUx5dVkbuCeEO91sNS9hW1+J+AxSGjyOj0=
+        b=zWKLOxapd/CnstJ3FrBshkfXw0T7qb1herfGjBFZhMuA2LFe4EmSRug5EHonvq1Q5
+         83sMwwRTWSqPXHcw1IzoSc0SNtBmhC84OWgiX2ET7NCHuUS2wLrV+U8hHJTkOxmqOd
+         V1+OnA3il4V47TtwjRt9cua/RTuzPdnugd9/yuO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 059/204] bcache: allocate meta data pages as compound pages
-Date:   Thu, 20 Aug 2020 11:19:16 +0200
-Message-Id: <20200820091609.217109868@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.7 065/204] MIPS: SGI-IP27: always enable NUMA in Kconfig
+Date:   Thu, 20 Aug 2020 11:19:22 +0200
+Message-Id: <20200820091609.509397890@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,80 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit 5fe48867856367142d91a82f2cbf7a57a24cbb70 upstream.
+commit 6c86a3029ce3b44597526909f2e39a77a497f640 upstream.
 
-There are some meta data of bcache are allocated by multiple pages,
-and they are used as bio bv_page for I/Os to the cache device. for
-example cache_set->uuids, cache->disk_buckets, journal_write->data,
-bset_tree->data.
+When a configuration has NUMA disabled and SGI_IP27 enabled, the build
+fails:
 
-For such meta data memory, all the allocated pages should be treated
-as a single memory block. Then the memory management and underlying I/O
-code can treat them more clearly.
+  CC      kernel/bounds.s
+  CC      arch/mips/kernel/asm-offsets.s
+In file included from arch/mips/include/asm/topology.h:11,
+                 from include/linux/topology.h:36,
+                 from include/linux/gfp.h:9,
+                 from include/linux/slab.h:15,
+                 from include/linux/crypto.h:19,
+                 from include/crypto/hash.h:11,
+                 from include/linux/uio.h:10,
+                 from include/linux/socket.h:8,
+                 from include/linux/compat.h:15,
+                 from arch/mips/kernel/asm-offsets.c:12:
+include/linux/topology.h: In function 'numa_node_id':
+arch/mips/include/asm/mach-ip27/topology.h:16:27: error: implicit declaration of function 'cputonasid'; did you mean 'cpu_vpe_id'? [-Werror=implicit-function-declaration]
+ #define cpu_to_node(cpu) (cputonasid(cpu))
+                           ^~~~~~~~~~
+include/linux/topology.h:119:9: note: in expansion of macro 'cpu_to_node'
+  return cpu_to_node(raw_smp_processor_id());
+         ^~~~~~~~~~~
+include/linux/topology.h: In function 'cpu_cpu_mask':
+arch/mips/include/asm/mach-ip27/topology.h:19:7: error: implicit declaration of function 'hub_data' [-Werror=implicit-function-declaration]
+      &hub_data(node)->h_cpus)
+       ^~~~~~~~
+include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
+  return cpumask_of_node(cpu_to_node(cpu));
+         ^~~~~~~~~~~~~~~
+arch/mips/include/asm/mach-ip27/topology.h:19:21: error: invalid type argument of '->' (have 'int')
+      &hub_data(node)->h_cpus)
+                     ^~
+include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
+  return cpumask_of_node(cpu_to_node(cpu));
+         ^~~~~~~~~~~~~~~
 
-This patch adds __GFP_COMP flag to all the location allocating >0 order
-pages for the above mentioned meta data. Then their pages are treated
-as compound pages now.
+Before switch from discontigmem to sparsemem, there always was
+CONFIG_NEED_MULTIPLE_NODES=y because it was selected by DISCONTIGMEM.
+Without DISCONTIGMEM it is possible to have SPARSEMEM without NUMA for
+SGI_IP27 and as many things there rely on custom node definition, the
+build breaks.
 
-Signed-off-by: Coly Li <colyli@suse.de>
+As Thomas noted "... there are right now too many places in IP27 code,
+which assumes NUMA enabled", the simplest solution would be to always
+enable NUMA for SGI-IP27 builds.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 397dc00e249e ("mips: sgi-ip27: switch from DISCONTIGMEM to SPARSEMEM")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bset.c    |    2 +-
- drivers/md/bcache/btree.c   |    2 +-
- drivers/md/bcache/journal.c |    4 ++--
- drivers/md/bcache/super.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -322,7 +322,7 @@ int bch_btree_keys_alloc(struct btree_ke
- 
- 	b->page_order = page_order;
- 
--	t->data = (void *) __get_free_pages(gfp, b->page_order);
-+	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
- 	if (!t->data)
- 		goto err;
- 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -785,7 +785,7 @@ int bch_btree_cache_alloc(struct cache_s
- 	mutex_init(&c->verify_lock);
- 
- 	c->verify_ondisk = (void *)
--		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
-+		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
- 
- 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
- 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -999,8 +999,8 @@ int bch_journal_alloc(struct cache_set *
- 	j->w[1].c = c;
- 
- 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
--	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
--	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
-+	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
-+	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
- 		return -ENOMEM;
- 
- 	return 0;
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1775,7 +1775,7 @@ void bch_cache_set_unregister(struct cac
- }
- 
- #define alloc_bucket_pages(gfp, c)			\
--	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
-+	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
- 
- struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- {
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -722,6 +722,7 @@ config SGI_IP27
+ 	select SYS_SUPPORTS_NUMA
+ 	select SYS_SUPPORTS_SMP
+ 	select MIPS_L1_CACHE_SHIFT_7
++	select NUMA
+ 	help
+ 	  This are the SGI Origin 200, Origin 2000 and Onyx 2 Graphics
+ 	  workstations.  To compile a Linux kernel that runs on these, say Y
 
 
