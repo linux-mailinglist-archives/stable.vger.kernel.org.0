@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC2624AAEA
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3CA024AAD6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728254AbgHTAGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
+        id S1728271AbgHTAD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:03:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728367AbgHTADs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:03:48 -0400
+        id S1728377AbgHTADv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:03:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00D8821744;
-        Thu, 20 Aug 2020 00:03:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E574A207FB;
+        Thu, 20 Aug 2020 00:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881827;
-        bh=sKzyCTVQt3yNjcURrQLuKLdMEI//B2JxQ9HvMAck5Os=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyxo1btYSm/EycyPJi5NentV+zPSvSRgjCO3AJJAZ0ERXFB/Z1ThEJ8jy2E9or1TX
-         t/T3Z/tVjTsEhddVuEDvWavIShCDjdYKh65g6PvGsiLEf6A2bMSQ/bjwKvjjIOGkoA
-         970BHAXuWHQSMse6VpwfZTuk/3jAF9AZs05WzsCs=
+        s=default; t=1597881831;
+        bh=ib3ov4ByJ2KzNtKTgGjw5zSsvyIJbB/3U+DgfprOU6E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CI1Ahj85tWmJw8Ef/vEzJyyY1nN8i5ax6po+WWp9a8jSmLGsBqMceWgvDpH+NvoRU
+         0X+qPIovrlVUQwqq+UsNPD3+qibXnoU8pMF3uDh5GzOapV9lf9VUKK5VwOTq3/QBiX
+         RA58F/Ehyyx6hQhEYkTDEZgxowZJu2tutitw7rWY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 13/13] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Wed, 19 Aug 2020 20:03:28 -0400
-Message-Id: <20200820000328.215755-13-sashal@kernel.org>
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 01/11] scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
+Date:   Wed, 19 Aug 2020 20:03:38 -0400
+Message-Id: <20200820000348.215911-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200820000328.215755-1-sashal@kernel.org>
-References: <20200820000328.215755-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,55 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+[ Upstream commit c0a18ee0ce78d7957ec1a53be35b1b3beba80668 ]
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+It is confirmed that Micron device needs DELAY_BEFORE_LPM quirk to have a
+delay before VCC is powered off. Sdd Micron vendor ID and this quirk for
+Micron devices.
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
-
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20200612012625.6615-2-stanley.chu@mediatek.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufs_quirks.h | 1 +
+ drivers/scsi/ufs/ufshcd.c     | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index d123ff90f7a83..9995bed6e92e2 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -493,10 +493,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
- }
- #endif
+diff --git a/drivers/scsi/ufs/ufs_quirks.h b/drivers/scsi/ufs/ufs_quirks.h
+index 71f73d1d1ad1f..6c944fbefd40a 100644
+--- a/drivers/scsi/ufs/ufs_quirks.h
++++ b/drivers/scsi/ufs/ufs_quirks.h
+@@ -21,6 +21,7 @@
+ #define UFS_ANY_VENDOR 0xFFFF
+ #define UFS_ANY_MODEL  "ANY_MODEL"
  
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
++#define UFS_VENDOR_MICRON      0x12C
+ #define UFS_VENDOR_TOSHIBA     0x198
+ #define UFS_VENDOR_SAMSUNG     0x1CE
+ #define UFS_VENDOR_SKHYNIX     0x1AD
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index af4b0a2021d6c..a7f520581cb0f 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -178,6 +178,8 @@ ufs_get_pm_lvl_to_link_pwr_state(enum ufs_pm_level lvl)
  
- #define inb_p		inb
- #define inw_p		inw
+ static struct ufs_dev_fix ufs_fixups[] = {
+ 	/* UFS cards deviations table */
++	UFS_FIX(UFS_VENDOR_MICRON, UFS_ANY_MODEL,
++		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
+ 		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL, UFS_DEVICE_NO_VCCQ),
 -- 
 2.25.1
 
