@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF72224C697
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 22:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F14724C6A7
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 22:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728254AbgHTUIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 16:08:17 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:38920 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728130AbgHTUIP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 16:08:15 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK7a4l021510;
-        Thu, 20 Aug 2020 20:08:09 GMT
+        id S1728312AbgHTULT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 16:11:19 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:52948 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726908AbgHTULS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 16:11:18 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK719E016338;
+        Thu, 20 Aug 2020 20:11:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=lNfte/o1u1vzpIOdTtl6bLuH91MTPBxDrwS3cBHK2Zc=;
- b=rrYdSazcySeUbF3qd1I4RZpv+ejYBpab5k2pwW7I8fXh5M7EqNMcIRdfWsp9O9U5fV9p
- hutW+N24ZwBjXnDYU34dATVE8coh6TGXRGxEObFXVW21nkA6imjv7ijg8n/X/xZQ/DcL
- Z+GZg3/bzMxaYfp7vcXRGLEUfPGJgrHwLx2SsaBgmwQGi1BpVDMBs46f/C8hFMhIV/sG
- w3hkAMF3t6l3NIQP7Cq57a0iD53IShTqdrQ4tCB+OAth55BKto8uYMFGqoAVpQTN2AJZ
- F0OYF/9eREBdyzkjjghN399Mvc7v8kjBjryMGolVwkXxlEqN8mkrxUKjYJxoAczrXz4K 7w== 
+ bh=EarY7N155ZhMVEnxlxlQm1RuO/ZKgMBkw7NHU5gfIIE=;
+ b=ApIZ9YbNgejMzP1tB7qbTsO+dw/Od7L6Dh8cB/v0t3AC0o+MwJiC4AeVCvY8tM7vHgZh
+ 64yH0tbF432qXsaQJf0JdpJxo6OSUMuDGEvntiLHm+86XvDWwbYo7ra1TWXzlHVBwmgB
+ faitwkUNqv0lPdBNF+F9GV9TtbsGoqUfr1wGi+kvKPjsdEQHAl0xLwxYmQw5ldHNEAes
+ 7xu6sKgu0xtGmV6kaGAsqza/pK0FJBeybzNR73fqGcAtBYIotdsyeJvYbN6ejUcRopVF
+ z/F2XXsdruiL23gfbTJOIV5s760GjhDpjPF+BeXfjV3YN0SLiSspI5uzWXOgSMP/M9ZM tg== 
 Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 32x7nmtqng-1
+        by userp2120.oracle.com with ESMTP id 32x8bnjnj9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 20 Aug 2020 20:08:08 +0000
+        Thu, 20 Aug 2020 20:11:10 +0000
 Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK4Mxh104259;
-        Thu, 20 Aug 2020 20:08:08 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 32xsfvf8c7-1
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK8KVj112956;
+        Thu, 20 Aug 2020 20:09:09 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 32xsfvf96t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Aug 2020 20:08:08 +0000
+        Thu, 20 Aug 2020 20:09:09 +0000
 Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 07KK87U3009487;
-        Thu, 20 Aug 2020 20:08:07 GMT
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 07KK98Hp014943;
+        Thu, 20 Aug 2020 20:09:08 GMT
 Received: from [192.168.2.112] (/50.38.35.18)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 20 Aug 2020 13:08:06 -0700
+        with ESMTP ; Thu, 20 Aug 2020 13:09:08 -0700
 Subject: Re: FAILED: patch "[PATCH] mm/hugetlb: fix calculation of" failed to
- apply to 4.19-stable tree
+ apply to 5.4-stable tree
 To:     gregkh@linuxfoundation.org, peterx@redhat.com, aarcange@redhat.com,
         akpm@linux-foundation.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, willy@infradead.org
-References: <159783968115990@kroah.com>
+References: <159783967949188@kroah.com>
 From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <266bd693-3f5b-1376-dbe9-4a732a70e2e1@oracle.com>
-Date:   Thu, 20 Aug 2020 13:08:05 -0700
+Message-ID: <63ebc3ea-c6e3-33ac-3d5c-92caf5acd589@oracle.com>
+Date:   Thu, 20 Aug 2020 13:09:06 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <159783968115990@kroah.com>
+In-Reply-To: <159783967949188@kroah.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -60,11 +60,11 @@ X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9718 signatures=6
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
  spamscore=0 suspectscore=0 mlxscore=0 phishscore=0 bulkscore=0
  adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008200160
+ engine=8.12.0-2006250000 definitions=main-2008200161
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9718 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 spamscore=0
- impostorscore=0 priorityscore=1501 adultscore=0 mlxscore=0 mlxlogscore=999
- lowpriorityscore=0 bulkscore=0 phishscore=0 malwarescore=0 clxscore=1015
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 adultscore=0 spamscore=0 malwarescore=0
+ mlxlogscore=999 priorityscore=1501 bulkscore=0 clxscore=1015 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
  definitions=main-2008200161
 Sender: stable-owner@vger.kernel.org
@@ -74,7 +74,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 On 8/19/20 5:21 AM, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.19-stable tree.
+> The patch below does not apply to the 5.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -83,7 +83,7 @@ On 8/19/20 5:21 AM, gregkh@linuxfoundation.org wrote:
 > 
 > greg k-h
 
-From 62958319ecf3bac7c8b510a22e53754790f44aab Mon Sep 17 00:00:00 2001
+From f9a5ec220383e9326d4018f9da0529b56a52126e Mon Sep 17 00:00:00 2001
 From: Peter Xu <peterx@redhat.com>
 Date: Thu, 20 Aug 2020 10:38:02 -0700
 Subject: [PATCH] mm/hugetlb: fix calculation of
@@ -135,10 +135,10 @@ Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
  1 file changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e068c7f75a84..8a5708f31aa0 100644
+index 2af1831596f2..2a83b03c54a6 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -4650,25 +4650,21 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
+@@ -4846,25 +4846,21 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
  void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
  				unsigned long *start, unsigned long *end)
  {
