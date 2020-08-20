@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D8D24B982
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E530624B9D5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727781AbgHTLsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56508 "EHLO mail.kernel.org"
+        id S1729148AbgHTLzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbgHTKDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:40 -0400
+        id S1730406AbgHTKCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:02:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9B9122B4B;
-        Thu, 20 Aug 2020 10:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 430572075E;
+        Thu, 20 Aug 2020 10:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917819;
-        bh=1C2IzsKUVP9F/s73Z7R8kmnqyy94WwUAZhdcRr/hM9g=;
+        s=default; t=1597917739;
+        bh=7JvEIUdPWVk1UdixZoBPCQ1DY5YCc+fVM11ymS5y2hg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnT2xFrSErnhMe8vr4qRuMlcetQ2vnhxgPffsPU2ZlsEfY0S0GPy7chjxuxl7z0tt
-         P+c8o3rceOFzvuPzL7sakclJjjy2ryCp60cKCkptgYgyoBDRTsCqIx7pYMngQfNP+u
-         +iLtaRi4EZO/jqOW3hZlCgpwkdLC1JiuPtC0qtq0=
+        b=vwO0rKyXK49t5W60TJa2CKiF3HViyx4greGd+JMIWx1udfgTkZySH6SRyqpp7cWTY
+         AzO8p3JITIv7B4Sx3rz5WGpT5KHtiQs4p5cPYS1QiX+JYLrww4biUTP4Xop8+84qhm
+         naboHq6mdTaP0SSkRUhtU2GeUc1RT3Loy++s4Mcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 139/212] selftests/powerpc: Fix online CPU selection
-Date:   Thu, 20 Aug 2020 11:21:52 +0200
-Message-Id: <20200820091609.374445558@linuxfoundation.org>
+Subject: [PATCH 4.9 141/212] wl1251: fix always return 0 error
+Date:   Thu, 20 Aug 2020 11:21:54 +0200
+Message-Id: <20200820091609.468897067@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -46,91 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit dfa03fff86027e58c8dba5c03ae68150d4e513ad ]
+[ Upstream commit 20e6421344b5bc2f97b8e2db47b6994368417904 ]
 
-The size of the CPU affinity mask must be large enough for
-systems with a very large number of CPUs. Otherwise, tests
-which try to determine the first online CPU by calling
-sched_getaffinity() will fail. This makes sure that the size
-of the allocated affinity mask is dependent on the number of
-CPUs as reported by get_nprocs_conf().
+wl1251_event_ps_report() should not always return 0 because
+wl1251_ps_set_mode() may fail. Change it to return 'ret'.
 
-Fixes: 3752e453f6ba ("selftests/powerpc: Add tests of PMU EBBs")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a408c4b8e9a23bb39b539417a21eb0ff47bb5127.1596084858.git.sandipan@linux.ibm.com
+Fixes: f7ad1eed4d4b ("wl1251: retry power save entry")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200730073939.33704-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/utils.c | 37 +++++++++++++++++--------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/net/wireless/ti/wl1251/event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
-index dcf74184bfd0a..bafb70d0ee264 100644
---- a/tools/testing/selftests/powerpc/utils.c
-+++ b/tools/testing/selftests/powerpc/utils.c
-@@ -12,6 +12,7 @@
- #include <sched.h>
- #include <stdio.h>
- #include <sys/stat.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <unistd.h>
- 
-@@ -62,26 +63,38 @@ void *get_auxv_entry(int type)
- 
- int pick_online_cpu(void)
- {
--	cpu_set_t mask;
--	int cpu;
-+	int ncpus, cpu = -1;
-+	cpu_set_t *mask;
-+	size_t size;
-+
-+	ncpus = get_nprocs_conf();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	mask = CPU_ALLOC(ncpus);
-+	if (!mask) {
-+		perror("malloc");
-+		return -1;
-+	}
- 
--	CPU_ZERO(&mask);
-+	CPU_ZERO_S(size, mask);
- 
--	if (sched_getaffinity(0, sizeof(mask), &mask)) {
-+	if (sched_getaffinity(0, size, mask)) {
- 		perror("sched_getaffinity");
--		return -1;
-+		goto done;
+diff --git a/drivers/net/wireless/ti/wl1251/event.c b/drivers/net/wireless/ti/wl1251/event.c
+index d0593bc1f1a92..daddeaa66bf4a 100644
+--- a/drivers/net/wireless/ti/wl1251/event.c
++++ b/drivers/net/wireless/ti/wl1251/event.c
+@@ -84,7 +84,7 @@ static int wl1251_event_ps_report(struct wl1251 *wl,
+ 		break;
  	}
  
- 	/* We prefer a primary thread, but skip 0 */
--	for (cpu = 8; cpu < CPU_SETSIZE; cpu += 8)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = 8; cpu < ncpus; cpu += 8)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	/* Search for anything, but in reverse */
--	for (cpu = CPU_SETSIZE - 1; cpu >= 0; cpu--)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = ncpus - 1; cpu >= 0; cpu--)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	printf("No cpus in affinity mask?!\n");
--	return -1;
-+
-+done:
-+	CPU_FREE(mask);
-+	return cpu;
+-	return 0;
++	return ret;
  }
+ 
+ static void wl1251_event_mbox_dump(struct event_mailbox *mbox)
 -- 
 2.25.1
 
