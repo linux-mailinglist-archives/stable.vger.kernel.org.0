@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7DA24B774
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3148724B75F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730490AbgHTKwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60958 "EHLO mail.kernel.org"
+        id S1731478AbgHTKwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:52:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbgHTKOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:22 -0400
+        id S1731168AbgHTKOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:14:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F9AF206DA;
-        Thu, 20 Aug 2020 10:14:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D14F32067C;
+        Thu, 20 Aug 2020 10:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918461;
-        bh=UhkpiOq4AmEwUCFpvcqVVtgln98Cq8cPElpho6ALOhE=;
+        s=default; t=1597918464;
+        bh=XCOsw6EYaCe/VuNEJW7IXNxuEoH4nyKL4wkuResnRA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WiL0X6d66rdakPfm6VGs2zL4w+gHqkcB4brhFk256XiAS9twJL9lgRnoDyqo4p/EB
-         lo58YxW7XE15nXyjplXZkF7fZvID+Lftux94zEXmX5jtzkTIhQ1bkiemk2RJ2sd7xw
-         tDysq1TFkmfYm9ug71AcVUm9jDJ2t4JbX9c7PBTo=
+        b=QzqNJjyHmcm4YmCIlGnIjYT49VOXt2Zao3mzEcHhSATtLASuUG4yKrPqUCp343VW/
+         nluFlcsfyl46e2oxeqJTwBkyHucLSf6Ec3A29T5UIObSZo6t7Ei1YTI2ZuzmMxJJlo
+         Uu5X5nO3RMGlBS6KeIYN9YcBpKp+yUX86ZTPrdKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.14 178/228] net/compat: Add missing sock updates for SCM_RIGHTS
-Date:   Thu, 20 Aug 2020 11:22:33 +0200
-Message-Id: <20200820091616.475566368@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Wu <alexwu@synology.com>,
+        BingJing Chang <bingjingc@synology.com>,
+        Danny Shih <dannyshih@synology.com>,
+        ChangSyun Peng <allenpeng@synology.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.14 179/228] md/raid5: Fix Force reconstruct-write io stuck in degraded raid5
+Date:   Thu, 20 Aug 2020 11:22:34 +0200
+Message-Id: <20200820091616.523407496@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,89 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: ChangSyun Peng <allenpeng@synology.com>
 
-commit d9539752d23283db4692384a634034f451261e29 upstream.
+commit a1c6ae3d9f3dd6aa5981a332a6f700cf1c25edef upstream.
 
-Add missed sock updates to compat path via a new helper, which will be
-used more in coming patches. (The net/core/scm.c code is left as-is here
-to assist with -stable backports for the compat path.)
+In degraded raid5, we need to read parity to do reconstruct-write when
+data disks fail. However, we can not read parity from
+handle_stripe_dirtying() in force reconstruct-write mode.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
-Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Reproducible Steps:
+
+1. Create degraded raid5
+mdadm -C /dev/md2 --assume-clean -l5 -n3 /dev/sda2 /dev/sdb2 missing
+2. Set rmw_level to 0
+echo 0 > /sys/block/md2/md/rmw_level
+3. IO to raid5
+
+Now some io may be stuck in raid5. We can use handle_stripe_fill() to read
+the parity in this situation.
+
+Cc: <stable@vger.kernel.org> # v4.4+
+Reviewed-by: Alex Wu <alexwu@synology.com>
+Reviewed-by: BingJing Chang <bingjingc@synology.com>
+Reviewed-by: Danny Shih <dannyshih@synology.com>
+Signed-off-by: ChangSyun Peng <allenpeng@synology.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/sock.h |    4 ++++
- net/compat.c       |    1 +
- net/core/sock.c    |   21 +++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ drivers/md/raid5.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -816,6 +816,8 @@ static inline int sk_memalloc_socks(void
- {
- 	return static_key_false(&memalloc_socks);
- }
-+
-+void __receive_sock(struct file *file);
- #else
- 
- static inline int sk_memalloc_socks(void)
-@@ -823,6 +825,8 @@ static inline int sk_memalloc_socks(void
- 	return 0;
- }
- 
-+static inline void __receive_sock(struct file *file)
-+{ }
- #endif
- 
- static inline gfp_t sk_gfp_mask(const struct sock *sk, gfp_t gfp_mask)
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -289,6 +289,7 @@ void scm_detach_fds_compat(struct msghdr
- 			break;
- 		}
- 		/* Bump the usage count and install the file. */
-+		__receive_sock(fp[i]);
- 		fd_install(new_fd, get_file(fp[i]));
- 	}
- 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2563,6 +2563,27 @@ int sock_no_mmap(struct file *file, stru
- }
- EXPORT_SYMBOL(sock_no_mmap);
- 
-+/*
-+ * When a file is received (via SCM_RIGHTS, etc), we must bump the
-+ * various sock-based usage counts.
-+ */
-+void __receive_sock(struct file *file)
-+{
-+	struct socket *sock;
-+	int error;
-+
-+	/*
-+	 * The resulting value of "error" is ignored here since we only
-+	 * need to take action when the file is a socket and testing
-+	 * "sock" for NULL is sufficient.
-+	 */
-+	sock = sock_from_file(file, &error);
-+	if (sock) {
-+		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
-+		sock_update_classid(&sock->sk->sk_cgrp_data);
-+	}
-+}
-+
- ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
- {
- 	ssize_t res;
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3593,6 +3593,7 @@ static int need_this_block(struct stripe
+ 	 * is missing/faulty, then we need to read everything we can.
+ 	 */
+ 	if (sh->raid_conf->level != 6 &&
++	    sh->raid_conf->rmw_level != PARITY_DISABLE_RMW &&
+ 	    sh->sector < sh->raid_conf->mddev->recovery_cp)
+ 		/* reconstruct-write isn't being forced */
+ 		return 0;
+@@ -4829,7 +4830,7 @@ static void handle_stripe(struct stripe_
+ 	 * or to load a block that is being partially written.
+ 	 */
+ 	if (s.to_read || s.non_overwrite
+-	    || (conf->level == 6 && s.to_write && s.failed)
++	    || (s.to_write && s.failed)
+ 	    || (s.syncing && (s.uptodate + s.compute < disks))
+ 	    || s.replacing
+ 	    || s.expanding)
 
 
