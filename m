@@ -2,121 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5522324AA67
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 01:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179D924AA6B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbgHSX7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 19:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726675AbgHSX7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 19:59:15 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA2DC061383
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 16:59:14 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id y6so190283plt.3
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 16:59:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=j725WwtlabuWLqYj1RC375p05vg0VyfQqgbjcc1E20U=;
-        b=gpbMdWDd1F41eqn99wPm8l1j+W+XZF0hntjY+itZgt1YrMn3B0aYpfCz8ntslu455t
-         zCA3i8tvlgm86rWGc9kby93dNCmPT4UZiXntTOyW0UgDRGlkSxEofeSqiJmS9Huo9ciu
-         +evIAm85FN7LOrEj6vCWYsGTs6oROLaWqdpq6f2Q9PseuFdAbXeJ6sDoLMa8KZ4rAERk
-         TakB4nUZINTiPR8I3+GZq9XK0W7PsZ58paVDPEpWm0lz9NOM/qOrtxGwUilLN4pOVHPi
-         Tb+ZHSqwtUC9L80dOHq8IOA3Z9bZNDMjd7bn83pYzDLZzpcf3DbWsGO1slw0rHB4EvQ6
-         HLdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=j725WwtlabuWLqYj1RC375p05vg0VyfQqgbjcc1E20U=;
-        b=MvAuIGW+PLAsfeNnlYGZIoUotw6kDR/vl/jNoX6KUa0CL7KZLbHTJ53nfjfXQeYH/F
-         EUpF5ydYh9paAbkVVhLq8yTM6VyPkiJesPASvRFTWXEBC2mcvyar/M8WBczm5uGyPmnx
-         clz9dIkKW2NaRybuZva9XUvdgAKLfvixZzH5emMrfoHXnMCkwefZgmtNOdmKuPqdHcCy
-         bKordlxIJXyjsyIrfEA/VCtBhy5TLRh+abOMaB5E+KUGZoBY/jTWGnV1CQhEIf4c/R70
-         XPM4f7JMMJ8KPBvanMxAx0tHt3ybmUYApSUSoyVR4QU9deo9FTbrA9WyA4xA1aZUmQNj
-         bAkA==
-X-Gm-Message-State: AOAM533uuAceZAt8CLj5c4nnN4KP3U1R8OXlGDdP8ozhtkKjG9X1Tble
-        O7e+esp2vFUQZ/Z4UMP1pn+Bvdn+k5oCtW6FL7E=
-X-Google-Smtp-Source: ABdhPJw3hq4CSx5myJjCPwUfsMlICDiiKHt0KId3QeTo6QktX+l2OW2kI7gcZxdmBb5Y0K2woEiiAA==
-X-Received: by 2002:a17:902:d883:: with SMTP id b3mr508688plz.154.1597881553795;
-        Wed, 19 Aug 2020 16:59:13 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id 22sm300501pgd.59.2020.08.19.16.59.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2020 16:59:13 -0700 (PDT)
-Subject: Re: [PATCH 2/2] io_uring: use TWA_SIGNAL for task_work if the task
- isn't running
-To:     Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
-Cc:     peterz@infradead.org, stable@vger.kernel.org
-References: <20200808183439.342243-3-axboe@kernel.dk>
- <20200819235703.AA48120B1F@mail.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <073069ae-6de9-811d-b22e-c4d992ba3110@kernel.dk>
-Date:   Wed, 19 Aug 2020 17:59:11 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726617AbgHTABU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57370 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726362AbgHTABT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:01:19 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 282862075E;
+        Thu, 20 Aug 2020 00:01:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597881679;
+        bh=s/D/qiAaCF1snixtrG3SCNq7pL3NmmMR9KoywVt2AF0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ImpcUHiS1FuKK5fhxL5XD281QPJdpMWzBhJgiqA4grRQeGAKmdBkOvWuJBnCllOqi
+         SNOrELB8RVxaDF4NPHZmhfXbkigVARTJvY/NsuCB0GsGWaG9S0753YzitsI0Qm/7Rt
+         cRe/2gU5vKL/DDCdvONfEKhfU+0jkNM+QNNzIbOg=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 01/27] scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
+Date:   Wed, 19 Aug 2020 20:00:50 -0400
+Message-Id: <20200820000116.214821-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20200819235703.AA48120B1F@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/19/20 4:57 PM, Sasha Levin wrote:
-> Hi
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: 5.7+
-> 
-> The bot has tested the following trees: v5.8.1, v5.7.15.
-> 
-> v5.8.1: Failed to apply! Possible dependencies:
->     3fa5e0f33128 ("io_uring: optimise io_req_find_next() fast check")
->     4503b7676a2e ("io_uring: catch -EIO from buffered issue request failure")
->     7c86ffeeed30 ("io_uring: deduplicate freeing linked timeouts")
->     9b0d911acce0 ("io_uring: kill REQ_F_LINK_NEXT")
->     9b5f7bd93272 ("io_uring: replace find_next() out param with ret")
->     a1d7c393c471 ("io_uring: enable READ/WRITE to use deferred completions")
->     b63534c41e20 ("io_uring: re-issue block requests that failed because of resources")
->     bcf5a06304d6 ("io_uring: support true async buffered reads, if file provides it")
->     c2c4c83c58cb ("io_uring: use new io_req_task_work_add() helper throughout")
->     c40f63790ec9 ("io_uring: use task_work for links if possible")
->     e1e16097e265 ("io_uring: provide generic io_req_complete() helper")
-> 
-> v5.7.15: Failed to apply! Possible dependencies:
->     0cdaf760f42e ("io_uring: remove req->needs_fixed_files")
->     310672552f4a ("io_uring: async task poll trigger cleanup")
->     3fa5e0f33128 ("io_uring: optimise io_req_find_next() fast check")
->     405a5d2b2762 ("io_uring: avoid unnecessary io_wq_work copy for fast poll feature")
->     4a38aed2a0a7 ("io_uring: batch reap of dead file registrations")
->     4dd2824d6d59 ("io_uring: lazy get task")
->     7c86ffeeed30 ("io_uring: deduplicate freeing linked timeouts")
->     7cdaf587de7c ("io_uring: avoid whole io_wq_work copy for requests completed inline")
->     7d01bd745a8f ("io_uring: remove obsolete 'state' parameter")
->     9b0d911acce0 ("io_uring: kill REQ_F_LINK_NEXT")
->     9b5f7bd93272 ("io_uring: replace find_next() out param with ret")
->     c2c4c83c58cb ("io_uring: use new io_req_task_work_add() helper throughout")
->     c40f63790ec9 ("io_uring: use task_work for links if possible")
->     d4c81f38522f ("io_uring: don't arm a timeout through work.func")
->     f5fa38c59cb0 ("io_wq: add per-wq work handler instead of per work")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-It's already queued for 5.7 and 5.8 stable. At least it should be, I'll double
-check!
+[ Upstream commit c0a18ee0ce78d7957ec1a53be35b1b3beba80668 ]
 
+It is confirmed that Micron device needs DELAY_BEFORE_LPM quirk to have a
+delay before VCC is powered off. Sdd Micron vendor ID and this quirk for
+Micron devices.
+
+Link: https://lore.kernel.org/r/20200612012625.6615-2-stanley.chu@mediatek.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/ufs/ufs_quirks.h | 1 +
+ drivers/scsi/ufs/ufshcd.c     | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/drivers/scsi/ufs/ufs_quirks.h b/drivers/scsi/ufs/ufs_quirks.h
+index e3175a63c676b..e80d5f26a4424 100644
+--- a/drivers/scsi/ufs/ufs_quirks.h
++++ b/drivers/scsi/ufs/ufs_quirks.h
+@@ -12,6 +12,7 @@
+ #define UFS_ANY_VENDOR 0xFFFF
+ #define UFS_ANY_MODEL  "ANY_MODEL"
+ 
++#define UFS_VENDOR_MICRON      0x12C
+ #define UFS_VENDOR_TOSHIBA     0x198
+ #define UFS_VENDOR_SAMSUNG     0x1CE
+ #define UFS_VENDOR_SKHYNIX     0x1AD
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index a483c0720a0c1..9a692354ee199 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -216,6 +216,8 @@ ufs_get_desired_pm_lvl_for_dev_link_state(enum ufs_dev_pwr_mode dev_state,
+ 
+ static struct ufs_dev_fix ufs_fixups[] = {
+ 	/* UFS cards deviations table */
++	UFS_FIX(UFS_VENDOR_MICRON, UFS_ANY_MODEL,
++		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
+ 		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
 -- 
-Jens Axboe
+2.25.1
 
