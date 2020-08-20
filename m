@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE18324BF71
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F081324BF0D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728552AbgHTNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730208AbgHTNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728070AbgHTJ30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:26 -0400
+        id S1727873AbgHTJ33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3058722BEB;
-        Thu, 20 Aug 2020 09:29:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BE4922CB1;
+        Thu, 20 Aug 2020 09:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915765;
-        bh=UpYTKo9YBI4Wb/ngMmtCZOnOgqcl6SDDieR0IfyJbOU=;
+        s=default; t=1597915768;
+        bh=WIKSys58th+7AjM3t2XfP0sozcAs5fjDqMdZLR227Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqpiOHEujkCTcssyErT/yW2+AQUPLrgIWbWnDnKgLXAnzn+3LBmRXdWyMfKn551Dx
-         eH1HUThmZMjRbuPS6tynlhcE2LFo9CRSF/ye62/Mr9xk3YYuD75ebAPShw4z99kRMI
-         V1CRFueLPnYo1n9HhQMrHifuR1pGcZQnW0YXsQm4=
+        b=l7cD8eWeIDK0BfKcK65tV0zDTuHKSdGVC4giS1YOYha0rTiwLSh+hAc18pTyUjRSR
+         M7SuYe55UDlViWQS/YNXXqNll6GgWbf6TMwukgMm1N+gNtTr1RIvXqPNM3+CfIxXb4
+         vUGVmRJBNbA4H4j8SwCItYDdwuznxPbXfTenYGkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Blanchard <anton@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.8 097/232] pseries: Fix 64 bit logical memory block panic
-Date:   Thu, 20 Aug 2020 11:19:08 +0200
-Message-Id: <20200820091617.529573410@linuxfoundation.org>
+        stable@vger.kernel.org, John Dorminy <jdorminy@redhat.com>,
+        Heinz Mauelshagen <heinzm@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.8 098/232] dm ebs: Fix incorrect checking for REQ_OP_FLUSH
+Date:   Thu, 20 Aug 2020 11:19:09 +0200
+Message-Id: <20200820091617.578250486@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,37 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Blanchard <anton@ozlabs.org>
+From: John Dorminy <jdorminy@redhat.com>
 
-commit 89c140bbaeee7a55ed0360a88f294ead2b95201b upstream.
+commit 4cb6f22612511ff2aba4c33fb0f281cae7c23772 upstream.
 
-Booting with a 4GB LMB size causes us to panic:
+REQ_OP_FLUSH was being treated as a flag, but the operation
+part of bio->bi_opf must be treated as a whole. Change to
+accessing the operation part via bio_op(bio) and checking
+for equality.
 
-  qemu-system-ppc64: OS terminated: OS panic:
-      Memory block size not suitable: 0x0
-
-Fix pseries_memory_block_size() to handle 64 bit LMBs.
-
+Signed-off-by: John Dorminy <jdorminy@redhat.com>
+Acked-by: Heinz Mauelshagen <heinzm@redhat.com>
+Fixes: d3c7b35c20d60 ("dm: add emulated block size target")
 Cc: stable@vger.kernel.org
-Signed-off-by: Anton Blanchard <anton@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200715000820.1255764-1-anton@ozlabs.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/hotplug-memory.c |    2 +-
+ drivers/md/dm-ebs-target.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -27,7 +27,7 @@ static bool rtas_hp_event;
- unsigned long pseries_memory_block_size(void)
- {
- 	struct device_node *np;
--	unsigned int memblock_size = MIN_MEMORY_BLOCK_SIZE;
-+	u64 memblock_size = MIN_MEMORY_BLOCK_SIZE;
- 	struct resource r;
+--- a/drivers/md/dm-ebs-target.c
++++ b/drivers/md/dm-ebs-target.c
+@@ -363,7 +363,7 @@ static int ebs_map(struct dm_target *ti,
+ 	bio_set_dev(bio, ec->dev->bdev);
+ 	bio->bi_iter.bi_sector = ec->start + dm_target_offset(ti, bio->bi_iter.bi_sector);
  
- 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
+-	if (unlikely(bio->bi_opf & REQ_OP_FLUSH))
++	if (unlikely(bio_op(bio) == REQ_OP_FLUSH))
+ 		return DM_MAPIO_REMAPPED;
+ 	/*
+ 	 * Only queue for bufio processing in case of partial or overlapping buffers
 
 
