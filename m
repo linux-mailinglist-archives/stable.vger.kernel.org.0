@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A66B24B833
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CEE24B836
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728343AbgHTKJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+        id S1726884AbgHTLMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729669AbgHTKJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:09:05 -0400
+        id S1730774AbgHTKJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:09:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71F642067C;
-        Thu, 20 Aug 2020 10:09:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07DB82067C;
+        Thu, 20 Aug 2020 10:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918145;
-        bh=UvyLGOZAXxTrvvSw24b2SeCrhm6Zmcnzhh3c+8qLyNs=;
+        s=default; t=1597918147;
+        bh=r/KTWf0t6xqLREPTsTOA1ZJgkn5LmLXmM9KiU13s534=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4AVHSgqTS0TWjBKg7X92tYD1/drTzhTgXvPbvFz9QMFmE3Q2QurEnMiCT7HrNPtd
-         qvTOPidpiAfkq1ZPztPV/ukasdqzC5OvTiJRc3DwSvQmYYfanOkjhEtaaY46UEwk9q
-         QYA0nySZZUXLAASGi5Y7dCuF49HWDqELMbR3qA2c=
+        b=Z8RF2LW81VJAwQAOLy0djDES9lqnacPZrJ2A3mXa6NeBM+aoaCKfegbVSlfI0SZLO
+         PnOHZbNDaujpoibu7mGbAgcMGjf7+N84mVspc58X0TDWckZwcnVCLwwWTmEHuJI9gm
+         1Mic6s3I/5Edl7IgTM9d3YccBMRpyuOGofxYJcmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/228] irqchip/irq-mtk-sysirq: Replace spinlock with raw_spinlock
-Date:   Thu, 20 Aug 2020 11:20:44 +0200
-Message-Id: <20200820091611.052894534@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        linux-mm@kvack.org, Shakeel Butt <shakeelb@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 070/228] mm/mmap.c: Add cond_resched() for exit_mmap() CPU stalls
+Date:   Thu, 20 Aug 2020 11:20:45 +0200
+Message-Id: <20200820091611.102380875@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,95 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 6eeb997ab5075e770a002c51351fa4ec2c6b5c39 ]
+[ Upstream commit 0a3b3c253a1eb2c7fe7f34086d46660c909abeb3 ]
 
-This driver may take a regular spinlock when a raw spinlock
-(irq_desc->lock) is already taken which results in the following
-lockdep splat:
+A large process running on a heavily loaded system can encounter the
+following RCU CPU stall warning:
 
-=============================
-[ BUG: Invalid wait context ]
-5.7.0-rc7 #1 Not tainted
------------------------------
-swapper/0/0 is trying to lock:
-ffffff800303b798 (&chip_data->lock){....}-{3:3}, at: mtk_sysirq_set_type+0x48/0xc0
-other info that might help us debug this:
-context-{5:5}
-2 locks held by swapper/0/0:
- #0: ffffff800302ee68 (&desc->request_mutex){....}-{4:4}, at: __setup_irq+0xc4/0x8a0
- #1: ffffff800302ecf0 (&irq_desc_lock_class){....}-{2:2}, at: __setup_irq+0xe4/0x8a0
-stack backtrace:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc7 #1
-Hardware name: Pumpkin MT8516 (DT)
-Call trace:
- dump_backtrace+0x0/0x180
- show_stack+0x14/0x20
- dump_stack+0xd0/0x118
- __lock_acquire+0x8c8/0x2270
- lock_acquire+0xf8/0x470
- _raw_spin_lock_irqsave+0x50/0x78
- mtk_sysirq_set_type+0x48/0xc0
- __irq_set_trigger+0x58/0x170
- __setup_irq+0x420/0x8a0
- request_threaded_irq+0xd8/0x190
- timer_of_init+0x1e8/0x2c4
- mtk_gpt_init+0x5c/0x1dc
- timer_probe+0x74/0xf4
- time_init+0x14/0x44
- start_kernel+0x394/0x4f0
+  rcu: INFO: rcu_sched self-detected stall on CPU
+  rcu: 	3-....: (20998 ticks this GP) idle=4ea/1/0x4000000000000002 softirq=556558/556558 fqs=5190
+  	(t=21013 jiffies g=1005461 q=132576)
+  NMI backtrace for cpu 3
+  CPU: 3 PID: 501900 Comm: aio-free-ring-w Kdump: loaded Not tainted 5.2.9-108_fbk12_rc3_3858_gb83b75af7909 #1
+  Hardware name: Wiwynn   HoneyBadger/PantherPlus, BIOS HBM6.71 02/03/2016
+  Call Trace:
+   <IRQ>
+   dump_stack+0x46/0x60
+   nmi_cpu_backtrace.cold.3+0x13/0x50
+   ? lapic_can_unplug_cpu.cold.27+0x34/0x34
+   nmi_trigger_cpumask_backtrace+0xba/0xca
+   rcu_dump_cpu_stacks+0x99/0xc7
+   rcu_sched_clock_irq.cold.87+0x1aa/0x397
+   ? tick_sched_do_timer+0x60/0x60
+   update_process_times+0x28/0x60
+   tick_sched_timer+0x37/0x70
+   __hrtimer_run_queues+0xfe/0x270
+   hrtimer_interrupt+0xf4/0x210
+   smp_apic_timer_interrupt+0x5e/0x120
+   apic_timer_interrupt+0xf/0x20
+   </IRQ>
+  RIP: 0010:kmem_cache_free+0x223/0x300
+  Code: 88 00 00 00 0f 85 ca 00 00 00 41 8b 55 18 31 f6 f7 da 41 f6 45 0a 02 40 0f 94 c6 83 c6 05 9c 41 5e fa e8 a0 a7 01 00 41 56 9d <49> 8b 47 08 a8 03 0f 85 87 00 00 00 65 48 ff 08 e9 3d fe ff ff 65
+  RSP: 0018:ffffc9000e8e3da8 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
+  RAX: 0000000000020000 RBX: ffff88861b9de960 RCX: 0000000000000030
+  RDX: fffffffffffe41e8 RSI: 000060777fe3a100 RDI: 000000000001be18
+  RBP: ffffea00186e7780 R08: ffffffffffffffff R09: ffffffffffffffff
+  R10: ffff88861b9dea28 R11: ffff88887ffde000 R12: ffffffff81230a1f
+  R13: ffff888854684dc0 R14: 0000000000000206 R15: ffff8888547dbc00
+   ? remove_vma+0x4f/0x60
+   remove_vma+0x4f/0x60
+   exit_mmap+0xd6/0x160
+   mmput+0x4a/0x110
+   do_exit+0x278/0xae0
+   ? syscall_trace_enter+0x1d3/0x2b0
+   ? handle_mm_fault+0xaa/0x1c0
+   do_group_exit+0x3a/0xa0
+   __x64_sys_exit_group+0x14/0x20
+   do_syscall_64+0x42/0x100
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Replace the spinlock_t with raw_spinlock_t to avoid this warning.
+And on a PREEMPT=n kernel, the "while (vma)" loop in exit_mmap() can run
+for a very long time given a large process.  This commit therefore adds
+a cond_resched() to this loop, providing RCU any needed quiescent states.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200615074445.3579-1-brgl@bgdev.pl
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: <linux-mm@kvack.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mtk-sysirq.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/mmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-mtk-sysirq.c b/drivers/irqchip/irq-mtk-sysirq.c
-index 90aaf190157f7..42455f31b0611 100644
---- a/drivers/irqchip/irq-mtk-sysirq.c
-+++ b/drivers/irqchip/irq-mtk-sysirq.c
-@@ -23,7 +23,7 @@
- #include <linux/spinlock.h>
- 
- struct mtk_sysirq_chip_data {
--	spinlock_t lock;
-+	raw_spinlock_t lock;
- 	u32 nr_intpol_bases;
- 	void __iomem **intpol_bases;
- 	u32 *intpol_words;
-@@ -45,7 +45,7 @@ static int mtk_sysirq_set_type(struct irq_data *data, unsigned int type)
- 	reg_index = chip_data->which_word[hwirq];
- 	offset = hwirq & 0x1f;
- 
--	spin_lock_irqsave(&chip_data->lock, flags);
-+	raw_spin_lock_irqsave(&chip_data->lock, flags);
- 	value = readl_relaxed(base + reg_index * 4);
- 	if (type == IRQ_TYPE_LEVEL_LOW || type == IRQ_TYPE_EDGE_FALLING) {
- 		if (type == IRQ_TYPE_LEVEL_LOW)
-@@ -61,7 +61,7 @@ static int mtk_sysirq_set_type(struct irq_data *data, unsigned int type)
- 
- 	data = data->parent_data;
- 	ret = data->chip->irq_set_type(data, type);
--	spin_unlock_irqrestore(&chip_data->lock, flags);
-+	raw_spin_unlock_irqrestore(&chip_data->lock, flags);
- 	return ret;
- }
- 
-@@ -220,7 +220,7 @@ static int __init mtk_sysirq_of_init(struct device_node *node,
- 		ret = -ENOMEM;
- 		goto out_free_which_word;
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 8c6ed06983f9e..724b7c4f1a5b5 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -3065,6 +3065,7 @@ void exit_mmap(struct mm_struct *mm)
+ 		if (vma->vm_flags & VM_ACCOUNT)
+ 			nr_accounted += vma_pages(vma);
+ 		vma = remove_vma(vma);
++		cond_resched();
  	}
--	spin_lock_init(&chip_data->lock);
-+	raw_spin_lock_init(&chip_data->lock);
- 
- 	return 0;
- 
+ 	vm_unacct_memory(nr_accounted);
+ }
 -- 
 2.25.1
 
