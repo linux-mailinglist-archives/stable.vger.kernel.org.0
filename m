@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5FB24AC42
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082A424AC4A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgHTAeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:34:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
+        id S1726698AbgHTAfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:35:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726715AbgHTAeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 20:34:07 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD61EC061757
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:34:07 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id h22so114374otq.11
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:34:07 -0700 (PDT)
+        with ESMTP id S1726646AbgHTAfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 20:35:33 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE31DC061757
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:35:32 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id a24so574365oia.6
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:35:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:from:to:cc:subject:in-reply-to:message-id:references
          :user-agent:mime-version;
-        bh=94ifsCLvGEASyDgSoVVHbXIYLK+96GRVIPW2iqKMQdQ=;
-        b=k7kXo0VAVoPHP86qOHh8cQ8LzNIx7yZXejEjIRYe9VUZcpE7u9KUFbJM6o2fuEGL1Y
-         R9SBXVtF1TC9uY6Mm2roWtUH3WKl8n3O4IZrIPe1C4tgrSs5InOfZsBP+mHXLxBuVSou
-         gReg6ybwsU2ORfQeNg+M9Ok+2oJRen/KNTK90S9KtzXiPtidTRQBvrucWovt+FxUV7Tm
-         jrfqkqvbs9zaNMslBq0BQ/ZikzP4JirINiq4jS5t07lB6jgkFJgVYXpoeCgzx9LiIBD7
-         EK51fcNIqCin2ak9bjhloDi0TJwQXBLiW1o9OOKw2+IS8hAjnJ6Ygj99RAwxLcUJ+1fZ
-         LWYw==
+        bh=NHAB295bk6OoBKLcekrd0sU+WYPGSRWJ1gVv+B3GJrc=;
+        b=MPK8fRv/VJG65L/zmHFSITcQ/rAqqFHAu2taC2CHClkgVJDS479rVzWRb8kbDU3iTE
+         JxgSkuE+Gw6GshIKbFKG4QmP9wXarzi8ioO88br55AuRjYZ+bs4z7PlPTm3+7Z19GOdk
+         9frF0e7Zv7/yRdu63/TXULlYlP6YKgyCdDFNQjAKUGPKMPvd351HRqklAQd/lwDvQoDZ
+         DrkQaxLoqBmqE5DpfbgRsqRDQ7nscxUIcmXtcGcQeq42lwKW5+eBidAgHinur7zdg2Vp
+         T8jTnsSVxNn9JEFdhefZKyk8FB/dFz8V4wYZr4+WqU9McvF5Xp16uMxFzzvkGbMJMSnG
+         +Ydw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
          :references:user-agent:mime-version;
-        bh=94ifsCLvGEASyDgSoVVHbXIYLK+96GRVIPW2iqKMQdQ=;
-        b=dtMC20+EaP1iKmju4LB6X6hj20vf7O0Du34pQ7V8MH32tqVzu4oxGJwx7IX+19bYUQ
-         5DO2PHBKneETX1ahKPTGroXC4N79SvoGa20TZQGAv197HyWu96tMwHIvXwb8ahsiKSF1
-         LMFsHizUounLYX+KD8GQckGButbMFEN525XKK7vG541NtqS4N8gSyXJIzkmyOkkbn6dx
-         Jw6nml3HDpXh+9pOpZMVlgzKkD33NZ+g0NtIKATeg63BZurH3UX/CDhMAQXG1VxHvQGo
-         HfhRhw1M8kWEwB18r1TMiVEyPnoSEr1lBRuPCmGzNi61q8l1i2TStzU8qf4tv18BAZ1z
-         rqvA==
-X-Gm-Message-State: AOAM5324IWhv0lMyIKbNDiUVvhnEJiGem0Zvwbx1egyS2AhkDbqkbfGl
-        O5GdYCGy+oXroBD4KZ4RIuo9WA==
-X-Google-Smtp-Source: ABdhPJzrKrMaUMlmSbe/Xgiczwh6uL40RUASk3LZZjCaR+zHh0YiBVvwk4ghR0581GlC0zPnsutEVg==
-X-Received: by 2002:a9d:51cb:: with SMTP id d11mr362745oth.231.1597883646959;
-        Wed, 19 Aug 2020 17:34:06 -0700 (PDT)
+        bh=NHAB295bk6OoBKLcekrd0sU+WYPGSRWJ1gVv+B3GJrc=;
+        b=EmfjF9Bn1qul8QffmlAE6N41TEpnakhWM8OvLe8p6q9l+7tkW0QqWnQw1ndH273cQn
+         gdGtps7eGxdSG6SPYTUPzC4plzXE8n1o6sZIcLSj06e4EvQdWlkVhc3DhK79AOcNO2MH
+         GNxya6C4hohjGJ9bDlWsoHDusG795VUJH3rXLAA9og6k+mhuKManVknv3WkBcW8dhgNZ
+         XcioCiChhOwgvAu/EguwOA6dtZph14CHjYXlkJEcFZQcuCKY5KIFUTm3k3UB/K1Pyd3b
+         Zm6AYQ6R8MnUgQxDBoaEJdugd147VO1zRdp3kLmQTf9ZU+QG17yIk+4YiaQl0ae8dUOO
+         G8RQ==
+X-Gm-Message-State: AOAM532spzkQTrkZwTxefRTIWEbao26JaPgvLEhZNDV7GER91lCo/OEg
+        uH+hpf+qF3vohjMDlS9HNHa6Wg==
+X-Google-Smtp-Source: ABdhPJxQRcuyPx768d1Ixk+drH4qeWi8wAUIf5xL9wAbtQkR4+b0KQdKhMpjOLHbtrviehjFHg8amA==
+X-Received: by 2002:a05:6808:e:: with SMTP id u14mr416165oic.93.1597883731640;
+        Wed, 19 Aug 2020 17:35:31 -0700 (PDT)
 Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id i5sm98097otc.31.2020.08.19.17.34.04
+        by smtp.gmail.com with ESMTPSA id h13sm102543otr.10.2020.08.19.17.35.29
         (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
-        Wed, 19 Aug 2020 17:34:05 -0700 (PDT)
-Date:   Wed, 19 Aug 2020 17:34:04 -0700 (PDT)
+        Wed, 19 Aug 2020 17:35:30 -0700 (PDT)
+Date:   Wed, 19 Aug 2020 17:35:28 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@eggly.anvils
 To:     gregkh@linuxfoundation.org
@@ -56,10 +56,10 @@ cc:     hughd@google.com, aarcange@redhat.com, akpm@linux-foundation.org,
         songliubraving@fb.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
 Subject: Re: FAILED: patch "[PATCH] khugepaged: retract_page_tables() remember
- to test exit" failed to apply to 4.14-stable tree
-In-Reply-To: <159783986814754@kroah.com>
-Message-ID: <alpine.LSU.2.11.2008191732300.24973@eggly.anvils>
-References: <159783986814754@kroah.com>
+ to test exit" failed to apply to 4.9-stable tree
+In-Reply-To: <159783986999185@kroah.com>
+Message-ID: <alpine.LSU.2.11.2008191734130.24973@eggly.anvils>
+References: <159783986999185@kroah.com>
 User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -70,7 +70,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 On Wed, 19 Aug 2020, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
