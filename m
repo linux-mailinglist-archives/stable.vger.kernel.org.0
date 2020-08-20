@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CF624B4A1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8398824B4AC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730826AbgHTKJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:09:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44532 "EHLO mail.kernel.org"
+        id S1730574AbgHTKKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730823AbgHTKJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:09:43 -0400
+        id S1730896AbgHTKKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:10:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F6BF2067C;
-        Thu, 20 Aug 2020 10:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7673C2075E;
+        Thu, 20 Aug 2020 10:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918182;
-        bh=ZggMMTMHoNTy+o2CYZza7OGzVqtZQ7zgC04I0GCgkZg=;
+        s=default; t=1597918218;
+        bh=XYRT9QlV1V+F9o3hPmuQ8qXMUy5c6QM3eYvpnEST3fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMjcog5jwomOYCML90T67uMPGL3OKZU80GRJ6eAq+QxjbJC+MdVHJxIDYRqjPwjkQ
-         if5zf70hkQuOw6gj7+w3dNeP4Y8fcaKE0VZ/bR1t6EF9S4zBq+zu1K0G2Pr9pauHJr
-         vMyr49tOyVTf1CRd/Ey14D69gPb0D0ubUggQjMDQ=
+        b=VTYn8/TY1/0+2406oKjk+puYPoTyQh7vr7aVEny9YtLHjJxYmUFAM8Tyr0SUeee1F
+         4pF/rlHyx/nrOj5LsauUv8LboYKMCUOzlS9Og3H48aFmGKHgKi8WDc62Lw1wuV2x7R
+         c3uRfbP0qpTO/mmPfFUS2QecCcHVipZ+vAb8JU6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/228] agp/intel: Fix a memory leak on module initialisation failure
-Date:   Thu, 20 Aug 2020 11:20:56 +0200
-Message-Id: <20200820091611.658383725@linuxfoundation.org>
+Subject: [PATCH 4.14 086/228] drm/arm: fix unintentional integer overflow on left shift
+Date:   Thu, 20 Aug 2020 11:21:01 +0200
+Message-Id: <20200820091611.914793815@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,41 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b975abbd382fe442713a4c233549abb90e57c22b ]
+[ Upstream commit 5f368ddea6fec519bdb93b5368f6a844b6ea27a6 ]
 
-In intel_gtt_setup_scratch_page(), pointer "page" is not released if
-pci_dma_mapping_error() return an error, leading to a memory leak on
-module initialisation failure.  Simply fix this issue by freeing "page"
-before return.
+Shifting the integer value 1 is evaluated using 32-bit arithmetic
+and then used in an expression that expects a long value leads to
+a potential integer overflow. Fix this by using the BIT macro to
+perform the shift to avoid the overflow.
 
-Fixes: 0e87d2b06cb46 ("intel-gtt: initialize our own scratch page")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200522083451.7448-1-chris@chris-wilson.co.uk
+Addresses-Coverity: ("Unintentional integer overflow")
+Fixes: ad49f8602fe8 ("drm/arm: Add support for Mali Display Processors")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200618100400.11464-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/agp/intel-gtt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/arm/malidp_planes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
-index 7516ba981b635..34cc853772bc4 100644
---- a/drivers/char/agp/intel-gtt.c
-+++ b/drivers/char/agp/intel-gtt.c
-@@ -304,8 +304,10 @@ static int intel_gtt_setup_scratch_page(void)
- 	if (intel_private.needs_dmar) {
- 		dma_addr = pci_map_page(intel_private.pcidev, page, 0,
- 				    PAGE_SIZE, PCI_DMA_BIDIRECTIONAL);
--		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr))
-+		if (pci_dma_mapping_error(intel_private.pcidev, dma_addr)) {
-+			__free_page(page);
- 			return -EINVAL;
-+		}
- 
- 		intel_private.scratch_page_dma = dma_addr;
- 	} else
+diff --git a/drivers/gpu/drm/arm/malidp_planes.c b/drivers/gpu/drm/arm/malidp_planes.c
+index 16b8b310ae5c7..7072d738b072b 100644
+--- a/drivers/gpu/drm/arm/malidp_planes.c
++++ b/drivers/gpu/drm/arm/malidp_planes.c
+@@ -369,7 +369,7 @@ int malidp_de_planes_init(struct drm_device *drm)
+ 	const struct malidp_hw_regmap *map = &malidp->dev->map;
+ 	struct malidp_plane *plane = NULL;
+ 	enum drm_plane_type plane_type;
+-	unsigned long crtcs = 1 << drm->mode_config.num_crtc;
++	unsigned long crtcs = BIT(drm->mode_config.num_crtc);
+ 	unsigned long flags = DRM_MODE_ROTATE_0 | DRM_MODE_ROTATE_90 | DRM_MODE_ROTATE_180 |
+ 			      DRM_MODE_ROTATE_270 | DRM_MODE_REFLECT_X | DRM_MODE_REFLECT_Y;
+ 	u32 *formats;
 -- 
 2.25.1
 
