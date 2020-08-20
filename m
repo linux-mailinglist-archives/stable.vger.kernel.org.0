@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B1EF24B33C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C769224B3B1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbgHTJn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40620 "EHLO mail.kernel.org"
+        id S1729483AbgHTJvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728515AbgHTJnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:14 -0400
+        id S1729754AbgHTJvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:51:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42347207DE;
-        Thu, 20 Aug 2020 09:43:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A770207FB;
+        Thu, 20 Aug 2020 09:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916593;
-        bh=xGSghv4vVlkYjoXq27P/5hyIj+LHqAvkUJ1zVGjpX84=;
+        s=default; t=1597917061;
+        bh=zgX5EzlNrMkyPEnY+oFLy6xF9pGS1hqNJAeuwaeQgfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVoAx6NBjWW4pMANCR7AHCbU7ikmTc32QST9dPf0VkDdWtyNNqAKRcIwpWzKhZ35u
-         Dl5rEFYb8DHY/4VpljrusHkFNh4gdlimfeQBZmQk5lj2cWeeDLxE4iOmJhLmOQTiZY
-         udVp/wovnxNYDXN99iLrWnmgaNGqj3EnEOZBeLDs=
+        b=cDHHYAeDghZZmGGnjUOfH71PVTnmV79tRxii5iSN16OSlS8zblD6KUDmo5lD03HV7
+         E4TITkPNgJm1I0rJxhldw1Jqkjd0AKXoc6kO9xyngvfBi5Fl0Mi0V9wSeiQ5yIFleA
+         iXhesP4dsZlF3BlZ3DPnXbyRt9HyHPynx4l5VxRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        David Carrillo-Cisneros <davidcc@google.com>,
+        Ian Rogers <irogers@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 183/204] crypto: algif_aead - fix uninitialized ctx->init
+Subject: [PATCH 5.4 113/152] tools build feature: Use CC and CXX from parent
 Date:   Thu, 20 Aug 2020 11:21:20 +0200
-Message-Id: <20200820091615.334264775@linuxfoundation.org>
+Message-Id: <20200820091559.561382896@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 21dfbcd1f5cbff9cf2f9e7e43475aed8d072b0dd ]
+[ Upstream commit e3232c2f39acafd5a29128425bc30b9884642cfa ]
 
-In skcipher_accept_parent_nokey() the whole af_alg_ctx structure is
-cleared by memset() after allocation, so add such memset() also to
-aead_accept_parent_nokey() so that the new "init" field is also
-initialized to zero. Without that the initial ctx->init checks might
-randomly return true and cause errors.
+commit c8c188679ccf ("tools build: Use the same CC for feature detection
+and actual build") changed these assignments from unconditional (:=) to
+conditional (?=) so that they wouldn't clobber values from the
+environment. However, conditional assignment does not work properly for
+variables that Make implicitly sets, among which are CC and CXX. To
+quote tools/scripts/Makefile.include, which handles this properly:
 
-While there, also remove the redundant zero assignments in both
-functions.
+  # Makefiles suck: This macro sets a default value of $(2) for the
+  # variable named by $(1), unless the variable has been set by
+  # environment or command line. This is necessary for CC and AR
+  # because make sets default values, so the simpler ?= approach
+  # won't work as expected.
 
-Found via libkcapi testsuite.
+In other words, the conditional assignments will not run even if the
+variables are not overridden in the environment; Make will set CC to
+"cc" and CXX to "g++" when it starts[1], meaning the variables are not
+empty by the time the conditional assignments are evaluated. This breaks
+cross-compilation when CROSS_COMPILE is set but CC isn't, since "cc"
+gets used for feature detection instead of the cross compiler (and
+likewise for CXX).
 
-Cc: Stephan Mueller <smueller@chronox.de>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when ctx->more is zero")
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+To fix the issue, just pass down the values of CC and CXX computed by
+the parent Makefile, which gets included by the Makefile that actually
+builds whatever we're detecting features for and so is guaranteed to
+have good values. This is a better solution anyway, since it means we
+aren't trying to replicate the logic of the parent build system and so
+don't risk it getting out of sync.
+
+Leave PKG_CONFIG alone, since 1) there's no common logic to compute it
+in Makefile.include, and 2) it's not an implicit variable, so
+conditional assignment works properly.
+
+[1] https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+Fixes: c8c188679ccf ("tools build: Use the same CC for feature detection and actual build")
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: David Carrillo-Cisneros <davidcc@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Igor Lubashev <ilubashe@akamai.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: thomas hebb <tommyhebb@gmail.com>
+Link: http://lore.kernel.org/lkml/0a6e69d1736b0fa231a648f50b0cce5d8a6734ef.1595822871.git.tommyhebb@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algif_aead.c     | 6 ------
- crypto/algif_skcipher.c | 7 +------
- 2 files changed, 1 insertion(+), 12 deletions(-)
+ tools/build/Makefile.feature | 2 +-
+ tools/build/feature/Makefile | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
-index d48d2156e6210..43c6aa784858b 100644
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -558,12 +558,6 @@ static int aead_accept_parent_nokey(void *private, struct sock *sk)
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index 8a19753cc26aa..e80a1a8e287f8 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -8,7 +8,7 @@ endif
  
- 	INIT_LIST_HEAD(&ctx->tsgl_list);
- 	ctx->len = len;
--	ctx->used = 0;
--	atomic_set(&ctx->rcvused, 0);
--	ctx->more = 0;
--	ctx->merge = 0;
--	ctx->enc = 0;
--	ctx->aead_assoclen = 0;
- 	crypto_init_wait(&ctx->wait);
+ feature_check = $(eval $(feature_check_code))
+ define feature_check_code
+-  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
++  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
+ endef
  
- 	ask->private = ctx;
-diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-index a51ba22fef58f..81c4022285a7c 100644
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -333,6 +333,7 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
- 	ctx = sock_kmalloc(sk, len, GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
-+	memset(ctx, 0, len);
+ feature_set = $(eval $(feature_set_code))
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index 8499385365c02..054e09ab4a9e4 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -70,8 +70,6 @@ FILES=                                          \
  
- 	ctx->iv = sock_kmalloc(sk, crypto_skcipher_ivsize(tfm),
- 			       GFP_KERNEL);
-@@ -340,16 +341,10 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
- 		sock_kfree_s(sk, ctx, len);
- 		return -ENOMEM;
- 	}
--
- 	memset(ctx->iv, 0, crypto_skcipher_ivsize(tfm));
+ FILES := $(addprefix $(OUTPUT),$(FILES))
  
- 	INIT_LIST_HEAD(&ctx->tsgl_list);
- 	ctx->len = len;
--	ctx->used = 0;
--	atomic_set(&ctx->rcvused, 0);
--	ctx->more = 0;
--	ctx->merge = 0;
--	ctx->enc = 0;
- 	crypto_init_wait(&ctx->wait);
+-CC ?= $(CROSS_COMPILE)gcc
+-CXX ?= $(CROSS_COMPILE)g++
+ PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
+ LLVM_CONFIG ?= llvm-config
  
- 	ask->private = ctx;
 -- 
 2.25.1
 
