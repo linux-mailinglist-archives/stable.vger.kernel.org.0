@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC74F24BBA8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6A724BB95
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730237AbgHTMcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
+        id S1729713AbgHTJuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729701AbgHTJuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:00 -0400
+        id S1729704AbgHTJuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E04520724;
-        Thu, 20 Aug 2020 09:49:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8692C20724;
+        Thu, 20 Aug 2020 09:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916999;
-        bh=t0FemPTXVLJhenMknaFvW9MP28XXPehRZv4k9/uc2SI=;
+        s=default; t=1597917003;
+        bh=VjGXS5qUqznvGzS2U4eUACOqvpULSo7dVAE7teJvuEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9pTccNHbRfWe8+AuXFpFRhzq+PfRJWVgrFFcFrTLUS8ROgDb8NoB/gM+kClCVBXk
-         5U3kOQPR4KNLRRS1M/G/PL7cXlLHRq1nqSIebBWJz1JL+MPvX5aBQbPZkyQjsPNu57
-         C5p4KJEGLgRHvshe5gBXIY793+ArhoZHukADICA0=
+        b=d83Pze5JjyX14PAyFSVzqWqH24ujGKsXDTjcLJ+RpQGG9v7BtK1DiVDEngSKmHby3
+         VKGv8QHAaOHO6pfZK10G2LjRmFoUiB0NXFBuMSSQ3eVdjYRZtckxz63vn35ImkK1Ni
+         /n3JR9fTtNEQtvdRRWWKqWIRDoeK0wu8VAyUkMeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/152] scsi: lpfc: nvmet: Avoid hang / use-after-free again when destroying targetport
-Date:   Thu, 20 Aug 2020 11:21:28 +0200
-Message-Id: <20200820091559.970586743@linuxfoundation.org>
+Subject: [PATCH 5.4 122/152] nfs: nfs_file_write() should check for writeback errors
+Date:   Thu, 20 Aug 2020 11:21:29 +0200
+Message-Id: <20200820091600.023309775@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -45,45 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Scott Mayhew <smayhew@redhat.com>
 
-[ Upstream commit af6de8c60fe9433afa73cea6fcccdccd98ad3e5e ]
+[ Upstream commit ce368536dd614452407dc31e2449eb84681a06af ]
 
-We cannot wait on a completion object in the lpfc_nvme_targetport structure
-in the _destroy_targetport() code path because the NVMe/fc transport will
-free that structure immediately after the .targetport_delete() callback.
-This results in a use-after-free, and a crash if slub_debug=FZPU is
-enabled.
+The NFS_CONTEXT_ERROR_WRITE flag (as well as the check of said flag) was
+removed by commit 6fbda89b257f.  The absence of an error check allows
+writes to be continually queued up for a server that may no longer be
+able to handle them.  Fix it by adding an error check using the generic
+error reporting functions.
 
-An earlier fix put put the completion on the stack, but commit 2a0fb340fcc8
-("scsi: lpfc: Correct localport timeout duration error") subsequently
-changed the code to reference the completion through a pointer in the
-object rather than the local stack variable.  Fix this by using the stack
-variable directly.
-
-Link: https://lore.kernel.org/r/20200729231011.13240-1-emilne@redhat.com
-Fixes: 2a0fb340fcc8 ("scsi: lpfc: Correct localport timeout duration error")
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvmet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/file.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index 9884228800a50..f14394ab0e037 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -1923,7 +1923,7 @@ lpfc_nvmet_destroy_targetport(struct lpfc_hba *phba)
- 		}
- 		tgtp->tport_unreg_cmp = &tport_unreg_cmp;
- 		nvmet_fc_unregister_targetport(phba->targetport);
--		if (!wait_for_completion_timeout(tgtp->tport_unreg_cmp,
-+		if (!wait_for_completion_timeout(&tport_unreg_cmp,
- 					msecs_to_jiffies(LPFC_NVMET_WAIT_TMO)))
- 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME,
- 					"6179 Unreg targetport x%px timeout "
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 348f67c8f3224..387a2cfa7e172 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -583,12 +583,14 @@ static const struct vm_operations_struct nfs_file_vm_ops = {
+ 	.page_mkwrite = nfs_vm_page_mkwrite,
+ };
+ 
+-static int nfs_need_check_write(struct file *filp, struct inode *inode)
++static int nfs_need_check_write(struct file *filp, struct inode *inode,
++				int error)
+ {
+ 	struct nfs_open_context *ctx;
+ 
+ 	ctx = nfs_file_open_context(filp);
+-	if (nfs_ctx_key_to_expire(ctx, inode))
++	if (nfs_error_is_fatal_on_server(error) ||
++	    nfs_ctx_key_to_expire(ctx, inode))
+ 		return 1;
+ 	return 0;
+ }
+@@ -599,6 +601,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 	struct inode *inode = file_inode(file);
+ 	unsigned long written = 0;
+ 	ssize_t result;
++	errseq_t since;
++	int error;
+ 
+ 	result = nfs_key_timeout_notify(file, inode);
+ 	if (result)
+@@ -623,6 +627,7 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 	if (iocb->ki_pos > i_size_read(inode))
+ 		nfs_revalidate_mapping(inode, file->f_mapping);
+ 
++	since = filemap_sample_wb_err(file->f_mapping);
+ 	nfs_start_io_write(inode);
+ 	result = generic_write_checks(iocb, from);
+ 	if (result > 0) {
+@@ -641,7 +646,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 		goto out;
+ 
+ 	/* Return error values */
+-	if (nfs_need_check_write(file, inode)) {
++	error = filemap_check_wb_err(file->f_mapping, since);
++	if (nfs_need_check_write(file, inode, error)) {
+ 		int err = nfs_wb_all(inode);
+ 		if (err < 0)
+ 			result = err;
 -- 
 2.25.1
 
