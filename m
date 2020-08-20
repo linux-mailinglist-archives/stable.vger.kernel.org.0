@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E6C24B479
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F7E24B472
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730531AbgHTKHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:07:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S1730607AbgHTKGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729920AbgHTKHA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:07:00 -0400
+        id S1730667AbgHTKGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:06:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AF3320724;
-        Thu, 20 Aug 2020 10:06:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 178C0206DA;
+        Thu, 20 Aug 2020 10:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918018;
-        bh=M6eF5IVhH9pwAY8htjnlrXGIgeElzl0aRUh8Sci0IC8=;
+        s=default; t=1597917990;
+        bh=sB3O8RsK+WNH9GoiGeAlv0G4heZHl6LbPgI8bJi86mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5SmmtRy1XIPWuUCFi8Pt+mfx8dXAtpzVDuDNqF0/53tNo6B8E7OsBIDgJ0OA8cxC
-         hLUmX+FuorkUZ0H0jdNJRU/lX+QcFWj/iicyJWV2Kwd0mJ2YgeQHfO4djZUkOsHqy4
-         vYKjqBwXNxd7WtO7y9auxE1lTjPVOVz/MZBwmTtI=
+        b=tK/qHgq6ZRpESF9NoH+gt8gp7AFjBeU6jmayOG6SzpbTSsxycprNKlngV9Zi4Rwxa
+         hTV5xu8TgzpJyYgnMn1QVmQE5Sx1iFu/8gQYYM3pSK/AVrBo5A/A+RRciS+MaiiDFO
+         gYDbaN5ZjqmOoZSAioheskfB+GXlRjRqWw++/vWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d8489a79b781849b9c46@syzkaller.appspotmail.com,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.14 008/228] Bluetooth: Fix slab-out-of-bounds read in hci_extended_inquiry_result_evt()
-Date:   Thu, 20 Aug 2020 11:19:43 +0200
-Message-Id: <20200820091607.940500623@linuxfoundation.org>
+        stable@vger.kernel.org, Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 4.14 015/228] leds: wm831x-status: fix use-after-free on unbind
+Date:   Thu, 20 Aug 2020 11:19:50 +0200
+Message-Id: <20200820091608.294236424@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,39 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 51c19bf3d5cfaa66571e4b88ba2a6f6295311101 upstream.
+commit 47a459ecc800a17109d0c496a4e21e478806ee40 upstream.
 
-Check upon `num_rsp` is insufficient. A malformed event packet with a
-large `num_rsp` number makes hci_extended_inquiry_result_evt() go out
-of bounds. Fix it.
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot blindly do devres conversions
+so that deregistration ends up being tied to the parent device,
+something which leads to use-after-free on driver unbind when the class
+device is released while still being registered.
 
-This patch fixes the following syzbot bug:
-
-    https://syzkaller.appspot.com/bug?id=4bf11aa05c4ca51ce0df86e500fce486552dc8d2
-
-Reported-by: syzbot+d8489a79b781849b9c46@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 8d3b6a4001ce ("leds: wm831x-status: Use devm_led_classdev_register")
+Cc: stable <stable@vger.kernel.org>     # 4.6
+Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_event.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/leds-wm831x-status.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3826,7 +3826,7 @@ static void hci_extended_inquiry_result_
+--- a/drivers/leds/leds-wm831x-status.c
++++ b/drivers/leds/leds-wm831x-status.c
+@@ -283,12 +283,23 @@ static int wm831x_status_probe(struct pl
+ 	drvdata->cdev.blink_set = wm831x_status_blink_set;
+ 	drvdata->cdev.groups = wm831x_status_groups;
  
- 	BT_DBG("%s num_rsp %d", hdev->name, num_rsp);
+-	ret = devm_led_classdev_register(wm831x->dev, &drvdata->cdev);
++	ret = led_classdev_register(wm831x->dev, &drvdata->cdev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Failed to register LED: %d\n", ret);
+ 		return ret;
+ 	}
  
--	if (!num_rsp)
-+	if (!num_rsp || skb->len < num_rsp * sizeof(*info) + 1)
- 		return;
++	platform_set_drvdata(pdev, drvdata);
++
++	return 0;
++}
++
++static int wm831x_status_remove(struct platform_device *pdev)
++{
++	struct wm831x_status *drvdata = platform_get_drvdata(pdev);
++
++	led_classdev_unregister(&drvdata->cdev);
++
+ 	return 0;
+ }
  
- 	if (hci_dev_test_flag(hdev, HCI_PERIODIC_INQ))
+@@ -297,6 +308,7 @@ static struct platform_driver wm831x_sta
+ 		   .name = "wm831x-status",
+ 		   },
+ 	.probe = wm831x_status_probe,
++	.remove = wm831x_status_remove,
+ };
+ 
+ module_platform_driver(wm831x_status_driver);
 
 
