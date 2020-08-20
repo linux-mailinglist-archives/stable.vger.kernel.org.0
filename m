@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20CF624BFA6
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4C224BFA7
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbgHTNuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730108AbgHTNuf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33584 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726919AbgHTJ04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:56 -0400
+        id S1726852AbgHTJ1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0507322D2A;
-        Thu, 20 Aug 2020 09:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B86D422CA1;
+        Thu, 20 Aug 2020 09:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915612;
-        bh=xoF6oG+fF8czt3XFOicaePjWcPHnJQveCnY/OPDHI6k=;
+        s=default; t=1597915627;
+        bh=ka0fvdpQBGDZw+aAdie2jqZIVYKV+E9f2cyE2BpXYZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AR9yTQHBWBzisYHt6wTHyvbEoJTLMepIbaOfOhB6OAeZU0gJosI3ouf3+2OVlalTg
-         +ZoZu/g6WvnfN0CYNSQ7kSmvL+Ssrk2rNmLW1FRIS6iuWLgU7goLVcJkVI/433Wkbk
-         utLgkMKPkjuaedfSqDwcezJeMi7mzSbK9lW/OPh0=
+        b=V2FSzO5ABZsH79zjBZbFT5/+nkrhCouGb3t3DUAxVlt/ioZMyArJTzwNM69fC6vhq
+         gWam+pCvwOXRpas9Lqv7B+5puqzhgoLqjIh7qUTp9dHZBdyq5BbJxIc74mON4/DXjt
+         61nIY83EZiADT5ROVusUp4c5CIO8d4bWtlsFrw9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.8 075/232] MIPS: SGI-IP27: always enable NUMA in Kconfig
-Date:   Thu, 20 Aug 2020 11:18:46 +0200
-Message-Id: <20200820091616.442618574@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Song Liu <songliubraving@fb.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 079/232] khugepaged: collapse_pte_mapped_thp() protect the pmd lock
+Date:   Thu, 20 Aug 2020 11:18:50 +0200
+Message-Id: <20200820091616.640725029@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,76 +48,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit 6c86a3029ce3b44597526909f2e39a77a497f640 upstream.
+commit 119a5fc16105b2b9383a6e2a7800b2ef861b2975 upstream.
 
-When a configuration has NUMA disabled and SGI_IP27 enabled, the build
-fails:
+When retract_page_tables() removes a page table to make way for a huge
+pmd, it holds huge page lock, i_mmap_lock_write, mmap_write_trylock and
+pmd lock; but when collapse_pte_mapped_thp() does the same (to handle the
+case when the original mmap_write_trylock had failed), only
+mmap_write_trylock and pmd lock are held.
 
-  CC      kernel/bounds.s
-  CC      arch/mips/kernel/asm-offsets.s
-In file included from arch/mips/include/asm/topology.h:11,
-                 from include/linux/topology.h:36,
-                 from include/linux/gfp.h:9,
-                 from include/linux/slab.h:15,
-                 from include/linux/crypto.h:19,
-                 from include/crypto/hash.h:11,
-                 from include/linux/uio.h:10,
-                 from include/linux/socket.h:8,
-                 from include/linux/compat.h:15,
-                 from arch/mips/kernel/asm-offsets.c:12:
-include/linux/topology.h: In function 'numa_node_id':
-arch/mips/include/asm/mach-ip27/topology.h:16:27: error: implicit declaration of function 'cputonasid'; did you mean 'cpu_vpe_id'? [-Werror=implicit-function-declaration]
- #define cpu_to_node(cpu) (cputonasid(cpu))
-                           ^~~~~~~~~~
-include/linux/topology.h:119:9: note: in expansion of macro 'cpu_to_node'
-  return cpu_to_node(raw_smp_processor_id());
-         ^~~~~~~~~~~
-include/linux/topology.h: In function 'cpu_cpu_mask':
-arch/mips/include/asm/mach-ip27/topology.h:19:7: error: implicit declaration of function 'hub_data' [-Werror=implicit-function-declaration]
-      &hub_data(node)->h_cpus)
-       ^~~~~~~~
-include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
-  return cpumask_of_node(cpu_to_node(cpu));
-         ^~~~~~~~~~~~~~~
-arch/mips/include/asm/mach-ip27/topology.h:19:21: error: invalid type argument of '->' (have 'int')
-      &hub_data(node)->h_cpus)
-                     ^~
-include/linux/topology.h:210:9: note: in expansion of macro 'cpumask_of_node'
-  return cpumask_of_node(cpu_to_node(cpu));
-         ^~~~~~~~~~~~~~~
+That's not enough.  One machine has twice crashed under load, with "BUG:
+spinlock bad magic" and GPF on 6b6b6b6b6b6b6b6b.  Examining the second
+crash, page_vma_mapped_walk_done()'s spin_unlock of pvmw->ptl (serving
+page_referenced() on a file THP, that had found a page table at *pmd)
+discovers that the page table page and its lock have already been freed by
+the time it comes to unlock.
 
-Before switch from discontigmem to sparsemem, there always was
-CONFIG_NEED_MULTIPLE_NODES=y because it was selected by DISCONTIGMEM.
-Without DISCONTIGMEM it is possible to have SPARSEMEM without NUMA for
-SGI_IP27 and as many things there rely on custom node definition, the
-build breaks.
+Follow the example of retract_page_tables(), but we only need one of huge
+page lock or i_mmap_lock_write to secure against this: because it's the
+narrower lock, and because it simplifies collapse_pte_mapped_thp() to know
+the hpage earlier, choose to rely on huge page lock here.
 
-As Thomas noted "... there are right now too many places in IP27 code,
-which assumes NUMA enabled", the simplest solution would be to always
-enable NUMA for SGI-IP27 builds.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 397dc00e249e ("mips: sgi-ip27: switch from DISCONTIGMEM to SPARSEMEM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 27e1f8273113 ("khugepaged: enable collapse pmd for pte-mapped THP")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021213070.27773@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ mm/khugepaged.c |   44 +++++++++++++++++++-------------------------
+ 1 file changed, 19 insertions(+), 25 deletions(-)
 
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -678,6 +678,7 @@ config SGI_IP27
- 	select SYS_SUPPORTS_NUMA
- 	select SYS_SUPPORTS_SMP
- 	select MIPS_L1_CACHE_SHIFT_7
-+	select NUMA
- 	help
- 	  This are the SGI Origin 200, Origin 2000 and Onyx 2 Graphics
- 	  workstations.  To compile a Linux kernel that runs on these, say Y
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1412,7 +1412,7 @@ void collapse_pte_mapped_thp(struct mm_s
+ {
+ 	unsigned long haddr = addr & HPAGE_PMD_MASK;
+ 	struct vm_area_struct *vma = find_vma(mm, haddr);
+-	struct page *hpage = NULL;
++	struct page *hpage;
+ 	pte_t *start_pte, *pte;
+ 	pmd_t *pmd, _pmd;
+ 	spinlock_t *ptl;
+@@ -1432,9 +1432,17 @@ void collapse_pte_mapped_thp(struct mm_s
+ 	if (!hugepage_vma_check(vma, vma->vm_flags | VM_HUGEPAGE))
+ 		return;
+ 
++	hpage = find_lock_page(vma->vm_file->f_mapping,
++			       linear_page_index(vma, haddr));
++	if (!hpage)
++		return;
++
++	if (!PageHead(hpage))
++		goto drop_hpage;
++
+ 	pmd = mm_find_pmd(mm, haddr);
+ 	if (!pmd)
+-		return;
++		goto drop_hpage;
+ 
+ 	start_pte = pte_offset_map_lock(mm, pmd, haddr, &ptl);
+ 
+@@ -1453,30 +1461,11 @@ void collapse_pte_mapped_thp(struct mm_s
+ 
+ 		page = vm_normal_page(vma, addr, *pte);
+ 
+-		if (!page || !PageCompound(page))
+-			goto abort;
+-
+-		if (!hpage) {
+-			hpage = compound_head(page);
+-			/*
+-			 * The mapping of the THP should not change.
+-			 *
+-			 * Note that uprobe, debugger, or MAP_PRIVATE may
+-			 * change the page table, but the new page will
+-			 * not pass PageCompound() check.
+-			 */
+-			if (WARN_ON(hpage->mapping != vma->vm_file->f_mapping))
+-				goto abort;
+-		}
+-
+ 		/*
+-		 * Confirm the page maps to the correct subpage.
+-		 *
+-		 * Note that uprobe, debugger, or MAP_PRIVATE may change
+-		 * the page table, but the new page will not pass
+-		 * PageCompound() check.
++		 * Note that uprobe, debugger, or MAP_PRIVATE may change the
++		 * page table, but the new page will not be a subpage of hpage.
+ 		 */
+-		if (WARN_ON(hpage + i != page))
++		if (hpage + i != page)
+ 			goto abort;
+ 		count++;
+ 	}
+@@ -1495,7 +1484,7 @@ void collapse_pte_mapped_thp(struct mm_s
+ 	pte_unmap_unlock(start_pte, ptl);
+ 
+ 	/* step 3: set proper refcount and mm_counters. */
+-	if (hpage) {
++	if (count) {
+ 		page_ref_sub(hpage, count);
+ 		add_mm_counter(vma->vm_mm, mm_counter_file(hpage), -count);
+ 	}
+@@ -1506,10 +1495,15 @@ void collapse_pte_mapped_thp(struct mm_s
+ 	spin_unlock(ptl);
+ 	mm_dec_nr_ptes(mm);
+ 	pte_free(mm, pmd_pgtable(_pmd));
++
++drop_hpage:
++	unlock_page(hpage);
++	put_page(hpage);
+ 	return;
+ 
+ abort:
+ 	pte_unmap_unlock(start_pte, ptl);
++	goto drop_hpage;
+ }
+ 
+ static int khugepaged_collapse_pte_mapped_thps(struct mm_slot *mm_slot)
 
 
