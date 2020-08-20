@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E385A24B481
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF22E24B483
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730302AbgHTKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
+        id S1730011AbgHTKIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:08:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730011AbgHTKIG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:08:06 -0400
+        id S1729288AbgHTKIS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:08:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B7F2067C;
-        Thu, 20 Aug 2020 10:08:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C41A02067C;
+        Thu, 20 Aug 2020 10:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918086;
-        bh=fZ8ST2yhYEOwdLXirGleANT944jZBPkw2xVYSWUoEMs=;
+        s=default; t=1597918097;
+        bh=U+gWfkrY3BsVuOe18g1jlpr8DJgrJunvSINNKdy/Hcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBfKjuXFFwemq3ACd7dchCf3ITJj9mp3FgU7+DD16cqg+oW83LWJku/bfFH4drQ3+
-         SBbOEkTvEuUr3wWQxmM2nKHY8AaCIzvNKzs9zx5MiqoZz3mSdvxRSkpipoBMIiDda8
-         XL/2jCKdMJhfr0v2kV7yR+0fCNIrx4ey0AdKVF3g=
+        b=15JduGU7zAnEE6192I9+Mq6NvqbR99ETWT5Kecn1U+brsOmtNo9+hBdPombWQEQwV
+         tMp7xLCr11TITBrLGLK0+zQHZFbZfcqqKBVDHBWWgE27e77JdjP2W8IplsiwZlwKZG
+         m0uJbC3sMbCu+wtnwkUzepWCtcnKDTq6w1IknJyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/228] sched: correct SD_flags returned by tl->sd_flags()
-Date:   Thu, 20 Aug 2020 11:20:22 +0200
-Message-Id: <20200820091609.965787642@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 050/228] EDAC: Fix reference count leaks
+Date:   Thu, 20 Aug 2020 11:20:25 +0200
+Message-Id: <20200820091610.115802455@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,38 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Liu <iwtbavbm@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 9b1b234bb86bcdcdb142e900d39b599185465dbb ]
+[ Upstream commit 17ed808ad243192fb923e4e653c1338d3ba06207 ]
 
-During sched domain init, we check whether non-topological SD_flags are
-returned by tl->sd_flags(), if found, fire a waning and correct the
-violation, but the code failed to correct the violation. Correct this.
+When kobject_init_and_add() returns an error, it should be handled
+because kobject_init_and_add() takes a reference even when it fails. If
+this function returns an error, kobject_put() must be called to properly
+clean up the memory associated with the object.
 
-Fixes: 143e1e28cb40 ("sched: Rework sched_domain topology definition")
-Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20200609150936.GA13060@iZj6chx1xj0e0buvshuecpZ
+Therefore, replace calling kfree() and call kobject_put() and add a
+missing kobject_put() in the edac_device_register_sysfs_main_kobj()
+error path.
+
+ [ bp: Massage and merge into a single patch. ]
+
+Fixes: b2ed215a3338 ("Kobject: change drivers/edac to use kobject_init_and_add")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200528202238.18078-1-wu000273@umn.edu
+Link: https://lkml.kernel.org/r/20200528203526.20908-1-wu000273@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/edac_device_sysfs.c | 1 +
+ drivers/edac/edac_pci_sysfs.c    | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index 867d173dab482..152ffe0c24330 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1117,7 +1117,7 @@ sd_init(struct sched_domain_topology_level *tl,
- 		sd_flags = (*tl->sd_flags)();
- 	if (WARN_ONCE(sd_flags & ~TOPOLOGY_SD_FLAGS,
- 			"wrong sd_flags in topology description\n"))
--		sd_flags &= ~TOPOLOGY_SD_FLAGS;
-+		sd_flags &= TOPOLOGY_SD_FLAGS;
+diff --git a/drivers/edac/edac_device_sysfs.c b/drivers/edac/edac_device_sysfs.c
+index 0e7ea3591b781..5e75937537997 100644
+--- a/drivers/edac/edac_device_sysfs.c
++++ b/drivers/edac/edac_device_sysfs.c
+@@ -275,6 +275,7 @@ int edac_device_register_sysfs_main_kobj(struct edac_device_ctl_info *edac_dev)
  
- 	*sd = (struct sched_domain){
- 		.min_interval		= sd_weight,
+ 	/* Error exit stack */
+ err_kobj_reg:
++	kobject_put(&edac_dev->kobj);
+ 	module_put(edac_dev->owner);
+ 
+ err_out:
+diff --git a/drivers/edac/edac_pci_sysfs.c b/drivers/edac/edac_pci_sysfs.c
+index 72c9eb9fdffbe..53042af7262e2 100644
+--- a/drivers/edac/edac_pci_sysfs.c
++++ b/drivers/edac/edac_pci_sysfs.c
+@@ -386,7 +386,7 @@ static int edac_pci_main_kobj_setup(void)
+ 
+ 	/* Error unwind statck */
+ kobject_init_and_add_fail:
+-	kfree(edac_pci_top_main_kobj);
++	kobject_put(edac_pci_top_main_kobj);
+ 
+ kzalloc_fail:
+ 	module_put(THIS_MODULE);
 -- 
 2.25.1
 
