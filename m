@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2355D24C046
+	by mail.lfdr.de (Postfix) with ESMTP id 9087E24C049
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 16:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726819AbgHTNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60240 "EHLO mail.kernel.org"
+        id S1730149AbgHTNxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726840AbgHTJYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:24:11 -0400
+        id S1726959AbgHTJY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:24:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 084F822CA1;
-        Thu, 20 Aug 2020 09:24:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD51922CB2;
+        Thu, 20 Aug 2020 09:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915450;
-        bh=qa81hbu0Agd/1qd/MfyLyNtBj4h/m46pZZEe2uwWhqE=;
+        s=default; t=1597915467;
+        bh=Cm2feadPvPt9PmnUf0EuHHArp78fgf63sITjvIEfr3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOzSdEncSINDNwHu2uiwaPeJ87sUpWFTeXBQ65JUgWIW3U/uUx2QLdINQDfRxS95F
-         bIEsS01nCTb3TCBxgHysgjYfL2zQW35+AmIyETb7rupSOSaZAiAgTZ9i27zsJzw5br
-         W5oWLrgr0Y4F54ys8x+Uyftw0g0EsvgrifUZLORE=
+        b=glUCWX8MrLfx1p0Uz2090itJcZtYlZMExJtpV65J6B0pxKAbdFaPWDvdsxwcOUF+g
+         wrL/W7At2Xk4+6ZGqeubsRTpp2y68NCN3nV79+8G+Uuci9vUa4CssliUUiKN2itPuP
+         EjPESar8+HEEKXFn3/vdJgU28EUMbFTt3ld+O4N4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 018/232] btrfs: only commit the delayed inode when doing a full fsync
-Date:   Thu, 20 Aug 2020 11:17:49 +0200
-Message-Id: <20200820091613.620881772@linuxfoundation.org>
+Subject: [PATCH 5.8 023/232] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Date:   Thu, 20 Aug 2020 11:17:54 +0200
+Message-Id: <20200820091613.872804938@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,88 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 8c8648dd1f6d62aeb912deeb788b6ac33cb782e7 upstream.
+commit 137c541821a83debb63b3fa8abdd1cbc41bdf3a1 upstream.
 
-Commit 2c2c452b0cafdc ("Btrfs: fix fsync when extend references are added
-to an inode") forced a commit of the delayed inode when logging an inode
-in order to ensure we would end up logging the inode item during a full
-fsync. By committing the delayed inode, we updated the inode item in the
-fs/subvolume tree and then later when copying items from leafs modified in
-the current transaction into the log tree (with copy_inode_items_to_log())
-we ended up copying the inode item from the fs/subvolume tree into the log
-tree. Logging an up to date version of the inode item is required to make
-sure at log replay time we get the link count fixup triggered among other
-things (replay xattr deletes, etc). The test case generic/040 from fstests
-exercises the bug which that commit fixed.
+With the recent addition of filesystem checksum types other than CRC32c,
+it is not anymore hard-coded which checksum type a btrfs filesystem uses.
 
-However for a fast fsync we don't need to commit the delayed inode because
-we always log an up to date version of the inode item based on the struct
-btrfs_inode we have in-memory. We started doing this for fast fsyncs since
-commit e4545de5b035c7 ("Btrfs: fix fsync data loss after append write").
+Up to now there is no good way to read the filesystem checksum, apart from
+reading the filesystem UUID and then query sysfs for the checksum type.
 
-So just stop committing the delayed inode if we are doing a fast fsync,
-we are only wasting time and adding contention on fs/subvolume tree.
+Add a new csum_type and csum_size fields to the BTRFS_IOC_FS_INFO ioctl
+command which usually is used to query filesystem features. Also add a
+flags member indicating that the kernel responded with a set csum_type and
+csum_size field.
 
-This patch is part of a series that has the following patches:
+For compatibility reasons, only return the csum_type and csum_size if
+the BTRFS_FS_INFO_FLAG_CSUM_INFO flag was passed to the kernel. Also
+clear any unknown flags so we don't pass false positives to user-space
+newer than the kernel.
 
-1/4 btrfs: only commit the delayed inode when doing a full fsync
-2/4 btrfs: only commit delayed items at fsync if we are logging a directory
-3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
-4/4 btrfs: remove no longer needed use of log_writers for the log root tree
+To simplify further additions to the ioctl, also switch the padding to a
+u8 array. Pahole was used to verify the result of this switch:
 
-After the entire patchset applied I saw about 12% decrease on max latency
-reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
-ram, using kvm and using a raw NVMe device directly (no intermediary fs on
-the host). The test was invoked like the following:
+The csum members are added before flags, which might look odd, but this
+is to keep the alignment requirements and not to introduce holes in the
+structure.
 
-  mkfs.btrfs -f /dev/sdk
-  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
-  dbench -D /mnt/sdk -t 300 8
-  umount /mnt/dsk
+  $ pahole -C btrfs_ioctl_fs_info_args fs/btrfs/btrfs.ko
+  struct btrfs_ioctl_fs_info_args {
+	  __u64                      max_id;               /*     0     8 */
+	  __u64                      num_devices;          /*     8     8 */
+	  __u8                       fsid[16];             /*    16    16 */
+	  __u32                      nodesize;             /*    32     4 */
+	  __u32                      sectorsize;           /*    36     4 */
+	  __u32                      clone_alignment;      /*    40     4 */
+	  __u16                      csum_type;            /*    44     2 */
+	  __u16                      csum_size;            /*    46     2 */
+	  __u64                      flags;                /*    48     8 */
+	  __u8                       reserved[968];        /*    56   968 */
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+	  /* size: 1024, cachelines: 16, members: 10 */
+  };
+
+Fixes: 3951e7f050ac ("btrfs: add xxhash64 to checksumming algorithms")
+Fixes: 3831bf0094ab ("btrfs: add sha256 to checksumming algorithm")
+CC: stable@vger.kernel.org # 5.5+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/btrfs/ioctl.c           |   16 +++++++++++++---
+ include/uapi/linux/btrfs.h |   14 ++++++++++++--
+ 2 files changed, 25 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5130,7 +5130,7 @@ static int btrfs_log_inode(struct btrfs_
- 	struct btrfs_key max_key;
- 	struct btrfs_root *log = root->log_root;
- 	int err = 0;
--	int ret;
-+	int ret = 0;
- 	bool fast_search = false;
- 	u64 ino = btrfs_ino(inode);
- 	struct extent_map_tree *em_tree = &inode->extent_tree;
-@@ -5167,14 +5167,16 @@ static int btrfs_log_inode(struct btrfs_
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3217,11 +3217,15 @@ static long btrfs_ioctl_fs_info(struct b
+ 	struct btrfs_ioctl_fs_info_args *fi_args;
+ 	struct btrfs_device *device;
+ 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
++	u64 flags_in;
+ 	int ret = 0;
  
- 	/*
- 	 * Only run delayed items if we are a dir or a new file.
--	 * Otherwise commit the delayed inode only, which is needed in
--	 * order for the log replay code to mark inodes for link count
--	 * fixup (create temporary BTRFS_TREE_LOG_FIXUP_OBJECTID items).
-+	 * Otherwise commit the delayed inode only if the full sync flag is set,
-+	 * as we want to make sure an up to date version is in the subvolume
-+	 * tree so copy_inode_items_to_log() / copy_items() can find it and copy
-+	 * it to the log tree. For a non full sync, we always log the inode item
-+	 * based on the in-memory struct btrfs_inode which is always up to date.
- 	 */
- 	if (S_ISDIR(inode->vfs_inode.i_mode) ||
- 	    inode->generation > fs_info->last_trans_committed)
- 		ret = btrfs_commit_inode_delayed_items(trans, inode);
--	else
-+	else if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags))
- 		ret = btrfs_commit_inode_delayed_inode(inode);
+-	fi_args = kzalloc(sizeof(*fi_args), GFP_KERNEL);
+-	if (!fi_args)
+-		return -ENOMEM;
++	fi_args = memdup_user(arg, sizeof(*fi_args));
++	if (IS_ERR(fi_args))
++		return PTR_ERR(fi_args);
++
++	flags_in = fi_args->flags;
++	memset(fi_args, 0, sizeof(*fi_args));
  
- 	if (ret) {
+ 	rcu_read_lock();
+ 	fi_args->num_devices = fs_devices->num_devices;
+@@ -3237,6 +3241,12 @@ static long btrfs_ioctl_fs_info(struct b
+ 	fi_args->sectorsize = fs_info->sectorsize;
+ 	fi_args->clone_alignment = fs_info->sectorsize;
+ 
++	if (flags_in & BTRFS_FS_INFO_FLAG_CSUM_INFO) {
++		fi_args->csum_type = btrfs_super_csum_type(fs_info->super_copy);
++		fi_args->csum_size = btrfs_super_csum_size(fs_info->super_copy);
++		fi_args->flags |= BTRFS_FS_INFO_FLAG_CSUM_INFO;
++	}
++
+ 	if (copy_to_user(arg, fi_args, sizeof(*fi_args)))
+ 		ret = -EFAULT;
+ 
+--- a/include/uapi/linux/btrfs.h
++++ b/include/uapi/linux/btrfs.h
+@@ -243,6 +243,13 @@ struct btrfs_ioctl_dev_info_args {
+ 	__u8 path[BTRFS_DEVICE_PATH_NAME_MAX];	/* out */
+ };
+ 
++/*
++ * Retrieve information about the filesystem
++ */
++
++/* Request information about checksum type and size */
++#define BTRFS_FS_INFO_FLAG_CSUM_INFO			(1 << 0)
++
+ struct btrfs_ioctl_fs_info_args {
+ 	__u64 max_id;				/* out */
+ 	__u64 num_devices;			/* out */
+@@ -250,8 +257,11 @@ struct btrfs_ioctl_fs_info_args {
+ 	__u32 nodesize;				/* out */
+ 	__u32 sectorsize;			/* out */
+ 	__u32 clone_alignment;			/* out */
+-	__u32 reserved32;
+-	__u64 reserved[122];			/* pad to 1k */
++	/* See BTRFS_FS_INFO_FLAG_* */
++	__u16 csum_type;			/* out */
++	__u16 csum_size;			/* out */
++	__u64 flags;				/* in/out */
++	__u8 reserved[968];			/* pad to 1k */
+ };
+ 
+ /*
 
 
