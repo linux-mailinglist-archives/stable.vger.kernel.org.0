@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76AD124BB34
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 830A624BB30
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729128AbgHTMZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:25:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35664 "EHLO mail.kernel.org"
+        id S1728949AbgHTMYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729960AbgHTJxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:38 -0400
+        id S1730045AbgHTJxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:53:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9BE32078D;
-        Thu, 20 Aug 2020 09:53:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F16A208DB;
+        Thu, 20 Aug 2020 09:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917218;
-        bh=vSitispOIH9uthRDNZAz+wOCPCaFL10vqRce8X+JzYc=;
+        s=default; t=1597917221;
+        bh=X5Vbw7v3JN2jIdF4Via6kEXf7Sgw1y6/1nSofmAy63Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ao+vz7PFjMoaydpvj+Kk6FzltgAVjY9WWdF+GcltdemKae6FAPXpkI6Ydb7eg+b1C
-         qORLUTZkbtT7zNJsyGzU2sQ88Zg94Jkh5sJ6i+WlGACb/hGmejMGLBUkOqnahx6WnR
-         DFjlg1LD/XfOJ8fMbcJ9+rC4+ARtUI3/Xxq+AhhA=
+        b=oO19pvT6Mp0ObBGyMqgd23V4u0flbEfQz7PgErDePBVzPhhjuF+sOuGbazOWnkATK
+         lAQvzDe05tGCRUDJxGUi7LRrX6mHgMtxWEAnnzZ1hxAC79K65LcWLe0cBefYwA8fwe
+         qTZzhHH38/Y50xEKK8SQLbWqPsgS6VKuR9c2Pu/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 15/92] btrfs: only search for left_info if there is no right_info in try_merge_free_space
-Date:   Thu, 20 Aug 2020 11:21:00 +0200
-Message-Id: <20200820091538.337979619@linuxfoundation.org>
+Subject: [PATCH 4.19 16/92] btrfs: fix memory leaks after failure to lookup checksums during inode logging
+Date:   Thu, 20 Aug 2020 11:21:01 +0200
+Message-Id: <20200820091538.397895621@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -43,64 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit bf53d4687b8f3f6b752f091eb85f62369a515dfd upstream.
+commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
 
-In try_to_merge_free_space we attempt to find entries to the left and
-right of the entry we are adding to see if they can be merged.  We
-search for an entry past our current info (saved into right_info), and
-then if right_info exists and it has a rb_prev() we save the rb_prev()
-into left_info.
+While logging an inode, at copy_items(), if we fail to lookup the checksums
+for an extent we release the destination path, free the ins_data array and
+then return immediately. However a previous iteration of the for loop may
+have added checksums to the ordered_sums list, in which case we leak the
+memory used by them.
 
-However there's a slight problem in the case that we have a right_info,
-but no entry previous to that entry.  At that point we will search for
-an entry just before the info we're attempting to insert.  This will
-simply find right_info again, and assign it to left_info, making them
-both the same pointer.
+So fix this by making sure we iterate the ordered_sums list and free all
+its checksums before returning.
 
-Now if right_info _can_ be merged with the range we're inserting, we'll
-add it to the info and free right_info.  However further down we'll
-access left_info, which was right_info, and thus get a use-after-free.
-
-Fix this by only searching for the left entry if we don't find a right
-entry at all.
-
-The CVE referenced had a specially crafted file system that could
-trigger this use-after-free. However with the tree checker improvements
-we no longer trigger the conditions for the UAF.  But the original
-conditions still apply, hence this fix.
-
-Reference: CVE-2019-19448
-Fixes: 963030817060 ("Btrfs: use hybrid extents+bitmap rb tree for free space")
+Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/free-space-cache.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -2169,7 +2169,7 @@ out:
- static bool try_merge_free_space(struct btrfs_free_space_ctl *ctl,
- 			  struct btrfs_free_space *info, bool update_stat)
- {
--	struct btrfs_free_space *left_info;
-+	struct btrfs_free_space *left_info = NULL;
- 	struct btrfs_free_space *right_info;
- 	bool merged = false;
- 	u64 offset = info->offset;
-@@ -2184,7 +2184,7 @@ static bool try_merge_free_space(struct
- 	if (right_info && rb_prev(&right_info->offset_index))
- 		left_info = rb_entry(rb_prev(&right_info->offset_index),
- 				     struct btrfs_free_space, offset_index);
--	else
-+	else if (!right_info)
- 		left_info = tree_search_offset(ctl, offset - 1, 0, 0);
- 
- 	if (right_info && !right_info->bitmap) {
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3988,11 +3988,8 @@ static noinline int copy_items(struct bt
+ 						fs_info->csum_root,
+ 						ds + cs, ds + cs + cl - 1,
+ 						&ordered_sums, 0);
+-				if (ret) {
+-					btrfs_release_path(dst_path);
+-					kfree(ins_data);
+-					return ret;
+-				}
++				if (ret)
++					break;
+ 			}
+ 		}
+ 	}
+@@ -4005,7 +4002,6 @@ static noinline int copy_items(struct bt
+ 	 * we have to do this after the loop above to avoid changing the
+ 	 * log tree while trying to change the log tree.
+ 	 */
+-	ret = 0;
+ 	while (!list_empty(&ordered_sums)) {
+ 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
+ 						   struct btrfs_ordered_sum,
 
 
