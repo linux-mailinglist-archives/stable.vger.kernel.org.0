@@ -2,85 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBE824B0AF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1E124B0BD
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725797AbgHTIB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 04:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
+        id S1725977AbgHTIGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 04:06:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725798AbgHTIB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 04:01:57 -0400
+        id S1725824AbgHTIGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 04:06:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A96E2080C;
-        Thu, 20 Aug 2020 08:01:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68B472080C;
+        Thu, 20 Aug 2020 08:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597910516;
-        bh=AXRSCclaOFZ2qfG5TN0/by/Vee9wPQljElWaf2OkM7k=;
+        s=default; t=1597910780;
+        bh=Sx5yyiEC1FpvUXVsEDeL59EhbArvoPGIE5qp+2ZgREY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OBr7tUvTujDv7eJ9oMYwA3T0VjLw8dChba+scj/M3p3f6KeW0H/QnvBdOuK5mZrfH
-         sSTz7Wy8GlyoxDIH+vJzSCKu612dqRNjgecyva5pmL6mjKC7D8r//NRW9qLS9uPvQF
-         /E7JITgZk5ofm3bUd/CiT8Su3ZMTDejKSr1R8c8w=
-Date:   Thu, 20 Aug 2020 10:02:18 +0200
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Justin He <Justin.He@arm.com>
-Cc:     "Jonathan.Cameron@Huawei.com" <Jonathan.Cameron@huawei.com>,
-        Kaly Xin <Kaly.Xin@arm.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "bhe@redhat.com" <bhe@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        "dalias@libc.org" <dalias@libc.org>,
-        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "dave.jiang@intel.com" <dave.jiang@intel.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
-        "hpa@zytor.com" <hpa@zytor.com>,
-        "hslester96@gmail.com" <hslester96@gmail.com>,
-        "logang@deltatee.com" <logang@deltatee.com>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "masahiroy@kernel.org" <masahiroy@kernel.org>,
-        "mhocko@suse.com" <mhocko@suse.com>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "tony.luck@intel.com" <tony.luck@intel.com>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "vishal.l.verma@intel.com" <vishal.l.verma@intel.com>,
-        "will@kernel.org" <will@kernel.org>,
-        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>
-Subject: Re: FAILED: patch "[PATCH] mm/memory_hotplug: fix unpaired
- mem_hotplug_begin/done" failed to apply to 4.19-stable tree
-Message-ID: <20200820080218.GA4049659@kroah.com>
-References: <1597840117224138@kroah.com>
- <AM6PR08MB4069874E06B127B704F0D683F75A0@AM6PR08MB4069.eurprd08.prod.outlook.com>
+        b=Dd1qfev3CTiEY6ouTiINLJ8wcqIr80ZzsqCP4j36A7Fyq+BZ+QnwjTPabaUqdYjaO
+         y+R2VIkFMJz9IAHeEFCcZzVoEiArp2yNZ5Wh3x00RA2/BzQNx1TWcGuA4hifK7jqAq
+         yoNHM7KhCZDG4l+pHRguw4/pJq1WlQbTNyV8A49Y=
+Date:   Thu, 20 Aug 2020 10:06:40 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     aarcange@redhat.com, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
+        songliubraving@fb.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject: Re: FAILED: patch "[PATCH] khugepaged: retract_page_tables()
+ remember to test exit" failed to apply to 5.7-stable tree
+Message-ID: <20200820080640.GB4049659@kroah.com>
+References: <1597839864213170@kroah.com>
+ <alpine.LSU.2.11.2008191725400.24973@eggly.anvils>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AM6PR08MB4069874E06B127B704F0D683F75A0@AM6PR08MB4069.eurprd08.prod.outlook.com>
+In-Reply-To: <alpine.LSU.2.11.2008191725400.24973@eggly.anvils>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 02:27:40AM +0000, Justin He wrote:
-> Hi Greg,
-> If anybody wants to backport it to stable tree, there are 2 pre-condition for
-> this commit ("[PATCH] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done")
+On Wed, Aug 19, 2020 at 05:28:10PM -0700, Hugh Dickins wrote:
+> On Wed, 19 Aug 2020, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.7-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> 1. eca499ab3 ("mm/hotplug: make remove_memory() interface usable") applied
-> in v5.2, it disabled the BUG() when check_memblock_offlined_cb() failed.
-> 2. f1037ec0c ("mm/memory_hotplug: fix remove_memory() lockdep splat")
-> in v5.5, it introduced the unpair but depends on eca499ab3
+> ------------------ rebased commit in Linus's tree ------------------
 > 
-> I checked https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/mm/memory_hotplug.c?h=linux-4.19.y#n1913.
-> Looks like stable tree v4.19 hasn't applied eca499ab3 but applied f1037ec0c.
-> Hence I don't think v4.19 needs this patch.
+> >From 18e77600f7a1ed69f8ce46c9e11cad0985712dfa Mon Sep 17 00:00:00 2001
+> From: Hugh Dickins <hughd@google.com>
+> Date: Thu, 6 Aug 2020 23:26:22 -0700
+> Subject: [PATCH] khugepaged: retract_page_tables() remember to test exit
 
-Thanks, I'll just leave this out of 4.19.y for now then.
+<snip>
+
+All of the backports now queued up, thanks!
 
 greg k-h
