@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 232D624B365
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1E224B37A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbgHTJqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49318 "EHLO mail.kernel.org"
+        id S1729093AbgHTJrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbgHTJql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:41 -0400
+        id S1729490AbgHTJrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 409132173E;
-        Thu, 20 Aug 2020 09:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59DA32224D;
+        Thu, 20 Aug 2020 09:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916800;
-        bh=ERX7nxT/qU+q9mUGONITiBEF8Kuwqk6p+kmLb994YJc=;
+        s=default; t=1597916862;
+        bh=pCYQjoq5QPvCkTrMleT7Z6rXf7d7uCVJfQbAK9By8Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ik0C3WUat7X1RcKMQ8sub/UuLeVIEmHqlSuVKR8fzdjY9xTtTz+kKvJd75Q8OllQT
-         wUtT+wRlpZp288ygXo68Ml8bX9xCDpvJ+sAgoq02r8L2SAJ/U+o5thLBL4ngtXWgki
-         X90Ed8fzQB8g49wQV+HLsk5c0XzAAMyX9FQFBKZs=
+        b=Q7yz36T6wYgrq/60in71s9LuSBdK0vcS5jlvt9PCfIpqCFWVjl4BNpCPfFR18W3l6
+         L7KROHZgOcyP8yohoTGODlMaKolaXg3QTZlWYPJsBKoYMt3HrrIfTHYb2QJDPlRFED
+         WJKnhU50x+ONGocFjkeBGjaQMrR517AOMug59FmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 043/152] net/compat: Add missing sock updates for SCM_RIGHTS
-Date:   Thu, 20 Aug 2020 11:20:10 +0200
-Message-Id: <20200820091555.874277038@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 045/152] bcache: allocate meta data pages as compound pages
+Date:   Thu, 20 Aug 2020 11:20:12 +0200
+Message-Id: <20200820091556.010907914@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -46,89 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Coly Li <colyli@suse.de>
 
-commit d9539752d23283db4692384a634034f451261e29 upstream.
+commit 5fe48867856367142d91a82f2cbf7a57a24cbb70 upstream.
 
-Add missed sock updates to compat path via a new helper, which will be
-used more in coming patches. (The net/core/scm.c code is left as-is here
-to assist with -stable backports for the compat path.)
+There are some meta data of bcache are allocated by multiple pages,
+and they are used as bio bv_page for I/Os to the cache device. for
+example cache_set->uuids, cache->disk_buckets, journal_write->data,
+bset_tree->data.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
+For such meta data memory, all the allocated pages should be treated
+as a single memory block. Then the memory management and underlying I/O
+code can treat them more clearly.
+
+This patch adds __GFP_COMP flag to all the location allocating >0 order
+pages for the above mentioned meta data. Then their pages are treated
+as compound pages now.
+
+Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
-Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/sock.h |    4 ++++
- net/compat.c       |    1 +
- net/core/sock.c    |   21 +++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ drivers/md/bcache/bset.c    |    2 +-
+ drivers/md/bcache/btree.c   |    2 +-
+ drivers/md/bcache/journal.c |    4 ++--
+ drivers/md/bcache/super.c   |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -849,6 +849,8 @@ static inline int sk_memalloc_socks(void
- {
- 	return static_branch_unlikely(&memalloc_socks_key);
- }
-+
-+void __receive_sock(struct file *file);
- #else
+--- a/drivers/md/bcache/bset.c
++++ b/drivers/md/bcache/bset.c
+@@ -321,7 +321,7 @@ int bch_btree_keys_alloc(struct btree_ke
  
- static inline int sk_memalloc_socks(void)
-@@ -856,6 +858,8 @@ static inline int sk_memalloc_socks(void
+ 	b->page_order = page_order;
+ 
+-	t->data = (void *) __get_free_pages(gfp, b->page_order);
++	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
+ 	if (!t->data)
+ 		goto err;
+ 
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -840,7 +840,7 @@ int bch_btree_cache_alloc(struct cache_s
+ 	mutex_init(&c->verify_lock);
+ 
+ 	c->verify_ondisk = (void *)
+-		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
++		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
+ 
+ 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
+ 
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -1002,8 +1002,8 @@ int bch_journal_alloc(struct cache_set *
+ 	j->w[1].c = c;
+ 
+ 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
+-	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
+-	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
++	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
++	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
+ 		return -ENOMEM;
+ 
  	return 0;
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1754,7 +1754,7 @@ void bch_cache_set_unregister(struct cac
  }
  
-+static inline void __receive_sock(struct file *file)
-+{ }
- #endif
+ #define alloc_bucket_pages(gfp, c)			\
+-	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
++	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
  
- static inline gfp_t sk_gfp_mask(const struct sock *sk, gfp_t gfp_mask)
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -291,6 +291,7 @@ void scm_detach_fds_compat(struct msghdr
- 			break;
- 		}
- 		/* Bump the usage count and install the file. */
-+		__receive_sock(fp[i]);
- 		fd_install(new_fd, get_file(fp[i]));
- 	}
- 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2736,6 +2736,27 @@ int sock_no_mmap(struct file *file, stru
- }
- EXPORT_SYMBOL(sock_no_mmap);
- 
-+/*
-+ * When a file is received (via SCM_RIGHTS, etc), we must bump the
-+ * various sock-based usage counts.
-+ */
-+void __receive_sock(struct file *file)
-+{
-+	struct socket *sock;
-+	int error;
-+
-+	/*
-+	 * The resulting value of "error" is ignored here since we only
-+	 * need to take action when the file is a socket and testing
-+	 * "sock" for NULL is sufficient.
-+	 */
-+	sock = sock_from_file(file, &error);
-+	if (sock) {
-+		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
-+		sock_update_classid(&sock->sk->sk_cgrp_data);
-+	}
-+}
-+
- ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
+ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
  {
- 	ssize_t res;
 
 
