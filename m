@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9183824BF7F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719D524BF83
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729063AbgHTNjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+        id S1726752AbgHTNjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727943AbgHTJ2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:28:15 -0400
+        id S1726815AbgHTJ2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:28:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 732EC22D3E;
-        Thu, 20 Aug 2020 09:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A90F22D0B;
+        Thu, 20 Aug 2020 09:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915692;
-        bh=4PcJebeh/Ll0u6T2COoRTK6XyspIHlBi+EwMv6Zg/BA=;
+        s=default; t=1597915694;
+        bh=hYpdoeMtS7l6OvSWp7k6NO+QjgxRPzAZL6142S/BCYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HScMFZLuucr8SU/DyhCfHwhReS++DCj6EXuunKXVyjuKMKburRKl1wzjwxRFfHEdE
-         un6lwtvEDvt16r+1KMtSHaAhHB88I9WUgOukOhext0781D1aYHuTR8PrbHFVE557uf
-         CK+Dqj1c0kygeNJlCKw4qBNaXi1Sjzktst/JC6P8=
+        b=Jp8en4IZ6/S8DJRYd18oorp6MxKhHvmQopGDRIeX0r4J1Rx/ETu8CwROG0BZ9M/DF
+         YIuplCcHHz9w23IMMoung7HBoGb7U48gwL4i6RWAZS2OsksFhFm1QdlIrx65S5OzbV
+         YQ0/TcWycCork0r4sjqEO1Hw5j4wnV93WlwrMIkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <andi@firstfloor.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
         Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
         Andi Kleen <ak@linux.intel.com>,
         Oleg Nesterov <oleg@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.8 102/232] perf probe: Fix wrong variable warning when the probe point is not found
-Date:   Thu, 20 Aug 2020 11:19:13 +0200
-Message-Id: <20200820091617.773551777@linuxfoundation.org>
+Subject: [PATCH 5.8 103/232] perf probe: Fix memory leakage when the probe point is not found
+Date:   Thu, 20 Aug 2020 11:19:14 +0200
+Message-Id: <20200820091617.814266024@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -49,67 +48,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 11fd3eb874e73ee8069bcfd54e3c16fa7ce56fe6 upstream.
+commit 12d572e785b15bc764e956caaa8a4c846fd15694 upstream.
 
-Fix a wrong "variable not found" warning when the probe point is not
-found in the debuginfo.
+Fix the memory leakage in debuginfo__find_trace_events() when the probe
+point is not found in the debuginfo. If there is no probe point found in
+the debuginfo, debuginfo__find_probes() will NOT return -ENOENT, but 0.
 
-Since the debuginfo__find_probes() can return 0 even if it does not find
-given probe point in the debuginfo, fill_empty_trace_arg() can be called
-with tf.ntevs == 0 and it can emit a wrong warning.  To fix this, reject
-ntevs == 0 in fill_empty_trace_arg().
+Thus the caller of debuginfo__find_probes() must check the tf.ntevs and
+release the allocated memory for the array of struct probe_trace_event.
 
-E.g. without this patch;
+The current code releases the memory only if the debuginfo__find_probes()
+hits an error but not checks tf.ntevs. In the result, the memory allocated
+on *tevs are not released if tf.ntevs == 0.
 
-  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
-  Failed to find the location of the '%di' variable at this address.
-   Perhaps it has been optimized out.
-   Use -V with the --range option to show '%di' location range.
-  Added new events:
-    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
-    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+This fixes the memory leakage by checking tf.ntevs == 0 in addition to
+ret < 0.
 
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe_libc:memcpy -aR sleep 1
-
-With this;
-
-  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
-  Added new events:
-    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
-    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe_libc:memcpy -aR sleep 1
-
-Fixes: cb4027308570 ("perf probe: Trace a magic number if variable is not found")
-Reported-by: Andi Kleen <andi@firstfloor.org>
+Fixes: ff741783506c ("perf probe: Introduce debuginfo to encapsulate dwarf information")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Tested-by: Andi Kleen <ak@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Oleg Nesterov <oleg@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/159438667364.62703.2200642186798763202.stgit@devnote2
+Link: http://lore.kernel.org/lkml/159438668346.62703.10887420400718492503.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-finder.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/probe-finder.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/tools/perf/util/probe-finder.c
 +++ b/tools/perf/util/probe-finder.c
-@@ -1408,6 +1408,9 @@ static int fill_empty_trace_arg(struct p
- 	char *type;
- 	int i, j, ret;
+@@ -1467,7 +1467,7 @@ int debuginfo__find_trace_events(struct
+ 	if (ret >= 0 && tf.pf.skip_empty_arg)
+ 		ret = fill_empty_trace_arg(pev, tf.tevs, tf.ntevs);
  
-+	if (!ntevs)
-+		return -ENOENT;
-+
- 	for (i = 0; i < pev->nargs; i++) {
- 		type = NULL;
- 		for (j = 0; j < ntevs; j++) {
+-	if (ret < 0) {
++	if (ret < 0 || tf.ntevs == 0) {
+ 		for (i = 0; i < tf.ntevs; i++)
+ 			clear_probe_trace_event(&tf.tevs[i]);
+ 		zfree(tevs);
 
 
