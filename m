@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814A524BB59
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B2B24BA1C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729464AbgHTJwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33774 "EHLO mail.kernel.org"
+        id S1729900AbgHTMA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729623AbgHTJw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:52:28 -0400
+        id S1730462AbgHTKAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F75E20855;
-        Thu, 20 Aug 2020 09:52:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DF3421775;
+        Thu, 20 Aug 2020 10:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917147;
-        bh=Bmg10UqZE2OfqzUwO5/985U5PYWvxAjDL4ixoSb1H2c=;
+        s=default; t=1597917618;
+        bh=DMfpQ+H8dZEgtsoidfttJ8FPsd91nK2KArIgGobJheI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBDt00H9lnaKcS3kpfTFnO/GZk2Pds8gxU60cZ6zw0Deai819VpHV2XKdqj8F3OXm
-         S9Z0YawjbDra0/VPjODs/2TOXdL9GzdW9LnV94Yg03EkTpQwVmuCQ0NXv/LJRlI4g5
-         PbI8exx8YGOWIw99FDjllk2BW9lLw8nCgWd/do8I=
+        b=oyUxqwkbOAh6HwF0BmxQXCBBgO1FQm9edt5D3PA4EvDcHyLvvmWFRI8U76hIhBWoo
+         K2i1ChiYr8AuMueK84h2lNtGLtYO2ewo31ZwrIf1gqSAPYMNqliyPH8y6FLXHNbIwL
+         VLwZgfZS37WBl/KoIPEas2UW9fu9JEu23sGaMHjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 21/92] cifs: Fix leak when handling lease break for cached root fid
-Date:   Thu, 20 Aug 2020 11:21:06 +0200
-Message-Id: <20200820091538.665967126@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Aditya Pakki <pakki001@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 094/212] drm/radeon: Fix reference count leaks caused by pm_runtime_get_sync
+Date:   Thu, 20 Aug 2020 11:21:07 +0200
+Message-Id: <20200820091607.097614592@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,164 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Aditya Pakki <pakki001@umn.edu>
 
-commit baf57b56d3604880ccb3956ec6c62ea894f5de99 upstream.
+[ Upstream commit 9fb10671011143d15b6b40d6d5fa9c52c57e9d63 ]
 
-Handling a lease break for the cached root didn't free the
-smb2_lease_break_work allocation, resulting in a leak:
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-    unreferenced object 0xffff98383a5af480 (size 128):
-      comm "cifsd", pid 684, jiffies 4294936606 (age 534.868s)
-      hex dump (first 32 bytes):
-        c0 ff ff ff 1f 00 00 00 88 f4 5a 3a 38 98 ff ff  ..........Z:8...
-        88 f4 5a 3a 38 98 ff ff 80 88 d6 8a ff ff ff ff  ..Z:8...........
-      backtrace:
-        [<0000000068957336>] smb2_is_valid_oplock_break+0x1fa/0x8c0
-        [<0000000073b70b9e>] cifs_demultiplex_thread+0x73d/0xcc0
-        [<00000000905fa372>] kthread+0x11c/0x150
-        [<0000000079378e4e>] ret_from_fork+0x22/0x30
-
-Avoid this leak by only allocating when necessary.
-
-Fixes: a93864d93977 ("cifs: add lease tracking to the cached root fid")
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-CC: Stable <stable@vger.kernel.org> # v4.18+
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Acked-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2misc.c |   73 +++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ drivers/gpu/drm/radeon/radeon_display.c | 4 +++-
+ drivers/gpu/drm/radeon/radeon_drv.c     | 4 +++-
+ drivers/gpu/drm/radeon/radeon_kms.c     | 4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -509,15 +509,31 @@ cifs_ses_oplock_break(struct work_struct
- 	kfree(lw);
- }
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index 432ad7d73cb9b..99e23800cadc7 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -639,8 +639,10 @@ radeon_crtc_set_config(struct drm_mode_set *set)
+ 	dev = set->crtc->dev;
  
-+static void
-+smb2_queue_pending_open_break(struct tcon_link *tlink, __u8 *lease_key,
-+			      __le32 new_lease_state)
-+{
-+	struct smb2_lease_break_work *lw;
-+
-+	lw = kmalloc(sizeof(struct smb2_lease_break_work), GFP_KERNEL);
-+	if (!lw) {
-+		cifs_put_tlink(tlink);
-+		return;
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
 +	}
-+
-+	INIT_WORK(&lw->lease_break, cifs_ses_oplock_break);
-+	lw->tlink = tlink;
-+	lw->lease_state = new_lease_state;
-+	memcpy(lw->lease_key, lease_key, SMB2_LEASE_KEY_SIZE);
-+	queue_work(cifsiod_wq, &lw->lease_break);
-+}
-+
- static bool
--smb2_tcon_has_lease(struct cifs_tcon *tcon, struct smb2_lease_break *rsp,
--		    struct smb2_lease_break_work *lw)
-+smb2_tcon_has_lease(struct cifs_tcon *tcon, struct smb2_lease_break *rsp)
- {
--	bool found;
- 	__u8 lease_state;
- 	struct list_head *tmp;
- 	struct cifsFileInfo *cfile;
--	struct cifs_pending_open *open;
- 	struct cifsInodeInfo *cinode;
- 	int ack_req = le32_to_cpu(rsp->Flags &
- 				  SMB2_NOTIFY_BREAK_LEASE_FLAG_ACK_REQUIRED);
-@@ -556,22 +572,29 @@ smb2_tcon_has_lease(struct cifs_tcon *tc
- 				  &cinode->flags);
  
- 		cifs_queue_oplock_break(cfile);
--		kfree(lw);
- 		return true;
- 	}
+ 	ret = drm_crtc_helper_set_config(set);
  
--	found = false;
-+	return false;
-+}
-+
-+static struct cifs_pending_open *
-+smb2_tcon_find_pending_open_lease(struct cifs_tcon *tcon,
-+				  struct smb2_lease_break *rsp)
-+{
-+	__u8 lease_state = le32_to_cpu(rsp->NewLeaseState);
-+	int ack_req = le32_to_cpu(rsp->Flags &
-+				  SMB2_NOTIFY_BREAK_LEASE_FLAG_ACK_REQUIRED);
-+	struct cifs_pending_open *open;
-+	struct cifs_pending_open *found = NULL;
-+
- 	list_for_each_entry(open, &tcon->pending_opens, olist) {
- 		if (memcmp(open->lease_key, rsp->LeaseKey,
- 			   SMB2_LEASE_KEY_SIZE))
- 			continue;
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 30bd4a6a9d466..7648fd0d10751 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -496,8 +496,10 @@ long radeon_drm_ioctl(struct file *filp,
+ 	long ret;
+ 	dev = file_priv->minor->dev;
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
  
- 		if (!found && ack_req) {
--			found = true;
--			memcpy(lw->lease_key, open->lease_key,
--			       SMB2_LEASE_KEY_SIZE);
--			lw->tlink = cifs_get_tlink(open->tlink);
--			queue_work(cifsiod_wq, &lw->lease_break);
-+			found = open;
- 		}
+ 	ret = drm_ioctl(filp, cmd, arg);
+ 	
+diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
+index 4388ddeec8d24..96d2a564d9a3c 100644
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -634,8 +634,10 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 	file_priv->driver_priv = NULL;
  
- 		cifs_dbg(FYI, "found in the pending open list\n");
-@@ -592,14 +615,7 @@ smb2_is_valid_lease_break(char *buffer)
- 	struct TCP_Server_Info *server;
- 	struct cifs_ses *ses;
- 	struct cifs_tcon *tcon;
--	struct smb2_lease_break_work *lw;
--
--	lw = kmalloc(sizeof(struct smb2_lease_break_work), GFP_KERNEL);
--	if (!lw)
--		return false;
--
--	INIT_WORK(&lw->lease_break, cifs_ses_oplock_break);
--	lw->lease_state = rsp->NewLeaseState;
-+	struct cifs_pending_open *open;
+ 	r = pm_runtime_get_sync(dev->dev);
+-	if (r < 0)
++	if (r < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return r;
++	}
  
- 	cifs_dbg(FYI, "Checking for lease break\n");
- 
-@@ -617,11 +633,27 @@ smb2_is_valid_lease_break(char *buffer)
- 				spin_lock(&tcon->open_file_lock);
- 				cifs_stats_inc(
- 				    &tcon->stats.cifs_stats.num_oplock_brks);
--				if (smb2_tcon_has_lease(tcon, rsp, lw)) {
-+				if (smb2_tcon_has_lease(tcon, rsp)) {
- 					spin_unlock(&tcon->open_file_lock);
- 					spin_unlock(&cifs_tcp_ses_lock);
- 					return true;
- 				}
-+				open = smb2_tcon_find_pending_open_lease(tcon,
-+									 rsp);
-+				if (open) {
-+					__u8 lease_key[SMB2_LEASE_KEY_SIZE];
-+					struct tcon_link *tlink;
-+
-+					tlink = cifs_get_tlink(open->tlink);
-+					memcpy(lease_key, open->lease_key,
-+					       SMB2_LEASE_KEY_SIZE);
-+					spin_unlock(&tcon->open_file_lock);
-+					spin_unlock(&cifs_tcp_ses_lock);
-+					smb2_queue_pending_open_break(tlink,
-+								      lease_key,
-+								      rsp->NewLeaseState);
-+					return true;
-+				}
- 				spin_unlock(&tcon->open_file_lock);
- 
- 				if (tcon->crfid.is_valid &&
-@@ -639,7 +671,6 @@ smb2_is_valid_lease_break(char *buffer)
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	kfree(lw);
- 	cifs_dbg(FYI, "Can not process lease break - no lease matched\n");
- 	return false;
- }
+ 	/* new gpu have virtual address space support */
+ 	if (rdev->family >= CHIP_CAYMAN) {
+-- 
+2.25.1
+
 
 
