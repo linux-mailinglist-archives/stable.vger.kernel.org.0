@@ -2,92 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992FA24BF6E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24B824BFAE
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728403AbgHTNsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55218 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729802AbgHTNsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 09:48:35 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 547CF2076E;
-        Thu, 20 Aug 2020 13:48:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597931315;
-        bh=FimYMkYiuCDAGzXaOaFsHcjupgUWLh69vV0SwtvI274=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ncOdIJhtiTxsJ9QTmxsqNlnXldF8i7NK/RsboPTTA31D0Jjg6CngNl3P/2TehtER2
-         Fv2QvLF9/6tVbcAVaNVOYvDmvyl2ZrZ1ZqMG/nZftl1DETQ+18PWb1ncuGRzV/aPml
-         NU6S9v22GUrQ4Gu5c7bmSwTLJXmYGSbugShuEsuA=
-Date:   Thu, 20 Aug 2020 15:48:55 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Michael Kelley <mikelley@microsoft.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Wei Hu <weh@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: [PATCH 5.8 164/232] PCI: hv: Fix a timing issue which causes
- kdump to fail occasionally
-Message-ID: <20200820134855.GB1533625@kroah.com>
-References: <20200820091612.692383444@linuxfoundation.org>
- <20200820091620.754492308@linuxfoundation.org>
- <MW2PR2101MB10522B1242B1309BF35EFFEED75A0@MW2PR2101MB1052.namprd21.prod.outlook.com>
- <20200820132924.GA8670@sasha-vm>
- <20200820134823.GA1533625@kroah.com>
+        id S1727866AbgHTNvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730349AbgHTNuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 09:50:51 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9A6C061385
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 06:50:50 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id kr4so994031pjb.2
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 06:50:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FKSq+WiirakVZ+gL+rlxmzWE96Yz5oOuhhc4jgWWWF8=;
+        b=SiQXflGnikvHueQUAfNcC8elsJSiT3fuJE6/9a9ArgfTPUuj9h5mI2Ax/Dmk5cjBbU
+         SAayl+pgtFjzdG+vgJWdRZAkFMpxvYcmDk6rh0zYmGosB2s+UvEknEYo7UMK+eiciLbm
+         vHkYIbMAae9+zFo8H10EjMuYyB6OpX4GpoChP9nbFPST0cAqeCDO9+tFcKihm7TLr7hS
+         swPnRbzrTqLKr383dEaVk+CstRDGSttJCtxU+oapxmBPhD3EYkqZkFvj0uTvayeMPKOS
+         xYtoIg38t7tcxRRfCsmLKYAuCyhiK7K94Xp5Or3UC4NAtLHvKPkhSurjAULkZvJ8RQay
+         nPpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FKSq+WiirakVZ+gL+rlxmzWE96Yz5oOuhhc4jgWWWF8=;
+        b=ksq1vu32ad9wY+VUuITzBvfDAWSfOH/55s07fNgTPNYLDfPRtXgjmWcGK4swE2e23x
+         /F+wfkfh6BDmEUoRqnB0/OWatpzPnfUrUuWP/b/+ViABwtC3RlVmZttxqV4K+f5E711D
+         3QzjEERspFVnn43Ff3kstwYs3meNGn4tRgpsxrdMFoywDUsyTG2L5Ax8c7e2W7Kv7u8q
+         5IJnOfDFbzdT36eyAu0tpY1jjSdZA7qZTO3NfDBIK//kEEhQYb0VqRCD/o7BGtwD4J7h
+         +QN4vavXJWb2h3wYPMGR/r9zjy8hI7Xmv2NVwk1WSaWmgh4A5K8VL4/LZnVYKUcDHqgu
+         uLSw==
+X-Gm-Message-State: AOAM53270VWu2BkDgwfnI06FwFrjFzO4tdah4Z1yFnT1yKdVPh6xkUl7
+        oc+yxI534o12fwc/tcdT/Yb0bGPyFHlpMQ==
+X-Google-Smtp-Source: ABdhPJwPaONe63LsI9FCZmICuj7PjsOhzmFIjKlF6nD+Z7AHfAfNX0xPMo7X5L808xlHUSA4gVlk1A==
+X-Received: by 2002:a17:90a:f192:: with SMTP id bv18mr2475028pjb.21.1597931449421;
+        Thu, 20 Aug 2020 06:50:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lj3sm1584866pjb.26.2020.08.20.06.50.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2020 06:50:48 -0700 (PDT)
+Message-ID: <5f3e7fb8.1c69fb81.ea897.29c0@mx.google.com>
+Date:   Thu, 20 Aug 2020 06:50:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200820134823.GA1533625@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.7.16-205-g7366707e7e99
+X-Kernelci-Branch: linux-5.7.y
+Subject: stable-rc/linux-5.7.y baseline: 169 runs,
+ 1 regressions (v5.7.16-205-g7366707e7e99)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 03:48:23PM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Aug 20, 2020 at 09:29:24AM -0400, Sasha Levin wrote:
-> > On Thu, Aug 20, 2020 at 01:00:51PM +0000, Michael Kelley wrote:
-> > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org> Sent: Thursday, August 20, 2020 2:20 AM
-> > > > 
-> > > > From: Wei Hu <weh@microsoft.com>
-> > > > 
-> > > > [ Upstream commit d6af2ed29c7c1c311b96dac989dcb991e90ee195 ]
-> > > > 
-> > > > Kdump could fail sometime on Hyper-V guest because the retry in
-> > > > hv_pci_enter_d0() releases child device structures in hv_pci_bus_exit().
-> > > > 
-> > > > Although there is a second asynchronous device relations message sending
-> > > > from the host, if this message arrives to the guest after
-> > > > hv_send_resource_allocated() is called, the retry would fail.
-> > > > 
-> > > > Fix the problem by moving retry to hv_pci_probe() and start the retry
-> > > > from hv_pci_query_relations() call.  This will cause a device relations
-> > > > message to arrive to the guest synchronously; the guest would then be
-> > > > able to rebuild the child device structures before calling
-> > > > hv_send_resource_allocated().
-> > > > 
-> > > > Link:
-> > > > https://lore.kernel.org/linux-hyperv/20200727071731.18516-1-weh@microsoft.com/
-> > > > Fixes: c81992e7f4aa ("PCI: hv: Retry PCI bus D0 entry on invalid device state")
-> > > > Signed-off-by: Wei Hu <weh@microsoft.com>
-> > > > [lorenzo.pieralisi@arm.com: fixed a comment and commit log]
-> > > > Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> > > > Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > > ---
-> > > >  drivers/pci/controller/pci-hyperv.c | 71 +++++++++++++++--------------
-> > > >  1 file changed, 37 insertions(+), 34 deletions(-)
-> > > > 
-> > > 
-> > > This patch came through three days ago, and I indicated then that we don't want
-> > > it backported to 5.8 and earlier.
-> > 
-> > Uh, I re-added it by mistake, sorry.
-> 
-> Ok, let me go drop it...
+stable-rc/linux-5.7.y baseline: 169 runs, 1 regressions (v5.7.16-205-g73667=
+07e7e99)
 
-Oops, you already did :)
+Regressions Summary
+-------------------
+
+platform             | arch | lab           | compiler | defconfig        |=
+ results
+---------------------+------+---------------+----------+------------------+=
+--------
+exynos5422-odroidxu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig |=
+ 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
+el/v5.7.16-205-g7366707e7e99/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.7.y
+  Describe: v5.7.16-205-g7366707e7e99
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7366707e7e9962245a618a0aee04c22ab31115c2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig        |=
+ results
+---------------------+------+---------------+----------+------------------+=
+--------
+exynos5422-odroidxu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f3e502c8b53ceaba4d99a3a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: exynos_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.16-=
+205-g7366707e7e99/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
+422-odroidxu3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.16-=
+205-g7366707e7e99/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
+422-odroidxu3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f3e502c8b53ceaba4d99=
+a3b
+      new failure (last pass: v5.7.16-99-gc5aad81e7f2d)  =20
