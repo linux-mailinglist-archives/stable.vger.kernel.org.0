@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6BF24B110
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF5E924B10E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbgHTIcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 04:32:24 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:54651 "EHLO
+        id S1726799AbgHTIcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 04:32:22 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:43185 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726766AbgHTIcI (ORCPT
+        by vger.kernel.org with ESMTP id S1726772AbgHTIcI (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 04:32:08 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BF7CD1941F54;
-        Thu, 20 Aug 2020 04:31:00 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7F4791941F6A;
+        Thu, 20 Aug 2020 04:31:02 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 20 Aug 2020 04:31:00 -0400
+  by compute1.internal (MEProxy); Thu, 20 Aug 2020 04:31:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RjLMNf
-        bk0PC/eAKnsDnYTF9CkVkWZer5fcWmCz0BUHA=; b=JeaIlM/aASSsPL6IqrqGob
-        wpHixYTVVyXKmYlm6J0PyZmNY31tqjuUgGqcDOHf2O0qE+tvqmRAGV74iz87bnea
-        P90fZlhh42nSRZbmki4jJ1pMtxu2/MeHTE/EDi5CBY6Ss8ysWftCPja836BAnEU2
-        5R6+JHfYwRrJtHiYDLnFRrKapEuebrZJPaWXGj3xPClnkmXfgIwY+M53fKtixzg0
-        jU83h+1ZkXyWbgxRpsdHmR0SbqBNtmg7Aduc7kzTB4HoOQ5Myu8GrV8on3b6Kobj
-        8QoRa+afiXwCieLGUOpQyAU2C2GZ/knFyCJczbmtfM10LeNKr19WfBNpqQyxvubQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=fH83AD
+        wf7jissYr88NZVIki2e1fMJsDlbMy8wXPiaPw=; b=lHaIM6bLlZgIcOIBZglMzD
+        pnYcmeXLK2voYsTrBsTNtrtwG6954REoeak99MsBQWNE2i6BdvQp+PsTg/ebuuMG
+        a9JwnDMaozuH+HX47wtPFAdSvkTUNDovKQJJOtLYaKKPaZZGnceJscHKnX7RtV7L
+        OsTq6c1nNulAz48WEQqqgz5plDLQctdAp1HqidiR60fZWSndvGABNyviUmDDDvAk
+        MOrmwjlD4QUR5lJ3QPMgLdBftIB5N2H+DbCf2jalvgSfw/REy5KGcLzqE+k/7AG9
+        etrli6isT/9Npbqviy4gGZEzvppWTLXcAcBQdzj1c+rBdzWP3ejnH9ISGAuxsY+g
         ==
-X-ME-Sender: <xms:xDQ-XyMqBYExWa3MGI8Y7z4EUFssnphVcru_Q594qLObar1g3dG6QQ>
+X-ME-Sender: <xms:xjQ-X0VHJ7UQWoIczuEn1btfytRoNocM8GbmmTkmJgZA0k0skMM6tg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddutddgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddutddgtddvucetufdoteggod
     ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
     necukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:xDQ-Xw9_SA2uSI-aK8kJv2SDtPd6l-DvzXRb1HFr8FFhvNMg0hh8KQ>
-    <xmx:xDQ-X5TrOeV_V8cF4DRUZzViRaUFDhKO8cRu9C3eYM4LFX7WYzda9w>
-    <xmx:xDQ-Xyuyo2yqASr2orTnCyN-_CGelgs44_TsjwF_Ybu7FzdeqKhywQ>
-    <xmx:xDQ-XylneaYCrlvt4ub6XEOOxEGfekUJR91Bq4Ic1f1mqFXoqEp5tQ>
+X-ME-Proxy: <xmx:xjQ-X4lyUz0xhXskk6BUeTRFdCoI-vSK1Xmks4L4c5CEYAtaFwH4Zw>
+    <xmx:xjQ-X4YyG3Esy68vQI7ykoGokw__CVGMUQY5Pi8eDO4QAcBuNnT81w>
+    <xmx:xjQ-XzVTZKTauLV8YtHzOLR2skhyYUAiSUwTvM9rKfzDyZ42QxOKyg>
+    <xmx:xjQ-X1vajSjILBYG52hYMfIxwUtZsMEPt97YD6Cpud7PAZqn2Npgqw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F0B763280063;
-        Thu, 20 Aug 2020 04:30:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Skip signaling a signaled request" failed to apply to 5.7-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 235553280064;
+        Thu, 20 Aug 2020 04:31:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Skip signaling a signaled request" failed to apply to 5.8-stable tree
 To:     chris@chris-wilson.co.uk, stable@vger.kernel.org,
         tvrtko.ursulin@intel.com, venkata.ramana.nayana@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 20 Aug 2020 10:31:21 +0200
-Message-ID: <159791228119551@kroah.com>
+Date:   Thu, 20 Aug 2020 10:31:22 +0200
+Message-ID: <15979122821518@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.7-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
