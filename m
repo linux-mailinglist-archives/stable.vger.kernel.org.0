@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A276A24B59D
+	by mail.lfdr.de (Postfix) with ESMTP id 340EF24B59C
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731459AbgHTK0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:26:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52072 "EHLO mail.kernel.org"
+        id S1729999AbgHTK0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731696AbgHTKXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:23:09 -0400
+        id S1729943AbgHTKXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:23:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45DFD2075E;
-        Thu, 20 Aug 2020 10:23:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812392078D;
+        Thu, 20 Aug 2020 10:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918988;
-        bh=0ETO/R8vx8r+dQSD3C/4hIPkA1h9Zp+nM/phIiVQ3Kg=;
+        s=default; t=1597918991;
+        bh=Q437UooYHqyuMB4DoGJE8zfj50ppfsPBzBkZQm11MSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KijWR/THG7VOzHYlshjEMu8D0y3cEaLABycbhuKfSVl+SlPYR/317Zk4htSQWa7iM
-         KE6O/CdXCE0/uBYVfl7lNWYTxZZqoAQSZJhAQqEYsMZkkPBPLhI1CNfZJYuk4TaZ82
-         5n2GXPR9zqoJZE1aqCEL7WmMT8sHvI0GtG7PPKS8=
+        b=yVbonfzJCS0CQiVD9QDqEPsBzjc86TQSRYGLP8C5cnYbJXMheAT1YV9ndY91cHaf9
+         RqTvYbA9xU3yHezMxGIqYbzEOSQ70gcD/3E8WGjLMkd6fVgW2z8DRdEw7GCfIH4403
+         qh9Ek6XPc7i8VSMKnqvz9CPRArDOTJ/YMBArqkWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Evgeniy Dushistov <dushistov@mail.ru>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 143/149] nfs: Fix getxattr kernel panic and memory overflow
-Date:   Thu, 20 Aug 2020 11:23:40 +0200
-Message-Id: <20200820092132.622121151@linuxfoundation.org>
+Subject: [PATCH 4.4 144/149] fs/ufs: avoid potential u32 multiplication overflow
+Date:   Thu, 20 Aug 2020 11:23:41 +0200
+Message-Id: <20200820092132.670640680@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,53 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b4487b93545214a9db8cbf32e86411677b0cca21 ]
+[ Upstream commit 88b2e9b06381551b707d980627ad0591191f7a2d ]
 
-Move the buffer size check to decode_attr_security_label() before memcpy()
-Only call memcpy() if the buffer is large enough
+The 64 bit ino is being compared to the product of two u32 values,
+however, the multiplication is being performed using a 32 bit multiply so
+there is a potential of an overflow.  To be fully safe, cast uspi->s_ncg
+to a u64 to ensure a 64 bit multiplication occurs to avoid any chance of
+overflow.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-[Trond: clean up duplicate test of label->len != 0]
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: f3e2a520f5fb ("ufs: NFS support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Link: http://lkml.kernel.org/r/20200715170355.1081713-1-colin.king@canonical.com
+Addresses-Coverity: ("Unintentional integer overflow")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 2 --
- fs/nfs/nfs4xdr.c  | 6 +++++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/ufs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 566afcc36adb5..ca1702cefb852 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -4916,8 +4916,6 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
- 		return ret;
- 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
- 		return -ENOENT;
--	if (buflen < label.len)
--		return -ERANGE;
- 	return 0;
- }
+diff --git a/fs/ufs/super.c b/fs/ufs/super.c
+index 10f364490833e..be68b48de1cc6 100644
+--- a/fs/ufs/super.c
++++ b/fs/ufs/super.c
+@@ -99,7 +99,7 @@ static struct inode *ufs_nfs_get_inode(struct super_block *sb, u64 ino, u32 gene
+ 	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
+ 	struct inode *inode;
  
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 15cd9db6d616d..28c1b765e4444 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4158,7 +4158,11 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
- 			goto out_overflow;
- 		if (len < NFS4_MAXLABELLEN) {
- 			if (label) {
--				memcpy(label->label, p, len);
-+				if (label->len) {
-+					if (label->len < len)
-+						return -ERANGE;
-+					memcpy(label->label, p, len);
-+				}
- 				label->len = len;
- 				label->pi = pi;
- 				label->lfs = lfs;
+-	if (ino < UFS_ROOTINO || ino > uspi->s_ncg * uspi->s_ipg)
++	if (ino < UFS_ROOTINO || ino > (u64)uspi->s_ncg * uspi->s_ipg)
+ 		return ERR_PTR(-ESTALE);
+ 
+ 	inode = ufs_iget(sb, ino);
 -- 
 2.25.1
 
