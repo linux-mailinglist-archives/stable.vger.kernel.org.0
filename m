@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E88FF24B23A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE8924B240
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbgHTJZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+        id S1727836AbgHTJ0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727069AbgHTJZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:25:03 -0400
+        id S1727794AbgHTJZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:25:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B678422CE3;
-        Thu, 20 Aug 2020 09:25:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1931D21744;
+        Thu, 20 Aug 2020 09:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915503;
-        bh=DHjk1xprJ640WK6GuoIc6wNF5AJ2FL1WMkWgfQxe4W0=;
+        s=default; t=1597915533;
+        bh=n3so6R77g/5ICdm/NwPemyOsyMTa3kJfmjr8hXCUdWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hps1F+7Cile+yHFZq2Ffzubo9JuZ/kJwt21p7EaB9C0NbzeNatWeT/8Qk6G1tCLsI
-         +idH9p6UYfCfOt3UKbmdDA1CyBgn6I1GBHHkooQF70LJRQc1EqCAUpSlZqEMvPsNFY
-         vTMRHMSUDAPR8X24KUdGK0JmHD/qlijoYuF0Tvxg=
+        b=wdHWT5co0vcM4rcUH3UguFPUP7w2fA+awdzS0nVpC0bxFJdYFNPNYsM63AJsuSGII
+         Xt6JcKsjW94B/rYikXbxSiRj7rQr3gfcsgTivrzRRaac0wDL05CvETyEkahu1ECAS7
+         IiOog94Wt+TTdYnMfzcTuuI74E44S0WEATsbShH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 037/232] btrfs: fix memory leaks after failure to lookup checksums during inode logging
-Date:   Thu, 20 Aug 2020 11:18:08 +0200
-Message-Id: <20200820091614.569546808@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.8 047/232] xtensa: add missing exclusive access state management
+Date:   Thu, 20 Aug 2020 11:18:18 +0200
+Message-Id: <20200820091615.060069169@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,54 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
+commit a0fc1436f1f4f84e93144480bf30e0c958d135b6 upstream.
 
-While logging an inode, at copy_items(), if we fail to lookup the checksums
-for an extent we release the destination path, free the ins_data array and
-then return immediately. However a previous iteration of the for loop may
-have added checksums to the ordered_sums list, in which case we leak the
-memory used by them.
+The result of the s32ex opcode is recorded in the ATOMCTL special
+register and must be retrieved with the getex opcode. Context switch
+between s32ex and getex may trash the ATOMCTL register and result in
+duplicate update or missing update of the atomic variable.
+Add atomctl8 field to the struct thread_info and use getex to swap
+ATOMCTL bit 8 as a part of context switch.
+Clear exclusive access monitor on kernel entry.
 
-So fix this by making sure we iterate the ordered_sums list and free all
-its checksums before returning.
-
-Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: f7c34874f04a ("xtensa: add exclusive atomics support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/xtensa/include/asm/thread_info.h |    4 ++++
+ arch/xtensa/kernel/asm-offsets.c      |    3 +++
+ arch/xtensa/kernel/entry.S            |   11 +++++++++++
+ 3 files changed, 18 insertions(+)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4027,11 +4027,8 @@ static noinline int copy_items(struct bt
- 						fs_info->csum_root,
- 						ds + cs, ds + cs + cl - 1,
- 						&ordered_sums, 0);
--				if (ret) {
--					btrfs_release_path(dst_path);
--					kfree(ins_data);
--					return ret;
--				}
-+				if (ret)
-+					break;
- 			}
- 		}
- 	}
-@@ -4044,7 +4041,6 @@ static noinline int copy_items(struct bt
- 	 * we have to do this after the loop above to avoid changing the
- 	 * log tree while trying to change the log tree.
- 	 */
--	ret = 0;
- 	while (!list_empty(&ordered_sums)) {
- 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
- 						   struct btrfs_ordered_sum,
+--- a/arch/xtensa/include/asm/thread_info.h
++++ b/arch/xtensa/include/asm/thread_info.h
+@@ -55,6 +55,10 @@ struct thread_info {
+ 	mm_segment_t		addr_limit;	/* thread address space */
+ 
+ 	unsigned long		cpenable;
++#if XCHAL_HAVE_EXCLUSIVE
++	/* result of the most recent exclusive store */
++	unsigned long		atomctl8;
++#endif
+ 
+ 	/* Allocate storage for extra user states and coprocessor states. */
+ #if XTENSA_HAVE_COPROCESSORS
+--- a/arch/xtensa/kernel/asm-offsets.c
++++ b/arch/xtensa/kernel/asm-offsets.c
+@@ -93,6 +93,9 @@ int main(void)
+ 	DEFINE(THREAD_RA, offsetof (struct task_struct, thread.ra));
+ 	DEFINE(THREAD_SP, offsetof (struct task_struct, thread.sp));
+ 	DEFINE(THREAD_CPENABLE, offsetof (struct thread_info, cpenable));
++#if XCHAL_HAVE_EXCLUSIVE
++	DEFINE(THREAD_ATOMCTL8, offsetof (struct thread_info, atomctl8));
++#endif
+ #if XTENSA_HAVE_COPROCESSORS
+ 	DEFINE(THREAD_XTREGS_CP0, offsetof(struct thread_info, xtregs_cp.cp0));
+ 	DEFINE(THREAD_XTREGS_CP1, offsetof(struct thread_info, xtregs_cp.cp1));
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -374,6 +374,11 @@ common_exception:
+ 	s32i	a2, a1, PT_LCOUNT
+ #endif
+ 
++#if XCHAL_HAVE_EXCLUSIVE
++	/* Clear exclusive access monitor set by interrupted code */
++	clrex
++#endif
++
+ 	/* It is now save to restore the EXC_TABLE_FIXUP variable. */
+ 
+ 	rsr	a2, exccause
+@@ -2020,6 +2025,12 @@ ENTRY(_switch_to)
+ 	s32i	a3, a4, THREAD_CPENABLE
+ #endif
+ 
++#if XCHAL_HAVE_EXCLUSIVE
++	l32i	a3, a5, THREAD_ATOMCTL8
++	getex	a3
++	s32i	a3, a4, THREAD_ATOMCTL8
++#endif
++
+ 	/* Flush register file. */
+ 
+ 	spill_registers_kernel
 
 
