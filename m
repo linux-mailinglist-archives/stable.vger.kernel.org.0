@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1603424BDCB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA0D24BDD2
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:14:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbgHTJge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51258 "EHLO mail.kernel.org"
+        id S1729551AbgHTNOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:14:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726965AbgHTJgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:36:24 -0400
+        id S1728584AbgHTJg1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94B30208E4;
-        Thu, 20 Aug 2020 09:36:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A67A42075E;
+        Thu, 20 Aug 2020 09:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916184;
-        bh=vYJNt8qJJXdiZcQitykIAGvJKVyQZqZYeSoHi0kVUEk=;
+        s=default; t=1597916187;
+        bh=n3so6R77g/5ICdm/NwPemyOsyMTa3kJfmjr8hXCUdWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e9gv7GB8CuF0qbm/t0ycqxKSXT4nSLI5/qPVSZBmHsjFGmRXjrZyg6KUhkeRYUtXZ
-         BgWvK7/0GRdD3JDflAPaPH7993ZI/decTmmHCs6d9f0kKg7cByTxnfsFFRS5OmSGJX
-         MYZ7dpG+4G2xpy2yeU2dpss8J97xxetlAyIdsLo8=
+        b=j9W05h7dl3sKv3hiCFoReXTHh7jrnSpq4+fBbOg4P5bVG7xm9oTE9MweostohAS5m
+         ohpBNiDt7I5ytgLoutkV/Tmp2qVWX6e36qP/ZNY9qXrFCeqD+JznO01UjYafg3C4E1
+         Gz4wTD1xI/LHDSrrqcSSuZZUCqDcTFmltTRMKUGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.7 040/204] iio: imu: st_lsm6dsx: reset hw ts after resume
-Date:   Thu, 20 Aug 2020 11:18:57 +0200
-Message-Id: <20200820091608.274773836@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.7 041/204] xtensa: add missing exclusive access state management
+Date:   Thu, 20 Aug 2020 11:18:58 +0200
+Message-Id: <20200820091608.324373474@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,95 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit a1bab9396c2d98c601ce81c27567159dfbc10c19 upstream.
+commit a0fc1436f1f4f84e93144480bf30e0c958d135b6 upstream.
 
-Reset hw time samples generator after system resume in order to avoid
-disalignment between system and device time reference since FIFO
-batching and time samples generator are disabled during suspend.
+The result of the s32ex opcode is recorded in the ATOMCTL special
+register and must be retrieved with the getex opcode. Context switch
+between s32ex and getex may trash the ATOMCTL register and result in
+duplicate update or missing update of the atomic variable.
+Add atomctl8 field to the struct thread_info and use getex to swap
+ATOMCTL bit 8 as a part of context switch.
+Clear exclusive access monitor on kernel entry.
 
-Fixes: 213451076bd3 ("iio: imu: st_lsm6dsx: add hw timestamp support")
-Tested-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Fixes: f7c34874f04a ("xtensa: add exclusive atomics support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h        |    3 +--
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c |   23 +++++++++++++++--------
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c   |    2 +-
- 3 files changed, 17 insertions(+), 11 deletions(-)
+ arch/xtensa/include/asm/thread_info.h |    4 ++++
+ arch/xtensa/kernel/asm-offsets.c      |    3 +++
+ arch/xtensa/kernel/entry.S            |   11 +++++++++++
+ 3 files changed, 18 insertions(+)
 
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-@@ -436,8 +436,7 @@ int st_lsm6dsx_update_watermark(struct s
- 				u16 watermark);
- int st_lsm6dsx_update_fifo(struct st_lsm6dsx_sensor *sensor, bool enable);
- int st_lsm6dsx_flush_fifo(struct st_lsm6dsx_hw *hw);
--int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
--			     enum st_lsm6dsx_fifo_mode fifo_mode);
-+int st_lsm6dsx_resume_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_read_tagged_fifo(struct st_lsm6dsx_hw *hw);
- int st_lsm6dsx_check_odr(struct st_lsm6dsx_sensor *sensor, u32 odr, u8 *val);
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-@@ -184,8 +184,8 @@ static int st_lsm6dsx_update_decimators(
- 	return err;
- }
+--- a/arch/xtensa/include/asm/thread_info.h
++++ b/arch/xtensa/include/asm/thread_info.h
+@@ -55,6 +55,10 @@ struct thread_info {
+ 	mm_segment_t		addr_limit;	/* thread address space */
  
--int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
--			     enum st_lsm6dsx_fifo_mode fifo_mode)
-+static int st_lsm6dsx_set_fifo_mode(struct st_lsm6dsx_hw *hw,
-+				    enum st_lsm6dsx_fifo_mode fifo_mode)
- {
- 	unsigned int data;
+ 	unsigned long		cpenable;
++#if XCHAL_HAVE_EXCLUSIVE
++	/* result of the most recent exclusive store */
++	unsigned long		atomctl8;
++#endif
  
-@@ -302,6 +302,18 @@ static int st_lsm6dsx_reset_hw_ts(struct
- 	return 0;
- }
+ 	/* Allocate storage for extra user states and coprocessor states. */
+ #if XTENSA_HAVE_COPROCESSORS
+--- a/arch/xtensa/kernel/asm-offsets.c
++++ b/arch/xtensa/kernel/asm-offsets.c
+@@ -93,6 +93,9 @@ int main(void)
+ 	DEFINE(THREAD_RA, offsetof (struct task_struct, thread.ra));
+ 	DEFINE(THREAD_SP, offsetof (struct task_struct, thread.sp));
+ 	DEFINE(THREAD_CPENABLE, offsetof (struct thread_info, cpenable));
++#if XCHAL_HAVE_EXCLUSIVE
++	DEFINE(THREAD_ATOMCTL8, offsetof (struct thread_info, atomctl8));
++#endif
+ #if XTENSA_HAVE_COPROCESSORS
+ 	DEFINE(THREAD_XTREGS_CP0, offsetof(struct thread_info, xtregs_cp.cp0));
+ 	DEFINE(THREAD_XTREGS_CP1, offsetof(struct thread_info, xtregs_cp.cp1));
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -374,6 +374,11 @@ common_exception:
+ 	s32i	a2, a1, PT_LCOUNT
+ #endif
  
-+int st_lsm6dsx_resume_fifo(struct st_lsm6dsx_hw *hw)
-+{
-+	int err;
++#if XCHAL_HAVE_EXCLUSIVE
++	/* Clear exclusive access monitor set by interrupted code */
++	clrex
++#endif
 +
-+	/* reset hw ts counter */
-+	err = st_lsm6dsx_reset_hw_ts(hw);
-+	if (err < 0)
-+		return err;
+ 	/* It is now save to restore the EXC_TABLE_FIXUP variable. */
+ 
+ 	rsr	a2, exccause
+@@ -2020,6 +2025,12 @@ ENTRY(_switch_to)
+ 	s32i	a3, a4, THREAD_CPENABLE
+ #endif
+ 
++#if XCHAL_HAVE_EXCLUSIVE
++	l32i	a3, a5, THREAD_ATOMCTL8
++	getex	a3
++	s32i	a3, a4, THREAD_ATOMCTL8
++#endif
 +
-+	return st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+}
-+
- /*
-  * Set max bulk read to ST_LSM6DSX_MAX_WORD_LEN/ST_LSM6DSX_MAX_TAGGED_WORD_LEN
-  * in order to avoid a kmalloc for each bus access
-@@ -675,12 +687,7 @@ int st_lsm6dsx_update_fifo(struct st_lsm
- 		goto out;
+ 	/* Flush register file. */
  
- 	if (fifo_mask) {
--		/* reset hw ts counter */
--		err = st_lsm6dsx_reset_hw_ts(hw);
--		if (err < 0)
--			goto out;
--
--		err = st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+		err = st_lsm6dsx_resume_fifo(hw);
- 		if (err < 0)
- 			goto out;
- 	}
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -2451,7 +2451,7 @@ static int __maybe_unused st_lsm6dsx_res
- 	}
- 
- 	if (hw->fifo_mask)
--		err = st_lsm6dsx_set_fifo_mode(hw, ST_LSM6DSX_FIFO_CONT);
-+		err = st_lsm6dsx_resume_fifo(hw);
- 
- 	return err;
- }
+ 	spill_registers_kernel
 
 
