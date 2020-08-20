@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 615FF24BF05
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1F424BF84
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729414AbgHTNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729464AbgHTNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:39:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727808AbgHTJ2u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:28:50 -0400
+        id S1727827AbgHTJ2x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:28:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD82322D00;
-        Thu, 20 Aug 2020 09:28:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6F5E22D02;
+        Thu, 20 Aug 2020 09:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915730;
-        bh=6udAPmdYQ4kMuQFcAZHbE7RJt81G0dlqHFJZY8safgs=;
+        s=default; t=1597915733;
+        bh=wMyosxFfoVepV2dxnPgQaTW3rLcoownAeqijonss+Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHO8hiigFomFuyn1J31yj/6QfPWh/tDhk4Ba7o3vTcz0wL5lhayIBRzatYtd4vMu3
-         X9tLybViDKdBtoClUiCJg+OFgKEpV4Pmhro3w0H0WP691VL9iax1zmxBxCwWZSJ/AG
-         r7jM02cCEQ3TLs8z4HWhIf4HDYuJKTzw0Ym1loXU=
+        b=atxz/zOUVfhhHE29hBlO732lqVkDFp75NMIJ1Is1I3xPysFbvLksOOQb476Y6TAM6
+         K9FPMZm5Q/UiOi+DI0jqH6ReVIdqO6UK2hSk7HzTuOTd957fS2HWjOcveIT8LHA+cd
+         3g1A6TvmqxpgUKAvHE/HhC6nUsD7dG+hXRSOChS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 114/232] crypto: algif_aead - Only wake up when ctx->more is zero
-Date:   Thu, 20 Aug 2020 11:19:25 +0200
-Message-Id: <20200820091618.342010929@linuxfoundation.org>
+Subject: [PATCH 5.8 115/232] mfd: arizona: Ensure 32k clock is put on driver unbind and error
+Date:   Thu, 20 Aug 2020 11:19:26 +0200
+Message-Id: <20200820091618.379522695@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,139 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit f3c802a1f30013f8f723b62d7fa49eb9e991da23 ]
+[ Upstream commit ddff6c45b21d0437ce0c85f8ac35d7b5480513d7 ]
 
-AEAD does not support partial requests so we must not wake up
-while ctx->more is set.  In order to distinguish between the
-case of no data sent yet and a zero-length request, a new init
-flag has been added to ctx.
+Whilst it doesn't matter if the internal 32k clock register settings
+are cleaned up on exit, as the part will be turned off losing any
+settings, hence the driver hasn't historially bothered. The external
+clock should however be cleaned up, as it could cause clocks to be
+left on, and will at best generate a warning on unbind.
 
-SKCIPHER has also been modified to ensure that at least a block
-of data is available if there is more data to come.
+Add clean up on both the probe error path and unbind for the 32k
+clock.
 
-Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c         | 11 ++++++++---
- crypto/algif_aead.c     |  4 ++--
- crypto/algif_skcipher.c |  4 ++--
- include/crypto/if_alg.h |  4 +++-
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ drivers/mfd/arizona-core.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index 28fc323e3fe30..9fcb91ea10c41 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -635,6 +635,7 @@ void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index f73cf76d1373d..a5e443110fc3d 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -1426,6 +1426,15 @@ int arizona_dev_init(struct arizona *arizona)
+ 	arizona_irq_exit(arizona);
+ err_pm:
+ 	pm_runtime_disable(arizona->dev);
++
++	switch (arizona->pdata.clk32k_src) {
++	case ARIZONA_32KZ_MCLK1:
++	case ARIZONA_32KZ_MCLK2:
++		arizona_clk32k_disable(arizona);
++		break;
++	default:
++		break;
++	}
+ err_reset:
+ 	arizona_enable_reset(arizona);
+ 	regulator_disable(arizona->dcvdd);
+@@ -1448,6 +1457,15 @@ int arizona_dev_exit(struct arizona *arizona)
+ 	regulator_disable(arizona->dcvdd);
+ 	regulator_put(arizona->dcvdd);
  
- 	if (!ctx->used)
- 		ctx->merge = 0;
-+	ctx->init = ctx->more;
- }
- EXPORT_SYMBOL_GPL(af_alg_pull_tsgl);
- 
-@@ -734,9 +735,10 @@ EXPORT_SYMBOL_GPL(af_alg_wmem_wakeup);
-  *
-  * @sk socket of connection to user space
-  * @flags If MSG_DONTWAIT is set, then only report if function would sleep
-+ * @min Set to minimum request size if partial requests are allowed.
-  * @return 0 when writable memory is available, < 0 upon error
-  */
--int af_alg_wait_for_data(struct sock *sk, unsigned flags)
-+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min)
- {
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct alg_sock *ask = alg_sk(sk);
-@@ -754,7 +756,9 @@ int af_alg_wait_for_data(struct sock *sk, unsigned flags)
- 		if (signal_pending(current))
- 			break;
- 		timeout = MAX_SCHEDULE_TIMEOUT;
--		if (sk_wait_event(sk, &timeout, (ctx->used || !ctx->more),
-+		if (sk_wait_event(sk, &timeout,
-+				  ctx->init && (!ctx->more ||
-+						(min && ctx->used >= min)),
- 				  &wait)) {
- 			err = 0;
- 			break;
-@@ -843,7 +847,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	}
- 
- 	lock_sock(sk);
--	if (!ctx->more && ctx->used) {
-+	if (ctx->init && (init || !ctx->more)) {
- 		err = -EINVAL;
- 		goto unlock;
- 	}
-@@ -854,6 +858,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 			memcpy(ctx->iv, con.iv->iv, ivsize);
- 
- 		ctx->aead_assoclen = con.aead_assoclen;
-+		ctx->init = true;
- 	}
- 
- 	while (size) {
-diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
-index 0ae000a61c7f5..d48d2156e6210 100644
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -106,8 +106,8 @@ static int _aead_recvmsg(struct socket *sock, struct msghdr *msg,
- 	size_t usedpages = 0;		/* [in]  RX bufs to be used from user */
- 	size_t processed = 0;		/* [in]  TX bufs to be consumed */
- 
--	if (!ctx->used) {
--		err = af_alg_wait_for_data(sk, flags);
-+	if (!ctx->init || ctx->more) {
-+		err = af_alg_wait_for_data(sk, flags, 0);
- 		if (err)
- 			return err;
- 	}
-diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-index ec5567c87a6df..a51ba22fef58f 100644
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -61,8 +61,8 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
- 	int err = 0;
- 	size_t len = 0;
- 
--	if (!ctx->used) {
--		err = af_alg_wait_for_data(sk, flags);
-+	if (!ctx->init || (ctx->more && ctx->used < bs)) {
-+		err = af_alg_wait_for_data(sk, flags, bs);
- 		if (err)
- 			return err;
- 	}
-diff --git a/include/crypto/if_alg.h b/include/crypto/if_alg.h
-index 088c1ded27148..ee6412314f8f3 100644
---- a/include/crypto/if_alg.h
-+++ b/include/crypto/if_alg.h
-@@ -135,6 +135,7 @@ struct af_alg_async_req {
-  *			SG?
-  * @enc:		Cryptographic operation to be performed when
-  *			recvmsg is invoked.
-+ * @init:		True if metadata has been sent.
-  * @len:		Length of memory allocated for this data structure.
-  */
- struct af_alg_ctx {
-@@ -151,6 +152,7 @@ struct af_alg_ctx {
- 	bool more;
- 	bool merge;
- 	bool enc;
-+	bool init;
- 
- 	unsigned int len;
- };
-@@ -226,7 +228,7 @@ unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset);
- void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
- 		      size_t dst_offset);
- void af_alg_wmem_wakeup(struct sock *sk);
--int af_alg_wait_for_data(struct sock *sk, unsigned flags);
-+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min);
- int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		   unsigned int ivsize);
- ssize_t af_alg_sendpage(struct socket *sock, struct page *page,
++	switch (arizona->pdata.clk32k_src) {
++	case ARIZONA_32KZ_MCLK1:
++	case ARIZONA_32KZ_MCLK2:
++		arizona_clk32k_disable(arizona);
++		break;
++	default:
++		break;
++	}
++
+ 	mfd_remove_devices(arizona->dev);
+ 	arizona_free_irq(arizona, ARIZONA_IRQ_UNDERCLOCKED, arizona);
+ 	arizona_free_irq(arizona, ARIZONA_IRQ_OVERCLOCKED, arizona);
 -- 
 2.25.1
 
