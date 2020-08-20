@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FC524BCA6
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:50:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8395C24BBA5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728498AbgHTMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:50:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45720 "EHLO mail.kernel.org"
+        id S1727889AbgHTMcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729194AbgHTJpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:16 -0400
+        id S1729710AbgHTJuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:50:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 022D922D08;
-        Thu, 20 Aug 2020 09:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1D9A20724;
+        Thu, 20 Aug 2020 09:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916670;
-        bh=Bgf8F92t/ZAyenynqhNM6Yf/xAbcyUQKG4+V7kmmPnQ=;
+        s=default; t=1597917011;
+        bh=VEvNQNqKm62xvEsep9xrnDsoUlwfW7KDTVBzKhVrnrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2Uo7GwTX8OH3ioNvPrE4QtJv0UZhiml2VVYQMnnOYMcjujxytheCMUZyGd6H99Vl
-         V3Al9V3CifVabkrrgGMh1RFCM0Jd8oHGhuUXtsz9yH3W3BOE9R8ZmQTVjP/iauURZB
-         wxOiVM4xTS4WDoJnimrevc0BS+H76DPKRweAqG4Y=
+        b=IWGx+f+9yjgo24l4/2bWKOCVrTQWc+AHC2HL9xBGYA5lzJz1SQB/UUN1LlXvZwpBh
+         YflfxTqGYKPqjT3GaxoHwqwRvQb5hXH6/BmOZ849hcFHml2/1y3tW93L95jve6vaf4
+         vuaAFp9Fxy4LfnYKXHtaGOtgAkfxxdsT77WewI8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
-        Steven Price <steven.price@arm.com>
-Subject: [PATCH 5.7 195/204] drm/panfrost: Use kvfree() to free bo->sgts
+        stable@vger.kernel.org, Dilip Kota <eswara.kota@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 125/152] x86/tsr: Fix tsc frequency enumeration bug on Lightning Mountain SoC
 Date:   Thu, 20 Aug 2020 11:21:32 +0200
-Message-Id: <20200820091615.921958132@linuxfoundation.org>
+Message-Id: <20200820091600.202943354@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Dilip Kota <eswara.kota@linux.intel.com>
 
-commit 114427b8927a4def2942b2b886f7e4aeae289ccb upstream.
+[ Upstream commit 7d98585860d845e36ee612832a5ff021f201dbaf ]
 
-Use kvfree() to free bo->sgts, because the memory is allocated with
-kvmalloc_array() in panfrost_mmu_map_fault_addr().
+Frequency descriptor of Lightning Mountain SoC doesn't have all the
+frequency entries so resulting in the below failure causing a kernel hang:
 
-Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200608151728.234026-1-efremov@linux.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Error MSR_FSB_FREQ index 15 is unknown
+    tsc: Fast TSC calibration failed
 
+So, add all the frequency entries in the Lightning Mountain SoC frequency
+descriptor.
+
+Fixes: 0cc5359d8fd45 ("x86/cpu: Update init data for new Airmont CPU model")
+Fixes: 812c2d7506fd ("x86/tsc_msr: Use named struct initializers")
+Signed-off-by: Dilip Kota <eswara.kota@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/211c643ae217604b46cbec43a2c0423946dc7d2d.1596440057.git.eswara.kota@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_gem.c |    2 +-
- drivers/gpu/drm/panfrost/panfrost_mmu.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/tsc_msr.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -46,7 +46,7 @@ static void panfrost_gem_free_object(str
- 				sg_free_table(&bo->sgts[i]);
- 			}
- 		}
--		kfree(bo->sgts);
-+		kvfree(bo->sgts);
- 	}
+diff --git a/arch/x86/kernel/tsc_msr.c b/arch/x86/kernel/tsc_msr.c
+index c65adaf813848..41200706e6da1 100644
+--- a/arch/x86/kernel/tsc_msr.c
++++ b/arch/x86/kernel/tsc_msr.c
+@@ -133,10 +133,15 @@ static const struct freq_desc freq_desc_ann = {
+ 	.mask = 0x0f,
+ };
  
- 	drm_gem_shmem_free_object(obj);
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -486,7 +486,7 @@ static int panfrost_mmu_map_fault_addr(s
- 		pages = kvmalloc_array(bo->base.base.size >> PAGE_SHIFT,
- 				       sizeof(struct page *), GFP_KERNEL | __GFP_ZERO);
- 		if (!pages) {
--			kfree(bo->sgts);
-+			kvfree(bo->sgts);
- 			bo->sgts = NULL;
- 			mutex_unlock(&bo->base.pages_lock);
- 			ret = -ENOMEM;
+-/* 24 MHz crystal? : 24 * 13 / 4 = 78 MHz */
++/*
++ * 24 MHz crystal? : 24 * 13 / 4 = 78 MHz
++ * Frequency step for Lightning Mountain SoC is fixed to 78 MHz,
++ * so all the frequency entries are 78000.
++ */
+ static const struct freq_desc freq_desc_lgm = {
+ 	.use_msr_plat = true,
+-	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
++	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000,
++		   78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
+ 	.mask = 0x0f,
+ };
+ 
+-- 
+2.25.1
+
 
 
