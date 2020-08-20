@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 856AD24B33B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7000F24B36A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbgHTJnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36266 "EHLO mail.kernel.org"
+        id S1729332AbgHTJrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728490AbgHTJmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:42:01 -0400
+        id S1729380AbgHTJq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBCA120724;
-        Thu, 20 Aug 2020 09:41:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F8472078D;
+        Thu, 20 Aug 2020 09:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916520;
-        bh=0X7WpuY/jCJp0/tIa44IIaSK8ndpAN4TJYDqNrG0RlE=;
+        s=default; t=1597916819;
+        bh=IpLQiy9NlT+3gFltX3utvMmt+2eH9MdystJHsdYm38o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xz4wWHZ8P+pPoudsxVY30efaHryXB7bk2b6juxR2SchLLeHkZBeA9wvUUL1bEl8r4
-         +fvkIN0H/5gciyJebEgGG6Jhz3+DcnSX5J7h7MKmleF+JKeyiVs0hEDBvzJ3hJq29g
-         A/mj9FU0st/qOrKAgVYAxrR47d12z8t1d6L94zsA=
+        b=g1GGKWY6orMsaRCfyPCXWsfKNf/ELTW+ptNnn2AQZUXNKqU5DEuO5gDSu9Cyzo8t5
+         sJV7jAUBIvmuJ1NbWOJN00mkSVTw+177uUpJ46QKqxuggAfQJKZW3w4bRQ64dxlicg
+         a3KpYppdPwW2Y1kft8eG7mIXxMZsRikHEvg3X8ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 127/204] crypto: caam - Remove broken arc4 support
-Date:   Thu, 20 Aug 2020 11:20:24 +0200
-Message-Id: <20200820091612.632767074@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 058/152] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
+Date:   Thu, 20 Aug 2020 11:20:25 +0200
+Message-Id: <20200820091556.696469755@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit eeedb618378f8a09779546a3eeac16b000447d62 ]
+commit 0cb2f1372baa60af8456388a574af6133edd7d80 upstream.
 
-The arc4 algorithm requires storing state in the request context
-in order to allow more than one encrypt/decrypt operation.  As this
-driver does not seem to do that, it means that using it for more
-than one operation is broken.
+We found a case of kernel panic on our server. The stack trace is as
+follows(omit some irrelevant information):
 
-Fixes: eaed71a44ad9 ("crypto: caam - add ecb(*) support")
-Link: https://lore.kernel.org/linux-crypto/CAMj1kXGvMe_A_iQ43Pmygg9xaAM-RLy=_M=v+eg--8xNmv9P+w@mail.gmail.com
-Link: https://lore.kernel.org/linux-crypto/20200702101947.682-1-ardb@kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BUG: kernel NULL pointer dereference, address: 0000000000000080
+  RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
+  RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
+  RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
+  RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
+  RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+  R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <IRQ>
+   ftrace_ops_assist_func+0x56/0xe0
+   ftrace_call+0x5/0x34
+   tcpa_statistic_send+0x5/0x130 [ttcp_engine]
+
+The tcpa_statistic_send is the function being kprobed. After analysis,
+the root cause is that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
+
+  crash> dis tcpa_statistic_send -r
+         <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
+
+The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller.
+So it is reasonable that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. In theory, we should call the ftrace_regs_caller instead of the
+ftrace_caller. After in-depth analysis, we found a reproducible path.
+
+  Writing a simple kernel module which starts a periodic timer. The
+  timer's handler is named 'kprobe_test_timer_handler'. The module
+  name is kprobe_test.ko.
+
+  1) insmod kprobe_test.ko
+  2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+  3) echo 0 > /proc/sys/kernel/ftrace_enabled
+  4) rmmod kprobe_test
+  5) stop step 2) kprobe
+  6) insmod kprobe_test.ko
+  7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+
+We mark the kprobe as GONE but not disarm the kprobe in the step 4).
+The step 5) also do not disarm the kprobe when unregister kprobe. So
+we do not remove the ip from the filter. In this case, when the module
+loads again in the step 6), we will replace the code to ftrace_caller
+via the ftrace_module_enable(). When we register kprobe again, we will
+not replace ftrace_caller to ftrace_regs_caller because the ftrace is
+disabled in the step 3). So the step 7) will trigger kernel panic. Fix
+this problem by disarming the kprobe when the module is going away.
+
+Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedance.com
+
+Cc: stable@vger.kernel.org
+Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/crypto/caam/caamalg.c | 29 -----------------------------
- drivers/crypto/caam/compat.h  |  1 -
- 2 files changed, 30 deletions(-)
+ kernel/kprobes.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
-index bf90a4fcabd1f..8149ac4d6ef22 100644
---- a/drivers/crypto/caam/caamalg.c
-+++ b/drivers/crypto/caam/caamalg.c
-@@ -810,12 +810,6 @@ static int ctr_skcipher_setkey(struct crypto_skcipher *skcipher,
- 	return skcipher_setkey(skcipher, key, keylen, ctx1_iv_off);
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2104,6 +2104,13 @@ static void kill_kprobe(struct kprobe *p
+ 	 * the original probed function (which will be freed soon) any more.
+ 	 */
+ 	arch_remove_kprobe(p);
++
++	/*
++	 * The module is going away. We should disarm the kprobe which
++	 * is using ftrace.
++	 */
++	if (kprobe_ftrace(p))
++		disarm_kprobe_ftrace(p);
  }
  
--static int arc4_skcipher_setkey(struct crypto_skcipher *skcipher,
--				const u8 *key, unsigned int keylen)
--{
--	return skcipher_setkey(skcipher, key, keylen, 0);
--}
--
- static int des_skcipher_setkey(struct crypto_skcipher *skcipher,
- 			       const u8 *key, unsigned int keylen)
- {
-@@ -1967,21 +1961,6 @@ static struct caam_skcipher_alg driver_algs[] = {
- 		},
- 		.caam.class1_alg_type = OP_ALG_ALGSEL_3DES | OP_ALG_AAI_ECB,
- 	},
--	{
--		.skcipher = {
--			.base = {
--				.cra_name = "ecb(arc4)",
--				.cra_driver_name = "ecb-arc4-caam",
--				.cra_blocksize = ARC4_BLOCK_SIZE,
--			},
--			.setkey = arc4_skcipher_setkey,
--			.encrypt = skcipher_encrypt,
--			.decrypt = skcipher_decrypt,
--			.min_keysize = ARC4_MIN_KEY_SIZE,
--			.max_keysize = ARC4_MAX_KEY_SIZE,
--		},
--		.caam.class1_alg_type = OP_ALG_ALGSEL_ARC4 | OP_ALG_AAI_ECB,
--	},
- };
- 
- static struct caam_aead_alg driver_aeads[] = {
-@@ -3457,7 +3436,6 @@ int caam_algapi_init(struct device *ctrldev)
- 	struct caam_drv_private *priv = dev_get_drvdata(ctrldev);
- 	int i = 0, err = 0;
- 	u32 aes_vid, aes_inst, des_inst, md_vid, md_inst, ccha_inst, ptha_inst;
--	u32 arc4_inst;
- 	unsigned int md_limit = SHA512_DIGEST_SIZE;
- 	bool registered = false, gcm_support;
- 
-@@ -3477,8 +3455,6 @@ int caam_algapi_init(struct device *ctrldev)
- 			   CHA_ID_LS_DES_SHIFT;
- 		aes_inst = cha_inst & CHA_ID_LS_AES_MASK;
- 		md_inst = (cha_inst & CHA_ID_LS_MD_MASK) >> CHA_ID_LS_MD_SHIFT;
--		arc4_inst = (cha_inst & CHA_ID_LS_ARC4_MASK) >>
--			    CHA_ID_LS_ARC4_SHIFT;
- 		ccha_inst = 0;
- 		ptha_inst = 0;
- 
-@@ -3499,7 +3475,6 @@ int caam_algapi_init(struct device *ctrldev)
- 		md_inst = mdha & CHA_VER_NUM_MASK;
- 		ccha_inst = rd_reg32(&priv->ctrl->vreg.ccha) & CHA_VER_NUM_MASK;
- 		ptha_inst = rd_reg32(&priv->ctrl->vreg.ptha) & CHA_VER_NUM_MASK;
--		arc4_inst = rd_reg32(&priv->ctrl->vreg.afha) & CHA_VER_NUM_MASK;
- 
- 		gcm_support = aesa & CHA_VER_MISC_AES_GCM;
- 	}
-@@ -3522,10 +3497,6 @@ int caam_algapi_init(struct device *ctrldev)
- 		if (!aes_inst && (alg_sel == OP_ALG_ALGSEL_AES))
- 				continue;
- 
--		/* Skip ARC4 algorithms if not supported by device */
--		if (!arc4_inst && alg_sel == OP_ALG_ALGSEL_ARC4)
--			continue;
--
- 		/*
- 		 * Check support for AES modes not available
- 		 * on LP devices.
-diff --git a/drivers/crypto/caam/compat.h b/drivers/crypto/caam/compat.h
-index 60e2a54c19f11..c3c22a8de4c00 100644
---- a/drivers/crypto/caam/compat.h
-+++ b/drivers/crypto/caam/compat.h
-@@ -43,7 +43,6 @@
- #include <crypto/akcipher.h>
- #include <crypto/scatterwalk.h>
- #include <crypto/skcipher.h>
--#include <crypto/arc4.h>
- #include <crypto/internal/skcipher.h>
- #include <crypto/internal/hash.h>
- #include <crypto/internal/rsa.h>
--- 
-2.25.1
-
+ /* Disable one kprobe */
 
 
