@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0229F24BF65
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29C824BF6C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730577AbgHTNjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
+        id S1730574AbgHTNjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726995AbgHTJ3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:55 -0400
+        id S1728129AbgHTJaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:30:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A440522D02;
-        Thu, 20 Aug 2020 09:29:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3599422BEB;
+        Thu, 20 Aug 2020 09:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915795;
-        bh=uPeGqQXkvY7c5Sqc18JCLPAOGTvavRRRr4EheBmcF8w=;
+        s=default; t=1597915800;
+        bh=qIeXM+NKCoFlMSstjLORdhuyqn+uoFkSc/8KPoObLQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PeJ7KHDKQ+W/syYyFAdXt5CrYJHnpDZ7dkUoWPfWeQejXFcm6Wc+Dd3cL3eQyYDcH
-         RBhrT2fQdXfAZt+6dv3YWkgW6fPxutHBB8OYwySAu63PBpUuzLcTuuW6XnU2SO9dwh
-         25ngjIC64nbPs9Mo83Ufq+03E5CxMWSch68a8FJ0=
+        b=IQ/Y6iYqAL1IQeYffaGRyZ1WI1Krew42A5zwYLjwNJ87CxxEXXpTJM+AfXQ6Per7W
+         YYvjAeBMRoHfqsArC2HxvSnoIdZJbD3XsaNksscONwvmNFXkYKZ+c0RM6G3TqnmJYi
+         HFRxt9Ciyl3TN5tG5u12lvJHDIvPuwLL4ly2Nb8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 137/232] USB: serial: ftdi_sio: fix break and sysrq handling
-Date:   Thu, 20 Aug 2020 11:19:48 +0200
-Message-Id: <20200820091619.460392380@linuxfoundation.org>
+Subject: [PATCH 5.8 139/232] devres: keep both device name and resource name in pretty name
+Date:   Thu, 20 Aug 2020 11:19:50 +0200
+Message-Id: <20200820091619.557998492@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,85 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 733fff67941dad64b8a630450b8372b1873edc41 ]
+[ Upstream commit 35bd8c07db2ce8fd2834ef866240613a4ef982e7 ]
 
-Only the last NUL in a packet should be flagged as a break character,
-for example, to avoid dropping unrelated characters when IGNBRK is set.
+Sometimes debugging a device is easiest using devmem on its register
+map, and that can be seen with /proc/iomem. But some device drivers have
+many memory regions. Take for example a networking switch. Its memory
+map used to look like this in /proc/iomem:
 
-Also make sysrq work by consuming the break character instead of having
-it immediately cancel the sysrq request, and by not processing it
-prematurely to avoid triggering a sysrq based on an unrelated character
-received in the same packet (which was received *before* the break).
+1fc000000-1fc3fffff : pcie@1f0000000
+  1fc000000-1fc3fffff : 0000:00:00.5
+    1fc010000-1fc01ffff : sys
+    1fc030000-1fc03ffff : rew
+    1fc060000-1fc0603ff : s2
+    1fc070000-1fc0701ff : devcpu_gcb
+    1fc080000-1fc0800ff : qs
+    1fc090000-1fc0900cb : ptp
+    1fc100000-1fc10ffff : port0
+    1fc110000-1fc11ffff : port1
+    1fc120000-1fc12ffff : port2
+    1fc130000-1fc13ffff : port3
+    1fc140000-1fc14ffff : port4
+    1fc150000-1fc15ffff : port5
+    1fc200000-1fc21ffff : qsys
+    1fc280000-1fc28ffff : ana
 
-Note that the break flag can be left set also for a packet received
-immediately following a break and that and an ending NUL in such a
-packet will continue to be reported as a break as there's no good way to
-tell it apart from an actual break.
+But after the patch in Fixes: was applied, the information is now
+presented in a much more opaque way:
 
-Tested on FT232R and FT232H.
+1fc000000-1fc3fffff : pcie@1f0000000
+  1fc000000-1fc3fffff : 0000:00:00.5
+    1fc010000-1fc01ffff : 0000:00:00.5
+    1fc030000-1fc03ffff : 0000:00:00.5
+    1fc060000-1fc0603ff : 0000:00:00.5
+    1fc070000-1fc0701ff : 0000:00:00.5
+    1fc080000-1fc0800ff : 0000:00:00.5
+    1fc090000-1fc0900cb : 0000:00:00.5
+    1fc100000-1fc10ffff : 0000:00:00.5
+    1fc110000-1fc11ffff : 0000:00:00.5
+    1fc120000-1fc12ffff : 0000:00:00.5
+    1fc130000-1fc13ffff : 0000:00:00.5
+    1fc140000-1fc14ffff : 0000:00:00.5
+    1fc150000-1fc15ffff : 0000:00:00.5
+    1fc200000-1fc21ffff : 0000:00:00.5
+    1fc280000-1fc28ffff : 0000:00:00.5
 
-Fixes: 72fda3ca6fc1 ("USB: serial: ftd_sio: implement sysrq handling on break")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+That patch made a fair comment that /proc/iomem might be confusing when
+it shows resources without an associated device, but we can do better
+than just hide the resource name altogether. Namely, we can print the
+device name _and_ the resource name. Like this:
+
+1fc000000-1fc3fffff : pcie@1f0000000
+  1fc000000-1fc3fffff : 0000:00:00.5
+    1fc010000-1fc01ffff : 0000:00:00.5 sys
+    1fc030000-1fc03ffff : 0000:00:00.5 rew
+    1fc060000-1fc0603ff : 0000:00:00.5 s2
+    1fc070000-1fc0701ff : 0000:00:00.5 devcpu_gcb
+    1fc080000-1fc0800ff : 0000:00:00.5 qs
+    1fc090000-1fc0900cb : 0000:00:00.5 ptp
+    1fc100000-1fc10ffff : 0000:00:00.5 port0
+    1fc110000-1fc11ffff : 0000:00:00.5 port1
+    1fc120000-1fc12ffff : 0000:00:00.5 port2
+    1fc130000-1fc13ffff : 0000:00:00.5 port3
+    1fc140000-1fc14ffff : 0000:00:00.5 port4
+    1fc150000-1fc15ffff : 0000:00:00.5 port5
+    1fc200000-1fc21ffff : 0000:00:00.5 qsys
+    1fc280000-1fc28ffff : 0000:00:00.5 ana
+
+Fixes: 8d84b18f5678 ("devres: always use dev_name() in devm_ioremap_resource()")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20200601095826.1757621-1-olteanv@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ lib/devres.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 33f1cca7eaa61..07b146d7033a6 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -2483,6 +2483,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 		struct ftdi_private *priv, unsigned char *buf, int len)
+diff --git a/lib/devres.c b/lib/devres.c
+index 6ef51f159c54b..ca0d28727ccef 100644
+--- a/lib/devres.c
++++ b/lib/devres.c
+@@ -119,6 +119,7 @@ __devm_ioremap_resource(struct device *dev, const struct resource *res,
  {
- 	unsigned char status;
-+	bool brkint = false;
- 	int i;
- 	char flag;
+ 	resource_size_t size;
+ 	void __iomem *dest_ptr;
++	char *pretty_name;
  
-@@ -2534,13 +2535,17 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	 */
- 	flag = TTY_NORMAL;
- 	if (buf[1] & FTDI_RS_ERR_MASK) {
--		/* Break takes precedence over parity, which takes precedence
--		 * over framing errors */
--		if (buf[1] & FTDI_RS_BI) {
--			flag = TTY_BREAK;
-+		/*
-+		 * Break takes precedence over parity, which takes precedence
-+		 * over framing errors. Note that break is only associated
-+		 * with the last character in the buffer and only when it's a
-+		 * NUL.
-+		 */
-+		if (buf[1] & FTDI_RS_BI && buf[len - 1] == '\0') {
- 			port->icount.brk++;
--			usb_serial_handle_break(port);
--		} else if (buf[1] & FTDI_RS_PE) {
-+			brkint = true;
-+		}
-+		if (buf[1] & FTDI_RS_PE) {
- 			flag = TTY_PARITY;
- 			port->icount.parity++;
- 		} else if (buf[1] & FTDI_RS_FE) {
-@@ -2556,8 +2561,13 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	BUG_ON(!dev);
  
- 	port->icount.rx += len - 2;
+@@ -129,7 +130,15 @@ __devm_ioremap_resource(struct device *dev, const struct resource *res,
  
--	if (port->port.console && port->sysrq) {
-+	if (brkint || (port->port.console && port->sysrq)) {
- 		for (i = 2; i < len; i++) {
-+			if (brkint && i == len - 1) {
-+				if (usb_serial_handle_break(port))
-+					return len - 3;
-+				flag = TTY_BREAK;
-+			}
- 			if (usb_serial_handle_sysrq_char(port, buf[i]))
- 				continue;
- 			tty_insert_flip_char(&port->port, buf[i], flag);
+ 	size = resource_size(res);
+ 
+-	if (!devm_request_mem_region(dev, res->start, size, dev_name(dev))) {
++	if (res->name)
++		pretty_name = devm_kasprintf(dev, GFP_KERNEL, "%s %s",
++					     dev_name(dev), res->name);
++	else
++		pretty_name = devm_kstrdup(dev, dev_name(dev), GFP_KERNEL);
++	if (!pretty_name)
++		return IOMEM_ERR_PTR(-ENOMEM);
++
++	if (!devm_request_mem_region(dev, res->start, size, pretty_name)) {
+ 		dev_err(dev, "can't request region for resource %pR\n", res);
+ 		return IOMEM_ERR_PTR(-EBUSY);
+ 	}
 -- 
 2.25.1
 
