@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFD424B714
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51D724B6C8
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729180AbgHTKrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36058 "EHLO mail.kernel.org"
+        id S1730910AbgHTKkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730380AbgHTKQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:09 -0400
+        id S1728969AbgHTKRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:17:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2068420885;
-        Thu, 20 Aug 2020 10:16:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 793BC20658;
+        Thu, 20 Aug 2020 10:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918565;
-        bh=Bt7c5TGqRJziU9ufFBb7RsyRYImgQZh/N1jIsM529KI=;
+        s=default; t=1597918624;
+        bh=nMJTkO6cj4TOvD4sJ8BX0pSnppY8qiNUN3ChP8pnEHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5evsh2Z0NkI1nj8AHYUcJH6gKB2+ffS/o1WoC62CQLCWQFpRuK/1WPofj5rneIXf
-         OkO2rTHXdeAVyr4ncuZm8lAcN0MhklNuDrJdRjYS6Ap6nC4Ir2VWnMYCzulU706DDD
-         cVA/BghOBFCz2l0GxWG+sv90WEMwMAV79W4wLUt4=
+        b=rvFVcSmYJj8nrcP/iCrsGyrOOZBQMX4VB/fLj4GDIPBh5kcsuzmUjaBc0v0JOHxq+
+         lTlaIEc0FTiODxo5AzbuZROV+5AMIZEY5BXyDLjQCOrFxNIfpeph3uZ5OmNlxDN3sc
+         2OLpEtXwmKz6C7D9gl7JUuqN2TAr4EUE3NwN1eXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Evgeniy Dushistov <dushistov@mail.ru>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 214/228] fs/ufs: avoid potential u32 multiplication overflow
-Date:   Thu, 20 Aug 2020 11:23:09 +0200
-Message-Id: <20200820091618.215017235@linuxfoundation.org>
+Subject: [PATCH 4.14 216/228] mfd: dln2: Run event handler loop under spinlock
+Date:   Thu, 20 Aug 2020 11:23:11 +0200
+Message-Id: <20200820091618.308520821@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -47,42 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 88b2e9b06381551b707d980627ad0591191f7a2d ]
+[ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
 
-The 64 bit ino is being compared to the product of two u32 values,
-however, the multiplication is being performed using a 32 bit multiply so
-there is a potential of an overflow.  To be fully safe, cast uspi->s_ncg
-to a u64 to ensure a 64 bit multiplication occurs to avoid any chance of
-overflow.
+The event handler loop must be run with interrupts disabled.
+Otherwise we will have a warning:
 
-Fixes: f3e2a520f5fb ("ufs: NFS support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Evgeniy Dushistov <dushistov@mail.ru>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Link: http://lkml.kernel.org/r/20200715170355.1081713-1-colin.king@canonical.com
-Addresses-Coverity: ("Unintentional integer overflow")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ 1970.785649] irq 31 handler lineevent_irq_handler+0x0/0x20 enabled interrupts
+[ 1970.792739] WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x162/0x170
+[ 1970.860732] RIP: 0010:__handle_irq_event_percpu+0x162/0x170
+...
+[ 1970.946994] Call Trace:
+[ 1970.949446]  <IRQ>
+[ 1970.951471]  handle_irq_event_percpu+0x2c/0x80
+[ 1970.955921]  handle_irq_event+0x23/0x43
+[ 1970.959766]  handle_simple_irq+0x57/0x70
+[ 1970.963695]  generic_handle_irq+0x42/0x50
+[ 1970.967717]  dln2_rx+0xc1/0x210 [dln2]
+[ 1970.971479]  ? usb_hcd_unmap_urb_for_dma+0xa6/0x1c0
+[ 1970.976362]  __usb_hcd_giveback_urb+0x77/0xe0
+[ 1970.980727]  usb_giveback_urb_bh+0x8e/0xe0
+[ 1970.984837]  tasklet_action_common.isra.0+0x4a/0xe0
+...
+
+Recently xHCI driver switched to tasklets in the commit 36dc01657b49
+("usb: host: xhci: Support running urb giveback in tasklet context").
+
+The handle_irq_event_* functions are expected to be called with interrupts
+disabled and they rightfully complain here because we run in tasklet context
+with interrupts enabled.
+
+Use a event spinlock to protect event handler from being interrupted.
+
+Note, that there are only two users of this GPIO and ADC drivers and both of
+them are using generic_handle_irq() which makes above happen.
+
+Fixes: 338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ufs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/dln2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/ufs/super.c b/fs/ufs/super.c
-index 6440003f8ddc6..e3f3a0df60276 100644
---- a/fs/ufs/super.c
-+++ b/fs/ufs/super.c
-@@ -99,7 +99,7 @@ static struct inode *ufs_nfs_get_inode(struct super_block *sb, u64 ino, u32 gene
- 	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
- 	struct inode *inode;
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 672831d5ee32e..97a69cd6f1278 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -294,7 +294,11 @@ static void dln2_rx(struct urb *urb)
+ 	len = urb->actual_length - sizeof(struct dln2_header);
  
--	if (ino < UFS_ROOTINO || ino > uspi->s_ncg * uspi->s_ipg)
-+	if (ino < UFS_ROOTINO || ino > (u64)uspi->s_ncg * uspi->s_ipg)
- 		return ERR_PTR(-ESTALE);
- 
- 	inode = ufs_iget(sb, ino);
+ 	if (handle == DLN2_HANDLE_EVENT) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&dln2->event_cb_lock, flags);
+ 		dln2_run_event_callbacks(dln2, id, echo, data, len);
++		spin_unlock_irqrestore(&dln2->event_cb_lock, flags);
+ 	} else {
+ 		/* URB will be re-submitted in _dln2_transfer (free_rx_slot) */
+ 		if (dln2_transfer_complete(dln2, urb, handle, echo))
 -- 
 2.25.1
 
