@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A8624ABE5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F0F24ABCF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:14:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgHTAOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:14:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57470 "EHLO mail.kernel.org"
+        id S1727811AbgHTANa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:13:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726872AbgHTAB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:01:29 -0400
+        id S1726874AbgHTABc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:01:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86980208E4;
-        Thu, 20 Aug 2020 00:01:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3B27214F1;
+        Thu, 20 Aug 2020 00:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881689;
-        bh=bTH5iXVwhap6MKUOjysl2NNrLylw8YNHEzLt+9lZNL0=;
+        s=default; t=1597881690;
+        bh=P4hYlXuCrt4vYT4MbhM81oT38igvQ0iujDFHaqGZrHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=af/5tOSC7TEwuEOQ+Wn+GNHQH2Vt+AUePWw4HC0ynqIYlX75rkagpvfypK30VrXYl
-         pW8ghPT5N7rKGcodIbYXGPnVN4OrHkAxjfeclOd6B7Q4XmatKwxGrmoW2K9YegGGsC
-         vOyfJzKay3V6LGPX3UnISMV4LgS/wmyGhRIVh3C0=
+        b=MKdA8v/kKzhE6IDrQH0+pQ5G8sc2JpNobgDHhGowmqP02QKgw5X05cW4/r98mw7w6
+         sRZEjG09FtH2yQ59Olqd8V80mfbfW1mYrk6+ISR9L7F1JC+PjdRYrzHRwzOTY8cyQX
+         oAU7XWgEdwtkH9itlMLuN0eGNZ/jeJumXfPPGhqg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 09/27] Input: psmouse - add a newline when printing 'proto' by sysfs
-Date:   Wed, 19 Aug 2020 20:00:58 -0400
-Message-Id: <20200820000116.214821-9-sashal@kernel.org>
+Cc:     Jinyang He <hejinyang@loongson.cn>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 10/27] MIPS: Fix unable to reserve memory for Crash kernel
+Date:   Wed, 19 Aug 2020 20:00:59 -0400
+Message-Id: <20200820000116.214821-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000116.214821-1-sashal@kernel.org>
 References: <20200820000116.214821-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,37 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Jinyang He <hejinyang@loongson.cn>
 
-[ Upstream commit 4aec14de3a15cf9789a0e19c847f164776f49473 ]
+[ Upstream commit b1ce9716f3b5ed3b49badf1f003b9e34b7ead0f9 ]
 
-When I cat parameter 'proto' by sysfs, it displays as follows. It's
-better to add a newline for easy reading.
+Use 0 as the align parameter in memblock_find_in_range() is
+incorrect when we reserve memory for Crash kernel.
 
-root@syzkaller:~# cat /sys/module/psmouse/parameters/proto
-autoroot@syzkaller:~#
+The environment as follows:
+[    0.000000] MIPS: machine is loongson,loongson64c-4core-rs780e
+...
+[    1.951016]     crashkernel=64M@128M
 
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200720073846.120724-1-wangxiongfeng2@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The warning as follows:
+[    0.000000] Invalid memory region reserved for crash kernel
+
+And the iomem as follows:
+00200000-0effffff : System RAM
+  04000000-0484009f : Kernel code
+  048400a0-04ad7fff : Kernel data
+  04b40000-05c4c6bf : Kernel bss
+1a000000-1bffffff : pci@1a000000
+...
+
+The align parameter may be finally used by round_down() or round_up().
+Like the following call tree:
+
+mips-next: mm/memblock.c
+
+memblock_find_in_range
+└── memblock_find_in_range_node
+    ├── __memblock_find_range_bottom_up
+    │   └── round_up
+    └── __memblock_find_range_top_down
+        └── round_down
+\#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
+\#define round_down(x, y) ((x) & ~__round_mask(x, y))
+\#define __round_mask(x, y) ((__typeof__(x))((y)-1))
+
+The round_down(or round_up)'s second parameter must be a power of 2.
+If the second parameter is 0, it both will return 0.
+
+Use 1 as the parameter to fix the bug and the iomem as follows:
+00200000-0effffff : System RAM
+  04000000-0484009f : Kernel code
+  048400a0-04ad7fff : Kernel data
+  04b40000-05c4c6bf : Kernel bss
+  08000000-0bffffff : Crash kernel
+1a000000-1bffffff : pci@1a000000
+...
+
+Signed-off-by: Jinyang He <hejinyang@loongson.cn>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/psmouse-base.c | 2 +-
+ arch/mips/kernel/setup.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 527ae0b9a191e..0b4a3039f312f 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -2042,7 +2042,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
- {
- 	int type = *((unsigned int *)kp->arg);
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index 7b537fa2035df..588b21245e00b 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -497,7 +497,7 @@ static void __init mips_parse_crashkernel(void)
+ 	if (ret != 0 || crash_size <= 0)
+ 		return;
  
--	return sprintf(buffer, "%s", psmouse_protocol_by_type(type)->name);
-+	return sprintf(buffer, "%s\n", psmouse_protocol_by_type(type)->name);
- }
- 
- static int __init psmouse_init(void)
+-	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 0)) {
++	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 1)) {
+ 		pr_warn("Invalid memory region reserved for crash kernel\n");
+ 		return;
+ 	}
 -- 
 2.25.1
 
