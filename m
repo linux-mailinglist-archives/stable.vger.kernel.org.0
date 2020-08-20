@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9256424B559
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE2124B5B6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731710AbgHTKWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:22:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50584 "EHLO mail.kernel.org"
+        id S1730011AbgHTK1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:27:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731634AbgHTKWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:22:33 -0400
+        id S1731677AbgHTKWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:22:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0653320658;
-        Thu, 20 Aug 2020 10:22:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46BB520658;
+        Thu, 20 Aug 2020 10:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918952;
-        bh=Jox495f5CvfbuLnsYvkh7USH1EMND/H2HV1yt6Qf69U=;
+        s=default; t=1597918954;
+        bh=peVkpFOhZGuRw9SB7/KqhBJFgfeMdu5lbq25QTO9714=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBR3CBCbQYjq0McFIu1+vQ/KLOLdjms21/2NIY5/rQ8/GaySjvypyEGQ/wP9+Pj+c
-         7yG2cLxXQ0SKRbZFnj0/Vif1HWbtCD6KQbasbH5HDls8rAUMgrZ4mURlzPQkufpf0w
-         lFAarzC5/vTNnByAku3jCGn6xrHmn1X6iOQiHHoE=
+        b=K+k6iEPcYyiNWFXbUhGJRRaRV0GtOnPk8OQxKhqh8+iqYohQgkr6GqLIQ4JyU3qE+
+         3vF/wtwydbbiqXUGtWoUCoFPPNcKEMrJ2xJOoUO4J6lligmYkjz+PXIqsE4AOHYOSV
+         4pCgpnsp/VjHArUjitfaegrxLQznebxd+fuHTOQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 127/149] bcache: allocate meta data pages as compound pages
-Date:   Thu, 20 Aug 2020 11:23:24 +0200
-Message-Id: <20200820092131.855998593@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 128/149] mac80211: fix misplaced while instead of if
+Date:   Thu, 20 Aug 2020 11:23:25 +0200
+Message-Id: <20200820092131.904271328@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -43,80 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 5fe48867856367142d91a82f2cbf7a57a24cbb70 upstream.
+commit 5981fe5b0529ba25d95f37d7faa434183ad618c5 upstream.
 
-There are some meta data of bcache are allocated by multiple pages,
-and they are used as bio bv_page for I/Os to the cache device. for
-example cache_set->uuids, cache->disk_buckets, journal_write->data,
-bset_tree->data.
+This never was intended to be a 'while' loop, it should've
+just been an 'if' instead of 'while'. Fix this.
 
-For such meta data memory, all the allocated pages should be treated
-as a single memory block. Then the memory management and underlying I/O
-code can treat them more clearly.
+I noticed this while applying another patch from Ben that
+intended to fix a busy loop at this spot.
 
-This patch adds __GFP_COMP flag to all the location allocating >0 order
-pages for the above mentioned meta data. Then their pages are treated
-as compound pages now.
-
-Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b16798f5b907 ("mac80211: mark station unauthorized before key removal")
+Reported-by: Ben Greear <greearb@candelatech.com>
+Link: https://lore.kernel.org/r/20200803110209.253009ae41ff.I3522aad099392b31d5cf2dcca34cbac7e5832dde@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bset.c    |    2 +-
- drivers/md/bcache/btree.c   |    2 +-
- drivers/md/bcache/journal.c |    4 ++--
- drivers/md/bcache/super.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ net/mac80211/sta_info.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -317,7 +317,7 @@ int bch_btree_keys_alloc(struct btree_ke
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -906,7 +906,7 @@ static void __sta_info_destroy_part2(str
+ 	might_sleep();
+ 	lockdep_assert_held(&local->sta_mtx);
  
- 	b->page_order = page_order;
- 
--	t->data = (void *) __get_free_pages(gfp, b->page_order);
-+	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
- 	if (!t->data)
- 		goto err;
- 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -795,7 +795,7 @@ int bch_btree_cache_alloc(struct cache_s
- 	mutex_init(&c->verify_lock);
- 
- 	c->verify_ondisk = (void *)
--		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
-+		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
- 
- 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
- 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -838,8 +838,8 @@ int bch_journal_alloc(struct cache_set *
- 	j->w[1].c = c;
- 
- 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
--	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
--	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
-+	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
-+	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
- 		return -ENOMEM;
- 
- 	return 0;
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1469,7 +1469,7 @@ void bch_cache_set_unregister(struct cac
- }
- 
- #define alloc_bucket_pages(gfp, c)			\
--	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
-+	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
- 
- struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- {
+-	while (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
++	if (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
+ 		ret = sta_info_move_state(sta, IEEE80211_STA_ASSOC);
+ 		WARN_ON_ONCE(ret);
+ 	}
 
 
