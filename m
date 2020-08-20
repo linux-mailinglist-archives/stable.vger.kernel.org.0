@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBA724ABBD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A3E24ABC4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728554AbgHTAM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57676 "EHLO mail.kernel.org"
+        id S1728512AbgHTAM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:12:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726919AbgHTABh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:01:37 -0400
+        id S1726930AbgHTABi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:01:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A4DB207DA;
-        Thu, 20 Aug 2020 00:01:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C88B2184D;
+        Thu, 20 Aug 2020 00:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881696;
-        bh=8hxAY/ez0AI4ber36LIJeoh29mu4g8ODN0OrS542L3c=;
+        s=default; t=1597881698;
+        bh=Nsx1/QnVpUDV33+SrioDmlhfg5tkM9R+Pa91bvw0w0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2JxtcBJ8KWGLihK4aQn5GzqgN8kWFC08BI9co6wU3v8H6j1Prq1YP8LDX12b8Vkf
-         7eDVjrs0yjyTcmunz7jZwypv74NQB4epXLDDalOrdIzBMM6UAUIP2wtkNTE63X5NIF
-         jnK+YDZkMjZTkGluzH5h6Vj9N0bOIEJO8kMoAodk=
+        b=LHVkUWmuK8T1BKnCATt8u/co61Mwf6LxNFppBhdE9C0dc+iModiRB7JQFgDJoIDb1
+         Vvk+Ui2u4f8oddhAWt5tH09mjgHIYddx5aCpqPzxz1EM/WahkptsBIsBk3/8EFdpmj
+         HTzDzUdDuUQJMrj3GNroQ3LCFO7jJ7KR2Vykpy4g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Ren <guoren@linux.alibaba.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 15/27] riscv: Fixup static_obj() fail
-Date:   Wed, 19 Aug 2020 20:01:04 -0400
-Message-Id: <20200820000116.214821-15-sashal@kernel.org>
+Cc:     Zhe Li <lizhe67@huawei.com>, Hou Tao <houtao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 16/27] jffs2: fix UAF problem
+Date:   Wed, 19 Aug 2020 20:01:05 -0400
+Message-Id: <20200820000116.214821-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000116.214821-1-sashal@kernel.org>
 References: <20200820000116.214821-1-sashal@kernel.org>
@@ -44,77 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Zhe Li <lizhe67@huawei.com>
 
-[ Upstream commit 6184358da0004c8fd940afda6c0a0fa4027dc911 ]
+[ Upstream commit 798b7347e4f29553db4b996393caf12f5b233daf ]
 
-When enable LOCKDEP, static_obj() will cause error. Because some
-__initdata static variables is before _stext:
+The log of UAF problem is listed below.
+BUG: KASAN: use-after-free in jffs2_rmdir+0xa4/0x1cc [jffs2] at addr c1f165fc
+Read of size 4 by task rm/8283
+=============================================================================
+BUG kmalloc-32 (Tainted: P    B      O   ): kasan: bad access detected
+-----------------------------------------------------------------------------
 
-static int static_obj(const void *obj)
-{
-        unsigned long start = (unsigned long) &_stext,
-                      end   = (unsigned long) &_end,
-                      addr  = (unsigned long) obj;
+INFO: Allocated in 0xbbbbbbbb age=3054364 cpu=0 pid=0
+        0xb0bba6ef
+        jffs2_write_dirent+0x11c/0x9c8 [jffs2]
+        __slab_alloc.isra.21.constprop.25+0x2c/0x44
+        __kmalloc+0x1dc/0x370
+        jffs2_write_dirent+0x11c/0x9c8 [jffs2]
+        jffs2_do_unlink+0x328/0x5fc [jffs2]
+        jffs2_rmdir+0x110/0x1cc [jffs2]
+        vfs_rmdir+0x180/0x268
+        do_rmdir+0x2cc/0x300
+        ret_from_syscall+0x0/0x3c
+INFO: Freed in 0x205b age=3054364 cpu=0 pid=0
+        0x2e9173
+        jffs2_add_fd_to_list+0x138/0x1dc [jffs2]
+        jffs2_add_fd_to_list+0x138/0x1dc [jffs2]
+        jffs2_garbage_collect_dirent.isra.3+0x21c/0x288 [jffs2]
+        jffs2_garbage_collect_live+0x16bc/0x1800 [jffs2]
+        jffs2_garbage_collect_pass+0x678/0x11d4 [jffs2]
+        jffs2_garbage_collect_thread+0x1e8/0x3b0 [jffs2]
+        kthread+0x1a8/0x1b0
+        ret_from_kernel_thread+0x5c/0x64
+Call Trace:
+[c17ddd20] [c02452d4] kasan_report.part.0+0x298/0x72c (unreliable)
+[c17ddda0] [d2509680] jffs2_rmdir+0xa4/0x1cc [jffs2]
+[c17dddd0] [c026da04] vfs_rmdir+0x180/0x268
+[c17dde00] [c026f4e4] do_rmdir+0x2cc/0x300
+[c17ddf40] [c001a658] ret_from_syscall+0x0/0x3c
 
-        /*
-         * static variable?
-         */
-        if ((addr >= start) && (addr < end))
-                return 1;
+The root cause is that we don't get "jffs2_inode_info.sem" before
+we scan list "jffs2_inode_info.dents" in function jffs2_rmdir.
+This patch add codes to get "jffs2_inode_info.sem" before we scan
+"jffs2_inode_info.dents" to slove the UAF problem.
 
-[    0.067192] INFO: trying to register non-static key.
-[    0.067325] the code is fine but needs lockdep annotation.
-[    0.067449] turning off the locking correctness validator.
-[    0.067718] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc7-dirty #44
-[    0.067945] Call Trace:
-[    0.068369] [<ffffffe00020323c>] walk_stackframe+0x0/0xa4
-[    0.068506] [<ffffffe000203422>] show_stack+0x2a/0x34
-[    0.068631] [<ffffffe000521e4e>] dump_stack+0x94/0xca
-[    0.068757] [<ffffffe000255a4e>] register_lock_class+0x5b8/0x5bc
-[    0.068969] [<ffffffe000255abe>] __lock_acquire+0x6c/0x1d5c
-[    0.069101] [<ffffffe0002550fe>] lock_acquire+0xae/0x312
-[    0.069228] [<ffffffe000989a8e>] _raw_spin_lock_irqsave+0x40/0x5a
-[    0.069357] [<ffffffe000247c64>] complete+0x1e/0x50
-[    0.069479] [<ffffffe000984c38>] rest_init+0x1b0/0x28a
-[    0.069660] [<ffffffe0000016a2>] 0xffffffe0000016a2
-[    0.069779] [<ffffffe000001b84>] 0xffffffe000001b84
-[    0.069953] [<ffffffe000001092>] 0xffffffe000001092
-
-static __initdata DECLARE_COMPLETION(kthreadd_done);
-
-noinline void __ref rest_init(void)
-{
-	...
-	complete(&kthreadd_done);
-
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Zhe Li <lizhe67@huawei.com>
+Reviewed-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vmlinux.lds.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jffs2/dir.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index e6f8016b366ab..f3586e31ed1ec 100644
---- a/arch/riscv/kernel/vmlinux.lds.S
-+++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -22,6 +22,7 @@ SECTIONS
- 	/* Beginning of code and text segment */
- 	. = LOAD_OFFSET;
- 	_start = .;
-+	_stext = .;
- 	HEAD_TEXT_SECTION
- 	. = ALIGN(PAGE_SIZE);
+diff --git a/fs/jffs2/dir.c b/fs/jffs2/dir.c
+index f20cff1194bb6..776493713153f 100644
+--- a/fs/jffs2/dir.c
++++ b/fs/jffs2/dir.c
+@@ -590,10 +590,14 @@ static int jffs2_rmdir (struct inode *dir_i, struct dentry *dentry)
+ 	int ret;
+ 	uint32_t now = JFFS2_NOW();
  
-@@ -54,7 +55,6 @@ SECTIONS
- 	. = ALIGN(SECTION_ALIGN);
- 	.text : {
- 		_text = .;
--		_stext = .;
- 		TEXT_TEXT
- 		SCHED_TEXT
- 		CPUIDLE_TEXT
++	mutex_lock(&f->sem);
+ 	for (fd = f->dents ; fd; fd = fd->next) {
+-		if (fd->ino)
++		if (fd->ino) {
++			mutex_unlock(&f->sem);
+ 			return -ENOTEMPTY;
++		}
+ 	}
++	mutex_unlock(&f->sem);
+ 
+ 	ret = jffs2_do_unlink(c, dir_f, dentry->d_name.name,
+ 			      dentry->d_name.len, f, now);
 -- 
 2.25.1
 
