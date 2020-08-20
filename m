@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 133EA24BC0B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4805B24BD0C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728924AbgHTJrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
+        id S1729643AbgHTM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729450AbgHTJr2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:28 -0400
+        id S1729058AbgHTJlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1E472173E;
-        Thu, 20 Aug 2020 09:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5752920724;
+        Thu, 20 Aug 2020 09:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916848;
-        bh=UpYTKo9YBI4Wb/ngMmtCZOnOgqcl6SDDieR0IfyJbOU=;
+        s=default; t=1597916464;
+        bh=glrZ8+Vz8mqHzTmrL71cuHD1+DnBP22ANxGQaarC4NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WcPaJ2iDOyXO+BhdxLZ4q2vJ7cXPYXUX44TyXq6GnYtryCySH1tbULy7pejEZjDy8
-         Ju1fFJO5NZ5QuIKKVvMN85fni7VVrnQqw27TvRrffFnq2j0Qq2Cfhg5cpwXZQTTpVd
-         bIm5yOIslqk/LUQmk+L4aAh2plaB5OWd01NkWPdY=
+        b=PpHgJ3l1w1lNwbeR91e+WSCJygdq6M5yeTOQaFeS4vlPxYCjTMuLHhcnuWstBv3Hh
+         0hD7C8x4cz8JkvLRLfo9ouR1g7goUylegaOQuHYWZskDZ7biuS+wTLCikf7DAM/45s
+         TjLw0fyqi9UfHG1/FTQBv87RJC8uMLdNXShI7IIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Blanchard <anton@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 067/152] pseries: Fix 64 bit logical memory block panic
-Date:   Thu, 20 Aug 2020 11:20:34 +0200
-Message-Id: <20200820091557.157499539@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 138/204] clk: qcom: gcc: fix sm8150 GPU and NPU clocks
+Date:   Thu, 20 Aug 2020 11:20:35 +0200
+Message-Id: <20200820091613.147323957@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Blanchard <anton@ozlabs.org>
+From: Jonathan Marek <jonathan@marek.ca>
 
-commit 89c140bbaeee7a55ed0360a88f294ead2b95201b upstream.
+[ Upstream commit 667f39b59b494d96ae70f4217637db2ebbee3df0 ]
 
-Booting with a 4GB LMB size causes us to panic:
+Fix the parents and set BRANCH_HALT_SKIP. From the downstream driver it
+should be a 500us delay and not skip, however this matches what was done
+for other clocks that had 500us delay in downstream.
 
-  qemu-system-ppc64: OS terminated: OS panic:
-      Memory block size not suitable: 0x0
-
-Fix pseries_memory_block_size() to handle 64 bit LMBs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Anton Blanchard <anton@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200715000820.1255764-1-anton@ozlabs.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f73a4230d5bb ("clk: qcom: gcc: Add GPU and NPU clocks for SM8150")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20200709135251.643-2-jonathan@marek.ca
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/hotplug-memory.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/gcc-sm8150.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -27,7 +27,7 @@ static bool rtas_hp_event;
- unsigned long pseries_memory_block_size(void)
- {
- 	struct device_node *np;
--	unsigned int memblock_size = MIN_MEMORY_BLOCK_SIZE;
-+	u64 memblock_size = MIN_MEMORY_BLOCK_SIZE;
- 	struct resource r;
+diff --git a/drivers/clk/qcom/gcc-sm8150.c b/drivers/clk/qcom/gcc-sm8150.c
+index 72524cf110487..55e9d6d75a0cd 100644
+--- a/drivers/clk/qcom/gcc-sm8150.c
++++ b/drivers/clk/qcom/gcc-sm8150.c
+@@ -1617,6 +1617,7 @@ static struct clk_branch gcc_gpu_cfg_ahb_clk = {
+ };
  
- 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
+ static struct clk_branch gcc_gpu_gpll0_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(15),
+@@ -1632,13 +1633,14 @@ static struct clk_branch gcc_gpu_gpll0_clk_src = {
+ };
+ 
+ static struct clk_branch gcc_gpu_gpll0_div_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(16),
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_gpu_gpll0_div_clk_src",
+ 			.parent_hws = (const struct clk_hw *[]){
+-				&gcc_gpu_gpll0_clk_src.clkr.hw },
++				&gpll0_out_even.clkr.hw },
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+ 			.ops = &clk_branch2_ops,
+@@ -1729,6 +1731,7 @@ static struct clk_branch gcc_npu_cfg_ahb_clk = {
+ };
+ 
+ static struct clk_branch gcc_npu_gpll0_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(18),
+@@ -1744,13 +1747,14 @@ static struct clk_branch gcc_npu_gpll0_clk_src = {
+ };
+ 
+ static struct clk_branch gcc_npu_gpll0_div_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(19),
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_npu_gpll0_div_clk_src",
+ 			.parent_hws = (const struct clk_hw *[]){
+-				&gcc_npu_gpll0_clk_src.clkr.hw },
++				&gpll0_out_even.clkr.hw },
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+ 			.ops = &clk_branch2_ops,
+-- 
+2.25.1
+
 
 
