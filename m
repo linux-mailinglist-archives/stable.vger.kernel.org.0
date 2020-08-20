@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590FC24BC1C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2602D24BCF5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729365AbgHTJqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:46:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
+        id S1729123AbgHTJlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:41:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgHTJqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:52 -0400
+        id S1728281AbgHTJls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFCBF2173E;
-        Thu, 20 Aug 2020 09:46:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C38520724;
+        Thu, 20 Aug 2020 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916811;
-        bh=C/84CIoJYHv4E/FABQ0fh8uf1gdQweNA4EgZRAF4Klc=;
+        s=default; t=1597916508;
+        bh=zYYp3C2CTnV6KL7DGFZEL0ktlMcY9rMHH+wVkETx7r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGHEJLUSiQ5r4i+CrewD8B6EWYnDtVJogROozJIWxMZK0J5yj9g0Fd4qm7WuSb54F
-         ApCAq/YiZsTMcmBJSsNJEpYXE6adsLmqFQtY74+yHDmKWsQklroGCHwUJu7Ne4pATa
-         datcEB3NDcO2ukgeBIHgEvanUh0fP6gGP6tpvh5c=
+        b=Jj7xngC8n1Vxtd8qlGx9s7s3vRBRtqNEwlcsM9CNOsQ3U4B49yTGvVvCpaGQMIe2v
+         WwrBPREItbz/wmsj3VfAa+5juECcGrVk75Ah5YDIT2IZDjFpgnL6RH2qzaX1e42gI3
+         Y3RZkSVYxCkRXB1dXF6YOjlqOTc+5BPMOm05kanA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 055/152] mm/page_counter.c: fix protection usage propagation
+        stable@vger.kernel.org, Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 125/204] rtw88: pci: disable aspm for platform inter-op with module parameter
 Date:   Thu, 20 Aug 2020 11:20:22 +0200
-Message-Id: <20200820091556.543146115@linuxfoundation.org>
+Message-Id: <20200820091612.534416503@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,75 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Yan-Hsuan Chuang <yhchuang@realtek.com>
 
-commit a6f23d14ec7d7d02220ad8bb2774be3322b9aeec upstream.
+[ Upstream commit 68aa716b7dd36f55e080da9e27bc594346334c41 ]
 
-When workload runs in cgroups that aren't directly below root cgroup and
-their parent specifies reclaim protection, it may end up ineffective.
+Some platforms cannot read the DBI register successfully for the
+ASPM settings. After the read failed, the bus could be unstable,
+and the device just became unavailable [1]. For those platforms,
+the ASPM should be disabled. But as the ASPM can help the driver
+to save the power consumption in power save mode, the ASPM is still
+needed. So, add a module parameter for them to disable it, then
+the device can still work, while others can benefit from the less
+power consumption that brings by ASPM enabled.
 
-The reason is that propagate_protected_usage() is not called in all
-hierarchy up.  All the protected usage is incorrectly accumulated in the
-workload's parent.  This means that siblings_low_usage is overestimated
-and effective protection underestimated.  Even though it is transitional
-phenomenon (uncharge path does correct propagation and fixes the wrong
-children_low_usage), it can undermine the intended protection
-unexpectedly.
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=206411
+[2] Note that my lenovo T430 is the same.
 
-We have noticed this problem while seeing a swap out in a descendant of a
-protected memcg (intermediate node) while the parent was conveniently
-under its protection limit and the memory pressure was external to that
-hierarchy.  Michal has pinpointed this down to the wrong
-siblings_low_usage which led to the unwanted reclaim.
-
-The fix is simply updating children_low_usage in respective ancestors also
-in the charging path.
-
-Fixes: 230671533d64 ("mm: memory.low hierarchical behavior")
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.18+]
-Link: http://lkml.kernel.org/r/20200803153231.15477-1-mhocko@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 3dff7c6e3749 ("rtw88: allows to enable/disable HCI link PS mechanism")
+Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200605074703.32726-1-yhchuang@realtek.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_counter.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtw88/pci.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/mm/page_counter.c
-+++ b/mm/page_counter.c
-@@ -77,7 +77,7 @@ void page_counter_charge(struct page_cou
- 		long new;
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index d735f3127fe8f..6c24ddc2a9751 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -14,8 +14,11 @@
+ #include "debug.h"
  
- 		new = atomic_long_add_return(nr_pages, &c->usage);
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * This is indeed racy, but we can live with some
- 		 * inaccuracy in the watermark.
-@@ -121,7 +121,7 @@ bool page_counter_try_charge(struct page
- 		new = atomic_long_add_return(nr_pages, &c->usage);
- 		if (new > c->max) {
- 			atomic_long_sub(nr_pages, &c->usage);
--			propagate_protected_usage(counter, new);
-+			propagate_protected_usage(c, new);
- 			/*
- 			 * This is racy, but we can live with some
- 			 * inaccuracy in the failcnt.
-@@ -130,7 +130,7 @@ bool page_counter_try_charge(struct page
- 			*fail = c;
- 			goto failed;
- 		}
--		propagate_protected_usage(counter, new);
-+		propagate_protected_usage(c, new);
- 		/*
- 		 * Just like with failcnt, we can live with some
- 		 * inaccuracy in the watermark.
+ static bool rtw_disable_msi;
++static bool rtw_pci_disable_aspm;
+ module_param_named(disable_msi, rtw_disable_msi, bool, 0644);
++module_param_named(disable_aspm, rtw_pci_disable_aspm, bool, 0644);
+ MODULE_PARM_DESC(disable_msi, "Set Y to disable MSI interrupt support");
++MODULE_PARM_DESC(disable_aspm, "Set Y to disable PCI ASPM support");
+ 
+ static u32 rtw_pci_tx_queue_idx_addr[] = {
+ 	[RTW_TX_QUEUE_BK]	= RTK_PCI_TXBD_IDX_BKQ,
+@@ -1189,6 +1192,9 @@ static void rtw_pci_clkreq_set(struct rtw_dev *rtwdev, bool enable)
+ 	u8 value;
+ 	int ret;
+ 
++	if (rtw_pci_disable_aspm)
++		return;
++
+ 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
+ 	if (ret) {
+ 		rtw_err(rtwdev, "failed to read CLKREQ_L1, ret=%d", ret);
+@@ -1208,6 +1214,9 @@ static void rtw_pci_aspm_set(struct rtw_dev *rtwdev, bool enable)
+ 	u8 value;
+ 	int ret;
+ 
++	if (rtw_pci_disable_aspm)
++		return;
++
+ 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
+ 	if (ret) {
+ 		rtw_err(rtwdev, "failed to read ASPM, ret=%d", ret);
+-- 
+2.25.1
+
 
 
