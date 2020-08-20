@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F0D24BC6B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39AF224BC69
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730115AbgHTMpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730109AbgHTMpk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 08:45:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729301AbgHTJpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:38 -0400
+        id S1729302AbgHTJpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:45:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AA3022D2B;
-        Thu, 20 Aug 2020 09:45:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A4E822B43;
+        Thu, 20 Aug 2020 09:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916711;
-        bh=/8y6GF8k8VJess5C3NwZYNhibmbPHmu8ALAtqTv5b1s=;
+        s=default; t=1597916714;
+        bh=b9f+xnwyUqMctXGSyrXT4MrBAg5NaEEJVavFmxlBR0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kcscj+16oMDwWZtPRqj3txrhzBf2FfjG3DGXjTipfwBRvcNb4IToLJv9LAW2dEKyc
-         dN3CtfTBNb5zAocz/OPsskHNuixT0ktkIaRSaXzYF9DgiVf4sJt1Yf8jbnAnhKSpr7
-         jNF4JwnX4+rv7wJ2K4ulc8+wGD8KRsbOKWVyb3WE=
+        b=pRXAupHv69R76C2RwtEnYUyWVIh2PIvvqwtB+34Hb1tVUypIzXM1TskLBTbAhUJ6k
+         TrR7ojaRaHyaCY4vCZyMwboT97yfTZwx5VmB93UUoIqzUrHXYHza4WyClapCJt/ujb
+         lYNjZ0EqeYue/hLI3OR7BS9NRN4NNRBUBK5/Qe8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 020/152] btrfs: avoid possible signal interruption of btrfs_drop_snapshot() on relocation tree
-Date:   Thu, 20 Aug 2020 11:19:47 +0200
-Message-Id: <20200820091554.678666788@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>
+Subject: [PATCH 5.4 021/152] btrfs: sysfs: use NOFS for device creation
+Date:   Thu, 20 Aug 2020 11:19:48 +0200
+Message-Id: <20200820091554.733806713@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -43,86 +43,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit f3e3d9cc35252a70a2fd698762c9687718268ec6 upstream.
+commit a47bd78d0c44621efb98b525d04d60dc4d1a79b0 upstream.
 
-[BUG]
-There is a bug report about bad signal timing could lead to read-only
-fs during balance:
+Dave hit this splat during testing btrfs/078:
 
-  BTRFS info (device xvdb): balance: start -d -m -s
-  BTRFS info (device xvdb): relocating block group 73001861120 flags metadata
-  BTRFS info (device xvdb): found 12236 extents, stage: move data extents
-  BTRFS info (device xvdb): relocating block group 71928119296 flags data
-  BTRFS info (device xvdb): found 3 extents, stage: move data extents
-  BTRFS info (device xvdb): found 3 extents, stage: update data pointers
-  BTRFS info (device xvdb): relocating block group 60922265600 flags metadata
-  BTRFS: error (device xvdb) in btrfs_drop_snapshot:5505: errno=-4 unknown
-  BTRFS info (device xvdb): forced readonly
-  BTRFS info (device xvdb): balance: ended with status: -4
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.8.0-rc6-default+ #1191 Not tainted
+  ------------------------------------------------------
+  kswapd0/75 is trying to acquire lock:
+  ffffa040e9d04ff8 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
 
-[CAUSE]
-The direct cause is the -EINTR from the following call chain when a
-fatal signal is pending:
+  but task is already holding lock:
+  ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
 
- relocate_block_group()
- |- clean_dirty_subvols()
-    |- btrfs_drop_snapshot()
-       |- btrfs_start_transaction()
-          |- btrfs_delayed_refs_rsv_refill()
-             |- btrfs_reserve_metadata_bytes()
-                |- __reserve_metadata_bytes()
-                   |- wait_reserve_ticket()
-                      |- prepare_to_wait_event();
-                      |- ticket->error = -EINTR;
+  which lock already depends on the new lock.
 
-Normally this behavior is fine for most btrfs_start_transaction()
-callers, as they need to catch any other error, same for the signal, and
-exit ASAP.
+  the existing dependency chain (in reverse order) is:
 
-However for balance, especially for the clean_dirty_subvols() case, we're
-already doing cleanup works, getting -EINTR from btrfs_drop_snapshot()
-could cause a lot of unexpected problems.
+  -> #2 (fs_reclaim){+.+.}-{0:0}:
+	 __lock_acquire+0x56f/0xaa0
+	 lock_acquire+0xa3/0x440
+	 fs_reclaim_acquire.part.0+0x25/0x30
+	 __kmalloc_track_caller+0x49/0x330
+	 kstrdup+0x2e/0x60
+	 __kernfs_new_node.constprop.0+0x44/0x250
+	 kernfs_new_node+0x25/0x50
+	 kernfs_create_link+0x34/0xa0
+	 sysfs_do_create_link_sd+0x5e/0xd0
+	 btrfs_sysfs_add_devices_dir+0x65/0x100 [btrfs]
+	 btrfs_init_new_device+0x44c/0x12b0 [btrfs]
+	 btrfs_ioctl+0xc3c/0x25c0 [btrfs]
+	 ksys_ioctl+0x68/0xa0
+	 __x64_sys_ioctl+0x16/0x20
+	 do_syscall_64+0x50/0xe0
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
->From the mentioned forced read-only report, to later balance error due
-to half dropped reloc trees.
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x56f/0xaa0
+	 lock_acquire+0xa3/0x440
+	 __mutex_lock+0xa0/0xaf0
+	 btrfs_chunk_alloc+0x137/0x3e0 [btrfs]
+	 find_free_extent+0xb44/0xfb0 [btrfs]
+	 btrfs_reserve_extent+0x9b/0x180 [btrfs]
+	 btrfs_alloc_tree_block+0xc1/0x350 [btrfs]
+	 alloc_tree_block_no_bg_flush+0x4a/0x60 [btrfs]
+	 __btrfs_cow_block+0x143/0x7a0 [btrfs]
+	 btrfs_cow_block+0x15f/0x310 [btrfs]
+	 push_leaf_right+0x150/0x240 [btrfs]
+	 split_leaf+0x3cd/0x6d0 [btrfs]
+	 btrfs_search_slot+0xd14/0xf70 [btrfs]
+	 btrfs_insert_empty_items+0x64/0xc0 [btrfs]
+	 __btrfs_commit_inode_delayed_items+0xb2/0x840 [btrfs]
+	 btrfs_async_run_delayed_root+0x10e/0x1d0 [btrfs]
+	 btrfs_work_helper+0x2f9/0x650 [btrfs]
+	 process_one_work+0x22c/0x600
+	 worker_thread+0x50/0x3b0
+	 kthread+0x137/0x150
+	 ret_from_fork+0x1f/0x30
 
-[FIX]
-Fix this problem by using btrfs_join_transaction() if
-btrfs_drop_snapshot() is called from relocation context.
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 check_prev_add+0x98/0xa20
+	 validate_chain+0xa8c/0x2a00
+	 __lock_acquire+0x56f/0xaa0
+	 lock_acquire+0xa3/0x440
+	 __mutex_lock+0xa0/0xaf0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+	 btrfs_evict_inode+0x3bf/0x560 [btrfs]
+	 evict+0xd6/0x1c0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x54/0x80
+	 super_cache_scan+0x121/0x1a0
+	 do_shrink_slab+0x175/0x420
+	 shrink_slab+0xb1/0x2e0
+	 shrink_node+0x192/0x600
+	 balance_pgdat+0x31f/0x750
+	 kswapd+0x206/0x510
+	 kthread+0x137/0x150
+	 ret_from_fork+0x1f/0x30
 
-Since btrfs_join_transaction() won't get interrupted by signal, we can
-continue the cleanup.
+  other info that might help us debug this:
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>3
+  Chain exists of:
+    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(&fs_info->chunk_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/75:
+   #0: ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffff8b0b50b8 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x54/0x2e0
+   #2: ffffa040e057c0e8 (&type->s_umount_key#26){++++}-{3:3}, at: trylock_super+0x16/0x50
+
+  stack backtrace:
+  CPU: 2 PID: 75 Comm: kswapd0 Not tainted 5.8.0-rc6-default+ #1191
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+  Call Trace:
+   dump_stack+0x78/0xa0
+   check_noncircular+0x16f/0x190
+   check_prev_add+0x98/0xa20
+   validate_chain+0xa8c/0x2a00
+   __lock_acquire+0x56f/0xaa0
+   lock_acquire+0xa3/0x440
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+   __mutex_lock+0xa0/0xaf0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+   ? __lock_acquire+0x56f/0xaa0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+   ? lock_acquire+0xa3/0x440
+   ? btrfs_evict_inode+0x138/0x560 [btrfs]
+   ? btrfs_evict_inode+0x2fe/0x560 [btrfs]
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+   __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+   btrfs_evict_inode+0x3bf/0x560 [btrfs]
+   evict+0xd6/0x1c0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x54/0x80
+   super_cache_scan+0x121/0x1a0
+   do_shrink_slab+0x175/0x420
+   shrink_slab+0xb1/0x2e0
+   shrink_node+0x192/0x600
+   balance_pgdat+0x31f/0x750
+   kswapd+0x206/0x510
+   ? _raw_spin_unlock_irqrestore+0x3e/0x50
+   ? finish_wait+0x90/0x90
+   ? balance_pgdat+0x750/0x750
+   kthread+0x137/0x150
+   ? kthread_stop+0x2a0/0x2a0
+   ret_from_fork+0x1f/0x30
+
+This is because we're holding the chunk_mutex while adding this device
+and adding its sysfs entries.  We actually hold different locks in
+different places when calling this function, the dev_replace semaphore
+for instance in dev replace, so instead of moving this call around
+simply wrap it's operations in NOFS.
+
+CC: stable@vger.kernel.org # 4.14+
+Reported-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/btrfs/sysfs.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5221,7 +5221,14 @@ int btrfs_drop_snapshot(struct btrfs_roo
- 		goto out;
- 	}
+--- a/fs/btrfs/sysfs.c
++++ b/fs/btrfs/sysfs.c
+@@ -975,7 +975,9 @@ int btrfs_sysfs_add_device_link(struct b
+ {
+ 	int error = 0;
+ 	struct btrfs_device *dev;
++	unsigned int nofs_flag;
  
--	trans = btrfs_start_transaction(tree_root, 0);
-+	/*
-+	 * Use join to avoid potential EINTR from transaction start. See
-+	 * wait_reserve_ticket and the whole reservation callchain.
-+	 */
-+	if (for_reloc)
-+		trans = btrfs_join_transaction(tree_root);
-+	else
-+		trans = btrfs_start_transaction(tree_root, 0);
- 	if (IS_ERR(trans)) {
- 		err = PTR_ERR(trans);
- 		goto out_free;
++	nofs_flag = memalloc_nofs_save();
+ 	list_for_each_entry(dev, &fs_devices->devices, dev_list) {
+ 		struct hd_struct *disk;
+ 		struct kobject *disk_kobj;
+@@ -994,6 +996,7 @@ int btrfs_sysfs_add_device_link(struct b
+ 		if (error)
+ 			break;
+ 	}
++	memalloc_nofs_restore(nofs_flag);
+ 
+ 	return error;
+ }
 
 
