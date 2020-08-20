@@ -2,67 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B2824B118
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA4124B11B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgHTIcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 04:32:43 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:35907 "EHLO
+        id S1726788AbgHTIc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 04:32:56 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:48693 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726806AbgHTIc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 04:32:29 -0400
+        by vger.kernel.org with ESMTP id S1725852AbgHTIcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 04:32:54 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B94961940E58;
-        Thu, 20 Aug 2020 04:32:24 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 20 Aug 2020 04:32:24 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id D2297194008D;
+        Thu, 20 Aug 2020 04:32:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 20 Aug 2020 04:32:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ArNlWG
-        eKQWl7taek0458a8hdMqfTUaCIcYGRI/n/8MY=; b=uXfWLUuOUBjI8GHfahVENS
-        VgLkZkm++Z2/nS0XCu5EfdKQZHdx0FrujY5GbDJ5ohUCDCyCDM8ZL/gt/fUqSzRF
-        xjREkl1fBm2fw4KeVkFdtwe63NcXOwLEj2Qkil8oiHqE66gPNkgCVAqzLakiiwo/
-        DLXIF1tFCL87QYsSUnrBbOHRo+2+Tr0zjegPApIOy9QPG+8xgT0ndyb9zqHQVsMK
-        wmVpHjDrvhGjzDtbH75WdJAAMPK7ESnRNG82x9s+YMPKatdqkFl0hndAudRjtAe7
-        VEcQ26C9jW5VURdPyU5Tcadj4njOQvst1saTTSmj60o0Q+7kp5HcyIIdyXfzkrzg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ibWEpU
+        7+iwsNDzofn/aPZp52OPDhI2zxBvK17pYz2r8=; b=RpMknMG5/qHvJG+U0VCFoy
+        vexiYMkYqS5RsbDR8NCiAdybdwDy7cD9xKoADFOdRHv8IrLGQloqlGK115cIXoSw
+        +z+mTmLCKX3CMVyqmOU9s6opASruDeTZ+YX/BmHY5hM1iPWSCiyIxuoe8v0vLcoR
+        ZOoRnTbWdjgIPiqv4VwTFOPfRlbThXJF1wp/Z5HTB5uKMZXR0H0KP35p6lbrYCv5
+        1Jrl1zcciXRf0iQwVnDCI+RYmgK4hxCrsp0hzQFY1CDIglYX6lvrjB7Af7TXKuD6
+        2N1gXtKiTb3L193S2d0Cn8uXgLgua2zwxvzXaJ+MxlSXMZaHL2E62yTodHuVF+qQ
         ==
-X-ME-Sender: <xms:GDU-X-it8JTx6D0ZE6t0wHBlyhpH1JQNvXQS_VTDlxsTAr2vAz0b2A>
+X-ME-Sender: <xms:MzU-XxMZEYW9NHHJwZLgSbb-roRY5vvDZWRvpxK_RQxNsUBaz70BHQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddutddgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeefnecurf
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
+    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:GDU-X_CXjnC8LF7ytOA_eNGObv9xjQk6iH-6t8y_pamXH1xptWRaEQ>
-    <xmx:GDU-X2Gp2DH4yzuGGjj_L0XIIZxepw8b6Ny1LML163JMtrDxEvs3ww>
-    <xmx:GDU-X3SwvGnN8bgNJ9ViHlUs1IXJpYXMehPdEKeIuDfNeMPP8K_lZg>
-    <xmx:GDU-X8vYM4g-4dkTPz2kimTqEFA2_ilbcqg0LR0ClDqhuz_7ZXwDsw>
+X-ME-Proxy: <xmx:MzU-Xz_bSORdrku-uzPUCaHDr1XX9Xq-iBA-wQmVQNrB7B-gZr86hA>
+    <xmx:MzU-XwRMdF83b-bcAJpjTPh_xhxEhnTsVW5Z8OskASWBW-fxTm4Xrg>
+    <xmx:MzU-X9thY_HTdIpiK1uU8YCNoOtMnIk0VC8fylgUhUjo9tBnNF5inA>
+    <xmx:NDU-X16vUKX8k1Q4_qXsl0dI0KKSl8vcNGe0ltqoM-MlRC0coEF-iiC0jT4>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5BEB630600A9;
-        Thu, 20 Aug 2020 04:32:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/vgem: Replace opencoded version of" failed to apply to 5.7-stable tree
-To:     chris@chris-wilson.co.uk, daniel.vetter@ffwll.ch,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5E9B0328005A;
+        Thu, 20 Aug 2020 04:32:51 -0400 (EDT)
+Subject: WTF: patch "[PATCH] drm/mgag200: Remove declaration of mgag200_mmap() from header" was seriously submitted to be applied to the 5.8-stable tree?
+To:     tzimmermann@suse.de, airlied@redhat.com, alexander.deucher@amd.com,
+        armijn@tjaldur.nl, daniel.vetter@ffwll.ch,
+        emil.velikov@collabora.com, gregkh@linuxfoundation.org,
+        kraxel@redhat.com, krzk@kernel.org, noralf@tronnes.org,
+        sam@ravnborg.org, stable@vger.kernel.org, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 20 Aug 2020 10:32:40 +0200
-Message-ID: <1597912360139197@kroah.com>
+Date:   Thu, 20 Aug 2020 10:33:12 +0200
+Message-ID: <1597912392179121@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The patch below was submitted to be applied to the 5.8-stable tree.
 
-The patch below does not apply to the 5.7-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I fail to see how this patch meets the stable kernel rules as found at
+Documentation/process/stable-kernel-rules.rst.
+
+I could be totally wrong, and if so, please respond to 
+<stable@vger.kernel.org> and let me know why this patch should be
+applied.  Otherwise, it is now dropped from my patch queues, never to be
+seen again.
 
 thanks,
 
@@ -70,77 +77,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 119c53d2d4044c59c450c4f5a568d80b9d861856 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Wed, 8 Jul 2020 16:49:11 +0100
-Subject: [PATCH] drm/vgem: Replace opencoded version of
- drm_gem_dumb_map_offset()
+From 1d8d42ba365101fa68d210c0e2ed2bc9582fda6c Mon Sep 17 00:00:00 2001
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Date: Fri, 5 Jun 2020 15:57:50 +0200
+Subject: [PATCH] drm/mgag200: Remove declaration of mgag200_mmap() from header
+ file
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-drm_gem_dumb_map_offset() now exists and does everything
-vgem_gem_dump_map does and *ought* to do.
+Commit 94668ac796a5 ("drm/mgag200: Convert mgag200 driver to VRAM MM")
+removed the implementation of mgag200_mmap(). Also remove the declaration.
 
-In particular, vgem_gem_dumb_map() was trying to reject mmapping an
-imported dmabuf by checking the existence of obj->filp. Unfortunately,
-we always allocated an obj->filp, even if unused for an imported dmabuf.
-Instead, the drm_gem_dumb_map_offset(), since commit 90378e589192
-("drm/gem: drm_gem_dumb_map_offset(): reject dma-buf"), uses the
-obj->import_attach to reject such invalid mmaps.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Fixes: 94668ac796a5 ("drm/mgag200: Convert mgag200 driver to VRAM MM")
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Noralf Trønnes" <noralf@tronnes.org>
+Cc: Armijn Hemel <armijn@tjaldur.nl>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: <stable@vger.kernel.org> # v5.3+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200605135803.19811-2-tzimmermann@suse.de
 
-This prevents vgem from allowing userspace mmapping the dumb handle and
-attempting to incorrectly fault in remote pages belonging to another
-device, where there may not even be a struct page.
-
-v2: Use the default drm_gem_dumb_map_offset() callback
-
-Fixes: af33a9190d02 ("drm/vgem: Enable dmabuf import interfaces")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: <stable@vger.kernel.org> # v4.13+
-Link: https://patchwork.freedesktop.org/patch/msgid/20200708154911.21236-1-chris@chris-wilson.co.uk
-
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index e4dc7b267a0b..a775feda1cc7 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -230,32 +230,6 @@ static int vgem_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
+index 47df62b1ad29..92b6679029fe 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -198,6 +198,5 @@ void mgag200_i2c_destroy(struct mga_i2c_chan *i2c);
  
--static int vgem_gem_dumb_map(struct drm_file *file, struct drm_device *dev,
--			     uint32_t handle, uint64_t *offset)
--{
--	struct drm_gem_object *obj;
--	int ret;
--
--	obj = drm_gem_object_lookup(file, handle);
--	if (!obj)
--		return -ENOENT;
--
--	if (!obj->filp) {
--		ret = -EINVAL;
--		goto unref;
--	}
--
--	ret = drm_gem_create_mmap_offset(obj);
--	if (ret)
--		goto unref;
--
--	*offset = drm_vma_node_offset_addr(&obj->vma_node);
--unref:
--	drm_gem_object_put(obj);
--
--	return ret;
--}
--
- static struct drm_ioctl_desc vgem_ioctls[] = {
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_ATTACH, vgem_fence_attach_ioctl, DRM_RENDER_ALLOW),
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_SIGNAL, vgem_fence_signal_ioctl, DRM_RENDER_ALLOW),
-@@ -446,7 +420,6 @@ static struct drm_driver vgem_driver = {
- 	.fops				= &vgem_driver_fops,
+ int mgag200_mm_init(struct mga_device *mdev);
+ void mgag200_mm_fini(struct mga_device *mdev);
+-int mgag200_mmap(struct file *filp, struct vm_area_struct *vma);
  
- 	.dumb_create			= vgem_gem_dumb_create,
--	.dumb_map_offset		= vgem_gem_dumb_map,
- 
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ #endif				/* __MGAG200_DRV_H__ */
 
