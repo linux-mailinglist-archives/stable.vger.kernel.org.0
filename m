@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7BF24B2E1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628C424B35E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727048AbgHTJi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:38:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
+        id S1729274AbgHTJqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbgHTJiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:38:25 -0400
+        id S1728983AbgHTJqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E92522B43;
-        Thu, 20 Aug 2020 09:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DE492173E;
+        Thu, 20 Aug 2020 09:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916305;
-        bh=Jen+qfOZNmYM0kSGwzovdZBTZXKl8VbilUIN2LKYbyg=;
+        s=default; t=1597916780;
+        bh=a0mQ9l867mnZMQADo1PEs3gYwox1kqQXfbw0BZLxdJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnf0q9WGCTLFOvQP5OXDbVcQn9zreX2Gxsf+/RM+M3Twj+KXPjAW5iQXK8OmAj+Sg
-         9r0HlJhi0LOGRkZkMNhoJSxJI63PuaFNJLsfY1ZP9JbUcVETdTJGYjZ7rNH2hgP3ue
-         hYZ+oLCdbLSFmSTgPqtm1LW5Kvlk7p+Ct2naCvfw=
+        b=vmPFQRXAZIqIbgVv1f4lDkfwQnG/T5XQg33ywlOEX1oJjesDc+IfM+fqgq6DGjxyH
+         gD2rWr9pPZ/x+DMWFu8UDSg2QV2gZItWMMatCFrA37SP9lN1nmWwIDqpXKSz4j3I/f
+         CszVghM94s27jv2ykCxeRoMv1yOqONrIheyQXpA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.7 082/204] watchdog: f71808e_wdt: clear watchdog timeout occurred flag
-Date:   Thu, 20 Aug 2020 11:19:39 +0200
-Message-Id: <20200820091610.439093994@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 013/152] btrfs: stop incremening log_batch for the log root tree when syncing log
+Date:   Thu, 20 Aug 2020 11:19:40 +0200
+Message-Id: <20200820091554.328851118@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 4f39d575844148fbf3081571a1f3b4ae04150958 upstream.
+commit 28a9579561bcb9082715e720eac93012e708ab94 upstream.
 
-The flag indicating a watchdog timeout having occurred normally persists
-till Power-On Reset of the Fintek Super I/O chip. The user can clear it
-by writing a `1' to the bit.
+We are incrementing the log_batch atomic counter of the root log tree but
+we never use that counter, it's used only for the log trees of subvolume
+roots. We started doing it when we moved the log_batch and log_write
+counters from the global, per fs, btrfs_fs_info structure, into the
+btrfs_root structure in commit 7237f1833601dc ("Btrfs: fix tree logs
+parallel sync").
 
-The driver doesn't offer a restart method, so regular system reboot
-might not reset the Super I/O and if the watchdog isn't enabled, we
-won't touch the register containing the bit on the next boot.
-In this case all subsequent regular reboots will be wrongly flagged
-by the driver as being caused by the watchdog.
+So just stop doing it for the log root tree and add a comment over the
+field declaration so inform it's used only for log trees of subvolume
+roots.
 
-Fix this by having the flag cleared after read. This is also done by
-other drivers like those for the i6300esb and mpc8xxx_wdt.
+This patch is part of a series that has the following patches:
 
-Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200611191750.28096-5-a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+1/4 btrfs: only commit the delayed inode when doing a full fsync
+2/4 btrfs: only commit delayed items at fsync if we are logging a directory
+3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
+4/4 btrfs: remove no longer needed use of log_writers for the log root tree
+
+After the entire patchset applied I saw about 12% decrease on max latency
+reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
+ram, using kvm and using a raw NVMe device directly (no intermediary fs on
+the host). The test was invoked like the following:
+
+  mkfs.btrfs -f /dev/sdk
+  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
+  dbench -D /mnt/sdk -t 300 8
+  umount /mnt/dsk
+
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/f71808e_wdt.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/btrfs/ctree.h    |    1 +
+ fs/btrfs/tree-log.c |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -706,6 +706,13 @@ static int __init watchdog_init(int sioa
- 	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
- 	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -992,6 +992,7 @@ struct btrfs_root {
+ 	struct list_head log_ctxs[2];
+ 	atomic_t log_writers;
+ 	atomic_t log_commit[2];
++	/* Used only for log trees of subvolumes, not for the log root tree */
+ 	atomic_t log_batch;
+ 	int log_transid;
+ 	/* No matter the commit succeeds or not*/
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3140,7 +3140,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	btrfs_init_log_ctx(&root_log_ctx, NULL);
  
-+	/*
-+	 * We don't want WDTMOUT_STS to stick around till regular reboot.
-+	 * Write 1 to the bit to clear it to zero.
-+	 */
-+	superio_outb(sioaddr, F71808FG_REG_WDT_CONF,
-+		     wdt_conf | BIT(F71808FG_FLAG_WDTMOUT_STS));
-+
- 	superio_exit(sioaddr);
+ 	mutex_lock(&log_root_tree->log_mutex);
+-	atomic_inc(&log_root_tree->log_batch);
+ 	atomic_inc(&log_root_tree->log_writers);
  
- 	err = watchdog_set_timeout(timeout);
+ 	index2 = log_root_tree->log_transid % 2;
 
 
