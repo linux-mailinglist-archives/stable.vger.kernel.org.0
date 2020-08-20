@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD2824BDDC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:15:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F82624BDD6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728587AbgHTJgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728580AbgHTJgT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 05:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728135AbgHTJgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:36:17 -0400
+        id S1728228AbgHTJgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0389F207DE;
-        Thu, 20 Aug 2020 09:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBD67208E4;
+        Thu, 20 Aug 2020 09:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916175;
-        bh=A5/9brDvRPF70ERveEC5pLTQSGpg8dEFelBfyXyhmX8=;
+        s=default; t=1597916178;
+        bh=gMAJQySplqK3LODlD+yqkkSZmARBSR3jSggcw7cFqr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZbahDrovj1TARmE3l48Xp2FBXEvoy7tXPsEZpYhmU5tzQAWRq3oXHxeKFt0zAins
-         x66jH+WcQQde00wb/ZBUaHoXgAyfhcn7DY50bumPFvKIDDEDfadrDoGdN5d9D+Wule
-         emJy/jf9/7yt8mhNXdMpCpWIE/fZZe3DTafgZ4jM=
+        b=KYYr5RL7NuoybLRgk3x1Pbyq+9E+uqRFmA9EmHBJRz6P6XgCHIUq3sHpt5spbGxWU
+         IVm2bc41VLlLR9DV3IbwqW6zsJNsjK1Iz7bI2GPMi83EHjAV9hBDXMn2FpTWlYInl8
+         SgapWgWtA5oBXFVY629mRn7DWqN0BYgY2FzU1Fcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 5.7 037/204] arm64: perf: Correct the event index in sysfs
-Date:   Thu, 20 Aug 2020 11:18:54 +0200
-Message-Id: <20200820091608.123251565@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Christian Eggers <ceggers@arri.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.7 038/204] dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+Date:   Thu, 20 Aug 2020 11:18:55 +0200
+Message-Id: <20200820091608.175052972@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,62 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaokun Zhang <zhangshaokun@hisilicon.com>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 539707caa1a89ee4efc57b4e4231c20c46575ccc upstream.
+commit add48ba425192c6e04ce70549129cacd01e2a09e upstream.
 
-When PMU event ID is equal or greater than 0x4000, it will be reduced
-by 0x4000 and it is not the raw number in the sysfs. Let's correct it
-and obtain the raw event ID.
+The correct compatible string is "gpio-mux" (see
+bindings/mux/gpio-mux.txt).
 
-Before this patch:
-cat /sys/bus/event_source/devices/armv8_pmuv3_0/events/sample_feed
-event=0x001
-After this patch:
-cat /sys/bus/event_source/devices/armv8_pmuv3_0/events/sample_feed
-event=0x4001
-
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1592487344-30555-3-git-send-email-zhangshaokun@hisilicon.com
-[will: fixed formatting of 'if' condition]
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org # v4.13+
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Link: https://lore.kernel.org/r/20200727101605.24384-1-ceggers@arri.de
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/perf_event.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/perf_event.c
-+++ b/arch/arm64/kernel/perf_event.c
-@@ -155,7 +155,7 @@ armv8pmu_events_sysfs_show(struct device
+--- a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
++++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+@@ -21,7 +21,7 @@ controller state. The mux controller sta
  
- 	pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr);
+ Example:
+ 	mux: mux-controller {
+-		compatible = "mux-gpio";
++		compatible = "gpio-mux";
+ 		#mux-control-cells = <0>;
  
--	return sprintf(page, "event=0x%03llx\n", pmu_attr->id);
-+	return sprintf(page, "event=0x%04llx\n", pmu_attr->id);
- }
- 
- #define ARMV8_EVENT_ATTR(name, config)						\
-@@ -244,10 +244,13 @@ armv8pmu_event_attr_is_visible(struct ko
- 	    test_bit(pmu_attr->id, cpu_pmu->pmceid_bitmap))
- 		return attr->mode;
- 
--	pmu_attr->id -= ARMV8_PMUV3_EXT_COMMON_EVENT_BASE;
--	if (pmu_attr->id < ARMV8_PMUV3_MAX_COMMON_EVENTS &&
--	    test_bit(pmu_attr->id, cpu_pmu->pmceid_ext_bitmap))
--		return attr->mode;
-+	if (pmu_attr->id >= ARMV8_PMUV3_EXT_COMMON_EVENT_BASE) {
-+		u64 id = pmu_attr->id - ARMV8_PMUV3_EXT_COMMON_EVENT_BASE;
-+
-+		if (id < ARMV8_PMUV3_MAX_COMMON_EVENTS &&
-+		    test_bit(id, cpu_pmu->pmceid_ext_bitmap))
-+			return attr->mode;
-+	}
- 
- 	return 0;
- }
+ 		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
 
 
