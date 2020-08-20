@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29C4224B24C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E88FF24B23A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbgHTJ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60762 "EHLO mail.kernel.org"
+        id S1726983AbgHTJZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726803AbgHTJ0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:14 -0400
+        id S1727069AbgHTJZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:25:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFC3F22D06;
-        Thu, 20 Aug 2020 09:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B678422CE3;
+        Thu, 20 Aug 2020 09:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915574;
-        bh=d2MQWqK4nO9dHOGm66JEcLmRTjtTA5AAhr23qVhwR/Q=;
+        s=default; t=1597915503;
+        bh=DHjk1xprJ640WK6GuoIc6wNF5AJ2FL1WMkWgfQxe4W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkJlE32TuAwhYMxyIRPhNLxz3/tbte9TWHiC6UxdPpJLRfavJtvTbNoayAb30MRGq
-         9OxRDjBzT1j6ApTsazCgMRGadDF1BJTLOmEEaHj3NlW2vUa36/aClg6noEhW6dOYUE
-         1OMiiDE8XqEfjJtAnOQeNjzg+ZaCU7RFPpIIDMGw=
+        b=Hps1F+7Cile+yHFZq2Ffzubo9JuZ/kJwt21p7EaB9C0NbzeNatWeT/8Qk6G1tCLsI
+         +idH9p6UYfCfOt3UKbmdDA1CyBgn6I1GBHHkooQF70LJRQc1EqCAUpSlZqEMvPsNFY
+         vTMRHMSUDAPR8X24KUdGK0JmHD/qlijoYuF0Tvxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 032/232] btrfs: fix race between page release and a fast fsync
-Date:   Thu, 20 Aug 2020 11:18:03 +0200
-Message-Id: <20200820091614.317899495@linuxfoundation.org>
+Subject: [PATCH 5.8 037/232] btrfs: fix memory leaks after failure to lookup checksums during inode logging
+Date:   Thu, 20 Aug 2020 11:18:08 +0200
+Message-Id: <20200820091614.569546808@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,90 +47,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit 3d6448e631591756da36efb3ea6355ff6f383c3a upstream.
+commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
 
-When releasing an extent map, done through the page release callback, we
-can race with an ongoing fast fsync and cause the fsync to miss a new
-extent and not log it. The steps for this to happen are the following:
+While logging an inode, at copy_items(), if we fail to lookup the checksums
+for an extent we release the destination path, free the ins_data array and
+then return immediately. However a previous iteration of the for loop may
+have added checksums to the ordered_sums list, in which case we leak the
+memory used by them.
 
-1) A page is dirtied for some inode I;
+So fix this by making sure we iterate the ordered_sums list and free all
+its checksums before returning.
 
-2) Writeback for that page is triggered by a path other than fsync, for
-   example by the system due to memory pressure;
-
-3) When the ordered extent for the extent (a single 4K page) finishes,
-   we unpin the corresponding extent map and set its generation to N,
-   the current transaction's generation;
-
-4) The btrfs_releasepage() callback is invoked by the system due to
-   memory pressure for that no longer dirty page of inode I;
-
-5) At the same time, some task calls fsync on inode I, joins transaction
-   N, and at btrfs_log_inode() it sees that the inode does not have the
-   full sync flag set, so we proceed with a fast fsync. But before we get
-   into btrfs_log_changed_extents() and lock the inode's extent map tree:
-
-6) Through btrfs_releasepage() we end up at try_release_extent_mapping()
-   and we remove the extent map for the new 4Kb extent, because it is
-   neither pinned anymore nor locked. By calling remove_extent_mapping(),
-   we remove the extent map from the list of modified extents, since the
-   extent map does not have the logging flag set. We unlock the inode's
-   extent map tree;
-
-7) The task doing the fast fsync now enters btrfs_log_changed_extents(),
-   locks the inode's extent map tree and iterates its list of modified
-   extents, which no longer has the 4Kb extent in it, so it does not log
-   the extent;
-
-8) The fsync finishes;
-
-9) Before transaction N is committed, a power failure happens. After
-   replaying the log, the 4K extent of inode I will be missing, since
-   it was not logged due to the race with try_release_extent_mapping().
-
-So fix this by teaching try_release_extent_mapping() to not remove an
-extent map if it's still in the list of modified extents.
-
-Fixes: ff44c6e36dc9dc ("Btrfs: do not hold the write_lock on the extent tree while logging")
-CC: stable@vger.kernel.org # 5.4+
+Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/btrfs/tree-log.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4502,15 +4502,25 @@ int try_release_extent_mapping(struct pa
- 				free_extent_map(em);
- 				break;
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4027,11 +4027,8 @@ static noinline int copy_items(struct bt
+ 						fs_info->csum_root,
+ 						ds + cs, ds + cs + cl - 1,
+ 						&ordered_sums, 0);
+-				if (ret) {
+-					btrfs_release_path(dst_path);
+-					kfree(ins_data);
+-					return ret;
+-				}
++				if (ret)
++					break;
  			}
--			if (!test_range_bit(tree, em->start,
--					    extent_map_end(em) - 1,
--					    EXTENT_LOCKED, 0, NULL)) {
-+			if (test_range_bit(tree, em->start,
-+					   extent_map_end(em) - 1,
-+					   EXTENT_LOCKED, 0, NULL))
-+				goto next;
-+			/*
-+			 * If it's not in the list of modified extents, used
-+			 * by a fast fsync, we can remove it. If it's being
-+			 * logged we can safely remove it since fsync took an
-+			 * extra reference on the em.
-+			 */
-+			if (list_empty(&em->list) ||
-+			    test_bit(EXTENT_FLAG_LOGGING, &em->flags)) {
- 				set_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
- 					&btrfs_inode->runtime_flags);
- 				remove_extent_mapping(map, em);
- 				/* once for the rb tree */
- 				free_extent_map(em);
- 			}
-+next:
- 			start = extent_map_end(em);
- 			write_unlock(&map->lock);
- 
+ 		}
+ 	}
+@@ -4044,7 +4041,6 @@ static noinline int copy_items(struct bt
+ 	 * we have to do this after the loop above to avoid changing the
+ 	 * log tree while trying to change the log tree.
+ 	 */
+-	ret = 0;
+ 	while (!list_empty(&ordered_sums)) {
+ 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
+ 						   struct btrfs_ordered_sum,
 
 
