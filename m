@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F081324BF0D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF81324BF0F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730208AbgHTNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39982 "EHLO mail.kernel.org"
+        id S1730374AbgHTNjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727873AbgHTJ33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:29 -0400
+        id S1727012AbgHTJ3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BE4922CB1;
-        Thu, 20 Aug 2020 09:29:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E32622CB2;
+        Thu, 20 Aug 2020 09:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915768;
-        bh=WIKSys58th+7AjM3t2XfP0sozcAs5fjDqMdZLR227Zo=;
+        s=default; t=1597915771;
+        bh=rYL2IwAIcAFoDXZRpBmPjSQUP7VADmZhoj4Za1W7tt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7cD8eWeIDK0BfKcK65tV0zDTuHKSdGVC4giS1YOYha0rTiwLSh+hAc18pTyUjRSR
-         M7SuYe55UDlViWQS/YNXXqNll6GgWbf6TMwukgMm1N+gNtTr1RIvXqPNM3+CfIxXb4
-         vUGVmRJBNbA4H4j8SwCItYDdwuznxPbXfTenYGkY=
+        b=gdJD2B0vtEqDxXJPdSod66qt9gRMofWTdnTVHuQI6Y8rV6ODYQFrQmLI/D9mkr69z
+         cRumilPWCXjqWnwWIW8W4BTTcB9DKUVVbG+pUVCt2CYSrlYknUFbuz6yN61iFWlAJM
+         ydOmgy7HMcnjIQIHwKu0wC0eyxiI9UHQI964vohY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Dorminy <jdorminy@redhat.com>,
-        Heinz Mauelshagen <heinzm@redhat.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.8 098/232] dm ebs: Fix incorrect checking for REQ_OP_FLUSH
-Date:   Thu, 20 Aug 2020 11:19:09 +0200
-Message-Id: <20200820091617.578250486@linuxfoundation.org>
+Subject: [PATCH 5.8 099/232] dm: dont call report zones for more than the user requested
+Date:   Thu, 20 Aug 2020 11:19:10 +0200
+Message-Id: <20200820091617.626527301@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,36 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Dorminy <jdorminy@redhat.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 4cb6f22612511ff2aba4c33fb0f281cae7c23772 upstream.
+commit a9cb9f4148ef6bb8fabbdaa85c42b2171fbd5a0d upstream.
 
-REQ_OP_FLUSH was being treated as a flag, but the operation
-part of bio->bi_opf must be treated as a whole. Change to
-accessing the operation part via bio_op(bio) and checking
-for equality.
+Don't call report zones for more zones than the user actually requested,
+otherwise this can lead to out-of-bounds accesses in the callback
+functions.
 
-Signed-off-by: John Dorminy <jdorminy@redhat.com>
-Acked-by: Heinz Mauelshagen <heinzm@redhat.com>
-Fixes: d3c7b35c20d60 ("dm: add emulated block size target")
-Cc: stable@vger.kernel.org
+Such a situation can happen if the target's ->report_zones() callback
+function returns 0 because we've reached the end of the target and then
+restart the report zones on the second target.
+
+We're again calling into ->report_zones() and ultimately into the user
+supplied callback function but when we're not subtracting the number of
+zones already processed this may lead to out-of-bounds accesses in the
+user callbacks.
+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Fixes: d41003513e61 ("block: rework zone reporting")
+Cc: stable@vger.kernel.org # v5.5+
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-ebs-target.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-ebs-target.c
-+++ b/drivers/md/dm-ebs-target.c
-@@ -363,7 +363,7 @@ static int ebs_map(struct dm_target *ti,
- 	bio_set_dev(bio, ec->dev->bdev);
- 	bio->bi_iter.bi_sector = ec->start + dm_target_offset(ti, bio->bi_iter.bi_sector);
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -504,7 +504,8 @@ static int dm_blk_report_zones(struct ge
+ 		}
  
--	if (unlikely(bio->bi_opf & REQ_OP_FLUSH))
-+	if (unlikely(bio_op(bio) == REQ_OP_FLUSH))
- 		return DM_MAPIO_REMAPPED;
- 	/*
- 	 * Only queue for bufio processing in case of partial or overlapping buffers
+ 		args.tgt = tgt;
+-		ret = tgt->type->report_zones(tgt, &args, nr_zones);
++		ret = tgt->type->report_zones(tgt, &args,
++					      nr_zones - args.zone_idx);
+ 		if (ret < 0)
+ 			goto out;
+ 	} while (args.zone_idx < nr_zones &&
 
 
