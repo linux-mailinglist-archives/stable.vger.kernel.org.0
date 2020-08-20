@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5114424AAF8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD4B24AB01
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728282AbgHTAGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728183AbgHTAGv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Aug 2020 20:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33322 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728298AbgHTADc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:03:32 -0400
+        id S1728305AbgHTADd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:03:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B33214F1;
-        Thu, 20 Aug 2020 00:03:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7A4A208E4;
+        Thu, 20 Aug 2020 00:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881812;
-        bh=H3PgQ+KoHDCKHKEBvlCxJCjz5lnvNV3Q3WKv9qcex58=;
+        s=default; t=1597881813;
+        bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+a8lXbtUnYnu99gf4OmQvQpvNtVOCV1rcDGT5gKEC4Vi8uJgwTdPhR/hG6RT4GcP
-         GZ8yv6LKBSSsOCfMa0SVjzvxIHMYXQS8zyd5zk6CKMlgOCLGo52/wQayJSryLN4wtm
-         4BYR4sdZWX6CFTxLbCiRIEmbX28Aw++CsfOAhlqo=
+        b=U2iM8d9Y9A+wstXm/GmFjc0gaKS6CA1ESYamAzGzVSsUff52U5tM3fl72TZHDMDIE
+         T76uEaDXBTsD+FORIXOvP/hZgqvlQFir/ndF06T1rMgDLTfi+7SmFVmI/ZIDZOYT9U
+         bIdXrwvVDndTXtBYVo3mpvV1b+6Ee+Hdf8EKtWbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/13] media: budget-core: Improve exception handling in budget_register()
-Date:   Wed, 19 Aug 2020 20:03:17 -0400
-Message-Id: <20200820000328.215755-2-sashal@kernel.org>
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/13] rtc: goldfish: Enable interrupt in set_alarm() when necessary
+Date:   Wed, 19 Aug 2020 20:03:18 -0400
+Message-Id: <20200820000328.215755-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000328.215755-1-sashal@kernel.org>
 References: <20200820000328.215755-1-sashal@kernel.org>
@@ -43,54 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-[ Upstream commit fc0456458df8b3421dba2a5508cd817fbc20ea71 ]
+[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
 
-budget_register() has no error handling after its failure.
-Add the missed undo functions for error handling to fix it.
+When use goldfish rtc, the "hwclock" command fails with "select() to
+/dev/rtc to wait for clock tick timed out". This is because "hwclock"
+need the set_alarm() hook to enable interrupt when alrm->enabled is
+true. This operation is missing in goldfish rtc (but other rtc drivers,
+such as cmos rtc, enable interrupt here), so add it.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ttpci/budget-core.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-goldfish.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/pci/ttpci/budget-core.c b/drivers/media/pci/ttpci/budget-core.c
-index 97499b2af7144..20524376b83be 100644
---- a/drivers/media/pci/ttpci/budget-core.c
-+++ b/drivers/media/pci/ttpci/budget-core.c
-@@ -383,20 +383,25 @@ static int budget_register(struct budget *budget)
- 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->hw_frontend);
- 
- 	if (ret < 0)
--		return ret;
-+		goto err_release_dmx;
- 
- 	budget->mem_frontend.source = DMX_MEMORY_FE;
- 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->mem_frontend);
- 	if (ret < 0)
--		return ret;
-+		goto err_release_dmx;
- 
- 	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &budget->hw_frontend);
- 	if (ret < 0)
--		return ret;
-+		goto err_release_dmx;
- 
- 	dvb_net_init(&budget->dvb_adapter, &budget->dvb_net, &dvbdemux->dmx);
- 
- 	return 0;
-+
-+err_release_dmx:
-+	dvb_dmxdev_release(&budget->dmxdev);
-+	dvb_dmx_release(&budget->demux);
-+	return ret;
- }
- 
- static void budget_unregister(struct budget *budget)
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index a1c44d0c85578..30cbe22c57a8e 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -87,6 +87,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
+ 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+ 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
++		writel(1, base + TIMER_IRQ_ENABLED);
+ 	} else {
+ 		/*
+ 		 * if this function was called with enabled=0
 -- 
 2.25.1
 
