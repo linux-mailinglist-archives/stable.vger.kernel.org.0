@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546EE24BEA2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37DDD24BE99
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbgHTJcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:32:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44042 "EHLO mail.kernel.org"
+        id S1728093AbgHTJdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbgHTJby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:54 -0400
+        id S1728063AbgHTJcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:32:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5571922BF5;
-        Thu, 20 Aug 2020 09:31:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61A04207DE;
+        Thu, 20 Aug 2020 09:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915912;
-        bh=zX065Jj8yZv2ZjljmxDbv1KjrqSbKCATFwprplDdImQ=;
+        s=default; t=1597915927;
+        bh=4fzfIvN+NcbSnlAg6+7Q33xB9C/POBwhAntdAp9XSBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jp4oJKsf5zbG4UfoNXg//tpVjdFFFw19IoiO8Z+rbx5YmxZrcKArVG6gEhra9jvjl
-         vqNrLxZg+7DXFCz00p4YeGkMpggmkktgpLn72wSJMD+/HNWw3FFTOMRis1QMUsa7A7
-         zD0mXCj0pPvcNxY0NDoA35v471wASAZFps07lzL8=
+        b=jYHl9dT+tbx59+MQ2N5LxVaIw1RxzbH5s9hrIrxvwn7a6g+wMtfKJLbR/7W76BSYr
+         gVG1AYtZzctKGBTk4Zr6Yfdhsmg3kHE1+xKfslKrUqmqWclBZq8aY4MfCL8HNkazs8
+         GDkL/TkI80EkIXXQ5q70nRa+bcPaEzfhJIHPhyZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 178/232] clk: bcm2835: Do not use prediv with bcm2711s PLLs
-Date:   Thu, 20 Aug 2020 11:20:29 +0200
-Message-Id: <20200820091621.432573048@linuxfoundation.org>
+Subject: [PATCH 5.8 183/232] scsi: lpfc: nvmet: Avoid hang / use-after-free again when destroying targetport
+Date:   Thu, 20 Aug 2020 11:20:34 +0200
+Message-Id: <20200820091621.668630975@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,110 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Ewan D. Milne <emilne@redhat.com>
 
-[ Upstream commit f34e4651ce66a754f41203284acf09b28b9dd955 ]
+[ Upstream commit af6de8c60fe9433afa73cea6fcccdccd98ad3e5e ]
 
-Contrary to previous SoCs, bcm2711 doesn't have a prescaler in the PLL
-feedback loop. Bypass it by zeroing fb_prediv_mask when running on
-bcm2711.
+We cannot wait on a completion object in the lpfc_nvme_targetport structure
+in the _destroy_targetport() code path because the NVMe/fc transport will
+free that structure immediately after the .targetport_delete() callback.
+This results in a use-after-free, and a crash if slub_debug=FZPU is
+enabled.
 
-Note that, since the prediv configuration bits were re-purposed, this
-was triggering miscalculations on all clocks hanging from the VPU clock,
-notably the aux UART, making its output unintelligible.
+An earlier fix put put the completion on the stack, but commit 2a0fb340fcc8
+("scsi: lpfc: Correct localport timeout duration error") subsequently
+changed the code to reference the completion through a pointer in the
+object rather than the local stack variable.  Fix this by using the stack
+variable directly.
 
-Fixes: 42de9ad400af ("clk: bcm2835: Add BCM2711_CLOCK_EMMC2 support")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20200730182619.23246-1-nsaenzjulienne@suse.de
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20200729231011.13240-1-emilne@redhat.com
+Fixes: 2a0fb340fcc8 ("scsi: lpfc: Correct localport timeout duration error")
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvmet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 6bb7efa12037b..011802f1a6df9 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -314,6 +314,7 @@ struct bcm2835_cprman {
- 	struct device *dev;
- 	void __iomem *regs;
- 	spinlock_t regs_lock; /* spinlock for all clocks */
-+	unsigned int soc;
- 
- 	/*
- 	 * Real names of cprman clock parents looked up through
-@@ -525,6 +526,20 @@ static int bcm2835_pll_is_on(struct clk_hw *hw)
- 		A2W_PLL_CTRL_PRST_DISABLE;
- }
- 
-+static u32 bcm2835_pll_get_prediv_mask(struct bcm2835_cprman *cprman,
-+				       const struct bcm2835_pll_data *data)
-+{
-+	/*
-+	 * On BCM2711 there isn't a pre-divisor available in the PLL feedback
-+	 * loop. Bits 13:14 of ANA1 (PLLA,PLLB,PLLC,PLLD) have been re-purposed
-+	 * for to for VCO RANGE bits.
-+	 */
-+	if (cprman->soc & SOC_BCM2711)
-+		return 0;
-+
-+	return data->ana->fb_prediv_mask;
-+}
-+
- static void bcm2835_pll_choose_ndiv_and_fdiv(unsigned long rate,
- 					     unsigned long parent_rate,
- 					     u32 *ndiv, u32 *fdiv)
-@@ -582,7 +597,7 @@ static unsigned long bcm2835_pll_get_rate(struct clk_hw *hw,
- 	ndiv = (a2wctrl & A2W_PLL_CTRL_NDIV_MASK) >> A2W_PLL_CTRL_NDIV_SHIFT;
- 	pdiv = (a2wctrl & A2W_PLL_CTRL_PDIV_MASK) >> A2W_PLL_CTRL_PDIV_SHIFT;
- 	using_prediv = cprman_read(cprman, data->ana_reg_base + 4) &
--		data->ana->fb_prediv_mask;
-+		       bcm2835_pll_get_prediv_mask(cprman, data);
- 
- 	if (using_prediv) {
- 		ndiv *= 2;
-@@ -665,6 +680,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	struct bcm2835_pll *pll = container_of(hw, struct bcm2835_pll, hw);
- 	struct bcm2835_cprman *cprman = pll->cprman;
- 	const struct bcm2835_pll_data *data = pll->data;
-+	u32 prediv_mask = bcm2835_pll_get_prediv_mask(cprman, data);
- 	bool was_using_prediv, use_fb_prediv, do_ana_setup_first;
- 	u32 ndiv, fdiv, a2w_ctl;
- 	u32 ana[4];
-@@ -682,7 +698,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	for (i = 3; i >= 0; i--)
- 		ana[i] = cprman_read(cprman, data->ana_reg_base + i * 4);
- 
--	was_using_prediv = ana[1] & data->ana->fb_prediv_mask;
-+	was_using_prediv = ana[1] & prediv_mask;
- 
- 	ana[0] &= ~data->ana->mask0;
- 	ana[0] |= data->ana->set0;
-@@ -692,10 +708,10 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
- 	ana[3] |= data->ana->set3;
- 
- 	if (was_using_prediv && !use_fb_prediv) {
--		ana[1] &= ~data->ana->fb_prediv_mask;
-+		ana[1] &= ~prediv_mask;
- 		do_ana_setup_first = true;
- 	} else if (!was_using_prediv && use_fb_prediv) {
--		ana[1] |= data->ana->fb_prediv_mask;
-+		ana[1] |= prediv_mask;
- 		do_ana_setup_first = false;
- 	} else {
- 		do_ana_setup_first = true;
-@@ -2238,6 +2254,7 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, cprman);
- 
- 	cprman->onecell.num = asize;
-+	cprman->soc = pdata->soc;
- 	hws = cprman->onecell.hws;
- 
- 	for (i = 0; i < asize; i++) {
+diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
+index 88760416a8cbd..fcd9d4c2f1ee0 100644
+--- a/drivers/scsi/lpfc/lpfc_nvmet.c
++++ b/drivers/scsi/lpfc/lpfc_nvmet.c
+@@ -2112,7 +2112,7 @@ lpfc_nvmet_destroy_targetport(struct lpfc_hba *phba)
+ 		}
+ 		tgtp->tport_unreg_cmp = &tport_unreg_cmp;
+ 		nvmet_fc_unregister_targetport(phba->targetport);
+-		if (!wait_for_completion_timeout(tgtp->tport_unreg_cmp,
++		if (!wait_for_completion_timeout(&tport_unreg_cmp,
+ 					msecs_to_jiffies(LPFC_NVMET_WAIT_TMO)))
+ 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME,
+ 					"6179 Unreg targetport x%px timeout "
 -- 
 2.25.1
 
