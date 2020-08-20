@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB92324B989
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1614624B98B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730433AbgHTLsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52980 "EHLO mail.kernel.org"
+        id S1730707AbgHTLsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:48:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730597AbgHTKDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:09 -0400
+        id S1729781AbgHTKDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:03:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BB6320738;
-        Thu, 20 Aug 2020 10:03:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13B662075E;
+        Thu, 20 Aug 2020 10:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917788;
-        bh=KtlD/dHbQX6e0yXtT9SBli8K4ds5ERxe2N5v+WXJC4c=;
+        s=default; t=1597917791;
+        bh=I1u7KrKmiRs+EAGchH0cOI6zub0hJe8cZx4vyEtoxF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYCc+7Q6GKXMb1CovygOLeiPhCRo5t99QM5DL4xLkRbDIyrYQ1crnba/uzEvAxXtj
-         O8+KGuFjiXopOaXf13wJLY/sze8Cxu4UQU0mYQvYFIfhScprSUcRVH1OTDPR2uBDbi
-         eP1khIFkzsMzed71FAvPFvHsxk3sWE6X48WiQqEU=
+        b=uYCeHANSHz+5bT/bBDUY295+5TxqLDLUlPhjcz9tzfWaorUTj66xD/7jD6uos634N
+         Qm5FShtily4xjlUWFR5ilZ1K4+cIIYL+6p+lI0vEDEe+ONT8gYW8SOnzxQIdvPWYy7
+         1TiJflIly4ifYEVVOzFDXswgXLheq+v21/GfR3iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org, John Allen <john.allen@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 158/212] crypto: qat - fix double free in qat_uclo_create_batch_init_list
-Date:   Thu, 20 Aug 2020 11:22:11 +0200
-Message-Id: <20200820091610.379571401@linuxfoundation.org>
+Subject: [PATCH 4.9 159/212] crypto: ccp - Fix use of merged scatterlists
+Date:   Thu, 20 Aug 2020 11:22:12 +0200
+Message-Id: <20200820091610.431104506@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,91 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: John Allen <john.allen@amd.com>
 
-commit c06c76602e03bde24ee69a2022a829127e504202 upstream.
+commit 8a302808c60d441d9884cb00ea7f2b534f2e3ca5 upstream.
 
-clang static analysis flags this error
+Running the crypto manager self tests with
+CONFIG_CRYPTO_MANAGER_EXTRA_TESTS may result in several types of errors
+when using the ccp-crypto driver:
 
-qat_uclo.c:297:3: warning: Attempt to free released memory
-  [unix.Malloc]
-                kfree(*init_tab_base);
-                ^~~~~~~~~~~~~~~~~~~~~
+alg: skcipher: cbc-des3-ccp encryption failed on test vector 0; expected_error=0, actual_error=-5 ...
 
-When input *init_tab_base is null, the function allocates memory for
-the head of the list.  When there is problem allocating other list
-elements the list is unwound and freed.  Then a check is made if the
-list head was allocated and is also freed.
+alg: skcipher: ctr-aes-ccp decryption overran dst buffer on test vector 0 ...
 
-Keeping track of the what may need to be freed is the variable 'tail_old'.
-The unwinding/freeing block is
+alg: ahash: sha224-ccp test failed (wrong result) on test vector ...
 
-	while (tail_old) {
-		mem_init = tail_old->next;
-		kfree(tail_old);
-		tail_old = mem_init;
-	}
+These errors are the result of improper processing of scatterlists mapped
+for DMA.
 
-The problem is that the first element of tail_old is also what was
-allocated for the list head
+Given a scatterlist in which entries are merged as part of mapping the
+scatterlist for DMA, the DMA length of a merged entry will reflect the
+combined length of the entries that were merged. The subsequent
+scatterlist entry will contain DMA information for the scatterlist entry
+after the last merged entry, but the non-DMA information will be that of
+the first merged entry.
 
-		init_header = kzalloc(sizeof(*init_header), GFP_KERNEL);
-		...
-		*init_tab_base = init_header;
-		flag = 1;
-	}
-	tail_old = init_header;
+The ccp driver does not take this scatterlist merging into account. To
+address this, add a second scatterlist pointer to track the current
+position in the DMA mapped representation of the scatterlist. Both the DMA
+representation and the original representation of the scatterlist must be
+tracked as while most of the driver can use just the DMA representation,
+scatterlist_map_and_copy() must use the original representation and
+expects the scatterlist pointer to be accurate to the original
+representation.
 
-So *init_tab_base/init_header are freed twice.
+In order to properly walk the original scatterlist, the scatterlist must
+be walked until the combined lengths of the entries seen is equal to the
+DMA length of the current entry being processed in the DMA mapped
+representation.
 
-There is another problem.
-When the input *init_tab_base is non null the tail_old is calculated by
-traveling down the list to first non null entry.
-
-	tail_old = init_header;
-	while (tail_old->next)
-		tail_old = tail_old->next;
-
-When the unwinding free happens, the last entry of the input list will
-be freed.
-
-So the freeing needs a general changed.
-If locally allocated the first element of tail_old is freed, else it
-is skipped.  As a bit of cleanup, reset *init_tab_base if it came in
-as null.
-
-Fixes: b4b7e67c917f ("crypto: qat - Intel(R) QAT ucode part of fw loader")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tom Rix <trix@redhat.com>
+Fixes: 63b945091a070 ("crypto: ccp - CCP device driver and interface support")
+Signed-off-by: John Allen <john.allen@amd.com>
+Cc: stable@vger.kernel.org
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/crypto/ccp/ccp-dev.h |    1 +
+ drivers/crypto/ccp/ccp-ops.c |   37 ++++++++++++++++++++++++++-----------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
 
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -332,13 +332,18 @@ static int qat_uclo_create_batch_init_li
- 	}
- 	return 0;
- out_err:
-+	/* Do not free the list head unless we allocated it. */
-+	tail_old = tail_old->next;
-+	if (flag) {
-+		kfree(*init_tab_base);
-+		*init_tab_base = NULL;
-+	}
-+
- 	while (tail_old) {
- 		mem_init = tail_old->next;
- 		kfree(tail_old);
- 		tail_old = mem_init;
- 	}
--	if (flag)
--		kfree(*init_tab_base);
- 	return -ENOMEM;
- }
+--- a/drivers/crypto/ccp/ccp-dev.h
++++ b/drivers/crypto/ccp/ccp-dev.h
+@@ -444,6 +444,7 @@ struct ccp_sg_workarea {
+ 	int nents;
  
+ 	struct scatterlist *dma_sg;
++	struct scatterlist *dma_sg_head;
+ 	struct device *dma_dev;
+ 	unsigned int dma_count;
+ 	enum dma_data_direction dma_dir;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -52,7 +52,7 @@ static u32 ccp_gen_jobid(struct ccp_devi
+ static void ccp_sg_free(struct ccp_sg_workarea *wa)
+ {
+ 	if (wa->dma_count)
+-		dma_unmap_sg(wa->dma_dev, wa->dma_sg, wa->nents, wa->dma_dir);
++		dma_unmap_sg(wa->dma_dev, wa->dma_sg_head, wa->nents, wa->dma_dir);
+ 
+ 	wa->dma_count = 0;
+ }
+@@ -81,6 +81,7 @@ static int ccp_init_sg_workarea(struct c
+ 		return 0;
+ 
+ 	wa->dma_sg = sg;
++	wa->dma_sg_head = sg;
+ 	wa->dma_dev = dev;
+ 	wa->dma_dir = dma_dir;
+ 	wa->dma_count = dma_map_sg(dev, sg, wa->nents, dma_dir);
+@@ -93,14 +94,28 @@ static int ccp_init_sg_workarea(struct c
+ static void ccp_update_sg_workarea(struct ccp_sg_workarea *wa, unsigned int len)
+ {
+ 	unsigned int nbytes = min_t(u64, len, wa->bytes_left);
++	unsigned int sg_combined_len = 0;
+ 
+ 	if (!wa->sg)
+ 		return;
+ 
+ 	wa->sg_used += nbytes;
+ 	wa->bytes_left -= nbytes;
+-	if (wa->sg_used == wa->sg->length) {
+-		wa->sg = sg_next(wa->sg);
++	if (wa->sg_used == sg_dma_len(wa->dma_sg)) {
++		/* Advance to the next DMA scatterlist entry */
++		wa->dma_sg = sg_next(wa->dma_sg);
++
++		/* In the case that the DMA mapped scatterlist has entries
++		 * that have been merged, the non-DMA mapped scatterlist
++		 * must be advanced multiple times for each merged entry.
++		 * This ensures that the current non-DMA mapped entry
++		 * corresponds to the current DMA mapped entry.
++		 */
++		do {
++			sg_combined_len += wa->sg->length;
++			wa->sg = sg_next(wa->sg);
++		} while (wa->sg_used > sg_combined_len);
++
+ 		wa->sg_used = 0;
+ 	}
+ }
+@@ -298,7 +313,7 @@ static unsigned int ccp_queue_buf(struct
+ 	/* Update the structures and generate the count */
+ 	buf_count = 0;
+ 	while (sg_wa->bytes_left && (buf_count < dm_wa->length)) {
+-		nbytes = min(sg_wa->sg->length - sg_wa->sg_used,
++		nbytes = min(sg_dma_len(sg_wa->dma_sg) - sg_wa->sg_used,
+ 			     dm_wa->length - buf_count);
+ 		nbytes = min_t(u64, sg_wa->bytes_left, nbytes);
+ 
+@@ -330,11 +345,11 @@ static void ccp_prepare_data(struct ccp_
+ 	 * and destination. The resulting len values will always be <= UINT_MAX
+ 	 * because the dma length is an unsigned int.
+ 	 */
+-	sg_src_len = sg_dma_len(src->sg_wa.sg) - src->sg_wa.sg_used;
++	sg_src_len = sg_dma_len(src->sg_wa.dma_sg) - src->sg_wa.sg_used;
+ 	sg_src_len = min_t(u64, src->sg_wa.bytes_left, sg_src_len);
+ 
+ 	if (dst) {
+-		sg_dst_len = sg_dma_len(dst->sg_wa.sg) - dst->sg_wa.sg_used;
++		sg_dst_len = sg_dma_len(dst->sg_wa.dma_sg) - dst->sg_wa.sg_used;
+ 		sg_dst_len = min_t(u64, src->sg_wa.bytes_left, sg_dst_len);
+ 		op_len = min(sg_src_len, sg_dst_len);
+ 	} else {
+@@ -364,7 +379,7 @@ static void ccp_prepare_data(struct ccp_
+ 		/* Enough data in the sg element, but we need to
+ 		 * adjust for any previously copied data
+ 		 */
+-		op->src.u.dma.address = sg_dma_address(src->sg_wa.sg);
++		op->src.u.dma.address = sg_dma_address(src->sg_wa.dma_sg);
+ 		op->src.u.dma.offset = src->sg_wa.sg_used;
+ 		op->src.u.dma.length = op_len & ~(block_size - 1);
+ 
+@@ -385,7 +400,7 @@ static void ccp_prepare_data(struct ccp_
+ 			/* Enough room in the sg element, but we need to
+ 			 * adjust for any previously used area
+ 			 */
+-			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.sg);
++			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.dma_sg);
+ 			op->dst.u.dma.offset = dst->sg_wa.sg_used;
+ 			op->dst.u.dma.length = op->src.u.dma.length;
+ 		}
+@@ -1447,7 +1462,7 @@ static int ccp_run_passthru_cmd(struct c
+ 	dst.sg_wa.sg_used = 0;
+ 	for (i = 1; i <= src.sg_wa.dma_count; i++) {
+ 		if (!dst.sg_wa.sg ||
+-		    (dst.sg_wa.sg->length < src.sg_wa.sg->length)) {
++		    (sg_dma_len(dst.sg_wa.sg) < sg_dma_len(src.sg_wa.sg))) {
+ 			ret = -EINVAL;
+ 			goto e_dst;
+ 		}
+@@ -1473,8 +1488,8 @@ static int ccp_run_passthru_cmd(struct c
+ 			goto e_dst;
+ 		}
+ 
+-		dst.sg_wa.sg_used += src.sg_wa.sg->length;
+-		if (dst.sg_wa.sg_used == dst.sg_wa.sg->length) {
++		dst.sg_wa.sg_used += sg_dma_len(src.sg_wa.sg);
++		if (dst.sg_wa.sg_used == sg_dma_len(dst.sg_wa.sg)) {
+ 			dst.sg_wa.sg = sg_next(dst.sg_wa.sg);
+ 			dst.sg_wa.sg_used = 0;
+ 		}
 
 
