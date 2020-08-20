@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99B024BB6B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05F024BB1A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgHTM27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S1728018AbgHTMXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:23:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729617AbgHTJvl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:41 -0400
+        id S1729985AbgHTJyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C115E207FB;
-        Thu, 20 Aug 2020 09:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEDD62067C;
+        Thu, 20 Aug 2020 09:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917100;
-        bh=W7+t/6zBcdWVsX88rL4rBSRKb6pqQy+RRp5z1wyDlyo=;
+        s=default; t=1597917283;
+        bh=RmLckhIPfgcJl8zmFnS8sQ6RL1VKiWUn8UZASjLEwOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUjExCDiPplw1j4sZ0GIMHgkMvGNnFJpLIgFQaXnsXo7G6u4fXGd0ob2JiVLcW+ke
-         8Ph0ZHmNLLwjj1a2/49vjFg1h4b1DemwMYn1nGXD4AI1Yz14mSSvRtxw+Tilxxr2IQ
-         arDny4Zgyfde0I348yN92FLR8HMiHFGOO4DiiEEY=
+        b=CpAhENYVFiWkEaY5LPL93zN+0ydB2Z0sS1xwbRp4yt9cVDlHa6kAxLUMgRhsNe+lO
+         T3bDK89XL7VP/lict5GqzGPCP/ZWRdvvFCOYnyLl/vuPs4nNtDuT4uhATyxhPNgCOf
+         jNSNQDxAI2+kwkdqI5ZKc62MT0xl9epkd0PpB/KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        David Carrillo-Cisneros <davidcc@google.com>,
+        Ian Rogers <irogers@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
         Song Liu <songliubraving@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 145/152] khugepaged: retract_page_tables() remember to test exit
-Date:   Thu, 20 Aug 2020 11:21:52 +0200
-Message-Id: <20200820091601.241691401@linuxfoundation.org>
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 68/92] tools build feature: Use CC and CXX from parent
+Date:   Thu, 20 Aug 2020 11:21:53 +0200
+Message-Id: <20200820091541.153941323@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,99 +52,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit 18e77600f7a1ed69f8ce46c9e11cad0985712dfa upstream.
+[ Upstream commit e3232c2f39acafd5a29128425bc30b9884642cfa ]
 
-Only once have I seen this scenario (and forgot even to notice what forced
-the eventual crash): a sequence of "BUG: Bad page map" alerts from
-vm_normal_page(), from zap_pte_range() servicing exit_mmap();
-pmd:00000000, pte values corresponding to data in physical page 0.
+commit c8c188679ccf ("tools build: Use the same CC for feature detection
+and actual build") changed these assignments from unconditional (:=) to
+conditional (?=) so that they wouldn't clobber values from the
+environment. However, conditional assignment does not work properly for
+variables that Make implicitly sets, among which are CC and CXX. To
+quote tools/scripts/Makefile.include, which handles this properly:
 
-The pte mappings being zapped in this case were supposed to be from a huge
-page of ext4 text (but could as well have been shmem): my belief is that
-it was racing with collapse_file()'s retract_page_tables(), found *pmd
-pointing to a page table, locked it, but *pmd had become 0 by the time
-start_pte was decided.
+  # Makefiles suck: This macro sets a default value of $(2) for the
+  # variable named by $(1), unless the variable has been set by
+  # environment or command line. This is necessary for CC and AR
+  # because make sets default values, so the simpler ?= approach
+  # won't work as expected.
 
-In most cases, that possibility is excluded by holding mmap lock; but
-exit_mmap() proceeds without mmap lock.  Most of what's run by khugepaged
-checks khugepaged_test_exit() after acquiring mmap lock:
-khugepaged_collapse_pte_mapped_thps() and hugepage_vma_revalidate() do so,
-for example.  But retract_page_tables() did not: fix that.
+In other words, the conditional assignments will not run even if the
+variables are not overridden in the environment; Make will set CC to
+"cc" and CXX to "g++" when it starts[1], meaning the variables are not
+empty by the time the conditional assignments are evaluated. This breaks
+cross-compilation when CROSS_COMPILE is set but CC isn't, since "cc"
+gets used for feature detection instead of the cross compiler (and
+likewise for CXX).
 
-The fix is for retract_page_tables() to check khugepaged_test_exit(),
-after acquiring mmap lock, before doing anything to the page table.
-Getting the mmap lock serializes with __mmput(), which briefly takes and
-drops it in __khugepaged_exit(); then the khugepaged_test_exit() check on
-mm_users makes sure we don't touch the page table once exit_mmap() might
-reach it, since exit_mmap() will be proceeding without mmap lock, not
-expecting anyone to be racing with it.
+To fix the issue, just pass down the values of CC and CXX computed by
+the parent Makefile, which gets included by the Makefile that actually
+builds whatever we're detecting features for and so is guaranteed to
+have good values. This is a better solution anyway, since it means we
+aren't trying to replicate the logic of the parent build system and so
+don't risk it getting out of sync.
 
-Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Leave PKG_CONFIG alone, since 1) there's no common logic to compute it
+in Makefile.include, and 2) it's not an implicit variable, so
+conditional assignment works properly.
+
+[1] https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+Fixes: c8c188679ccf ("tools build: Use the same CC for feature detection and actual build")
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: David Carrillo-Cisneros <davidcc@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Igor Lubashev <ilubashe@akamai.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
 Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021215400.27773@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Stephane Eranian <eranian@google.com>
+Cc: thomas hebb <tommyhebb@gmail.com>
+Link: http://lore.kernel.org/lkml/0a6e69d1736b0fa231a648f50b0cce5d8a6734ef.1595822871.git.tommyhebb@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ tools/build/Makefile.feature | 2 +-
+ tools/build/feature/Makefile | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1414,6 +1414,7 @@ out:
- static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- {
- 	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
- 	unsigned long addr;
- 	pmd_t *pmd, _pmd;
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index 42a787856cd87..7d9d70c0b3800 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -7,7 +7,7 @@ endif
  
-@@ -1442,7 +1443,8 @@ static void retract_page_tables(struct a
- 			continue;
- 		if (vma->vm_end < addr + HPAGE_PMD_SIZE)
- 			continue;
--		pmd = mm_find_pmd(vma->vm_mm, addr);
-+		mm = vma->vm_mm;
-+		pmd = mm_find_pmd(mm, addr);
- 		if (!pmd)
- 			continue;
- 		/*
-@@ -1452,17 +1454,19 @@ static void retract_page_tables(struct a
- 		 * mmap_sem while holding page lock. Fault path does it in
- 		 * reverse order. Trylock is a way to avoid deadlock.
- 		 */
--		if (down_write_trylock(&vma->vm_mm->mmap_sem)) {
--			spinlock_t *ptl = pmd_lock(vma->vm_mm, pmd);
--			/* assume page table is clear */
--			_pmd = pmdp_collapse_flush(vma, addr, pmd);
--			spin_unlock(ptl);
--			up_write(&vma->vm_mm->mmap_sem);
--			mm_dec_nr_ptes(vma->vm_mm);
--			pte_free(vma->vm_mm, pmd_pgtable(_pmd));
-+		if (down_write_trylock(&mm->mmap_sem)) {
-+			if (!khugepaged_test_exit(mm)) {
-+				spinlock_t *ptl = pmd_lock(mm, pmd);
-+				/* assume page table is clear */
-+				_pmd = pmdp_collapse_flush(vma, addr, pmd);
-+				spin_unlock(ptl);
-+				mm_dec_nr_ptes(mm);
-+				pte_free(mm, pmd_pgtable(_pmd));
-+			}
-+			up_write(&mm->mmap_sem);
- 		} else {
- 			/* Try again later */
--			khugepaged_add_pte_mapped_thp(vma->vm_mm, addr);
-+			khugepaged_add_pte_mapped_thp(mm, addr);
- 		}
- 	}
- 	i_mmap_unlock_write(mapping);
+ feature_check = $(eval $(feature_check_code))
+ define feature_check_code
+-  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
++  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
+ endef
+ 
+ feature_set = $(eval $(feature_set_code))
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index bf8a8ebcca1eb..c4845b66b9baa 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -62,8 +62,6 @@ FILES=                                          \
+ 
+ FILES := $(addprefix $(OUTPUT),$(FILES))
+ 
+-CC ?= $(CROSS_COMPILE)gcc
+-CXX ?= $(CROSS_COMPILE)g++
+ PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
+ LLVM_CONFIG ?= llvm-config
+ 
+-- 
+2.25.1
+
 
 
