@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015C524BDAF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84CB224BDAB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbgHTNKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S1728965AbgHTNKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:10:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727830AbgHTJh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:27 -0400
+        id S1728338AbgHTJh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:37:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A215A207DE;
-        Thu, 20 Aug 2020 09:37:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B01E208E4;
+        Thu, 20 Aug 2020 09:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916246;
-        bh=gyy4mqRPaLXTrrYs++HIfHK5fw84SdLNy01wdRVzCMo=;
+        s=default; t=1597916249;
+        bh=f9rXPAQaNcbv4cfIA5Asq/mz1mnROIrze4c9fJmGeOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1hsV4lJvIUzCP6kAG+k//nZl3BIM02GZfWZxuV5Xo72OmmtrA8tjfL/UnWtT50Dn
-         Hs84njQPghNU2TTANFs3gWH11ciKG9fZLfKuxM2D4eOk+p2KKdVnNYEwfEN3zyaL6D
-         HRUi0SEbwDJCHADNHKpNR0MF6f4i6LmuIA9ghnfA=
+        b=ol3iLldBZSqoNX7ZrzD62FbtvQOlfxnyjZU22H+6QC9t4nXWllhcakgQ3aPUARmAg
+         xB/AVw2dd601Tj76xPTJL9vVtQHoIlffZ3FsFDE5c8zYtnAWUkjjgwOoadLqsUZmWi
+         Y1bnLofTXDc/dBD7B+LYot947KozkHDp/6csreiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luciano Chavez <chavez@us.ibm.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 032/204] btrfs: inode: fix NULL pointer dereference if inode doesnt need compression
-Date:   Thu, 20 Aug 2020 11:18:49 +0200
-Message-Id: <20200820091607.864105840@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.7 033/204] btrfs: fix memory leaks after failure to lookup checksums during inode logging
+Date:   Thu, 20 Aug 2020 11:18:50 +0200
+Message-Id: <20200820091607.918890265@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,105 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 1e6e238c3002ea3611465ce5f32777ddd6a40126 upstream.
+commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
 
-[BUG]
-There is a bug report of NULL pointer dereference caused in
-compress_file_extent():
+While logging an inode, at copy_items(), if we fail to lookup the checksums
+for an extent we release the destination path, free the ins_data array and
+then return immediately. However a previous iteration of the for loop may
+have added checksums to the ordered_sums list, in which case we leak the
+memory used by them.
 
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  Workqueue: btrfs-delalloc btrfs_delalloc_helper [btrfs]
-  NIP [c008000006dd4d34] compress_file_range.constprop.41+0x75c/0x8a0 [btrfs]
-  LR [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs]
-  Call Trace:
-  [c000000c69093b00] [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs] (unreliable)
-  [c000000c69093bd0] [c008000006dd4ebc] async_cow_start+0x44/0xa0 [btrfs]
-  [c000000c69093c10] [c008000006e14824] normal_work_helper+0xdc/0x598 [btrfs]
-  [c000000c69093c80] [c0000000001608c0] process_one_work+0x2c0/0x5b0
-  [c000000c69093d10] [c000000000160c38] worker_thread+0x88/0x660
-  [c000000c69093db0] [c00000000016b55c] kthread+0x1ac/0x1c0
-  [c000000c69093e20] [c00000000000b660] ret_from_kernel_thread+0x5c/0x7c
-  ---[ end trace f16954aa20d822f6 ]---
+So fix this by making sure we iterate the ordered_sums list and free all
+its checksums before returning.
 
-[CAUSE]
-For the following execution route of compress_file_range(), it's
-possible to hit NULL pointer dereference:
-
- compress_file_extent()
- |- pages = NULL;
- |- start = async_chunk->start = 0;
- |- end = async_chunk = 4095;
- |- nr_pages = 1;
- |- inode_need_compress() == false; <<< Possible, see later explanation
- |  Now, we have nr_pages = 1, pages = NULL
- |- cont:
- |- 		ret = cow_file_range_inline();
- |- 		if (ret <= 0) {
- |-		for (i = 0; i < nr_pages; i++) {
- |-			WARN_ON(pages[i]->mapping);	<<< Crash
-
-To enter above call execution branch, we need the following race:
-
-    Thread 1 (chattr)     |            Thread 2 (writeback)
---------------------------+------------------------------
-                          | btrfs_run_delalloc_range
-                          | |- inode_need_compress = true
-                          | |- cow_file_range_async()
-btrfs_ioctl_set_flag()    |
-|- binode_flags |=        |
-   BTRFS_INODE_NOCOMPRESS |
-                          | compress_file_range()
-                          | |- inode_need_compress = false
-                          | |- nr_page = 1 while pages = NULL
-                          | |  Then hit the crash
-
-[FIX]
-This patch will fix it by checking @pages before doing accessing it.
-This patch is only designed as a hot fix and easy to backport.
-
-More elegant fix may make btrfs only check inode_need_compress() once to
-avoid such race, but that would be another story.
-
-Reported-by: Luciano Chavez <chavez@us.ibm.com>
-Fixes: 4d3a800ebb12 ("btrfs: merge nr_pages input and output parameter in compress_pages")
-CC: stable@vger.kernel.org # 4.14.x: cecc8d9038d16: btrfs: Move free_pages_out label in inline extent handling branch in compress_file_range
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ fs/btrfs/tree-log.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -650,12 +650,18 @@ cont:
- 						     page_error_op |
- 						     PAGE_END_WRITEBACK);
- 
--			for (i = 0; i < nr_pages; i++) {
--				WARN_ON(pages[i]->mapping);
--				put_page(pages[i]);
-+			/*
-+			 * Ensure we only free the compressed pages if we have
-+			 * them allocated, as we can still reach here with
-+			 * inode_need_compress() == false.
-+			 */
-+			if (pages) {
-+				for (i = 0; i < nr_pages; i++) {
-+					WARN_ON(pages[i]->mapping);
-+					put_page(pages[i]);
-+				}
-+				kfree(pages);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4040,11 +4040,8 @@ static noinline int copy_items(struct bt
+ 						fs_info->csum_root,
+ 						ds + cs, ds + cs + cl - 1,
+ 						&ordered_sums, 0);
+-				if (ret) {
+-					btrfs_release_path(dst_path);
+-					kfree(ins_data);
+-					return ret;
+-				}
++				if (ret)
++					break;
  			}
--			kfree(pages);
--
- 			return 0;
  		}
  	}
+@@ -4057,7 +4054,6 @@ static noinline int copy_items(struct bt
+ 	 * we have to do this after the loop above to avoid changing the
+ 	 * log tree while trying to change the log tree.
+ 	 */
+-	ret = 0;
+ 	while (!list_empty(&ordered_sums)) {
+ 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
+ 						   struct btrfs_ordered_sum,
 
 
