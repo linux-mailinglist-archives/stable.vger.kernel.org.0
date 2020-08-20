@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D644F24B52F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6707724B4ED
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:14:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731472AbgHTKUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45042 "EHLO mail.kernel.org"
+        id S1731196AbgHTKOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731465AbgHTKUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:20:25 -0400
+        id S1731190AbgHTKOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:14:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C93F20885;
-        Thu, 20 Aug 2020 10:20:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7026D206DA;
+        Thu, 20 Aug 2020 10:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918823;
-        bh=LlUgNbk1YjcZULzOtahIsEpUg1DS5mkIOYr/0JVGRNU=;
+        s=default; t=1597918476;
+        bh=N7hUzOKg89hfCvlCfJ0ZbjFa5U76+UBt9Hgv6aW9NgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+ukEV/JSlAE2ARcJRUTvDY1944VdL3z6FEM8gmXv4bvKH0faiFmMVQOMY4gBWUw7
-         nnZA9nQC3OQhl0DNZtVcHdbNGqrQMwRPB4bD+2PtDDetpJ9eilwFKFXQu4c23jJoks
-         yepwQ05YJqFbgBUzHxsyP8gVd1lPSZAGClhcTHYo=
+        b=2Cy5HuF/Cxk6BG2V61MAiGuCxnqai1iMNuI7DzOYchM4XWWCU7LIH/QFXC1uRLmnk
+         +1OUCU5/cXtdQDQBQXjVGAvqCcmN6OU07JLCXMtzGFDS70qwmb4X17No3QWmzrBn1g
+         bhVqgeo6KRMq+YDS2CWDlpK4BfTwAg7+KyxG/kh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 080/149] iio: improve IIO_CONCENTRATION channel type description
-Date:   Thu, 20 Aug 2020 11:22:37 +0200
-Message-Id: <20200820092129.601055548@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 183/228] ext2: fix missing percpu_counter_inc
+Date:   Thu, 20 Aug 2020 11:22:38 +0200
+Message-Id: <20200820091616.719557334@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit df16c33a4028159d1ba8a7061c9fa950b58d1a61 ]
+commit bc2fbaa4d3808aef82dd1064a8e61c16549fe956 upstream.
 
-IIO_CONCENTRATION together with INFO_RAW specifier is used for reporting
-raw concentrations of pollutants. Raw value should be meaningless
-before being properly scaled. Because of that description shouldn't
-mention raw value unit whatsoever.
+sbi->s_freeinodes_counter is only decreased by the ext2 code, it is never
+increased. This patch fixes it.
 
-Fix this by rephrasing existing description so it follows conventions
-used throughout IIO ABI docs.
+Note that sbi->s_freeinodes_counter is only used in the algorithm that
+tries to find the group for new allocations, so this bug is not easily
+visible (the only visibility is that the group finding algorithm selects
+inoptinal result).
 
-Fixes: 8ff6b3bc94930 ("iio: chemical: Add IIO_CONCENTRATION channel type")
-Signed-off-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/alpine.LRH.2.02.2004201538300.19436@file01.intranet.prod.int.rdu2.redhat.com
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- Documentation/ABI/testing/sysfs-bus-iio | 3 ++-
+ fs/ext2/ialloc.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-index 0439c2aaf7419..f20c783cb5c03 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio
-+++ b/Documentation/ABI/testing/sysfs-bus-iio
-@@ -1470,7 +1470,8 @@ What:		/sys/bus/iio/devices/iio:deviceX/in_concentrationX_voc_raw
- KernelVersion:	4.3
- Contact:	linux-iio@vger.kernel.org
- Description:
--		Raw (unscaled no offset etc.) percentage reading of a substance.
-+		Raw (unscaled no offset etc.) reading of a substance. Units
-+		after application of scale and offset are percents.
+--- a/fs/ext2/ialloc.c
++++ b/fs/ext2/ialloc.c
+@@ -80,6 +80,7 @@ static void ext2_release_inode(struct su
+ 	if (dir)
+ 		le16_add_cpu(&desc->bg_used_dirs_count, -1);
+ 	spin_unlock(sb_bgl_lock(EXT2_SB(sb), group));
++	percpu_counter_inc(&EXT2_SB(sb)->s_freeinodes_counter);
+ 	if (dir)
+ 		percpu_counter_dec(&EXT2_SB(sb)->s_dirs_counter);
+ 	mark_buffer_dirty(bh);
+@@ -531,7 +532,7 @@ got:
+ 		goto fail;
+ 	}
  
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistance_raw
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistanceX_raw
--- 
-2.25.1
-
+-	percpu_counter_add(&sbi->s_freeinodes_counter, -1);
++	percpu_counter_dec(&sbi->s_freeinodes_counter);
+ 	if (S_ISDIR(mode))
+ 		percpu_counter_inc(&sbi->s_dirs_counter);
+ 
 
 
