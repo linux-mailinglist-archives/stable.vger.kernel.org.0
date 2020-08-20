@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F2124B3B3
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:51:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1EF24B33C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729784AbgHTJvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59514 "EHLO mail.kernel.org"
+        id S1728994AbgHTJn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:43:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729780AbgHTJu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:59 -0400
+        id S1728515AbgHTJnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199152078D;
-        Thu, 20 Aug 2020 09:50:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42347207DE;
+        Thu, 20 Aug 2020 09:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917058;
-        bh=tl+cUgc5OR6puSRkQCFPVS3w587cIlAO4ks3kHm9LrM=;
+        s=default; t=1597916593;
+        bh=xGSghv4vVlkYjoXq27P/5hyIj+LHqAvkUJ1zVGjpX84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTmbOP36OIeH9m49W+QzSbJekQyHhTQHAdJt8rWDagZZRtD6EFApAkNxesMfQWZKj
-         Qo5RTRyT4gyZzJcwHZllapAZJT6UM5C1d12GWVLoBClMYXZhjEwa401d4dCQRGhr4e
-         oNuGd4ab6FCZFkRMmvdfycgs/3HV5BZ2xr6iH1vA=
+        b=cVoAx6NBjWW4pMANCR7AHCbU7ikmTc32QST9dPf0VkDdWtyNNqAKRcIwpWzKhZ35u
+         Dl5rEFYb8DHY/4VpljrusHkFNh4gdlimfeQBZmQk5lj2cWeeDLxE4iOmJhLmOQTiZY
+         udVp/wovnxNYDXN99iLrWnmgaNGqj3EnEOZBeLDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/152] pwm: bcm-iproc: handle clk_get_rate() return
-Date:   Thu, 20 Aug 2020 11:21:19 +0200
-Message-Id: <20200820091559.505653909@linuxfoundation.org>
+Subject: [PATCH 5.7 183/204] crypto: algif_aead - fix uninitialized ctx->init
+Date:   Thu, 20 Aug 2020 11:21:20 +0200
+Message-Id: <20200820091615.334264775@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-[ Upstream commit 6ced5ff0be8e94871ba846dfbddf69d21363f3d7 ]
+[ Upstream commit 21dfbcd1f5cbff9cf2f9e7e43475aed8d072b0dd ]
 
-Handle clk_get_rate() returning 0 to avoid possible division by zero.
+In skcipher_accept_parent_nokey() the whole af_alg_ctx structure is
+cleared by memset() after allocation, so add such memset() also to
+aead_accept_parent_nokey() so that the new "init" field is also
+initialized to zero. Without that the initial ctx->init checks might
+randomly return true and cause errors.
 
-Fixes: daa5abc41c80 ("pwm: Add support for Broadcom iProc PWM controller")
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+While there, also remove the redundant zero assignments in both
+functions.
+
+Found via libkcapi testsuite.
+
+Cc: Stephan Mueller <smueller@chronox.de>
+Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when ctx->more is zero")
+Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-bcm-iproc.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ crypto/algif_aead.c     | 6 ------
+ crypto/algif_skcipher.c | 7 +------
+ 2 files changed, 1 insertion(+), 12 deletions(-)
 
-diff --git a/drivers/pwm/pwm-bcm-iproc.c b/drivers/pwm/pwm-bcm-iproc.c
-index 1f829edd8ee70..d392a828fc493 100644
---- a/drivers/pwm/pwm-bcm-iproc.c
-+++ b/drivers/pwm/pwm-bcm-iproc.c
-@@ -85,8 +85,6 @@ static void iproc_pwmc_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	u64 tmp, multi, rate;
- 	u32 value, prescale;
+diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
+index d48d2156e6210..43c6aa784858b 100644
+--- a/crypto/algif_aead.c
++++ b/crypto/algif_aead.c
+@@ -558,12 +558,6 @@ static int aead_accept_parent_nokey(void *private, struct sock *sk)
  
--	rate = clk_get_rate(ip->clk);
+ 	INIT_LIST_HEAD(&ctx->tsgl_list);
+ 	ctx->len = len;
+-	ctx->used = 0;
+-	atomic_set(&ctx->rcvused, 0);
+-	ctx->more = 0;
+-	ctx->merge = 0;
+-	ctx->enc = 0;
+-	ctx->aead_assoclen = 0;
+ 	crypto_init_wait(&ctx->wait);
+ 
+ 	ask->private = ctx;
+diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+index a51ba22fef58f..81c4022285a7c 100644
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -333,6 +333,7 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
+ 	ctx = sock_kmalloc(sk, len, GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
++	memset(ctx, 0, len);
+ 
+ 	ctx->iv = sock_kmalloc(sk, crypto_skcipher_ivsize(tfm),
+ 			       GFP_KERNEL);
+@@ -340,16 +341,10 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
+ 		sock_kfree_s(sk, ctx, len);
+ 		return -ENOMEM;
+ 	}
 -
- 	value = readl(ip->base + IPROC_PWM_CTRL_OFFSET);
+ 	memset(ctx->iv, 0, crypto_skcipher_ivsize(tfm));
  
- 	if (value & BIT(IPROC_PWM_CTRL_EN_SHIFT(pwm->hwpwm)))
-@@ -99,6 +97,13 @@ static void iproc_pwmc_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	else
- 		state->polarity = PWM_POLARITY_INVERSED;
+ 	INIT_LIST_HEAD(&ctx->tsgl_list);
+ 	ctx->len = len;
+-	ctx->used = 0;
+-	atomic_set(&ctx->rcvused, 0);
+-	ctx->more = 0;
+-	ctx->merge = 0;
+-	ctx->enc = 0;
+ 	crypto_init_wait(&ctx->wait);
  
-+	rate = clk_get_rate(ip->clk);
-+	if (rate == 0) {
-+		state->period = 0;
-+		state->duty_cycle = 0;
-+		return;
-+	}
-+
- 	value = readl(ip->base + IPROC_PWM_PRESCALE_OFFSET);
- 	prescale = value >> IPROC_PWM_PRESCALE_SHIFT(pwm->hwpwm);
- 	prescale &= IPROC_PWM_PRESCALE_MAX;
+ 	ask->private = ctx;
 -- 
 2.25.1
 
