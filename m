@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E64D24B4D1
+	by mail.lfdr.de (Postfix) with ESMTP id DBFAA24B4D2
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731112AbgHTKM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55132 "EHLO mail.kernel.org"
+        id S1730840AbgHTKNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731067AbgHTKMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:45 -0400
+        id S1731096AbgHTKMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F60206DA;
-        Thu, 20 Aug 2020 10:12:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8876D206DA;
+        Thu, 20 Aug 2020 10:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918365;
-        bh=zknEk2SYahKBzJKWH2mpBxTm0EtLWvmX6voU525LImQ=;
+        s=default; t=1597918371;
+        bh=RY+bUR6q62ndFq4NTc+Ra1HAuUXfTe8JDs9v63RZvMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmpKRyHAfg9oFv5flIdEonIfVT24103Tbtxpv8EdXOZdBuUpaCILh9uCH2VS1qYRL
-         EgO/thAMmIPTK4G8x9Q7O7nWc4Wc94ywrX6VRSdqElJN8yyjBxf42X0Pxqok+yaMRh
-         m33MYEWrei80R295N1Hxzx5yWqJlWWvJE42pn4as=
+        b=DdnbodhE+eaVzUrTtM8aYAUp/1FV+zSsuO4vcpAT9JcA6Co9wITqXQf4Vp94KkMJk
+         ChTu9rNAUZhI4jxkyilGghheWCNi5fm8iwPBCJ5qiRkOj9JYzzNlX2B4uhTxbeCU9n
+         fsCPL24TCj3N02GqB09V6aW+/hN0bvjj+/rTPQa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 143/228] net: Set fput_needed iff FDPUT_FPUT is set
-Date:   Thu, 20 Aug 2020 11:21:58 +0200
-Message-Id: <20200820091614.727400733@linuxfoundation.org>
+        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
+        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 145/228] USB: serial: cp210x: enable usb generic throttle/unthrottle
+Date:   Thu, 20 Aug 2020 11:22:00 +0200
+Message-Id: <20200820091614.826651760@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -43,31 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Brant Merryman <brant.merryman@silabs.com>
 
-[ Upstream commit ce787a5a074a86f76f5d3fd804fa78e01bfb9e89 ]
+commit 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 upstream.
 
-We should fput() file iff FDPUT_FPUT is set. So we should set fput_needed
-accordingly.
+Assign the .throttle and .unthrottle functions to be generic function
+in the driver structure to prevent data loss that can otherwise occur
+if the host does not enable USB throttling.
 
-Fixes: 00e188ef6a7e ("sockfd_lookup_light(): switch to fdget^W^Waway from fget_light")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
+Co-developed-by: Phu Luu <phu.luu@silabs.com>
+Signed-off-by: Phu Luu <phu.luu@silabs.com>
+Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
+[ johan: fix up tags ]
+Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
+Cc: stable <stable@vger.kernel.org>     # 2.6.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/socket.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -496,7 +496,7 @@ static struct socket *sockfd_lookup_ligh
- 	if (f.file) {
- 		sock = sock_from_file(f.file, err);
- 		if (likely(sock)) {
--			*fput_needed = f.flags;
-+			*fput_needed = f.flags & FDPUT_FPUT;
- 			return sock;
- 		}
- 		fdput(f);
+---
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -271,6 +271,8 @@ static struct usb_serial_driver cp210x_d
+ 	.break_ctl		= cp210x_break_ctl,
+ 	.set_termios		= cp210x_set_termios,
+ 	.tx_empty		= cp210x_tx_empty,
++	.throttle		= usb_serial_generic_throttle,
++	.unthrottle		= usb_serial_generic_unthrottle,
+ 	.tiocmget		= cp210x_tiocmget,
+ 	.tiocmset		= cp210x_tiocmset,
+ 	.attach			= cp210x_attach,
 
 
