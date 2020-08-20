@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D2C24B630
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05AFA24B792
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731082AbgHTKd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
+        id S1731170AbgHTK7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731449AbgHTKTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:19:36 -0400
+        id S1731102AbgHTKNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7628C2067C;
-        Thu, 20 Aug 2020 10:19:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0F902075E;
+        Thu, 20 Aug 2020 10:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918776;
-        bh=/gOzTMPZIOTgJFu167RPmJPiUuZ4b9Oq/6VRU/ZXW68=;
+        s=default; t=1597918424;
+        bh=nmcxt3WZtflwJ7Qs7MCerLyMF7yzlsKp1exKahSiFsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYzN2/WcSNQnhryNynt66/diSt3HMNR1YVYEARcaQEKJoZp13AAMUBO0DtEP+uz+d
-         YP1uEmE4z9xQMAesAw7+98qvDVs9pW3HDWPRsaWNRe6JBx3OdPi69FaoGgPK1ljsaR
-         XWwWQuY0fxpbV8D46Y734275tY0d+CQgSX4fA0gw=
+        b=xmtDr7FI86dZBMmFSsYOeOqBQ44fE0ckdaKKA9h0+lXQfciQxahwj+14fPvP2GZvh
+         ND0I5/RCYw4Dz+yE6QwWSbqEXyi8ETsFEL1BYgA3w0d6JPUo0EbqlFMx/diKQLiLlR
+         9aSP5i55rq6X5S8DpJMQkV+z/fqtR/ri/hMTAxAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Jyri Sarha <jsarha@ti.com>, Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 062/149] drm/tilcdc: fix leak & null ref in panel_connector_get_modes
-Date:   Thu, 20 Aug 2020 11:22:19 +0200
-Message-Id: <20200820092128.741390964@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 165/228] xen/balloon: make the balloon wait interruptible
+Date:   Thu, 20 Aug 2020 11:22:20 +0200
+Message-Id: <20200820091615.822015614@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-[ Upstream commit 3f9c1c872cc97875ddc8d63bc9fe6ee13652b933 ]
+commit 88a479ff6ef8af7f07e11593d58befc644244ff7 upstream.
 
-If videomode_from_timings() returns true, the mode allocated with
-drm_mode_create will be leaked.
+So it can be killed, or else processes can get hung indefinitely
+waiting for balloon pages.
 
-Also, the return value of drm_mode_create() is never checked, and thus
-could cause NULL deref.
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200727091342.52325-3-roger.pau@citrix.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix these two issues.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200429104234.18910-1-tomi.valkeinen@ti.com
-Reviewed-by: Jyri Sarha <jsarha@ti.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_panel.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/xen/balloon.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 0af8bed7ce1ee..08d8f608be632 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-@@ -177,12 +177,16 @@ static int panel_connector_get_modes(struct drm_connector *connector)
- 	int i;
- 
- 	for (i = 0; i < timings->num_timings; i++) {
--		struct drm_display_mode *mode = drm_mode_create(dev);
-+		struct drm_display_mode *mode;
- 		struct videomode vm;
- 
- 		if (videomode_from_timings(timings, &vm, i))
- 			break;
- 
-+		mode = drm_mode_create(dev);
-+		if (!mode)
-+			break;
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -633,11 +633,13 @@ static int add_ballooned_pages(int nr_pa
+ 	if (xen_hotplug_unpopulated) {
+ 		st = reserve_additional_memory();
+ 		if (st != BP_ECANCELED) {
++			int rc;
 +
- 		drm_display_mode_from_videomode(&vm, mode);
+ 			mutex_unlock(&balloon_mutex);
+-			wait_event(balloon_wq,
++			rc = wait_event_interruptible(balloon_wq,
+ 				   !list_empty(&ballooned_pages));
+ 			mutex_lock(&balloon_mutex);
+-			return 0;
++			return rc ? -ENOMEM : 0;
+ 		}
+ 	}
  
- 		mode->type = DRM_MODE_TYPE_DRIVER;
--- 
-2.25.1
-
 
 
