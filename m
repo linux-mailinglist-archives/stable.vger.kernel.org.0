@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B1724B463
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 661BC24B4B0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbgHTKEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:04:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52872 "EHLO mail.kernel.org"
+        id S1728909AbgHTKKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:10:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730393AbgHTKCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:02:13 -0400
+        id S1728496AbgHTKKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:10:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ABBA20738;
-        Thu, 20 Aug 2020 10:02:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 660FF20724;
+        Thu, 20 Aug 2020 10:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917732;
-        bh=AtLG/bn2mZUKkfIPmi8HqODHX4L427TjEdH9nex621c=;
+        s=default; t=1597918230;
+        bh=5dw8O6/efM/TLjDZygFFroeoWP40Tc0rI4PqYfwm+pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxBIKbhhQ3xpgjjkZRFh2tYGsHVwH7Ta0268sye1ifNSOhtCxfvLomWW2RQrjKjdG
-         XyCbI9P/yLzBwWJCWDw+WsHzPYdx7DZUg0blZuB0XRo95xRyMNRu8PxV6fBTFBPMKY
-         VnCzoYVp0LSV/lI0p4dwCoVBHQxWWW1qdawdEG2Q=
+        b=0MVh8gB8i26X3bmbIj2ipFAy9VGBlqxF5VIrRmb997D7Ok3MQ4kSrjnYMsVk238CB
+         TvjuO2PHD2SrQUTvTmr2/G4DAGb6kIY6W8M6wJ1h4ZFBVDHSuBoKU0SDlH8MmrOcdT
+         iBeQy87Jn5S/ZE8kxP7m742B5q2wujqowssgviZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/212] drm/nouveau: fix multiple instances of reference count leaks
-Date:   Thu, 20 Aug 2020 11:21:10 +0200
-Message-Id: <20200820091607.242576686@linuxfoundation.org>
+Subject: [PATCH 4.14 098/228] media: exynos4-is: Add missed check for pinctrl_lookup_state()
+Date:   Thu, 20 Aug 2020 11:21:13 +0200
+Message-Id: <20200820091612.520058933@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
+[ Upstream commit 18ffec750578f7447c288647d7282c7d12b1d969 ]
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-ref count before returning the error.
+fimc_md_get_pinctrl() misses a check for pinctrl_lookup_state().
+Add the missed check to fix it.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration]")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
- drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-index 42829a942e33c..4e12d3d59651b 100644
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -823,8 +823,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index b2eb830c0360a..f772c9b92d9ba 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1258,6 +1258,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
  
- 	/* need to bring up power immediately if opening device */
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
++	if (IS_ERR(pctl->state_idle))
++		return PTR_ERR(pctl->state_idle);
++
+ 	return 0;
+ }
  
- 	get_task_comm(tmpname, current);
- 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
-@@ -912,8 +914,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	long ret;
- 
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
- 	case DRM_NOUVEAU_NVIF:
-diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-index 505dca48b9f80..be6672da33a65 100644
---- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-@@ -42,8 +42,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (WARN_ON(ret < 0 && ret != -EACCES))
-+	if (WARN_ON(ret < 0 && ret != -EACCES)) {
-+		pm_runtime_put_autosuspend(dev);
- 		return;
-+	}
- 
- 	if (gem->import_attach)
- 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
 -- 
 2.25.1
 
