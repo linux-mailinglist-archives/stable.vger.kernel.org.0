@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBFAA24B4D2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF22324B51D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730840AbgHTKNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55480 "EHLO mail.kernel.org"
+        id S1731361AbgHTKSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731096AbgHTKMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:52 -0400
+        id S1731409AbgHTKSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:18:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8876D206DA;
-        Thu, 20 Aug 2020 10:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED74720658;
+        Thu, 20 Aug 2020 10:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918371;
-        bh=RY+bUR6q62ndFq4NTc+Ra1HAuUXfTe8JDs9v63RZvMs=;
+        s=default; t=1597918732;
+        bh=zPSdERwGkzmq8uLtFN9GL6TfGc4jrmcGfhiaNRPb2Fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdnbodhE+eaVzUrTtM8aYAUp/1FV+zSsuO4vcpAT9JcA6Co9wITqXQf4Vp94KkMJk
-         ChTu9rNAUZhI4jxkyilGghheWCNi5fm8iwPBCJ5qiRkOj9JYzzNlX2B4uhTxbeCU9n
-         fsCPL24TCj3N02GqB09V6aW+/hN0bvjj+/rTPQa4=
+        b=zSwTTNQpQM3bPJtMvHHQYyr3GSlAQiYTeh6VqngSjrQn0zt0IHZCfIwrrHNu1frEv
+         C3s8i6Jli6Prh+lrSb2TAq6nw7XIgSJo6Zk7b4k8tfWScljTrNqbBJ2fOaK7m0R26P
+         X8hIUrwLRgMvsRuRgidWnjupb18BqTKUSpzuM6kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
-        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 145/228] USB: serial: cp210x: enable usb generic throttle/unthrottle
-Date:   Thu, 20 Aug 2020 11:22:00 +0200
-Message-Id: <20200820091614.826651760@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Jann Horn <jannh@google.com>, Martijn Coenen <maco@android.com>
+Subject: [PATCH 4.4 046/149] binder: Prevent context manager from incrementing ref 0
+Date:   Thu, 20 Aug 2020 11:22:03 +0200
+Message-Id: <20200820092127.961712863@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brant Merryman <brant.merryman@silabs.com>
+From: Jann Horn <jannh@google.com>
 
-commit 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 upstream.
+commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
 
-Assign the .throttle and .unthrottle functions to be generic function
-in the driver structure to prevent data loss that can otherwise occur
-if the host does not enable USB throttling.
+Binder is designed such that a binder_proc never has references to
+itself. If this rule is violated, memory corruption can occur when a
+process sends a transaction to itself; see e.g.
+<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
 
-Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
-Co-developed-by: Phu Luu <phu.luu@silabs.com>
-Signed-off-by: Phu Luu <phu.luu@silabs.com>
-Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
-[ johan: fix up tags ]
-Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
-Cc: stable <stable@vger.kernel.org>     # 2.6.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
+There is a remaining edgecase through which such a transaction-to-self
+can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
+access:
+
+ - task A opens /dev/binder twice, creating binder_proc instances P1
+   and P2
+ - P1 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
+   handle table
+ - P1 dies (by closing the /dev/binder fd and waiting a bit)
+ - P2 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
+   handle table
+   [this triggers a warning: "binder: 1974:1974 tried to acquire
+   reference to desc 0, got 1 instead"]
+ - task B opens /dev/binder once, creating binder_proc instance P3
+ - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
+   transaction)
+ - P2 receives the handle and uses it to call P3 (two-way transaction)
+ - P3 calls P2 (via magic handle 0) (two-way transaction)
+ - P2 calls P2 (via handle 1) (two-way transaction)
+
+And then, if P2 does *NOT* accept the incoming transaction work, but
+instead closes the binder fd, we get a crash.
+
+Solve it by preventing the context manager from using ACQUIRE on ref 0.
+There shouldn't be any legitimate reason for the context manager to do
+that.
+
+Additionally, print a warning if someone manages to find another way to
+trigger a transaction-to-self bug in the future.
+
+Cc: stable@vger.kernel.org
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Acked-by: Todd Kjos <tkjos@google.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Martijn Coenen <maco@android.com>
+Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+[manual backport: remove fine-grained locking and error reporting that
+                  don't exist in <=4.9]
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/android/binder.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -271,6 +271,8 @@ static struct usb_serial_driver cp210x_d
- 	.break_ctl		= cp210x_break_ctl,
- 	.set_termios		= cp210x_set_termios,
- 	.tx_empty		= cp210x_tx_empty,
-+	.throttle		= usb_serial_generic_throttle,
-+	.unthrottle		= usb_serial_generic_unthrottle,
- 	.tiocmget		= cp210x_tiocmget,
- 	.tiocmset		= cp210x_tiocmset,
- 	.attach			= cp210x_attach,
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1415,6 +1415,10 @@ static void binder_transaction(struct bi
+ 			return_error = BR_DEAD_REPLY;
+ 			goto err_dead_binder;
+ 		}
++		if (WARN_ON(proc == target_proc)) {
++			return_error = BR_FAILED_REPLY;
++			goto err_invalid_target_handle;
++		}
+ 		if (security_binder_transaction(proc->tsk,
+ 						target_proc->tsk) < 0) {
+ 			return_error = BR_FAILED_REPLY;
+@@ -1812,6 +1816,11 @@ static int binder_thread_write(struct bi
+ 			ptr += sizeof(uint32_t);
+ 			if (target == 0 && binder_context_mgr_node &&
+ 			    (cmd == BC_INCREFS || cmd == BC_ACQUIRE)) {
++				if (binder_context_mgr_node->proc == proc) {
++					binder_user_error("%d:%d context manager tried to acquire desc 0\n",
++							  proc->pid, thread->pid);
++					return -EINVAL;
++				}
+ 				ref = binder_get_ref_for_node(proc,
+ 					       binder_context_mgr_node);
+ 				if (ref->desc != target) {
 
 
