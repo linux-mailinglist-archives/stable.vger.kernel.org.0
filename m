@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C9D24B98F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE2924B98A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730972AbgHTLsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48998 "EHLO mail.kernel.org"
+        id S1730757AbgHTLsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:48:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgHTKCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:02:52 -0400
+        id S1730576AbgHTKCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:02:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FCAC22BF3;
-        Thu, 20 Aug 2020 10:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB6232067C;
+        Thu, 20 Aug 2020 10:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917771;
-        bh=BsKSyBUo4NViFgNTZPYPRDujfeJBe97TjycPuuzQqnE=;
+        s=default; t=1597917774;
+        bh=ulncOzTkj5hCyu5KHlpoxvoX+j1TFKUAggTWM53rMXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bp3+7aDc2LkFNayKLIG/XAD9NUx+f5Ps4qXPHYMkmU6bQcdiloakfwVDLpdPiBHo
-         nW32GZ77qZu4p/z0GVDHGJY1bzs0amcEiFlmSLdjVGWoBSxU4isPYK1fezEel8iBJ3
-         IOPja3F8WWeSMdnL3+J2dWccsgAb8k7LkCZ7dPSg=
+        b=rOjP703LqQPmiuCLsDstjpr7ijY9NsLi2c3vCv0+yKjvjta461SSOjWMHhDHrrwnA
+         NT78ZtkiyHQupWzigKsAZ1PytcyKT8JqQwBVvxowucEhSeRPJBSu2VVuX1tf+Fjo8I
+         BPcGk5dSFWmdLcJ1knAR/MyLEm9NOgeM5GBz+EEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 152/212] net: Set fput_needed iff FDPUT_FPUT is set
-Date:   Thu, 20 Aug 2020 11:22:05 +0200
-Message-Id: <20200820091610.082971630@linuxfoundation.org>
+        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
+        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 153/212] USB: serial: cp210x: re-enable auto-RTS on open
+Date:   Thu, 20 Aug 2020 11:22:06 +0200
+Message-Id: <20200820091610.127023943@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,31 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Brant Merryman <brant.merryman@silabs.com>
 
-[ Upstream commit ce787a5a074a86f76f5d3fd804fa78e01bfb9e89 ]
+commit c7614ff9b73a1e6fb2b1b51396da132ed22fecdb upstream.
 
-We should fput() file iff FDPUT_FPUT is set. So we should set fput_needed
-accordingly.
+CP210x hardware disables auto-RTS but leaves auto-CTS when in hardware
+flow control mode and UART on cp210x hardware is disabled. When
+re-opening the port, if auto-CTS is enabled on the cp210x, then auto-RTS
+must be re-enabled in the driver.
 
-Fixes: 00e188ef6a7e ("sockfd_lookup_light(): switch to fdget^W^Waway from fget_light")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
+Co-developed-by: Phu Luu <phu.luu@silabs.com>
+Signed-off-by: Phu Luu <phu.luu@silabs.com>
+Link: https://lore.kernel.org/r/ECCF8E73-91F3-4080-BE17-1714BC8818FB@silabs.com
+[ johan: fix up tags and problem description ]
+Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
+Cc: stable <stable@vger.kernel.org>     # 2.6.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/socket.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -498,7 +498,7 @@ static struct socket *sockfd_lookup_ligh
- 	if (f.file) {
- 		sock = sock_from_file(f.file, err);
- 		if (likely(sock)) {
--			*fput_needed = f.flags;
-+			*fput_needed = f.flags & FDPUT_FPUT;
- 			return sock;
- 		}
- 		fdput(f);
+---
+ drivers/usb/serial/cp210x.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -765,6 +765,7 @@ static void cp210x_get_termios_port(stru
+ 	u32 baud;
+ 	u16 bits;
+ 	u32 ctl_hs;
++	u32 flow_repl;
+ 
+ 	cp210x_read_u32_reg(port, CP210X_GET_BAUDRATE, &baud);
+ 
+@@ -865,6 +866,22 @@ static void cp210x_get_termios_port(stru
+ 	ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
+ 	if (ctl_hs & CP210X_SERIAL_CTS_HANDSHAKE) {
+ 		dev_dbg(dev, "%s - flow control = CRTSCTS\n", __func__);
++		/*
++		 * When the port is closed, the CP210x hardware disables
++		 * auto-RTS and RTS is deasserted but it leaves auto-CTS when
++		 * in hardware flow control mode. When re-opening the port, if
++		 * auto-CTS is enabled on the cp210x, then auto-RTS must be
++		 * re-enabled in the driver.
++		 */
++		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
++		flow_repl &= ~CP210X_SERIAL_RTS_MASK;
++		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_FLOW_CTL);
++		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
++		cp210x_write_reg_block(port,
++				CP210X_SET_FLOW,
++				&flow_ctl,
++				sizeof(flow_ctl));
++
+ 		cflag |= CRTSCTS;
+ 	} else {
+ 		dev_dbg(dev, "%s - flow control = NONE\n", __func__);
 
 
