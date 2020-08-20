@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55F524B460
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0272A24B4CC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730384AbgHTKEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:04:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52980 "EHLO mail.kernel.org"
+        id S1730627AbgHTKMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:12:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728613AbgHTKCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:02:15 -0400
+        id S1731028AbgHTKMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:12:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B285208E4;
-        Thu, 20 Aug 2020 10:02:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C326A2078D;
+        Thu, 20 Aug 2020 10:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917734;
-        bh=rHY6bYRMoExjyfEcAUsfa6ZPTbkCpO03krJyyBwM/NM=;
+        s=default; t=1597918327;
+        bh=wGZchrSH3dIrJJUpcb6n0gXdysEqtu52XwnzPoROvzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEyd4Vl/BG8NmugjHG/qWpMx75Ml83gFtFAXIwlwxYXYtmKTMK5DBGdA8B7lQ9Ewq
-         FXUcX4vonMHJa/++RCYq/oG7qjz0ga0L2ZFwT5BlfUxHDsNFNER+pKVdvVuMJ8blPN
-         jCQHVUH4/i4O1QgP+Whj08CMSXM19LhKt6tKrFS8=
+        b=xZ1iYpe1bvnTEOxvJLsgiKIP2OyGOeoZW+EWpK3aSLg/7PXQGZN4h84n6MHcJ0QMo
+         BQtbdj4e/SiDjh9KyClFlZ4nvhSfznOSXZmCzqhxNbVfGspxMt0yTvgIIFdGhigdnG
+         7pfWkqe7RDVRJl36fMKbsEw2+SoS9xGXo6Z/7TV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org,
+        Florinel Iordache <florinel.iordache@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 131/212] drm/imx: tve: fix regulator_disable error path
-Date:   Thu, 20 Aug 2020 11:21:44 +0200
-Message-Id: <20200820091608.964012615@linuxfoundation.org>
+Subject: [PATCH 4.14 131/228] fsl/fman: fix dereference null return value
+Date:   Thu, 20 Aug 2020 11:21:46 +0200
+Message-Id: <20200820091614.135964881@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Florinel Iordache <florinel.iordache@nxp.com>
 
-[ Upstream commit 7bb58b987fee26da2a1665c01033022624986b7c ]
+[ Upstream commit 0572054617f32670abab4b4e89a876954d54b704 ]
 
-Add missing regulator_disable() as devm_action to avoid dedicated
-unbind() callback and fix the missing error handling.
+Check before using returned value to avoid dereferencing null pointer.
 
-Fixes: fcbc51e54d2a ("staging: drm/imx: Add support for Television Encoder (TVEv2)")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
+Signed-off-by: Florinel Iordache <florinel.iordache@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-tve.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/freescale/fman/fman_port.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
-index 89cf0090feaca..9ae515f3171ec 100644
---- a/drivers/gpu/drm/imx/imx-tve.c
-+++ b/drivers/gpu/drm/imx/imx-tve.c
-@@ -511,6 +511,13 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
- 	return 0;
- }
- 
-+static void imx_tve_disable_regulator(void *data)
-+{
-+	struct imx_tve *tve = data;
-+
-+	regulator_disable(tve->dac_reg);
-+}
-+
- static bool imx_tve_readable_reg(struct device *dev, unsigned int reg)
- {
- 	return (reg % 4 == 0) && (reg <= 0xdc);
-@@ -635,6 +642,9 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 		ret = regulator_enable(tve->dac_reg);
- 		if (ret)
- 			return ret;
-+		ret = devm_add_action_or_reset(dev, imx_tve_disable_regulator, tve);
-+		if (ret)
-+			return ret;
+diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
+index 495190764155a..ac3d791f52821 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_port.c
++++ b/drivers/net/ethernet/freescale/fman/fman_port.c
+@@ -1744,6 +1744,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 	struct fman_port *port;
+ 	struct fman *fman;
+ 	struct device_node *fm_node, *port_node;
++	struct platform_device *fm_pdev;
+ 	struct resource res;
+ 	struct resource *dev_res;
+ 	u32 val;
+@@ -1768,8 +1769,14 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 		goto return_err;
  	}
  
- 	tve->clk = devm_clk_get(dev, "tve");
-@@ -681,18 +691,8 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 	return 0;
- }
- 
--static void imx_tve_unbind(struct device *dev, struct device *master,
--	void *data)
--{
--	struct imx_tve *tve = dev_get_drvdata(dev);
--
--	if (!IS_ERR(tve->dac_reg))
--		regulator_disable(tve->dac_reg);
--}
--
- static const struct component_ops imx_tve_ops = {
- 	.bind	= imx_tve_bind,
--	.unbind	= imx_tve_unbind,
- };
- 
- static int imx_tve_probe(struct platform_device *pdev)
+-	fman = dev_get_drvdata(&of_find_device_by_node(fm_node)->dev);
++	fm_pdev = of_find_device_by_node(fm_node);
+ 	of_node_put(fm_node);
++	if (!fm_pdev) {
++		err = -EINVAL;
++		goto return_err;
++	}
++
++	fman = dev_get_drvdata(&fm_pdev->dev);
+ 	if (!fman) {
+ 		err = -EINVAL;
+ 		goto return_err;
 -- 
 2.25.1
 
