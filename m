@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1E824BEB7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF5424BECF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728057AbgHTNbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
+        id S1728560AbgHTNct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:32:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728325AbgHTJck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:40 -0400
+        id S1728033AbgHTJbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:31:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EFFD22B49;
-        Thu, 20 Aug 2020 09:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63EB720724;
+        Thu, 20 Aug 2020 09:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915960;
-        bh=usJB+l/bgRxFMU7RdfbA4FT6nQW4eTysKwPja/RlPHM=;
+        s=default; t=1597915870;
+        bh=glrZ8+Vz8mqHzTmrL71cuHD1+DnBP22ANxGQaarC4NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7WC2qozEZbbECcjCSd5JMPA5RuQQ0TRONm8QhrnNJUneA42MGSeJzCFYEikzpqkv
-         IsjydxV7u46LfUKMquTW3ciJ0xxSRLXRTnZngWTAjF2TlKnz6zkTVwW00PwORRpgIK
-         YiKFhL2KefWo17YvGs5hgqM+GYFvN1q7D7qWUpUg=
+        b=WJdB0Wu+7+/KQVI9y9pluyzgIERKEBJFrODVEf9hvkrEM/Bs5gg7Omg7D4gZI/g3X
+         H9ncCMuBYUGySpOzvzk7Oj0kvo2Ju4n8R39/w3RxeQ6tF3pW43SVucDvT4jY0SYKPy
+         781gFIn1v0IZeCExGnBl69jyS4/bjds2gb4tWwA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 155/232] iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
-Date:   Thu, 20 Aug 2020 11:20:06 +0200
-Message-Id: <20200820091620.319305365@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 156/232] clk: qcom: gcc: fix sm8150 GPU and NPU clocks
+Date:   Thu, 20 Aug 2020 11:20:07 +0200
+Message-Id: <20200820091620.367063405@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,41 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit dee9d154f40c58d02f69acdaa5cfd1eae6ebc28b ]
+[ Upstream commit 667f39b59b494d96ae70f4217637db2ebbee3df0 ]
 
-It is possible for the call to omap_iommu_dump_ctx to return
-a negative error number, so check for the failure and return
-the error number rather than pass the negative value to
-simple_read_from_buffer.
+Fix the parents and set BRANCH_HALT_SKIP. From the downstream driver it
+should be a 500us delay and not skip, however this matches what was done
+for other clocks that had 500us delay in downstream.
 
-Fixes: 14e0e6796a0d ("OMAP: iommu: add initial debugfs support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200714192211.744776-1-colin.king@canonical.com
-Addresses-Coverity: ("Improper use of negative value")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: f73a4230d5bb ("clk: qcom: gcc: Add GPU and NPU clocks for SM8150")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20200709135251.643-2-jonathan@marek.ca
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/qcom/gcc-sm8150.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index 8e19bfa94121e..a99afb5d9011c 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -98,8 +98,11 @@ static ssize_t debug_read_regs(struct file *file, char __user *userbuf,
- 	mutex_lock(&iommu_debug_lock);
+diff --git a/drivers/clk/qcom/gcc-sm8150.c b/drivers/clk/qcom/gcc-sm8150.c
+index 72524cf110487..55e9d6d75a0cd 100644
+--- a/drivers/clk/qcom/gcc-sm8150.c
++++ b/drivers/clk/qcom/gcc-sm8150.c
+@@ -1617,6 +1617,7 @@ static struct clk_branch gcc_gpu_cfg_ahb_clk = {
+ };
  
- 	bytes = omap_iommu_dump_ctx(obj, p, count);
-+	if (bytes < 0)
-+		goto err;
- 	bytes = simple_read_from_buffer(userbuf, count, ppos, buf, bytes);
+ static struct clk_branch gcc_gpu_gpll0_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(15),
+@@ -1632,13 +1633,14 @@ static struct clk_branch gcc_gpu_gpll0_clk_src = {
+ };
  
-+err:
- 	mutex_unlock(&iommu_debug_lock);
- 	kfree(buf);
+ static struct clk_branch gcc_gpu_gpll0_div_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(16),
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_gpu_gpll0_div_clk_src",
+ 			.parent_hws = (const struct clk_hw *[]){
+-				&gcc_gpu_gpll0_clk_src.clkr.hw },
++				&gpll0_out_even.clkr.hw },
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+ 			.ops = &clk_branch2_ops,
+@@ -1729,6 +1731,7 @@ static struct clk_branch gcc_npu_cfg_ahb_clk = {
+ };
  
+ static struct clk_branch gcc_npu_gpll0_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(18),
+@@ -1744,13 +1747,14 @@ static struct clk_branch gcc_npu_gpll0_clk_src = {
+ };
+ 
+ static struct clk_branch gcc_npu_gpll0_div_clk_src = {
++	.halt_check = BRANCH_HALT_SKIP,
+ 	.clkr = {
+ 		.enable_reg = 0x52004,
+ 		.enable_mask = BIT(19),
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_npu_gpll0_div_clk_src",
+ 			.parent_hws = (const struct clk_hw *[]){
+-				&gcc_npu_gpll0_clk_src.clkr.hw },
++				&gpll0_out_even.clkr.hw },
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+ 			.ops = &clk_branch2_ops,
 -- 
 2.25.1
 
