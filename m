@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A938324B2D6
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 591D124B2D9
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728281AbgHTJhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54690 "EHLO mail.kernel.org"
+        id S1728869AbgHTJiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728857AbgHTJhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:53 -0400
+        id S1728866AbgHTJiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:38:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCE6A20724;
-        Thu, 20 Aug 2020 09:37:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7C43208E4;
+        Thu, 20 Aug 2020 09:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916272;
-        bh=4fUQNNlmCRsuUQDDHxUNiUzha6ciUZBaVWDskHewTUI=;
+        s=default; t=1597916285;
+        bh=ITyMQyh6P4pJ+tD0Acu3nFOEdKSD4uinCZVzwQUjV7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+Aj/bxExLUiaEmWq6rTFxcIenFpDGYDntgg3meDTJSdQZRO9VzpHVfOKPKNiFCC5
-         MbckfebTZBP9gpJ1BILOjiqIxlaQh/5Wpp2oaAFjB31BkS9xr15xued32ZFC/I9bAi
-         BJzoEd3CyAO/B/Lbb4IMbWE4jW4pgKRgA7TtzeUI=
+        b=2fm6FANStr2oBA9Sl8cDStMfG7pVniVxwpkPEfgM26KEvlx2Bmefy9UWHUqnXQ9Fm
+         OqB5RepZnh7YQsLCC9KMBzeRCThSRZB2kBq0vVfypQVFoOl5sjBxUlrzmFCLS19EQH
+         h0QeSBD1PpVLAbMce94nUcDI2uoLZjBwiUU8rRok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 071/204] mm/shuffle: dont move pages between zones and dont read garbage memmaps
-Date:   Thu, 20 Aug 2020 11:19:28 +0200
-Message-Id: <20200820091609.893192254@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.7 076/204] ftrace: Setup correct FTRACE_FL_REGS flags for module
+Date:   Thu, 20 Aug 2020 11:19:33 +0200
+Message-Id: <20200820091610.149071158@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -52,102 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-commit 4a93025cbe4a0b19d1a25a2d763a3d2018bad0d9 upstream.
+commit 8a224ffb3f52b0027f6b7279854c71a31c48fc97 upstream.
 
-Especially with memory hotplug, we can have offline sections (with a
-garbage memmap) and overlapping zones.  We have to make sure to only touch
-initialized memmaps (online sections managed by the buddy) and that the
-zone matches, to not move pages between zones.
+When module loaded and enabled, we will use __ftrace_replace_code
+for module if any ftrace_ops referenced it found. But we will get
+wrong ftrace_addr for module rec in ftrace_get_addr_new, because
+rec->flags has not been setup correctly. It can cause the callback
+function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
+with pt_regs set to NULL.
+So setup correct FTRACE_FL_REGS flags for rec when we call
+referenced_filters to find ftrace_ops references it.
 
-To test if this can actually happen, I added a simple
+Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
 
-	BUG_ON(page_zone(page_i) != page_zone(page_j));
-
-right before the swap.  When hotplugging a 256M DIMM to a 4G x86-64 VM and
-onlining the first memory block "online_movable" and the second memory
-block "online_kernel", it will trigger the BUG, as both zones (NORMAL and
-MOVABLE) overlap.
-
-This might result in all kinds of weird situations (e.g., double
-allocations, list corruptions, unmovable allocations ending up in the
-movable zone).
-
-Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Link: http://lkml.kernel.org/r/20200624094741.9918-2-david@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/shuffle.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/trace/ftrace.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/mm/shuffle.c
-+++ b/mm/shuffle.c
-@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store
-  * For two pages to be swapped in the shuffle, they must be free (on a
-  * 'free_area' lru), have the same order, and have the same migratetype.
-  */
--static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
-+static struct page * __meminit shuffle_valid_page(struct zone *zone,
-+						  unsigned long pfn, int order)
- {
--	struct page *page;
-+	struct page *page = pfn_to_online_page(pfn);
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6198,8 +6198,11 @@ static int referenced_filters(struct dyn
+ 	int cnt = 0;
  
- 	/*
- 	 * Given we're dealing with randomly selected pfns in a zone we
- 	 * need to ask questions like...
- 	 */
+ 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
+-		if (ops_references_rec(ops, rec))
+-		    cnt++;
++		if (ops_references_rec(ops, rec)) {
++			cnt++;
++			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
++				rec->flags |= FTRACE_FL_REGS;
++		}
+ 	}
  
--	/* ...is the pfn even in the memmap? */
--	if (!pfn_valid_within(pfn))
-+	/* ... is the page managed by the buddy? */
-+	if (!page)
- 		return NULL;
+ 	return cnt;
+@@ -6378,8 +6381,8 @@ void ftrace_module_enable(struct module
+ 		if (ftrace_start_up)
+ 			cnt += referenced_filters(rec);
  
--	/* ...is the pfn in a present section or a hole? */
--	if (!pfn_in_present_section(pfn))
-+	/* ... is the page assigned to the same zone? */
-+	if (page_zone(page) != zone)
- 		return NULL;
+-		/* This clears FTRACE_FL_DISABLED */
+-		rec->flags = cnt;
++		rec->flags &= ~FTRACE_FL_DISABLED;
++		rec->flags += cnt;
  
- 	/* ...is the page free and currently on a free_area list? */
--	page = pfn_to_page(pfn);
- 	if (!PageBuddy(page))
- 		return NULL;
- 
-@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zon
- 		 * page_j randomly selected in the span @zone_start_pfn to
- 		 * @spanned_pages.
- 		 */
--		page_i = shuffle_valid_page(i, order);
-+		page_i = shuffle_valid_page(z, i, order);
- 		if (!page_i)
- 			continue;
- 
-@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zon
- 			j = z->zone_start_pfn +
- 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
- 						order_pages);
--			page_j = shuffle_valid_page(j, order);
-+			page_j = shuffle_valid_page(z, j, order);
- 			if (page_j && page_j != page_i)
- 				break;
- 		}
+ 		if (ftrace_start_up && cnt) {
+ 			int failed = __ftrace_replace_code(rec, 1);
 
 
