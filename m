@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAC124B3D2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C7024B34E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbgHTJwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:52:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33302 "EHLO mail.kernel.org"
+        id S1729190AbgHTJpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:45:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729321AbgHTJwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:52:08 -0400
+        id S1729267AbgHTJnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B01B207FB;
-        Thu, 20 Aug 2020 09:52:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 407BB2173E;
+        Thu, 20 Aug 2020 09:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917127;
-        bh=jHopqwvpfTLIe/E0Lw1lj/3ANsQyejgd1n9hrdtErjE=;
+        s=default; t=1597916625;
+        bh=/bkX29MlNOUlzQFGNzz049u3ETyfMbrJy+tTeeKVYTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YD51dkEKWdk5ejlb0Y8kQBpl+n6O0oWhXReGzijmbBbvC8ml4gOPJuGtjEW9W4lqR
-         L4I/kgOEzA4GtRJNRnM958G85bRkQ+IuhsCj6JQQ+tnWUcu/+0UCY3aj7P7GguiaTt
-         g7MX7Ni3K5H9A8rFPfmJLsOSsRSFroASEB8Ty5tY=
+        b=jRNkjYKF9O0tmwjtSFCCUuvUPSbj/8LR9Sz2IqgXkrBR3JqQJgxNWQ5J6sYmXHDpB
+         McESX/upSNxZRtQkBUcHbW94iC08th1tJWSv9MuojspzE624Ouj6ofkD5AjBXie2bU
+         eNzkdvZGlk47V9KTmZcrsD4hkU6Csv5XxU3oduQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 05/92] PCI: Add device even if driver attach failed
-Date:   Thu, 20 Aug 2020 11:20:50 +0200
-Message-Id: <20200820091537.769509157@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jane Chu <jane.chu@oracle.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 154/204] libnvdimm/security: ensure sysfs poll thread woke up and fetch updated attr
+Date:   Thu, 20 Aug 2020 11:20:51 +0200
+Message-Id: <20200820091613.931970561@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajat Jain <rajatja@google.com>
+From: Jane Chu <jane.chu@oracle.com>
 
-commit 2194bc7c39610be7cabe7456c5f63a570604f015 upstream.
+[ Upstream commit 7f674025d9f7321dea11b802cc0ab3f09cbe51c5 ]
 
-device_attach() returning failure indicates a driver error while trying to
-probe the device. In such a scenario, the PCI device should still be added
-in the system and be visible to the user.
+commit 7d988097c546 ("acpi/nfit, libnvdimm/security: Add security DSM overwrite support")
+adds a sysfs_notify_dirent() to wake up userspace poll thread when the "overwrite"
+operation has completed. But the notification is issued before the internal
+dimm security state and flags have been updated, so the userspace poll thread
+wakes up and fetches the not-yet-updated attr and falls back to sleep, forever.
+But if user from another terminal issue "ndctl wait-overwrite nmemX" again,
+the command returns instantly.
 
-When device_attach() fails, merely warn about it and keep the PCI device in
-the system.
-
-This partially reverts ab1a187bba5c ("PCI: Check device_attach() return
-value always").
-
-Link: https://lore.kernel.org/r/20200706233240.3245512-1-rajatja@google.com
-Signed-off-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org	# v4.6+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/1596494499-9852-3-git-send-email-jane.chu@oracle.com
+Fixes: 7d988097c546 ("acpi/nfit, libnvdimm/security: Add security DSM overwrite support")
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Jane Chu <jane.chu@oracle.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/bus.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/nvdimm/security.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/bus.c
-+++ b/drivers/pci/bus.c
-@@ -323,12 +323,8 @@ void pci_bus_add_device(struct pci_dev *
+diff --git a/drivers/nvdimm/security.c b/drivers/nvdimm/security.c
+index acfd211c01b9c..35d265014e1ec 100644
+--- a/drivers/nvdimm/security.c
++++ b/drivers/nvdimm/security.c
+@@ -450,14 +450,19 @@ void __nvdimm_security_overwrite_query(struct nvdimm *nvdimm)
+ 	else
+ 		dev_dbg(&nvdimm->dev, "overwrite completed\n");
  
- 	dev->match_driver = true;
- 	retval = device_attach(&dev->dev);
--	if (retval < 0 && retval != -EPROBE_DEFER) {
-+	if (retval < 0 && retval != -EPROBE_DEFER)
- 		pci_warn(dev, "device attach failed (%d)\n", retval);
--		pci_proc_detach_device(dev);
--		pci_remove_sysfs_dev_files(dev);
--		return;
--	}
- 
- 	pci_dev_assign_added(dev, true);
+-	if (nvdimm->sec.overwrite_state)
+-		sysfs_notify_dirent(nvdimm->sec.overwrite_state);
++	/*
++	 * Mark the overwrite work done and update dimm security flags,
++	 * then send a sysfs event notification to wake up userspace
++	 * poll threads to picked up the changed state.
++	 */
+ 	nvdimm->sec.overwrite_tmo = 0;
+ 	clear_bit(NDD_SECURITY_OVERWRITE, &nvdimm->flags);
+ 	clear_bit(NDD_WORK_PENDING, &nvdimm->flags);
+-	put_device(&nvdimm->dev);
+ 	nvdimm->sec.flags = nvdimm_security_flags(nvdimm, NVDIMM_USER);
+ 	nvdimm->sec.ext_flags = nvdimm_security_flags(nvdimm, NVDIMM_MASTER);
++	if (nvdimm->sec.overwrite_state)
++		sysfs_notify_dirent(nvdimm->sec.overwrite_state);
++	put_device(&nvdimm->dev);
  }
+ 
+ void nvdimm_security_overwrite_query(struct work_struct *work)
+-- 
+2.25.1
+
 
 
