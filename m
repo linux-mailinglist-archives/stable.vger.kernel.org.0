@@ -2,120 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8396224AF26
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 08:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183F524AF2A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 08:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725824AbgHTGTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 02:19:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28272 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725768AbgHTGTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 02:19:02 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07K63jEr003252;
-        Thu, 20 Aug 2020 02:18:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=z8n2g633NtPLlzNWQt1PQg9jiBAurfwqzlV8RDXRyt0=;
- b=QbcpYlCDnlEhcGJtK6cuLk3hPv6gpEt1iWJ4kO3+jUMEgg3YihbVY5i+OkfNAnj5vdEe
- ANyu0aipOosoUPQiL/GMC9accQAsu9V6CqvnvCuKpS/DarKzodYmPLMIfpB+T/jtXRKd
- HbSy+miXKfaIk/JQnTbWEzCpB/Ox/3bULbFsvpUWGB6OB4dufj1iXc5Vuec1brlz5TS7
- LTR2VD2rGucckjO7cGzVT7/T/AZnIvU0pNN/WsOyBPT6OwSp7pnE9THrzdHiNfysgI6z
- uH3sLwGsGg67PJzrX7bKVQYWUU1E53QndZF0wdXoendX0d7yPR+9C6eqe5PyGwXBgnhK lw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3310f01rsr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Aug 2020 02:18:52 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07K6CiMT010651;
-        Thu, 20 Aug 2020 06:18:50 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 330tbvsftp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Aug 2020 06:18:50 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07K6ImNU31785248
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Aug 2020 06:18:48 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E392A404D;
-        Thu, 20 Aug 2020 06:18:48 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B7608A4040;
-        Thu, 20 Aug 2020 06:18:46 +0000 (GMT)
-Received: from hegdevasant.in.ibm.com (unknown [9.85.93.150])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Aug 2020 06:18:46 +0000 (GMT)
-From:   Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH v2] powerpc/pseries: Do not initiate shutdown when system is running on UPS
-Date:   Thu, 20 Aug 2020 11:48:44 +0530
-Message-Id: <20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com>
-X-Mailer: git-send-email 2.26.2
+        id S1725828AbgHTGUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 02:20:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34702 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725778AbgHTGUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 02:20:21 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 712702075E;
+        Thu, 20 Aug 2020 06:20:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597904420;
+        bh=Y8ZGx0NT8knWFeR0USDpgJQGE3ZOUB1sx6B1FrzP2Mc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kaTJNaxEydMFrx4Jao0fP3HcPUj3rXRoovHRkJClWO7VT03GMzsmwn/0HD91nbfSk
+         zQk1GExNT2dQmei7usc5EuFLzFXHxkLhSVN/YdtWkcN9BrfHt5CEP+m6hxu9Zl9dKr
+         fNI1wn2Py41IjCtBV+b0HE0moGa0jZU2MqW6Snvo=
+Date:   Thu, 20 Aug 2020 08:20:17 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
+Cc:     Sarah Newman <srn@prgmr.com>, Jan Beulich <jbeulich@suse.com>,
+        xen-devel@lists.xenproject.org,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org, Chris Brannon <cmb@prgmr.com>
+Subject: Re: [PATCH] xen: don't reschedule in preemption off sections
+Message-ID: <20200820062017.GA1876938@kroah.com>
+References: <20200710075050.4769-1-jgross@suse.com>
+ <988ff766-b7de-2e25-2524-c412379686fc@suse.com>
+ <742457cf-4892-0e85-2fc8-d2eb9f8a3a51@suse.com>
+ <af6db1b7-7802-0b2e-eb5f-ce69533b771f@suse.com>
+ <97b15bd2-11f0-b530-dc07-b7d523bf88a2@suse.com>
+ <9b822b7b-5bbe-1714-843f-3ec5a0d1673b@prgmr.com>
+ <4f33a18e-3491-d6ff-63bc-9bc619bd88cd@suse.com>
+ <20200820054419.GA1874724@kroah.com>
+ <446f02fb-119b-ae49-f812-74a31d07b08f@suse.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-19_13:2020-08-19,2020-08-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- impostorscore=0 malwarescore=0 adultscore=0 spamscore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=999 mlxscore=0 suspectscore=1
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008200052
+In-Reply-To: <446f02fb-119b-ae49-f812-74a31d07b08f@suse.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As per PAPR we have to look for both EPOW sensor value and event modifier to
-identify type of event and take appropriate action.
+On Thu, Aug 20, 2020 at 07:58:55AM +0200, Jürgen Groß wrote:
+> On 20.08.20 07:44, Greg Kroah-Hartman wrote:
+> > On Thu, Aug 20, 2020 at 07:13:00AM +0200, Jürgen Groß wrote:
+> > > On 19.08.20 18:57, Sarah Newman wrote:
+> > > > On 7/10/20 5:01 AM, Jürgen Groß wrote:
+> > > > > On 10.07.20 13:55, Jan Beulich wrote:
+> > > > > > On 10.07.2020 12:50, Jürgen Groß wrote:
+> > > > > > > On 10.07.20 11:49, Jan Beulich wrote:
+> > > > > > > > On 10.07.2020 09:50, Juergen Gross wrote:
+> > > > > > > > > For support of long running hypercalls xen_maybe_preempt_hcall() is
+> > > > > > > > > calling cond_resched() in case a hypercall marked as preemptible has
+> > > > > > > > > been interrupted.
+> > > > > > > > > 
+> > > > > > > > > Normally this is no problem, as only hypercalls done
+> > > > > > > > > via some ioctl()s
+> > > > > > > > > are marked to be preemptible. In rare cases when during such a
+> > > > > > > > > preemptible hypercall an interrupt occurs and any softirq action is
+> > > > > > > > > started from irq_exit(), a further hypercall issued by the softirq
+> > > > > > > > > handler will be regarded to be preemptible, too. This might lead to
+> > > > > > > > > rescheduling in spite of the softirq handler potentially having set
+> > > > > > > > > preempt_disable(), leading to splats like:
+> > > > > > > > > 
+> > > > > > > > > BUG: sleeping function called from invalid context
+> > > > > > > > > at drivers/xen/preempt.c:37
+> > > > > > > > > in_atomic(): 1, irqs_disabled(): 0, non_block: 0,
+> > > > > > > > > pid: 20775, name: xl
+> > > > > > > > > INFO: lockdep is turned off.
+> > > > > > > > > CPU: 1 PID: 20775 Comm: xl Tainted: G D W
+> > > > > > > > > 5.4.46-1_prgmr_debug.el7.x86_64 #1
+> > > > > > > > > Call Trace:
+> > > > > > > > > <IRQ>
+> > > > > > > > > dump_stack+0x8f/0xd0
+> > > > > > > > > ___might_sleep.cold.76+0xb2/0x103
+> > > > > > > > > xen_maybe_preempt_hcall+0x48/0x70
+> > > > > > > > > xen_do_hypervisor_callback+0x37/0x40
+> > > > > > > > > RIP: e030:xen_hypercall_xen_version+0xa/0x20
+> > > > > > > > > Code: ...
+> > > > > > > > > RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
+> > > > > > > > > RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
+> > > > > > > > > RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
+> > > > > > > > > RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
+> > > > > > > > > R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
+> > > > > > > > > R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
+> > > > > > > > > ? xen_hypercall_xen_version+0xa/0x20
+> > > > > > > > > ? xen_force_evtchn_callback+0x9/0x10
+> > > > > > > > > ? check_events+0x12/0x20
+> > > > > > > > > ? xen_restore_fl_direct+0x1f/0x20
+> > > > > > > > > ? _raw_spin_unlock_irqrestore+0x53/0x60
+> > > > > > > > > ? debug_dma_sync_single_for_cpu+0x91/0xc0
+> > > > > > > > > ? _raw_spin_unlock_irqrestore+0x53/0x60
+> > > > > > > > > ? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
+> > > > > > > > > ? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
+> > > > > > > > > ? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
+> > > > > > > > > ? net_rx_action+0x151/0x4a0
+> > > > > > > > > ? __do_softirq+0xed/0x55b
+> > > > > > > > > ? irq_exit+0xea/0x100
+> > > > > > > > > ? xen_evtchn_do_upcall+0x2c/0x40
+> > > > > > > > > ? xen_do_hypervisor_callback+0x29/0x40
+> > > > > > > > > </IRQ>
+> > > > > > > > > ? xen_hypercall_domctl+0xa/0x20
+> > > > > > > > > ? xen_hypercall_domctl+0x8/0x20
+> > > > > > > > > ? privcmd_ioctl+0x221/0x990 [xen_privcmd]
+> > > > > > > > > ? do_vfs_ioctl+0xa5/0x6f0
+> > > > > > > > > ? ksys_ioctl+0x60/0x90
+> > > > > > > > > ? trace_hardirqs_off_thunk+0x1a/0x20
+> > > > > > > > > ? __x64_sys_ioctl+0x16/0x20
+> > > > > > > > > ? do_syscall_64+0x62/0x250
+> > > > > > > > > ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > > > > > > > > 
+> > > > > > > > > Fix that by testing preempt_count() before calling cond_resched().
+> > > > > > > > > 
+> > > > > > > > > In kernel 5.8 this can't happen any more due to the
+> > > > > > > > > entry code rework.
+> > > > > > > > > 
+> > > > > > > > > Reported-by: Sarah Newman <srn@prgmr.com>
+> > > > > > > > > Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use
+> > > > > > > > > need_resched() instead of should_resched()")
+> > > > > > > > > Cc: Sarah Newman <srn@prgmr.com>
+> > > > > > > > > Signed-off-by: Juergen Gross <jgross@suse.com>
+> > > > > > > > > ---
+> > > > > > > > >     drivers/xen/preempt.c | 2 +-
+> > > > > > > > >     1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > > > > > 
+> > > > > > > > > diff --git a/drivers/xen/preempt.c b/drivers/xen/preempt.c
+> > > > > > > > > index 17240c5325a3..6ad87b5c95ed 100644
+> > > > > > > > > --- a/drivers/xen/preempt.c
+> > > > > > > > > +++ b/drivers/xen/preempt.c
+> > > > > > > > > @@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hcall);
+> > > > > > > > >     asmlinkage __visible void xen_maybe_preempt_hcall(void)
+> > > > > > > > >     {
+> > > > > > > > >         if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
+> > > > > > > > > -             && need_resched())) {
+> > > > > > > > > +             && need_resched() && !preempt_count())) {
+> > > > > > > > 
+> > > > > > > > Doesn't this have the at least latent risk of hiding issues in
+> > > > > > > > other call trees (by no longer triggering logging like the one
+> > > > > > > > that has propmted this change)? Wouldn't it be better to save,
+> > > > > > > > clear, and restore the flag in one of xen_evtchn_do_upcall() or
+> > > > > > > > xen_do_hypervisor_callback()?
+> > > > > > > 
+> > > > > > > First regarding "risk of hiding issues": it seems as if lots of kernels
+> > > > > > > aren't even configured to trigger this logging. It would need
+> > > > > > > CONFIG_DEBUG_ATOMIC_SLEEP to be enabled and at least SUSE kernels don't
+> > > > > > > seem to have it on. I suspect the occasional xen_mc_flush() failures we
+> > > > > > > have seen are related to this problem.
+> > > > > > > 
+> > > > > > > And in theory saving, clearing and restoring the flag would
+> > > > > > > be fine, but
+> > > > > > > it can't be done in a single function with the code flow as up to 5.7.
+> > > > > > > What would need to be done is to save and clear the flag in e.g.
+> > > > > > > __xen_evtchn_do_upcall() and to pass it to xen_maybe_preempt_hcall() as
+> > > > > > > a parameter. In xen_maybe_preempt_hcall() the passed flag value would
+> > > > > > > need to be used for the decision whether to call
+> > > > > > > cond_resched() and then
+> > > > > > > the flag could be restored (after the cond_resched() call).
+> > > > > > 
+> > > > > > I'm afraid I don't follow: If __xen_evtchn_do_upcall() cleared the flag,
+> > > > > > xen_maybe_preempt_hcall() would amount to a no-op (up and until the
+> > > > > > flag's prior value would get restored), wouldn't it? No need to pass
+> > > > > > anything into there.
+> > > > > 
+> > > > > The problem is after __xen_evtchn_do_upcall() restoring the flag.
+> > > > > As soon as irq_exit() is being called (either by xen_evtchn_do_upcall()
+> > > > > or by the caller of xen_hvm_evtchn_do_upcall()) softirq handling might
+> > > > > be executed resulting in another hypercall, which might be preempted
+> > > > > afterwards. And this is the case which happened in the original
+> > > > > report by Sarah.
+> > > > 
+> > > > Tested-by: Chris Brannon <cmb@prgmr.com>
+> > > > 
+> > > > We're no longer observing this bug. We've been running this on a test
+> > > > system for about 3 weeks. Is it possible to merge?
+> > > 
+> > > Greg, could you please take the patch for stable?
+> > 
+> > What is the git commit id of the patch in Linus's tree?
+> 
+> There is none, as the issue was discovered only when the upstream
+> kernel (5.8 at this time) was already modified in a way which would
+> make the issue go away.
+> 
+> Backporting those changes to stable (all the x86 entry code
+> modifications of 5.8, summing up to IIRC more than 100 patches)
+> would be not practical IMO.
 
-Sensor value = 3 (EPOW_SYSTEM_SHUTDOWN) schedule system to be shutdown after
-                  OS defined delay (default 10 mins).
+Ok, can someone please resend this patch, with all of the gathered
+tested-by and the like, and explain this in the changelog text so it is
+obvious?
 
-EPOW Event Modifier for sensor value = 3:
-   We have to initiate immediate shutdown for most of the event modifier except
-   value = 2 (system running on UPS).
+> > And what stable tree(s) should it go to?
+> 
+> The issue was introduced in 4.3 (see Fixes tag of the patch), so all
+> stable kernels down to that.
 
-Checking with firmware document its clear that we have to wait for predefined
-time before initiating shutdown. If power is restored within time we should
-cancel the shutdown process. I think commit 79872e35 accidently enabled
-immediate poweroff for EPOW_SHUTDOWN_ON_UPS event.
+So older than 5.8, ok, again, can that go in the changelog text?  This
+is a long thread to have to dig that out of...
 
-We have user space tool (rtas_errd) on LPAR to monitor for EPOW_SHUTDOWN_ON_UPS.
-Once it gets event it initiates shutdown after predefined time. Also starts
-monitoring for any new EPOW events. If it receives "Power restored" event
-before predefined time it will cancel the shutdown. Otherwise after
-predefined time it will shutdown the system.
+thanks,
 
-Fixes: 79872e35 (powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must initiate shutdown)
-Cc: stable@vger.kernel.org # v4.0+
-Cc: Tyrel Datwyler <tyreld@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
----
-Changes in v2:
-  - Updated patch description based on mpe, Tyrel comment.
-
--Vasant
- arch/powerpc/platforms/pseries/ras.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index f3736fcd98fc..13c86a292c6d 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -184,7 +184,6 @@ static void handle_system_shutdown(char event_modifier)
- 	case EPOW_SHUTDOWN_ON_UPS:
- 		pr_emerg("Loss of system power detected. System is running on"
- 			 " UPS/battery. Check RTAS error log for details\n");
--		orderly_poweroff(true);
- 		break;
- 
- 	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
--- 
-2.26.2
-
+greg k-h
