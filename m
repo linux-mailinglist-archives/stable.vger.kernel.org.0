@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E23F24BCBE
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45EDA24BB8A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728518AbgHTJnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
+        id S1729763AbgHTJvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729237AbgHTJnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:23 -0400
+        id S1729788AbgHTJvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:51:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 946BD2173E;
-        Thu, 20 Aug 2020 09:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F16472078D;
+        Thu, 20 Aug 2020 09:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916602;
-        bh=SyegA3bvJrFg8dpHJ5/ardA2mwqjWJ6lgwFOeVX86zA=;
+        s=default; t=1597917066;
+        bh=7HHKGc3ZY9MsR7dZjfof1I8hHOlnpQN05gY57xtXUoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imJp3Olux2Gtf1MSftCoXJJGVPDZ0GkK1kF0AiOqzYPGX/uucUrzlDBVUZrmL2Y9b
-         XZQFKGkYShKJIGHFQZu29p9Un/nEsgNKgzM4kaj4ZkBP4LbIbFw2kTkZ7IzaTEI779
-         S6bLMsrT/J6RcTeqleN9vDGMvDguwmx2wjATBFng=
+        b=SOcZPb0EJ5b/9U7ODZxFb0NWs8exh0oyzsgfRT5ka+zlNKYEko4hNjNL8SL3J5HHn
+         0RCV8+eN25d0QRyVX6VbH+ZEQlOJb6kXul4lWQa/Ug1C3ITGLAgobSQovFwTAzXpxj
+         WQPPUCoqk87Wwkz6H2s1vdFlvKkMSVPS/ILeUPcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, kernel@axis.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 185/204] perf bench mem: Always memset source before memcpy
+Subject: [PATCH 5.4 115/152] nfs: ensure correct writeback errors are returned on close()
 Date:   Thu, 20 Aug 2020 11:21:22 +0200
-Message-Id: <20200820091615.427174598@linuxfoundation.org>
+Message-Id: <20200820091559.647346613@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,103 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Scott Mayhew <smayhew@redhat.com>
 
-[ Upstream commit 1beaef29c34154ccdcb3f1ae557f6883eda18840 ]
+[ Upstream commit 67dd23f9e6fbaf163431912ef5599c5e0693476c ]
 
-For memcpy, the source pages are memset to zero only when --cycles is
-used.  This leads to wildly different results with or without --cycles,
-since all sources pages are likely to be mapped to the same zero page
-without explicit writes.
+nfs_wb_all() calls filemap_write_and_wait(), which uses
+filemap_check_errors() to determine the error to return.
+filemap_check_errors() only looks at the mapping->flags and will
+therefore only return either -ENOSPC or -EIO.  To ensure that the
+correct error is returned on close(), nfs{,4}_file_flush() should call
+filemap_check_wb_err() which looks at the errseq value in
+mapping->wb_err without consuming it.
 
-Before this fix:
-
-$ export cmd="./perf stat -e LLC-loads -- ./perf bench \
-  mem memcpy -s 1024MB -l 100 -f default"
-$ $cmd
-
-         2,935,826      LLC-loads
-       3.821677452 seconds time elapsed
-
-$ $cmd --cycles
-
-       217,533,436      LLC-loads
-       8.616725985 seconds time elapsed
-
-After this fix:
-
-$ $cmd
-
-       214,459,686      LLC-loads
-       8.674301124 seconds time elapsed
-
-$ $cmd --cycles
-
-       214,758,651      LLC-loads
-       8.644480006 seconds time elapsed
-
-Fixes: 47b5757bac03c338 ("perf bench mem: Move boilerplate memory allocation to the infrastructure")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: kernel@axis.com
-Link: http://lore.kernel.org/lkml/20200810133404.30829-1-vincent.whitchurch@axis.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with
+generic one")
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/mem-functions.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ fs/nfs/file.c     | 5 ++++-
+ fs/nfs/nfs4file.c | 5 ++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/bench/mem-functions.c b/tools/perf/bench/mem-functions.c
-index 9235b76501be8..19d45c377ac18 100644
---- a/tools/perf/bench/mem-functions.c
-+++ b/tools/perf/bench/mem-functions.c
-@@ -223,12 +223,8 @@ static int bench_mem_common(int argc, const char **argv, struct bench_mem_info *
- 	return 0;
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 95dc90570786c..348f67c8f3224 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -140,6 +140,7 @@ static int
+ nfs_file_flush(struct file *file, fl_owner_t id)
+ {
+ 	struct inode	*inode = file_inode(file);
++	errseq_t since;
+ 
+ 	dprintk("NFS: flush(%pD2)\n", file);
+ 
+@@ -148,7 +149,9 @@ nfs_file_flush(struct file *file, fl_owner_t id)
+ 		return 0;
+ 
+ 	/* Flush writes to the server and return any errors */
+-	return nfs_wb_all(inode);
++	since = filemap_sample_wb_err(file->f_mapping);
++	nfs_wb_all(inode);
++	return filemap_check_wb_err(file->f_mapping, since);
  }
  
--static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
-+static void memcpy_prefault(memcpy_t fn, size_t size, void *src, void *dst)
+ ssize_t
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index fb55c04cdc6bd..534b6fd70ffdb 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -109,6 +109,7 @@ static int
+ nfs4_file_flush(struct file *file, fl_owner_t id)
  {
--	u64 cycle_start = 0ULL, cycle_end = 0ULL;
--	memcpy_t fn = r->fn.memcpy;
--	int i;
--
- 	/* Make sure to always prefault zero pages even if MMAP_THRESH is crossed: */
- 	memset(src, 0, size);
+ 	struct inode	*inode = file_inode(file);
++	errseq_t since;
  
-@@ -237,6 +233,15 @@ static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, vo
- 	 * to not measure page fault overhead:
- 	 */
- 	fn(dst, src, size);
-+}
-+
-+static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
-+{
-+	u64 cycle_start = 0ULL, cycle_end = 0ULL;
-+	memcpy_t fn = r->fn.memcpy;
-+	int i;
-+
-+	memcpy_prefault(fn, size, src, dst);
+ 	dprintk("NFS: flush(%pD2)\n", file);
  
- 	cycle_start = get_cycles();
- 	for (i = 0; i < nr_loops; ++i)
-@@ -252,11 +257,7 @@ static double do_memcpy_gettimeofday(const struct function *r, size_t size, void
- 	memcpy_t fn = r->fn.memcpy;
- 	int i;
+@@ -124,7 +125,9 @@ nfs4_file_flush(struct file *file, fl_owner_t id)
+ 		return filemap_fdatawrite(file->f_mapping);
  
--	/*
--	 * We prefault the freshly allocated memory range here,
--	 * to not measure page fault overhead:
--	 */
--	fn(dst, src, size);
-+	memcpy_prefault(fn, size, src, dst);
+ 	/* Flush writes to the server and return any errors */
+-	return nfs_wb_all(inode);
++	since = filemap_sample_wb_err(file->f_mapping);
++	nfs_wb_all(inode);
++	return filemap_check_wb_err(file->f_mapping, since);
+ }
  
- 	BUG_ON(gettimeofday(&tv_start, NULL));
- 	for (i = 0; i < nr_loops; ++i)
+ #ifdef CONFIG_NFS_V4_2
 -- 
 2.25.1
 
