@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A49F524BCBD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A7D24BBB7
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729234AbgHTJn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40030 "EHLO mail.kernel.org"
+        id S1729992AbgHTMc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:32:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729024AbgHTJnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:00 -0400
+        id S1729687AbgHTJtr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDCD92173E;
-        Thu, 20 Aug 2020 09:42:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6531320724;
+        Thu, 20 Aug 2020 09:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916579;
-        bh=eZkObATRnty0e7Ot5i/YiemRbDKHfPtcLirUorAG2kc=;
+        s=default; t=1597916986;
+        bh=6VA8iRLOtz1P/UnwZTEBWY9Tpk1bYhiJH3oD+1Nc5Nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdNfKuqgiDffIL5egFDwPeDk0sBmYWzciiL8yeR3JCzRiQWV87RCLoBJdobKdCu0x
-         54d6j4avf3MzOVkDWmYSvc1FaLC4IeKa+8ervDCE6NSsi/E4sT6D1VCjF0+6HJcVMU
-         6HhztpTQxeren6nQTEGYuonlixToOl92ovFS9HXU=
+        b=EF23BV4/k30EhFg07AcC4Ho8KacxLhJxfsgPBUK83jCxTavzi9Ewf23TUFLPFQe65
+         mAul5AEagZsrXGnoyTKaPjlmfnwWOfFHFhTwh7pKMHabeBpuXmGmz1kvTQZWGe+zqs
+         XzBENLUVqm5PG1vQusKTKZaMqSbFgdVNY4g+Pj3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 178/204] fs/minix: remove expected error message in block_to_path()
+        stable@vger.kernel.org, Liu Yi L <yi.l.liu@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 108/152] iommu/vt-d: Enforce PASID devTLB field mask
 Date:   Thu, 20 Aug 2020 11:21:15 +0200
-Message-Id: <20200820091615.096124816@linuxfoundation.org>
+Message-Id: <20200820091559.300943288@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Liu Yi L <yi.l.liu@intel.com>
 
-[ Upstream commit f666f9fb9a36f1c833b9d18923572f0e4d304754 ]
+[ Upstream commit 5f77d6ca5ca74e4b4a5e2e010f7ff50c45dea326 ]
 
-When truncating a file to a size within the last allowed logical block,
-block_to_path() is called with the *next* block.  This exceeds the limit,
-causing the "block %ld too big" error message to be printed.
+Set proper masks to avoid invalid input spillover to reserved bits.
 
-This case isn't actually an error; there are just no more blocks past that
-point.  So, remove this error message.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Link: http://lkml.kernel.org/r/20200628060846.682158-7-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20200724014925.15523-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/minix/itree_v1.c | 12 ++++++------
- fs/minix/itree_v2.c | 12 ++++++------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ include/linux/intel-iommu.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/minix/itree_v1.c b/fs/minix/itree_v1.c
-index 405573a79aab4..1fed906042aa8 100644
---- a/fs/minix/itree_v1.c
-+++ b/fs/minix/itree_v1.c
-@@ -29,12 +29,12 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
- 	if (block < 0) {
- 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
- 			block, inode->i_sb->s_bdev);
--	} else if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes) {
--		if (printk_ratelimit())
--			printk("MINIX-fs: block_to_path: "
--			       "block %ld too big on dev %pg\n",
--				block, inode->i_sb->s_bdev);
--	} else if (block < 7) {
-+		return 0;
-+	}
-+	if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes)
-+		return 0;
-+
-+	if (block < 7) {
- 		offsets[n++] = block;
- 	} else if ((block -= 7) < 512) {
- 		offsets[n++] = 7;
-diff --git a/fs/minix/itree_v2.c b/fs/minix/itree_v2.c
-index ee8af2f9e2828..9d00f31a2d9d1 100644
---- a/fs/minix/itree_v2.c
-+++ b/fs/minix/itree_v2.c
-@@ -32,12 +32,12 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
- 	if (block < 0) {
- 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
- 			block, sb->s_bdev);
--	} else if ((u64)block * (u64)sb->s_blocksize >= sb->s_maxbytes) {
--		if (printk_ratelimit())
--			printk("MINIX-fs: block_to_path: "
--			       "block %ld too big on dev %pg\n",
--				block, sb->s_bdev);
--	} else if (block < DIRCOUNT) {
-+		return 0;
-+	}
-+	if ((u64)block * (u64)sb->s_blocksize >= sb->s_maxbytes)
-+		return 0;
-+
-+	if (block < DIRCOUNT) {
- 		offsets[n++] = block;
- 	} else if ((block -= DIRCOUNT) < INDIRCOUNT(sb)) {
- 		offsets[n++] = DIRCOUNT;
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 1e5dad8b8e59b..ed870da78326b 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -359,8 +359,8 @@ enum {
+ 
+ #define QI_DEV_EIOTLB_ADDR(a)	((u64)(a) & VTD_PAGE_MASK)
+ #define QI_DEV_EIOTLB_SIZE	(((u64)1) << 11)
+-#define QI_DEV_EIOTLB_GLOB(g)	((u64)g)
+-#define QI_DEV_EIOTLB_PASID(p)	(((u64)p) << 32)
++#define QI_DEV_EIOTLB_GLOB(g)	((u64)(g) & 0x1)
++#define QI_DEV_EIOTLB_PASID(p)	((u64)((p) & 0xfffff) << 32)
+ #define QI_DEV_EIOTLB_SID(sid)	((u64)((sid) & 0xffff) << 16)
+ #define QI_DEV_EIOTLB_QDEP(qd)	((u64)((qd) & 0x1f) << 4)
+ #define QI_DEV_EIOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | \
 -- 
 2.25.1
 
