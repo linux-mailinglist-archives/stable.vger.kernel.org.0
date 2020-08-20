@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349B124B75B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5596624B64E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730918AbgHTKOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32984 "EHLO mail.kernel.org"
+        id S1728402AbgHTKfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730928AbgHTKOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:30 -0400
+        id S1731353AbgHTKTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:19:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13F6320738;
-        Thu, 20 Aug 2020 10:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6203C2067C;
+        Thu, 20 Aug 2020 10:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918469;
-        bh=10jsHML1yfzSljuKWYJg2C1g0WyzWLBu9ooMOo5TVOQ=;
+        s=default; t=1597918747;
+        bh=vMxXImEUfOzC6fgLLpSf1H64g4l+btfQn1trTpT1spM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJYhaE4OdXlVRGZ9RfdRT/1j/02zYWfRguyt1w4FEt1m9V8Pa09z0V9mimejMqiMu
-         239MoCbwWORLjLMD2hnndIx80jMds7CJMbnp0jRjw03U4k0XgeMguGY6SKnJj8j5SC
-         DhdHWaEcKiHfIrVJXtljBjiB9LgPfm7DHNTfVLEI=
+        b=uAulq1Kszci6X8E6AcNHhn1gEWRLkVWG/aWtw1Uf845zfBfT6qKw5BI4tjI8viaSa
+         PtMoZXPfcayWa8XG5CdmTJoIQtR+zQgpz/x9xCWwaSQ7b/G4OkqDL7LLDZF+K5o9ZJ
+         SaH0RtfnkeB5AXEQgtp3J+K4ggZUMP179kdE+95I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a9ac3de1b5de5fb10efc@syzkaller.appspotmail.com,
-        syzbot+df958cf5688a96ad3287@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 154/228] fs/minix: dont allow getting deleted inodes
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 052/149] vxlan: Ensure FDB dump is performed under RCU
 Date:   Thu, 20 Aug 2020 11:22:09 +0200
-Message-Id: <20200820091615.278147448@linuxfoundation.org>
+Message-Id: <20200820092128.250378756@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,59 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-commit facb03dddec04e4aac1bb2139accdceb04deb1f3 upstream.
+[ Upstream commit b5141915b5aec3b29a63db869229e3741ebce258 ]
 
-If an inode has no links, we need to mark it bad rather than allowing it
-to be accessed.  This avoids WARNINGs in inc_nlink() and drop_nlink() when
-doing directory operations on a fuzzed filesystem.
+The commit cited below removed the RCU read-side critical section from
+rtnl_fdb_dump() which means that the ndo_fdb_dump() callback is invoked
+without RCU protection.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+a9ac3de1b5de5fb10efc@syzkaller.appspotmail.com
-Reported-by: syzbot+df958cf5688a96ad3287@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200628060846.682158-3-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This results in the following warning [1] in the VXLAN driver, which
+relied on the callback being invoked from an RCU read-side critical
+section.
+
+Fix this by calling rcu_read_lock() in the VXLAN driver, as already done
+in the bridge driver.
+
+[1]
+WARNING: suspicious RCU usage
+5.8.0-rc4-custom-01521-g481007553ce6 #29 Not tainted
+-----------------------------
+drivers/net/vxlan.c:1379 RCU-list traversed in non-reader section!!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by bridge/166:
+ #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: netlink_dump+0xea/0x1090
+
+stack backtrace:
+CPU: 1 PID: 166 Comm: bridge Not tainted 5.8.0-rc4-custom-01521-g481007553ce6 #29
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+Call Trace:
+ dump_stack+0x100/0x184
+ lockdep_rcu_suspicious+0x153/0x15d
+ vxlan_fdb_dump+0x51e/0x6d0
+ rtnl_fdb_dump+0x4dc/0xad0
+ netlink_dump+0x540/0x1090
+ __netlink_dump_start+0x695/0x950
+ rtnetlink_rcv_msg+0x802/0xbd0
+ netlink_rcv_skb+0x17a/0x480
+ rtnetlink_rcv+0x22/0x30
+ netlink_unicast+0x5ae/0x890
+ netlink_sendmsg+0x98a/0xf40
+ __sys_sendto+0x279/0x3b0
+ __x64_sys_sendto+0xe6/0x1a0
+ do_syscall_64+0x54/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fe14fa2ade0
+Code: Bad RIP value.
+RSP: 002b:00007fff75bb5b88 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00005614b1ba0020 RCX: 00007fe14fa2ade0
+RDX: 000000000000011c RSI: 00007fff75bb5b90 RDI: 0000000000000003
+RBP: 00007fff75bb5b90 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00005614b1b89160
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+
+Fixes: 5e6d24358799 ("bridge: netlink dump interface at par with brctl")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/minix/inode.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/vxlan.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/minix/inode.c
-+++ b/fs/minix/inode.c
-@@ -471,6 +471,13 @@ static struct inode *V1_minix_iget(struc
- 		iget_failed(inode);
- 		return ERR_PTR(-EIO);
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -921,6 +921,7 @@ static int vxlan_fdb_dump(struct sk_buff
+ 		struct vxlan_fdb *f;
+ 		int err;
+ 
++		rcu_read_lock();
+ 		hlist_for_each_entry_rcu(f, &vxlan->fdb_head[h], hlist) {
+ 			struct vxlan_rdst *rd;
+ 
+@@ -933,12 +934,15 @@ static int vxlan_fdb_dump(struct sk_buff
+ 						     cb->nlh->nlmsg_seq,
+ 						     RTM_NEWNEIGH,
+ 						     NLM_F_MULTI, rd);
+-				if (err < 0)
++				if (err < 0) {
++					rcu_read_unlock();
+ 					goto out;
++				}
+ skip:
+ 				++idx;
+ 			}
+ 		}
++		rcu_read_unlock();
  	}
-+	if (raw_inode->i_nlinks == 0) {
-+		printk("MINIX-fs: deleted inode referenced: %lu\n",
-+		       inode->i_ino);
-+		brelse(bh);
-+		iget_failed(inode);
-+		return ERR_PTR(-ESTALE);
-+	}
- 	inode->i_mode = raw_inode->i_mode;
- 	i_uid_write(inode, raw_inode->i_uid);
- 	i_gid_write(inode, raw_inode->i_gid);
-@@ -504,6 +511,13 @@ static struct inode *V2_minix_iget(struc
- 		iget_failed(inode);
- 		return ERR_PTR(-EIO);
- 	}
-+	if (raw_inode->i_nlinks == 0) {
-+		printk("MINIX-fs: deleted inode referenced: %lu\n",
-+		       inode->i_ino);
-+		brelse(bh);
-+		iget_failed(inode);
-+		return ERR_PTR(-ESTALE);
-+	}
- 	inode->i_mode = raw_inode->i_mode;
- 	i_uid_write(inode, raw_inode->i_uid);
- 	i_gid_write(inode, raw_inode->i_gid);
+ out:
+ 	return idx;
 
 
