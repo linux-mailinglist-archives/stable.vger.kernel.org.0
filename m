@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 955CD24B716
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0B1624B60F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729445AbgHTKrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35910 "EHLO mail.kernel.org"
+        id S1728210AbgHTKbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731271AbgHTKQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:03 -0400
+        id S1731477AbgHTKUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:20:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 564A920738;
-        Thu, 20 Aug 2020 10:16:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6149D20658;
+        Thu, 20 Aug 2020 10:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918562;
-        bh=trfi2AxVJ0AEF8nUbeu26hKgCxUGkF/1dh/F7XujWuw=;
+        s=default; t=1597918836;
+        bh=ZzqLaqW48l/4hRln/x8+EwmEHc5lQTyYnJO4GEmknOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFKwP91UJXIUZWe56ldopWqgQU45tq286eXlruXHfEhNKldtPQGZo9KN+igYYZixa
-         tZeGYkm7lM1xDTvP7FfJoapylrJGNKW2zWM+jfnWBcU/2vQY3J3lbCJityBOogDsbf
-         +fY0NfqrRKppo+KJNTDkN+LTc8/JnfbxYD5lqDO4=
+        b=wm68BIVhLc/3cGgfVaNYxB0O8Rm1vi5bkPNrvuCV/Nm0B9KAwF1I/EIVqFEhnt2Cq
+         WWph0RLntRbNE0fJPHvhvKBGL6EsLmIZiQVnMuFFB/uJB947jKPV0WirLEMt+Ndv6q
+         oRKgc3HIoNn93+OQzQFSFkAms+r8OMZNktxR3Wf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Kevin Hao <haokexin@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 187/228] tracing/hwlat: Honor the tracing_cpumask
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 085/149] drm/radeon: fix array out-of-bounds read and write issues
 Date:   Thu, 20 Aug 2020 11:22:42 +0200
-Message-Id: <20200820091616.921582889@linuxfoundation.org>
+Message-Id: <20200820092129.840801643@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 96b4833b6827a62c295b149213c68b559514c929 upstream.
+[ Upstream commit 7ee78aff9de13d5dccba133f4a0de5367194b243 ]
 
-In calculation of the cpu mask for the hwlat kernel thread, the wrong
-cpu mask is used instead of the tracing_cpumask, this causes the
-tracing/tracing_cpumask useless for hwlat tracer. Fixes it.
+There is an off-by-one bounds check on the index into arrays
+table->mc_reg_address and table->mc_reg_table_entry[k].mc_data[j] that
+can lead to reads and writes outside of arrays. Fix the bound checking
+off-by-one error.
 
-Link: https://lkml.kernel.org/r/20200730082318.42584-2-haokexin@gmail.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 0330f7aa8ee6 ("tracing: Have hwlat trace migrate across tracing_cpumask CPUs")
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Addresses-Coverity: ("Out-of-bounds read/write")
+Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_hwlat.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/ci_dpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -272,6 +272,7 @@ static bool disable_migrate;
- static void move_to_next_cpu(void)
- {
- 	struct cpumask *current_mask = &save_cpumask;
-+	struct trace_array *tr = hwlat_trace;
- 	int next_cpu;
+diff --git a/drivers/gpu/drm/radeon/ci_dpm.c b/drivers/gpu/drm/radeon/ci_dpm.c
+index e7a245d7bdbcb..8e1bf9ed8efff 100644
+--- a/drivers/gpu/drm/radeon/ci_dpm.c
++++ b/drivers/gpu/drm/radeon/ci_dpm.c
+@@ -4345,7 +4345,7 @@ static int ci_set_mc_special_registers(struct radeon_device *rdev,
+ 					table->mc_reg_table_entry[k].mc_data[j] |= 0x100;
+ 			}
+ 			j++;
+-			if (j > SMU7_DISCRETE_MC_REGISTER_ARRAY_SIZE)
++			if (j >= SMU7_DISCRETE_MC_REGISTER_ARRAY_SIZE)
+ 				return -EINVAL;
  
- 	if (disable_migrate)
-@@ -285,7 +286,7 @@ static void move_to_next_cpu(void)
- 		goto disable;
- 
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	next_cpu = cpumask_next(smp_processor_id(), current_mask);
- 	put_online_cpus();
- 
-@@ -359,7 +360,7 @@ static int start_kthread(struct trace_ar
- 	/* Just pick the first CPU on first iteration */
- 	current_mask = &save_cpumask;
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	put_online_cpus();
- 	next_cpu = cpumask_first(current_mask);
- 
+ 			if (!pi->mem_gddr5) {
+-- 
+2.25.1
+
 
 
