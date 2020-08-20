@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A855A24BCF9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5A924BBB4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729114AbgHTM41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:56:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35396 "EHLO mail.kernel.org"
+        id S1729667AbgHTJte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:49:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729106AbgHTJlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:39 -0400
+        id S1729661AbgHTJtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C28B12075E;
-        Thu, 20 Aug 2020 09:41:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B77A620724;
+        Thu, 20 Aug 2020 09:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916499;
-        bh=gm98W7cxlKXrJXNcmlT0ZN/s1aay862VXPnEca0d31M=;
+        s=default; t=1597916973;
+        bh=ywxkViXDSf4Hxd7HA+Y658fe5xz6Ys2MM0vs3KLzo+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vL05uyr3KpZdD6jNuoEtCVcYSgEAXi2Jc/rhya52jlxp9+pcBs04BQC2EysgKv5Zd
-         Rc6w+VPPketTVUsJ6OqaGc9qvyqCgw7JsvLAfsWEoTUcY1cQr6dnjPqK5H9OXLm5kZ
-         omZIER+4NHe038WAZXJFPayHcDfots5wtUHBqQ44=
+        b=ZCulpbHLVOqZ8CAlmgNZvejbyaXyKvstohuLOK8VS8gPjHIrikdoRDpGA97llVdj/
+         NnBWdD0aQg68FOM0iwFQXlZM0yjBlI63lSXhaTH8BOgPKqiBoWwMtPCpmQ6hi67Rtj
+         3cab0qlB0Dy7labFsO10KrVKdE/YVufdXzKr8PFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 149/204] i2c: rcar: avoid race when unregistering slave
-Date:   Thu, 20 Aug 2020 11:20:46 +0200
-Message-Id: <20200820091613.686977292@linuxfoundation.org>
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 080/152] mtd: rawnand: fsl_upm: Remove unused mtd var
+Date:   Thu, 20 Aug 2020 11:20:47 +0200
+Message-Id: <20200820091557.831204711@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-[ Upstream commit c7c9e914f9a0478fba4dc6f227cfd69cf84a4063 ]
+[ Upstream commit ccc49eff77bee2885447a032948959a134029fe3 ]
 
-Due to the lockless design of the driver, it is theoretically possible
-to access a NULL pointer, if a slave interrupt was running while we were
-unregistering the slave. To make this rock solid, disable the interrupt
-for a short time while we are clearing the interrupt_enable register.
-This patch is purely based on code inspection. The OOPS is super-hard to
-trigger because clearing SAR (the address) makes interrupts even more
-unlikely to happen as well. While here, reinit SCR to SDBS because this
-bit should always be set according to documentation. There is no effect,
-though, because the interface is disabled.
+The mtd var in fun_wait_rnb() is now unused, let's get rid of it and
+fix the warning resulting from this unused var.
 
-Fixes: 7b814d852af6 ("i2c: rcar: avoid race when unregistering slave client")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 50a487e7719c ("mtd: rawnand: Pass a nand_chip object to chip->dev_ready()")
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200603134922.1352340-2-boris.brezillon@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/raw/fsl_upm.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 76bcdb27070e1..5615e7c43b436 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -866,12 +866,14 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+diff --git a/drivers/mtd/nand/raw/fsl_upm.c b/drivers/mtd/nand/raw/fsl_upm.c
+index 1054cc070747e..20b0ee174dc61 100644
+--- a/drivers/mtd/nand/raw/fsl_upm.c
++++ b/drivers/mtd/nand/raw/fsl_upm.c
+@@ -62,7 +62,6 @@ static int fun_chip_ready(struct nand_chip *chip)
+ static void fun_wait_rnb(struct fsl_upm_nand *fun)
+ {
+ 	if (fun->rnb_gpio[fun->mchip_number] >= 0) {
+-		struct mtd_info *mtd = nand_to_mtd(&fun->chip);
+ 		int cnt = 1000000;
  
- 	WARN_ON(!priv->slave);
- 
--	/* disable irqs and ensure none is running before clearing ptr */
-+	/* ensure no irq is running before clearing ptr */
-+	disable_irq(priv->irq);
- 	rcar_i2c_write(priv, ICSIER, 0);
--	rcar_i2c_write(priv, ICSCR, 0);
-+	rcar_i2c_write(priv, ICSSR, 0);
-+	enable_irq(priv->irq);
-+	rcar_i2c_write(priv, ICSCR, SDBS);
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
- 
--	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
+ 		while (--cnt && !fun_chip_ready(&fun->chip))
 -- 
 2.25.1
 
