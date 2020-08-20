@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16A224B495
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B63824B4A6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730753AbgHTKJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:09:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42896 "EHLO mail.kernel.org"
+        id S1730871AbgHTKKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:10:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729654AbgHTKJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:09:13 -0400
+        id S1730867AbgHTKKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:10:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF982067C;
-        Thu, 20 Aug 2020 10:09:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BDA62067C;
+        Thu, 20 Aug 2020 10:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918153;
-        bh=ox3YvlEDmwP7VTNyhPPlqumKr30V+TKNRbSXV9BJ594=;
+        s=default; t=1597918209;
+        bh=2V8O/8NIypxvZs/NebqPdpo3C9WCOWyFh1QBb239wzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3x93DMw1ajjncL4F7SKnHXvgdET2C3/Uzuc0K1WN4mXlE9+orVLrH11AF3CID3yh
-         jt4X6eo1QrTcekiHOvcv3Bo84JQXO3yp+qSUBzeIyQrlQKr1BLBP6mtcca48qfk0kU
-         0Zvcf4OHmtR+EB9Q12xEBtsC1+l7M8zR9okae1MQ=
+        b=joRJZRE8bV/Q9NUCeKG+7Ge0XCwrmAY8dK+YbdUes1ml9IAICqNb0+RnSKaSDaYE/
+         uzxpXZkgvmmSP/bQTwSiRqLmq3sj9+7EKn6L3APA7gykNDTrBLsz3BeBMOrRR2p96b
+         KNC3TQ7uFejUDyoYXSvKpZ7EKe1IQBGuhz37QDX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        Joshua Thompson <funaho@jurai.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Jyri Sarha <jsarha@ti.com>, Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/228] m68k: mac: Fix IOP status/control register writes
-Date:   Thu, 20 Aug 2020 11:20:29 +0200
-Message-Id: <20200820091610.315605613@linuxfoundation.org>
+Subject: [PATCH 4.14 060/228] drm/tilcdc: fix leak & null ref in panel_connector_get_modes
+Date:   Thu, 20 Aug 2020 11:20:35 +0200
+Message-Id: <20200820091610.605460401@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,77 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit 931fc82a6aaf4e2e4a5490addaa6a090d78c24a7 ]
+[ Upstream commit 3f9c1c872cc97875ddc8d63bc9fe6ee13652b933 ]
 
-When writing values to the IOP status/control register make sure those
-values do not have any extraneous bits that will clear interrupt flags.
+If videomode_from_timings() returns true, the mode allocated with
+drm_mode_create will be leaked.
 
-To place the SCC IOP into bypass mode would be desirable but this is not
-achieved by writing IOP_DMAINACTIVE | IOP_RUN | IOP_AUTOINC | IOP_BYPASS
-to the control register. Drop this ineffective register write.
+Also, the return value of drm_mode_create() is never checked, and thus
+could cause NULL deref.
 
-Remove the flawed and unused iop_bypass() function. Make use of the
-unused iop_stop() function.
+Fix these two issues.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Cc: Joshua Thompson <funaho@jurai.org>
-Link: https://lore.kernel.org/r/09bcb7359a1719a18b551ee515da3c4c3cf709e6.1590880333.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200429104234.18910-1-tomi.valkeinen@ti.com
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mac/iop.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/mac/iop.c b/arch/m68k/mac/iop.c
-index fb61af5ac4ab8..0b94f6672c5f3 100644
---- a/arch/m68k/mac/iop.c
-+++ b/arch/m68k/mac/iop.c
-@@ -183,7 +183,7 @@ static __inline__ void iop_writeb(volatile struct mac_iop *iop, __u16 addr, __u8
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+index 1813a3623ce60..0484b2cf0e2b5 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+@@ -152,12 +152,16 @@ static int panel_connector_get_modes(struct drm_connector *connector)
+ 	int i;
  
- static __inline__ void iop_stop(volatile struct mac_iop *iop)
- {
--	iop->status_ctrl &= ~IOP_RUN;
-+	iop->status_ctrl = IOP_AUTOINC;
- }
+ 	for (i = 0; i < timings->num_timings; i++) {
+-		struct drm_display_mode *mode = drm_mode_create(dev);
++		struct drm_display_mode *mode;
+ 		struct videomode vm;
  
- static __inline__ void iop_start(volatile struct mac_iop *iop)
-@@ -191,14 +191,9 @@ static __inline__ void iop_start(volatile struct mac_iop *iop)
- 	iop->status_ctrl = IOP_RUN | IOP_AUTOINC;
- }
+ 		if (videomode_from_timings(timings, &vm, i))
+ 			break;
  
--static __inline__ void iop_bypass(volatile struct mac_iop *iop)
--{
--	iop->status_ctrl |= IOP_BYPASS;
--}
--
- static __inline__ void iop_interrupt(volatile struct mac_iop *iop)
- {
--	iop->status_ctrl |= IOP_IRQ;
-+	iop->status_ctrl = IOP_IRQ | IOP_RUN | IOP_AUTOINC;
- }
++		mode = drm_mode_create(dev);
++		if (!mode)
++			break;
++
+ 		drm_display_mode_from_videomode(&vm, mode);
  
- static int iop_alive(volatile struct mac_iop *iop)
-@@ -244,7 +239,6 @@ void __init iop_preinit(void)
- 		} else {
- 			iop_base[IOP_NUM_SCC] = (struct mac_iop *) SCC_IOP_BASE_QUADRA;
- 		}
--		iop_base[IOP_NUM_SCC]->status_ctrl = 0x87;
- 		iop_scc_present = 1;
- 	} else {
- 		iop_base[IOP_NUM_SCC] = NULL;
-@@ -256,7 +250,7 @@ void __init iop_preinit(void)
- 		} else {
- 			iop_base[IOP_NUM_ISM] = (struct mac_iop *) ISM_IOP_BASE_QUADRA;
- 		}
--		iop_base[IOP_NUM_ISM]->status_ctrl = 0;
-+		iop_stop(iop_base[IOP_NUM_ISM]);
- 		iop_ism_present = 1;
- 	} else {
- 		iop_base[IOP_NUM_ISM] = NULL;
+ 		mode->type = DRM_MODE_TYPE_DRIVER;
 -- 
 2.25.1
 
