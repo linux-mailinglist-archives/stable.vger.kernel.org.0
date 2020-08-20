@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C183024B9C5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F0424B983
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729392AbgHTLs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
+        id S1729335AbgHTLsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbgHTKDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:34 -0400
+        id S1730418AbgHTKDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:03:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70BCA22B43;
-        Thu, 20 Aug 2020 10:03:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 354D222B49;
+        Thu, 20 Aug 2020 10:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917814;
-        bh=yFQbJc/EOVgnddYLEayofDZFETxGTAIux4q8PSfvB3E=;
+        s=default; t=1597917816;
+        bh=qdLRmLVLzB+eSBN5PPkMgX8WjOeGXhmE8xxLlgQA8qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RwwNzp46uYliqIWDkbC8pBv6d359uSQ1n8ara9n8lmyGmJrlP3n7/0Alj1t5SH3K
-         L9f1p01yNGHmhZk/jN2rR6mcJLo0j7k198w7bhvj6+k4gpuK7+tDDO5It5w5xEZwFz
-         ncJ99J/8QlcMfldWPW8dy/6qvmtjdypIq+EGf67Q=
+        b=Na9EgV6DiAWHubDnoi/QmkYZ4eTWoT8MI89aT/b/dAS5opd1BGXtkrby1iOtHfif5
+         AuAfQOKWhBKKVBdF8MZHOw+2HMSYeFzMF/tbnb8mwxFBCnDPUN6z5i0J4EOVNBmbkW
+         XiNuneXiOJOkSxmGimeNNXp2kTQl71kGbUvtXjLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Harish <harish@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 137/212] power: supply: check if calc_soc succeeded in pm860x_init_battery
-Date:   Thu, 20 Aug 2020 11:21:50 +0200
-Message-Id: <20200820091609.273818389@linuxfoundation.org>
+Subject: [PATCH 4.9 138/212] selftests/powerpc: Fix CPU affinity for child process
+Date:   Thu, 20 Aug 2020 11:21:51 +0200
+Message-Id: <20200820091609.325597907@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,56 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Harish <harish@linux.ibm.com>
 
-[ Upstream commit ccf193dee1f0fff55b556928591f7818bac1b3b1 ]
+[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
 
-clang static analysis flags this error
+On systems with large number of cpus, test fails trying to set
+affinity by calling sched_setaffinity() with smaller size for affinity
+mask. This patch fixes it by making sure that the size of allocated
+affinity mask is dependent on the number of CPUs as reported by
+get_nprocs().
 
-88pm860x_battery.c:522:19: warning: Assigned value is
-  garbage or undefined [core.uninitialized.Assign]
-                info->start_soc = soc;
-                                ^ ~~~
-soc is set by calling calc_soc.
-But calc_soc can return without setting soc.
-
-So check the return status and bail similarly to other
-checks in pm860x_init_battery and initialize soc to
-silence the warning.
-
-Fixes: a830d28b48bf ("power_supply: Enable battery-charger for 88pm860x")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
+Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Harish <harish@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/88pm860x_battery.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/supply/88pm860x_battery.c b/drivers/power/supply/88pm860x_battery.c
-index 63c57dc82ac1d..4eda5065b5bbc 100644
---- a/drivers/power/supply/88pm860x_battery.c
-+++ b/drivers/power/supply/88pm860x_battery.c
-@@ -436,7 +436,7 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
- 	int ret;
- 	int data;
- 	int bat_remove;
--	int soc;
-+	int soc = 0;
+diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+index a36883ad48a45..4b4d2ce912566 100644
+--- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
++++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+@@ -22,6 +22,7 @@
+ #include <limits.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
++#include <sys/sysinfo.h>
+ #include <sys/types.h>
+ #include <sys/shm.h>
+ #include <linux/futex.h>
+@@ -97,8 +98,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  
- 	/* measure enable on GPADC1 */
- 	data = MEAS1_GP1;
-@@ -499,7 +499,9 @@ static void pm860x_init_battery(struct pm860x_battery_info *info)
+ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ {
+-	int pid;
+-	cpu_set_t cpuset;
++	int pid, ncpus;
++	cpu_set_t *cpuset;
++	size_t size;
+ 
+ 	pid = fork();
+ 	if (pid == -1) {
+@@ -109,14 +111,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ 	if (pid)
+ 		return;
+ 
+-	CPU_ZERO(&cpuset);
+-	CPU_SET(cpu, &cpuset);
++	ncpus = get_nprocs();
++	size = CPU_ALLOC_SIZE(ncpus);
++	cpuset = CPU_ALLOC(ncpus);
++	if (!cpuset) {
++		perror("malloc");
++		exit(1);
++	}
++	CPU_ZERO_S(size, cpuset);
++	CPU_SET_S(cpu, size, cpuset);
+ 
+-	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
++	if (sched_setaffinity(0, size, cpuset)) {
+ 		perror("sched_setaffinity");
++		CPU_FREE(cpuset);
+ 		exit(1);
  	}
- 	mutex_unlock(&info->lock);
  
--	calc_soc(info, OCV_MODE_ACTIVE, &soc);
-+	ret = calc_soc(info, OCV_MODE_ACTIVE, &soc);
-+	if (ret < 0)
-+		goto out;
++	CPU_FREE(cpuset);
+ 	fn(arg);
  
- 	data = pm860x_reg_read(info->i2c, PM8607_POWER_UP_LOG);
- 	bat_remove = data & BAT_WU_LOG;
+ 	exit(0);
 -- 
 2.25.1
 
