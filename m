@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BBD24B3EA
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE92324B3EE
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729870AbgHTJyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36388 "EHLO mail.kernel.org"
+        id S1729877AbgHTJyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:54:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729373AbgHTJyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:54:08 -0400
+        id S1729148AbgHTJyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92B5A2075E;
-        Thu, 20 Aug 2020 09:54:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B087F2067C;
+        Thu, 20 Aug 2020 09:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917248;
-        bh=LOeZxS1Ik54NTymdAlZXLImRnEuchAyPUrQZ0Fv6d0k=;
+        s=default; t=1597917251;
+        bh=+scfe+NEZbJY7EkOG84JZhcz2N/+8keGUW4mOZ8jPCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8G0WrCFNJ4BnXktfAbk7fDUg55Q6OCxqM1dH9BTGKZOGZ6U2Ht3ffORsKxSHm609
-         GVyBZRVabEx5POXOMcDQi4YUO6lY4AaC1K8V7vwsshFe3qjhiy4N1GT4NzgCiWuoGp
-         EFaRa6YFqjMocFoUJHRSIaxj1Mgga6VX48GBIkQg=
+        b=rmWoh+ILhsrxB78nDFZuM8FBE2mgdpSyI7McVWDAq6E5R5iFc+FfIlIRLy2e+j0DE
+         jY3hfHdHzLcuhG1cHJfgIfQ3baSGGjDcGjc/tLig/UXtZYmokrq0lqk5IgFjSmTwC7
+         PhP4W56jIbJwJuQGERMk6r2a0unYzNxxt7siMiQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/92] USB: serial: ftdi_sio: fix break and sysrq handling
-Date:   Thu, 20 Aug 2020 11:21:41 +0200
-Message-Id: <20200820091540.540245631@linuxfoundation.org>
+Subject: [PATCH 4.19 57/92] mmc: renesas_sdhi_internal_dmac: clean up the code for dma complete
+Date:   Thu, 20 Aug 2020 11:21:42 +0200
+Message-Id: <20200820091540.583963283@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -43,85 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 733fff67941dad64b8a630450b8372b1873edc41 ]
+[ Upstream commit 2b26e34e9af3fa24fa1266e9ea2d66a1f7d62dc0 ]
 
-Only the last NUL in a packet should be flagged as a break character,
-for example, to avoid dropping unrelated characters when IGNBRK is set.
+To add end() operation in the future, clean the code of
+renesas_sdhi_internal_dmac_complete_tasklet_fn(). No behavior change.
 
-Also make sysrq work by consuming the break character instead of having
-it immediately cancel the sysrq request, and by not processing it
-prematurely to avoid triggering a sysrq based on an unrelated character
-received in the same packet (which was received *before* the break).
-
-Note that the break flag can be left set also for a packet received
-immediately following a break and that and an ending NUL in such a
-packet will continue to be reported as a break as there's no good way to
-tell it apart from an actual break.
-
-Tested on FT232R and FT232H.
-
-Fixes: 72fda3ca6fc1 ("USB: serial: ftd_sio: implement sysrq handling on break")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1590044466-28372-3-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/mmc/host/renesas_sdhi_internal_dmac.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index ce9cc1f90b052..aa72ce2642bf1 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -2040,6 +2040,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 		struct ftdi_private *priv, unsigned char *buf, int len)
+diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
+index 382172fb3da8f..74eea8247490d 100644
+--- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
++++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
+@@ -222,15 +222,12 @@ static void renesas_sdhi_internal_dmac_issue_tasklet_fn(unsigned long arg)
+ 					    DTRAN_CTRL_DM_START);
+ }
+ 
+-static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
++static bool renesas_sdhi_internal_dmac_complete(struct tmio_mmc_host *host)
  {
- 	unsigned char status;
-+	bool brkint = false;
- 	int i;
- 	char flag;
+-	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
+ 	enum dma_data_direction dir;
  
-@@ -2091,13 +2092,17 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	 */
- 	flag = TTY_NORMAL;
- 	if (buf[1] & FTDI_RS_ERR_MASK) {
--		/* Break takes precedence over parity, which takes precedence
--		 * over framing errors */
--		if (buf[1] & FTDI_RS_BI) {
--			flag = TTY_BREAK;
-+		/*
-+		 * Break takes precedence over parity, which takes precedence
-+		 * over framing errors. Note that break is only associated
-+		 * with the last character in the buffer and only when it's a
-+		 * NUL.
-+		 */
-+		if (buf[1] & FTDI_RS_BI && buf[len - 1] == '\0') {
- 			port->icount.brk++;
--			usb_serial_handle_break(port);
--		} else if (buf[1] & FTDI_RS_PE) {
-+			brkint = true;
-+		}
-+		if (buf[1] & FTDI_RS_PE) {
- 			flag = TTY_PARITY;
- 			port->icount.parity++;
- 		} else if (buf[1] & FTDI_RS_FE) {
-@@ -2113,8 +2118,13 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+-	spin_lock_irq(&host->lock);
+-
+ 	if (!host->data)
+-		goto out;
++		return false;
  
- 	port->icount.rx += len - 2;
+ 	if (host->data->flags & MMC_DATA_READ)
+ 		dir = DMA_FROM_DEVICE;
+@@ -243,6 +240,17 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
+ 	if (dir == DMA_FROM_DEVICE)
+ 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
  
--	if (port->port.console && port->sysrq) {
-+	if (brkint || (port->port.console && port->sysrq)) {
- 		for (i = 2; i < len; i++) {
-+			if (brkint && i == len - 1) {
-+				if (usb_serial_handle_break(port))
-+					return len - 3;
-+				flag = TTY_BREAK;
-+			}
- 			if (usb_serial_handle_sysrq_char(port, buf[i]))
- 				continue;
- 			tty_insert_flip_char(&port->port, buf[i], flag);
++	return true;
++}
++
++static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
++{
++	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
++
++	spin_lock_irq(&host->lock);
++	if (!renesas_sdhi_internal_dmac_complete(host))
++		goto out;
++
+ 	tmio_mmc_do_data_irq(host);
+ out:
+ 	spin_unlock_irq(&host->lock);
 -- 
 2.25.1
 
