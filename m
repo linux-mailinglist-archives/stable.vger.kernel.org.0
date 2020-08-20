@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC3724B8D5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093A624B8D9
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgHTL3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33454 "EHLO mail.kernel.org"
+        id S1727863AbgHTL3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728227AbgHTKFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:05:38 -0400
+        id S1730579AbgHTKFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:05:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC53120738;
-        Thu, 20 Aug 2020 10:05:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B7C720724;
+        Thu, 20 Aug 2020 10:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917937;
-        bh=gXQKUixbcqk1akb5Ehd3N74M/WishC/eje2yI7weVVs=;
+        s=default; t=1597917940;
+        bh=Bnhybgps70jCzF8JjGbVuzfSU5kD4eHDHTpa2CI03wY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COYcmwVEv78o0jS99oaikSs9kvvIk22gYBfQvuoo5r5r08vI0O9YXKm2Is3HhKVe1
-         zO5bXKXDvxv/XQUteZBnt0oeLlQm8ZidyMobMT2IX8qWGgclIecnBXNLfk0Ha8zRT8
-         j3a7njy5WMT12bjrckgHpKdzT4P+5TmQhTbLHydk=
+        b=mrv82OfNLdfVvCBIQLR6p7u6J7KvPUMZ+3WDYeht5b1RSRlq4Si5sjVySu1/wDRuz
+         uBylqH/2AhgdM3BTaucbo4iQQzvUSBjylcK4/4HHWUyLq1jAoxPw+6YKhLb90LZbH6
+         RN0yqnlk9K4pzZkd4FMOcTNTAD3EijpLoOxh7EUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Song Liu <songliubraving@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 210/212] khugepaged: retract_page_tables() remember to test exit
-Date:   Thu, 20 Aug 2020 11:23:03 +0200
-Message-Id: <20200820091612.950775980@linuxfoundation.org>
+        Oscar Salvador <osalvador@suse.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>
+Subject: [PATCH 4.9 211/212] mm: Avoid calling build_all_zonelists_init under hotplug context
+Date:   Thu, 20 Aug 2020 11:23:04 +0200
+Message-Id: <20200820091612.997125429@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -48,97 +44,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Oscar Salvador <osalvador@suse.de>
 
-commit 18e77600f7a1ed69f8ce46c9e11cad0985712dfa upstream.
+Recently a customer of ours experienced a crash when booting the
+system while enabling memory-hotplug.
 
-Only once have I seen this scenario (and forgot even to notice what forced
-the eventual crash): a sequence of "BUG: Bad page map" alerts from
-vm_normal_page(), from zap_pte_range() servicing exit_mmap();
-pmd:00000000, pte values corresponding to data in physical page 0.
+The problem is that Normal zones on different nodes don't get their private
+zone->pageset allocated, and keep sharing the initial boot_pageset.
+The sharing between zones is normally safe as explained by the comment for
+boot_pageset - it's a percpu structure, and manipulations are done with
+disabled interrupts, and boot_pageset is set up in a way that any page placed
+on its pcplist is immediately flushed to shared zone's freelist, because
+pcp->high == 1.
+However, the hotplug operation updates pcp->high to a higher value as it
+expects to be operating on a private pageset.
 
-The pte mappings being zapped in this case were supposed to be from a huge
-page of ext4 text (but could as well have been shmem): my belief is that
-it was racing with collapse_file()'s retract_page_tables(), found *pmd
-pointing to a page table, locked it, but *pmd had become 0 by the time
-start_pte was decided.
+The problem is in build_all_zonelists(), which is called when the first range
+of pages is onlined for the Normal zone of node X or Y:
 
-In most cases, that possibility is excluded by holding mmap lock; but
-exit_mmap() proceeds without mmap lock.  Most of what's run by khugepaged
-checks khugepaged_test_exit() after acquiring mmap lock:
-khugepaged_collapse_pte_mapped_thps() and hugepage_vma_revalidate() do so,
-for example.  But retract_page_tables() did not: fix that.
+	if (system_state == SYSTEM_BOOTING) {
+		build_all_zonelists_init();
+	} else {
+	#ifdef CONFIG_MEMORY_HOTPLUG
+		if (zone)
+			setup_zone_pageset(zone);
+	#endif
+		/* we have to stop all cpus to guarantee there is no user
+		of zonelist */
+		stop_machine(__build_all_zonelists, pgdat, NULL);
+		/* cpuset refresh routine should be here */
+	}
 
-The fix is for retract_page_tables() to check khugepaged_test_exit(),
-after acquiring mmap lock, before doing anything to the page table.
-Getting the mmap lock serializes with __mmput(), which briefly takes and
-drops it in __khugepaged_exit(); then the khugepaged_test_exit() check on
-mm_users makes sure we don't touch the page table once exit_mmap() might
-reach it, since exit_mmap() will be proceeding without mmap lock, not
-expecting anyone to be racing with it.
+When called during hotplug, it should execute the setup_zone_pageset(zone)
+which allocates the private pageset.
+However, with memhp_default_state=online, this happens early while
+system_state == SYSTEM_BOOTING is still true, hence this step is skipped.
+(and build_all_zonelists_init() is probably unsafe anyway at this point).
 
-Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021215400.27773@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Another hotplug operation on the same zone then leads to zone_pcp_update(zone)
+called from online_pages(), which updates the pcp->high for the shared
+boot_pageset to a value higher than 1.
+At that point, pages freed from Node X and Y Normal zones can end up on the same
+pcplist and from there they can be freed to the wrong zone's freelist,
+leading to the corruption and crashes.
+
+Please, note that upstream has fixed that differently (and unintentionally) by
+adding another boot state (SYSTEM_SCHEDULING), which is set before smp_init().
+That should happen before memory hotplug events even with memhp_default_state=online.
+Backporting that would be too intrusive.
+
+Signed-off-by: Oscar Salvador <osalvador@suse.de>
+Debugged-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com> # for stable trees
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
-
 ---
- mm/khugepaged.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ include/linux/mmzone.h |    3 ++-
+ init/main.c            |    2 +-
+ mm/memory_hotplug.c    |   10 +++++-----
+ mm/page_alloc.c        |    7 ++++---
+ 4 files changed, 12 insertions(+), 10 deletions(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1250,6 +1250,7 @@ static void collect_mm_slot(struct mm_sl
- static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- {
- 	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
- 	unsigned long addr;
- 	pmd_t *pmd, _pmd;
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -756,7 +756,8 @@ static inline bool is_dev_zone(const str
+ #include <linux/memory_hotplug.h>
  
-@@ -1263,7 +1264,8 @@ static void retract_page_tables(struct a
- 			continue;
- 		if (vma->vm_end < addr + HPAGE_PMD_SIZE)
- 			continue;
--		pmd = mm_find_pmd(vma->vm_mm, addr);
-+		mm = vma->vm_mm;
-+		pmd = mm_find_pmd(mm, addr);
- 		if (!pmd)
- 			continue;
- 		/*
-@@ -1272,14 +1274,16 @@ static void retract_page_tables(struct a
- 		 * re-fault. Not ideal, but it's more important to not disturb
- 		 * the system too much.
- 		 */
--		if (down_write_trylock(&vma->vm_mm->mmap_sem)) {
--			spinlock_t *ptl = pmd_lock(vma->vm_mm, pmd);
--			/* assume page table is clear */
--			_pmd = pmdp_collapse_flush(vma, addr, pmd);
--			spin_unlock(ptl);
--			up_write(&vma->vm_mm->mmap_sem);
--			atomic_long_dec(&vma->vm_mm->nr_ptes);
--			pte_free(vma->vm_mm, pmd_pgtable(_pmd));
-+		if (down_write_trylock(&mm->mmap_sem)) {
-+			if (!khugepaged_test_exit(mm)) {
-+				spinlock_t *ptl = pmd_lock(mm, pmd);
-+				/* assume page table is clear */
-+				_pmd = pmdp_collapse_flush(vma, addr, pmd);
-+				spin_unlock(ptl);
-+				atomic_long_dec(&mm->nr_ptes);
-+				pte_free(mm, pmd_pgtable(_pmd));
-+			}
-+			up_write(&mm->mmap_sem);
+ extern struct mutex zonelists_mutex;
+-void build_all_zonelists(pg_data_t *pgdat, struct zone *zone);
++void build_all_zonelists(pg_data_t *pgdat, struct zone *zone,
++			 bool hotplug_context);
+ void wakeup_kswapd(struct zone *zone, int order, enum zone_type classzone_idx);
+ bool __zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
+ 			 int classzone_idx, unsigned int alloc_flags,
+--- a/init/main.c
++++ b/init/main.c
+@@ -512,7 +512,7 @@ asmlinkage __visible void __init start_k
+ 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
+ 	boot_cpu_hotplug_init();
+ 
+-	build_all_zonelists(NULL, NULL);
++	build_all_zonelists(NULL, NULL, false);
+ 	page_alloc_init();
+ 
+ 	pr_notice("Kernel command line: %s\n", boot_command_line);
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1125,7 +1125,7 @@ int __ref online_pages(unsigned long pfn
+ 	mutex_lock(&zonelists_mutex);
+ 	if (!populated_zone(zone)) {
+ 		need_zonelists_rebuild = 1;
+-		build_all_zonelists(NULL, zone);
++		build_all_zonelists(NULL, zone, true);
+ 	}
+ 
+ 	ret = walk_system_ram_range(pfn, nr_pages, &onlined_pages,
+@@ -1146,7 +1146,7 @@ int __ref online_pages(unsigned long pfn
+ 	if (onlined_pages) {
+ 		node_states_set_node(nid, &arg);
+ 		if (need_zonelists_rebuild)
+-			build_all_zonelists(NULL, NULL);
++			build_all_zonelists(NULL, NULL, true);
+ 		else
+ 			zone_pcp_update(zone);
+ 	}
+@@ -1220,7 +1220,7 @@ static pg_data_t __ref *hotadd_new_pgdat
+ 	 * to access not-initialized zonelist, build here.
+ 	 */
+ 	mutex_lock(&zonelists_mutex);
+-	build_all_zonelists(pgdat, NULL);
++	build_all_zonelists(pgdat, NULL, true);
+ 	mutex_unlock(&zonelists_mutex);
+ 
+ 	/*
+@@ -1276,7 +1276,7 @@ int try_online_node(int nid)
+ 
+ 	if (pgdat->node_zonelists->_zonerefs->zone == NULL) {
+ 		mutex_lock(&zonelists_mutex);
+-		build_all_zonelists(NULL, NULL);
++		build_all_zonelists(NULL, NULL, true);
+ 		mutex_unlock(&zonelists_mutex);
+ 	}
+ 
+@@ -2016,7 +2016,7 @@ repeat:
+ 	if (!populated_zone(zone)) {
+ 		zone_pcp_reset(zone);
+ 		mutex_lock(&zonelists_mutex);
+-		build_all_zonelists(NULL, NULL);
++		build_all_zonelists(NULL, NULL, true);
+ 		mutex_unlock(&zonelists_mutex);
+ 	} else
+ 		zone_pcp_update(zone);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4608,7 +4608,7 @@ int numa_zonelist_order_handler(struct c
+ 			user_zonelist_order = oldval;
+ 		} else if (oldval != user_zonelist_order) {
+ 			mutex_lock(&zonelists_mutex);
+-			build_all_zonelists(NULL, NULL);
++			build_all_zonelists(NULL, NULL, false);
+ 			mutex_unlock(&zonelists_mutex);
  		}
  	}
- 	i_mmap_unlock_write(mapping);
+@@ -4988,11 +4988,12 @@ build_all_zonelists_init(void)
+  * (2) call of __init annotated helper build_all_zonelists_init
+  * [protected by SYSTEM_BOOTING].
+  */
+-void __ref build_all_zonelists(pg_data_t *pgdat, struct zone *zone)
++void __ref build_all_zonelists(pg_data_t *pgdat, struct zone *zone,
++			       bool hotplug_context)
+ {
+ 	set_zonelist_order();
+ 
+-	if (system_state == SYSTEM_BOOTING) {
++	if (system_state == SYSTEM_BOOTING && !hotplug_context) {
+ 		build_all_zonelists_init();
+ 	} else {
+ #ifdef CONFIG_MEMORY_HOTPLUG
 
 
