@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A0724B276
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982DF24B2DE
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgHTJaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:30:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
+        id S1728889AbgHTJiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726884AbgHTJaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:30:12 -0400
+        id S1728881AbgHTJiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:38:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2363C206FA;
-        Thu, 20 Aug 2020 09:30:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5C312075E;
+        Thu, 20 Aug 2020 09:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915812;
-        bh=35Y1yK73NzvRtzpwyUtT0/Z20fJ7kT4w3A82Zq3Gq6M=;
+        s=default; t=1597916296;
+        bh=EN9vsdqFKYmlt4Gq5t4QjL2R/MfZD13XOvd7mi0N9qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6fsCNLoHW7WUifMz5cbcYsbrmHltMszz0miZ/EKzx278rrnmDWk+JYBGRaIttPjv
-         s0centa/srt5DYTUoyiAyVD3nDquSor+19KnLwpIIHpql0XjhsojoMOXvqIlqdzPwl
-         G5cpqAaEz8m+hMzprA40iDd5aWr691zffzVyWXCg=
+        b=lDdlWdKf/wugpvVv0NWiHSX1ZtBgvPx9lB2psoz2abI2hKq11dElU7urxvL/KF/SE
+         3at/lu5IJUIS8b0I5TxzCsTJdLyabjVUnEZBtvel6Qxd4mcXZMjuZJeiggv91BVGjX
+         NbyLe0j0UFiAaS8vHAZf5s9eSMBBTq80QMepQ8U8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 125/232] media: staging: rkisp1: rename macros RKISP1_DIR_* to RKISP1_ISP_SD_*
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.7 079/204] tracing: Use trace_sched_process_free() instead of exit() for pid tracing
 Date:   Thu, 20 Aug 2020 11:19:36 +0200
-Message-Id: <20200820091618.871297853@linuxfoundation.org>
+Message-Id: <20200820091610.298258375@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,208 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit c247818a873adcb8488021eed38c330ea8b288a3 ]
+commit afcab636657421f7ebfa0783a91f90256bba0091 upstream.
 
-The macros 'RKISP1_DIR_*' are flags that indicate on which
-pads of the isp subdevice the media bus code is supported. So the
-prefix RKISP1_ISP_SD_ is better.
+On exit, if a process is preempted after the trace_sched_process_exit()
+tracepoint but before the process is done exiting, then when it gets
+scheduled in, the function tracers will not filter it properly against the
+function tracing pid filters.
 
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Acked-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That is because the function tracing pid filters hooks to the
+sched_process_exit() tracepoint to remove the exiting task's pid from the
+filter list. Because the filtering happens at the sched_switch tracepoint,
+when the exiting task schedules back in to finish up the exit, it will no
+longer be in the function pid filtering tables.
+
+This was noticeable in the notrace self tests on a preemptable kernel, as
+the tests would fail as it exits and preempted after being taken off the
+notrace filter table and on scheduling back in it would not be in the
+notrace list, and then the ending of the exit function would trace. The test
+detected this and would fail.
+
+Cc: stable@vger.kernel.org
+Cc: Namhyung Kim <namhyung@kernel.org>
+Fixes: 1e10486ffee0a ("ftrace: Add 'function-fork' trace option")
+Fixes: c37775d57830a ("tracing: Add infrastructure to allow set_event_pid to follow children"
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/staging/media/rkisp1/rkisp1-isp.c | 46 +++++++++++------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ kernel/trace/ftrace.c       |    4 ++--
+ kernel/trace/trace_events.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/media/rkisp1/rkisp1-isp.c b/drivers/staging/media/rkisp1/rkisp1-isp.c
-index 93ba2dd2fcda0..abfedb604303f 100644
---- a/drivers/staging/media/rkisp1/rkisp1-isp.c
-+++ b/drivers/staging/media/rkisp1/rkisp1-isp.c
-@@ -23,8 +23,8 @@
- 
- #define RKISP1_ISP_DEV_NAME	RKISP1_DRIVER_NAME "_isp"
- 
--#define RKISP1_DIR_SRC BIT(0)
--#define RKISP1_DIR_SINK BIT(1)
-+#define RKISP1_ISP_SD_SRC BIT(0)
-+#define RKISP1_ISP_SD_SINK BIT(1)
- 
- /*
-  * NOTE: MIPI controller and input MUX are also configured in this file.
-@@ -61,119 +61,119 @@ static const struct rkisp1_isp_mbus_info rkisp1_isp_formats[] = {
- 	{
- 		.mbus_code	= MEDIA_BUS_FMT_YUYV8_2X8,
- 		.pixel_enc	= V4L2_PIXEL_ENC_YUV,
--		.direction	= RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SRGGB10_1X10,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW10,
- 		.bayer_pat	= RKISP1_RAW_RGGB,
- 		.bus_width	= 10,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SBGGR10_1X10,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW10,
- 		.bayer_pat	= RKISP1_RAW_BGGR,
- 		.bus_width	= 10,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGBRG10_1X10,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW10,
- 		.bayer_pat	= RKISP1_RAW_GBRG,
- 		.bus_width	= 10,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGRBG10_1X10,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW10,
- 		.bayer_pat	= RKISP1_RAW_GRBG,
- 		.bus_width	= 10,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SRGGB12_1X12,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW12,
- 		.bayer_pat	= RKISP1_RAW_RGGB,
- 		.bus_width	= 12,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SBGGR12_1X12,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW12,
- 		.bayer_pat	= RKISP1_RAW_BGGR,
- 		.bus_width	= 12,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGBRG12_1X12,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW12,
- 		.bayer_pat	= RKISP1_RAW_GBRG,
- 		.bus_width	= 12,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGRBG12_1X12,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW12,
- 		.bayer_pat	= RKISP1_RAW_GRBG,
- 		.bus_width	= 12,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SRGGB8_1X8,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW8,
- 		.bayer_pat	= RKISP1_RAW_RGGB,
- 		.bus_width	= 8,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SBGGR8_1X8,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW8,
- 		.bayer_pat	= RKISP1_RAW_BGGR,
- 		.bus_width	= 8,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGBRG8_1X8,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW8,
- 		.bayer_pat	= RKISP1_RAW_GBRG,
- 		.bus_width	= 8,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_SGRBG8_1X8,
- 		.pixel_enc	= V4L2_PIXEL_ENC_BAYER,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_RAW8,
- 		.bayer_pat	= RKISP1_RAW_GRBG,
- 		.bus_width	= 8,
--		.direction	= RKISP1_DIR_SINK | RKISP1_DIR_SRC,
-+		.direction	= RKISP1_ISP_SD_SINK | RKISP1_ISP_SD_SRC,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_YUYV8_1X16,
- 		.pixel_enc	= V4L2_PIXEL_ENC_YUV,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_YUV422_8b,
- 		.yuv_seq	= RKISP1_CIF_ISP_ACQ_PROP_YCBYCR,
- 		.bus_width	= 16,
--		.direction	= RKISP1_DIR_SINK,
-+		.direction	= RKISP1_ISP_SD_SINK,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_YVYU8_1X16,
- 		.pixel_enc	= V4L2_PIXEL_ENC_YUV,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_YUV422_8b,
- 		.yuv_seq	= RKISP1_CIF_ISP_ACQ_PROP_YCRYCB,
- 		.bus_width	= 16,
--		.direction	= RKISP1_DIR_SINK,
-+		.direction	= RKISP1_ISP_SD_SINK,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_UYVY8_1X16,
- 		.pixel_enc	= V4L2_PIXEL_ENC_YUV,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_YUV422_8b,
- 		.yuv_seq	= RKISP1_CIF_ISP_ACQ_PROP_CBYCRY,
- 		.bus_width	= 16,
--		.direction	= RKISP1_DIR_SINK,
-+		.direction	= RKISP1_ISP_SD_SINK,
- 	}, {
- 		.mbus_code	= MEDIA_BUS_FMT_VYUY8_1X16,
- 		.pixel_enc	= V4L2_PIXEL_ENC_YUV,
- 		.mipi_dt	= RKISP1_CIF_CSI2_DT_YUV422_8b,
- 		.yuv_seq	= RKISP1_CIF_ISP_ACQ_PROP_CRYCBY,
- 		.bus_width	= 16,
--		.direction	= RKISP1_DIR_SINK,
-+		.direction	= RKISP1_ISP_SD_SINK,
- 	},
- };
- 
-@@ -573,9 +573,9 @@ static int rkisp1_isp_enum_mbus_code(struct v4l2_subdev *sd,
- 	int pos = 0;
- 
- 	if (code->pad == RKISP1_ISP_PAD_SINK_VIDEO) {
--		dir = RKISP1_DIR_SINK;
-+		dir = RKISP1_ISP_SD_SINK;
- 	} else if (code->pad == RKISP1_ISP_PAD_SOURCE_VIDEO) {
--		dir = RKISP1_DIR_SRC;
-+		dir = RKISP1_ISP_SD_SRC;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6980,12 +6980,12 @@ void ftrace_pid_follow_fork(struct trace
+ 	if (enable) {
+ 		register_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
+ 						  tr);
+-		register_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
++		register_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
+ 						  tr);
  	} else {
- 		if (code->index > 0)
- 			return -EINVAL;
-@@ -660,7 +660,7 @@ static void rkisp1_isp_set_src_fmt(struct rkisp1_isp *isp,
- 
- 	src_fmt->code = format->code;
- 	mbus_info = rkisp1_isp_mbus_info_get(src_fmt->code);
--	if (!mbus_info || !(mbus_info->direction & RKISP1_DIR_SRC)) {
-+	if (!mbus_info || !(mbus_info->direction & RKISP1_ISP_SD_SRC)) {
- 		src_fmt->code = RKISP1_DEF_SRC_PAD_FMT;
- 		mbus_info = rkisp1_isp_mbus_info_get(src_fmt->code);
+ 		unregister_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
+ 						    tr);
+-		unregister_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
++		unregister_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
+ 						    tr);
  	}
-@@ -744,7 +744,7 @@ static void rkisp1_isp_set_sink_fmt(struct rkisp1_isp *isp,
- 					  which);
- 	sink_fmt->code = format->code;
- 	mbus_info = rkisp1_isp_mbus_info_get(sink_fmt->code);
--	if (!mbus_info || !(mbus_info->direction & RKISP1_DIR_SINK)) {
-+	if (!mbus_info || !(mbus_info->direction & RKISP1_ISP_SD_SINK)) {
- 		sink_fmt->code = RKISP1_DEF_SINK_PAD_FMT;
- 		mbus_info = rkisp1_isp_mbus_info_get(sink_fmt->code);
+ }
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -538,12 +538,12 @@ void trace_event_follow_fork(struct trac
+ 	if (enable) {
+ 		register_trace_prio_sched_process_fork(event_filter_pid_sched_process_fork,
+ 						       tr, INT_MIN);
+-		register_trace_prio_sched_process_exit(event_filter_pid_sched_process_exit,
++		register_trace_prio_sched_process_free(event_filter_pid_sched_process_exit,
+ 						       tr, INT_MAX);
+ 	} else {
+ 		unregister_trace_sched_process_fork(event_filter_pid_sched_process_fork,
+ 						    tr);
+-		unregister_trace_sched_process_exit(event_filter_pid_sched_process_exit,
++		unregister_trace_sched_process_free(event_filter_pid_sched_process_exit,
+ 						    tr);
  	}
--- 
-2.25.1
-
+ }
 
 
