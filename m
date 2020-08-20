@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C3D24B44A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45CD024B4BF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbgHTKBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50258 "EHLO mail.kernel.org"
+        id S1730960AbgHTKLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730480AbgHTKBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:01:14 -0400
+        id S1730958AbgHTKLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:11:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B786622B4B;
-        Thu, 20 Aug 2020 10:01:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44A05206DA;
+        Thu, 20 Aug 2020 10:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917666;
-        bh=gTLRA3ulGVzYqjj0OJoYWPcDhF3IYNJ+AcMX/wCReJ8=;
+        s=default; t=1597918276;
+        bh=xjcrObf4mN7gNPTFMw+wXKdHvmzDyVR5jK6iKPHu5FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDjaIW9BgaWd0SIyzixisOxaonwaAL5jNoCzkqbibpQOWrcuicRagP6T5CBcKX4OO
-         mjVYlOA2E/x3mojVJf+FxdpgujzATLfdBO9UmMwIOw2itDB3i+BFgDgc2ocP4qQWmg
-         2WsarqTlxVeRBZA58EmpDsAoksrTk1Hq8dOm6mas=
+        b=cebYvtTzFOOcdOjZ2VcC4Ahkz3xBYTc+hM3nsYXcIY85xa2lt2sQ0V9Q1/blhxVuN
+         jP22TrFXWyQP9w0cExVM7zxE69ASEkaZ92LLTkJwXxlf7G0RZ1lnnqpStdWlWGxqt/
+         r5wYXYiu90KbfDJh3XFxDzRMadcnnDLdN1MQSfuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/212] scsi: cumana_2: Fix different dev_id between request_irq() and free_irq()
-Date:   Thu, 20 Aug 2020 11:21:27 +0200
-Message-Id: <20200820091608.105321353@linuxfoundation.org>
+Subject: [PATCH 4.14 113/228] MIPS: OCTEON: add missing put_device() call in dwc3_octeon_device_init()
+Date:   Thu, 20 Aug 2020 11:21:28 +0200
+Message-Id: <20200820091613.242981944@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 040ab9c4fd0070cd5fa71ba3a7b95b8470db9b4d ]
+[ Upstream commit e8b9fc10f2615b9a525fce56981e40b489528355 ]
 
-The dev_id used in request_irq() and free_irq() should match.  Use 'info'
-in both cases.
+if of_find_device_by_node() succeed, dwc3_octeon_device_init() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-Link: https://lore.kernel.org/r/20200625204730.943520-1-christophe.jaillet@wanadoo.fr
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 93e502b3c2d4 ("MIPS: OCTEON: Platform support for OCTEON III USB controller")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arm/cumana_2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/cavium-octeon/octeon-usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/arm/cumana_2.c b/drivers/scsi/arm/cumana_2.c
-index edce5f3cfdba0..93ba83e3148eb 100644
---- a/drivers/scsi/arm/cumana_2.c
-+++ b/drivers/scsi/arm/cumana_2.c
-@@ -454,7 +454,7 @@ static int cumanascsi2_probe(struct expansion_card *ec,
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index bfdfaf32d2c49..75189ff2f3c78 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -517,6 +517,7 @@ static int __init dwc3_octeon_device_init(void)
  
- 	if (info->info.scsi.dma != NO_DMA)
- 		free_dma(info->info.scsi.dma);
--	free_irq(ec->irq, host);
-+	free_irq(ec->irq, info);
+ 			res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 			if (res == NULL) {
++				put_device(&pdev->dev);
+ 				dev_err(&pdev->dev, "No memory resources\n");
+ 				return -ENXIO;
+ 			}
+@@ -528,8 +529,10 @@ static int __init dwc3_octeon_device_init(void)
+ 			 * know the difference.
+ 			 */
+ 			base = devm_ioremap_resource(&pdev->dev, res);
+-			if (IS_ERR(base))
++			if (IS_ERR(base)) {
++				put_device(&pdev->dev);
+ 				return PTR_ERR(base);
++			}
  
-  out_release:
- 	fas216_release(host);
+ 			mutex_lock(&dwc3_octeon_clocks_mutex);
+ 			dwc3_octeon_clocks_start(&pdev->dev, (u64)base);
 -- 
 2.25.1
 
