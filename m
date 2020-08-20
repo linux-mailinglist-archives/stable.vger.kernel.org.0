@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD0024BAC4
+	by mail.lfdr.de (Postfix) with ESMTP id 1785A24BAC3
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730355AbgHTMQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
+        id S1728760AbgHTMQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730257AbgHTJ4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:42 -0400
+        id S1730263AbgHTJ4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2504B207FB;
-        Thu, 20 Aug 2020 09:56:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1676F208DB;
+        Thu, 20 Aug 2020 09:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917401;
-        bh=1IIpIrA4Hszo9m350XB8njrSAlGAYp0Vv7DBdwIc/VE=;
+        s=default; t=1597917407;
+        bh=uP7qBUfQho+By8w77QxSTaXPo2Q+DtMc5/PUP08XXWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bzqp+fu3fy+3YxrRnTKZHKYSMwQoiPxNfyeXtB7lnLQkcihKsrIKgclovcdX9Dpl0
-         pCqwCs/GUu8fexer/ovrUQg/ddqcnPu4pXwlo7AtKv63ZWNZdBT3bv/a6bdxuKSLTX
-         lkBWaB7dXDXKOHiuqDPKK8UugMlwwqgLljgAUKYM=
+        b=yJKipr4NcuqZEwpWsfaDA4fs3UczlRwSOLlhQcsd0p/eKkhVsveWcG0In+j5usUJT
+         GKxeNM5YU7Vc0hVNvD45MXiBwA/5EwIMhSjGmj8l/cq4egfi62G70rc+ibbJlsa9o/
+         eWCLk4D2dv+4zVb4NnFB9C+ETYMTYLDQgja90OJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
-Subject: [PATCH 4.9 019/212] fbdev: Detect integer underflow at "struct fbcon_ops"->clear_margins.
-Date:   Thu, 20 Aug 2020 11:19:52 +0200
-Message-Id: <20200820091603.311622787@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 020/212] rds: Prevent kernel-infoleak in rds_notify_queue_get()
+Date:   Thu, 20 Aug 2020 11:19:53 +0200
+Message-Id: <20200820091603.352748362@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -46,157 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 033724d6864245a11f8e04c066002e6ad22b3fd0 ]
+commit bbc8a99e952226c585ac17477a85ef1194501762 upstream.
 
-syzbot is reporting general protection fault in bitfill_aligned() [1]
-caused by integer underflow in bit_clear_margins(). The cause of this
-problem is when and how do_vc_resize() updates vc->vc_{cols,rows}.
+rds_notify_queue_get() is potentially copying uninitialized kernel stack
+memory to userspace since the compiler may leave a 4-byte hole at the end
+of `cmsg`.
 
-If vc_do_resize() fails (e.g. kzalloc() fails) when var.xres or var.yres
-is going to shrink, vc->vc_{cols,rows} will not be updated. This allows
-bit_clear_margins() to see info->var.xres < (vc->vc_cols * cw) or
-info->var.yres < (vc->vc_rows * ch). Unexpectedly large rw or bh will
-try to overrun the __iomem region and causes general protection fault.
+In 2016 we tried to fix this issue by doing `= { 0 };` on `cmsg`, which
+unfortunately does not always initialize that 4-byte hole. Fix it by using
+memset() instead.
 
-Also, vc_resize(vc, 0, 0) does not set vc->vc_{cols,rows} = 0 due to
-
-  new_cols = (cols ? cols : vc->vc_cols);
-  new_rows = (lines ? lines : vc->vc_rows);
-
-exception. Since cols and lines are calculated as
-
-  cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
-  rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
-  cols /= vc->vc_font.width;
-  rows /= vc->vc_font.height;
-  vc_resize(vc, cols, rows);
-
-in fbcon_modechanged(), var.xres < vc->vc_font.width makes cols = 0
-and var.yres < vc->vc_font.height makes rows = 0. This means that
-
-  const int fd = open("/dev/fb0", O_ACCMODE);
-  struct fb_var_screeninfo var = { };
-  ioctl(fd, FBIOGET_VSCREENINFO, &var);
-  var.xres = var.yres = 1;
-  ioctl(fd, FBIOPUT_VSCREENINFO, &var);
-
-easily reproduces integer underflow bug explained above.
-
-Of course, callers of vc_resize() are not handling vc_do_resize() failure
-is bad. But we can't avoid vc_resize(vc, 0, 0) which returns 0. Therefore,
-as a band-aid workaround, this patch checks integer underflow in
-"struct fbcon_ops"->clear_margins call, assuming that
-vc->vc_cols * vc->vc_font.width and vc->vc_rows * vc->vc_font.heigh do not
-cause integer overflow.
-
-[1] https://syzkaller.appspot.com/bug?id=a565882df74fa76f10d3a6fec4be31098dbb37c6
-
-Reported-and-tested-by: syzbot <syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200715015102.3814-1-penguin-kernel@I-love.SAKURA.ne.jp
+Cc: stable@vger.kernel.org
+Fixes: f037590fff30 ("rds: fix a leak of kernel memory")
+Fixes: bdbe6fbc6a2f ("RDS: recv.c")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/video/console/bitblit.c   | 4 ++--
- drivers/video/console/fbcon_ccw.c | 4 ++--
- drivers/video/console/fbcon_cw.c  | 4 ++--
- drivers/video/console/fbcon_ud.c  | 4 ++--
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ net/rds/recv.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/console/bitblit.c b/drivers/video/console/bitblit.c
-index dbfe4eecf12e5..05d1d36a56654 100644
---- a/drivers/video/console/bitblit.c
-+++ b/drivers/video/console/bitblit.c
-@@ -216,7 +216,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = 0;
- 	region.rop = ROP_COPY;
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -405,12 +405,13 @@ static int rds_still_queued(struct rds_s
+ int rds_notify_queue_get(struct rds_sock *rs, struct msghdr *msghdr)
+ {
+ 	struct rds_notifier *notifier;
+-	struct rds_rdma_notify cmsg = { 0 }; /* fill holes with zero */
++	struct rds_rdma_notify cmsg;
+ 	unsigned int count = 0, max_messages = ~0U;
+ 	unsigned long flags;
+ 	LIST_HEAD(copy);
+ 	int err = 0;
  
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = info->var.xoffset + rs;
- 		region.dy = 0;
- 		region.width = rw;
-@@ -224,7 +224,7 @@ static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
++	memset(&cmsg, 0, sizeof(cmsg));	/* fill holes with zero */
  
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset;
- 		region.dy = info->var.yoffset + bs;
- 		region.width = rs;
-diff --git a/drivers/video/console/fbcon_ccw.c b/drivers/video/console/fbcon_ccw.c
-index 5a3cbf6dff4d9..34da8bba9273a 100644
---- a/drivers/video/console/fbcon_ccw.c
-+++ b/drivers/video/console/fbcon_ccw.c
-@@ -201,7 +201,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = 0;
- 	region.rop = ROP_COPY;
- 
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = 0;
- 		region.dy = info->var.yoffset;
- 		region.height = rw;
-@@ -209,7 +209,7 @@ static void ccw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
- 
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset + bs;
- 		region.dy = 0;
-                 region.height = info->var.yres_virtual;
-diff --git a/drivers/video/console/fbcon_cw.c b/drivers/video/console/fbcon_cw.c
-index e7ee44db4e98b..0b552b3fc22ab 100644
---- a/drivers/video/console/fbcon_cw.c
-+++ b/drivers/video/console/fbcon_cw.c
-@@ -184,7 +184,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = 0;
- 	region.rop = ROP_COPY;
- 
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dx = 0;
- 		region.dy = info->var.yoffset + rs;
- 		region.height = rw;
-@@ -192,7 +192,7 @@ static void cw_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
- 
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dx = info->var.xoffset;
- 		region.dy = info->var.yoffset;
-                 region.height = info->var.yres;
-diff --git a/drivers/video/console/fbcon_ud.c b/drivers/video/console/fbcon_ud.c
-index 19e3714abfe8f..7f62efe2da526 100644
---- a/drivers/video/console/fbcon_ud.c
-+++ b/drivers/video/console/fbcon_ud.c
-@@ -231,7 +231,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
- 	region.color = 0;
- 	region.rop = ROP_COPY;
- 
--	if (rw && !bottom_only) {
-+	if ((int) rw > 0 && !bottom_only) {
- 		region.dy = 0;
- 		region.dx = info->var.xoffset;
- 		region.width  = rw;
-@@ -239,7 +239,7 @@ static void ud_clear_margins(struct vc_data *vc, struct fb_info *info,
- 		info->fbops->fb_fillrect(info, &region);
- 	}
- 
--	if (bh) {
-+	if ((int) bh > 0) {
- 		region.dy = info->var.yoffset;
- 		region.dx = info->var.xoffset;
-                 region.height  = bh;
--- 
-2.25.1
-
+ 	/* put_cmsg copies to user space and thus may sleep. We can't do this
+ 	 * with rs_lock held, so first grab as many notifications as we can stuff
 
 
