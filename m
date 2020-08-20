@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CD124BF1D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6FE24BF79
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730534AbgHTNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37548 "EHLO mail.kernel.org"
+        id S1729984AbgHTNjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727899AbgHTJ2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:28:38 -0400
+        id S1727068AbgHTJ3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E471522CB1;
-        Thu, 20 Aug 2020 09:28:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DB1622B4B;
+        Thu, 20 Aug 2020 09:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915718;
-        bh=qODI7FfI8D79fxtK+8MRpGep8DMuZaOYzP9AJdDA99k=;
+        s=default; t=1597915759;
+        bh=KDpAiWjt9PyK7QuzfiSbWuUz/G+w+2qmU0TYOWkztIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kby8K5Ffht2g/QF0thXRp/4kZGSl9FkHezrFigR3nCq8HvcnTpJ+nzbq6KvtXeq+p
-         S79WneX2D7pOSx/gCkadr2oJNEsGrEioaDiaF+NrTaoFx13MFCaiTlOnxV3kNtx7uf
-         i19ISaHlnPIaczrol+YgAI0hsECuCQGR8RHBkyBE=
+        b=oNKBTJSJU4PSrlfMVVZTWTt+CS0ed2nZZSF4KQpoFygWUCmYIQEd9t2Xo/d/lHvQq
+         FiKVF58+3jbg3poXPtAJipIGMDasCBy3MiONUMOT/l2IuoaZSZzHxjBFglBOIWTv/A
+         xXZcOWBTTfKM2RQHs4JuHPTTh5Ojw44YbrADALBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.8 093/232] watchdog: f71808e_wdt: remove use of wrong watchdog_info option
-Date:   Thu, 20 Aug 2020 11:19:04 +0200
-Message-Id: <20200820091617.340152564@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.8 095/232] ceph: set sec_context xattr on symlink creation
+Date:   Thu, 20 Aug 2020 11:19:06 +0200
+Message-Id: <20200820091617.438788458@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,48 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 802141462d844f2e6a4d63a12260d79b7afc4c34 upstream.
+commit b748fc7a8763a5b3f8149f12c45711cd73ef8176 upstream.
 
-The flags that should be or-ed into the watchdog_info.options by drivers
-all start with WDIOF_, e.g. WDIOF_SETTIMEOUT, which indicates that the
-driver's watchdog_ops has a usable set_timeout.
+Symlink inodes should have the security context set in their xattrs on
+creation. We already set the context on creation, but we don't attach
+the pagelist. The effect is that symlink inodes don't get an SELinux
+context set on them at creation, so they end up unlabeled instead of
+inheriting the proper context. Make it do so.
 
-WDIOC_SETTIMEOUT was used instead, which expands to 0xc0045706, which
-equals:
-
-   WDIOF_FANFAULT | WDIOF_EXTERN1 | WDIOF_PRETIMEOUT | WDIOF_ALARMONLY |
-   WDIOF_MAGICCLOSE | 0xc0045000
-
-These were so far indicated to userspace on WDIOC_GETSUPPORT.
-As the driver has not yet been migrated to the new watchdog kernel API,
-the constant can just be dropped without substitute.
-
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200611191750.28096-4-a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/f71808e_wdt.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/ceph/dir.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -690,8 +690,7 @@ static int __init watchdog_init(int sioa
- 	 * into the module have been registered yet.
- 	 */
- 	watchdog.sioaddr = sioaddr;
--	watchdog.ident.options = WDIOC_SETTIMEOUT
--				| WDIOF_MAGICCLOSE
-+	watchdog.ident.options = WDIOF_MAGICCLOSE
- 				| WDIOF_KEEPALIVEPING
- 				| WDIOF_CARDRESET;
- 
+--- a/fs/ceph/dir.c
++++ b/fs/ceph/dir.c
+@@ -930,6 +930,10 @@ static int ceph_symlink(struct inode *di
+ 	req->r_num_caps = 2;
+ 	req->r_dentry_drop = CEPH_CAP_FILE_SHARED | CEPH_CAP_AUTH_EXCL;
+ 	req->r_dentry_unless = CEPH_CAP_FILE_EXCL;
++	if (as_ctx.pagelist) {
++		req->r_pagelist = as_ctx.pagelist;
++		as_ctx.pagelist = NULL;
++	}
+ 	err = ceph_mdsc_do_request(mdsc, dir, req);
+ 	if (!err && !req->r_reply_info.head->is_dentry)
+ 		err = ceph_handle_notrace_create(dir, dentry);
 
 
