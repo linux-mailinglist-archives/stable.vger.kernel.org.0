@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F8E24B5B1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3764624B577
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731527AbgHTK0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
+        id S1731781AbgHTKXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731315AbgHTKWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:22:47 -0400
+        id S1731776AbgHTKXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:23:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B3402072D;
-        Thu, 20 Aug 2020 10:22:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3532420738;
+        Thu, 20 Aug 2020 10:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918966;
-        bh=WJ9ZT0O1YGpSVm1T84ZpeJOMhTdeLBMnwR3HruRUL44=;
+        s=default; t=1597919025;
+        bh=BbVjOawr2HPM457F4RYi76yZJrjyaGdSN/XIGqZ/k9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kArCAki0ugTwk7wVDnmEESP8kNVCgRfJNCrei5rxwY9oqqrDsShXSP/TnkzH+qoWc
-         GDB3GmPEaqSSKeOCJQgeXt7X6lVPqTCDSDrU8EyPl9UfXY10Ay4HPr9o557jTaR3Zg
-         pyU/n9Aqlhfj12b6STB1w0FgeA5QE8On4DCcehK8=
+        b=tOQHGzl/7ABWCT3XZtfo7OElG2+11cL2pn0E921shugLC0bf22N0ubWUDADGtVceS
+         1fIigubXEsyCLta1vuXP3Cc1xDtnEkZiJozQFBFtGUkiSPb8TNGPfME9q/noA/fDkQ
+         JCWjD/0c8TO4v2Jz8+YRp5y/6pZkbNUL8Dh1WNvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 132/149] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
-Date:   Thu, 20 Aug 2020 11:23:29 +0200
-Message-Id: <20200820092132.098841681@linuxfoundation.org>
+        stable@vger.kernel.org, Anton Blanchard <anton@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 133/149] pseries: Fix 64 bit logical memory block panic
+Date:   Thu, 20 Aug 2020 11:23:30 +0200
+Message-Id: <20200820092132.146054417@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,94 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Anton Blanchard <anton@ozlabs.org>
 
-commit 0cb2f1372baa60af8456388a574af6133edd7d80 upstream.
+commit 89c140bbaeee7a55ed0360a88f294ead2b95201b upstream.
 
-We found a case of kernel panic on our server. The stack trace is as
-follows(omit some irrelevant information):
+Booting with a 4GB LMB size causes us to panic:
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000080
-  RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
-  RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
-  RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
-  RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-  R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   <IRQ>
-   ftrace_ops_assist_func+0x56/0xe0
-   ftrace_call+0x5/0x34
-   tcpa_statistic_send+0x5/0x130 [ttcp_engine]
+  qemu-system-ppc64: OS terminated: OS panic:
+      Memory block size not suitable: 0x0
 
-The tcpa_statistic_send is the function being kprobed. After analysis,
-the root cause is that the fourth parameter regs of kprobe_ftrace_handler
-is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
-
-  crash> dis tcpa_statistic_send -r
-         <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
-
-The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller.
-So it is reasonable that the fourth parameter regs of kprobe_ftrace_handler
-is NULL. In theory, we should call the ftrace_regs_caller instead of the
-ftrace_caller. After in-depth analysis, we found a reproducible path.
-
-  Writing a simple kernel module which starts a periodic timer. The
-  timer's handler is named 'kprobe_test_timer_handler'. The module
-  name is kprobe_test.ko.
-
-  1) insmod kprobe_test.ko
-  2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
-  3) echo 0 > /proc/sys/kernel/ftrace_enabled
-  4) rmmod kprobe_test
-  5) stop step 2) kprobe
-  6) insmod kprobe_test.ko
-  7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
-
-We mark the kprobe as GONE but not disarm the kprobe in the step 4).
-The step 5) also do not disarm the kprobe when unregister kprobe. So
-we do not remove the ip from the filter. In this case, when the module
-loads again in the step 6), we will replace the code to ftrace_caller
-via the ftrace_module_enable(). When we register kprobe again, we will
-not replace ftrace_caller to ftrace_regs_caller because the ftrace is
-disabled in the step 3). So the step 7) will trigger kernel panic. Fix
-this problem by disarming the kprobe when the module is going away.
-
-Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedance.com
+Fix pseries_memory_block_size() to handle 64 bit LMBs.
 
 Cc: stable@vger.kernel.org
-Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Anton Blanchard <anton@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200715000820.1255764-1-anton@ozlabs.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kprobes.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2029,6 +2029,13 @@ static void kill_kprobe(struct kprobe *p
- 	 * the original probed function (which will be freed soon) any more.
- 	 */
- 	arch_remove_kprobe(p);
-+
-+	/*
-+	 * The module is going away. We should disarm the kprobe which
-+	 * is using ftrace.
-+	 */
-+	if (kprobe_ftrace(p))
-+		disarm_kprobe_ftrace(p);
- }
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -29,7 +29,7 @@ static bool rtas_hp_event;
+ unsigned long pseries_memory_block_size(void)
+ {
+ 	struct device_node *np;
+-	unsigned int memblock_size = MIN_MEMORY_BLOCK_SIZE;
++	u64 memblock_size = MIN_MEMORY_BLOCK_SIZE;
+ 	struct resource r;
  
- /* Disable one kprobe */
+ 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 
 
