@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4188124BB22
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 912F524BB1E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730042AbgHTMXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:23:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36906 "EHLO mail.kernel.org"
+        id S1730201AbgHTMXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730122AbgHTJyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:54:25 -0400
+        id S1729190AbgHTJy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0ADC2075E;
-        Thu, 20 Aug 2020 09:54:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C3182075E;
+        Thu, 20 Aug 2020 09:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917265;
-        bh=kJJouGqpk7y9KGYIB/qSQlzNKFugPURJbr0dDf5g/yA=;
+        s=default; t=1597917267;
+        bh=cc3kPJd05HR4KDSl2IwNS8GqwV87x7XMPJlut7rIJKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QyfOAVaMgack5iDwMSp6YLmg7mtBmPJjVTbEv7n+sq2/C91/whCtVzy3qu582G/gD
-         BRkRfo+sIEeG95IwI/MdkuOC7+VG33GFDYTSATvqlnXM0VUleSx0b2HJ2A8PyNR/54
-         XiEfbe9s6bf2UjkyCL/gFeNN5AOsAAs9/WVjFRpM=
+        b=s0ZghojqY2kLhGB/y0Jh8OFwwvjfIHzadttULBgolb89QFJpaaHb1BtIKE7+Ui5mC
+         yKzKi+g+Vc7WsKWmcXTBJHH+U7eES1N/JRz1VysmX7Vj/G/URm2Ua0NHhV4rLIy26X
+         uLa9tHSrwTttqBp0st8xR3Scbz+DS8TMhApHOM8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/92] selftests/powerpc: ptrace-pkey: Dont update expected UAMOR value
-Date:   Thu, 20 Aug 2020 11:21:47 +0200
-Message-Id: <20200820091540.840199409@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 63/92] iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
+Date:   Thu, 20 Aug 2020 11:21:48 +0200
+Message-Id: <20200820091540.893123826@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -45,51 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 3563b9bea0ca7f53e4218b5e268550341a49f333 ]
+[ Upstream commit dee9d154f40c58d02f69acdaa5cfd1eae6ebc28b ]
 
-With commit 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation
-must not change pkey registers") we are not updating UAMOR on key
-allocation. So don't update the expected uamor value in the test.
+It is possible for the call to omap_iommu_dump_ctx to return
+a negative error number, so check for the failure and return
+the error number rather than pass the negative value to
+simple_read_from_buffer.
 
-Fixes: 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation must not change pkey registers")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200709032946.881753-23-aneesh.kumar@linux.ibm.com
+Fixes: 14e0e6796a0d ("OMAP: iommu: add initial debugfs support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20200714192211.744776-1-colin.king@canonical.com
+Addresses-Coverity: ("Improper use of negative value")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/iommu/omap-iommu-debug.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-index bc33d748d95b4..3694613f418f6 100644
---- a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-+++ b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-@@ -101,15 +101,20 @@ static int child(struct shared_info *info)
- 	 */
- 	info->invalid_amr = info->amr2 | (~0x0UL & ~info->expected_uamor);
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index 50217548c3b8e..5ce55fabc9d80 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -101,8 +101,11 @@ static ssize_t debug_read_regs(struct file *file, char __user *userbuf,
+ 	mutex_lock(&iommu_debug_lock);
  
-+	/*
-+	 * if PKEY_DISABLE_EXECUTE succeeded we should update the expected_iamr
-+	 */
- 	if (disable_execute)
- 		info->expected_iamr |= 1ul << pkeyshift(pkey1);
- 	else
- 		info->expected_iamr &= ~(1ul << pkeyshift(pkey1));
+ 	bytes = omap_iommu_dump_ctx(obj, p, count);
++	if (bytes < 0)
++		goto err;
+ 	bytes = simple_read_from_buffer(userbuf, count, ppos, buf, bytes);
  
--	info->expected_iamr &= ~(1ul << pkeyshift(pkey2) | 1ul << pkeyshift(pkey3));
-+	/*
-+	 * We allocated pkey2 and pkey 3 above. Clear the IAMR bits.
-+	 */
-+	info->expected_iamr &= ~(1ul << pkeyshift(pkey2));
-+	info->expected_iamr &= ~(1ul << pkeyshift(pkey3));
++err:
+ 	mutex_unlock(&iommu_debug_lock);
+ 	kfree(buf);
  
--	info->expected_uamor |= 3ul << pkeyshift(pkey1) |
--				3ul << pkeyshift(pkey2);
- 	/*
- 	 * Create an IAMR value different from expected value.
- 	 * Kernel will reject an IAMR and UAMOR change.
 -- 
 2.25.1
 
