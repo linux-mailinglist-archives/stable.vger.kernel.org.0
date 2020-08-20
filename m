@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982DF24B2DE
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8805824B2E0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbgHTJiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:38:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55740 "EHLO mail.kernel.org"
+        id S1728764AbgHTJiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:38:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728881AbgHTJiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:38:17 -0400
+        id S1728745AbgHTJiW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:38:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5C312075E;
-        Thu, 20 Aug 2020 09:38:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74A5B208E4;
+        Thu, 20 Aug 2020 09:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916296;
-        bh=EN9vsdqFKYmlt4Gq5t4QjL2R/MfZD13XOvd7mi0N9qE=;
+        s=default; t=1597916302;
+        bh=qODI7FfI8D79fxtK+8MRpGep8DMuZaOYzP9AJdDA99k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDdlWdKf/wugpvVv0NWiHSX1ZtBgvPx9lB2psoz2abI2hKq11dElU7urxvL/KF/SE
-         3at/lu5IJUIS8b0I5TxzCsTJdLyabjVUnEZBtvel6Qxd4mcXZMjuZJeiggv91BVGjX
-         NbyLe0j0UFiAaS8vHAZf5s9eSMBBTq80QMepQ8U8=
+        b=C7WNUcPoGwdpfV+ll0q6Y87SiyBQk7mqwj3cn7/Gx7j8bPL3Ol2nu2V1+qLcpnsP5
+         NTqmJiydC9j0gl7it2KNDtmGIydvfaMe1yhc03iW+KvMvICHbrWBTP7L/ncIpNzNG5
+         fUaPhE+3DLaqeDMBWEnbSjFrdCj7PUnVTu49mHV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.7 079/204] tracing: Use trace_sched_process_free() instead of exit() for pid tracing
-Date:   Thu, 20 Aug 2020 11:19:36 +0200
-Message-Id: <20200820091610.298258375@linuxfoundation.org>
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.7 081/204] watchdog: f71808e_wdt: remove use of wrong watchdog_info option
+Date:   Thu, 20 Aug 2020 11:19:38 +0200
+Message-Id: <20200820091610.388391556@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,72 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit afcab636657421f7ebfa0783a91f90256bba0091 upstream.
+commit 802141462d844f2e6a4d63a12260d79b7afc4c34 upstream.
 
-On exit, if a process is preempted after the trace_sched_process_exit()
-tracepoint but before the process is done exiting, then when it gets
-scheduled in, the function tracers will not filter it properly against the
-function tracing pid filters.
+The flags that should be or-ed into the watchdog_info.options by drivers
+all start with WDIOF_, e.g. WDIOF_SETTIMEOUT, which indicates that the
+driver's watchdog_ops has a usable set_timeout.
 
-That is because the function tracing pid filters hooks to the
-sched_process_exit() tracepoint to remove the exiting task's pid from the
-filter list. Because the filtering happens at the sched_switch tracepoint,
-when the exiting task schedules back in to finish up the exit, it will no
-longer be in the function pid filtering tables.
+WDIOC_SETTIMEOUT was used instead, which expands to 0xc0045706, which
+equals:
 
-This was noticeable in the notrace self tests on a preemptable kernel, as
-the tests would fail as it exits and preempted after being taken off the
-notrace filter table and on scheduling back in it would not be in the
-notrace list, and then the ending of the exit function would trace. The test
-detected this and would fail.
+   WDIOF_FANFAULT | WDIOF_EXTERN1 | WDIOF_PRETIMEOUT | WDIOF_ALARMONLY |
+   WDIOF_MAGICCLOSE | 0xc0045000
 
+These were so far indicated to userspace on WDIOC_GETSUPPORT.
+As the driver has not yet been migrated to the new watchdog kernel API,
+the constant can just be dropped without substitute.
+
+Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
 Cc: stable@vger.kernel.org
-Cc: Namhyung Kim <namhyung@kernel.org>
-Fixes: 1e10486ffee0a ("ftrace: Add 'function-fork' trace option")
-Fixes: c37775d57830a ("tracing: Add infrastructure to allow set_event_pid to follow children"
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200611191750.28096-4-a.fatoum@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ftrace.c       |    4 ++--
- kernel/trace/trace_events.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/watchdog/f71808e_wdt.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6980,12 +6980,12 @@ void ftrace_pid_follow_fork(struct trace
- 	if (enable) {
- 		register_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
- 						  tr);
--		register_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
-+		register_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
- 						  tr);
- 	} else {
- 		unregister_trace_sched_process_fork(ftrace_pid_follow_sched_process_fork,
- 						    tr);
--		unregister_trace_sched_process_exit(ftrace_pid_follow_sched_process_exit,
-+		unregister_trace_sched_process_free(ftrace_pid_follow_sched_process_exit,
- 						    tr);
- 	}
- }
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -538,12 +538,12 @@ void trace_event_follow_fork(struct trac
- 	if (enable) {
- 		register_trace_prio_sched_process_fork(event_filter_pid_sched_process_fork,
- 						       tr, INT_MIN);
--		register_trace_prio_sched_process_exit(event_filter_pid_sched_process_exit,
-+		register_trace_prio_sched_process_free(event_filter_pid_sched_process_exit,
- 						       tr, INT_MAX);
- 	} else {
- 		unregister_trace_sched_process_fork(event_filter_pid_sched_process_fork,
- 						    tr);
--		unregister_trace_sched_process_exit(event_filter_pid_sched_process_exit,
-+		unregister_trace_sched_process_free(event_filter_pid_sched_process_exit,
- 						    tr);
- 	}
- }
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -690,8 +690,7 @@ static int __init watchdog_init(int sioa
+ 	 * into the module have been registered yet.
+ 	 */
+ 	watchdog.sioaddr = sioaddr;
+-	watchdog.ident.options = WDIOC_SETTIMEOUT
+-				| WDIOF_MAGICCLOSE
++	watchdog.ident.options = WDIOF_MAGICCLOSE
+ 				| WDIOF_KEEPALIVEPING
+ 				| WDIOF_CARDRESET;
+ 
 
 
