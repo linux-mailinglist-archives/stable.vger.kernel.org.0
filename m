@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C7A24B4E4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E80024B548
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:21:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730799AbgHTKOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
+        id S1731152AbgHTKVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:21:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731153AbgHTKN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:13:57 -0400
+        id S1731567AbgHTKVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 376F720724;
-        Thu, 20 Aug 2020 10:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13B9A20658;
+        Thu, 20 Aug 2020 10:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918435;
-        bh=ew+hw3KHXx9gfNCgHi5f39BUYuqcdcGMuDnXP9BILnM=;
+        s=default; t=1597918904;
+        bh=tUvYHjtllxbZQA4qI9CH65ubKgchGIjpKsJigpM5qm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfzNlqmPZgRvRSICenbvrE1g57KH97HckU2srJ6kuoVPUtsGvgHw3TZFp3Kh7nH2F
-         jeSlFnpffTgdezCjJ43qFHr3PByjk0qYwyPIV1ZZmueEzv/XQPIpJ7F7aNZ8xjtO7D
-         mB4m4Lm1JWOmAhmnb83COsh6tQFMh/8tGesbHUTA=
+        b=kTKVtLZjKUlcMMnU7nWeICrqH+ZmPpWTp142HG2/wGkwn/J/n4JhcwNjfeiutCpVX
+         u4PEnfA/jZBOlh/HDVHBnHNPhX97lIjtkwcrx6KkQjSAzaFdB/TAiM2LFcn+O/i3O3
+         yiEeG3vk4C4rokbwZeGWS81cuyUshs/+CGz1g3w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
-        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 169/228] btrfs: dont allocate anonymous block device for user invisible roots
-Date:   Thu, 20 Aug 2020 11:22:24 +0200
-Message-Id: <20200820091616.020817270@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 068/149] drm/debugfs: fix plain echo to connector "force" attribute
+Date:   Thu, 20 Aug 2020 11:22:25 +0200
+Message-Id: <20200820092129.031478447@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-commit 851fd730a743e072badaf67caf39883e32439431 upstream.
+[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
 
-[BUG]
-When a lot of subvolumes are created, there is a user report about
-transaction aborted:
+Using plain echo to set the "force" connector attribute fails with
+-EINVAL, because echo appends a newline to the output.
 
-  BTRFS: Transaction aborted (error -24)
-  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  Call Trace:
-   create_pending_snapshots+0x82/0xa0 [btrfs]
-   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
-   btrfs_mksubvol+0x4b9/0x500 [btrfs]
-   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
-   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
-   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
-   do_vfs_ioctl+0xa9/0x640
-   ksys_ioctl+0x67/0x90
-   __x64_sys_ioctl+0x1a/0x20
-   do_syscall_64+0x5a/0x110
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace 33f2f83f3d5250e9 ]---
-  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
-  BTRFS info (device sda1): forced readonly
-  BTRFS warning (device sda1): Skipping commit of aborted transaction.
-  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
+Replace strcmp with sysfs_streq to also accept strings that end with a
+newline.
 
-[CAUSE]
-The error is EMFILE (Too many files open) and comes from the anonymous
-block device allocation. The ids are in a shared pool of size 1<<20.
+v2: use sysfs_streq instead of stripping trailing whitespace
 
-The ids are assigned to live subvolumes, ie. the root structure exists
-in memory (eg. after creation or after the root appears in some path).
-The pool could be exhausted if the numbers are not reclaimed fast
-enough, after subvolume deletion or if other system component uses the
-anon block devices.
-
-[WORKAROUND]
-Since it's not possible to completely solve the problem, we can only
-minimize the time the id is allocated to a subvolume root.
-
-Firstly, we can reduce the use of anon_dev by trees that are not
-subvolume roots, like data reloc tree.
-
-This patch will do extra check on root objectid, to skip roots that
-don't need anon_dev.  Currently it's only data reloc tree and orphan
-roots.
-
-Reported-by: Greed Rong <greedrong@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1509,9 +1509,16 @@ int btrfs_init_fs_root(struct btrfs_root
- 	spin_lock_init(&root->ino_cache_lock);
- 	init_waitqueue_head(&root->ino_cache_wait);
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 3bcf8e6a85b35..5b0fdcd0b63fd 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -290,13 +290,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
  
--	ret = get_anon_bdev(&root->anon_dev);
--	if (ret)
--		goto fail;
-+	/*
-+	 * Don't assign anonymous block device to roots that are not exposed to
-+	 * userspace, the id pool is limited to 1M
-+	 */
-+	if (is_fstree(root->root_key.objectid) &&
-+	    btrfs_root_refs(&root->root_item) > 0) {
-+		ret = get_anon_bdev(&root->anon_dev);
-+		if (ret)
-+			goto fail;
-+	}
+ 	buf[len] = '\0';
  
- 	mutex_lock(&root->objectid_mutex);
- 	ret = btrfs_find_highest_objectid(root,
+-	if (!strcmp(buf, "on"))
++	if (sysfs_streq(buf, "on"))
+ 		connector->force = DRM_FORCE_ON;
+-	else if (!strcmp(buf, "digital"))
++	else if (sysfs_streq(buf, "digital"))
+ 		connector->force = DRM_FORCE_ON_DIGITAL;
+-	else if (!strcmp(buf, "off"))
++	else if (sysfs_streq(buf, "off"))
+ 		connector->force = DRM_FORCE_OFF;
+-	else if (!strcmp(buf, "unspecified"))
++	else if (sysfs_streq(buf, "unspecified"))
+ 		connector->force = DRM_FORCE_UNSPECIFIED;
+ 	else
+ 		return -EINVAL;
+-- 
+2.25.1
+
 
 
