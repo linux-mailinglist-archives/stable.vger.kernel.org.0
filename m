@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC34824BFC8
+	by mail.lfdr.de (Postfix) with ESMTP id 9BFD424BFC7
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730996AbgHTNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730998AbgHTNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:54:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727005AbgHTJZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:25:48 -0400
+        id S1727837AbgHTJ0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D242224D;
-        Thu, 20 Aug 2020 09:25:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F7F922CB1;
+        Thu, 20 Aug 2020 09:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915539;
-        bh=XusOjFSGRwsth8qR6OCSimLud2UaSI0UbhOkQ47bGsA=;
+        s=default; t=1597915547;
+        bh=80d02pedfTpF3cSJbY6um8Fk5bv/JNoyRNqEAFcDkBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmkYDH94vrW8PP4E9+0uldYkgRX9RxhzOaFgNV9BRQ0Tg/yWRrYZ5kcN3UE7sHJi8
-         5kn/ig5L3um9oFaZ3HFrQrp8sVd1n/9SdbL6UGH8e+oaBSFYPNm0G5oNDq2G8K0o29
-         iJK+y8lNXMDw+/erClEZsPUwbi8dmKMjvnH8NZ/4=
+        b=Qx/hW8emA96RT36kpAlp1/7Q9dCmormy3W9B6c+4Bhu8jajBfzEtEEoUtEt5EZ8R3
+         zSLVWdXKVTsAVKKXVNe3EA+kITtj8KNUs0R64mlnMRLyo7K6+soT3il1ah5t24ux//
+         lmFdLj6PDdOYrGBU/xYgOgi4gwIT2mWT9Z4b3uGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.8 049/232] cifs: Fix leak when handling lease break for cached root fid
-Date:   Thu, 20 Aug 2020 11:18:20 +0200
-Message-Id: <20200820091615.156650621@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.8 052/232] powerpc: Fix circular dependency between percpu.h and mmu.h
+Date:   Thu, 20 Aug 2020 11:18:23 +0200
+Message-Id: <20200820091615.301098609@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,164 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit baf57b56d3604880ccb3956ec6c62ea894f5de99 upstream.
+commit 0c83b277ada72b585e6a3e52b067669df15bcedb upstream.
 
-Handling a lease break for the cached root didn't free the
-smb2_lease_break_work allocation, resulting in a leak:
+Recently random.h started including percpu.h (see commit
+f227e3ec3b5c ("random32: update the net random state on interrupt and
+activity")), which broke corenet64_smp_defconfig:
 
-    unreferenced object 0xffff98383a5af480 (size 128):
-      comm "cifsd", pid 684, jiffies 4294936606 (age 534.868s)
-      hex dump (first 32 bytes):
-        c0 ff ff ff 1f 00 00 00 88 f4 5a 3a 38 98 ff ff  ..........Z:8...
-        88 f4 5a 3a 38 98 ff ff 80 88 d6 8a ff ff ff ff  ..Z:8...........
-      backtrace:
-        [<0000000068957336>] smb2_is_valid_oplock_break+0x1fa/0x8c0
-        [<0000000073b70b9e>] cifs_demultiplex_thread+0x73d/0xcc0
-        [<00000000905fa372>] kthread+0x11c/0x150
-        [<0000000079378e4e>] ret_from_fork+0x22/0x30
+  In file included from /linux/arch/powerpc/include/asm/paca.h:18,
+                   from /linux/arch/powerpc/include/asm/percpu.h:13,
+                   from /linux/include/linux/random.h:14,
+                   from /linux/lib/uuid.c:14:
+  /linux/arch/powerpc/include/asm/mmu.h:139:22: error: unknown type name 'next_tlbcam_idx'
+    139 | DECLARE_PER_CPU(int, next_tlbcam_idx);
 
-Avoid this leak by only allocating when necessary.
+This is due to a circular header dependency:
+  asm/mmu.h includes asm/percpu.h, which includes asm/paca.h, which
+  includes asm/mmu.h
 
-Fixes: a93864d93977 ("cifs: add lease tracking to the cached root fid")
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-CC: Stable <stable@vger.kernel.org> # v4.18+
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Which means DECLARE_PER_CPU() isn't defined when mmu.h needs it.
+
+We can fix it by moving the include of paca.h below the include of
+asm-generic/percpu.h.
+
+This moves the include of paca.h out of the #ifdef __powerpc64__, but
+that is OK because paca.h is almost entirely inside #ifdef
+CONFIG_PPC64 anyway.
+
+It also moves the include of paca.h out of the #ifdef CONFIG_SMP,
+which could possibly break something, but seems to have no ill
+effects.
+
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Cc: stable@vger.kernel.org # v5.8
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200804130558.292328-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2misc.c |   73 +++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ arch/powerpc/include/asm/percpu.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -508,15 +508,31 @@ cifs_ses_oplock_break(struct work_struct
- 	kfree(lw);
- }
+--- a/arch/powerpc/include/asm/percpu.h
++++ b/arch/powerpc/include/asm/percpu.h
+@@ -10,8 +10,6 @@
  
-+static void
-+smb2_queue_pending_open_break(struct tcon_link *tlink, __u8 *lease_key,
-+			      __le32 new_lease_state)
-+{
-+	struct smb2_lease_break_work *lw;
-+
-+	lw = kmalloc(sizeof(struct smb2_lease_break_work), GFP_KERNEL);
-+	if (!lw) {
-+		cifs_put_tlink(tlink);
-+		return;
-+	}
-+
-+	INIT_WORK(&lw->lease_break, cifs_ses_oplock_break);
-+	lw->tlink = tlink;
-+	lw->lease_state = new_lease_state;
-+	memcpy(lw->lease_key, lease_key, SMB2_LEASE_KEY_SIZE);
-+	queue_work(cifsiod_wq, &lw->lease_break);
-+}
-+
- static bool
--smb2_tcon_has_lease(struct cifs_tcon *tcon, struct smb2_lease_break *rsp,
--		    struct smb2_lease_break_work *lw)
-+smb2_tcon_has_lease(struct cifs_tcon *tcon, struct smb2_lease_break *rsp)
- {
--	bool found;
- 	__u8 lease_state;
- 	struct list_head *tmp;
- 	struct cifsFileInfo *cfile;
--	struct cifs_pending_open *open;
- 	struct cifsInodeInfo *cinode;
- 	int ack_req = le32_to_cpu(rsp->Flags &
- 				  SMB2_NOTIFY_BREAK_LEASE_FLAG_ACK_REQUIRED);
-@@ -546,22 +562,29 @@ smb2_tcon_has_lease(struct cifs_tcon *tc
- 		cfile->oplock_level = lease_state;
+ #ifdef CONFIG_SMP
  
- 		cifs_queue_oplock_break(cfile);
--		kfree(lw);
- 		return true;
- 	}
- 
--	found = false;
-+	return false;
-+}
-+
-+static struct cifs_pending_open *
-+smb2_tcon_find_pending_open_lease(struct cifs_tcon *tcon,
-+				  struct smb2_lease_break *rsp)
-+{
-+	__u8 lease_state = le32_to_cpu(rsp->NewLeaseState);
-+	int ack_req = le32_to_cpu(rsp->Flags &
-+				  SMB2_NOTIFY_BREAK_LEASE_FLAG_ACK_REQUIRED);
-+	struct cifs_pending_open *open;
-+	struct cifs_pending_open *found = NULL;
-+
- 	list_for_each_entry(open, &tcon->pending_opens, olist) {
- 		if (memcmp(open->lease_key, rsp->LeaseKey,
- 			   SMB2_LEASE_KEY_SIZE))
- 			continue;
- 
- 		if (!found && ack_req) {
--			found = true;
--			memcpy(lw->lease_key, open->lease_key,
--			       SMB2_LEASE_KEY_SIZE);
--			lw->tlink = cifs_get_tlink(open->tlink);
--			queue_work(cifsiod_wq, &lw->lease_break);
-+			found = open;
- 		}
- 
- 		cifs_dbg(FYI, "found in the pending open list\n");
-@@ -582,14 +605,7 @@ smb2_is_valid_lease_break(char *buffer)
- 	struct TCP_Server_Info *server;
- 	struct cifs_ses *ses;
- 	struct cifs_tcon *tcon;
--	struct smb2_lease_break_work *lw;
+-#include <asm/paca.h>
 -
--	lw = kmalloc(sizeof(struct smb2_lease_break_work), GFP_KERNEL);
--	if (!lw)
--		return false;
--
--	INIT_WORK(&lw->lease_break, cifs_ses_oplock_break);
--	lw->lease_state = rsp->NewLeaseState;
-+	struct cifs_pending_open *open;
+ #define __my_cpu_offset local_paca->data_offset
  
- 	cifs_dbg(FYI, "Checking for lease break\n");
+ #endif /* CONFIG_SMP */
+@@ -19,4 +17,6 @@
  
-@@ -607,11 +623,27 @@ smb2_is_valid_lease_break(char *buffer)
- 				spin_lock(&tcon->open_file_lock);
- 				cifs_stats_inc(
- 				    &tcon->stats.cifs_stats.num_oplock_brks);
--				if (smb2_tcon_has_lease(tcon, rsp, lw)) {
-+				if (smb2_tcon_has_lease(tcon, rsp)) {
- 					spin_unlock(&tcon->open_file_lock);
- 					spin_unlock(&cifs_tcp_ses_lock);
- 					return true;
- 				}
-+				open = smb2_tcon_find_pending_open_lease(tcon,
-+									 rsp);
-+				if (open) {
-+					__u8 lease_key[SMB2_LEASE_KEY_SIZE];
-+					struct tcon_link *tlink;
+ #include <asm-generic/percpu.h>
+ 
++#include <asm/paca.h>
 +
-+					tlink = cifs_get_tlink(open->tlink);
-+					memcpy(lease_key, open->lease_key,
-+					       SMB2_LEASE_KEY_SIZE);
-+					spin_unlock(&tcon->open_file_lock);
-+					spin_unlock(&cifs_tcp_ses_lock);
-+					smb2_queue_pending_open_break(tlink,
-+								      lease_key,
-+								      rsp->NewLeaseState);
-+					return true;
-+				}
- 				spin_unlock(&tcon->open_file_lock);
- 
- 				if (tcon->crfid.is_valid &&
-@@ -629,7 +661,6 @@ smb2_is_valid_lease_break(char *buffer)
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	kfree(lw);
- 	cifs_dbg(FYI, "Can not process lease break - no lease matched\n");
- 	return false;
- }
+ #endif /* _ASM_POWERPC_PERCPU_H_ */
 
 
