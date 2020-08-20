@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5D424BBE0
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F9624BCC1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729504AbgHTMe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53460 "EHLO mail.kernel.org"
+        id S1729958AbgHTMwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726897AbgHTJsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:48:31 -0400
+        id S1729258AbgHTJni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C49C62078D;
-        Thu, 20 Aug 2020 09:48:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1572207DE;
+        Thu, 20 Aug 2020 09:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916911;
-        bh=RHqDz9lR5Du0csNXTtFqx68ndUQQKIhitffvzRzCYBU=;
+        s=default; t=1597916617;
+        bh=0pkLbZ3ecE1PW8MfK1EZfq9ZmaccVL2nFYhP+U3ugMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zoukCWwT5eT48KT/vcOle1Rohk6Q7AZI/QNuAHR69DtiV7BPE49ieLeETlFE9tGA
-         xhvZ9/x0EbPP+pvcpUTdG5CXQ2MWwZrWBuczeEV2N6VWdYDnHsppfbouDp89ddAao9
-         ktyMd03TvaCjinOuFGMVmKdRIuk6UJdxl0k1pc2Y=
+        b=So3GdkBPDNuDbnX4Mf1/Oa1EOXBzybH05Zt9b8Barb2CDxUNSClmd6tesQ7hZrBbD
+         Jeh4+tIsScvKVcmmwJJz+gBnkqshSvq+dUcDDzDEUceGTqE7Y3dhfKu8R1qCecJlM/
+         iFZJ4zsHVozIq2+IrMbao+wRq+cV8EUP6Kq2aJnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Dilip Kota <eswara.kota@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/152] USB: serial: ftdi_sio: clean up receive processing
-Date:   Thu, 20 Aug 2020 11:20:57 +0200
-Message-Id: <20200820091558.345640597@linuxfoundation.org>
+Subject: [PATCH 5.7 161/204] x86/tsr: Fix tsc frequency enumeration bug on Lightning Mountain SoC
+Date:   Thu, 20 Aug 2020 11:20:58 +0200
+Message-Id: <20200820091614.262581605@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dilip Kota <eswara.kota@linux.intel.com>
 
-[ Upstream commit ce054039ba5e47b75a3be02a00274e52b06a6456 ]
+[ Upstream commit 7d98585860d845e36ee612832a5ff021f201dbaf ]
 
-Clean up receive processing by dropping the character pointer and
-keeping the length argument unchanged throughout the function.
+Frequency descriptor of Lightning Mountain SoC doesn't have all the
+frequency entries so resulting in the below failure causing a kernel hang:
 
-Also make it more apparent that sysrq processing can consume a
-characters by adding an explicit continue.
+    Error MSR_FSB_FREQ index 15 is unknown
+    tsc: Fast TSC calibration failed
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+So, add all the frequency entries in the Lightning Mountain SoC frequency
+descriptor.
+
+Fixes: 0cc5359d8fd45 ("x86/cpu: Update init data for new Airmont CPU model")
+Fixes: 812c2d7506fd ("x86/tsc_msr: Use named struct initializers")
+Signed-off-by: Dilip Kota <eswara.kota@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/211c643ae217604b46cbec43a2c0423946dc7d2d.1596440057.git.eswara.kota@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/x86/kernel/tsc_msr.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 96b9e2768ac5c..33f1cca7eaa61 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -2483,7 +2483,6 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 		struct ftdi_private *priv, unsigned char *buf, int len)
- {
- 	unsigned char status;
--	unsigned char *ch;
- 	int i;
- 	char flag;
+diff --git a/arch/x86/kernel/tsc_msr.c b/arch/x86/kernel/tsc_msr.c
+index 4fec6f3a1858b..a654a9b4b77c0 100644
+--- a/arch/x86/kernel/tsc_msr.c
++++ b/arch/x86/kernel/tsc_msr.c
+@@ -133,10 +133,15 @@ static const struct freq_desc freq_desc_ann = {
+ 	.mask = 0x0f,
+ };
  
-@@ -2526,8 +2525,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	else
- 		priv->transmit_empty = 0;
+-/* 24 MHz crystal? : 24 * 13 / 4 = 78 MHz */
++/*
++ * 24 MHz crystal? : 24 * 13 / 4 = 78 MHz
++ * Frequency step for Lightning Mountain SoC is fixed to 78 MHz,
++ * so all the frequency entries are 78000.
++ */
+ static const struct freq_desc freq_desc_lgm = {
+ 	.use_msr_plat = true,
+-	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
++	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000,
++		   78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
+ 	.mask = 0x0f,
+ };
  
--	len -= 2;
--	if (!len)
-+	if (len == 2)
- 		return 0;	/* status only */
- 
- 	/*
-@@ -2556,19 +2554,20 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 		}
- 	}
- 
--	port->icount.rx += len;
--	ch = buf + 2;
-+	port->icount.rx += len - 2;
- 
- 	if (port->port.console && port->sysrq) {
--		for (i = 0; i < len; i++, ch++) {
--			if (!usb_serial_handle_sysrq_char(port, *ch))
--				tty_insert_flip_char(&port->port, *ch, flag);
-+		for (i = 2; i < len; i++) {
-+			if (usb_serial_handle_sysrq_char(port, buf[i]))
-+				continue;
-+			tty_insert_flip_char(&port->port, buf[i], flag);
- 		}
- 	} else {
--		tty_insert_flip_string_fixed_flag(&port->port, ch, flag, len);
-+		tty_insert_flip_string_fixed_flag(&port->port, buf + 2, flag,
-+				len - 2);
- 	}
- 
--	return len;
-+	return len - 2;
- }
- 
- static void ftdi_process_read_urb(struct urb *urb)
 -- 
 2.25.1
 
