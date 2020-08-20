@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7854524BA38
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1890B24BB66
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730690AbgHTMCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
+        id S1729747AbgHTM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:27:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729754AbgHTJ7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:38 -0400
+        id S1729865AbgHTJv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:51:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EDE8207FB;
-        Thu, 20 Aug 2020 09:59:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7A9D2067C;
+        Thu, 20 Aug 2020 09:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917578;
-        bh=ARihVEuseQCFHZrrPcQ5uuG/aBEPbF+5Kj8+MIjhHeI=;
+        s=default; t=1597917117;
+        bh=2hTiHBj5GDxe6smlNZQ1HWaL2bz/g+aouyUMLlufD04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jt2wCb2h/J5J+XKJ9fXncZKORtGSuBrtazkUdNwYFgKrBddUdEHXZY8zNKue5ULxJ
-         BqxP6Jj2np0sh6a3oCMioUmwyvBflskRODSxTVUYx6wpDTKK6G/gyuN8Q29B4Ur++/
-         E6fnum0MFycLOu2qEzYs+XojUaGSzXjXprkPmKMI=
+        b=BkTjfU75V2djz+o4wzDlL4xwahocRv9lQyPjukzVjzVwT702X/G7z9MLohuR3zLpl
+         bJOSFpULhojEO4D00DMAy0cBXDNYMoueSW0JSiMt1lCEnVSlwslbX/JAriE9XHjh+3
+         TKMCwCJkQVNkY87/4378ENdEacctYopi3Z8IqLBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 081/212] cgroup: add missing skcd->no_refcnt check in cgroup_sk_clone()
-Date:   Thu, 20 Aug 2020 11:20:54 +0200
-Message-Id: <20200820091606.449981045@linuxfoundation.org>
+        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
+        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 10/92] btrfs: dont allocate anonymous block device for user invisible roots
+Date:   Thu, 20 Aug 2020 11:20:55 +0200
+Message-Id: <20200820091538.048068141@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-Add skcd->no_refcnt check which is missed when backporting
-ad0f75e5f57c ("cgroup: fix cgroup_sk_alloc() for sk_clone_lock()").
+commit 851fd730a743e072badaf67caf39883e32439431 upstream.
 
-This patch is needed in stable-4.9, stable-4.14 and stable-4.19.
+[BUG]
+When a lot of subvolumes are created, there is a user report about
+transaction aborted:
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BTRFS: Transaction aborted (error -24)
+  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
+  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
+  Call Trace:
+   create_pending_snapshots+0x82/0xa0 [btrfs]
+   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
+   btrfs_mksubvol+0x4b9/0x500 [btrfs]
+   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
+   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
+   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
+   do_vfs_ioctl+0xa9/0x640
+   ksys_ioctl+0x67/0x90
+   __x64_sys_ioctl+0x1a/0x20
+   do_syscall_64+0x5a/0x110
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  ---[ end trace 33f2f83f3d5250e9 ]---
+  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
+  BTRFS info (device sda1): forced readonly
+  BTRFS warning (device sda1): Skipping commit of aborted transaction.
+  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
+
+[CAUSE]
+The error is EMFILE (Too many files open) and comes from the anonymous
+block device allocation. The ids are in a shared pool of size 1<<20.
+
+The ids are assigned to live subvolumes, ie. the root structure exists
+in memory (eg. after creation or after the root appears in some path).
+The pool could be exhausted if the numbers are not reclaimed fast
+enough, after subvolume deletion or if other system component uses the
+anon block devices.
+
+[WORKAROUND]
+Since it's not possible to completely solve the problem, we can only
+minimize the time the id is allocated to a subvolume root.
+
+Firstly, we can reduce the use of anon_dev by trees that are not
+subvolume roots, like data reloc tree.
+
+This patch will do extra check on root objectid, to skip roots that
+don't need anon_dev.  Currently it's only data reloc tree and orphan
+roots.
+
+Reported-by: Greed Rong <greedrong@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/cgroup.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/disk-io.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cgroup.c b/kernel/cgroup.c
-index f047c73189f36..684d02f343b4c 100644
---- a/kernel/cgroup.c
-+++ b/kernel/cgroup.c
-@@ -6355,6 +6355,8 @@ void cgroup_sk_clone(struct sock_cgroup_data *skcd)
- {
- 	/* Socket clone path */
- 	if (skcd->val) {
-+		if (skcd->no_refcnt)
-+			return;
- 		/*
- 		 * We might be cloning a socket which is left in an empty
- 		 * cgroup and the cgroup might have already been rmdir'd.
--- 
-2.25.1
-
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1500,9 +1500,16 @@ int btrfs_init_fs_root(struct btrfs_root
+ 	spin_lock_init(&root->ino_cache_lock);
+ 	init_waitqueue_head(&root->ino_cache_wait);
+ 
+-	ret = get_anon_bdev(&root->anon_dev);
+-	if (ret)
+-		goto fail;
++	/*
++	 * Don't assign anonymous block device to roots that are not exposed to
++	 * userspace, the id pool is limited to 1M
++	 */
++	if (is_fstree(root->root_key.objectid) &&
++	    btrfs_root_refs(&root->root_item) > 0) {
++		ret = get_anon_bdev(&root->anon_dev);
++		if (ret)
++			goto fail;
++	}
+ 
+ 	mutex_lock(&root->objectid_mutex);
+ 	ret = btrfs_find_highest_objectid(root,
 
 
