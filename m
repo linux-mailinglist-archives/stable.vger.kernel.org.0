@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DDD24BE99
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A099F24BE52
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgHTJdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
+        id S1730753AbgHTNXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:23:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728063AbgHTJcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:08 -0400
+        id S1727075AbgHTJeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:34:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61A04207DE;
-        Thu, 20 Aug 2020 09:32:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0076822CA0;
+        Thu, 20 Aug 2020 09:34:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915927;
-        bh=4fzfIvN+NcbSnlAg6+7Q33xB9C/POBwhAntdAp9XSBs=;
+        s=default; t=1597916051;
+        bh=Q1zIU5SuzkyJ10BIgp1gFKULbwqkncB9RaWdhQ0CRdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYHl9dT+tbx59+MQ2N5LxVaIw1RxzbH5s9hrIrxvwn7a6g+wMtfKJLbR/7W76BSYr
-         gVG1AYtZzctKGBTk4Zr6Yfdhsmg3kHE1+xKfslKrUqmqWclBZq8aY4MfCL8HNkazs8
-         GDkL/TkI80EkIXXQ5q70nRa+bcPaEzfhJIHPhyZ0=
+        b=IXJuuQtrNTArGW2DkDW5IKD6stb491fJyg2wcCIKc0rtBNqpi/gW5jTrp0aDWPl7q
+         n/KdlUQv7iHIWrEzhrT9Rj+hFv1wXOxesvysCgTGDtYsj2zudhqOTxgI71WeN0j/kp
+         Q2TJViNKJSK6pXyLAcvquv0CdPPs7QhBvtdPraq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 183/232] scsi: lpfc: nvmet: Avoid hang / use-after-free again when destroying targetport
-Date:   Thu, 20 Aug 2020 11:20:34 +0200
-Message-Id: <20200820091621.668630975@linuxfoundation.org>
+Subject: [PATCH 5.8 187/232] md-cluster: Fix potential error pointer dereference in resize_bitmaps()
+Date:   Thu, 20 Aug 2020 11:20:38 +0200
+Message-Id: <20200820091621.853179966@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,45 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit af6de8c60fe9433afa73cea6fcccdccd98ad3e5e ]
+[ Upstream commit e8abe1de43dac658dacbd04a4543e0c988a8d386 ]
 
-We cannot wait on a completion object in the lpfc_nvme_targetport structure
-in the _destroy_targetport() code path because the NVMe/fc transport will
-free that structure immediately after the .targetport_delete() callback.
-This results in a use-after-free, and a crash if slub_debug=FZPU is
-enabled.
+The error handling calls md_bitmap_free(bitmap) which checks for NULL
+but will Oops if we pass an error pointer.  Let's set "bitmap" to NULL
+on this error path.
 
-An earlier fix put put the completion on the stack, but commit 2a0fb340fcc8
-("scsi: lpfc: Correct localport timeout duration error") subsequently
-changed the code to reference the completion through a pointer in the
-object rather than the local stack variable.  Fix this by using the stack
-variable directly.
-
-Link: https://lore.kernel.org/r/20200729231011.13240-1-emilne@redhat.com
-Fixes: 2a0fb340fcc8 ("scsi: lpfc: Correct localport timeout duration error")
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: afd756286083 ("md-cluster/raid10: resize all the bitmaps before start reshape")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvmet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/md-cluster.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index 88760416a8cbd..fcd9d4c2f1ee0 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -2112,7 +2112,7 @@ lpfc_nvmet_destroy_targetport(struct lpfc_hba *phba)
+diff --git a/drivers/md/md-cluster.c b/drivers/md/md-cluster.c
+index 73fd50e779754..d50737ec40394 100644
+--- a/drivers/md/md-cluster.c
++++ b/drivers/md/md-cluster.c
+@@ -1139,6 +1139,7 @@ static int resize_bitmaps(struct mddev *mddev, sector_t newsize, sector_t oldsiz
+ 		bitmap = get_bitmap_from_slot(mddev, i);
+ 		if (IS_ERR(bitmap)) {
+ 			pr_err("can't get bitmap from slot %d\n", i);
++			bitmap = NULL;
+ 			goto out;
  		}
- 		tgtp->tport_unreg_cmp = &tport_unreg_cmp;
- 		nvmet_fc_unregister_targetport(phba->targetport);
--		if (!wait_for_completion_timeout(tgtp->tport_unreg_cmp,
-+		if (!wait_for_completion_timeout(&tport_unreg_cmp,
- 					msecs_to_jiffies(LPFC_NVMET_WAIT_TMO)))
- 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME,
- 					"6179 Unreg targetport x%px timeout "
+ 		counts = &bitmap->counts;
 -- 
 2.25.1
 
