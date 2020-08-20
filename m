@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C93D924BA83
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E0524BA52
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730349AbgHTMKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:10:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
+        id S1730240AbgHTJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730067AbgHTJ5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:57:54 -0400
+        id S1730027AbgHTJ57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:57:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 212F82173E;
-        Thu, 20 Aug 2020 09:57:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE78E22B43;
+        Thu, 20 Aug 2020 09:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917473;
-        bh=C2iYf0ypaFI5ARPAfe2GCMFTbJDJ0PIUh6HCGhP0Q3U=;
+        s=default; t=1597917479;
+        bh=ysS3LGq+470SGw6FYTetlB33DoPN5s8hyLYUhLe+03M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNFC4JOr+EauFWi84clgxq8h/g20gZNHUxwFkW5Ie8kdDpuqA+DUOYV9C9bO9wg9/
-         LMkt+SAj5cEHOPIwzgU5PPxZiTBZyHa55cRlw5wSfG++jxd0A3Iq7BFz4QUC3Mg5uD
-         0Qd3HM+URHcI3NhTRl+tVHtrBiyHd6Tpn4xJvy/8=
+        b=axZq+jOmz3V16jRSXJrKIrRkFjJgFdgVQfDKeRDco6ihdztoLqToGObBA5u+pOiaK
+         yY02ysj9LOSPFHSyq+3Lz4tHjzzEiRpd0nuzpHsaKF8svOkh5zS0/6jgcW/LlN+KZl
+         q6801/zqBNtu09NUH9E6szrq7E44ofC8oYLbrxZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 044/212] x86/i8259: Use printk_deferred() to prevent deadlock
-Date:   Thu, 20 Aug 2020 11:20:17 +0200
-Message-Id: <20200820091604.594853618@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 046/212] ARM: percpu.h: fix build error
+Date:   Thu, 20 Aug 2020 11:20:19 +0200
+Message-Id: <20200820091604.699539923@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,51 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-commit bdd65589593edd79b6a12ce86b3b7a7c6dae5208 upstream.
+commit aa54ea903abb02303bf55855fb51e3fcee135d70 upstream.
 
-0day reported a possible circular locking dependency:
+Fix build error for the case:
+  defined(CONFIG_SMP) && !defined(CONFIG_CPU_V6)
 
-Chain exists of:
-  &irq_desc_lock_class --> console_owner --> &port_lock_key
+config: keystone_defconfig
 
- Possible unsafe locking scenario:
+  CC      arch/arm/kernel/signal.o
+  In file included from ../include/linux/random.h:14,
+                    from ../arch/arm/kernel/signal.c:8:
+  ../arch/arm/include/asm/percpu.h: In function ‘__my_cpu_offset’:
+  ../arch/arm/include/asm/percpu.h:29:34: error: ‘current_stack_pointer’ undeclared (first use in this function); did you mean ‘user_stack_pointer’?
+      : "Q" (*(const unsigned long *)current_stack_pointer));
+                                     ^~~~~~~~~~~~~~~~~~~~~
+                                     user_stack_pointer
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&port_lock_key);
-                               lock(console_owner);
-                               lock(&port_lock_key);
-  lock(&irq_desc_lock_class);
-
-The reason for this is a printk() in the i8259 interrupt chip driver
-which is invoked with the irq descriptor lock held, which reverses the
-lock operations vs. printk() from arbitrary contexts.
-
-Switch the printk() to printk_deferred() to avoid that.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87365abt2v.fsf@nanos.tec.linutronix.de
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/i8259.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/percpu.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -205,7 +205,7 @@ spurious_8259A_irq:
- 		 * lets ACK and report it. [once per IRQ]
- 		 */
- 		if (!(spurious_irq_mask & irqmask)) {
--			printk(KERN_DEBUG
-+			printk_deferred(KERN_DEBUG
- 			       "spurious 8259A interrupt: IRQ%d.\n", irq);
- 			spurious_irq_mask |= irqmask;
- 		}
+--- a/arch/arm/include/asm/percpu.h
++++ b/arch/arm/include/asm/percpu.h
+@@ -16,6 +16,8 @@
+ #ifndef _ASM_ARM_PERCPU_H_
+ #define _ASM_ARM_PERCPU_H_
+ 
++#include <asm/thread_info.h>
++
+ /*
+  * Same as asm-generic/percpu.h, except that we store the per cpu offset
+  * in the TPIDRPRW. TPIDRPRW only exists on V6K and V7
 
 
