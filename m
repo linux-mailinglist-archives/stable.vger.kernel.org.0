@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A670824BB3A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B0D424BB02
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729148AbgHTMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35180 "EHLO mail.kernel.org"
+        id S1728976AbgHTMVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:21:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729455AbgHTJxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:23 -0400
+        id S1729785AbgHTJzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:55:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B8492075E;
-        Thu, 20 Aug 2020 09:53:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B4252067C;
+        Thu, 20 Aug 2020 09:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917202;
-        bh=nDS9YM9aJxkFu5ZzfkTqvZdFAxXbEzlO2tlYmVHlIJo=;
+        s=default; t=1597917323;
+        bh=CeS91MIj9HIsTs8itkw8y0H2YxrRKZu/2ajiSiKx1Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eda2NLqv6yOYee+CoyL+mcXm8cG7aczWcAxzMzWTS8ZobWO++Vo2x06Ehjta9V7wf
-         kH/rPwUEAVZFzGGoOS8Ou+1IB2WEfgbpR13sm4yDQraTYnIIQQaCEg8mKds0ZtcOFK
-         VBkniqCWCl0+sFx7959ixq+lOwWnGu7Qnj7fMT7M=
+        b=Pz7iJezlP5ZOD82k6QL2c7dww0ELH7IJ0/nSATYIuY2FFSm1nlk/Muta5j0a92kXc
+         +MYS9MVbRZ5lMlbDI0axUfgqKo7YykajXXA1VB1lpJJ8hvJjXh16LDCFWY5pJz0Prr
+         y7yta3GchWz540rAqyhEvcHoVbXP+ayZdlQgvmF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Kevin Hao <haokexin@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 39/92] tracing/hwlat: Honor the tracing_cpumask
-Date:   Thu, 20 Aug 2020 11:21:24 +0200
-Message-Id: <20200820091539.647153467@linuxfoundation.org>
+        stable@vger.kernel.org, Anton Blanchard <anton@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 44/92] pseries: Fix 64 bit logical memory block panic
+Date:   Thu, 20 Aug 2020 11:21:29 +0200
+Message-Id: <20200820091539.916876717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -44,54 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Anton Blanchard <anton@ozlabs.org>
 
-commit 96b4833b6827a62c295b149213c68b559514c929 upstream.
+commit 89c140bbaeee7a55ed0360a88f294ead2b95201b upstream.
 
-In calculation of the cpu mask for the hwlat kernel thread, the wrong
-cpu mask is used instead of the tracing_cpumask, this causes the
-tracing/tracing_cpumask useless for hwlat tracer. Fixes it.
+Booting with a 4GB LMB size causes us to panic:
 
-Link: https://lkml.kernel.org/r/20200730082318.42584-2-haokexin@gmail.com
+  qemu-system-ppc64: OS terminated: OS panic:
+      Memory block size not suitable: 0x0
 
-Cc: Ingo Molnar <mingo@redhat.com>
+Fix pseries_memory_block_size() to handle 64 bit LMBs.
+
 Cc: stable@vger.kernel.org
-Fixes: 0330f7aa8ee6 ("tracing: Have hwlat trace migrate across tracing_cpumask CPUs")
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Anton Blanchard <anton@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200715000820.1255764-1-anton@ozlabs.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_hwlat.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -270,6 +270,7 @@ static bool disable_migrate;
- static void move_to_next_cpu(void)
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -31,7 +31,7 @@ static bool rtas_hp_event;
+ unsigned long pseries_memory_block_size(void)
  {
- 	struct cpumask *current_mask = &save_cpumask;
-+	struct trace_array *tr = hwlat_trace;
- 	int next_cpu;
+ 	struct device_node *np;
+-	unsigned int memblock_size = MIN_MEMORY_BLOCK_SIZE;
++	u64 memblock_size = MIN_MEMORY_BLOCK_SIZE;
+ 	struct resource r;
  
- 	if (disable_migrate)
-@@ -283,7 +284,7 @@ static void move_to_next_cpu(void)
- 		goto disable;
- 
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	next_cpu = cpumask_next(smp_processor_id(), current_mask);
- 	put_online_cpus();
- 
-@@ -360,7 +361,7 @@ static int start_kthread(struct trace_ar
- 	/* Just pick the first CPU on first iteration */
- 	current_mask = &save_cpumask;
- 	get_online_cpus();
--	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
-+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
- 	put_online_cpus();
- 	next_cpu = cpumask_first(current_mask);
- 
+ 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 
 
