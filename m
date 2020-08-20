@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC24824B739
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 489D824B73C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730798AbgHTKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:15:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
+        id S1731235AbgHTKPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:15:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731008AbgHTKPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:15:07 -0400
+        id S1730885AbgHTKPK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:15:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BF4020738;
-        Thu, 20 Aug 2020 10:15:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 811DA206DA;
+        Thu, 20 Aug 2020 10:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918506;
-        bh=LIyGF576MagAjqOt06FNqkLGN4XwGvEsX1dTekAscic=;
+        s=default; t=1597918510;
+        bh=pnt4/geO55nGue81dEjTd/j8mVKqhkMxV0Yjd7E66tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABp2YiZVAGI2/rvW3Ll+ufHJo/oMM+SFw1xlrQzN8zetO8yUKBaKEg5YSpgftPfmu
-         lkGGSvd5WQYAONhRYCVoNGg19RykL1yAVjhBxvzLqZ+VQqfR/cXOvQXWz30yDBureA
-         YSrIpkmZIzLAQZbck0miolFAzSH8d7tvr0Erccso=
+        b=y4pR5Y8XE1CtBAnyrrgPGqhdMc03Oo0wkVDgmzEzP0tkQpgiL7lrcrkm9248eK53i
+         FfbApHyZdcVg5l8ZTTxX5hHDo4n94Vs01bJe4PkITYmfBlDSLHWHnjBDkD2bmC5kU8
+         34nBTqJFt0peHWqD/HF/4VZwvF/m2i0aOcTMCUYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 196/228] RDMA/ipoib: Return void from ipoib_ib_dev_stop()
-Date:   Thu, 20 Aug 2020 11:22:51 +0200
-Message-Id: <20200820091617.361805582@linuxfoundation.org>
+Subject: [PATCH 4.14 197/228] USB: serial: ftdi_sio: make process-packet buffer unsigned
+Date:   Thu, 20 Aug 2020 11:22:52 +0200
+Message-Id: <20200820091617.412004633@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,57 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 95a5631f6c9f3045f26245e6045244652204dfdb ]
+[ Upstream commit ab4cc4ef6724ea588e835fc1e764c4b4407a70b7 ]
 
-The return value from ipoib_ib_dev_stop() is always 0 - change it to be
-void.
+Use an unsigned type for the process-packet buffer argument and give it
+a more apt name.
 
-Link: https://lore.kernel.org/r/20200623105236.18683-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib.h    | 2 +-
- drivers/infiniband/ulp/ipoib/ipoib_ib.c | 4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ftdi_sio.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
-index 4a5c7a07a6315..268e23ba4a636 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib.h
-+++ b/drivers/infiniband/ulp/ipoib/ipoib.h
-@@ -509,7 +509,7 @@ void ipoib_ib_dev_cleanup(struct net_device *dev);
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index a962065227c48..4959fcac5e030 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -2042,12 +2042,12 @@ static int ftdi_prepare_write_buffer(struct usb_serial_port *port,
+ #define FTDI_RS_ERR_MASK (FTDI_RS_BI | FTDI_RS_PE | FTDI_RS_FE | FTDI_RS_OE)
  
- int ipoib_ib_dev_open_default(struct net_device *dev);
- int ipoib_ib_dev_open(struct net_device *dev);
--int ipoib_ib_dev_stop(struct net_device *dev);
-+void ipoib_ib_dev_stop(struct net_device *dev);
- void ipoib_ib_dev_up(struct net_device *dev);
- void ipoib_ib_dev_down(struct net_device *dev);
- int ipoib_ib_dev_stop_default(struct net_device *dev);
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ib.c b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-index d77e8e2ae05f2..8e1f48fe6f2e7 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-@@ -809,7 +809,7 @@ int ipoib_ib_dev_stop_default(struct net_device *dev)
- 	return 0;
- }
- 
--int ipoib_ib_dev_stop(struct net_device *dev)
-+void ipoib_ib_dev_stop(struct net_device *dev)
+ static int ftdi_process_packet(struct usb_serial_port *port,
+-		struct ftdi_private *priv, char *packet, int len)
++		struct ftdi_private *priv, unsigned char *buf, int len)
  {
- 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
++	unsigned char status;
++	unsigned char *ch;
+ 	int i;
+-	char status;
+ 	char flag;
+-	char *ch;
  
-@@ -817,8 +817,6 @@ int ipoib_ib_dev_stop(struct net_device *dev)
+ 	if (len < 2) {
+ 		dev_dbg(&port->dev, "malformed packet\n");
+@@ -2057,7 +2057,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	/* Compare new line status to the old one, signal if different/
+ 	   N.B. packet may be processed more than once, but differences
+ 	   are only processed once.  */
+-	status = packet[0] & FTDI_STATUS_B0_MASK;
++	status = buf[0] & FTDI_STATUS_B0_MASK;
+ 	if (status != priv->prev_status) {
+ 		char diff_status = status ^ priv->prev_status;
  
- 	clear_bit(IPOIB_FLAG_INITIALIZED, &priv->flags);
- 	ipoib_flush_ah(dev);
--
--	return 0;
- }
+@@ -2083,7 +2083,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	}
  
- void ipoib_ib_tx_timer_func(unsigned long ctx)
+ 	/* save if the transmitter is empty or not */
+-	if (packet[1] & FTDI_RS_TEMT)
++	if (buf[1] & FTDI_RS_TEMT)
+ 		priv->transmit_empty = 1;
+ 	else
+ 		priv->transmit_empty = 0;
+@@ -2097,29 +2097,29 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	 * data payload to avoid over-reporting.
+ 	 */
+ 	flag = TTY_NORMAL;
+-	if (packet[1] & FTDI_RS_ERR_MASK) {
++	if (buf[1] & FTDI_RS_ERR_MASK) {
+ 		/* Break takes precedence over parity, which takes precedence
+ 		 * over framing errors */
+-		if (packet[1] & FTDI_RS_BI) {
++		if (buf[1] & FTDI_RS_BI) {
+ 			flag = TTY_BREAK;
+ 			port->icount.brk++;
+ 			usb_serial_handle_break(port);
+-		} else if (packet[1] & FTDI_RS_PE) {
++		} else if (buf[1] & FTDI_RS_PE) {
+ 			flag = TTY_PARITY;
+ 			port->icount.parity++;
+-		} else if (packet[1] & FTDI_RS_FE) {
++		} else if (buf[1] & FTDI_RS_FE) {
+ 			flag = TTY_FRAME;
+ 			port->icount.frame++;
+ 		}
+ 		/* Overrun is special, not associated with a char */
+-		if (packet[1] & FTDI_RS_OE) {
++		if (buf[1] & FTDI_RS_OE) {
+ 			port->icount.overrun++;
+ 			tty_insert_flip_char(&port->port, 0, TTY_OVERRUN);
+ 		}
+ 	}
+ 
+ 	port->icount.rx += len;
+-	ch = packet + 2;
++	ch = buf + 2;
+ 
+ 	if (port->port.console && port->sysrq) {
+ 		for (i = 0; i < len; i++, ch++) {
 -- 
 2.25.1
 
