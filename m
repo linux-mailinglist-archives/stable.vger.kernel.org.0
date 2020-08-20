@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA3F24AB7C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE9124AB6D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728281AbgHTAK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59188 "EHLO mail.kernel.org"
+        id S1727885AbgHTAKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:10:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727935AbgHTACY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:02:24 -0400
+        id S1727941AbgHTACZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:02:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4A1B22B3F;
-        Thu, 20 Aug 2020 00:02:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2551207FB;
+        Thu, 20 Aug 2020 00:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881744;
-        bh=DaLrVr7gb8fmO/aKLBWZESC8SZ7KeLFUyl9HyttA2JA=;
+        s=default; t=1597881745;
+        bh=ObB8scPObpqBxHgYAz3uByh5AW7ZXQnLWcvr0snphRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjWC22N2+9mFlgpipb3B7QT5xH8SWjTwA1bSj/3F6ZWbrshIGHn2bFJmsAB+PrgS+
-         5So0uT63FXf01/YBefI14dycz7rvdjIr2AkLPwJpl5JzgEho3/YbxJ/IL4uj2XXYFE
-         J+5qUajIJxLPeSCpdu6zD+3limeMCI9wO8BYJj0w=
+        b=SKporQPeXzBCRAvKMnx7aBDoszrpZZlstb95xcyqifP3flZ3UmHBq4VV0EqEjZ5B5
+         gJdQuh6QXjEAa4FteRM59Xu9DlzEEKfis0rxTEZcsRljCzwmpboBJWzE1mmYDFqL3t
+         UsrkpT2lJ3m6I2/A7y7x8XD394LcKF9IIElR/Moc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gaurav Singh <gaurav1086@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Michal Koutn <mkoutny@suse.com>, Roman Gushchin <guro@fb.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Chris Down <chris@chrisdown.name>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 21/24]  tools/testing/selftests/cgroup/cgroup_util.c: cg_read_strcmp: fix null pointer dereference
-Date:   Wed, 19 Aug 2020 20:01:52 -0400
-Message-Id: <20200820000155.215089-21-sashal@kernel.org>
+Cc:     Eiichi Tsukata <devel@etsukata.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 22/24] xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
+Date:   Wed, 19 Aug 2020 20:01:53 -0400
+Message-Id: <20200820000155.215089-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000155.215089-1-sashal@kernel.org>
 References: <20200820000155.215089-1-sashal@kernel.org>
@@ -49,41 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Singh <gaurav1086@gmail.com>
+From: Eiichi Tsukata <devel@etsukata.com>
 
-[ Upstream commit d830020656c5b68ced962ed3cb51a90e0a89d4c4 ]
+[ Upstream commit 96cf2a2c75567ff56195fe3126d497a2e7e4379f ]
 
-Haven't reproduced this issue. This PR is does a minor code cleanup.
+If xfs_sysfs_init is called with parent_kobj == NULL, UBSAN
+shows the following warning:
 
-Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Michal Koutn <mkoutny@suse.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Chris Down <chris@chrisdown.name>
-Link: http://lkml.kernel.org/r/20200726013808.22242-1-gaurav1086@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  UBSAN: null-ptr-deref in ./fs/xfs/xfs_sysfs.h:37:23
+  member access within null pointer of type 'struct xfs_kobj'
+  Call Trace:
+   dump_stack+0x10e/0x195
+   ubsan_type_mismatch_common+0x241/0x280
+   __ubsan_handle_type_mismatch_v1+0x32/0x40
+   init_xfs_fs+0x12b/0x28f
+   do_one_initcall+0xdd/0x1d0
+   do_initcall_level+0x151/0x1b6
+   do_initcalls+0x50/0x8f
+   do_basic_setup+0x29/0x2b
+   kernel_init_freeable+0x19f/0x20b
+   kernel_init+0x11/0x1e0
+   ret_from_fork+0x22/0x30
+
+Fix it by checking parent_kobj before the code accesses its member.
+
+Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: minor whitespace edits]
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/cgroup/cgroup_util.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_sysfs.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/cgroup/cgroup_util.c b/tools/testing/selftests/cgroup/cgroup_util.c
-index 8a637ca7d73a4..05853b0b88318 100644
---- a/tools/testing/selftests/cgroup/cgroup_util.c
-+++ b/tools/testing/selftests/cgroup/cgroup_util.c
-@@ -106,7 +106,7 @@ int cg_read_strcmp(const char *cgroup, const char *control,
+diff --git a/fs/xfs/xfs_sysfs.h b/fs/xfs/xfs_sysfs.h
+index e9f810fc67317..43585850f1546 100644
+--- a/fs/xfs/xfs_sysfs.h
++++ b/fs/xfs/xfs_sysfs.h
+@@ -32,9 +32,11 @@ xfs_sysfs_init(
+ 	struct xfs_kobj		*parent_kobj,
+ 	const char		*name)
+ {
++	struct kobject		*parent;
++
++	parent = parent_kobj ? &parent_kobj->kobject : NULL;
+ 	init_completion(&kobj->complete);
+-	return kobject_init_and_add(&kobj->kobject, ktype,
+-				    &parent_kobj->kobject, "%s", name);
++	return kobject_init_and_add(&kobj->kobject, ktype, parent, "%s", name);
+ }
  
- 	/* Handle the case of comparing against empty string */
- 	if (!expected)
--		size = 32;
-+		return -1;
- 	else
- 		size = strlen(expected) + 1;
- 
+ static inline void
 -- 
 2.25.1
 
