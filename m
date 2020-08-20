@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8929D24BE16
+	by mail.lfdr.de (Postfix) with ESMTP id 2372224BE15
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727014AbgHTNU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729758AbgHTNU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46886 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728360AbgHTJeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:34:36 -0400
+        id S1728356AbgHTJej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:34:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE56322C9F;
-        Thu, 20 Aug 2020 09:34:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30043207DE;
+        Thu, 20 Aug 2020 09:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916076;
-        bh=qvaLxjbELX6OsMf9i4nIX/FIJZiEThNuKSSd5MVM3PY=;
+        s=default; t=1597916078;
+        bh=PYm1YdzOgnEy5JZMauBSEgwdXRhAd+E8W4WGpcJD7eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5fT5q7gkvS1N2MKv7eVjVJVpNpVlcGJrhsLQnR+n10fACbjvjesmgSL9YmeWRHad
-         N/NO7w0+jemEU+TdVBEaLCt9QDJt7ZtSYIchWmkZHcHSGMqbkooqJnelHtATUFlswg
-         4fjHmh8FIiJUHF3bO7nDk60hvILiE0wAJWnoNeV8=
+        b=I7Zl6ag/U33z2NRMOcI5XGGKtdQbPdqsX0UtbDxmrvXQt3FGN5bDoEa641HQxnDYy
+         5oW066a1syNog5X4/lf+nxZMVS6wIjHFTrMn34oK21tT+gA2jxsxEbvqhOwOZr9yeQ
+         r/socVvU02dqv0wiTsBYcqpl4ClA2HxQR3flKuHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Sean Paul <sean@poorly.run>, Wayne Lin <Wayne.Lin@amd.com>,
-        Imre Deak <imre.deak@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 5.8 224/232] drm/dp_mst: Fix timeout handling of MST down messages
-Date:   Thu, 20 Aug 2020 11:21:15 +0200
-Message-Id: <20200820091623.632192222@linuxfoundation.org>
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.8 225/232] drm/dp_mst: Fix the DDC I2C device unregistration of an MST port
+Date:   Thu, 20 Aug 2020 11:21:16 +0200
+Message-Id: <20200820091623.681289246@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -48,57 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Imre Deak <imre.deak@intel.com>
 
-commit 58c1721787be8a6ff28b4e5b6ce395915476871e upstream.
+commit 7d11507605a75fcb2159b93d1fe8213b363a2c20 upstream.
 
-This fixes the following use-after-free problem in case an MST down
-message times out, while waiting for the response for it:
+The WARN below triggers during the removal of an MST port. The problem
+is that the parent device's (the connector's kdev) sysfs directory is
+removed recursively when the connector is unregistered (even though the
+I2C device holds a reference on the parent device). To fix this set
+first the Peer Device Type to none which will remove the I2C device.
 
-[  449.022841] [drm:drm_dp_mst_wait_tx_reply.isra.26] timedout msg send 0000000080ba7fa2 2 0
-[  449.022898] ------------[ cut here ]------------
-[  449.022903] list_add corruption. prev->next should be next (ffff88847dae32c0), but was 6b6b6b6b6b6b6b6b. (prev=ffff88847db1c140).
-[  449.022931] WARNING: CPU: 2 PID: 22 at lib/list_debug.c:28 __list_add_valid+0x4d/0x70
-[  449.022935] Modules linked in: asix usbnet mii snd_hda_codec_hdmi mei_hdcp i915 x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_intel snd_intel_dspcfg snd_hda_codec snd_hwdep e1000e snd_hda_core ptp snd_pcm pps_core mei_me mei intel_lpss_pci prime_numbers
-[  449.022966] CPU: 2 PID: 22 Comm: kworker/2:0 Not tainted 5.7.0-rc3-CI-Patchwork_17536+ #1
-[  449.022970] Hardware name: Intel Corporation Tiger Lake Client Platform/TigerLake U DDR4 SODIMM RVP, BIOS TGLSFWI1.R00.2457.A16.1912270059 12/27/2019
-[  449.022976] Workqueue: events_long drm_dp_mst_link_probe_work
-[  449.022982] RIP: 0010:__list_add_valid+0x4d/0x70
-[  449.022987] Code: c3 48 89 d1 48 c7 c7 f0 e7 32 82 48 89 c2 e8 3a 49 b7 ff 0f 0b 31 c0 c3 48 89 c1 4c 89 c6 48 c7 c7 40 e8 32 82 e8 23 49 b7 ff <0f> 0b 31 c0 c3 48 89 f2 4c 89 c1 48 89 fe 48 c7 c7 90 e8 32 82 e8
-[  449.022991] RSP: 0018:ffffc900001abcb0 EFLAGS: 00010286
-[  449.022995] RAX: 0000000000000000 RBX: ffff88847dae2d58 RCX: 0000000000000001
-[  449.022999] RDX: 0000000080000001 RSI: ffff88849d914978 RDI: 00000000ffffffff
-[  449.023002] RBP: ffff88847dae32c0 R08: ffff88849d914978 R09: 0000000000000000
-[  449.023006] R10: ffffc900001abcb8 R11: 0000000000000000 R12: ffff888490d98400
-[  449.023009] R13: ffff88847dae3230 R14: ffff88847db1c140 R15: ffff888490d98540
-[  449.023013] FS:  0000000000000000(0000) GS:ffff88849ff00000(0000) knlGS:0000000000000000
-[  449.023017] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  449.023021] CR2: 00007fb96fafdc63 CR3: 0000000005610004 CR4: 0000000000760ee0
-[  449.023025] PKRU: 55555554
-[  449.023028] Call Trace:
-[  449.023034]  drm_dp_queue_down_tx+0x59/0x110
-[  449.023041]  ? rcu_read_lock_sched_held+0x4d/0x80
-[  449.023050]  ? kmem_cache_alloc_trace+0x2a6/0x2d0
-[  449.023060]  drm_dp_send_link_address+0x74/0x870
-[  449.023065]  ? __slab_free+0x3e1/0x5c0
-[  449.023071]  ? lockdep_hardirqs_on+0xe0/0x1c0
-[  449.023078]  ? lockdep_hardirqs_on+0xe0/0x1c0
-[  449.023097]  drm_dp_check_and_send_link_address+0x9a/0xc0
-[  449.023106]  drm_dp_mst_link_probe_work+0x9e/0x160
-[  449.023117]  process_one_work+0x268/0x600
-[  449.023124]  ? __schedule+0x307/0x8d0
-[  449.023139]  worker_thread+0x37/0x380
-[  449.023149]  ? process_one_work+0x600/0x600
-[  449.023153]  kthread+0x140/0x160
-[  449.023159]  ? kthread_park+0x80/0x80
-[  449.023169]  ret_from_fork+0x24/0x50
+Note that atm, inconsistently, the parent of the I2C device is initially set to
+the DRM kdev and after a Connection Status Notification the parent may be reset
+to be the connector's kdev. This problem is addressed by the next patch.
 
-Fixes: d308a881a591 ("drm/dp_mst: Kill the second sideband tx slot, save the world")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: <stable@vger.kernel.org> # v3.17+
+[ 4462.989299] ------------[ cut here ]------------
+[ 4463.014940] sysfs group 'power' not found for kobject 'i2c-24'
+[ 4463.034664] WARNING: CPU: 0 PID: 970 at fs/sysfs/group.c:281 sysfs_remove_group+0x71/0x80
+[ 4463.044357] Modules linked in: snd_hda_intel i915 drm_kms_helper(O) drm netconsole snd_hda_codec_hdmi mei_hdcp x86_pkg_temp_thermal coretemp crct10dif_pclmul snd_intel_dspcf
+g crc32_pclmul snd_hda_codec snd_hwdep ghash_clmulni_intel snd_hda_core asix usbnet kvm_intel mii i2c_algo_bit snd_pcm syscopyarea sysfillrect e1000e sysimgblt fb_sys_fops prim
+e_numbers ptp pps_core i2c_i801 r8169 mei_me realtek mei [last unloaded: drm]
+[ 4463.044399] CPU: 0 PID: 970 Comm: kworker/0:2 Tainted: G           O      5.7.0+ #172
+[ 4463.044402] Hardware name: Intel Corporation Tiger Lake Client Platform/TigerLake U DDR4 SODIMM RVP
+[ 4463.044423] Workqueue: events drm_dp_delayed_destroy_work [drm_kms_helper]
+[ 4463.044428] RIP: 0010:sysfs_remove_group+0x71/0x80
+[ 4463.044431] Code: 48 89 df 5b 5d 41 5c e9 cd b6 ff ff 48 89 df e8 95 b4 ff ff eb cb 49 8b 14 24 48 8b 75 00 48 c7 c7 20 0f 3f 82 e8 9f c5 d7 ff <0f> 0b 5b 5d 41 5c c3 0f 1f
+84 00 00 00 00 00 48 85 f6 74 31 41 54
+[ 4463.044433] RSP: 0018:ffffc900018bfbf0 EFLAGS: 00010282
+[ 4463.044436] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000001
+[ 4463.044439] RDX: 0000000080000001 RSI: ffff88849e828f38 RDI: 00000000ffffffff
+[ 4463.052970] [drm:drm_atomic_get_plane_state [drm]] Added [PLANE:100:plane 2B] 00000000c2160caa state to 00000000d172564a
+[ 4463.070533] RBP: ffffffff820cea20 R08: ffff88847f4b8958 R09: 0000000000000000
+[ 4463.070535] R10: 0000000000000000 R11: 0000000000000000 R12: ffff88848a725018
+[ 4463.070537] R13: 0000000000000000 R14: ffffffff827090e0 R15: 0000000000000002
+[ 4463.070539] FS:  0000000000000000(0000) GS:ffff88849e800000(0000) knlGS:0000000000000000
+[ 4463.070541] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 4463.070543] CR2: 00007fdf8a756538 CR3: 0000000489684001 CR4: 0000000000760ef0
+[ 4463.070545] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 4463.070547] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 4463.070549] PKRU: 55555554
+[ 4463.070551] Call Trace:
+[ 4463.070560]  device_del+0x84/0x400
+[ 4463.070571]  cdev_device_del+0x10/0x30
+[ 4463.070578]  put_i2c_dev+0x69/0x80
+[ 4463.070584]  i2cdev_detach_adapter+0x2e/0x60
+[ 4463.070591]  notifier_call_chain+0x34/0x90
+[ 4463.070599]  blocking_notifier_call_chain+0x3f/0x60
+[ 4463.070606]  device_del+0x7c/0x400
+[ 4463.087817]  ? lockdep_init_map_waits+0x57/0x210
+[ 4463.087825]  device_unregister+0x11/0x60
+[ 4463.087829]  i2c_del_adapter+0x249/0x310
+[ 4463.087846]  drm_dp_port_set_pdt+0x6b/0x2c0 [drm_kms_helper]
+[ 4463.087862]  drm_dp_delayed_destroy_work+0x2af/0x350 [drm_kms_helper]
+[ 4463.087876]  process_one_work+0x268/0x600
+[ 4463.105438]  ? __schedule+0x30c/0x920
+[ 4463.105451]  worker_thread+0x37/0x380
+[ 4463.105457]  ? process_one_work+0x600/0x600
+[ 4463.105462]  kthread+0x140/0x160
+[ 4463.105466]  ? kthread_park+0x80/0x80
+[ 4463.105474]  ret_from_fork+0x24/0x50
+
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200513103155.12336-1-imre.deak@intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200607212522.16935-1-imre.deak@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
@@ -107,15 +117,20 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/drm_dp_mst_topology.c
 +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1197,7 +1197,8 @@ static int drm_dp_mst_wait_tx_reply(stru
- 
- 		/* remove from q */
- 		if (txmsg->state == DRM_DP_SIDEBAND_TX_QUEUED ||
--		    txmsg->state == DRM_DP_SIDEBAND_TX_START_SEND)
-+		    txmsg->state == DRM_DP_SIDEBAND_TX_START_SEND ||
-+		    txmsg->state == DRM_DP_SIDEBAND_TX_SENT)
- 			list_del(&txmsg->next);
+@@ -4642,12 +4642,13 @@ static void drm_dp_tx_work(struct work_s
+ static inline void
+ drm_dp_delayed_destroy_port(struct drm_dp_mst_port *port)
+ {
++	drm_dp_port_set_pdt(port, DP_PEER_DEVICE_NONE, port->mcs);
++
+ 	if (port->connector) {
+ 		drm_connector_unregister(port->connector);
+ 		drm_connector_put(port->connector);
  	}
- out:
+ 
+-	drm_dp_port_set_pdt(port, DP_PEER_DEVICE_NONE, port->mcs);
+ 	drm_dp_mst_put_port_malloc(port);
+ }
+ 
 
 
