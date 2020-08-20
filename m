@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBE824B62F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E0324B78F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:59:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731117AbgHTKdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43698 "EHLO mail.kernel.org"
+        id S1731109AbgHTKNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:13:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727959AbgHTKTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:19:42 -0400
+        id S1730822AbgHTKNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B253E20658;
-        Thu, 20 Aug 2020 10:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C84C2206DA;
+        Thu, 20 Aug 2020 10:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918781;
-        bh=0Z2hUltLq069wZa+/qtp3R/ZhGVZS5aJq14Fu82lEZw=;
+        s=default; t=1597918427;
+        bh=7xMbWi8u2MztLyU+DFZFgOrpTUybRCIU3q3jbvbycHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtPvmGavQZCeE7gVusdE0xmPeYhr9ziI02D2rjl/CuKGGsOl89fXx9sg24oZ1lByd
-         VexfNgti8DIjD/CqT6PclKHzBeFI+hlHMIXeBQqssruOdkDuHnj8d2sSafiYZMPqDa
-         tD8+4WPzG3l2x8n0pyCi/OQNetY32CgFrf778oJ4=
+        b=1LJkEdoP36iN4SX9aL04G/uShCrwq0DEdQhe6+cPYzUFYLAs1YmfzEl8U79Vfhvzp
+         io1a6gaqsq1hDXndXIyy12nTH8G9jz0CFH14ODRU5QaUhwAc8IesWE2dmbU2WnNfIT
+         4fqk2WUJyCXDepj87CYZSU1/43I2JlhJjzz2qIks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 064/149] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Tim Froidcoeur <tim.froidcoeur@tessares.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 166/228] net: initialize fastreuse on inet_inherit_port
 Date:   Thu, 20 Aug 2020 11:22:21 +0200
-Message-Id: <20200820092128.843799533@linuxfoundation.org>
+Message-Id: <20200820091615.869366086@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Tim Froidcoeur <tim.froidcoeur@tessares.net>
 
-[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
+commit d76f3351cea2d927fdf70dd7c06898235035e84e upstream.
 
-Very large I/Os can cause the following RCU CPU stall warning:
+In the case of TPROXY, bind_conflict optimizations for SO_REUSEADDR or
+SO_REUSEPORT are broken, possibly resulting in O(n) instead of O(1) bind
+behaviour or in the incorrect reuse of a bind.
 
-RIP: 0010:rb_prev+0x8/0x50
-Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
-89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
-RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
-RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
-RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
-RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
-R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
-R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
- __lookup_extent_mapping+0xa0/0x110
- try_release_extent_mapping+0xdc/0x220
- btrfs_releasepage+0x45/0x70
- shrink_page_list+0xa39/0xb30
- shrink_inactive_list+0x18f/0x3b0
- shrink_lruvec+0x38e/0x6b0
- shrink_node+0x14d/0x690
- do_try_to_free_pages+0xc6/0x3e0
- try_to_free_mem_cgroup_pages+0xe6/0x1e0
- reclaim_high.constprop.73+0x87/0xc0
- mem_cgroup_handle_over_high+0x66/0x150
- exit_to_usermode_loop+0x82/0xd0
- do_syscall_64+0xd4/0x100
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+the kernel keeps track for each bind_bucket if all sockets in the
+bind_bucket support SO_REUSEADDR or SO_REUSEPORT in two fastreuse flags.
+These flags allow skipping the costly bind_conflict check when possible
+(meaning when all sockets have the proper SO_REUSE option).
 
-On a PREEMPT=n kernel, the try_release_extent_mapping() function's
-"while" loop might run for a very long time on a large I/O.  This commit
-therefore adds a cond_resched() to this loop, providing RCU any needed
-quiescent states.
+For every socket added to a bind_bucket, these flags need to be updated.
+As soon as a socket that does not support reuse is added, the flag is
+set to false and will never go back to true, unless the bind_bucket is
+deleted.
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that there is no mechanism to re-evaluate these flags when a socket
+is removed (this might make sense when removing a socket that would not
+allow reuse; this leaves room for a future patch).
+
+For this optimization to work, it is mandatory that these flags are
+properly initialized and updated.
+
+When a child socket is created from a listen socket in
+__inet_inherit_port, the TPROXY case could create a new bind bucket
+without properly initializing these flags, thus preventing the
+optimization to work. Alternatively, a socket not allowing reuse could
+be added to an existing bind bucket without updating the flags, causing
+bind_conflict to never be called as it should.
+
+Call inet_csk_update_fastreuse when __inet_inherit_port decides to create
+a new bind_bucket or use a different bind_bucket than the one of the
+listen socket.
+
+Fixes: 093d282321da ("tproxy: fix hash locking issue when using port redirection in __inet_inherit_port()")
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/extent_io.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/inet_hashtables.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 42b7409d4cc55..2f9f738ecf84a 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4437,6 +4437,8 @@ int try_release_extent_mapping(struct extent_map_tree *map,
- 
- 			/* once for us */
- 			free_extent_map(em);
-+
-+			cond_resched(); /* Allow large-extent preemption. */
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -160,6 +160,7 @@ int __inet_inherit_port(const struct soc
+ 				return -ENOMEM;
+ 			}
  		}
++		inet_csk_update_fastreuse(tb, child);
  	}
- 	return try_release_extent_state(map, tree, page, mask);
--- 
-2.25.1
-
+ 	inet_bind_hash(child, tb, port);
+ 	spin_unlock(&head->lock);
 
 
