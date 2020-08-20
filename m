@@ -2,61 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AA024BE48
+	by mail.lfdr.de (Postfix) with ESMTP id 9291224BE49
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730485AbgHTNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728412AbgHTNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbgHTJdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:33:47 -0400
+        id S1728425AbgHTJeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:34:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6602B22B49;
-        Thu, 20 Aug 2020 09:33:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51F7422B4B;
+        Thu, 20 Aug 2020 09:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916005;
-        bh=K9KMQFAcyvXCpKGPLlOIGzdhg4xgO8vb0fMc0YLqKwA=;
+        s=default; t=1597916007;
+        bh=TT6DbZYcI6OjD+XU96hy4Tpdh1TkN3Jidi8nyMpo5Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCd9f/Sz5efkJPkhyADsA6KX85bQ68hfJOHSW2oKEkeF2dk6IaR/BqbakOnHrAuxf
-         OVXUq1t9lYuAZeQWCAgccbszAq3GSoC/CKOtKeKyGjO9uwSOb4ZIUhYbJPDAHG3Y7T
-         hx3dmLP4n35kAv7g/AVl2WFbwp+bfBMVi27SzDQg=
+        b=r49PWMxUjThf82ljm29trZ85bSJH5p+HLNlm9mNo0YmS9GoGMvpGcmbtsAzkrbdEe
+         Sd32X3JvvjulzsFd4ViQaLWyUkC/jf1nU9O83+9Ou1OZHlFzDZ3lVmaYcHVAN0AX2k
+         zXQMQIYGjwFsxLWM/Kdt0i7VuLjmFvbS3V53/af8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kees Cook <keescook@chromium.org>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Sergey Kvachonok <ravenexp@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Tony Vroon <chainsaw@gentoo.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Dhananjay Phadke <dphadke@linux.microsoft.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 210/232] test_kmod: avoid potential double free in trigger_config_run_type()
-Date:   Thu, 20 Aug 2020 11:21:01 +0200
-Message-Id: <20200820091622.982699256@linuxfoundation.org>
+Subject: [PATCH 5.8 211/232] i2c: iproc: fix race between client unreg and isr
+Date:   Thu, 20 Aug 2020 11:21:02 +0200
+Message-Id: <20200820091623.025837505@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -69,63 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Dhananjay Phadke <dphadke@linux.microsoft.com>
 
-[ Upstream commit 0776d1231bec0c7ab43baf440a3f5ef5f49dd795 ]
+[ Upstream commit b1eef236f50ba6afea680da039ef3a2ca9c43d11 ]
 
-Reset the member "test_fs" of the test configuration after a call of the
-function "kfree_const" to a null pointer so that a double memory release
-will not be performed.
+When i2c client unregisters, synchronize irq before setting
+iproc_i2c->slave to NULL.
 
-Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Chuck Lever <chuck.lever@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: James Morris <jmorris@namei.org>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: J. Bruce Fields <bfields@fieldses.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Sergey Kvachonok <ravenexp@gmail.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Tony Vroon <chainsaw@gentoo.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Link: http://lkml.kernel.org/r/20200610154923.27510-4-mcgrof@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+(1) disable_irq()
+(2) Mask event enable bits in control reg
+(3) Erase slave address (avoid further writes to rx fifo)
+(4) Flush tx and rx FIFOs
+(5) Clear pending event (interrupt) bits in status reg
+(6) enable_irq()
+(7) Set client pointer to NULL
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000318
+
+[  371.020421] pc : bcm_iproc_i2c_isr+0x530/0x11f0
+[  371.025098] lr : __handle_irq_event_percpu+0x6c/0x170
+[  371.030309] sp : ffff800010003e40
+[  371.033727] x29: ffff800010003e40 x28: 0000000000000060
+[  371.039206] x27: ffff800010ca9de0 x26: ffff800010f895df
+[  371.044686] x25: ffff800010f18888 x24: ffff0008f7ff3600
+[  371.050165] x23: 0000000000000003 x22: 0000000001600000
+[  371.055645] x21: ffff800010f18888 x20: 0000000001600000
+[  371.061124] x19: ffff0008f726f080 x18: 0000000000000000
+[  371.066603] x17: 0000000000000000 x16: 0000000000000000
+[  371.072082] x15: 0000000000000000 x14: 0000000000000000
+[  371.077561] x13: 0000000000000000 x12: 0000000000000001
+[  371.083040] x11: 0000000000000000 x10: 0000000000000040
+[  371.088519] x9 : ffff800010f317c8 x8 : ffff800010f317c0
+[  371.093999] x7 : ffff0008f805b3b0 x6 : 0000000000000000
+[  371.099478] x5 : ffff0008f7ff36a4 x4 : ffff8008ee43d000
+[  371.104957] x3 : 0000000000000000 x2 : ffff8000107d64c0
+[  371.110436] x1 : 00000000c00000af x0 : 0000000000000000
+
+[  371.115916] Call trace:
+[  371.118439]  bcm_iproc_i2c_isr+0x530/0x11f0
+[  371.122754]  __handle_irq_event_percpu+0x6c/0x170
+[  371.127606]  handle_irq_event_percpu+0x34/0x88
+[  371.132189]  handle_irq_event+0x40/0x120
+[  371.136234]  handle_fasteoi_irq+0xcc/0x1a0
+[  371.140459]  generic_handle_irq+0x24/0x38
+[  371.144594]  __handle_domain_irq+0x60/0xb8
+[  371.148820]  gic_handle_irq+0xc0/0x158
+[  371.152687]  el1_irq+0xb8/0x140
+[  371.155927]  arch_cpu_idle+0x10/0x18
+[  371.159615]  do_idle+0x204/0x290
+[  371.162943]  cpu_startup_entry+0x24/0x60
+[  371.166990]  rest_init+0xb0/0xbc
+[  371.170322]  arch_call_rest_init+0xc/0x14
+[  371.174458]  start_kernel+0x404/0x430
+
+Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
+
+Signed-off-by: Dhananjay Phadke <dphadke@linux.microsoft.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kmod.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/lib/test_kmod.c b/lib/test_kmod.c
-index e651c37d56dbd..eab52770070d6 100644
---- a/lib/test_kmod.c
-+++ b/lib/test_kmod.c
-@@ -745,7 +745,7 @@ static int trigger_config_run_type(struct kmod_test_device *test_dev,
- 		break;
- 	case TEST_KMOD_FS_TYPE:
- 		kfree_const(config->test_fs);
--		config->test_driver = NULL;
-+		config->test_fs = NULL;
- 		copied = config_copy_test_fs(config, test_str,
- 					     strlen(test_str));
- 		break;
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index 8a3c98866fb7e..688e928188214 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -1078,7 +1078,7 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
+ 	if (!iproc_i2c->slave)
+ 		return -EINVAL;
+ 
+-	iproc_i2c->slave = NULL;
++	disable_irq(iproc_i2c->irq);
+ 
+ 	/* disable all slave interrupts */
+ 	tmp = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+@@ -1091,6 +1091,17 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
+ 	tmp &= ~BIT(S_CFG_EN_NIC_SMB_ADDR3_SHIFT);
+ 	iproc_i2c_wr_reg(iproc_i2c, S_CFG_SMBUS_ADDR_OFFSET, tmp);
+ 
++	/* flush TX/RX FIFOs */
++	tmp = (BIT(S_FIFO_RX_FLUSH_SHIFT) | BIT(S_FIFO_TX_FLUSH_SHIFT));
++	iproc_i2c_wr_reg(iproc_i2c, S_FIFO_CTRL_OFFSET, tmp);
++
++	/* clear all pending slave interrupts */
++	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
++
++	iproc_i2c->slave = NULL;
++
++	enable_irq(iproc_i2c->irq);
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
