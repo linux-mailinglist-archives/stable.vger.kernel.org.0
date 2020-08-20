@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7500224B553
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D1924B5B3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731610AbgHTKWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        id S1730491AbgHTK0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729373AbgHTKWP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:22:15 -0400
+        id S1731713AbgHTKWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:22:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71BAD2072D;
-        Thu, 20 Aug 2020 10:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A028B20658;
+        Thu, 20 Aug 2020 10:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918934;
-        bh=waKOxP2EoxmQLPxYJ+CiiK3DCgizWITSQZ996hG1mjs=;
+        s=default; t=1597918962;
+        bh=eSuaLEycDt/TmbELdr/7tA34qeKIfGtLC3IoZFjSsNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w+3A36GVaFvdbnphROjEJxUHHr0yTBTGwM/AUw6szS3VcyOUAWoz8+o5PsyQXtRXK
-         oqQn+ytd0uEIKhuABIY4t0ZipmIGnMrHm9ixHgYxEMmMNEJh9lm5NwWlzh08LWwBGi
-         l/9ckpyH5+0VAPYNkIZFS6QVfGIl4YeB9FQMb+cQ=
+        b=gt7KSkx6znudPHP7s4YdvNuY2DgR6PucFREM1aLBM/SWonIelXEYdaEzntcZED54g
+         uVftKl4E11y0QwfF/K6C4PQtNTpL5wsniJmT94abn+HK8wrqM7EUgTPhtWtOxM/0OQ
+         LBO8Ed7tUz144mRrY6oOJH/qmMIKm2tLqqORP7XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Fustini <drew@beagleboard.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 103/149] pinctrl-single: fix pcs_parse_pinconf() return value
-Date:   Thu, 20 Aug 2020 11:23:00 +0200
-Message-Id: <20200820092130.693973088@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Xie He <xie.he.0141@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 104/149] drivers/net/wan/lapbether: Added needed_headroom and a skb->len check
+Date:   Thu, 20 Aug 2020 11:23:01 +0200
+Message-Id: <20200820092130.743148558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,138 +48,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Fustini <drew@beagleboard.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit f46fe79ff1b65692a65266a5bec6dbe2bf7fc70f ]
+[ Upstream commit c7ca03c216acb14466a713fedf1b9f2c24994ef2 ]
 
-This patch causes pcs_parse_pinconf() to return -ENOTSUPP when no
-pinctrl_map is added.  The current behavior is to return 0 when
-!PCS_HAS_PINCONF or !nconfs.  Thus pcs_parse_one_pinctrl_entry()
-incorrectly assumes that a map was added and sets num_maps = 2.
+1. Added a skb->len check
 
-Analysis:
-=========
-The function pcs_parse_one_pinctrl_entry() calls pcs_parse_pinconf()
-if PCS_HAS_PINCONF is enabled.  The function pcs_parse_pinconf()
-returns 0 to indicate there was no error and num_maps is then set to 2:
+This driver expects upper layers to include a pseudo header of 1 byte
+when passing down a skb for transmission. This driver will read this
+1-byte header. This patch added a skb->len check before reading the
+header to make sure the header exists.
 
- 980 static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
- 981                                                 struct device_node *np,
- 982                                                 struct pinctrl_map **map,
- 983                                                 unsigned *num_maps,
- 984                                                 const char **pgnames)
- 985 {
-<snip>
-1053         (*map)->type = PIN_MAP_TYPE_MUX_GROUP;
-1054         (*map)->data.mux.group = np->name;
-1055         (*map)->data.mux.function = np->name;
-1056
-1057         if (PCS_HAS_PINCONF && function) {
-1058                 res = pcs_parse_pinconf(pcs, np, function, map);
-1059                 if (res)
-1060                         goto free_pingroups;
-1061                 *num_maps = 2;
-1062         } else {
-1063                 *num_maps = 1;
-1064         }
+2. Changed to use needed_headroom instead of hard_header_len to request
+necessary headroom to be allocated
 
-However, pcs_parse_pinconf() will also return 0 if !PCS_HAS_PINCONF or
-!nconfs.  I believe these conditions should indicate that no map was
-added by returning -ENOTSUPP. Otherwise pcs_parse_one_pinctrl_entry()
-will set num_maps = 2 even though no maps were successfully added, as
-it does not reach "m++" on line 940:
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
 
- 895 static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
- 896                              struct pcs_function *func,
- 897                              struct pinctrl_map **map)
- 898
- 899 {
- 900         struct pinctrl_map *m = *map;
-<snip>
- 917         /* If pinconf isn't supported, don't parse properties in below. */
- 918         if (!PCS_HAS_PINCONF)
- 919                 return 0;
- 920
- 921         /* cacluate how much properties are supported in current node */
- 922         for (i = 0; i < ARRAY_SIZE(prop2); i++) {
- 923                 if (of_find_property(np, prop2[i].name, NULL))
- 924                         nconfs++;
- 925         }
- 926         for (i = 0; i < ARRAY_SIZE(prop4); i++) {
- 927                 if (of_find_property(np, prop4[i].name, NULL))
- 928                         nconfs++;
- 929         }
- 930         if (!nconfs)
- 919                 return 0;
- 932
- 933         func->conf = devm_kcalloc(pcs->dev,
- 934                                   nconfs, sizeof(struct pcs_conf_vals),
- 935                                   GFP_KERNEL);
- 936         if (!func->conf)
- 937                 return -ENOMEM;
- 938         func->nconfs = nconfs;
- 939         conf = &(func->conf[0]);
- 940         m++;
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
 
-This situtation will cause a boot failure [0] on the BeagleBone Black
-(AM3358) when am33xx_pinmux node in arch/arm/boot/dts/am33xx-l4.dtsi
-has compatible = "pinconf-single" instead of "pinctrl-single".
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
 
-The patch fixes this issue by returning -ENOSUPP when !PCS_HAS_PINCONF
-or !nconfs, so that pcs_parse_one_pinctrl_entry() will know that no
-map was added.
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
 
-Logic is also added to pcs_parse_one_pinctrl_entry() to distinguish
-between -ENOSUPP and other errors.  In the case of -ENOSUPP, num_maps
-is set to 1 as it is valid for pinconf to be enabled and a given pin
-group to not any pinconf properties.
+This change fixes kernel panic when this driver is used with AF_PACKET
+SOCK_RAW sockets.
 
-[0] https://lore.kernel.org/linux-omap/20200529175544.GA3766151@x1/
+Call stack when panic:
 
-Fixes: 9dddb4df90d1 ("pinctrl: single: support generic pinconf")
-Signed-off-by: Drew Fustini <drew@beagleboard.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20200608125143.GA2789203@x1
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
+put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
+dev:veth0
+...
+[  168.399255] Call Trace:
+[  168.399259]  skb_push.cold+0x14/0x24
+[  168.399262]  eth_header+0x2b/0xc0
+[  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
+[  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
+[  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
+[  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
+[  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
+[  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
+[  168.399286]  dev_hard_start_xmit+0x91/0x1f0
+[  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
+[  168.399291]  __dev_queue_xmit+0x721/0x8e0
+[  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
+[  168.399297]  dev_queue_xmit+0x10/0x20
+[  168.399298]  packet_sendmsg+0xbf0/0x19b0
+......
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-single.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/wan/lapbether.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-single.c
-+++ b/drivers/pinctrl/pinctrl-single.c
-@@ -1071,7 +1071,7 @@ static int pcs_parse_pinconf(struct pcs_
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -160,6 +160,12 @@ static netdev_tx_t lapbeth_xmit(struct s
+ 	if (!netif_running(dev))
+ 		goto drop;
  
- 	/* If pinconf isn't supported, don't parse properties in below. */
- 	if (!PCS_HAS_PINCONF)
--		return 0;
-+		return -ENOTSUPP;
++	/* There should be a pseudo header of 1 byte added by upper layers.
++	 * Check to make sure it is there before reading it.
++	 */
++	if (skb->len < 1)
++		goto drop;
++
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:
+ 		break;
+@@ -308,6 +314,7 @@ static void lapbeth_setup(struct net_dev
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->destructor	     = free_netdev;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -334,7 +341,8 @@ static int lapbeth_new_device(struct net
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
  
- 	/* cacluate how much properties are supported in current node */
- 	for (i = 0; i < ARRAY_SIZE(prop2); i++) {
-@@ -1083,7 +1083,7 @@ static int pcs_parse_pinconf(struct pcs_
- 			nconfs++;
- 	}
- 	if (!nconfs)
--		return 0;
-+		return -ENOTSUPP;
- 
- 	func->conf = devm_kzalloc(pcs->dev,
- 				  sizeof(struct pcs_conf_vals) * nconfs,
-@@ -1196,9 +1196,12 @@ static int pcs_parse_one_pinctrl_entry(s
- 
- 	if (PCS_HAS_PINCONF) {
- 		res = pcs_parse_pinconf(pcs, np, function, map);
--		if (res)
-+		if (res == 0)
-+			*num_maps = 2;
-+		else if (res == -ENOTSUPP)
-+			*num_maps = 1;
-+		else
- 			goto free_pingroups;
--		*num_maps = 2;
- 	} else {
- 		*num_maps = 1;
- 	}
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
 
 
