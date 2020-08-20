@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4483324BEA4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0264524BEC8
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728388AbgHTJc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:32:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44364 "EHLO mail.kernel.org"
+        id S1728272AbgHTNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727856AbgHTJcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:05 -0400
+        id S1727924AbgHTJcQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:32:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 097EB22BEA;
-        Thu, 20 Aug 2020 09:32:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC02020724;
+        Thu, 20 Aug 2020 09:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915924;
-        bh=F7tmT7M/lQLNNkMo1EXCnbaRGMuqCLijhPq4j2DczAU=;
+        s=default; t=1597915936;
+        bh=5bCMb58m/idID+jX1LMdnRhVIFWSKgLCIvtf2QfQDes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbNYk54xDfqlhjwu8nLaP4drIMjBxeZfdG4e0s5YLWV3xsCyBQV5rhwLYpH7EOqc+
-         4VRkuvIgNyq2h7ZSDn0AUGtd3HiAe5EBLxgeHhynwAVO060W+ImtZI2DM5+qHvaSgQ
-         bX5K3TPscKFQKHYXeaRL86d0ODXiRyZ8Sb0LqQro=
+        b=Sfj7G3Q+4vBEEU2JTC8+2ousdYZVg5r58AFlnGb3USXHyTCATieVEJnOtadHa5r7i
+         ui53HepJDtGsdgjN5ozb343Hq8OSEHtTBT9Xxpc+k4xr/qnKhqfWyoj+75mCgP/blV
+         ObU5Cf0b/fMKPgUqRUUsU9BGVD60TFUBsA/dfgsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jin Yao <yao.jin@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Krzysztof Sobota <krzysztof.sobota@nokia.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 182/232] perf evsel: Dont set sample_regs_intr/sample_regs_user for dummy event
-Date:   Thu, 20 Aug 2020 11:20:33 +0200
-Message-Id: <20200820091621.619896502@linuxfoundation.org>
+Subject: [PATCH 5.8 185/232] watchdog: initialize device before misc_register
+Date:   Thu, 20 Aug 2020 11:20:36 +0200
+Message-Id: <20200820091621.761360373@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -51,112 +46,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Krzysztof Sobota <krzysztof.sobota@nokia.com>
 
-[ Upstream commit c4735d990268399da9133b0ad445e488ece009ad ]
+[ Upstream commit cb36e29bb0e4b0c33c3d5866a0a4aebace4c99b7 ]
 
-Since commit 0a892c1c9472 ("perf record: Add dummy event during system wide synthesis"),
-a dummy event is added to capture mmaps.
+When watchdog device is being registered, it calls misc_register that
+makes watchdog available for systemd to open. This is a data race
+scenario, because when device is open it may still have device struct
+not initialized - this in turn causes a crash. This patch moves
+device initialization before misc_register call and it solves the
+problem printed below.
 
-But if we run perf-record as,
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1 at lib/kobject.c:612 kobject_get+0x50/0x54
+kobject: '(null)' ((ptrval)): is not initialized, yet kobject_get() is being called.
+Modules linked in: k2_reset_status(O) davinci_wdt(+) sfn_platform_hwbcn(O) fsmddg_sfn(O) clk_misc_mmap(O) clk_sw_bcn(O) fsp_reset(O) cma_mod(O) slave_sup_notif(O) fpga_master(O) latency(O+) evnotify(O) enable_arm_pmu(O) xge(O) rio_mport_cdev br_netfilter bridge stp llc nvrd_checksum(O) ipv6
+CPU: 3 PID: 1 Comm: systemd Tainted: G           O      4.19.113-g2579778-fsm4_k2 #1
+Hardware name: Keystone
+[<c02126c4>] (unwind_backtrace) from [<c020da94>] (show_stack+0x18/0x1c)
+[<c020da94>] (show_stack) from [<c07f87d8>] (dump_stack+0xb4/0xe8)
+[<c07f87d8>] (dump_stack) from [<c0221f70>] (__warn+0xfc/0x114)
+[<c0221f70>] (__warn) from [<c0221fd8>] (warn_slowpath_fmt+0x50/0x74)
+[<c0221fd8>] (warn_slowpath_fmt) from [<c07fd394>] (kobject_get+0x50/0x54)
+[<c07fd394>] (kobject_get) from [<c0602ce8>] (get_device+0x1c/0x24)
+[<c0602ce8>] (get_device) from [<c06961e0>] (watchdog_open+0x90/0xf0)
+[<c06961e0>] (watchdog_open) from [<c06001dc>] (misc_open+0x130/0x17c)
+[<c06001dc>] (misc_open) from [<c0388228>] (chrdev_open+0xec/0x1a8)
+[<c0388228>] (chrdev_open) from [<c037fa98>] (do_dentry_open+0x204/0x3cc)
+[<c037fa98>] (do_dentry_open) from [<c0391e2c>] (path_openat+0x330/0x1148)
+[<c0391e2c>] (path_openat) from [<c0394518>] (do_filp_open+0x78/0xec)
+[<c0394518>] (do_filp_open) from [<c0381100>] (do_sys_open+0x130/0x1f4)
+[<c0381100>] (do_sys_open) from [<c0201000>] (ret_fast_syscall+0x0/0x28)
+Exception stack(0xd2ceffa8 to 0xd2cefff0)
+ffa0:                   b6f69968 00000000 ffffff9c b6ebd210 000a0001 00000000
+ffc0: b6f69968 00000000 00000000 00000142 fffffffd ffffffff 00b65530 bed7bb78
+ffe0: 00000142 bed7ba70 b6cc2503 b6cc41d6
+---[ end trace 7b16eb105513974f ]---
 
- # perf record -e cycles:p -IXMM0 -a -- sleep 1
- Error:
- dummy:HG: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1 at lib/refcount.c:153 kobject_get+0x24/0x54
+refcount_t: increment on 0; use-after-free.
+Modules linked in: k2_reset_status(O) davinci_wdt(+) sfn_platform_hwbcn(O) fsmddg_sfn(O) clk_misc_mmap(O) clk_sw_bcn(O) fsp_reset(O) cma_mod(O) slave_sup_notif(O) fpga_master(O) latency(O+) evnotify(O) enable_arm_pmu(O) xge(O) rio_mport_cdev br_netfilter bridge stp llc nvrd_checksum(O) ipv6
+CPU: 3 PID: 1 Comm: systemd Tainted: G        W  O      4.19.113-g2579778-fsm4_k2 #1
+Hardware name: Keystone
+[<c02126c4>] (unwind_backtrace) from [<c020da94>] (show_stack+0x18/0x1c)
+[<c020da94>] (show_stack) from [<c07f87d8>] (dump_stack+0xb4/0xe8)
+[<c07f87d8>] (dump_stack) from [<c0221f70>] (__warn+0xfc/0x114)
+[<c0221f70>] (__warn) from [<c0221fd8>] (warn_slowpath_fmt+0x50/0x74)
+[<c0221fd8>] (warn_slowpath_fmt) from [<c07fd368>] (kobject_get+0x24/0x54)
+[<c07fd368>] (kobject_get) from [<c0602ce8>] (get_device+0x1c/0x24)
+[<c0602ce8>] (get_device) from [<c06961e0>] (watchdog_open+0x90/0xf0)
+[<c06961e0>] (watchdog_open) from [<c06001dc>] (misc_open+0x130/0x17c)
+[<c06001dc>] (misc_open) from [<c0388228>] (chrdev_open+0xec/0x1a8)
+[<c0388228>] (chrdev_open) from [<c037fa98>] (do_dentry_open+0x204/0x3cc)
+[<c037fa98>] (do_dentry_open) from [<c0391e2c>] (path_openat+0x330/0x1148)
+[<c0391e2c>] (path_openat) from [<c0394518>] (do_filp_open+0x78/0xec)
+[<c0394518>] (do_filp_open) from [<c0381100>] (do_sys_open+0x130/0x1f4)
+[<c0381100>] (do_sys_open) from [<c0201000>] (ret_fast_syscall+0x0/0x28)
+Exception stack(0xd2ceffa8 to 0xd2cefff0)
+ffa0:                   b6f69968 00000000 ffffff9c b6ebd210 000a0001 00000000
+ffc0: b6f69968 00000000 00000000 00000142 fffffffd ffffffff 00b65530 bed7bb78
+ffe0: 00000142 bed7ba70 b6cc2503 b6cc41d6
+---[ end trace 7b16eb1055139750 ]---
 
-The issue is, if we enable the extended regs (-IXMM0), but the
-pmu->capabilities is not set with PERF_PMU_CAP_EXTENDED_REGS, the kernel
-will return -EOPNOTSUPP error.
-
-See following code:
-
-/* in kernel/events/core.c */
-static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
-
-{
-        ....
-        if (!(pmu->capabilities & PERF_PMU_CAP_EXTENDED_REGS) &&
-            has_extended_regs(event))
-                ret = -EOPNOTSUPP;
-        ....
-}
-
-For software dummy event, the PMU should not be set with
-PERF_PMU_CAP_EXTENDED_REGS. But unfortunately now, the dummy
-event has possibility to be set with PERF_REG_EXTENDED_MASK bit.
-
-In evsel__config, /* tools/perf/util/evsel.c */
-
-if (opts->sample_intr_regs) {
-        attr->sample_regs_intr = opts->sample_intr_regs;
-}
-
-If we use -IXMM0, the attr>sample_regs_intr will be set with
-PERF_REG_EXTENDED_MASK bit.
-
-It doesn't make sense to set attr->sample_regs_intr for a
-software dummy event.
-
-This patch adds dummy event checking before setting
-attr->sample_regs_intr and attr->sample_regs_user.
-
-After:
-  # ./perf record -e cycles:p -IXMM0 -a -- sleep 1
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.413 MB perf.data (45 samples) ]
-
-Committer notes:
-
-Adrian said this when providing his Acked-by:
-
-"
-This is fine.  It will not break PT.
-
-no_aux_samples is useful for evsels that have been added by the code rather
-than requested by the user.  For old kernels PT adds sched_switch tracepoint
-to track context switches (before the current context switch event was
-added) and having auxiliary sample information unnecessarily uses up space
-in the perf buffer.
-"
-
-Fixes: 0a892c1c9472 ("perf record: Add dummy event during system wide synthesis")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200720010013.18238-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Krzysztof Sobota <krzysztof.sobota@nokia.com>
+Link: https://lore.kernel.org/r/20200717103109.14660-1-krzysztof.sobota@nokia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index ef802f6d40c17..6a79cfdf96cb6 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1014,12 +1014,14 @@ void evsel__config(struct evsel *evsel, struct record_opts *opts,
- 	if (callchain && callchain->enabled && !evsel->no_aux_samples)
- 		evsel__config_callchain(evsel, opts, callchain);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 7e4cd34a8c20e..b535f5fa279b9 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -994,6 +994,15 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 	if (IS_ERR_OR_NULL(watchdog_kworker))
+ 		return -ENODEV;
  
--	if (opts->sample_intr_regs && !evsel->no_aux_samples) {
-+	if (opts->sample_intr_regs && !evsel->no_aux_samples &&
-+	    !evsel__is_dummy_event(evsel)) {
- 		attr->sample_regs_intr = opts->sample_intr_regs;
- 		evsel__set_sample_bit(evsel, REGS_INTR);
++	device_initialize(&wd_data->dev);
++	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
++	wd_data->dev.class = &watchdog_class;
++	wd_data->dev.parent = wdd->parent;
++	wd_data->dev.groups = wdd->groups;
++	wd_data->dev.release = watchdog_core_data_release;
++	dev_set_drvdata(&wd_data->dev, wdd);
++	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
++
+ 	kthread_init_work(&wd_data->work, watchdog_ping_work);
+ 	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+ 	wd_data->timer.function = watchdog_timer_expired;
+@@ -1014,15 +1023,6 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 		}
  	}
  
--	if (opts->sample_user_regs && !evsel->no_aux_samples) {
-+	if (opts->sample_user_regs && !evsel->no_aux_samples &&
-+	    !evsel__is_dummy_event(evsel)) {
- 		attr->sample_regs_user |= opts->sample_user_regs;
- 		evsel__set_sample_bit(evsel, REGS_USER);
- 	}
+-	device_initialize(&wd_data->dev);
+-	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
+-	wd_data->dev.class = &watchdog_class;
+-	wd_data->dev.parent = wdd->parent;
+-	wd_data->dev.groups = wdd->groups;
+-	wd_data->dev.release = watchdog_core_data_release;
+-	dev_set_drvdata(&wd_data->dev, wdd);
+-	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
+-
+ 	/* Fill in the data structures */
+ 	cdev_init(&wd_data->cdev, &watchdog_fops);
+ 
 -- 
 2.25.1
 
