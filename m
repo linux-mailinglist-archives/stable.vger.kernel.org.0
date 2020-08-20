@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D8524B3FE
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6915224B3A5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730189AbgHTJzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:55:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38024 "EHLO mail.kernel.org"
+        id S1729727AbgHTJuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:50:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730187AbgHTJzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:55:09 -0400
+        id S1729728AbgHTJuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:50:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 559842067C;
-        Thu, 20 Aug 2020 09:55:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABD8D20724;
+        Thu, 20 Aug 2020 09:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917308;
-        bh=YEXaHg2iBlaYXdD+t5XXIh39qL4/7luoV72oGLb54/U=;
+        s=default; t=1597917023;
+        bh=eti6+P1Fqn+SSZDZoeC9v4RjrU3Qoz4+ArnNK5BXTI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2XEBbXOulAZS39+fcNp6LdFLMIQ8UqeKQG8IfKimamkYw6IIV14ZHhqbD3q8JeLk
-         cWn7yogoKcYhfw52E55fyCjvOu9s6mJ8mlsbXTbWL6iEocCFMNHkB7IuYXu4+iiNBE
-         gHUTk31uqKivPxh0+hWqkss12lmQBfBYYCAJpj4w=
+        b=E02mD2Svutv30FaToxS2ZteOYSJYq2pV+gGRhTliV6yYvw0lG0F7HM1WiKukiaCGe
+         /ZMfFF14DhaKF/XR6JQHj39AMuCm+lcRr39xV5kZn9OhE3izUd582qA0sXCiur+i9i
+         rSSEiP7UE+m66shOPhrKOeptlpFSHUPgCBFnEMIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Liu Ying <victor.liu@nxp.com>
-Subject: [PATCH 4.19 48/92] drm/imx: imx-ldb: Disable both channels for split mode in enc->disable()
-Date:   Thu, 20 Aug 2020 11:21:33 +0200
-Message-Id: <20200820091540.154739814@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 128/152] drm/vmwgfx: Use correct vmw_legacy_display_unit pointer
+Date:   Thu, 20 Aug 2020 11:21:35 +0200
+Message-Id: <20200820091600.363924601@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3b2a999582c467d1883716b37ffcc00178a13713 upstream.
+[ Upstream commit 1d2c0c565bc0da25f5e899a862fb58e612b222df ]
 
-Both of the two LVDS channels should be disabled for split mode
-in the encoder's ->disable() callback, because they are enabled
-in the encoder's ->enable() callback.
+The "entry" pointer is an offset from the list head and it doesn't
+point to a valid vmw_legacy_display_unit struct.  Presumably the
+intent was to point to the last entry.
 
-Fixes: 6556f7f82b9c ("drm: imx: Move imx-drm driver out of staging")
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also the "i++" wasn't used so I have removed that as well.
 
+Fixes: d7e1958dbe4a ("drm/vmwgfx: Support older hardware.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-ldb.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/imx/imx-ldb.c
-+++ b/drivers/gpu/drm/imx/imx-ldb.c
-@@ -311,18 +311,19 @@ static void imx_ldb_encoder_disable(stru
- {
- 	struct imx_ldb_channel *imx_ldb_ch = enc_to_imx_ldb_ch(encoder);
- 	struct imx_ldb *ldb = imx_ldb_ch->ldb;
-+	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
- 	int mux, ret;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c b/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
+index 5702219ec38f6..7b54c1f56208f 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
+@@ -81,7 +81,7 @@ static int vmw_ldu_commit_list(struct vmw_private *dev_priv)
+ 	struct vmw_legacy_display_unit *entry;
+ 	struct drm_framebuffer *fb = NULL;
+ 	struct drm_crtc *crtc = NULL;
+-	int i = 0;
++	int i;
  
- 	drm_panel_disable(imx_ldb_ch->panel);
+ 	/* If there is no display topology the host just assumes
+ 	 * that the guest will set the same layout as the host.
+@@ -92,12 +92,11 @@ static int vmw_ldu_commit_list(struct vmw_private *dev_priv)
+ 			crtc = &entry->base.crtc;
+ 			w = max(w, crtc->x + crtc->mode.hdisplay);
+ 			h = max(h, crtc->y + crtc->mode.vdisplay);
+-			i++;
+ 		}
  
--	if (imx_ldb_ch == &ldb->channel[0])
-+	if (imx_ldb_ch == &ldb->channel[0] || dual)
- 		ldb->ldb_ctrl &= ~LDB_CH0_MODE_EN_MASK;
--	else if (imx_ldb_ch == &ldb->channel[1])
-+	if (imx_ldb_ch == &ldb->channel[1] || dual)
- 		ldb->ldb_ctrl &= ~LDB_CH1_MODE_EN_MASK;
+ 		if (crtc == NULL)
+ 			return 0;
+-		fb = entry->base.crtc.primary->state->fb;
++		fb = crtc->primary->state->fb;
  
- 	regmap_write(ldb->regmap, IOMUXC_GPR2, ldb->ldb_ctrl);
- 
--	if (ldb->ldb_ctrl & LDB_SPLIT_MODE_EN) {
-+	if (dual) {
- 		clk_disable_unprepare(ldb->clk[0]);
- 		clk_disable_unprepare(ldb->clk[1]);
- 	}
+ 		return vmw_kms_write_svga(dev_priv, w, h, fb->pitches[0],
+ 					  fb->format->cpp[0] * 8,
+-- 
+2.25.1
+
 
 
