@@ -2,52 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC8124BB73
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1874124BB1B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbgHTM31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:29:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
+        id S1728694AbgHTMXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:23:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729347AbgHTJvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:32 -0400
+        id S1730143AbgHTJyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 228E42078D;
-        Thu, 20 Aug 2020 09:51:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C2B72075E;
+        Thu, 20 Aug 2020 09:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917091;
-        bh=lpx7Jg3abwMhOx8OANGz+OZFCZejRU8WyDKbjrjb6uY=;
+        s=default; t=1597917276;
+        bh=YJIOkrnDLtvjSdQPBkT7qqKl3C3DwVHsZlnDQUDsGLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JofTzQGGTy5asQa159EUoxr6aXXJJFMw/G5yIBQO+hzkFpu3XHvK3d1cwyvm0pxlQ
-         ynyyqn5VdoYtlLjuhcRJkSfRnxElSfWhFJ0qU/JyFvpHeFQTwZf7f/pTWsARsfDsTz
-         5wuyQYkBNP1Q8zuEGNUIrbHjNKL18kyGvMCYY8yQ=
+        b=2stVS8f+R60QbN6Hl8x9k6FzIQiZFbed6QusRKBVk1sfvg+xG6SnKF/AMGc2b3FcJ
+         749L/wITYUklEvEhKmZlxbS11o9WrIF02bgeRPWWz2lD9reOjGorAKRh+yTAtU/WVI
+         pQanElE306P9ntwJKHzlUYI+krEcGQfHVCnD2Ug0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        Thomas Hebb <tommyhebb@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Yonghong Song <yhs@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/152] tools build feature: Quote CC and CXX for their arguments
-Date:   Thu, 20 Aug 2020 11:21:49 +0200
-Message-Id: <20200820091601.084347912@linuxfoundation.org>
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 65/92] i2c: rcar: slave: only send STOP event when we have been addressed
+Date:   Thu, 20 Aug 2020 11:21:50 +0200
+Message-Id: <20200820091540.998682796@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,88 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Díaz <daniel.diaz@linaro.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit fa5c893181ed2ca2f96552f50073786d2cfce6c0 ]
+[ Upstream commit 314139f9f0abdba61ed9a8463bbcb0bf900ac5a2 ]
 
-When using a cross-compilation environment, such as OpenEmbedded,
-the CC an CXX variables are set to something more than just a
-command: there are arguments (such as --sysroot) that need to be
-passed on to the compiler so that the right set of headers and
-libraries are used.
+When the SSR interrupt is activated, it will detect every STOP condition
+on the bus, not only the ones after we have been addressed. So, enable
+this interrupt only after we have been addressed, and disable it
+otherwise.
 
-For the particular case that our systems detected, CC is set to
-the following:
-
-  export CC="aarch64-linaro-linux-gcc  --sysroot=/oe/build/tmp/work/machine/perf/1.0-r9/recipe-sysroot"
-
-Without quotes, detection is as follows:
-
-  Auto-detecting system features:
-  ...                         dwarf: [ OFF ]
-  ...            dwarf_getlocations: [ OFF ]
-  ...                         glibc: [ OFF ]
-  ...                          gtk2: [ OFF ]
-  ...                        libbfd: [ OFF ]
-  ...                        libcap: [ OFF ]
-  ...                        libelf: [ OFF ]
-  ...                       libnuma: [ OFF ]
-  ...        numa_num_possible_cpus: [ OFF ]
-  ...                       libperl: [ OFF ]
-  ...                     libpython: [ OFF ]
-  ...                     libcrypto: [ OFF ]
-  ...                     libunwind: [ OFF ]
-  ...            libdw-dwarf-unwind: [ OFF ]
-  ...                          zlib: [ OFF ]
-  ...                          lzma: [ OFF ]
-  ...                     get_cpuid: [ OFF ]
-  ...                           bpf: [ OFF ]
-  ...                        libaio: [ OFF ]
-  ...                       libzstd: [ OFF ]
-  ...        disassembler-four-args: [ OFF ]
-
-  Makefile.config:414: *** No gnu/libc-version.h found, please install glibc-dev[el].  Stop.
-  Makefile.perf:230: recipe for target 'sub-make' failed
-  make[1]: *** [sub-make] Error 2
-  Makefile:69: recipe for target 'all' failed
-  make: *** [all] Error 2
-
-With CC and CXX quoted, some of those features are now detected.
-
-Fixes: e3232c2f39ac ("tools build feature: Use CC and CXX from parent")
-Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
-Reviewed-by: Thomas Hebb <tommyhebb@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@chromium.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Yonghong Song <yhs@fb.com>
-Link: http://lore.kernel.org/lkml/20200812221518.2869003-1-daniel.diaz@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Makefile.feature | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-rcar.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
-index e80a1a8e287f8..8c6e1ea67f213 100644
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -8,7 +8,7 @@ endif
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 6e49e438ef5a5..11d1977616858 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -587,13 +587,14 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ 			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
+ 		}
  
- feature_check = $(eval $(feature_check_code))
- define feature_check_code
--  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
-+  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC="$(CC)" CXX="$(CXX)" CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
- endef
+-		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
++		/* Clear SSR, too, because of old STOPs to other clients than us */
++		rcar_i2c_write(priv, ICSSR, ~(SAR | SSR) & 0xff);
+ 	}
  
- feature_set = $(eval $(feature_set_code))
+ 	/* master sent stop */
+ 	if (ssr_filtered & SSR) {
+ 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
+-		rcar_i2c_write(priv, ICSIER, SAR | SSR);
++		rcar_i2c_write(priv, ICSIER, SAR);
+ 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
+ 	}
+ 
+@@ -848,7 +849,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
+ 	priv->slave = slave;
+ 	rcar_i2c_write(priv, ICSAR, slave->addr);
+ 	rcar_i2c_write(priv, ICSSR, 0);
+-	rcar_i2c_write(priv, ICSIER, SAR | SSR);
++	rcar_i2c_write(priv, ICSIER, SAR);
+ 	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
+ 
+ 	return 0;
 -- 
 2.25.1
 
