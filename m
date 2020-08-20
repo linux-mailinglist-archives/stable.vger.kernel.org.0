@@ -2,41 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1211F24B293
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F6124B368
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728406AbgHTJdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43512 "EHLO mail.kernel.org"
+        id S1729372AbgHTJqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727034AbgHTJbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:32 -0400
+        id S1729368AbgHTJqy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE22A22B49;
-        Thu, 20 Aug 2020 09:31:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40DEC20724;
+        Thu, 20 Aug 2020 09:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915892;
-        bh=v07Xbj/HWPbOQkiZOboDC1XwxejTbPaUZpj8iwaDbXk=;
+        s=default; t=1597916814;
+        bh=rn+mRAUbQfU39heNWrpzHI1QdsejG3kZgRmgd5msWDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2vTAywdSM+SObblT6u8PDDFO/sVIYOEGSZ2AUeLrToXZjmd3T52yfmNptKt+wNNL
-         uPBTdLmQWCw5Cuk5ChfQg20hxitb/BNb8hGPYlx1Am9t0hGgnYRkgTLr7VTd2HbH61
-         e+7v9vuiswdV7uB4KHD2HoezHnuMPWb6Y2fIEmvo=
+        b=Rq4a9bsXOTDhuye77SpSrvkW5LRTeL8YKbd5P3wa43l2OicCZ0d+K/x1wH4EQ4XYn
+         9xcYwFzlSKzsSPrFmq0TyPIroexx6Kp8rIWpS43KNaLiWEPQ2V24KNs98WScfKGvth
+         QAMzkdxC9isxPEp89tq5DyPKWl/BiMyykEy1V3VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 172/232] i2c: rcar: avoid race when unregistering slave
+        stable@vger.kernel.org, Jia He <justin.he@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
+        Kaly Xin <Kaly.Xin@arm.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rich Felker <dalias@libc.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 056/152] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
 Date:   Thu, 20 Aug 2020 11:20:23 +0200
-Message-Id: <20200820091621.150029215@linuxfoundation.org>
+Message-Id: <20200820091556.591399331@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +67,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit c7c9e914f9a0478fba4dc6f227cfd69cf84a4063 ]
+commit b4223a510e2ab1bf0f971d50af7c1431014b25ad upstream.
 
-Due to the lockless design of the driver, it is theoretically possible
-to access a NULL pointer, if a slave interrupt was running while we were
-unregistering the slave. To make this rock solid, disable the interrupt
-for a short time while we are clearing the interrupt_enable register.
-This patch is purely based on code inspection. The OOPS is super-hard to
-trigger because clearing SAR (the address) makes interrupts even more
-unlikely to happen as well. While here, reinit SCR to SDBS because this
-bit should always be set according to documentation. There is no effect,
-though, because the interface is disabled.
+When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
+online at that time), mem_hotplug_begin/done is unpaired in such case.
 
-Fixes: 7b814d852af6 ("i2c: rcar: avoid race when unregistering slave client")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Therefore a warning:
+ Call Trace:
+  percpu_up_write+0x33/0x40
+  try_remove_memory+0x66/0x120
+  ? _cond_resched+0x19/0x30
+  remove_memory+0x2b/0x40
+  dev_dax_kmem_remove+0x36/0x72 [kmem]
+  device_release_driver_internal+0xf0/0x1c0
+  device_release_driver+0x12/0x20
+  bus_remove_device+0xe1/0x150
+  device_del+0x17b/0x3e0
+  unregister_dev_dax+0x29/0x60
+  devm_action_release+0x15/0x20
+  release_nodes+0x19a/0x1e0
+  devres_release_all+0x3f/0x50
+  device_release_driver_internal+0x100/0x1c0
+  driver_detach+0x4c/0x8f
+  bus_remove_driver+0x5c/0xd0
+  driver_unregister+0x31/0x50
+  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
+
+Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
+Signed-off-by: Jia He <justin.he@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: <stable@vger.kernel.org>	[5.6+]
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+Cc: Kaly Xin <Kaly.Xin@arm.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: http://lkml.kernel.org/r/20200710031619.18762-3-justin.he@arm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/busses/i2c-rcar.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/memory_hotplug.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 76c615be5acae..9e883474db8ce 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -866,12 +866,14 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1751,7 +1751,7 @@ static int __ref try_remove_memory(int n
+ 	 */
+ 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
+ 	if (rc)
+-		goto done;
++		return rc;
  
- 	WARN_ON(!priv->slave);
+ 	/* remove memmap entry */
+ 	firmware_map_remove(start, start + size, "System RAM");
+@@ -1771,9 +1771,8 @@ static int __ref try_remove_memory(int n
  
--	/* disable irqs and ensure none is running before clearing ptr */
-+	/* ensure no irq is running before clearing ptr */
-+	disable_irq(priv->irq);
- 	rcar_i2c_write(priv, ICSIER, 0);
--	rcar_i2c_write(priv, ICSCR, 0);
-+	rcar_i2c_write(priv, ICSSR, 0);
-+	enable_irq(priv->irq);
-+	rcar_i2c_write(priv, ICSCR, SDBS);
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ 	try_offline_node(nid);
  
--	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
+-done:
+ 	mem_hotplug_done();
+-	return rc;
++	return 0;
+ }
  
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
--- 
-2.25.1
-
+ /**
 
 
