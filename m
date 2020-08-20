@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96DB524BCE7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A791C24BCE5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729128AbgHTMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40454 "EHLO mail.kernel.org"
+        id S1729089AbgHTMzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728662AbgHTJnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:08 -0400
+        id S1728789AbgHTJnL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 533C8207DE;
-        Thu, 20 Aug 2020 09:43:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0814A208E4;
+        Thu, 20 Aug 2020 09:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916587;
-        bh=IMDH4ncHnM240DJnj3dWut5SxDOtQztyg1THaPfngCU=;
+        s=default; t=1597916590;
+        bh=cFSsyY+N9kTR0Cd7a0UjjTB3fTM2An8IueZiXLqrQhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PY239ETClCE5TOH44n6hAeFEIXWJ0UCVG3dQ59DLB0zmkZeuM1S08H9W188LMjwt9
-         V0k/2aypvy/zC9BtELoN0T4lcuNfH4H1V+XIIl+t6IIj+wkyYF7DTznWXxGQiaajtE
-         77FV9AtsCLdZWdRxrcbCMf4h9YMsUCnKX39e0bXs=
+        b=B1ViXoWB1AcZkhv+MRo30zaSeN/AkkHkH6VtjZsJAGkYTEQ+IoRL7T326VvUQoPId
+         CmA7yaw3G9k6mlZVvBbEyNEG4YWow47frSwOcnXUq5IbvZKhnEVlXwmwRIA+1xsfWh
+         ULNpNdrJK/QBdOssIDKncymPPdey5uPfoIIE9skI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dhananjay Phadke <dphadke@linux.microsoft.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 181/204] i2c: iproc: fix race between client unreg and isr
-Date:   Thu, 20 Aug 2020 11:21:18 +0200
-Message-Id: <20200820091615.242305426@linuxfoundation.org>
+Subject: [PATCH 5.7 182/204] mfd: dln2: Run event handler loop under spinlock
+Date:   Thu, 20 Aug 2020 11:21:19 +0200
+Message-Id: <20200820091615.290159493@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -46,101 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhananjay Phadke <dphadke@linux.microsoft.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit b1eef236f50ba6afea680da039ef3a2ca9c43d11 ]
+[ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
 
-When i2c client unregisters, synchronize irq before setting
-iproc_i2c->slave to NULL.
+The event handler loop must be run with interrupts disabled.
+Otherwise we will have a warning:
 
-(1) disable_irq()
-(2) Mask event enable bits in control reg
-(3) Erase slave address (avoid further writes to rx fifo)
-(4) Flush tx and rx FIFOs
-(5) Clear pending event (interrupt) bits in status reg
-(6) enable_irq()
-(7) Set client pointer to NULL
+[ 1970.785649] irq 31 handler lineevent_irq_handler+0x0/0x20 enabled interrupts
+[ 1970.792739] WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x162/0x170
+[ 1970.860732] RIP: 0010:__handle_irq_event_percpu+0x162/0x170
+...
+[ 1970.946994] Call Trace:
+[ 1970.949446]  <IRQ>
+[ 1970.951471]  handle_irq_event_percpu+0x2c/0x80
+[ 1970.955921]  handle_irq_event+0x23/0x43
+[ 1970.959766]  handle_simple_irq+0x57/0x70
+[ 1970.963695]  generic_handle_irq+0x42/0x50
+[ 1970.967717]  dln2_rx+0xc1/0x210 [dln2]
+[ 1970.971479]  ? usb_hcd_unmap_urb_for_dma+0xa6/0x1c0
+[ 1970.976362]  __usb_hcd_giveback_urb+0x77/0xe0
+[ 1970.980727]  usb_giveback_urb_bh+0x8e/0xe0
+[ 1970.984837]  tasklet_action_common.isra.0+0x4a/0xe0
+...
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000318
+Recently xHCI driver switched to tasklets in the commit 36dc01657b49
+("usb: host: xhci: Support running urb giveback in tasklet context").
 
-[  371.020421] pc : bcm_iproc_i2c_isr+0x530/0x11f0
-[  371.025098] lr : __handle_irq_event_percpu+0x6c/0x170
-[  371.030309] sp : ffff800010003e40
-[  371.033727] x29: ffff800010003e40 x28: 0000000000000060
-[  371.039206] x27: ffff800010ca9de0 x26: ffff800010f895df
-[  371.044686] x25: ffff800010f18888 x24: ffff0008f7ff3600
-[  371.050165] x23: 0000000000000003 x22: 0000000001600000
-[  371.055645] x21: ffff800010f18888 x20: 0000000001600000
-[  371.061124] x19: ffff0008f726f080 x18: 0000000000000000
-[  371.066603] x17: 0000000000000000 x16: 0000000000000000
-[  371.072082] x15: 0000000000000000 x14: 0000000000000000
-[  371.077561] x13: 0000000000000000 x12: 0000000000000001
-[  371.083040] x11: 0000000000000000 x10: 0000000000000040
-[  371.088519] x9 : ffff800010f317c8 x8 : ffff800010f317c0
-[  371.093999] x7 : ffff0008f805b3b0 x6 : 0000000000000000
-[  371.099478] x5 : ffff0008f7ff36a4 x4 : ffff8008ee43d000
-[  371.104957] x3 : 0000000000000000 x2 : ffff8000107d64c0
-[  371.110436] x1 : 00000000c00000af x0 : 0000000000000000
+The handle_irq_event_* functions are expected to be called with interrupts
+disabled and they rightfully complain here because we run in tasklet context
+with interrupts enabled.
 
-[  371.115916] Call trace:
-[  371.118439]  bcm_iproc_i2c_isr+0x530/0x11f0
-[  371.122754]  __handle_irq_event_percpu+0x6c/0x170
-[  371.127606]  handle_irq_event_percpu+0x34/0x88
-[  371.132189]  handle_irq_event+0x40/0x120
-[  371.136234]  handle_fasteoi_irq+0xcc/0x1a0
-[  371.140459]  generic_handle_irq+0x24/0x38
-[  371.144594]  __handle_domain_irq+0x60/0xb8
-[  371.148820]  gic_handle_irq+0xc0/0x158
-[  371.152687]  el1_irq+0xb8/0x140
-[  371.155927]  arch_cpu_idle+0x10/0x18
-[  371.159615]  do_idle+0x204/0x290
-[  371.162943]  cpu_startup_entry+0x24/0x60
-[  371.166990]  rest_init+0xb0/0xbc
-[  371.170322]  arch_call_rest_init+0xc/0x14
-[  371.174458]  start_kernel+0x404/0x430
+Use a event spinlock to protect event handler from being interrupted.
 
-Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
+Note, that there are only two users of this GPIO and ADC drivers and both of
+them are using generic_handle_irq() which makes above happen.
 
-Signed-off-by: Dhananjay Phadke <dphadke@linux.microsoft.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/mfd/dln2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index d091a12596ad2..85aee6d365b40 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -1074,7 +1074,7 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
- 	if (!iproc_i2c->slave)
- 		return -EINVAL;
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 39276fa626d2b..83e676a096dc1 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -287,7 +287,11 @@ static void dln2_rx(struct urb *urb)
+ 	len = urb->actual_length - sizeof(struct dln2_header);
  
--	iproc_i2c->slave = NULL;
-+	disable_irq(iproc_i2c->irq);
- 
- 	/* disable all slave interrupts */
- 	tmp = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-@@ -1087,6 +1087,17 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
- 	tmp &= ~BIT(S_CFG_EN_NIC_SMB_ADDR3_SHIFT);
- 	iproc_i2c_wr_reg(iproc_i2c, S_CFG_SMBUS_ADDR_OFFSET, tmp);
- 
-+	/* flush TX/RX FIFOs */
-+	tmp = (BIT(S_FIFO_RX_FLUSH_SHIFT) | BIT(S_FIFO_TX_FLUSH_SHIFT));
-+	iproc_i2c_wr_reg(iproc_i2c, S_FIFO_CTRL_OFFSET, tmp);
+ 	if (handle == DLN2_HANDLE_EVENT) {
++		unsigned long flags;
 +
-+	/* clear all pending slave interrupts */
-+	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
-+
-+	iproc_i2c->slave = NULL;
-+
-+	enable_irq(iproc_i2c->irq);
-+
- 	return 0;
- }
- 
++		spin_lock_irqsave(&dln2->event_cb_lock, flags);
+ 		dln2_run_event_callbacks(dln2, id, echo, data, len);
++		spin_unlock_irqrestore(&dln2->event_cb_lock, flags);
+ 	} else {
+ 		/* URB will be re-submitted in _dln2_transfer (free_rx_slot) */
+ 		if (dln2_transfer_complete(dln2, urb, handle, echo))
 -- 
 2.25.1
 
