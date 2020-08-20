@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E13724BF8E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB1124BF7B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727998AbgHTNta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:49:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
+        id S1728683AbgHTNjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728000AbgHTJ1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:27:37 -0400
+        id S1726908AbgHTJ1p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BE8422CE3;
-        Thu, 20 Aug 2020 09:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8378B22D06;
+        Thu, 20 Aug 2020 09:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915656;
-        bh=Yk52xVjzl3lAymU1zsn6uxuxbvhhei1pzaYt+K+ZPc8=;
+        s=default; t=1597915665;
+        bh=/pAvMKa+8PzqG9VMQ//rGLClT6PLL9jtalg44Ovo9+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWkWSYqSznKvZoQRr9f1Xiq/qZN3Et5oaQvXM4gmGGPRaIZ322M7C0/f2rQGFUWMP
-         oV4+qUrv4CDjMZYcYl6v/MCO9Odv0s3cUTgjJ6AcEU6YyMr9trwKs3aookWE274ytL
-         w/CA2YKLFdnq0FEGpxKWnMWKR4GSPg3dNDMpQK9A=
+        b=QVZU1qKHy+71+1+A4dMuopodEsCbHenhaEV62JJxQ9+Dqyb5k8eR1DdlgLJQHuM10
+         I56gLS1diSM6dZmQJawjS/83meUliwnS//uMmmg2YrDUMdFJSgr7w0o10jlYgY/Nqo
+         nifsTJn49sP+912Lz6kNQqX99denlmeS1wGPyN9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.8 062/232] net/compat: Add missing sock updates for SCM_RIGHTS
-Date:   Thu, 20 Aug 2020 11:18:33 +0200
-Message-Id: <20200820091615.798111470@linuxfoundation.org>
+Subject: [PATCH 5.8 063/232] selftests/seccomp: Set NNP for TSYNC ESRCH flag test
+Date:   Thu, 20 Aug 2020 11:18:34 +0200
+Message-Id: <20200820091615.845518621@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -48,87 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-commit d9539752d23283db4692384a634034f451261e29 upstream.
+commit e4d05028a07f505a08802a6d1b11674c149df2b3 upstream.
 
-Add missed sock updates to compat path via a new helper, which will be
-used more in coming patches. (The net/core/scm.c code is left as-is here
-to assist with -stable backports for the compat path.)
+The TSYNC ESRCH flag test will fail for regular users because NNP was
+not set yet. Add NNP setting.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
+Fixes: 51891498f2da ("seccomp: allow TSYNC and USER_NOTIF together")
 Cc: stable@vger.kernel.org
-Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
-Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reviewed-by: Tycho Andersen <tycho@tycho.ws>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/sock.h |    4 ++++
- net/compat.c       |    1 +
- net/core/sock.c    |   21 +++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ tools/testing/selftests/seccomp/seccomp_bpf.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -891,6 +891,8 @@ static inline int sk_memalloc_socks(void
- {
- 	return static_branch_unlikely(&memalloc_socks_key);
- }
-+
-+void __receive_sock(struct file *file);
- #else
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -3258,6 +3258,11 @@ TEST(user_notification_with_tsync)
+ 	int ret;
+ 	unsigned int flags;
  
- static inline int sk_memalloc_socks(void)
-@@ -898,6 +900,8 @@ static inline int sk_memalloc_socks(void
- 	return 0;
- }
- 
-+static inline void __receive_sock(struct file *file)
-+{ }
- #endif
- 
- static inline gfp_t sk_gfp_mask(const struct sock *sk, gfp_t gfp_mask)
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -309,6 +309,7 @@ void scm_detach_fds_compat(struct msghdr
- 			break;
- 		}
- 		/* Bump the usage count and install the file. */
-+		__receive_sock(fp[i]);
- 		fd_install(new_fd, get_file(fp[i]));
- 	}
- 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2842,6 +2842,27 @@ int sock_no_mmap(struct file *file, stru
- }
- EXPORT_SYMBOL(sock_no_mmap);
- 
-+/*
-+ * When a file is received (via SCM_RIGHTS, etc), we must bump the
-+ * various sock-based usage counts.
-+ */
-+void __receive_sock(struct file *file)
-+{
-+	struct socket *sock;
-+	int error;
-+
-+	/*
-+	 * The resulting value of "error" is ignored here since we only
-+	 * need to take action when the file is a socket and testing
-+	 * "sock" for NULL is sufficient.
-+	 */
-+	sock = sock_from_file(file, &error);
-+	if (sock) {
-+		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
-+		sock_update_classid(&sock->sk->sk_cgrp_data);
++	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
++	ASSERT_EQ(0, ret) {
++		TH_LOG("Kernel does not support PR_SET_NO_NEW_PRIVS!");
 +	}
-+}
 +
- ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
- {
- 	ssize_t res;
+ 	/* these were exclusive */
+ 	flags = SECCOMP_FILTER_FLAG_NEW_LISTENER |
+ 		SECCOMP_FILTER_FLAG_TSYNC;
 
 
