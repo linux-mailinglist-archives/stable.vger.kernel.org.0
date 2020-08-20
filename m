@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0A424B48E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0752D24B43F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:01:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgHTKIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:08:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41536 "EHLO mail.kernel.org"
+        id S1728942AbgHTKAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbgHTKIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:08:46 -0400
+        id S1730475AbgHTKAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E752120738;
-        Thu, 20 Aug 2020 10:08:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B51920738;
+        Thu, 20 Aug 2020 10:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918125;
-        bh=02CiQExdNNZ7mSv4dQbRS2MJTkgMN0xCXrym5xVxl7s=;
+        s=default; t=1597917634;
+        bh=DLL6QqiiFobXwMuulqKeu7vODSOep5OUkAO2XKz51y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mww1af+hokm4/0NLzcumyRpJAN1dh8n7YUvOOarqRg9XpKvzR54tETEjEhmAt3zpO
-         HO8loDrmvRmoei+bNYQjXzA4zLuBGP0nbAIAJMmhOxPRIjS6oUXj2LRwTuTIH16zPH
-         Rg0cvVvihrRLF7bZA7UAIz7efwlqgmtZv11Xrjmk=
+        b=EkAMTClO7zp4bTq6BedpY0YQQTMt30sSV7egMxysO1HxyJ4Q98AcUO+SPC3Avj7u+
+         a35JruZfkT7QNQDDHyOfFPDsbJA871Z6KoSjmlirEbov2iGGwYr+0Vh3Hvvpk9g6fF
+         9QaSP57UcAVrB12F32+IT3U/srbwjFzby93lLVUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/228] fs/btrfs: Add cond_resched() for try_release_extent_mapping() stalls
-Date:   Thu, 20 Aug 2020 11:20:37 +0200
-Message-Id: <20200820091610.705722590@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Jann Horn <jannh@google.com>, Martijn Coenen <maco@android.com>
+Subject: [PATCH 4.9 071/212] binder: Prevent context manager from incrementing ref 0
+Date:   Thu, 20 Aug 2020 11:20:44 +0200
+Message-Id: <20200820091605.949394523@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 9f47eb5461aaeb6cb8696f9d11503ae90e4d5cb0 ]
+commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
 
-Very large I/Os can cause the following RCU CPU stall warning:
+Binder is designed such that a binder_proc never has references to
+itself. If this rule is violated, memory corruption can occur when a
+process sends a transaction to itself; see e.g.
+<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
 
-RIP: 0010:rb_prev+0x8/0x50
-Code: 49 89 c0 49 89 d1 48 89 c2 48 89 f8 e9 e5 fd ff ff 4c 89 48 10 c3 4c =
-89 06 c3 4c 89 40 10 c3 0f 1f 00 48 8b 0f 48 39 cf 74 38 <48> 8b 47 10 48 85 c0 74 22 48 8b 50 08 48 85 d2 74 0c 48 89 d0 48
-RSP: 0018:ffffc9002212bab0 EFLAGS: 00000287 ORIG_RAX: ffffffffffffff13
-RAX: ffff888821f93630 RBX: ffff888821f93630 RCX: ffff888821f937e0
-RDX: 0000000000000000 RSI: 0000000000102000 RDI: ffff888821f93630
-RBP: 0000000000103000 R08: 000000000006c000 R09: 0000000000000238
-R10: 0000000000102fff R11: ffffc9002212bac8 R12: 0000000000000001
-R13: ffffffffffffffff R14: 0000000000102000 R15: ffff888821f937e0
- __lookup_extent_mapping+0xa0/0x110
- try_release_extent_mapping+0xdc/0x220
- btrfs_releasepage+0x45/0x70
- shrink_page_list+0xa39/0xb30
- shrink_inactive_list+0x18f/0x3b0
- shrink_lruvec+0x38e/0x6b0
- shrink_node+0x14d/0x690
- do_try_to_free_pages+0xc6/0x3e0
- try_to_free_mem_cgroup_pages+0xe6/0x1e0
- reclaim_high.constprop.73+0x87/0xc0
- mem_cgroup_handle_over_high+0x66/0x150
- exit_to_usermode_loop+0x82/0xd0
- do_syscall_64+0xd4/0x100
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+There is a remaining edgecase through which such a transaction-to-self
+can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
+access:
 
-On a PREEMPT=n kernel, the try_release_extent_mapping() function's
-"while" loop might run for a very long time on a large I/O.  This commit
-therefore adds a cond_resched() to this loop, providing RCU any needed
-quiescent states.
+ - task A opens /dev/binder twice, creating binder_proc instances P1
+   and P2
+ - P1 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
+   handle table
+ - P1 dies (by closing the /dev/binder fd and waiting a bit)
+ - P2 becomes context manager
+ - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
+   handle table
+   [this triggers a warning: "binder: 1974:1974 tried to acquire
+   reference to desc 0, got 1 instead"]
+ - task B opens /dev/binder once, creating binder_proc instance P3
+ - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
+   transaction)
+ - P2 receives the handle and uses it to call P3 (two-way transaction)
+ - P3 calls P2 (via magic handle 0) (two-way transaction)
+ - P2 calls P2 (via handle 1) (two-way transaction)
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+And then, if P2 does *NOT* accept the incoming transaction work, but
+instead closes the binder fd, we get a crash.
+
+Solve it by preventing the context manager from using ACQUIRE on ref 0.
+There shouldn't be any legitimate reason for the context manager to do
+that.
+
+Additionally, print a warning if someone manages to find another way to
+trigger a transaction-to-self bug in the future.
+
+Cc: stable@vger.kernel.org
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Acked-by: Todd Kjos <tkjos@google.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Martijn Coenen <maco@android.com>
+Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+[manual backport: remove fine-grained locking and error reporting that
+                  don't exist in <=4.9]
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/extent_io.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/android/binder.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 6d2bfbb63d9ba..ef1fd6a09d8e5 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4323,6 +4323,8 @@ int try_release_extent_mapping(struct extent_map_tree *map,
- 
- 			/* once for us */
- 			free_extent_map(em);
-+
-+			cond_resched(); /* Allow large-extent preemption. */
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1427,6 +1427,10 @@ static void binder_transaction(struct bi
+ 			return_error = BR_DEAD_REPLY;
+ 			goto err_dead_binder;
  		}
- 	}
- 	return try_release_extent_state(map, tree, page, mask);
--- 
-2.25.1
-
++		if (WARN_ON(proc == target_proc)) {
++			return_error = BR_FAILED_REPLY;
++			goto err_invalid_target_handle;
++		}
+ 		if (security_binder_transaction(proc->tsk,
+ 						target_proc->tsk) < 0) {
+ 			return_error = BR_FAILED_REPLY;
+@@ -1830,6 +1834,11 @@ static int binder_thread_write(struct bi
+ 			ptr += sizeof(uint32_t);
+ 			if (target == 0 && binder_context_mgr_node &&
+ 			    (cmd == BC_INCREFS || cmd == BC_ACQUIRE)) {
++				if (binder_context_mgr_node->proc == proc) {
++					binder_user_error("%d:%d context manager tried to acquire desc 0\n",
++							  proc->pid, thread->pid);
++					return -EINVAL;
++				}
+ 				ref = binder_get_ref_for_node(proc,
+ 					       binder_context_mgr_node);
+ 				if (ref->desc != target) {
 
 
