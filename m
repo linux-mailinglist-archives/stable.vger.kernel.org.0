@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F3524B73E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA66B24B71F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbgHTKry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34970 "EHLO mail.kernel.org"
+        id S1731375AbgHTKrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:47:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730906AbgHTKPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:15:42 -0400
+        id S1731131AbgHTKPs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:15:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C4602075E;
-        Thu, 20 Aug 2020 10:15:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FDD120658;
+        Thu, 20 Aug 2020 10:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918542;
-        bh=uvPcA278+rQVuPgo3OMY2Dm+xirVYV20mS9YL1yHsbQ=;
+        s=default; t=1597918547;
+        bh=oSg29O4EE7wm26TO9QUIlPQlcXSOZytFhnc5IbOB+N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+T4LRKoNuONGgj9SPuRuer5wuXFvdaTmRMpvZ+issaftVojMgTEMoSMq1p1rb8nF
-         0pjlyAKSe5B322ez8Rb5pMml8TwlEBI898FiUqNW656rXGslRqRH4JyW6vNwS0rST5
-         oJGiJQcOZODw3jVLQVdFBkK0NNNbCQxdVMJjUsHs=
+        b=yz2NqkOhOX/sJJECVK8/kSVfHOskx2+0cjr7c5HnB7w6gn0I/96MtbPSrg3MeArEF
+         bh5AM3aSkEiTLbTM6m0b7WSH4pBP6M5VEQPFq/HGKl/i3GePeKBXWeiPQJ0TFWP+bi
+         G78nY3CkqT3LJaJJOg1B4oM3rdhJD1XSiGrh57/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        David Carrillo-Cisneros <davidcc@google.com>,
-        Ian Rogers <irogers@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 207/228] tools build feature: Use CC and CXX from parent
-Date:   Thu, 20 Aug 2020 11:23:02 +0200
-Message-Id: <20200820091617.877908192@linuxfoundation.org>
+Subject: [PATCH 4.14 209/228] Input: sentelic - fix error return when fsp_reg_write fails
+Date:   Thu, 20 Aug 2020 11:23:04 +0200
+Message-Id: <20200820091617.974620449@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -52,89 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit e3232c2f39acafd5a29128425bc30b9884642cfa ]
+[ Upstream commit ea38f06e0291986eb93beb6d61fd413607a30ca4 ]
 
-commit c8c188679ccf ("tools build: Use the same CC for feature detection
-and actual build") changed these assignments from unconditional (:=) to
-conditional (?=) so that they wouldn't clobber values from the
-environment. However, conditional assignment does not work properly for
-variables that Make implicitly sets, among which are CC and CXX. To
-quote tools/scripts/Makefile.include, which handles this properly:
+Currently when the call to fsp_reg_write fails -EIO is not being returned
+because the count is being returned instead of the return value in retval.
+Fix this by returning the value in retval instead of count.
 
-  # Makefiles suck: This macro sets a default value of $(2) for the
-  # variable named by $(1), unless the variable has been set by
-  # environment or command line. This is necessary for CC and AR
-  # because make sets default values, so the simpler ?= approach
-  # won't work as expected.
-
-In other words, the conditional assignments will not run even if the
-variables are not overridden in the environment; Make will set CC to
-"cc" and CXX to "g++" when it starts[1], meaning the variables are not
-empty by the time the conditional assignments are evaluated. This breaks
-cross-compilation when CROSS_COMPILE is set but CC isn't, since "cc"
-gets used for feature detection instead of the cross compiler (and
-likewise for CXX).
-
-To fix the issue, just pass down the values of CC and CXX computed by
-the parent Makefile, which gets included by the Makefile that actually
-builds whatever we're detecting features for and so is guaranteed to
-have good values. This is a better solution anyway, since it means we
-aren't trying to replicate the logic of the parent build system and so
-don't risk it getting out of sync.
-
-Leave PKG_CONFIG alone, since 1) there's no common logic to compute it
-in Makefile.include, and 2) it's not an implicit variable, so
-conditional assignment works properly.
-
-[1] https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-
-Fixes: c8c188679ccf ("tools build: Use the same CC for feature detection and actual build")
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: David Carrillo-Cisneros <davidcc@google.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Igor Lubashev <ilubashe@akamai.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: thomas hebb <tommyhebb@gmail.com>
-Link: http://lore.kernel.org/lkml/0a6e69d1736b0fa231a648f50b0cce5d8a6734ef.1595822871.git.tommyhebb@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Addresses-Coverity: ("Unused value")
+Fixes: fc69f4a6af49 ("Input: add new driver for Sentelic Finger Sensing Pad")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20200603141218.131663-1-colin.king@canonical.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Makefile.feature | 2 +-
- tools/build/feature/Makefile | 2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/mouse/sentelic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
-index c71a05b9c984f..a2389f0c0b1c0 100644
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -7,7 +7,7 @@ endif
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 11c32ac8234b2..779d0b9341c0d 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -454,7 +454,7 @@ static ssize_t fsp_attr_set_setreg(struct psmouse *psmouse, void *data,
  
- feature_check = $(eval $(feature_check_code))
- define feature_check_code
--  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
-+  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
- endef
+ 	fsp_reg_write_enable(psmouse, false);
  
- feature_set = $(eval $(feature_set_code))
-diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
-index 96982640fbf88..26316749e594a 100644
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -55,8 +55,6 @@ FILES=                                          \
+-	return count;
++	return retval;
+ }
  
- FILES := $(addprefix $(OUTPUT),$(FILES))
- 
--CC ?= $(CROSS_COMPILE)gcc
--CXX ?= $(CROSS_COMPILE)g++
- PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
- LLVM_CONFIG ?= llvm-config
- 
+ PSMOUSE_DEFINE_WO_ATTR(setreg, S_IWUSR, NULL, fsp_attr_set_setreg);
 -- 
 2.25.1
 
