@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E7CC24BFCF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B99C824BFD1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbgHTNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:54:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
+        id S1731028AbgHTNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727906AbgHTJ0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:41 -0400
+        id S1727931AbgHTJ0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C969022CE3;
-        Thu, 20 Aug 2020 09:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5562122D0B;
+        Thu, 20 Aug 2020 09:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915600;
-        bh=dLN8VAA5iPGBkW4opW8cjquNH5m79Hk8dZeExUXHUBY=;
+        s=default; t=1597915609;
+        bh=HMeLencfP79QnOTHpQu9SCQ8crUYfKYEweeJFlkvMmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mycbaZb1Xb8vdGovidZZfJsgRljAZGF0UkiNjAtYyc3Glyu2J8p79sMhjERHfrF9v
-         shQwGfn/7cPnRkkG8a0o0ZzFT2q/IO9t9t4iHC+Pwa9dGnrKmYWVEQQ/17RsNdH4CI
-         taMP30WjyUIBysOIrhIvXzdIOxEvn9FRe7sryvPM=
+        b=YT/zfQBXHi3eFcJYXFTYgXIVV8X0QlZLNEnTzWQsWdGWQ7P7skGRsUHcOr0n1+RnJ
+         3Pp8xJZjxwkylvvfR6twVHanuqs2H000zcrQgQXcu+5rlZ+vkl+2MHq3A6w48Kizx8
+         yQNUImnpwNKuDOq8VrcIa5VgheWjmIbIV/Daof5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christopher KOBAYASHI <chris@disavowed.jp>,
-        Doug Brown <doug@downtowndougbrown.com>,
-        Vincent Duvert <vincent.ldev@duvert.net>,
-        Lukas Wunner <lukas@wunner.de>,
-        Yue Haibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 071/232] appletalk: Fix atalk_proc_init() return path
-Date:   Thu, 20 Aug 2020 11:18:42 +0200
-Message-Id: <20200820091616.241259112@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.8 074/232] MIPS: qi_lb60: Fix routing to audio amplifier
+Date:   Thu, 20 Aug 2020 11:18:45 +0200
+Message-Id: <20200820091616.393166982@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,40 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Duvert <vincent.ldev@duvert.net>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit d0f6ba2ef2c1c95069509e71402e7d6d43452512 upstream.
+commit 0889a67a9e7a56ba39af223d536630b20b877fda upstream.
 
-Add a missing return statement to atalk_proc_init so it doesn't return
--ENOMEM when successful.  This allows the appletalk module to load
-properly.
+The ROUT (right channel output of audio codec) was connected to INL
+(left channel of audio amplifier) instead of INR (right channel of audio
+amplifier).
 
-Fixes: e2bcd8b0ce6e ("appletalk: use remove_proc_subtree to simplify procfs code")
-Link: https://www.downtowndougbrown.com/2020/08/hacking-up-a-fix-for-the-broken-appletalk-kernel-module-in-linux-5-1-and-newer/
-Reported-by: Christopher KOBAYASHI <chris@disavowed.jp>
-Reported-by: Doug Brown <doug@downtowndougbrown.com>
-Signed-off-by: Vincent Duvert <vincent.ldev@duvert.net>
-[lukas: add missing tags]
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v5.1+
-Cc: Yue Haibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8ddebad15e9b ("MIPS: qi_lb60: Migrate to devicetree")
+Cc: stable@vger.kernel.org # v5.3
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/appletalk/atalk_proc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/boot/dts/ingenic/qi_lb60.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/appletalk/atalk_proc.c
-+++ b/net/appletalk/atalk_proc.c
-@@ -229,6 +229,8 @@ int __init atalk_proc_init(void)
- 				     sizeof(struct aarp_iter_state), NULL))
- 		goto out;
+--- a/arch/mips/boot/dts/ingenic/qi_lb60.dts
++++ b/arch/mips/boot/dts/ingenic/qi_lb60.dts
+@@ -69,7 +69,7 @@
+ 			"Speaker", "OUTL",
+ 			"Speaker", "OUTR",
+ 			"INL", "LOUT",
+-			"INL", "ROUT";
++			"INR", "ROUT";
  
-+	return 0;
-+
- out:
- 	remove_proc_subtree("atalk", init_net.proc_net);
- 	return -ENOMEM;
+ 		simple-audio-card,aux-devs = <&amp>;
+ 
 
 
