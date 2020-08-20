@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6FE24BF79
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5B624BF0C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729984AbgHTNjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
+        id S1730161AbgHTNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727068AbgHTJ3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:19 -0400
+        id S1727854AbgHTJ3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DB1622B4B;
-        Thu, 20 Aug 2020 09:29:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AC4E22D07;
+        Thu, 20 Aug 2020 09:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915759;
-        bh=KDpAiWjt9PyK7QuzfiSbWuUz/G+w+2qmU0TYOWkztIY=;
+        s=default; t=1597915763;
+        bh=8gTAWMHmKWWQ19Ho78or6u9zEjW6IwLD3rcYFIbm1AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNKBTJSJU4PSrlfMVVZTWTt+CS0ed2nZZSF4KQpoFygWUCmYIQEd9t2Xo/d/lHvQq
-         FiKVF58+3jbg3poXPtAJipIGMDasCBy3MiONUMOT/l2IuoaZSZzHxjBFglBOIWTv/A
-         xXZcOWBTTfKM2RQHs4JuHPTTh5Ojw44YbrADALBw=
+        b=doa3yl6MGZaQMt3UjWA6XQZWX8IplGmV/xcdJtB0EwpJ6uESWbTBvEmGmIk2wTIIJ
+         fzikcVO3oyFIuWcrrGmWcuh2QjZnHYZr4ocL+0V/BofEN5kCrxxBYlVKsPXtrU0NAN
+         /JDkzYBtDADVcrfhxcjQDOCMpce/SYqJbHiI5Q3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.8 095/232] ceph: set sec_context xattr on symlink creation
-Date:   Thu, 20 Aug 2020 11:19:06 +0200
-Message-Id: <20200820091617.438788458@linuxfoundation.org>
+        Ilya Dryomov <idryomov@gmail.com>,
+        Patrick Donnelly <pdonnell@redhat.com>
+Subject: [PATCH 5.8 096/232] ceph: handle zero-length feature mask in session messages
+Date:   Thu, 20 Aug 2020 11:19:07 +0200
+Message-Id: <20200820091617.478856293@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,36 +46,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Layton <jlayton@kernel.org>
 
-commit b748fc7a8763a5b3f8149f12c45711cd73ef8176 upstream.
+commit 02e37571f9e79022498fd0525c073b07e9d9ac69 upstream.
 
-Symlink inodes should have the security context set in their xattrs on
-creation. We already set the context on creation, but we don't attach
-the pagelist. The effect is that symlink inodes don't get an SELinux
-context set on them at creation, so they end up unlabeled instead of
-inheriting the proper context. Make it do so.
+Most session messages contain a feature mask, but the MDS will
+routinely send a REJECT message with one that is zero-length.
+
+Commit 0fa8263367db ("ceph: fix endianness bug when handling MDS
+session feature bits") fixed the decoding of the feature mask,
+but failed to account for the MDS sending a zero-length feature
+mask. This causes REJECT message decoding to fail.
+
+Skip trying to decode a feature mask if the word count is zero.
 
 Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/46823
+Fixes: 0fa8263367db ("ceph: fix endianness bug when handling MDS session feature bits")
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Tested-by: Patrick Donnelly <pdonnell@redhat.com>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ceph/dir.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ceph/mds_client.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -930,6 +930,10 @@ static int ceph_symlink(struct inode *di
- 	req->r_num_caps = 2;
- 	req->r_dentry_drop = CEPH_CAP_FILE_SHARED | CEPH_CAP_AUTH_EXCL;
- 	req->r_dentry_unless = CEPH_CAP_FILE_EXCL;
-+	if (as_ctx.pagelist) {
-+		req->r_pagelist = as_ctx.pagelist;
-+		as_ctx.pagelist = NULL;
-+	}
- 	err = ceph_mdsc_do_request(mdsc, dir, req);
- 	if (!err && !req->r_reply_info.head->is_dentry)
- 		err = ceph_handle_notrace_create(dir, dentry);
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -3279,8 +3279,10 @@ static void handle_session(struct ceph_m
+ 			goto bad;
+ 		/* version >= 3, feature bits */
+ 		ceph_decode_32_safe(&p, end, len, bad);
+-		ceph_decode_64_safe(&p, end, features, bad);
+-		p += len - sizeof(features);
++		if (len) {
++			ceph_decode_64_safe(&p, end, features, bad);
++			p += len - sizeof(features);
++		}
+ 	}
+ 
+ 	mutex_lock(&mdsc->mutex);
 
 
