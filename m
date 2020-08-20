@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2602D24BCF5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C72DE24BC1D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729123AbgHTJlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35756 "EHLO mail.kernel.org"
+        id S1728957AbgHTMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728281AbgHTJls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:48 -0400
+        id S1729384AbgHTJrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C38520724;
-        Thu, 20 Aug 2020 09:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F29782173E;
+        Thu, 20 Aug 2020 09:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916508;
-        bh=zYYp3C2CTnV6KL7DGFZEL0ktlMcY9rMHH+wVkETx7r8=;
+        s=default; t=1597916821;
+        bh=nDS9YM9aJxkFu5ZzfkTqvZdFAxXbEzlO2tlYmVHlIJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jj7xngC8n1Vxtd8qlGx9s7s3vRBRtqNEwlcsM9CNOsQ3U4B49yTGvVvCpaGQMIe2v
-         WwrBPREItbz/wmsj3VfAa+5juECcGrVk75Ah5YDIT2IZDjFpgnL6RH2qzaX1e42gI3
-         Y3RZkSVYxCkRXB1dXF6YOjlqOTc+5BPMOm05kanA=
+        b=SE9wXRPTO27aesx1js2jlZyefnqIGIkN+LAds6BVRS/Z5Ot7vT7hzvNndnazFN11B
+         wPOHPmmIFaDPP1JblaKOExD71dq2uyOwNLLVodSsnjuMFQ/fMKFnrpHLJLBIJqbdG5
+         FvNiW7GokOgO4Kw3Qr8T2BIjerKxi744ucfMATto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 125/204] rtw88: pci: disable aspm for platform inter-op with module parameter
-Date:   Thu, 20 Aug 2020 11:20:22 +0200
-Message-Id: <20200820091612.534416503@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Kevin Hao <haokexin@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 059/152] tracing/hwlat: Honor the tracing_cpumask
+Date:   Thu, 20 Aug 2020 11:20:26 +0200
+Message-Id: <20200820091556.747022048@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan-Hsuan Chuang <yhchuang@realtek.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-[ Upstream commit 68aa716b7dd36f55e080da9e27bc594346334c41 ]
+commit 96b4833b6827a62c295b149213c68b559514c929 upstream.
 
-Some platforms cannot read the DBI register successfully for the
-ASPM settings. After the read failed, the bus could be unstable,
-and the device just became unavailable [1]. For those platforms,
-the ASPM should be disabled. But as the ASPM can help the driver
-to save the power consumption in power save mode, the ASPM is still
-needed. So, add a module parameter for them to disable it, then
-the device can still work, while others can benefit from the less
-power consumption that brings by ASPM enabled.
+In calculation of the cpu mask for the hwlat kernel thread, the wrong
+cpu mask is used instead of the tracing_cpumask, this causes the
+tracing/tracing_cpumask useless for hwlat tracer. Fixes it.
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=206411
-[2] Note that my lenovo T430 is the same.
+Link: https://lkml.kernel.org/r/20200730082318.42584-2-haokexin@gmail.com
 
-Fixes: 3dff7c6e3749 ("rtw88: allows to enable/disable HCI link PS mechanism")
-Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200605074703.32726-1-yhchuang@realtek.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 0330f7aa8ee6 ("tracing: Have hwlat trace migrate across tracing_cpumask CPUs")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/realtek/rtw88/pci.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ kernel/trace/trace_hwlat.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index d735f3127fe8f..6c24ddc2a9751 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -14,8 +14,11 @@
- #include "debug.h"
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -270,6 +270,7 @@ static bool disable_migrate;
+ static void move_to_next_cpu(void)
+ {
+ 	struct cpumask *current_mask = &save_cpumask;
++	struct trace_array *tr = hwlat_trace;
+ 	int next_cpu;
  
- static bool rtw_disable_msi;
-+static bool rtw_pci_disable_aspm;
- module_param_named(disable_msi, rtw_disable_msi, bool, 0644);
-+module_param_named(disable_aspm, rtw_pci_disable_aspm, bool, 0644);
- MODULE_PARM_DESC(disable_msi, "Set Y to disable MSI interrupt support");
-+MODULE_PARM_DESC(disable_aspm, "Set Y to disable PCI ASPM support");
+ 	if (disable_migrate)
+@@ -283,7 +284,7 @@ static void move_to_next_cpu(void)
+ 		goto disable;
  
- static u32 rtw_pci_tx_queue_idx_addr[] = {
- 	[RTW_TX_QUEUE_BK]	= RTK_PCI_TXBD_IDX_BKQ,
-@@ -1189,6 +1192,9 @@ static void rtw_pci_clkreq_set(struct rtw_dev *rtwdev, bool enable)
- 	u8 value;
- 	int ret;
+ 	get_online_cpus();
+-	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
++	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+ 	next_cpu = cpumask_next(smp_processor_id(), current_mask);
+ 	put_online_cpus();
  
-+	if (rtw_pci_disable_aspm)
-+		return;
-+
- 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
- 	if (ret) {
- 		rtw_err(rtwdev, "failed to read CLKREQ_L1, ret=%d", ret);
-@@ -1208,6 +1214,9 @@ static void rtw_pci_aspm_set(struct rtw_dev *rtwdev, bool enable)
- 	u8 value;
- 	int ret;
+@@ -360,7 +361,7 @@ static int start_kthread(struct trace_ar
+ 	/* Just pick the first CPU on first iteration */
+ 	current_mask = &save_cpumask;
+ 	get_online_cpus();
+-	cpumask_and(current_mask, cpu_online_mask, tracing_buffer_mask);
++	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+ 	put_online_cpus();
+ 	next_cpu = cpumask_first(current_mask);
  
-+	if (rtw_pci_disable_aspm)
-+		return;
-+
- 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
- 	if (ret) {
- 		rtw_err(rtwdev, "failed to read ASPM, ret=%d", ret);
--- 
-2.25.1
-
 
 
