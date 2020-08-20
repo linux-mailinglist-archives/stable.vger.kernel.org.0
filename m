@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 749B324B516
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7650D24B4BB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730252AbgHTKSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
+        id S1730937AbgHTKLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:11:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731369AbgHTKRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:17:46 -0400
+        id S1730291AbgHTKLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:11:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CC5020658;
-        Thu, 20 Aug 2020 10:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A87AB2067C;
+        Thu, 20 Aug 2020 10:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918665;
-        bh=dLSZoe0U68+XiHw2ZjmLR1zZjUunThM8XsBc5V+pY8I=;
+        s=default; t=1597918265;
+        bh=aeLfuVpLgVSSDjcYFpoynPBNATote49CgUOoOfMWA3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiVq4kBqo9EvpB7OT6o7jy0vjYu4Gd6niDfUlvzcHwn5afeY6zj58HV31/fS4WP5r
-         eJWVMQSHt1T3N/U4UgtN5ANS0Su/i+47YM7IA/Pj47XbzAA2KyTDFXXmVYhVX/oEaC
-         t+60aYpOR2nsdinGyuDhH/Y8/wYt2IzU97b7yoks=
+        b=Sdj77wxHcZV5fOLHzzeDGZhHqZsTpq7R37nfOEa/f9ceIpjhU/Kt21pF7cITEJ1E3
+         LA87EYStRpl5H0jfVxMVt2Fd7F8n0Be8VXNrg7gg7l8aYBsdszw03Qyym1H3aV5tmW
+         fv3f8yriDAnzJAHXktE6R9JxtWxcYDWS8wd0FC70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 005/149] ath9k: release allocated buffer if timed out
-Date:   Thu, 20 Aug 2020 11:21:22 +0200
-Message-Id: <20200820092125.952949273@linuxfoundation.org>
+Subject: [PATCH 4.14 109/228] drm/imx: tve: fix regulator_disable error path
+Date:   Thu, 20 Aug 2020 11:21:24 +0200
+Message-Id: <20200820091613.046756077@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit 728c1e2a05e4b5fc52fab3421dce772a806612a2 ]
+[ Upstream commit 7bb58b987fee26da2a1665c01033022624986b7c ]
 
-In ath9k_wmi_cmd, the allocated network buffer needs to be released
-if timeout happens. Otherwise memory will be leaked.
+Add missing regulator_disable() as devm_action to avoid dedicated
+unbind() callback and fix the missing error handling.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: fcbc51e54d2a ("staging: drm/imx: Add support for Television Encoder (TVEv2)")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/imx/imx-tve.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index 8f14897ae5a33..f100533eb7adc 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -340,6 +340,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
- 			wmi_cmd_to_name(cmd_id));
- 		mutex_unlock(&wmi->op_mutex);
-+		kfree_skb(skb);
- 		return -ETIMEDOUT;
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index bc27c26994641..c22c3e6e9b7ac 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -498,6 +498,13 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
+ 	return 0;
+ }
+ 
++static void imx_tve_disable_regulator(void *data)
++{
++	struct imx_tve *tve = data;
++
++	regulator_disable(tve->dac_reg);
++}
++
+ static bool imx_tve_readable_reg(struct device *dev, unsigned int reg)
+ {
+ 	return (reg % 4 == 0) && (reg <= 0xdc);
+@@ -622,6 +629,9 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 		ret = regulator_enable(tve->dac_reg);
+ 		if (ret)
+ 			return ret;
++		ret = devm_add_action_or_reset(dev, imx_tve_disable_regulator, tve);
++		if (ret)
++			return ret;
  	}
  
+ 	tve->clk = devm_clk_get(dev, "tve");
+@@ -668,18 +678,8 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 	return 0;
+ }
+ 
+-static void imx_tve_unbind(struct device *dev, struct device *master,
+-	void *data)
+-{
+-	struct imx_tve *tve = dev_get_drvdata(dev);
+-
+-	if (!IS_ERR(tve->dac_reg))
+-		regulator_disable(tve->dac_reg);
+-}
+-
+ static const struct component_ops imx_tve_ops = {
+ 	.bind	= imx_tve_bind,
+-	.unbind	= imx_tve_unbind,
+ };
+ 
+ static int imx_tve_probe(struct platform_device *pdev)
 -- 
 2.25.1
 
