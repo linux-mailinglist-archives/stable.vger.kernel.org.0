@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B73F24BC70
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 208F524BD1B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbgHTMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:46:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46780 "EHLO mail.kernel.org"
+        id S1729984AbgHTM6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgHTJph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:37 -0400
+        id S1729051AbgHTJkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18C2B22DA7;
-        Thu, 20 Aug 2020 09:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEFE020724;
+        Thu, 20 Aug 2020 09:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916708;
-        bh=T2ekYwKMcI9We4WiQ3R5yX/we3RWSUTHfzAp2i/HlHA=;
+        s=default; t=1597916443;
+        bh=4PcJebeh/Ll0u6T2COoRTK6XyspIHlBi+EwMv6Zg/BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZKqTwClYBrdMTx709v+83qcT6Y278SQCgeof4tZ4G4jWBqHJpiS1cTwMW9bmqPrP
-         LeYzBtXghk0tmUH94SxXabDFTJFhsWFkFkRx8IvJrUo+0Oh6MNk2vcuU/CG92gsjcR
-         wo6X82mpdzOER9SV1SAhp/74br3YXwb1y6fAXL74=
+        b=c4r2b8uR8IcH5dz23+w++wFVHzAuBC4yM6se49KzsSH8LKwdipOvY4ysrf6d5a7Xx
+         +3e5+I29p/TNhOV+uRf2Jymc6Zhn5YjsFBWfHhfb9gOkrKBRZuFGyTvfTRB672K1M7
+         yUooWDx8gORb7iuptx38vmC3woRnjntIpkvLs8g0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 019/152] btrfs: add missing check for nocow and compression inode flags
+        stable@vger.kernel.org, Andi Kleen <andi@firstfloor.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.7 089/204] perf probe: Fix wrong variable warning when the probe point is not found
 Date:   Thu, 20 Aug 2020 11:19:46 +0200
-Message-Id: <20200820091554.630806711@linuxfoundation.org>
+Message-Id: <20200820091610.781384683@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit f37c563bab4297024c300b05c8f48430e323809d upstream.
+commit 11fd3eb874e73ee8069bcfd54e3c16fa7ce56fe6 upstream.
 
-User Forza reported on IRC that some invalid combinations of file
-attributes are accepted by chattr.
+Fix a wrong "variable not found" warning when the probe point is not
+found in the debuginfo.
 
-The NODATACOW and compression file flags/attributes are mutually
-exclusive, but they could be set by 'chattr +c +C' on an empty file. The
-nodatacow will be in effect because it's checked first in
-btrfs_run_delalloc_range.
+Since the debuginfo__find_probes() can return 0 even if it does not find
+given probe point in the debuginfo, fill_empty_trace_arg() can be called
+with tf.ntevs == 0 and it can emit a wrong warning.  To fix this, reject
+ntevs == 0 in fill_empty_trace_arg().
 
-Extend the flag validation to catch the following cases:
+E.g. without this patch;
 
-  - input flags are conflicting
-  - old and new flags are conflicting
-  - initialize the local variable with inode flags after inode ls locked
+  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
+  Failed to find the location of the '%di' variable at this address.
+   Perhaps it has been optimized out.
+   Use -V with the --range option to show '%di' location range.
+  Added new events:
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
 
-Inode attributes take precedence over mount options and are an
-independent setting.
+  You can now use it in all perf tools, such as:
 
-Nocompress would be a no-op with nodatacow, but we don't want to mix
-any compression-related options with nodatacow.
+  	perf record -e probe_libc:memcpy -aR sleep 1
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: David Sterba <dsterba@suse.com>
+With this;
+
+  # perf probe -x /lib64/libc-2.30.so -a "memcpy arg1=%di"
+  Added new events:
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+    probe_libc:memcpy    (on memcpy in /usr/lib64/libc-2.30.so with arg1=%di)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe_libc:memcpy -aR sleep 1
+
+Fixes: cb4027308570 ("perf probe: Trace a magic number if variable is not found")
+Reported-by: Andi Kleen <andi@firstfloor.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Tested-by: Andi Kleen <ak@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/159438667364.62703.2200642186798763202.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ioctl.c |   30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ tools/perf/util/probe-finder.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -167,8 +167,11 @@ static int btrfs_ioctl_getflags(struct f
- 	return 0;
- }
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1408,6 +1408,9 @@ static int fill_empty_trace_arg(struct p
+ 	char *type;
+ 	int i, j, ret;
  
--/* Check if @flags are a supported and valid set of FS_*_FL flags */
--static int check_fsflags(unsigned int flags)
-+/*
-+ * Check if @flags are a supported and valid set of FS_*_FL flags and that
-+ * the old and new flags are not conflicting
-+ */
-+static int check_fsflags(unsigned int old_flags, unsigned int flags)
- {
- 	if (flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL | \
- 		      FS_NOATIME_FL | FS_NODUMP_FL | \
-@@ -177,9 +180,19 @@ static int check_fsflags(unsigned int fl
- 		      FS_NOCOW_FL))
- 		return -EOPNOTSUPP;
- 
-+	/* COMPR and NOCOMP on new/old are valid */
- 	if ((flags & FS_NOCOMP_FL) && (flags & FS_COMPR_FL))
- 		return -EINVAL;
- 
-+	if ((flags & FS_COMPR_FL) && (flags & FS_NOCOW_FL))
-+		return -EINVAL;
++	if (!ntevs)
++		return -ENOENT;
 +
-+	/* NOCOW and compression options are mutually exclusive */
-+	if ((old_flags & FS_NOCOW_FL) && (flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-+		return -EINVAL;
-+	if ((flags & FS_NOCOW_FL) && (old_flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-@@ -193,7 +206,7 @@ static int btrfs_ioctl_setflags(struct f
- 	unsigned int fsflags, old_fsflags;
- 	int ret;
- 	const char *comp = NULL;
--	u32 binode_flags = binode->flags;
-+	u32 binode_flags;
- 
- 	if (!inode_owner_or_capable(inode))
- 		return -EPERM;
-@@ -204,22 +217,23 @@ static int btrfs_ioctl_setflags(struct f
- 	if (copy_from_user(&fsflags, arg, sizeof(fsflags)))
- 		return -EFAULT;
- 
--	ret = check_fsflags(fsflags);
--	if (ret)
--		return ret;
--
- 	ret = mnt_want_write_file(file);
- 	if (ret)
- 		return ret;
- 
- 	inode_lock(inode);
--
- 	fsflags = btrfs_mask_fsflags_for_type(inode, fsflags);
- 	old_fsflags = btrfs_inode_flags_to_fsflags(binode->flags);
-+
- 	ret = vfs_ioc_setflags_prepare(inode, old_fsflags, fsflags);
- 	if (ret)
- 		goto out_unlock;
- 
-+	ret = check_fsflags(old_fsflags, fsflags);
-+	if (ret)
-+		goto out_unlock;
-+
-+	binode_flags = binode->flags;
- 	if (fsflags & FS_SYNC_FL)
- 		binode_flags |= BTRFS_INODE_SYNC;
- 	else
+ 	for (i = 0; i < pev->nargs; i++) {
+ 		type = NULL;
+ 		for (j = 0; j < ntevs; j++) {
 
 
