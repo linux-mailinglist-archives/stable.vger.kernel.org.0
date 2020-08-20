@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EED924BBDA
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99C424BBD8
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbgHTMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:34:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53586 "EHLO mail.kernel.org"
+        id S1728989AbgHTJsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:48:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729548AbgHTJsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:48:35 -0400
+        id S1729562AbgHTJsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A98D2173E;
-        Thu, 20 Aug 2020 09:48:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C082C2224D;
+        Thu, 20 Aug 2020 09:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916914;
-        bh=uPeGqQXkvY7c5Sqc18JCLPAOGTvavRRRr4EheBmcF8w=;
+        s=default; t=1597916917;
+        bh=t9cMJsQx9/T2NSfwXlKPPTrbCGc8m3ntagvDxn3lkC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6h3D9SdSKfh9N8mxr9KSlipbeVWOukTw0DwaieA1EIm1Y7i0i+G4VETXfDNeDroS
-         xlREJaA6pcJun3SqDotaItZPHmMOrK01bn4rSrMOEuO234MS2+e3Gy92MCdNhZMshV
-         ficsrojkan6WqRUd5clTCseLh1LzMR1yV4+hB7Sk=
+        b=AkeJ2zQOL8nidBHWWRwQYl2r6LmdZUaad+vCuH0OcUxo04D4p5xnVxZTSRHphgKX5
+         lEjssFZKkxt0Tc3e5zGByasXfcD3zRIhbJDBtt5bZanCNWZ5iTELhrtXwLToEK1ZHy
+         O+2dCcwYbhPhX7pWzRm1a9hdDKB5GLlCojcRThGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/152] USB: serial: ftdi_sio: fix break and sysrq handling
-Date:   Thu, 20 Aug 2020 11:20:58 +0200
-Message-Id: <20200820091558.394549455@linuxfoundation.org>
+Subject: [PATCH 5.4 092/152] crypto: af_alg - Fix regression on empty requests
+Date:   Thu, 20 Aug 2020 11:20:59 +0200
+Message-Id: <20200820091558.445873116@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -43,85 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 733fff67941dad64b8a630450b8372b1873edc41 ]
+[ Upstream commit 662bb52f50bca16a74fe92b487a14d7dccb85e1a ]
 
-Only the last NUL in a packet should be flagged as a break character,
-for example, to avoid dropping unrelated characters when IGNBRK is set.
+Some user-space programs rely on crypto requests that have no
+control metadata.  This broke when a check was added to require
+the presence of control metadata with the ctx->init flag.
 
-Also make sysrq work by consuming the break character instead of having
-it immediately cancel the sysrq request, and by not processing it
-prematurely to avoid triggering a sysrq based on an unrelated character
-received in the same packet (which was received *before* the break).
+This patch fixes the regression by setting ctx->init as long as
+one sendmsg(2) has been made, with or without a control message.
 
-Note that the break flag can be left set also for a packet received
-immediately following a break and that and an ending NUL in such a
-packet will continue to be reported as a break as there's no good way to
-tell it apart from an actual break.
-
-Tested on FT232R and FT232H.
-
-Fixes: 72fda3ca6fc1 ("USB: serial: ftd_sio: implement sysrq handling on break")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ crypto/af_alg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 33f1cca7eaa61..07b146d7033a6 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -2483,6 +2483,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 		struct ftdi_private *priv, unsigned char *buf, int len)
- {
- 	unsigned char status;
-+	bool brkint = false;
- 	int i;
- 	char flag;
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index ed8ace8675b77..35e026ba2c7ed 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -851,6 +851,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 		err = -EINVAL;
+ 		goto unlock;
+ 	}
++	ctx->init = true;
  
-@@ -2534,13 +2535,17 @@ static int ftdi_process_packet(struct usb_serial_port *port,
- 	 */
- 	flag = TTY_NORMAL;
- 	if (buf[1] & FTDI_RS_ERR_MASK) {
--		/* Break takes precedence over parity, which takes precedence
--		 * over framing errors */
--		if (buf[1] & FTDI_RS_BI) {
--			flag = TTY_BREAK;
-+		/*
-+		 * Break takes precedence over parity, which takes precedence
-+		 * over framing errors. Note that break is only associated
-+		 * with the last character in the buffer and only when it's a
-+		 * NUL.
-+		 */
-+		if (buf[1] & FTDI_RS_BI && buf[len - 1] == '\0') {
- 			port->icount.brk++;
--			usb_serial_handle_break(port);
--		} else if (buf[1] & FTDI_RS_PE) {
-+			brkint = true;
-+		}
-+		if (buf[1] & FTDI_RS_PE) {
- 			flag = TTY_PARITY;
- 			port->icount.parity++;
- 		} else if (buf[1] & FTDI_RS_FE) {
-@@ -2556,8 +2561,13 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	if (init) {
+ 		ctx->enc = enc;
+@@ -858,7 +859,6 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 			memcpy(ctx->iv, con.iv->iv, ivsize);
  
- 	port->icount.rx += len - 2;
+ 		ctx->aead_assoclen = con.aead_assoclen;
+-		ctx->init = true;
+ 	}
  
--	if (port->port.console && port->sysrq) {
-+	if (brkint || (port->port.console && port->sysrq)) {
- 		for (i = 2; i < len; i++) {
-+			if (brkint && i == len - 1) {
-+				if (usb_serial_handle_break(port))
-+					return len - 3;
-+				flag = TTY_BREAK;
-+			}
- 			if (usb_serial_handle_sysrq_char(port, buf[i]))
- 				continue;
- 			tty_insert_flip_char(&port->port, buf[i], flag);
+ 	while (size) {
 -- 
 2.25.1
 
