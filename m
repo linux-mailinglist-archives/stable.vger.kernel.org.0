@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0761A24B57A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A276A24B59D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730287AbgHTKYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:24:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
+        id S1731459AbgHTK0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731771AbgHTKXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:23:43 -0400
+        id S1731696AbgHTKXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:23:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD3BB2072D;
-        Thu, 20 Aug 2020 10:23:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45DFD2075E;
+        Thu, 20 Aug 2020 10:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597919023;
-        bh=sX5hb72mhQcxV5Y/NcLs73/WvcsHj26ueUFDCkJLfW4=;
+        s=default; t=1597918988;
+        bh=0ETO/R8vx8r+dQSD3C/4hIPkA1h9Zp+nM/phIiVQ3Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNOzyNMiGvfdMsrcrE5KPjXCpKmsA0GQw1vY/Vyz+QwCimiDC6rJsq/SD2icrdGyz
-         0PXdvo0f0QOnpvcDAw4MqKaVf5b3BFF1koSCKLjM86rXWQIAjMQ39AVXAJOUnJ/jc2
-         fhc0Wak/M6ulHFx6RuV4H1LmgYcbp+41wegytesk=
+        b=KijWR/THG7VOzHYlshjEMu8D0y3cEaLABycbhuKfSVl+SlPYR/317Zk4htSQWa7iM
+         KE6O/CdXCE0/uBYVfl7lNWYTxZZqoAQSZJhAQqEYsMZkkPBPLhI1CNfZJYuk4TaZ82
+         5n2GXPR9zqoJZE1aqCEL7WmMT8sHvI0GtG7PPKS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Roland Scheidegger <sroland@vmware.com>,
+        stable@vger.kernel.org,
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 142/149] drm/vmwgfx: Fix two list_for_each loop exit tests
-Date:   Thu, 20 Aug 2020 11:23:39 +0200
-Message-Id: <20200820092132.573386609@linuxfoundation.org>
+Subject: [PATCH 4.4 143/149] nfs: Fix getxattr kernel panic and memory overflow
+Date:   Thu, 20 Aug 2020 11:23:40 +0200
+Message-Id: <20200820092132.622121151@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -44,60 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-[ Upstream commit 4437c1152ce0e57ab8f401aa696ea6291cc07ab1 ]
+[ Upstream commit b4487b93545214a9db8cbf32e86411677b0cca21 ]
 
-These if statements are supposed to be true if we ended the
-list_for_each_entry() loops without hitting a break statement but they
-don't work.
+Move the buffer size check to decode_attr_security_label() before memcpy()
+Only call memcpy() if the buffer is large enough
 
-In the first loop, we increment "i" after the "if (i == unit)" condition
-so we don't necessarily know that "i" is not equal to unit at the end of
-the loop.
-
-In the second loop we exit when mode is not pointing to a valid
-drm_display_mode struct so it doesn't make sense to check "mode->type".
-
-Fixes: a278724aa23c ("drm/vmwgfx: Implement fbdev on kms v2")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Roland Scheidegger <sroland@vmware.com>
-Signed-off-by: Roland Scheidegger <sroland@vmware.com>
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+[Trond: clean up duplicate test of label->len != 0]
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4proc.c | 2 --
+ fs/nfs/nfs4xdr.c  | 6 +++++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-index 9b97f70fbb3df..0b7427d474feb 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-@@ -2086,7 +2086,7 @@ int vmw_kms_fbdev_init_data(struct vmw_private *dev_priv,
- 		++i;
- 	}
- 
--	if (i != unit) {
-+	if (&con->head == &dev_priv->dev->mode_config.connector_list) {
- 		DRM_ERROR("Could not find initial display unit.\n");
- 		return -EINVAL;
- 	}
-@@ -2108,13 +2108,13 @@ int vmw_kms_fbdev_init_data(struct vmw_private *dev_priv,
- 			break;
- 	}
- 
--	if (mode->type & DRM_MODE_TYPE_PREFERRED)
--		*p_mode = mode;
--	else {
-+	if (&mode->head == &con->modes) {
- 		WARN_ONCE(true, "Could not find initial preferred mode.\n");
- 		*p_mode = list_first_entry(&con->modes,
- 					   struct drm_display_mode,
- 					   head);
-+	} else {
-+		*p_mode = mode;
- 	}
- 
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 566afcc36adb5..ca1702cefb852 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -4916,8 +4916,6 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
+ 		return ret;
+ 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
+ 		return -ENOENT;
+-	if (buflen < label.len)
+-		return -ERANGE;
  	return 0;
+ }
+ 
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 15cd9db6d616d..28c1b765e4444 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4158,7 +4158,11 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 			goto out_overflow;
+ 		if (len < NFS4_MAXLABELLEN) {
+ 			if (label) {
+-				memcpy(label->label, p, len);
++				if (label->len) {
++					if (label->len < len)
++						return -ERANGE;
++					memcpy(label->label, p, len);
++				}
+ 				label->len = len;
+ 				label->pi = pi;
+ 				label->lfs = lfs;
 -- 
 2.25.1
 
