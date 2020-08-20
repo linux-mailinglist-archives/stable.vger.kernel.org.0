@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD41E24B25A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568A524B25B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727013AbgHTJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:27:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        id S1727779AbgHTJ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727841AbgHTJ1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:27:04 -0400
+        id S1727997AbgHTJ1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7609022CF6;
-        Thu, 20 Aug 2020 09:27:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C29222D02;
+        Thu, 20 Aug 2020 09:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915624;
-        bh=tnabjO7JEjY1lDcg7PZdz46k5I4+nn34zgqTPaqIAqg=;
+        s=default; t=1597915670;
+        bh=Qy65o2ElQbFg2VmWsr+VjaMnkiwLKwRjolVO9ke96v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DM11x6Y8JQpXhK2Rl6i+8PKmW8odDc4Jp9X/RkjG1cIBT7D+S2/MLXPRNfEZnz19F
-         UYw2PfywfCqN0G/T7bapyW7nfL1ir+LzOJI0TinyvB7YHZw+O6sC1KiLZG/nhl9koM
-         XQVmgzqvZ+TYGja8XcQ7NHbNDgWhb+ucUVHGaGPA=
+        b=sAF7nfHdbFQ5SPSMQ8AcVvG8eFEGPVjUmYGxaUSIGKsy0hpUASDZ4+1NbrbrIhaiR
+         7mtKEdf75zwnUqKTg/mvHANkUrzIUbdYf3TF0qCTbb1gFHEU1LwPjJUlV0onbfql84
+         YutKzOwIIRAHQgReZgcoVnFYgceXQMkE5lKiNtcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.8 061/232] pidfd: Add missing sock updates for pidfd_getfd()
-Date:   Thu, 20 Aug 2020 11:18:32 +0200
-Message-Id: <20200820091615.744240580@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.8 065/232] bcache: allocate meta data pages as compound pages
+Date:   Thu, 20 Aug 2020 11:18:36 +0200
+Message-Id: <20200820091615.947140901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,53 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Coly Li <colyli@suse.de>
 
-commit 4969f8a073977123504609d7310b42a588297aa4 upstream.
+commit 5fe48867856367142d91a82f2cbf7a57a24cbb70 upstream.
 
-The sock counting (sock_update_netprioidx() and sock_update_classid())
-was missing from pidfd's implementation of received fd installation. Add
-a call to the new __receive_sock() helper.
+There are some meta data of bcache are allocated by multiple pages,
+and they are used as bio bv_page for I/Os to the cache device. for
+example cache_set->uuids, cache->disk_buckets, journal_write->data,
+bset_tree->data.
 
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+For such meta data memory, all the allocated pages should be treated
+as a single memory block. Then the memory management and underlying I/O
+code can treat them more clearly.
+
+This patch adds __GFP_COMP flag to all the location allocating >0 order
+pages for the above mentioned meta data. Then their pages are treated
+as compound pages now.
+
+Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: 8649c322f75c ("pid: Implement pidfd_getfd syscall")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/pid.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/md/bcache/bset.c    |    2 +-
+ drivers/md/bcache/btree.c   |    2 +-
+ drivers/md/bcache/journal.c |    4 ++--
+ drivers/md/bcache/super.c   |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -42,6 +42,7 @@
- #include <linux/sched/signal.h>
- #include <linux/sched/task.h>
- #include <linux/idr.h>
-+#include <net/sock.h>
+--- a/drivers/md/bcache/bset.c
++++ b/drivers/md/bcache/bset.c
+@@ -322,7 +322,7 @@ int bch_btree_keys_alloc(struct btree_ke
  
- struct pid init_struct_pid = {
- 	.count		= REFCOUNT_INIT(1),
-@@ -642,10 +643,12 @@ static int pidfd_getfd(struct pid *pid,
- 	}
+ 	b->page_order = page_order;
  
- 	ret = get_unused_fd_flags(O_CLOEXEC);
--	if (ret < 0)
-+	if (ret < 0) {
- 		fput(file);
--	else
-+	} else {
-+		__receive_sock(file);
- 		fd_install(ret, file);
-+	}
+-	t->data = (void *) __get_free_pages(gfp, b->page_order);
++	t->data = (void *) __get_free_pages(__GFP_COMP|gfp, b->page_order);
+ 	if (!t->data)
+ 		goto err;
  
- 	return ret;
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -785,7 +785,7 @@ int bch_btree_cache_alloc(struct cache_s
+ 	mutex_init(&c->verify_lock);
+ 
+ 	c->verify_ondisk = (void *)
+-		__get_free_pages(GFP_KERNEL, ilog2(bucket_pages(c)));
++		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
+ 
+ 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
+ 
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -999,8 +999,8 @@ int bch_journal_alloc(struct cache_set *
+ 	j->w[1].c = c;
+ 
+ 	if (!(init_fifo(&j->pin, JOURNAL_PIN, GFP_KERNEL)) ||
+-	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)) ||
+-	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL, JSET_BITS)))
++	    !(j->w[0].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)) ||
++	    !(j->w[1].data = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP, JSET_BITS)))
+ 		return -ENOMEM;
+ 
+ 	return 0;
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1776,7 +1776,7 @@ void bch_cache_set_unregister(struct cac
  }
+ 
+ #define alloc_bucket_pages(gfp, c)			\
+-	((void *) __get_free_pages(__GFP_ZERO|gfp, ilog2(bucket_pages(c))))
++	((void *) __get_free_pages(__GFP_ZERO|__GFP_COMP|gfp, ilog2(bucket_pages(c))))
+ 
+ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
+ {
 
 
