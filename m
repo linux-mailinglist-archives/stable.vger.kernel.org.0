@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 751D024B298
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4905124B381
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728420AbgHTJdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:33:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S1728942AbgHTJsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727779AbgHTJcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:14 -0400
+        id S1729486AbgHTJsH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C64722B4B;
-        Thu, 20 Aug 2020 09:32:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BC9C20724;
+        Thu, 20 Aug 2020 09:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915933;
-        bh=Do5+tr33I6sMu+dO/0UB/wx1YwNFPXRVPUGKAE7s/BM=;
+        s=default; t=1597916887;
+        bh=G1CSV8fzdvH/yVrsrPl1vk2V3nEkRTUxsVmgTxVU+yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qgj9ds9uXvKfXCmq1oVZfx+PwQQwMtXRP0grVETzM1EN2Yoi/2w+t8u0aB+ebIUOV
-         Yse+Z38QXNLCt6R3+AOuVD7DME2g7hro/n2dlWtpC/MM4TskiJ2LoQ0jWu2FB+Kwhx
-         hGfutIkSsS13OfpkHLJMbUUlforlsd5DUsGJGBOc=
+        b=W+Q9ZL9EYzUo1K0qEGgne+S3d2HndaxnpC0NNqlWLLvXP0CfH+s1AYnK91vpTtZJi
+         99gTNJ9x3x3A810R/idDdNeL7qqH5r/hcQ0HhZyAl2JrujCLtfwW9yZLUxVEjchNBV
+         2opA8vmPFDGZ+4QUsqwbe1dos9VITREGmzvuujAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Yi L <yi.l.liu@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 158/232] iommu/vt-d: Handle non-page aligned address
+        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 042/152] net: stmmac: dwmac1000: provide multicast filter fallback
 Date:   Thu, 20 Aug 2020 11:20:09 +0200
-Message-Id: <20200820091620.465486065@linuxfoundation.org>
+Message-Id: <20200820091555.822364614@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yi L <yi.l.liu@intel.com>
+From: Jonathan McDowell <noodles@earth.li>
 
-[ Upstream commit 288d08e78008828416ffaa85ef274b4e29ef3dae ]
+commit 592d751c1e174df5ff219946908b005eb48934b3 upstream.
 
-Address information for device TLB invalidation comes from userspace
-when device is directly assigned to a guest with vIOMMU support.
-VT-d requires page aligned address. This patch checks and enforce
-address to be page aligned, otherwise reserved bits can be set in the
-invalidation descriptor. Unrecoverable fault will be reported due to
-non-zero value in the reserved bits.
+If we don't have a hardware multicast filter available then instead of
+silently failing to listen for the requested ethernet broadcast
+addresses fall back to receiving all multicast packets, in a similar
+fashion to other drivers with no multicast filter.
 
-Fixes: 61a06a16e36d8 ("iommu/vt-d: Support flushing more translation cache types")
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Link: https://lore.kernel.org/r/20200724014925.15523-5-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/intel/dmar.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 16f47041f1bf5..ec23a2f0b5f8d 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -1459,9 +1459,26 @@ void qi_flush_dev_iotlb_pasid(struct intel_iommu *iommu, u16 sid, u16 pfsid,
- 	 * Max Invs Pending (MIP) is set to 0 for now until we have DIT in
- 	 * ECAP.
- 	 */
--	desc.qw1 |= addr & ~mask;
--	if (size_order)
-+	if (addr & GENMASK_ULL(size_order + VTD_PAGE_SHIFT, 0))
-+		pr_warn_ratelimited("Invalidate non-aligned address %llx, order %d\n",
-+				    addr, size_order);
-+
-+	/* Take page address */
-+	desc.qw1 = QI_DEV_EIOTLB_ADDR(addr);
-+
-+	if (size_order) {
-+		/*
-+		 * Existing 0s in address below size_order may be the least
-+		 * significant bit, we must set them to 1s to avoid having
-+		 * smaller size than desired.
-+		 */
-+		desc.qw1 |= GENMASK_ULL(size_order + VTD_PAGE_SHIFT - 1,
-+					VTD_PAGE_SHIFT);
-+		/* Clear size_order bit to indicate size */
-+		desc.qw1 &= ~mask;
-+		/* Set the S bit to indicate flushing more than 1 page */
- 		desc.qw1 |= QI_DEV_EIOTLB_SIZE;
-+	}
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+@@ -166,6 +166,9 @@ static void dwmac1000_set_filter(struct
+ 		value = GMAC_FRAME_FILTER_PR | GMAC_FRAME_FILTER_PCF;
+ 	} else if (dev->flags & IFF_ALLMULTI) {
+ 		value = GMAC_FRAME_FILTER_PM;	/* pass all multi */
++	} else if (!netdev_mc_empty(dev) && (mcbitslog2 == 0)) {
++		/* Fall back to all multicast if we've no filter */
++		value = GMAC_FRAME_FILTER_PM;
+ 	} else if (!netdev_mc_empty(dev)) {
+ 		struct netdev_hw_addr *ha;
  
- 	qi_submit_sync(iommu, &desc, 1, 0);
- }
--- 
-2.25.1
-
 
 
