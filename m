@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED22124B369
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 856AD24B33B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729360AbgHTJq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49984 "EHLO mail.kernel.org"
+        id S1729239AbgHTJnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:43:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729376AbgHTJq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:56 -0400
+        id S1728490AbgHTJmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:42:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5AA12224D;
-        Thu, 20 Aug 2020 09:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBCA120724;
+        Thu, 20 Aug 2020 09:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916816;
-        bh=mBruYFmI5oOlHdrSeRPr+j93XbsAw7qF/kEu5vjxUD4=;
+        s=default; t=1597916520;
+        bh=0X7WpuY/jCJp0/tIa44IIaSK8ndpAN4TJYDqNrG0RlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiAnAk7IZA89OgSxbYKqkCdcSc+d3aBtJMLjMAId0QvexhUI3LOPUb1SMxjDVT3If
-         WL3d17q35IBJSig5ZBSir1nOFdeDmijrazvFj0pMEcM0WEC29XWzoYUMJO/mqsgYrw
-         6Sac1nL1nEedDReyn1j4cKCQuqvslAqkgIsXqKgs=
+        b=Xz4wWHZ8P+pPoudsxVY30efaHryXB7bk2b6juxR2SchLLeHkZBeA9wvUUL1bEl8r4
+         +fvkIN0H/5gciyJebEgGG6Jhz3+DcnSX5J7h7MKmleF+JKeyiVs0hEDBvzJ3hJq29g
+         A/mj9FU0st/qOrKAgVYAxrR47d12z8t1d6L94zsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 057/152] ftrace: Setup correct FTRACE_FL_REGS flags for module
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 127/204] crypto: caam - Remove broken arc4 support
 Date:   Thu, 20 Aug 2020 11:20:24 +0200
-Message-Id: <20200820091556.646336482@linuxfoundation.org>
+Message-Id: <20200820091612.632767074@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 8a224ffb3f52b0027f6b7279854c71a31c48fc97 upstream.
+[ Upstream commit eeedb618378f8a09779546a3eeac16b000447d62 ]
 
-When module loaded and enabled, we will use __ftrace_replace_code
-for module if any ftrace_ops referenced it found. But we will get
-wrong ftrace_addr for module rec in ftrace_get_addr_new, because
-rec->flags has not been setup correctly. It can cause the callback
-function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
-with pt_regs set to NULL.
-So setup correct FTRACE_FL_REGS flags for rec when we call
-referenced_filters to find ftrace_ops references it.
+The arc4 algorithm requires storing state in the request context
+in order to allow more than one encrypt/decrypt operation.  As this
+driver does not seem to do that, it means that using it for more
+than one operation is broken.
 
-Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
-
-Cc: stable@vger.kernel.org
-Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: eaed71a44ad9 ("crypto: caam - add ecb(*) support")
+Link: https://lore.kernel.org/linux-crypto/CAMj1kXGvMe_A_iQ43Pmygg9xaAM-RLy=_M=v+eg--8xNmv9P+w@mail.gmail.com
+Link: https://lore.kernel.org/linux-crypto/20200702101947.682-1-ardb@kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/crypto/caam/caamalg.c | 29 -----------------------------
+ drivers/crypto/caam/compat.h  |  1 -
+ 2 files changed, 30 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5699,8 +5699,11 @@ static int referenced_filters(struct dyn
- 	int cnt = 0;
+diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
+index bf90a4fcabd1f..8149ac4d6ef22 100644
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -810,12 +810,6 @@ static int ctr_skcipher_setkey(struct crypto_skcipher *skcipher,
+ 	return skcipher_setkey(skcipher, key, keylen, ctx1_iv_off);
+ }
  
- 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
--		if (ops_references_rec(ops, rec))
--		    cnt++;
-+		if (ops_references_rec(ops, rec)) {
-+			cnt++;
-+			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
-+				rec->flags |= FTRACE_FL_REGS;
-+		}
+-static int arc4_skcipher_setkey(struct crypto_skcipher *skcipher,
+-				const u8 *key, unsigned int keylen)
+-{
+-	return skcipher_setkey(skcipher, key, keylen, 0);
+-}
+-
+ static int des_skcipher_setkey(struct crypto_skcipher *skcipher,
+ 			       const u8 *key, unsigned int keylen)
+ {
+@@ -1967,21 +1961,6 @@ static struct caam_skcipher_alg driver_algs[] = {
+ 		},
+ 		.caam.class1_alg_type = OP_ALG_ALGSEL_3DES | OP_ALG_AAI_ECB,
+ 	},
+-	{
+-		.skcipher = {
+-			.base = {
+-				.cra_name = "ecb(arc4)",
+-				.cra_driver_name = "ecb-arc4-caam",
+-				.cra_blocksize = ARC4_BLOCK_SIZE,
+-			},
+-			.setkey = arc4_skcipher_setkey,
+-			.encrypt = skcipher_encrypt,
+-			.decrypt = skcipher_decrypt,
+-			.min_keysize = ARC4_MIN_KEY_SIZE,
+-			.max_keysize = ARC4_MAX_KEY_SIZE,
+-		},
+-		.caam.class1_alg_type = OP_ALG_ALGSEL_ARC4 | OP_ALG_AAI_ECB,
+-	},
+ };
+ 
+ static struct caam_aead_alg driver_aeads[] = {
+@@ -3457,7 +3436,6 @@ int caam_algapi_init(struct device *ctrldev)
+ 	struct caam_drv_private *priv = dev_get_drvdata(ctrldev);
+ 	int i = 0, err = 0;
+ 	u32 aes_vid, aes_inst, des_inst, md_vid, md_inst, ccha_inst, ptha_inst;
+-	u32 arc4_inst;
+ 	unsigned int md_limit = SHA512_DIGEST_SIZE;
+ 	bool registered = false, gcm_support;
+ 
+@@ -3477,8 +3455,6 @@ int caam_algapi_init(struct device *ctrldev)
+ 			   CHA_ID_LS_DES_SHIFT;
+ 		aes_inst = cha_inst & CHA_ID_LS_AES_MASK;
+ 		md_inst = (cha_inst & CHA_ID_LS_MD_MASK) >> CHA_ID_LS_MD_SHIFT;
+-		arc4_inst = (cha_inst & CHA_ID_LS_ARC4_MASK) >>
+-			    CHA_ID_LS_ARC4_SHIFT;
+ 		ccha_inst = 0;
+ 		ptha_inst = 0;
+ 
+@@ -3499,7 +3475,6 @@ int caam_algapi_init(struct device *ctrldev)
+ 		md_inst = mdha & CHA_VER_NUM_MASK;
+ 		ccha_inst = rd_reg32(&priv->ctrl->vreg.ccha) & CHA_VER_NUM_MASK;
+ 		ptha_inst = rd_reg32(&priv->ctrl->vreg.ptha) & CHA_VER_NUM_MASK;
+-		arc4_inst = rd_reg32(&priv->ctrl->vreg.afha) & CHA_VER_NUM_MASK;
+ 
+ 		gcm_support = aesa & CHA_VER_MISC_AES_GCM;
  	}
+@@ -3522,10 +3497,6 @@ int caam_algapi_init(struct device *ctrldev)
+ 		if (!aes_inst && (alg_sel == OP_ALG_ALGSEL_AES))
+ 				continue;
  
- 	return cnt;
-@@ -5877,8 +5880,8 @@ void ftrace_module_enable(struct module
- 		if (ftrace_start_up)
- 			cnt += referenced_filters(rec);
- 
--		/* This clears FTRACE_FL_DISABLED */
--		rec->flags = cnt;
-+		rec->flags &= ~FTRACE_FL_DISABLED;
-+		rec->flags += cnt;
- 
- 		if (ftrace_start_up && cnt) {
- 			int failed = __ftrace_replace_code(rec, 1);
+-		/* Skip ARC4 algorithms if not supported by device */
+-		if (!arc4_inst && alg_sel == OP_ALG_ALGSEL_ARC4)
+-			continue;
+-
+ 		/*
+ 		 * Check support for AES modes not available
+ 		 * on LP devices.
+diff --git a/drivers/crypto/caam/compat.h b/drivers/crypto/caam/compat.h
+index 60e2a54c19f11..c3c22a8de4c00 100644
+--- a/drivers/crypto/caam/compat.h
++++ b/drivers/crypto/caam/compat.h
+@@ -43,7 +43,6 @@
+ #include <crypto/akcipher.h>
+ #include <crypto/scatterwalk.h>
+ #include <crypto/skcipher.h>
+-#include <crypto/arc4.h>
+ #include <crypto/internal/skcipher.h>
+ #include <crypto/internal/hash.h>
+ #include <crypto/internal/rsa.h>
+-- 
+2.25.1
+
 
 
