@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4805B24BD0C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BF024BC11
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729643AbgHTM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
+        id S1729580AbgHTMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:39:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbgHTJlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:05 -0400
+        id S1729470AbgHTJrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5752920724;
-        Thu, 20 Aug 2020 09:41:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D866C20724;
+        Thu, 20 Aug 2020 09:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916464;
-        bh=glrZ8+Vz8mqHzTmrL71cuHD1+DnBP22ANxGQaarC4NQ=;
+        s=default; t=1597916854;
+        bh=kCwqB6Ovaix4fstCjpwfhLC6Ms9iQESqD6AeWDno2wU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpHgJ3l1w1lNwbeR91e+WSCJygdq6M5yeTOQaFeS4vlPxYCjTMuLHhcnuWstBv3Hh
-         0hD7C8x4cz8JkvLRLfo9ouR1g7goUylegaOQuHYWZskDZ7biuS+wTLCikf7DAM/45s
-         TjLw0fyqi9UfHG1/FTQBv87RJC8uMLdNXShI7IIo=
+        b=kOG+2ZaVViPvwwHxRGd9DPfaj6CNl+CkEcJNBn3sO0EzZNqNWnJU/adBOT3BYqdCZ
+         z4JKMvaWiDlwMPCfSfg1cP9Np5t9hNOdoX4UTc1SL2zkHrVtLCwFleWDLfvcnAgM7A
+         0MZs/OM5vX0xncqJnIzTsHZ+YMQeEHoXiCU7BQwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 138/204] clk: qcom: gcc: fix sm8150 GPU and NPU clocks
-Date:   Thu, 20 Aug 2020 11:20:35 +0200
-Message-Id: <20200820091613.147323957@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 069/152] perf intel-pt: Fix FUP packet state
+Date:   Thu, 20 Aug 2020 11:20:36 +0200
+Message-Id: <20200820091557.262157715@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 667f39b59b494d96ae70f4217637db2ebbee3df0 ]
+commit 401136bb084fd021acd9f8c51b52fe0a25e326b2 upstream.
 
-Fix the parents and set BRANCH_HALT_SKIP. From the downstream driver it
-should be a 500us delay and not skip, however this matches what was done
-for other clocks that had 500us delay in downstream.
+While walking code towards a FUP ip, the packet state is
+INTEL_PT_STATE_FUP or INTEL_PT_STATE_FUP_NO_TIP. That was mishandled
+resulting in the state becoming INTEL_PT_STATE_IN_SYNC prematurely.  The
+result was an occasional lost EXSTOP event.
 
-Fixes: f73a4230d5bb ("clk: qcom: gcc: Add GPU and NPU clocks for SM8150")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20200709135251.643-2-jonathan@marek.ca
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200710151104.15137-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/qcom/gcc-sm8150.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   21 ++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sm8150.c b/drivers/clk/qcom/gcc-sm8150.c
-index 72524cf110487..55e9d6d75a0cd 100644
---- a/drivers/clk/qcom/gcc-sm8150.c
-+++ b/drivers/clk/qcom/gcc-sm8150.c
-@@ -1617,6 +1617,7 @@ static struct clk_branch gcc_gpu_cfg_ahb_clk = {
- };
- 
- static struct clk_branch gcc_gpu_gpll0_clk_src = {
-+	.halt_check = BRANCH_HALT_SKIP,
- 	.clkr = {
- 		.enable_reg = 0x52004,
- 		.enable_mask = BIT(15),
-@@ -1632,13 +1633,14 @@ static struct clk_branch gcc_gpu_gpll0_clk_src = {
- };
- 
- static struct clk_branch gcc_gpu_gpll0_div_clk_src = {
-+	.halt_check = BRANCH_HALT_SKIP,
- 	.clkr = {
- 		.enable_reg = 0x52004,
- 		.enable_mask = BIT(16),
- 		.hw.init = &(struct clk_init_data){
- 			.name = "gcc_gpu_gpll0_div_clk_src",
- 			.parent_hws = (const struct clk_hw *[]){
--				&gcc_gpu_gpll0_clk_src.clkr.hw },
-+				&gpll0_out_even.clkr.hw },
- 			.num_parents = 1,
- 			.flags = CLK_SET_RATE_PARENT,
- 			.ops = &clk_branch2_ops,
-@@ -1729,6 +1731,7 @@ static struct clk_branch gcc_npu_cfg_ahb_clk = {
- };
- 
- static struct clk_branch gcc_npu_gpll0_clk_src = {
-+	.halt_check = BRANCH_HALT_SKIP,
- 	.clkr = {
- 		.enable_reg = 0x52004,
- 		.enable_mask = BIT(18),
-@@ -1744,13 +1747,14 @@ static struct clk_branch gcc_npu_gpll0_clk_src = {
- };
- 
- static struct clk_branch gcc_npu_gpll0_div_clk_src = {
-+	.halt_check = BRANCH_HALT_SKIP,
- 	.clkr = {
- 		.enable_reg = 0x52004,
- 		.enable_mask = BIT(19),
- 		.hw.init = &(struct clk_init_data){
- 			.name = "gcc_npu_gpll0_div_clk_src",
- 			.parent_hws = (const struct clk_hw *[]){
--				&gcc_npu_gpll0_clk_src.clkr.hw },
-+				&gpll0_out_even.clkr.hw },
- 			.num_parents = 1,
- 			.flags = CLK_SET_RATE_PARENT,
- 			.ops = &clk_branch2_ops,
--- 
-2.25.1
-
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1164,6 +1164,7 @@ static int intel_pt_walk_fup(struct inte
+ 			return 0;
+ 		if (err == -EAGAIN ||
+ 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
++			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+ 			if (intel_pt_fup_event(decoder))
+ 				return 0;
+ 			return -EAGAIN;
+@@ -1942,17 +1943,13 @@ next:
+ 			}
+ 			if (decoder->set_fup_mwait)
+ 				no_tip = true;
++			if (no_tip)
++				decoder->pkt_state = INTEL_PT_STATE_FUP_NO_TIP;
++			else
++				decoder->pkt_state = INTEL_PT_STATE_FUP;
+ 			err = intel_pt_walk_fup(decoder);
+-			if (err != -EAGAIN) {
+-				if (err)
+-					return err;
+-				if (no_tip)
+-					decoder->pkt_state =
+-						INTEL_PT_STATE_FUP_NO_TIP;
+-				else
+-					decoder->pkt_state = INTEL_PT_STATE_FUP;
+-				return 0;
+-			}
++			if (err != -EAGAIN)
++				return err;
+ 			if (no_tip) {
+ 				no_tip = false;
+ 				break;
+@@ -2599,15 +2596,11 @@ const struct intel_pt_state *intel_pt_de
+ 			err = intel_pt_walk_tip(decoder);
+ 			break;
+ 		case INTEL_PT_STATE_FUP:
+-			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+ 			err = intel_pt_walk_fup(decoder);
+ 			if (err == -EAGAIN)
+ 				err = intel_pt_walk_fup_tip(decoder);
+-			else if (!err)
+-				decoder->pkt_state = INTEL_PT_STATE_FUP;
+ 			break;
+ 		case INTEL_PT_STATE_FUP_NO_TIP:
+-			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+ 			err = intel_pt_walk_fup(decoder);
+ 			if (err == -EAGAIN)
+ 				err = intel_pt_walk_trace(decoder);
 
 
