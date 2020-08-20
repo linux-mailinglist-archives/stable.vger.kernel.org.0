@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BFD424BFC7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA6B24BFC9
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730998AbgHTNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730715AbgHTNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:54:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33466 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727837AbgHTJ0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:26:00 -0400
+        id S1727840AbgHTJ0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F7F922CB1;
-        Thu, 20 Aug 2020 09:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD11B22D08;
+        Thu, 20 Aug 2020 09:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915547;
-        bh=80d02pedfTpF3cSJbY6um8Fk5bv/JNoyRNqEAFcDkBM=;
+        s=default; t=1597915553;
+        bh=yr1SDa0zPqE6iEOJH7QLxriE/fB8TR/45ppC0A2ud4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qx/hW8emA96RT36kpAlp1/7Q9dCmormy3W9B6c+4Bhu8jajBfzEtEEoUtEt5EZ8R3
-         zSLVWdXKVTsAVKKXVNe3EA+kITtj8KNUs0R64mlnMRLyo7K6+soT3il1ah5t24ux//
-         lmFdLj6PDdOYrGBU/xYgOgi4gwIT2mWT9Z4b3uGY=
+        b=XIKo5Xwac6JH60PHEUXHNHhd4krhtFo4gMMnof1qG9Dzfkb294BkTLEEkQ/jNDCkJ
+         ltFomKv43EtJjjkxGBO3TTsqTP/t9KO+3dFoM6SoMedLwMe1HbYd35k3Z/a68wqnnp
+         hJIFzWH063AgfJa7f7ITEeKXf+WH3xBQzIRCq238=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.8 052/232] powerpc: Fix circular dependency between percpu.h and mmu.h
-Date:   Thu, 20 Aug 2020 11:18:23 +0200
-Message-Id: <20200820091615.301098609@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Henrique?= <johnnyonflame@hotmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.8 054/232] pinctrl: ingenic: Properly detect GPIO direction when configured for IRQ
+Date:   Thu, 20 Aug 2020 11:18:25 +0200
+Message-Id: <20200820091615.399471310@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,66 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 0c83b277ada72b585e6a3e52b067669df15bcedb upstream.
+commit 84e7a946da71f678affacea301f6d5cb4d9784e8 upstream.
 
-Recently random.h started including percpu.h (see commit
-f227e3ec3b5c ("random32: update the net random state on interrupt and
-activity")), which broke corenet64_smp_defconfig:
+The PAT1 register contains information about the IRQ type (edge/level)
+for input GPIOs with IRQ enabled, and the direction for non-IRQ GPIOs.
+So it makes sense to read it only if the GPIO has no interrupt
+configured, otherwise input GPIOs configured for level IRQs are
+misdetected as output GPIOs.
 
-  In file included from /linux/arch/powerpc/include/asm/paca.h:18,
-                   from /linux/arch/powerpc/include/asm/percpu.h:13,
-                   from /linux/include/linux/random.h:14,
-                   from /linux/lib/uuid.c:14:
-  /linux/arch/powerpc/include/asm/mmu.h:139:22: error: unknown type name 'next_tlbcam_idx'
-    139 | DECLARE_PER_CPU(int, next_tlbcam_idx);
-
-This is due to a circular header dependency:
-  asm/mmu.h includes asm/percpu.h, which includes asm/paca.h, which
-  includes asm/mmu.h
-
-Which means DECLARE_PER_CPU() isn't defined when mmu.h needs it.
-
-We can fix it by moving the include of paca.h below the include of
-asm-generic/percpu.h.
-
-This moves the include of paca.h out of the #ifdef __powerpc64__, but
-that is OK because paca.h is almost entirely inside #ifdef
-CONFIG_PPC64 anyway.
-
-It also moves the include of paca.h out of the #ifdef CONFIG_SMP,
-which could possibly break something, but seems to have no ill
-effects.
-
-Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
-Cc: stable@vger.kernel.org # v5.8
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200804130558.292328-1-mpe@ellerman.id.au
+Fixes: ebd6651418b6 ("pinctrl: ingenic: Implement .get_direction for GPIO chips")
+Reported-by: João Henrique <johnnyonflame@hotmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200622214548.265417-2-paul@crapouillou.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/percpu.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-ingenic.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/percpu.h
-+++ b/arch/powerpc/include/asm/percpu.h
-@@ -10,8 +10,6 @@
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -1955,7 +1955,8 @@ static int ingenic_gpio_get_direction(st
+ 	unsigned int pin = gc->base + offset;
  
- #ifdef CONFIG_SMP
- 
--#include <asm/paca.h>
--
- #define __my_cpu_offset local_paca->data_offset
- 
- #endif /* CONFIG_SMP */
-@@ -19,4 +17,6 @@
- 
- #include <asm-generic/percpu.h>
- 
-+#include <asm/paca.h>
-+
- #endif /* _ASM_POWERPC_PERCPU_H_ */
+ 	if (jzpc->info->version >= ID_JZ4760) {
+-		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
++		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
++		    ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
+ 			return GPIO_LINE_DIRECTION_IN;
+ 		return GPIO_LINE_DIRECTION_OUT;
+ 	}
 
 
