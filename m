@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D672724BE33
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCFA24BE47
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728249AbgHTJeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45906 "EHLO mail.kernel.org"
+        id S1729357AbgHTNXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:23:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgHTJd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:33:29 -0400
+        id S1727900AbgHTJdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:33:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7283B22B3F;
-        Thu, 20 Aug 2020 09:33:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A523207DE;
+        Thu, 20 Aug 2020 09:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915999;
-        bh=eZkObATRnty0e7Ot5i/YiemRbDKHfPtcLirUorAG2kc=;
+        s=default; t=1597916001;
+        bh=cecQAWHLmwsCCrinzA06frVhhV1249x+4mNIPD1Sj6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftSsdOrGVaAql5wYJ/vG3H684I531j8GSkHl0qa+az35vpgUadsoyi89eudtoAiIV
-         eeSbkv5c4D56MUKDcwHbP75axX+pQAlAAT1YBn3gTbraTqYONB+6ZNQwMGZPiouZRf
-         C8PLZEf28w7mHp77IoCcxLycAbe+in4SQpAqolKk=
+        b=DHJc4fH/KJsLbtHLqz0SOsVh8sH6i2EnVqFM/yGMUfVpeD8JgZaR9qlolsttZHMZg
+         zJNdPCx6zt/ECBNTJqXgujRaJSgv/cMe0c4eMWgoc19bqShHr/GI5Vggas43jXXkYJ
+         xvZbrXiTV7PzBjeG+ut2dU+J5TDv9a1LJnJAxVvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Qiujun Huang <anenbupt@gmail.com>,
+        Evgeniy Dushistov <dushistov@mail.ru>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 208/232] fs/minix: remove expected error message in block_to_path()
-Date:   Thu, 20 Aug 2020 11:20:59 +0200
-Message-Id: <20200820091622.885457754@linuxfoundation.org>
+Subject: [PATCH 5.8 209/232] fs/ufs: avoid potential u32 multiplication overflow
+Date:   Thu, 20 Aug 2020 11:21:00 +0200
+Message-Id: <20200820091622.934009523@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,76 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit f666f9fb9a36f1c833b9d18923572f0e4d304754 ]
+[ Upstream commit 88b2e9b06381551b707d980627ad0591191f7a2d ]
 
-When truncating a file to a size within the last allowed logical block,
-block_to_path() is called with the *next* block.  This exceeds the limit,
-causing the "block %ld too big" error message to be printed.
+The 64 bit ino is being compared to the product of two u32 values,
+however, the multiplication is being performed using a 32 bit multiply so
+there is a potential of an overflow.  To be fully safe, cast uspi->s_ncg
+to a u64 to ensure a 64 bit multiplication occurs to avoid any chance of
+overflow.
 
-This case isn't actually an error; there are just no more blocks past that
-point.  So, remove this error message.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: f3e2a520f5fb ("ufs: NFS support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Link: http://lkml.kernel.org/r/20200628060846.682158-7-ebiggers@kernel.org
+Cc: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Link: http://lkml.kernel.org/r/20200715170355.1081713-1-colin.king@canonical.com
+Addresses-Coverity: ("Unintentional integer overflow")
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/minix/itree_v1.c | 12 ++++++------
- fs/minix/itree_v2.c | 12 ++++++------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ fs/ufs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/minix/itree_v1.c b/fs/minix/itree_v1.c
-index 405573a79aab4..1fed906042aa8 100644
---- a/fs/minix/itree_v1.c
-+++ b/fs/minix/itree_v1.c
-@@ -29,12 +29,12 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
- 	if (block < 0) {
- 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
- 			block, inode->i_sb->s_bdev);
--	} else if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes) {
--		if (printk_ratelimit())
--			printk("MINIX-fs: block_to_path: "
--			       "block %ld too big on dev %pg\n",
--				block, inode->i_sb->s_bdev);
--	} else if (block < 7) {
-+		return 0;
-+	}
-+	if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes)
-+		return 0;
-+
-+	if (block < 7) {
- 		offsets[n++] = block;
- 	} else if ((block -= 7) < 512) {
- 		offsets[n++] = 7;
-diff --git a/fs/minix/itree_v2.c b/fs/minix/itree_v2.c
-index ee8af2f9e2828..9d00f31a2d9d1 100644
---- a/fs/minix/itree_v2.c
-+++ b/fs/minix/itree_v2.c
-@@ -32,12 +32,12 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
- 	if (block < 0) {
- 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
- 			block, sb->s_bdev);
--	} else if ((u64)block * (u64)sb->s_blocksize >= sb->s_maxbytes) {
--		if (printk_ratelimit())
--			printk("MINIX-fs: block_to_path: "
--			       "block %ld too big on dev %pg\n",
--				block, sb->s_bdev);
--	} else if (block < DIRCOUNT) {
-+		return 0;
-+	}
-+	if ((u64)block * (u64)sb->s_blocksize >= sb->s_maxbytes)
-+		return 0;
-+
-+	if (block < DIRCOUNT) {
- 		offsets[n++] = block;
- 	} else if ((block -= DIRCOUNT) < INDIRCOUNT(sb)) {
- 		offsets[n++] = DIRCOUNT;
+diff --git a/fs/ufs/super.c b/fs/ufs/super.c
+index 1da0be667409b..e3b69fb280e8c 100644
+--- a/fs/ufs/super.c
++++ b/fs/ufs/super.c
+@@ -101,7 +101,7 @@ static struct inode *ufs_nfs_get_inode(struct super_block *sb, u64 ino, u32 gene
+ 	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
+ 	struct inode *inode;
+ 
+-	if (ino < UFS_ROOTINO || ino > uspi->s_ncg * uspi->s_ipg)
++	if (ino < UFS_ROOTINO || ino > (u64)uspi->s_ncg * uspi->s_ipg)
+ 		return ERR_PTR(-ESTALE);
+ 
+ 	inode = ufs_iget(sb, ino);
 -- 
 2.25.1
 
