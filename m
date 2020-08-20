@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9F924BDBE
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C9624BDC0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbgHTJhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:37:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53036 "EHLO mail.kernel.org"
+        id S1728719AbgHTNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:11:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728690AbgHTJhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:09 -0400
+        id S1728712AbgHTJhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:37:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 638BB20724;
-        Thu, 20 Aug 2020 09:37:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 922E822B3F;
+        Thu, 20 Aug 2020 09:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916229;
-        bh=9cx+gI22gM4prklQ9V//XRScuzMZd24HfTQfs0e1vVc=;
+        s=default; t=1597916237;
+        bh=6Wt2/OLbFhN8zLqB45FFfmCoC7Jels6mZihiQFznnqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qriireeNKFSZV8jw+JXX0HF9SO8k5oy1d81RMjkQvx483INu79o/m134IPs+O26gv
-         a52cUIQ1Rl6qA0b3u7qkgt2jRR6b+tMaC8Fi05V8Xdk5iJvzTUfHNL7LLC1UOKeKp8
-         9GSvLetGegxQVqDkyhV2Jul0+ERDrfmuVGBNXeVs=
+        b=Q51JtRMUjNlzQKcL4nRSmxWJbAJl8KwKVqauyWzLE/6XwsjkEyG6lcYeeGCArGVay
+         /TvN1xKeTO4BvDc4aIejSfU0X2zQs4eGX56OvM/NuTCG9WoQs3J0XHhAbPNhPUtEo1
+         eu6lz8QOr5kfN7IrlpKLkrS14mlblc8J3sugC0JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Chris Murphy <chris@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 028/204] btrfs: fix race between page release and a fast fsync
-Date:   Thu, 20 Aug 2020 11:18:45 +0200
-Message-Id: <20200820091607.673607784@linuxfoundation.org>
+Subject: [PATCH 5.7 029/204] btrfs: dont show full path of bind mounts in subvol=
+Date:   Thu, 20 Aug 2020 11:18:46 +0200
+Message-Id: <20200820091607.716450842@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,92 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 3d6448e631591756da36efb3ea6355ff6f383c3a upstream.
+commit 3ef3959b29c4a5bd65526ab310a1a18ae533172a upstream.
 
-When releasing an extent map, done through the page release callback, we
-can race with an ongoing fast fsync and cause the fsync to miss a new
-extent and not log it. The steps for this to happen are the following:
+Chris Murphy reported a problem where rpm ostree will bind mount a bunch
+of things for whatever voodoo it's doing.  But when it does this
+/proc/mounts shows something like
 
-1) A page is dirtied for some inode I;
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo/bar 0 0
 
-2) Writeback for that page is triggered by a path other than fsync, for
-   example by the system due to memory pressure;
+Despite subvolid=256 being subvol=/foo.  This is because we're just
+spitting out the dentry of the mount point, which in the case of bind
+mounts is the source path for the mountpoint.  Instead we should spit
+out the path to the actual subvol.  Fix this by looking up the name for
+the subvolid we have mounted.  With this fix the same test looks like
+this
 
-3) When the ordered extent for the extent (a single 4K page) finishes,
-   we unpin the corresponding extent map and set its generation to N,
-   the current transaction's generation;
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
 
-4) The btrfs_releasepage() callback is invoked by the system due to
-   memory pressure for that no longer dirty page of inode I;
-
-5) At the same time, some task calls fsync on inode I, joins transaction
-   N, and at btrfs_log_inode() it sees that the inode does not have the
-   full sync flag set, so we proceed with a fast fsync. But before we get
-   into btrfs_log_changed_extents() and lock the inode's extent map tree:
-
-6) Through btrfs_releasepage() we end up at try_release_extent_mapping()
-   and we remove the extent map for the new 4Kb extent, because it is
-   neither pinned anymore nor locked. By calling remove_extent_mapping(),
-   we remove the extent map from the list of modified extents, since the
-   extent map does not have the logging flag set. We unlock the inode's
-   extent map tree;
-
-7) The task doing the fast fsync now enters btrfs_log_changed_extents(),
-   locks the inode's extent map tree and iterates its list of modified
-   extents, which no longer has the 4Kb extent in it, so it does not log
-   the extent;
-
-8) The fsync finishes;
-
-9) Before transaction N is committed, a power failure happens. After
-   replaying the log, the 4K extent of inode I will be missing, since
-   it was not logged due to the race with try_release_extent_mapping().
-
-So fix this by teaching try_release_extent_mapping() to not remove an
-extent map if it's still in the list of modified extents.
-
-Fixes: ff44c6e36dc9dc ("Btrfs: do not hold the write_lock on the extent tree while logging")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reported-by: Chris Murphy <chris@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/btrfs/super.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4504,15 +4504,25 @@ int try_release_extent_mapping(struct pa
- 				free_extent_map(em);
- 				break;
- 			}
--			if (!test_range_bit(tree, em->start,
--					    extent_map_end(em) - 1,
--					    EXTENT_LOCKED, 0, NULL)) {
-+			if (test_range_bit(tree, em->start,
-+					   extent_map_end(em) - 1,
-+					   EXTENT_LOCKED, 0, NULL))
-+				goto next;
-+			/*
-+			 * If it's not in the list of modified extents, used
-+			 * by a fast fsync, we can remove it. If it's being
-+			 * logged we can safely remove it since fsync took an
-+			 * extra reference on the em.
-+			 */
-+			if (list_empty(&em->list) ||
-+			    test_bit(EXTENT_FLAG_LOGGING, &em->flags)) {
- 				set_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
- 					&btrfs_inode->runtime_flags);
- 				remove_extent_mapping(map, em);
- 				/* once for the rb tree */
- 				free_extent_map(em);
- 			}
-+next:
- 			start = extent_map_end(em);
- 			write_unlock(&map->lock);
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1310,6 +1310,7 @@ static int btrfs_show_options(struct seq
+ {
+ 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
+ 	const char *compress_type;
++	const char *subvol_name;
+ 
+ 	if (btrfs_test_opt(info, DEGRADED))
+ 		seq_puts(seq, ",degraded");
+@@ -1396,8 +1397,13 @@ static int btrfs_show_options(struct seq
+ 		seq_puts(seq, ",ref_verify");
+ 	seq_printf(seq, ",subvolid=%llu",
+ 		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
+-	seq_puts(seq, ",subvol=");
+-	seq_dentry(seq, dentry, " \t\n\\");
++	subvol_name = btrfs_get_subvol_name_from_objectid(info,
++			BTRFS_I(d_inode(dentry))->root->root_key.objectid);
++	if (!IS_ERR(subvol_name)) {
++		seq_puts(seq, ",subvol=");
++		seq_escape(seq, subvol_name, " \t\n\\");
++		kfree(subvol_name);
++	}
+ 	return 0;
+ }
  
 
 
