@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C07824BBD5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74C224BBC0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729499AbgHTJsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:48:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
+        id S1729239AbgHTMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729157AbgHTJsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:48:43 -0400
+        id S1728132AbgHTJtQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9ACF2078D;
-        Thu, 20 Aug 2020 09:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 850E42173E;
+        Thu, 20 Aug 2020 09:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916923;
-        bh=CFfNeosnv87tQONZzW6TrZx7td1xXo6DeJgM4alZ3oE=;
+        s=default; t=1597916956;
+        bh=7stOTL4c0r0SmATase0Q11SoLc9JM33qxJma8oASAuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxG9Gt3cUM77brK0YB1T4AMZUrX3KCQB0+BMX4RSKWUje3sZW7aQaXdMtBJS9sZpg
-         YYU3RK2lpr8Xq2OSaYFzkvZfjN7Jda5N+YunwwezwsvVs6d7gqmbmoXd7Th4iiw5Et
-         ZUurpiTNPXdDa2y8qw5r8PYwUMC0oK/lcpCWPNr0=
+        b=upyd6Pjgq7Wc6GvDDMOwd4/3LTjV9cL8twMyz8z4SHC7DgRuoV6KHWj0NaE2p8rzA
+         hMrR7vhkIAAsQw2obJjSkxnfzqkxnJspHeiaN/Xu2nG4kGl/lZK3vQ5S5juUip/2oa
+         yqoXaNvURtrX3Oq2p/b0EJ7sLfJt3DzyP8COHPBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Henrique?= <johnnyonflame@hotmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 076/152] pinctrl: ingenic: Properly detect GPIO direction when configured for IRQ
-Date:   Thu, 20 Aug 2020 11:20:43 +0200
-Message-Id: <20200820091557.629841938@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 077/152] crypto: algif_aead - Only wake up when ctx->more is zero
+Date:   Thu, 20 Aug 2020 11:20:44 +0200
+Message-Id: <20200820091557.681528438@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -45,39 +43,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 84e7a946da71f678affacea301f6d5cb4d9784e8 upstream.
+[ Upstream commit f3c802a1f30013f8f723b62d7fa49eb9e991da23 ]
 
-The PAT1 register contains information about the IRQ type (edge/level)
-for input GPIOs with IRQ enabled, and the direction for non-IRQ GPIOs.
-So it makes sense to read it only if the GPIO has no interrupt
-configured, otherwise input GPIOs configured for level IRQs are
-misdetected as output GPIOs.
+AEAD does not support partial requests so we must not wake up
+while ctx->more is set.  In order to distinguish between the
+case of no data sent yet and a zero-length request, a new init
+flag has been added to ctx.
 
-Fixes: ebd6651418b6 ("pinctrl: ingenic: Implement .get_direction for GPIO chips")
-Reported-by: João Henrique <johnnyonflame@hotmail.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200622214548.265417-2-paul@crapouillou.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+SKCIPHER has also been modified to ensure that at least a block
+of data is available if there is more data to come.
 
+Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ingenic.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ crypto/af_alg.c         | 11 ++++++++---
+ crypto/algif_aead.c     |  4 ++--
+ crypto/algif_skcipher.c |  4 ++--
+ include/crypto/if_alg.h |  4 +++-
+ 4 files changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -1644,7 +1644,8 @@ static int ingenic_gpio_get_direction(st
- 	unsigned int pin = gc->base + offset;
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index a3b9df99af6de..ed8ace8675b77 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -635,6 +635,7 @@ void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
  
- 	if (jzpc->version >= ID_JZ4760)
--		return ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1);
-+		return ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
-+			ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1);
+ 	if (!ctx->used)
+ 		ctx->merge = 0;
++	ctx->init = ctx->more;
+ }
+ EXPORT_SYMBOL_GPL(af_alg_pull_tsgl);
  
- 	if (ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_SELECT))
- 		return true;
+@@ -734,9 +735,10 @@ EXPORT_SYMBOL_GPL(af_alg_wmem_wakeup);
+  *
+  * @sk socket of connection to user space
+  * @flags If MSG_DONTWAIT is set, then only report if function would sleep
++ * @min Set to minimum request size if partial requests are allowed.
+  * @return 0 when writable memory is available, < 0 upon error
+  */
+-int af_alg_wait_for_data(struct sock *sk, unsigned flags)
++int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min)
+ {
+ 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	struct alg_sock *ask = alg_sk(sk);
+@@ -754,7 +756,9 @@ int af_alg_wait_for_data(struct sock *sk, unsigned flags)
+ 		if (signal_pending(current))
+ 			break;
+ 		timeout = MAX_SCHEDULE_TIMEOUT;
+-		if (sk_wait_event(sk, &timeout, (ctx->used || !ctx->more),
++		if (sk_wait_event(sk, &timeout,
++				  ctx->init && (!ctx->more ||
++						(min && ctx->used >= min)),
+ 				  &wait)) {
+ 			err = 0;
+ 			break;
+@@ -843,7 +847,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 	}
+ 
+ 	lock_sock(sk);
+-	if (!ctx->more && ctx->used) {
++	if (ctx->init && (init || !ctx->more)) {
+ 		err = -EINVAL;
+ 		goto unlock;
+ 	}
+@@ -854,6 +858,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 			memcpy(ctx->iv, con.iv->iv, ivsize);
+ 
+ 		ctx->aead_assoclen = con.aead_assoclen;
++		ctx->init = true;
+ 	}
+ 
+ 	while (size) {
+diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
+index 0ae000a61c7f5..d48d2156e6210 100644
+--- a/crypto/algif_aead.c
++++ b/crypto/algif_aead.c
+@@ -106,8 +106,8 @@ static int _aead_recvmsg(struct socket *sock, struct msghdr *msg,
+ 	size_t usedpages = 0;		/* [in]  RX bufs to be used from user */
+ 	size_t processed = 0;		/* [in]  TX bufs to be consumed */
+ 
+-	if (!ctx->used) {
+-		err = af_alg_wait_for_data(sk, flags);
++	if (!ctx->init || ctx->more) {
++		err = af_alg_wait_for_data(sk, flags, 0);
+ 		if (err)
+ 			return err;
+ 	}
+diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+index ec5567c87a6df..a51ba22fef58f 100644
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -61,8 +61,8 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
+ 	int err = 0;
+ 	size_t len = 0;
+ 
+-	if (!ctx->used) {
+-		err = af_alg_wait_for_data(sk, flags);
++	if (!ctx->init || (ctx->more && ctx->used < bs)) {
++		err = af_alg_wait_for_data(sk, flags, bs);
+ 		if (err)
+ 			return err;
+ 	}
+diff --git a/include/crypto/if_alg.h b/include/crypto/if_alg.h
+index 864849e942c45..c1a8d4a41bb16 100644
+--- a/include/crypto/if_alg.h
++++ b/include/crypto/if_alg.h
+@@ -135,6 +135,7 @@ struct af_alg_async_req {
+  *			SG?
+  * @enc:		Cryptographic operation to be performed when
+  *			recvmsg is invoked.
++ * @init:		True if metadata has been sent.
+  * @len:		Length of memory allocated for this data structure.
+  */
+ struct af_alg_ctx {
+@@ -151,6 +152,7 @@ struct af_alg_ctx {
+ 	bool more;
+ 	bool merge;
+ 	bool enc;
++	bool init;
+ 
+ 	unsigned int len;
+ };
+@@ -226,7 +228,7 @@ unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset);
+ void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
+ 		      size_t dst_offset);
+ void af_alg_wmem_wakeup(struct sock *sk);
+-int af_alg_wait_for_data(struct sock *sk, unsigned flags);
++int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min);
+ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 		   unsigned int ivsize);
+ ssize_t af_alg_sendpage(struct socket *sock, struct page *page,
+-- 
+2.25.1
+
 
 
