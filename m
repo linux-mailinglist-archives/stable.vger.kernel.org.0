@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7217B24B2B9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850B424B2AD
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728551AbgHTJgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50114 "EHLO mail.kernel.org"
+        id S1728516AbgHTJfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728423AbgHTJf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:35:58 -0400
+        id S1728510AbgHTJfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:35:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30F3620724;
-        Thu, 20 Aug 2020 09:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9482920724;
+        Thu, 20 Aug 2020 09:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916157;
-        bh=Yorda5NEuOnH2beBNjDJoc7hFJMtvtZsSMq3am5igzE=;
+        s=default; t=1597916119;
+        bh=MgDLou4NXDVSrSWRd/UD2JVn5Kkx3PWf5+imuE7k5Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYLsX5gGiFBQASZmqsvnnLvtJUEjcRuLxTAVC3WqElbjnCX0P+Q16OQ5AJgG+5Y5f
-         3o1jNG/BpwSohIWG41FZJNlsz61Rnm1rPbwCzldwHYJUJwDi+EhafH48b/uI3kGa5m
-         MYwBpxSLHVx0ejmLj+JSqVStfjmyhHCpk5b42bdI=
+        b=A2mL/QEZV31GgfKX6olrBp+vV0af6e8e4PmhtjRoeqMsxYRWtNTUUhbZqXLbn0cxV
+         7puwNrrVWW1jezzefSavjWI1GKfIToANQX3jSsYvDb+ZdQuJ0hWsFQKVgYinP2AjEY
+         bJs7jzwpLw3oRRSsxLqneqMX77YoGdqsnv9lU4UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>
-Subject: [PATCH 5.7 008/204] PCI: qcom: Define some PARF params needed for ipq8064 SoC
-Date:   Thu, 20 Aug 2020 11:18:25 +0200
-Message-Id: <20200820091606.617986816@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.7 018/204] btrfs: dont traverse into the seed devices in show_devname
+Date:   Thu, 20 Aug 2020 11:18:35 +0200
+Message-Id: <20200820091607.157635711@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -45,73 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ansuel Smith <ansuelsmth@gmail.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 5149901e9e6deca487c01cc434a3ac4125c7b00b upstream.
+commit 4faf55b03823e96c44dc4e364520000ed3b12fdb upstream.
 
-Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
-needed on some ipq8064 based device (Netgear R7800 for example). Without
-this the system locks on kernel load.
+->show_devname currently shows the lowest devid in the list. As the seed
+devices have the lowest devid in the sprouted filesystem, the userland
+tool such as findmnt end up seeing seed device instead of the device from
+the read-writable sprouted filesystem. As shown below.
 
-Link: https://lore.kernel.org/r/20200615210608.21469-8-ansuelsmth@gmail.com
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org # v4.5+
+ mount /dev/sda /btrfs
+ mount: /btrfs: WARNING: device write-protected, mounted read-only.
+
+ findmnt --output SOURCE,TARGET,UUID /btrfs
+ SOURCE   TARGET UUID
+ /dev/sda /btrfs 899f7027-3e46-4626-93e7-7d4c9ad19111
+
+ btrfs dev add -f /dev/sdb /btrfs
+
+ umount /btrfs
+ mount /dev/sdb /btrfs
+
+ findmnt --output SOURCE,TARGET,UUID /btrfs
+ SOURCE   TARGET UUID
+ /dev/sda /btrfs 899f7027-3e46-4626-93e7-7d4c9ad19111
+
+All sprouts from a single seed will show the same seed device and the
+same fsid. That's confusing.
+This is causing problems in our prototype as there isn't any reference
+to the sprout file-system(s) which is being used for actual read and
+write.
+
+This was added in the patch which implemented the show_devname in btrfs
+commit 9c5085c14798 ("Btrfs: implement ->show_devname").
+I tried to look for any particular reason that we need to show the seed
+device, there isn't any.
+
+So instead, do not traverse through the seed devices, just show the
+lowest devid in the sprouted fsid.
+
+After the patch:
+
+ mount /dev/sda /btrfs
+ mount: /btrfs: WARNING: device write-protected, mounted read-only.
+
+ findmnt --output SOURCE,TARGET,UUID /btrfs
+ SOURCE   TARGET UUID
+ /dev/sda /btrfs 899f7027-3e46-4626-93e7-7d4c9ad19111
+
+ btrfs dev add -f /dev/sdb /btrfs
+ mount -o rw,remount /dev/sdb /btrfs
+
+ findmnt --output SOURCE,TARGET,UUID /btrfs
+ SOURCE   TARGET UUID
+ /dev/sdb /btrfs 595ca0e6-b82e-46b5-b9e2-c72a6928be48
+
+ mount /dev/sda /btrfs1
+ mount: /btrfs1: WARNING: device write-protected, mounted read-only.
+
+ btrfs dev add -f /dev/sdc /btrfs1
+
+ findmnt --output SOURCE,TARGET,UUID /btrfs1
+ SOURCE   TARGET  UUID
+ /dev/sdc /btrfs1 ca1dbb7a-8446-4f95-853c-a20f3f82bdbb
+
+ cat /proc/self/mounts | grep btrfs
+ /dev/sdb /btrfs btrfs rw,relatime,noacl,space_cache,subvolid=5,subvol=/ 0 0
+ /dev/sdc /btrfs1 btrfs ro,relatime,noacl,space_cache,subvolid=5,subvol=/ 0 0
+
+Reported-by: Martin K. Petersen <martin.petersen@oracle.com>
+CC: stable@vger.kernel.org # 4.19+
+Tested-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/btrfs/super.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -77,6 +77,18 @@
- #define DBI_RO_WR_EN				1
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2294,9 +2294,7 @@ static int btrfs_unfreeze(struct super_b
+ static int btrfs_show_devname(struct seq_file *m, struct dentry *root)
+ {
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(root->d_sb);
+-	struct btrfs_fs_devices *cur_devices;
+ 	struct btrfs_device *dev, *first_dev = NULL;
+-	struct list_head *head;
  
- #define PERST_DELAY_US				1000
-+/* PARF registers */
-+#define PCIE20_PARF_PCS_DEEMPH			0x34
-+#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
-+
-+#define PCIE20_PARF_PCS_SWING			0x38
-+#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
-+#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
-+
-+#define PCIE20_PARF_CONFIG_BITS		0x50
-+#define PHY_RX0_EQ(x)				((x) << 24)
+ 	/*
+ 	 * Lightweight locking of the devices. We should not need
+@@ -2306,18 +2304,13 @@ static int btrfs_show_devname(struct seq
+ 	 * least until the rcu_read_unlock.
+ 	 */
+ 	rcu_read_lock();
+-	cur_devices = fs_info->fs_devices;
+-	while (cur_devices) {
+-		head = &cur_devices->devices;
+-		list_for_each_entry_rcu(dev, head, dev_list) {
+-			if (test_bit(BTRFS_DEV_STATE_MISSING, &dev->dev_state))
+-				continue;
+-			if (!dev->name)
+-				continue;
+-			if (!first_dev || dev->devid < first_dev->devid)
+-				first_dev = dev;
+-		}
+-		cur_devices = cur_devices->seed;
++	list_for_each_entry_rcu(dev, &fs_info->fs_devices->devices, dev_list) {
++		if (test_bit(BTRFS_DEV_STATE_MISSING, &dev->dev_state))
++			continue;
++		if (!dev->name)
++			continue;
++		if (!first_dev || dev->devid < first_dev->devid)
++			first_dev = dev;
+ 	}
  
- #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
- #define SLV_ADDR_SPACE_SZ			0x10000000
-@@ -286,6 +298,7 @@ static int qcom_pcie_init_2_1_0(struct q
- 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
- 	struct dw_pcie *pci = pcie->pci;
- 	struct device *dev = pci->dev;
-+	struct device_node *node = dev->of_node;
- 	u32 val;
- 	int ret;
- 
-@@ -330,6 +343,17 @@ static int qcom_pcie_init_2_1_0(struct q
- 	val &= ~BIT(0);
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
- 
-+	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
-+		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
-+		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
-+		writel(PCS_SWING_TX_SWING_FULL(120) |
-+			       PCS_SWING_TX_SWING_LOW(120),
-+		       pcie->parf + PCIE20_PARF_PCS_SWING);
-+		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
-+	}
-+
- 	/* enable external reference clock */
- 	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
- 	val |= BIT(16);
+ 	if (first_dev)
 
 
