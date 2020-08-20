@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 636BC24B4F3
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80D124B4DE
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbgHTKO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
+        id S1731086AbgHTKNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731219AbgHTKOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:54 -0400
+        id S1731075AbgHTKNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA21520738;
-        Thu, 20 Aug 2020 10:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DB02206DA;
+        Thu, 20 Aug 2020 10:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918493;
-        bh=WE+uSikW384/lDpstgKl9Ks5l2pEQaqvx23IxVZjKmA=;
+        s=default; t=1597918415;
+        bh=jpjvu5DNSsFhj7TaN3Uplbyo2byrClBWPCIFaW4s2dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlfL8qYVE8lpGP/Ra+gAIEfSLabUtO5yIRSJMLo/+wSqfGELGSaSYNV1vUzf+JZvX
-         x+RIk0vhldeteNzqcIzH+zb5sNTnOS8WqYZZwLPJWtkqLTohQC8NDyt0Ae87RPmy7k
-         ilSPQS8LyeJTJQ+tnPAvWM81/7nxz/7Yanl0Vry0=
+        b=zEqwLUJ0H4PaenfT5LmPmhRsmsKq20uSiT8gMO22fNgXUfDAoIjZdjD78UK1z1lEI
+         yo3GmND086h0vZd7Q+hEM3AGh6UR5DUCeE2Y2I2pIEUUyDSg2z1cvW3OuwCQFnbBZU
+         tWtvmqvVkeEKohD03R7m6B10i1UN8pCtKKhElQ1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 160/228] parisc: Implement __smp_store_release and __smp_load_acquire barriers
-Date:   Thu, 20 Aug 2020 11:22:15 +0200
-Message-Id: <20200820091615.573630580@linuxfoundation.org>
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Huckleberry <nhuck@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.14 162/228] ARM: 8992/1: Fix unwind_frame for clang-built kernels
+Date:   Thu, 20 Aug 2020 11:22:17 +0200
+Message-Id: <20200820091615.672509747@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -43,92 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Nathan Huckleberry <nhuck@google.com>
 
-commit e96ebd589debd9a6a793608c4ec7019c38785dea upstream.
+commit b4d5ec9b39f8b31d98f65bc5577b5d15d93795d7 upstream.
 
-This patch implements the __smp_store_release and __smp_load_acquire barriers
-using ordered stores and loads.  This avoids the sync instruction present in
-the generic implementation.
+Since clang does not push pc and sp in function prologues, the current
+implementation of unwind_frame does not work. By using the previous
+frame's lr/fp instead of saved pc/sp we get valid unwinds on clang-built
+kernels.
 
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Dave Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+The bounds check on next frame pointer must be changed as well since
+there are 8 less bytes between frames.
+
+This fixes /proc/<pid>/stack.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/912
+
+Reported-by: Miles Chen <miles.chen@mediatek.com>
+Tested-by: Miles Chen <miles.chen@mediatek.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/include/asm/barrier.h |   61 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 61 insertions(+)
+ arch/arm/kernel/stacktrace.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/arch/parisc/include/asm/barrier.h
-+++ b/arch/parisc/include/asm/barrier.h
-@@ -26,6 +26,67 @@
- #define __smp_rmb()	mb()
- #define __smp_wmb()	mb()
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -20,6 +20,19 @@
+  * A simple function epilogue looks like this:
+  *	ldm	sp, {fp, sp, pc}
+  *
++ * When compiled with clang, pc and sp are not pushed. A simple function
++ * prologue looks like this when built with clang:
++ *
++ *	stmdb	{..., fp, lr}
++ *	add	fp, sp, #x
++ *	sub	sp, sp, #y
++ *
++ * A simple function epilogue looks like this when built with clang:
++ *
++ *	sub	sp, fp, #x
++ *	ldm	{..., fp, pc}
++ *
++ *
+  * Note that with framepointer enabled, even the leaf functions have the same
+  * prologue and epilogue, therefore we can ignore the LR value in this case.
+  */
+@@ -32,6 +45,16 @@ int notrace unwind_frame(struct stackfra
+ 	low = frame->sp;
+ 	high = ALIGN(low, THREAD_SIZE);
  
-+#define __smp_store_release(p, v)					\
-+do {									\
-+	typeof(p) __p = (p);						\
-+        union { typeof(*p) __val; char __c[1]; } __u =			\
-+                { .__val = (__force typeof(*p)) (v) };			\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("stb,ma %0,0(%1)"				\
-+				: : "r"(*(__u8 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("sth,ma %0,0(%1)"				\
-+				: : "r"(*(__u16 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("stw,ma %0,0(%1)"				\
-+				: : "r"(*(__u32 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("std,ma %0,0(%1)"			\
-+				: : "r"(*(__u64 *)__u.__c), "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+} while (0)
++#ifdef CONFIG_CC_IS_CLANG
++	/* check current frame pointer is within bounds */
++	if (fp < low + 4 || fp > high - 4)
++		return -EINVAL;
 +
-+#define __smp_load_acquire(p)						\
-+({									\
-+	union { typeof(*p) __val; char __c[1]; } __u;			\
-+	typeof(p) __p = (p);						\
-+	compiletime_assert_atomic_type(*p);				\
-+	switch (sizeof(*p)) {						\
-+	case 1:								\
-+		asm volatile("ldb,ma 0(%1),%0"				\
-+				: "=r"(*(__u8 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 2:								\
-+		asm volatile("ldh,ma 0(%1),%0"				\
-+				: "=r"(*(__u16 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 4:								\
-+		asm volatile("ldw,ma 0(%1),%0"				\
-+				: "=r"(*(__u32 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	case 8:								\
-+		if (IS_ENABLED(CONFIG_64BIT))				\
-+			asm volatile("ldd,ma 0(%1),%0"			\
-+				: "=r"(*(__u64 *)__u.__c) : "r"(__p)	\
-+				: "memory");				\
-+		break;							\
-+	}								\
-+	__u.__val;							\
-+})
- #include <asm-generic/barrier.h>
++	frame->sp = frame->fp;
++	frame->fp = *(unsigned long *)(fp);
++	frame->pc = frame->lr;
++	frame->lr = *(unsigned long *)(fp + 4);
++#else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
+@@ -40,6 +63,7 @@ int notrace unwind_frame(struct stackfra
+ 	frame->fp = *(unsigned long *)(fp - 12);
+ 	frame->sp = *(unsigned long *)(fp - 8);
+ 	frame->pc = *(unsigned long *)(fp - 4);
++#endif
  
- #endif /* !__ASSEMBLY__ */
+ 	return 0;
+ }
 
 
