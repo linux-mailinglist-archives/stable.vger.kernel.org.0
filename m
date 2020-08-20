@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6566B24B873
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9B724B86C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729274AbgHTLUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:20:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38210 "EHLO mail.kernel.org"
+        id S1728578AbgHTLT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:19:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730677AbgHTKHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:07:44 -0400
+        id S1730687AbgHTKHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:07:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0BAC2067C;
-        Thu, 20 Aug 2020 10:07:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42B0B206DA;
+        Thu, 20 Aug 2020 10:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918064;
-        bh=77L1bT0czLRh2yTcmUxB1o8+UPyYF+lEMFXijGQaeTs=;
+        s=default; t=1597918067;
+        bh=2ottp/Vd7JxEWx7V3xcUrytptpCEIFI4vIpkZsA68D0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12AYGsgzkzltNbMBtd6ptJkoEP08UeFHGoBQvrWwPRlZd95xHBkJA0KpxL0frYksI
-         w9nSOr826KAaFV5Xorv6MPBySiX+F2nRqMP7voRdoWW9GH7UEnth37vtX1sMbMX5K9
-         aPxUPAtBFmYBEIj9y2e15AH2uOCJKXNLv49QE/AY=
+        b=Ca2ES3Psf7HkKsoCIhQ+IG37iz26PaTaDTpribtsCpjlJ92x3eoYxAgSanpkg+tUT
+         3XkaCg8N8JHxEQ+ls5x6HmhyTGc5v6ivx4O3rK4BoE2OjCtwYGVRFizW+j5O9DlwJD
+         jrU6DXkQGNZPnZrHaE4bZWG63CcV/tU333QevFuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 040/228] usb: hso: check for return value in hso_serial_common_create()
-Date:   Thu, 20 Aug 2020 11:20:15 +0200
-Message-Id: <20200820091609.541493896@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b54969381df354936d96@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 041/228] rxrpc: Fix race between recvmsg and sendmsg on immediate call failure
+Date:   Thu, 20 Aug 2020 11:20:16 +0200
+Message-Id: <20200820091609.592305602@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,48 +46,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
+[ Upstream commit 65550098c1c4db528400c73acf3e46bfa78d9264 ]
 
-in case of an error tty_register_device_attr() returns ERR_PTR(),
-add IS_ERR() check
+There's a race between rxrpc_sendmsg setting up a call, but then failing to
+send anything on it due to an error, and recvmsg() seeing the call
+completion occur and trying to return the state to the user.
 
-Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+An assertion fails in rxrpc_recvmsg() because the call has already been
+released from the socket and is about to be released again as recvmsg deals
+with it.  (The recvmsg_q queue on the socket holds a ref, so there's no
+problem with use-after-free.)
+
+We also have to be careful not to end up reporting an error twice, in such
+a way that both returns indicate to userspace that the user ID supplied
+with the call is no longer in use - which could cause the client to
+malfunction if it recycles the user ID fast enough.
+
+Fix this by the following means:
+
+ (1) When sendmsg() creates a call after the point that the call has been
+     successfully added to the socket, don't return any errors through
+     sendmsg(), but rather complete the call and let recvmsg() retrieve
+     them.  Make sendmsg() return 0 at this point.  Further calls to
+     sendmsg() for that call will fail with ESHUTDOWN.
+
+     Note that at this point, we haven't send any packets yet, so the
+     server doesn't yet know about the call.
+
+ (2) If sendmsg() returns an error when it was expected to create a new
+     call, it means that the user ID wasn't used.
+
+ (3) Mark the call disconnected before marking it completed to prevent an
+     oops in rxrpc_release_call().
+
+ (4) recvmsg() will then retrieve the error and set MSG_EOR to indicate
+     that the user ID is no longer known by the kernel.
+
+An oops like the following is produced:
+
+	kernel BUG at net/rxrpc/recvmsg.c:605!
+	...
+	RIP: 0010:rxrpc_recvmsg+0x256/0x5ae
+	...
+	Call Trace:
+	 ? __init_waitqueue_head+0x2f/0x2f
+	 ____sys_recvmsg+0x8a/0x148
+	 ? import_iovec+0x69/0x9c
+	 ? copy_msghdr_from_user+0x5c/0x86
+	 ___sys_recvmsg+0x72/0xaa
+	 ? __fget_files+0x22/0x57
+	 ? __fget_light+0x46/0x51
+	 ? fdget+0x9/0x1b
+	 do_recvmmsg+0x15e/0x232
+	 ? _raw_spin_unlock+0xa/0xb
+	 ? vtime_delta+0xf/0x25
+	 __x64_sys_recvmmsg+0x2c/0x2f
+	 do_syscall_64+0x4c/0x78
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 357f5ef64628 ("rxrpc: Call rxrpc_release_call() on error in rxrpc_new_client_call()")
+Reported-by: syzbot+b54969381df354936d96@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/rxrpc/call_object.c |   27 +++++++++++++++++++--------
+ net/rxrpc/conn_object.c |    8 +++++---
+ net/rxrpc/recvmsg.c     |    2 +-
+ net/rxrpc/sendmsg.c     |    3 +++
+ 4 files changed, 28 insertions(+), 12 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2272,12 +2272,14 @@ static int hso_serial_common_create(stru
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -275,7 +275,7 @@ struct rxrpc_call *rxrpc_new_client_call
+ 	 */
+ 	ret = rxrpc_connect_call(call, cp, srx, gfp);
+ 	if (ret < 0)
+-		goto error;
++		goto error_attached_to_socket;
  
- 	minor = get_free_serial_index();
- 	if (minor < 0)
--		goto exit;
-+		goto exit2;
- 
- 	/* register our minor number */
- 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
- 			tty_drv, minor, &serial->parent->interface->dev,
- 			serial->parent, hso_serial_dev_groups);
-+	if (IS_ERR(serial->parent->dev))
-+		goto exit2;
- 	dev = serial->parent->dev;
- 
- 	/* fill in specific data for later use */
-@@ -2323,6 +2325,7 @@ static int hso_serial_common_create(stru
- 	return 0;
- exit:
- 	hso_serial_tty_unregister(serial);
-+exit2:
- 	hso_serial_common_free(serial);
- 	return -1;
+ 	trace_rxrpc_call(call, rxrpc_call_connected, atomic_read(&call->usage),
+ 			 here, NULL);
+@@ -295,18 +295,29 @@ struct rxrpc_call *rxrpc_new_client_call
+ error_dup_user_ID:
+ 	write_unlock(&rx->call_lock);
+ 	release_sock(&rx->sk);
+-	ret = -EEXIST;
+-
+-error:
+ 	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
+-				    RX_CALL_DEAD, ret);
++				    RX_CALL_DEAD, -EEXIST);
+ 	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
+-			 here, ERR_PTR(ret));
++			 here, ERR_PTR(-EEXIST));
+ 	rxrpc_release_call(rx, call);
+ 	mutex_unlock(&call->user_mutex);
+ 	rxrpc_put_call(call, rxrpc_call_put);
+-	_leave(" = %d", ret);
+-	return ERR_PTR(ret);
++	_leave(" = -EEXIST");
++	return ERR_PTR(-EEXIST);
++
++	/* We got an error, but the call is attached to the socket and is in
++	 * need of release.  However, we might now race with recvmsg() when
++	 * completing the call queues it.  Return 0 from sys_sendmsg() and
++	 * leave the error to recvmsg() to deal with.
++	 */
++error_attached_to_socket:
++	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
++			 here, ERR_PTR(ret));
++	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
++	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
++				    RX_CALL_DEAD, ret);
++	_leave(" = c=%08x [err]", call->debug_id);
++	return call;
  }
+ 
+ /*
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -196,9 +196,11 @@ void rxrpc_disconnect_call(struct rxrpc_
+ 
+ 	call->peer->cong_cwnd = call->cong_cwnd;
+ 
+-	spin_lock_bh(&conn->params.peer->lock);
+-	hlist_del_init(&call->error_link);
+-	spin_unlock_bh(&conn->params.peer->lock);
++	if (!hlist_unhashed(&call->error_link)) {
++		spin_lock_bh(&conn->params.peer->lock);
++		hlist_del_init(&call->error_link);
++		spin_unlock_bh(&conn->params.peer->lock);
++	}
+ 
+ 	if (rxrpc_is_client_call(call))
+ 		return rxrpc_disconnect_client_call(call);
+--- a/net/rxrpc/recvmsg.c
++++ b/net/rxrpc/recvmsg.c
+@@ -522,7 +522,7 @@ try_again:
+ 			goto error_unlock_call;
+ 	}
+ 
+-	if (msg->msg_name) {
++	if (msg->msg_name && call->peer) {
+ 		struct sockaddr_rxrpc *srx = msg->msg_name;
+ 		size_t len = sizeof(call->peer->srx);
+ 
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -579,6 +579,9 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *
+ 		if (IS_ERR(call))
+ 			return PTR_ERR(call);
+ 		/* ... and we have the call lock. */
++		ret = 0;
++		if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE)
++			goto out_put_unlock;
+ 	} else {
+ 		switch (READ_ONCE(call->state)) {
+ 		case RXRPC_CALL_UNINITIALISED:
 
 
