@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8087B24B5C0
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BE524B550
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731596AbgHTKWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731569AbgHTKWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 06:22:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731592AbgHTKWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:22:05 -0400
+        id S1731444AbgHTKWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:22:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACB8B20738;
-        Thu, 20 Aug 2020 10:22:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97DEF20658;
+        Thu, 20 Aug 2020 10:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918925;
-        bh=2lv6JeBV08qVbMv696mdMptj3lUabEyap2pm3lunkyQ=;
+        s=default; t=1597918928;
+        bh=DSpyrDd0pvgB0JJb39Kn4RsjnrkWqMxaES3Es1Yq/wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEgh7Rm8OpN3Mksan9Lvt+yKWRxPj1GDx/6CZDfbMsP9LhVRP8cNS3aGjkKhqVVud
-         0PEDdQ5n5E6JeTvlanvf4rueFxKssHE+fan9kGw4gyJonA+hS/GAIsdPxSAiHIIr/9
-         6L6eykqCRZyDWdVi2XD7VFctnAmxtHBnJ6tETJ5I=
+        b=KfTfOOfEo8M6Qo2U6nHNd7Pj0AI1ZqB4kyB1wbAW0lf19CgSb/I/wwEi/wVHEPB48
+         PVoc6x3MLfwY6fP9SUHo9kOmAUyt67z9Bp06RucNuuXhUMN0I2wARBKh6mAuOTyOMH
+         1ulyLV1LCbfYgsEjiqRgPi729DxxEY2R9NC4urUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Huckleberry <nhuck@google.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.4 117/149] ARM: 8992/1: Fix unwind_frame for clang-built kernels
-Date:   Thu, 20 Aug 2020 11:23:14 +0200
-Message-Id: <20200820092131.365619317@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 118/149] xen/balloon: fix accounting in alloc_xenballooned_pages error path
+Date:   Thu, 20 Aug 2020 11:23:15 +0200
+Message-Id: <20200820092131.414972833@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,80 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit b4d5ec9b39f8b31d98f65bc5577b5d15d93795d7 upstream.
+commit 1951fa33ec259abdf3497bfee7b63e7ddbb1a394 upstream.
 
-Since clang does not push pc and sp in function prologues, the current
-implementation of unwind_frame does not work. By using the previous
-frame's lr/fp instead of saved pc/sp we get valid unwinds on clang-built
-kernels.
+target_unpopulated is incremented with nr_pages at the start of the
+function, but the call to free_xenballooned_pages will only subtract
+pgno number of pages, and thus the rest need to be subtracted before
+returning or else accounting will be skewed.
 
-The bounds check on next frame pointer must be changed as well since
-there are 8 less bytes between frames.
-
-This fixes /proc/<pid>/stack.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/912
-
-Reported-by: Miles Chen <miles.chen@mediatek.com>
-Tested-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20200727091342.52325-2-roger.pau@citrix.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/kernel/stacktrace.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/xen/balloon.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -19,6 +19,19 @@
-  * A simple function epilogue looks like this:
-  *	ldm	sp, {fp, sp, pc}
-  *
-+ * When compiled with clang, pc and sp are not pushed. A simple function
-+ * prologue looks like this when built with clang:
-+ *
-+ *	stmdb	{..., fp, lr}
-+ *	add	fp, sp, #x
-+ *	sub	sp, sp, #y
-+ *
-+ * A simple function epilogue looks like this when built with clang:
-+ *
-+ *	sub	sp, fp, #x
-+ *	ldm	{..., fp, pc}
-+ *
-+ *
-  * Note that with framepointer enabled, even the leaf functions have the same
-  * prologue and epilogue, therefore we can ignore the LR value in this case.
-  */
-@@ -31,6 +44,16 @@ int notrace unwind_frame(struct stackfra
- 	low = frame->sp;
- 	high = ALIGN(low, THREAD_SIZE);
- 
-+#ifdef CONFIG_CC_IS_CLANG
-+	/* check current frame pointer is within bounds */
-+	if (fp < low + 4 || fp > high - 4)
-+		return -EINVAL;
-+
-+	frame->sp = frame->fp;
-+	frame->fp = *(unsigned long *)(fp);
-+	frame->pc = frame->lr;
-+	frame->lr = *(unsigned long *)(fp + 4);
-+#else
- 	/* check current frame pointer is within bounds */
- 	if (fp < low + 12 || fp > high - 4)
- 		return -EINVAL;
-@@ -39,6 +62,7 @@ int notrace unwind_frame(struct stackfra
- 	frame->fp = *(unsigned long *)(fp - 12);
- 	frame->sp = *(unsigned long *)(fp - 8);
- 	frame->pc = *(unsigned long *)(fp - 4);
-+#endif
- 
- 	return 0;
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -683,6 +683,12 @@ int alloc_xenballooned_pages(int nr_page
+  out_undo:
+ 	mutex_unlock(&balloon_mutex);
+ 	free_xenballooned_pages(pgno, pages);
++	/*
++	 * NB: free_xenballooned_pages will only subtract pgno pages, but since
++	 * target_unpopulated is incremented with nr_pages at the start we need
++	 * to remove the remaining ones also, or accounting will be screwed.
++	 */
++	balloon_stats.target_unpopulated -= nr_pages - pgno;
+ 	return ret;
  }
+ EXPORT_SYMBOL(alloc_xenballooned_pages);
 
 
