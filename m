@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C9924B23B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9576624B24D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727828AbgHTJZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
+        id S1726873AbgHTJ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:27:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726795AbgHTJZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:25:01 -0400
+        id S1726435AbgHTJ0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 212F322CB1;
-        Thu, 20 Aug 2020 09:24:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52A6A22D03;
+        Thu, 20 Aug 2020 09:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915500;
-        bh=yftGnr7TyooLqUgV7TUEcQ9nkwaYA4xThnSHYjZ/N6k=;
+        s=default; t=1597915570;
+        bh=jGRWsaqRLoqev79/Xwgz7bNFRX+HkBGl7u0ryE7d7hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grWl6KE5tcNErUGDrk0OKbeisU+xUyqlOD+N/Sb1c3Hp0UqsATh76TEmAU4k2S0Of
-         +ds9dGGgwmJvjrMRPesDHuEf+VYfGtSXTcuwO8AFSuYuNjO/pEjJoCW5CxfI6OBwGP
-         2S8Ggf9/cTgD93tCCYEAJ9BI/f+9CuQVFBj/n1mM=
+        b=PvAY3mLQdDaFZpm2IItRtcCwZrqPOpcnTvt0iSJgMZ4QE1PkNZdY4YZoeR68Wyp7W
+         TvVQNtl8c4Bi9UHX0VETjJn0P99X9BTLgCVc/z+hXuorO1bT8Pab8VZssjbKVmna1k
+         T7eMV0DVdzmPRNvfTGHIjI3DESP3wvmlTaM9AmRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 028/232] btrfs: avoid possible signal interruption of btrfs_drop_snapshot() on relocation tree
-Date:   Thu, 20 Aug 2020 11:17:59 +0200
-Message-Id: <20200820091614.116316607@linuxfoundation.org>
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 031/232] btrfs: dont WARN if we abort a transaction with EROFS
+Date:   Thu, 20 Aug 2020 11:18:02 +0200
+Message-Id: <20200820091614.266545204@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,86 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit f3e3d9cc35252a70a2fd698762c9687718268ec6 upstream.
+commit f95ebdbed46a4d8b9fdb7bff109fdbb6fc9a6dc8 upstream.
 
-[BUG]
-There is a bug report about bad signal timing could lead to read-only
-fs during balance:
-
-  BTRFS info (device xvdb): balance: start -d -m -s
-  BTRFS info (device xvdb): relocating block group 73001861120 flags metadata
-  BTRFS info (device xvdb): found 12236 extents, stage: move data extents
-  BTRFS info (device xvdb): relocating block group 71928119296 flags data
-  BTRFS info (device xvdb): found 3 extents, stage: move data extents
-  BTRFS info (device xvdb): found 3 extents, stage: update data pointers
-  BTRFS info (device xvdb): relocating block group 60922265600 flags metadata
-  BTRFS: error (device xvdb) in btrfs_drop_snapshot:5505: errno=-4 unknown
-  BTRFS info (device xvdb): forced readonly
-  BTRFS info (device xvdb): balance: ended with status: -4
-
-[CAUSE]
-The direct cause is the -EINTR from the following call chain when a
-fatal signal is pending:
-
- relocate_block_group()
- |- clean_dirty_subvols()
-    |- btrfs_drop_snapshot()
-       |- btrfs_start_transaction()
-          |- btrfs_delayed_refs_rsv_refill()
-             |- btrfs_reserve_metadata_bytes()
-                |- __reserve_metadata_bytes()
-                   |- wait_reserve_ticket()
-                      |- prepare_to_wait_event();
-                      |- ticket->error = -EINTR;
-
-Normally this behavior is fine for most btrfs_start_transaction()
-callers, as they need to catch any other error, same for the signal, and
-exit ASAP.
-
-However for balance, especially for the clean_dirty_subvols() case, we're
-already doing cleanup works, getting -EINTR from btrfs_drop_snapshot()
-could cause a lot of unexpected problems.
-
->From the mentioned forced read-only report, to later balance error due
-to half dropped reloc trees.
-
-[FIX]
-Fix this problem by using btrfs_join_transaction() if
-btrfs_drop_snapshot() is called from relocation context.
-
-Since btrfs_join_transaction() won't get interrupted by signal, we can
-continue the cleanup.
+If we got some sort of corruption via a read and call
+btrfs_handle_fs_error() we'll set BTRFS_FS_STATE_ERROR on the fs and
+complain.  If a subsequent trans handle trips over this it'll get EROFS
+and then abort.  However at that point we're not aborting for the
+original reason, we're aborting because we've been flipped read only.
+We do not need to WARN_ON() here.
 
 CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>3
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5298,7 +5298,14 @@ int btrfs_drop_snapshot(struct btrfs_roo
- 		goto out;
- 	}
- 
--	trans = btrfs_start_transaction(tree_root, 0);
-+	/*
-+	 * Use join to avoid potential EINTR from transaction start. See
-+	 * wait_reserve_ticket and the whole reservation callchain.
-+	 */
-+	if (for_reloc)
-+		trans = btrfs_join_transaction(tree_root);
-+	else
-+		trans = btrfs_start_transaction(tree_root, 0);
- 	if (IS_ERR(trans)) {
- 		err = PTR_ERR(trans);
- 		goto out_free;
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3198,7 +3198,7 @@ do {								\
+ 	/* Report first abort since mount */			\
+ 	if (!test_and_set_bit(BTRFS_FS_STATE_TRANS_ABORTED,	\
+ 			&((trans)->fs_info->fs_state))) {	\
+-		if ((errno) != -EIO) {				\
++		if ((errno) != -EIO && (errno) != -EROFS) {		\
+ 			WARN(1, KERN_DEBUG				\
+ 			"BTRFS: Transaction aborted (error %d)\n",	\
+ 			(errno));					\
 
 
