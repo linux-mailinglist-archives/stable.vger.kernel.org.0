@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B0E24B5CC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4BA24B502
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731508AbgHTK2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:28:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49046 "EHLO mail.kernel.org"
+        id S1731087AbgHTKQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731576AbgHTKV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:21:57 -0400
+        id S1730950AbgHTKQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:16:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DC6A20658;
-        Thu, 20 Aug 2020 10:21:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5090C20738;
+        Thu, 20 Aug 2020 10:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918916;
-        bh=OE314dlREHwftamZAUJHXC4kUWq7DSSXV5toaxDKDP4=;
+        s=default; t=1597918588;
+        bh=GKHyCbLTdZXm6mCYdf9FI4u3uE2H1zpw2fG7pVGW3NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QxwFEKHz5XJvu1hO6H4j8573oAyv7bvOqxxMiUlXOvSrY0T0cTur6/osmzA3+sP6q
-         sev3AdViADScViq02zNeRqIXyW1OA91T/uEWQhWZmqhFqsg3uk9pxIH+aYZonjzr8b
-         iNpnY05i9uKy8gg+r38n58ePqjWgbuzstbH19dcE=
+        b=JpFVix+Znl37mklt/6Pbx8fyzMONXRul2q200oZ3u3VsLoZgvmn8XfMl2vd39F43T
+         0jG7Su3m6pHvGPLRULAAdXykzrplxbVpXO2aOsgeg0HWCrWGVyRT5yE97yCB4ntKpF
+         0HQQ9eul78wbOPRPdtFkIfD9iiDgZP4+x8pv0rF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 114/149] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
-Date:   Thu, 20 Aug 2020 11:23:11 +0200
-Message-Id: <20200820092131.220609205@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 217/228] ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
+Date:   Thu, 20 Aug 2020 11:23:12 +0200
+Message-Id: <20200820091618.357427131@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
+[ Upstream commit 5a25de6df789cc805a9b8ba7ab5deef5067af47e ]
 
-Further investigation of the L-R swap problem on the MS2109 reveals that
-the problem isn't that the channels are swapped, but rather that they
-are swapped and also out of phase by one sample. In other words, the
-issue is actually that the very first frame that comes from the hardware
-is a half-frame containing only the right channel, and after that
-everything becomes offset.
+Freeing chip on error may lead to an Oops at the next time
+the system goes to resume. Fix this by removing all
+snd_echo_free() calls on error.
 
-So introduce a new quirk field to drop the very first 2 bytes that come
-in after the format is configured and a capture stream starts. This puts
-the channels in phase and in the correct order.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Fixes: 47b5d028fdce8 ("ALSA: Echoaudio - Add suspend support #2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20200813074632.17022-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.h   |    1 +
- sound/usb/pcm.c    |    6 ++++++
- sound/usb/quirks.c |    3 +++
- sound/usb/stream.c |    1 +
- 4 files changed, 11 insertions(+)
+ sound/pci/echoaudio/echoaudio.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -125,6 +125,7 @@ struct snd_usb_substream {
- 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
- 	unsigned int fmt_type;		/* USB audio format type (1-3) */
- 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
-+	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
- 
- 	unsigned int running: 1;	/* running status */
- 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1302,6 +1302,12 @@ static void retire_capture_urb(struct sn
- 			// continue;
- 		}
- 		bytes = urb->iso_frame_desc[i].actual_length;
-+		if (subs->stream_offset_adj > 0) {
-+			unsigned int adj = min(subs->stream_offset_adj, bytes);
-+			cp += adj;
-+			bytes -= adj;
-+			subs->stream_offset_adj -= adj;
-+		}
- 		frames = bytes / stride;
- 		if (!subs->txfr_quirk)
- 			bytes = frames * stride;
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1122,6 +1122,9 @@ void snd_usb_set_format_quirk(struct snd
- 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
- 		set_format_emu_quirk(subs, fmt);
- 		break;
-+	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
-+		subs->stream_offset_adj = 2;
-+		break;
+diff --git a/sound/pci/echoaudio/echoaudio.c b/sound/pci/echoaudio/echoaudio.c
+index e1f0bcd45c378..b58a098a7270d 100644
+--- a/sound/pci/echoaudio/echoaudio.c
++++ b/sound/pci/echoaudio/echoaudio.c
+@@ -2215,7 +2215,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (err < 0) {
+ 		kfree(commpage_bak);
+ 		dev_err(dev, "resume init_hw err=%d\n", err);
+-		snd_echo_free(chip);
+ 		return err;
  	}
- }
  
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -95,6 +95,7 @@ static void snd_usb_init_substream(struc
- 	subs->tx_length_quirk = as->chip->tx_length_quirk;
- 	subs->speed = snd_usb_get_speed(subs->dev);
- 	subs->pkt_offset_adj = 0;
-+	subs->stream_offset_adj = 0;
- 
- 	snd_usb_set_pcm_ops(as->pcm, stream);
- 
+@@ -2242,7 +2241,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (request_irq(pci->irq, snd_echo_interrupt, IRQF_SHARED,
+ 			KBUILD_MODNAME, chip)) {
+ 		dev_err(chip->card->dev, "cannot grab irq\n");
+-		snd_echo_free(chip);
+ 		return -EBUSY;
+ 	}
+ 	chip->irq = pci->irq;
+-- 
+2.25.1
+
 
 
