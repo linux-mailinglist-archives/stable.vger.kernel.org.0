@@ -2,86 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9605624C691
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 22:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D41724C695
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 22:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728208AbgHTUGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 16:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728130AbgHTUGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 16:06:34 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3E3C061385;
-        Thu, 20 Aug 2020 13:06:33 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id j21so1652496pgi.9;
-        Thu, 20 Aug 2020 13:06:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ws7KLthtlvcaN+hNq/7gXjEUWx+KzV71hjE8x1ZKWG0=;
-        b=fujbvCMYqtNIXAjS+2zZeXwUtGU7tKud8bda4EIDGmIad/5uZh9+51R5hUxkGjFjlw
-         P17mT1hj3X3VdR1U3JcA8TfEfoAV0vK+F5DsgrYFv9rWUb2rZCKcAP4OuGzQYbwIiKLm
-         mp/D4khz0/OO2i+k76nWdAnqE9Hcy7i0uPfqAByjzOL9OYH7mdWYJZpUPhiZDmG+RyW4
-         q0MbpENFaT/x6Hz5HhWTkWiYHyTPVeE3ZJksbCe9rt7EOxyhB7V2WmSsAcINJDI8vhLt
-         B8w0Q+45NvyMcMmrNAtaud43sBvi8ZJ4mfL7BfKTkg6/aMjAZCiekSgS1jIPAF4XPKZ7
-         3ARQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ws7KLthtlvcaN+hNq/7gXjEUWx+KzV71hjE8x1ZKWG0=;
-        b=rNte+/49jmCJ1WQeJl5qpd6gDdLtaKC7ry4ClZRlhVBr7A7NjFBfvIUN6Py82bziC9
-         ngWjD1wJC8CyFDVdH2ciLWx3JFUfNTdsyUqN3i6Ex/f3r1JVVff/MC8bcMQSnt2AlFs8
-         Wz4KVcxR/aK4X18Es5dp+sPCcD9JjVbxs1wPq0XIkOGKIUAXWmOSKI1AWaY4kYIZWLPr
-         JczZjS5q7RkbYOMr4cLmGEV3x11+KJrCezaFLrAjrGgIrgS4X0bbqeq0rLuJERcRQhZV
-         CnyJlMVdLluTz0Gjy+KTRw1kJ6+thcrSCExyOKzwIwDzKG+UB7QswgN/jicLicZQUYFH
-         cb/A==
-X-Gm-Message-State: AOAM533RoRDYNlgfM0dYERO5UvHzbWsd8f+kDJ7B03nj7h/ZQ09gA+gW
-        y3H4KA3C9UV5HBmrmXk/Bdk=
-X-Google-Smtp-Source: ABdhPJy6N1gtGNITx2fvb4Y+W2AKYVPDMmkN9GSg55hn96fjF1AvDoj/d1LIpydvWtQ9URfwe/I7Jg==
-X-Received: by 2002:a63:36c6:: with SMTP id d189mr296325pga.392.1597953992937;
-        Thu, 20 Aug 2020 13:06:32 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s185sm3591584pgc.18.2020.08.20.13.06.32
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 20 Aug 2020 13:06:32 -0700 (PDT)
-Date:   Thu, 20 Aug 2020 13:06:31 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/232] 5.8.3-rc1 review
-Message-ID: <20200820200631.GJ84616@roeck-us.net>
-References: <20200820091612.692383444@linuxfoundation.org>
+        id S1728241AbgHTUH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 16:07:26 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:38238 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728130AbgHTUH0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 16:07:26 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK1XeT016795;
+        Thu, 20 Aug 2020 20:07:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=4OSQGdz5wjobwWi2D5Xxvm8l0GiuA3MZhqCrinIJtxI=;
+ b=fkUAQ0MUlYSnMyImmENDTiS//qHRIALKDCcd3HtctLiMaUolDbctJ+iwDgL83J1v4GEU
+ fXVosFGMt923Vn8gJshjJy1SEobmftq1D2e2SUD9yKzH2BEXSvTOxhHWGtQTCFQ7ZakI
+ 84x/iQstPZR4Ohgrygx4Tc6ZWcvDQMI8tZyhaY0YvCX7Pnop7psRcf6Dl/2Oe+KG7gTQ
+ 29iGt7402ao9njdv/hXt3LxobEzC4CRik/trRoRNgXjv5oBBQCWWK7LWYiQ9+86ywfgP
+ hXzZ08oAw3que3VCz7OhnnNXzkrLntv4aS14IPB6NgCoszibDzqCPARYrBGY3oMw0HRT Yw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2120.oracle.com with ESMTP id 32x7nmtqhc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 20 Aug 2020 20:07:17 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07KK4Lcw104192;
+        Thu, 20 Aug 2020 20:07:16 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3020.oracle.com with ESMTP id 32xsfvf7s6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Aug 2020 20:07:16 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 07KK7FZs009131;
+        Thu, 20 Aug 2020 20:07:16 GMT
+Received: from [192.168.2.112] (/50.38.35.18)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 20 Aug 2020 13:07:15 -0700
+Subject: Re: FAILED: patch "[PATCH] mm/hugetlb: fix calculation of" failed to
+ apply to 4.14-stable tree
+To:     gregkh@linuxfoundation.org, peterx@redhat.com, aarcange@redhat.com,
+        akpm@linux-foundation.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
+References: <159783968213084@kroah.com>
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+Message-ID: <69a4cc47-286d-f056-0c1e-cec958878a4f@oracle.com>
+Date:   Thu, 20 Aug 2020 13:07:14 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <159783968213084@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9718 signatures=668679
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
+ spamscore=0 suspectscore=0 mlxscore=0 phishscore=0 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2008200160
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9718 signatures=668679
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 spamscore=0
+ impostorscore=0 priorityscore=1501 adultscore=0 mlxscore=0 mlxlogscore=999
+ lowpriorityscore=0 bulkscore=0 phishscore=0 malwarescore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2008200160
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 11:17:31AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.3 release.
-> There are 232 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 8/19/20 5:21 AM, gregkh@linuxfoundation.org wrote:
 > 
-> Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
-> Anything received after that time might be too late.
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
+> thanks,
+> 
+> greg k-h
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 430 pass: 430 fail: 0
+From 0b5b9940ad8246d7b4c019255913a7305ef9c52a Mon Sep 17 00:00:00 2001
+From: Peter Xu <peterx@redhat.com>
+Date: Thu, 20 Aug 2020 10:38:02 -0700
+Subject: [PATCH] mm/hugetlb: fix calculation of
+ adjust_range_if_pmd_sharing_possible
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream
 
-Guenter
+This is found by code observation only.
+
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
+
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
+
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+:
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+:
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+:
+: 1) for a single page
+: 2) for range == entire vma
+:
+: In those cases, the current code should produce the correct results.
+:
+: To be safe, let's just cc stable.
+
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+---
+ mm/hugetlb.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index d6464045d3b9..194125cf2d2b 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4575,25 +4575,21 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr = *start;
++	unsigned long a_start, a_end;
+ 
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
+-- 
+2.25.4
+
