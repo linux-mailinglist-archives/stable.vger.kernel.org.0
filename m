@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8821524B817
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FDB224B815
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbgHTLI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
+        id S1726772AbgHTLIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730859AbgHTKKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:10:00 -0400
+        id S1730648AbgHTKKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:10:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D44BB2075E;
-        Thu, 20 Aug 2020 10:09:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 243BC2067C;
+        Thu, 20 Aug 2020 10:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918200;
-        bh=nVOubqGaz1Pn4VP4TyGxSbinfJTFRl16sBbWFwEg4zM=;
+        s=default; t=1597918203;
+        bh=XJ5DmlNOlYa9O5RhsrLNP3SNVFa/vv5QstJP+KMrTms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjg3oFqcUrPJKjzOwpv9RfOb2OFJXB1OEfBs2t+cweIKJDsHyFApKR1/4dWo62nmk
-         soXDhR24Y7ePZYnw8xS6g4XixnfuFvR9E2HVQR8htbCwataIeqQPH/nzoHZQmJD/Jq
-         p2EW0EOZUVbd0veNyGUEkua5H5mMviRKlK7//vFI=
+        b=b36zhDYbvBr+965GA0WamGSxJ9k8ma6qRuWsZ2CcVcRNUot2Db6iC5zjrua0l/OXb
+         bqnV6Rq+FQWQcewZhugZ3r4ZKM/UrcMs+JJOyPJGO/5dj7U0JvsKYv1q2YZsaFc/9A
+         khzvkpUyrL2bQ4bOuO/bejkaCoMGf4x9mBcgVwPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Dilip Kota <eswara.kota@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 057/228] ARM: at91: pm: add missing put_device() call in at91_pm_sram_init()
-Date:   Thu, 20 Aug 2020 11:20:32 +0200
-Message-Id: <20200820091610.457374715@linuxfoundation.org>
+Subject: [PATCH 4.14 058/228] spi: lantiq: fix: Rx overflow error in full duplex mode
+Date:   Thu, 20 Aug 2020 11:20:33 +0200
+Message-Id: <20200820091610.506196666@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,62 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Dilip Kota <eswara.kota@linux.intel.com>
 
-[ Upstream commit f87a4f022c44e5b87e842a9f3e644fba87e8385f ]
+[ Upstream commit 661ccf2b3f1360be50242726f7c26ced6a9e7d52 ]
 
-if of_find_device_by_node() succeed, at91_pm_sram_init() doesn't have
-a corresponding put_device(). Thus add a jump target to fix the exception
-handling for this function implementation.
+In full duplex mode, rx overflow error is observed. To overcome the error,
+wait until the complete data got received and proceed further.
 
-Fixes: d2e467905596 ("ARM: at91: pm: use the mmio-sram pool to access SRAM")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200604123301.3905837-1-yukuai3@huawei.com
+Fixes: 17f84b793c01 ("spi: lantiq-ssc: add support for Lantiq SSC SPI controller")
+Signed-off-by: Dilip Kota <eswara.kota@linux.intel.com>
+Link: https://lore.kernel.org/r/efb650b0faa49a00788c4e0ca8ef7196bdba851d.1594957019.git.eswara.kota@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/spi/spi-lantiq-ssc.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 849014c01cf4d..bebaa0b0aef40 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -456,13 +456,13 @@ static void __init at91_pm_sram_init(void)
- 	sram_pool = gen_pool_get(&pdev->dev, NULL);
- 	if (!sram_pool) {
- 		pr_warn("%s: sram pool unavailable!\n", __func__);
--		return;
-+		goto out_put_device;
- 	}
+diff --git a/drivers/spi/spi-lantiq-ssc.c b/drivers/spi/spi-lantiq-ssc.c
+index d5976615d924b..dc740b5f720ba 100644
+--- a/drivers/spi/spi-lantiq-ssc.c
++++ b/drivers/spi/spi-lantiq-ssc.c
+@@ -187,6 +187,7 @@ struct lantiq_ssc_spi {
+ 	unsigned int			tx_fifo_size;
+ 	unsigned int			rx_fifo_size;
+ 	unsigned int			base_cs;
++	unsigned int			fdx_tx_level;
+ };
  
- 	sram_base = gen_pool_alloc(sram_pool, at91_pm_suspend_in_sram_sz);
- 	if (!sram_base) {
- 		pr_warn("%s: unable to alloc sram!\n", __func__);
--		return;
-+		goto out_put_device;
- 	}
+ static u32 lantiq_ssc_readl(const struct lantiq_ssc_spi *spi, u32 reg)
+@@ -484,6 +485,7 @@ static void tx_fifo_write(struct lantiq_ssc_spi *spi)
+ 	u32 data;
+ 	unsigned int tx_free = tx_fifo_free(spi);
  
- 	sram_pbase = gen_pool_virt_to_phys(sram_pool, sram_base);
-@@ -470,12 +470,17 @@ static void __init at91_pm_sram_init(void)
- 					at91_pm_suspend_in_sram_sz, false);
- 	if (!at91_suspend_sram_fn) {
- 		pr_warn("SRAM: Could not map\n");
--		return;
-+		goto out_put_device;
- 	}
++	spi->fdx_tx_level = 0;
+ 	while (spi->tx_todo && tx_free) {
+ 		switch (spi->bits_per_word) {
+ 		case 2 ... 8:
+@@ -512,6 +514,7 @@ static void tx_fifo_write(struct lantiq_ssc_spi *spi)
  
- 	/* Copy the pm suspend handler to SRAM */
- 	at91_suspend_sram_fn = fncpy(at91_suspend_sram_fn,
- 			&at91_pm_suspend_in_sram, at91_pm_suspend_in_sram_sz);
-+	return;
-+
-+out_put_device:
-+	put_device(&pdev->dev);
-+	return;
+ 		lantiq_ssc_writel(spi, data, LTQ_SPI_TB);
+ 		tx_free--;
++		spi->fdx_tx_level++;
+ 	}
  }
  
- static void __init at91_pm_backup_init(void)
+@@ -523,6 +526,13 @@ static void rx_fifo_read_full_duplex(struct lantiq_ssc_spi *spi)
+ 	u32 data;
+ 	unsigned int rx_fill = rx_fifo_level(spi);
+ 
++	/*
++	 * Wait until all expected data to be shifted in.
++	 * Otherwise, rx overrun may occur.
++	 */
++	while (rx_fill != spi->fdx_tx_level)
++		rx_fill = rx_fifo_level(spi);
++
+ 	while (rx_fill) {
+ 		data = lantiq_ssc_readl(spi, LTQ_SPI_RB);
+ 
 -- 
 2.25.1
 
