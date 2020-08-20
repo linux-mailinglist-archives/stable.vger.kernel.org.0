@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9BA24BB18
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0D324BB57
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729835AbgHTMXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
+        id S1729642AbgHTJvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730157AbgHTJyq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:54:46 -0400
+        id S1729011AbgHTJvq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:51:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDB61207FB;
-        Thu, 20 Aug 2020 09:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EE17207FB;
+        Thu, 20 Aug 2020 09:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917286;
-        bh=z8abWbrQfvKrdo/2l/V5xVkWfRiUU1HPSskqPVkafqY=;
+        s=default; t=1597917106;
+        bh=k640J9cqOEVPJ1orsTEWIBrNMF4F3K4Xs6YwxMvaSG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rP9jGJjkcfHAkUPFPWuaOFnJW2SlxTrqorPeDFSn7tqyRUKd2LWODRW9nMURmG3PG
-         vnOQi43y4Pg5TMBs7QJIKBAWBbg2jn2PjrfXyrjaNHFJQWWD2+lNPM+JhzTt5Z/SSy
-         efJTnU6CcHvQqH4Nk3HFykQWWZC1lSpVxWRUr5cs=
+        b=rsTv+3BN/PugH1ee2IJ/X8Qv+wViH7gS+RSpuGIqI9Sp1DVJUotEUrhTB9b+/UBCP
+         BTw6raWCysfcJEgpIOzn6rdrJnW453aDYcPWZug8UO7CCZez0O0bJgv9v1ukoyBP/p
+         SdFdpyDUMkup3fZbp6r8iRY5LQ1UT2gLMrSFd+bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 69/92] i2c: rcar: avoid race when unregistering slave
+        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 147/152] drm/radeon: fix fb_div check in ni_init_smc_spll_table()
 Date:   Thu, 20 Aug 2020 11:21:54 +0200
-Message-Id: <20200820091541.220955447@linuxfoundation.org>
+Message-Id: <20200820091601.353769890@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Denis Efremov <efremov@linux.com>
 
-[ Upstream commit c7c9e914f9a0478fba4dc6f227cfd69cf84a4063 ]
+commit f29aa08852e1953e461f2d47ab13c34e14bc08b3 upstream.
 
-Due to the lockless design of the driver, it is theoretically possible
-to access a NULL pointer, if a slave interrupt was running while we were
-unregistering the slave. To make this rock solid, disable the interrupt
-for a short time while we are clearing the interrupt_enable register.
-This patch is purely based on code inspection. The OOPS is super-hard to
-trigger because clearing SAR (the address) makes interrupts even more
-unlikely to happen as well. While here, reinit SCR to SDBS because this
-bit should always be set according to documentation. There is no effect,
-though, because the interface is disabled.
+clk_s is checked twice in a row in ni_init_smc_spll_table().
+fb_div should be checked instead.
 
-Fixes: 7b814d852af6 ("i2c: rcar: avoid race when unregistering slave client")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/busses/i2c-rcar.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/radeon/ni_dpm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 11d1977616858..dcdce18fc7062 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -861,12 +861,14 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+--- a/drivers/gpu/drm/radeon/ni_dpm.c
++++ b/drivers/gpu/drm/radeon/ni_dpm.c
+@@ -2125,7 +2125,7 @@ static int ni_init_smc_spll_table(struct
+ 		if (p_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_PDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_PDIV_SHIFT))
+ 			ret = -EINVAL;
  
- 	WARN_ON(!priv->slave);
+-		if (clk_s & ~(SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_SHIFT))
++		if (fb_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_SHIFT))
+ 			ret = -EINVAL;
  
--	/* disable irqs and ensure none is running before clearing ptr */
-+	/* ensure no irq is running before clearing ptr */
-+	disable_irq(priv->irq);
- 	rcar_i2c_write(priv, ICSIER, 0);
--	rcar_i2c_write(priv, ICSCR, 0);
-+	rcar_i2c_write(priv, ICSSR, 0);
-+	enable_irq(priv->irq);
-+	rcar_i2c_write(priv, ICSCR, SDBS);
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
- 
--	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
--- 
-2.25.1
-
+ 		if (fb_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_SHIFT))
 
 
