@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 075B624B664
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1030024B666
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731426AbgHTKS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S1730558AbgHTKfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731291AbgHTKS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:18:58 -0400
+        id S1731432AbgHTKTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:19:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B35A520658;
-        Thu, 20 Aug 2020 10:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 666E120658;
+        Thu, 20 Aug 2020 10:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918737;
-        bh=6KMASYgSY9mZsiOFd5G1ReOXX0yDHm7t+VKPImhwBiA=;
+        s=default; t=1597918739;
+        bh=QPfgkXAnfs8QNNM41LgdhFQ5pN1N0syzwJkAzKKiL5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4dKzQodZ8eXVWXvFrpRbddQVPXnG1vbpOAzvVsqEQ6JQV7U+3e+h0Hnl/+o/5mjv
-         LViWnZ73ubWk8FVhUsk9IKyCegKouszwd+9ti3O6IMwzu4278YeOaaYYOMVZu22pz+
-         cxbvSrS9EQbl42cYQMqVYljPE0PL2a6I/lbdR1lI=
+        b=wHDQ+CxyucABp/tGd+asYFREzJ0UbCMOlRzIBsXq2qhdBCFE7XmQ2nMnGL82MiZ8R
+         /NMJyR16RFcBT7EtKB29a66Fo3DbEJHATyfLiU8bmBhfs8euS55dYl0n1w0BQxjw4E
+         xNSaTr8XZb3y/O3bzuMqmNgN8QDHIA7NyPXRIAK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ch3332xr@gmail.com,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Guillaume Nault <gnault@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 048/149] ipv6: fix memory leaks on IPV6_ADDRFORM path
-Date:   Thu, 20 Aug 2020 11:22:05 +0200
-Message-Id: <20200820092128.066065707@linuxfoundation.org>
+Subject: [PATCH 4.4 049/149] Revert "vxlan: fix tos value before xmit"
+Date:   Thu, 20 Aug 2020 11:22:06 +0200
+Message-Id: <20200820092128.114037102@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -44,115 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 8c0de6e96c9794cb523a516c465991a70245da1c ]
+[ Upstream commit a0dced17ad9dc08b1b25e0065b54c97a318e6e8b ]
 
-IPV6_ADDRFORM causes resource leaks when converting an IPv6 socket
-to IPv4, particularly struct ipv6_ac_socklist. Similar to
-struct ipv6_mc_socklist, we should just close it on this path.
+This reverts commit 71130f29979c7c7956b040673e6b9d5643003176.
 
-This bug can be easily reproduced with the following C program:
+In commit 71130f29979c ("vxlan: fix tos value before xmit") we want to
+make sure the tos value are filtered by RT_TOS() based on RFC1349.
 
-  #include <stdio.h>
-  #include <string.h>
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
+       0     1     2     3     4     5     6     7
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+    |   PRECEDENCE    |          TOS          | MBZ |
+    +-----+-----+-----+-----+-----+-----+-----+-----+
 
-  int main()
-  {
-    int s, value;
-    struct sockaddr_in6 addr;
-    struct ipv6_mreq m6;
+But RFC1349 has been obsoleted by RFC2474. The new DSCP field defined like
 
-    s = socket(AF_INET6, SOCK_DGRAM, 0);
-    addr.sin6_family = AF_INET6;
-    addr.sin6_port = htons(5000);
-    inet_pton(AF_INET6, "::ffff:192.168.122.194", &addr.sin6_addr);
-    connect(s, (struct sockaddr *)&addr, sizeof(addr));
+       0     1     2     3     4     5     6     7
+    +-----+-----+-----+-----+-----+-----+-----+-----+
+    |          DS FIELD, DSCP           | ECN FIELD |
+    +-----+-----+-----+-----+-----+-----+-----+-----+
 
-    inet_pton(AF_INET6, "fe80::AAAA", &m6.ipv6mr_multiaddr);
-    m6.ipv6mr_interface = 5;
-    setsockopt(s, SOL_IPV6, IPV6_JOIN_ANYCAST, &m6, sizeof(m6));
+So with
 
-    value = AF_INET;
-    setsockopt(s, SOL_IPV6, IPV6_ADDRFORM, &value, sizeof(value));
+IPTOS_TOS_MASK          0x1E
+RT_TOS(tos)		((tos)&IPTOS_TOS_MASK)
 
-    close(s);
-    return 0;
-  }
+the first 3 bits DSCP info will get lost.
 
-Reported-by: ch3332xr@gmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+To take all the DSCP info in xmit, we should revert the patch and just push
+all tos bits to ip_tunnel_ecn_encap(), which will handling ECN field later.
+
+Fixes: 71130f29979c ("vxlan: fix tos value before xmit")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/addrconf.h   |    1 +
- net/ipv6/anycast.c       |   17 ++++++++++++-----
- net/ipv6/ipv6_sockglue.c |    1 +
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/net/vxlan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/addrconf.h
-+++ b/include/net/addrconf.h
-@@ -239,6 +239,7 @@ int ipv6_sock_ac_join(struct sock *sk, i
- 		      const struct in6_addr *addr);
- int ipv6_sock_ac_drop(struct sock *sk, int ifindex,
- 		      const struct in6_addr *addr);
-+void __ipv6_sock_ac_close(struct sock *sk);
- void ipv6_sock_ac_close(struct sock *sk);
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -2070,7 +2070,7 @@ static void vxlan_xmit_one(struct sk_buf
+ 			return;
+ 		}
  
- int __ipv6_dev_ac_inc(struct inet6_dev *idev, const struct in6_addr *addr);
---- a/net/ipv6/anycast.c
-+++ b/net/ipv6/anycast.c
-@@ -170,7 +170,7 @@ int ipv6_sock_ac_drop(struct sock *sk, i
- 	return 0;
- }
- 
--void ipv6_sock_ac_close(struct sock *sk)
-+void __ipv6_sock_ac_close(struct sock *sk)
- {
- 	struct ipv6_pinfo *np = inet6_sk(sk);
- 	struct net_device *dev = NULL;
-@@ -178,10 +178,7 @@ void ipv6_sock_ac_close(struct sock *sk)
- 	struct net *net = sock_net(sk);
- 	int	prev_index;
- 
--	if (!np->ipv6_ac_list)
--		return;
--
--	rtnl_lock();
-+	ASSERT_RTNL();
- 	pac = np->ipv6_ac_list;
- 	np->ipv6_ac_list = NULL;
- 
-@@ -198,6 +195,16 @@ void ipv6_sock_ac_close(struct sock *sk)
- 		sock_kfree_s(sk, pac, sizeof(*pac));
- 		pac = next;
- 	}
-+}
-+
-+void ipv6_sock_ac_close(struct sock *sk)
-+{
-+	struct ipv6_pinfo *np = inet6_sk(sk);
-+
-+	if (!np->ipv6_ac_list)
-+		return;
-+	rtnl_lock();
-+	__ipv6_sock_ac_close(sk);
- 	rtnl_unlock();
- }
- 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -207,6 +207,7 @@ static int do_ipv6_setsockopt(struct soc
- 
- 			fl6_free_socklist(sk);
- 			__ipv6_sock_mc_close(sk);
-+			__ipv6_sock_ac_close(sk);
- 
- 			/*
- 			 * Sock is moving from IPv6 to IPv4 (sk_prot), so
+-		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
++		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
+ 		ttl = ttl ? : ip4_dst_hoplimit(&rt->dst);
+ 		err = vxlan_xmit_skb(rt, sk, skb, fl4.saddr,
+ 				     dst->sin.sin_addr.s_addr, tos, ttl, df,
 
 
