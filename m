@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C982224BB79
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B12A424BAD6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729805AbgHTJv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60446 "EHLO mail.kernel.org"
+        id S1730638AbgHTMSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729780AbgHTJv1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:27 -0400
+        id S1730251AbgHTJ4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C37F52078D;
-        Thu, 20 Aug 2020 09:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2A982067C;
+        Thu, 20 Aug 2020 09:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917086;
-        bh=dh+2MnrTXKN76s1V+xq812i2B6/UgMTdPUQjeMkGIyY=;
+        s=default; t=1597917369;
+        bh=QjGe+u4Tj7ppzgognTnADJBAxd+Zn8/zcCRRhTVVB4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnKX+WLkJVz4TB8Q6+NYrH1vD87tQfHJU3CE7wVkbj7ozM/SUmia67JHacTEq11kA
-         TXtIMp3HtlJYIAcLXq6BP0qw/VdXouxPLbDsPv6pAuYkQW1eEl4HhlrPFHUDzcjuSc
-         hl3SE3a+DypuNN6FL6W7RjlcCimcveJ/By/nYaAs=
+        b=ug4G9XYRRLCWNOtv2qReeHzYohXUBA0JOrIPC4ZP2qz+S1k7/lsFcVPnwwnehOhUu
+         Ss2j1+AVb+/LJCUA+nR3/p7CHdnM1XTLCYUft1WfNTNI6oMJc7tDBOz4kdTlTFkeYi
+         FP/bf4MpAM+QA9DinhmPBJpKyR18EwKhtTRXK7ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hersen Wu <hersenxs.wu@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 152/152] drm/amd/display: dchubbub p-state warning during surface planes switch
-Date:   Thu, 20 Aug 2020 11:21:59 +0200
-Message-Id: <20200820091601.620349728@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>, Timur Tabi <timur@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 76/92] net: qcom/emac: add missed clk_disable_unprepare in error path of emac_clks_phase1_init
+Date:   Thu, 20 Aug 2020 11:22:01 +0200
+Message-Id: <20200820091541.622531436@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,168 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hersen wu <hersenxs.wu@amd.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 8b0379a85762b516c7b46aed7dbf2a4947c00564 upstream.
+[ Upstream commit 50caa777a3a24d7027748e96265728ce748b41ef ]
 
-[Why]
-ramp_up_dispclk_with_dpp is to change dispclk, dppclk and dprefclk
-according to bandwidth requirement. call stack: rv1_update_clocks -->
-update_clocks --> dcn10_prepare_bandwidth / dcn10_optimize_bandwidth
---> prepare_bandwidth / optimize_bandwidth. before change dcn hw,
-prepare_bandwidth will be called first to allow enough clock,
-watermark for change, after end of dcn hw change, optimize_bandwidth
-is executed to lower clock to save power for new dcn hw settings.
+Fix the missing clk_disable_unprepare() before return
+from emac_clks_phase1_init() in the error handling case.
 
-below is sequence of commit_planes_for_stream:
-step 1: prepare_bandwidth - raise clock to have enough bandwidth
-step 2: lock_doublebuffer_enable
-step 3: pipe_control_lock(true) - make dchubp register change will
-not take effect right way
-step 4: apply_ctx_for_surface - program dchubp
-step 5: pipe_control_lock(false) - dchubp register change take effect
-step 6: optimize_bandwidth --> dc_post_update_surfaces_to_stream
-for full_date, optimize clock to save power
-
-at end of step 1, dcn clocks (dprefclk, dispclk, dppclk) may be
-changed for new dchubp configuration. but real dcn hub dchubps are
-still running with old configuration until end of step 5. this need
-clocks settings at step 1 should not less than that before step 1.
-this is checked by two conditions: 1. if (should_set_clock(safe_to_lower
-, new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz) ||
-new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz)
-2. request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz
-
-the second condition is based on new dchubp configuration. dppclk
-for new dchubp may be different from dppclk before step 1.
-for example, before step 1, dchubps are as below:
-pipe 0: recout=(0,40,1920,980) viewport=(0,0,1920,979)
-pipe 1: recout=(0,0,1920,1080) viewport=(0,0,1920,1080)
-for dppclk for pipe0 need dppclk = dispclk
-
-new dchubp pipe split configuration:
-pipe 0: recout=(0,0,960,1080) viewport=(0,0,960,1080)
-pipe 1: recout=(960,0,960,1080) viewport=(960,0,960,1080)
-dppclk only needs dppclk = dispclk /2.
-
-dispclk, dppclk are not lock by otg master lock. they take effect
-after step 1. during this transition, dispclk are the same, but
-dppclk is changed to half of previous clock for old dchubp
-configuration between step 1 and step 6. This may cause p-state
-warning intermittently.
-
-[How]
-for new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz, we
-need make sure dppclk are not changed to less between step 1 and 6.
-for new_clocks->dispclk_khz > clk_mgr_base->clks.dispclk_khz,
-new display clock is raised, but we do not know ratio of
-new_clocks->dispclk_khz and clk_mgr_base->clks.dispclk_khz,
-new_clocks->dispclk_khz /2 does not guarantee equal or higher than
-old dppclk. we could ignore power saving different between
-dppclk = displck and dppclk = dispclk / 2 between step 1 and step 6.
-as long as safe_to_lower = false, set dpclk = dispclk to simplify
-condition check.
-
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b9b17debc69d ("net: emac: emac gigabit ethernet controller driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Acked-by: Timur Tabi <timur@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c |   69 ++++++++++++-
- 1 file changed, 67 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qualcomm/emac/emac.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c
-@@ -85,12 +85,77 @@ static int rv1_determine_dppclk_threshol
- 	return disp_clk_threshold;
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac.c b/drivers/net/ethernet/qualcomm/emac/emac.c
+index 2a0cbc535a2ed..19673ed929e68 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac.c
+@@ -493,13 +493,24 @@ static int emac_clks_phase1_init(struct platform_device *pdev,
+ 
+ 	ret = clk_prepare_enable(adpt->clk[EMAC_CLK_CFG_AHB]);
+ 	if (ret)
+-		return ret;
++		goto disable_clk_axi;
+ 
+ 	ret = clk_set_rate(adpt->clk[EMAC_CLK_HIGH_SPEED], 19200000);
+ 	if (ret)
+-		return ret;
++		goto disable_clk_cfg_ahb;
++
++	ret = clk_prepare_enable(adpt->clk[EMAC_CLK_HIGH_SPEED]);
++	if (ret)
++		goto disable_clk_cfg_ahb;
+ 
+-	return clk_prepare_enable(adpt->clk[EMAC_CLK_HIGH_SPEED]);
++	return 0;
++
++disable_clk_cfg_ahb:
++	clk_disable_unprepare(adpt->clk[EMAC_CLK_CFG_AHB]);
++disable_clk_axi:
++	clk_disable_unprepare(adpt->clk[EMAC_CLK_AXI]);
++
++	return ret;
  }
  
--static void ramp_up_dispclk_with_dpp(struct clk_mgr_internal *clk_mgr, struct dc *dc, struct dc_clocks *new_clocks)
-+static void ramp_up_dispclk_with_dpp(
-+		struct clk_mgr_internal *clk_mgr,
-+		struct dc *dc,
-+		struct dc_clocks *new_clocks,
-+		bool safe_to_lower)
- {
- 	int i;
- 	int dispclk_to_dpp_threshold = rv1_determine_dppclk_threshold(clk_mgr, new_clocks);
- 	bool request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz;
- 
-+	/* this function is to change dispclk, dppclk and dprefclk according to
-+	 * bandwidth requirement. Its call stack is rv1_update_clocks -->
-+	 * update_clocks --> dcn10_prepare_bandwidth / dcn10_optimize_bandwidth
-+	 * --> prepare_bandwidth / optimize_bandwidth. before change dcn hw,
-+	 * prepare_bandwidth will be called first to allow enough clock,
-+	 * watermark for change, after end of dcn hw change, optimize_bandwidth
-+	 * is executed to lower clock to save power for new dcn hw settings.
-+	 *
-+	 * below is sequence of commit_planes_for_stream:
-+	 *
-+	 * step 1: prepare_bandwidth - raise clock to have enough bandwidth
-+	 * step 2: lock_doublebuffer_enable
-+	 * step 3: pipe_control_lock(true) - make dchubp register change will
-+	 * not take effect right way
-+	 * step 4: apply_ctx_for_surface - program dchubp
-+	 * step 5: pipe_control_lock(false) - dchubp register change take effect
-+	 * step 6: optimize_bandwidth --> dc_post_update_surfaces_to_stream
-+	 * for full_date, optimize clock to save power
-+	 *
-+	 * at end of step 1, dcn clocks (dprefclk, dispclk, dppclk) may be
-+	 * changed for new dchubp configuration. but real dcn hub dchubps are
-+	 * still running with old configuration until end of step 5. this need
-+	 * clocks settings at step 1 should not less than that before step 1.
-+	 * this is checked by two conditions: 1. if (should_set_clock(safe_to_lower
-+	 * , new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz) ||
-+	 * new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz)
-+	 * 2. request_dpp_div = new_clocks->dispclk_khz > new_clocks->dppclk_khz
-+	 *
-+	 * the second condition is based on new dchubp configuration. dppclk
-+	 * for new dchubp may be different from dppclk before step 1.
-+	 * for example, before step 1, dchubps are as below:
-+	 * pipe 0: recout=(0,40,1920,980) viewport=(0,0,1920,979)
-+	 * pipe 1: recout=(0,0,1920,1080) viewport=(0,0,1920,1080)
-+	 * for dppclk for pipe0 need dppclk = dispclk
-+	 *
-+	 * new dchubp pipe split configuration:
-+	 * pipe 0: recout=(0,0,960,1080) viewport=(0,0,960,1080)
-+	 * pipe 1: recout=(960,0,960,1080) viewport=(960,0,960,1080)
-+	 * dppclk only needs dppclk = dispclk /2.
-+	 *
-+	 * dispclk, dppclk are not lock by otg master lock. they take effect
-+	 * after step 1. during this transition, dispclk are the same, but
-+	 * dppclk is changed to half of previous clock for old dchubp
-+	 * configuration between step 1 and step 6. This may cause p-state
-+	 * warning intermittently.
-+	 *
-+	 * for new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz, we
-+	 * need make sure dppclk are not changed to less between step 1 and 6.
-+	 * for new_clocks->dispclk_khz > clk_mgr_base->clks.dispclk_khz,
-+	 * new display clock is raised, but we do not know ratio of
-+	 * new_clocks->dispclk_khz and clk_mgr_base->clks.dispclk_khz,
-+	 * new_clocks->dispclk_khz /2 does not guarantee equal or higher than
-+	 * old dppclk. we could ignore power saving different between
-+	 * dppclk = displck and dppclk = dispclk / 2 between step 1 and step 6.
-+	 * as long as safe_to_lower = false, set dpclk = dispclk to simplify
-+	 * condition check.
-+	 * todo: review this change for other asic.
-+	 **/
-+	if (!safe_to_lower)
-+		request_dpp_div = false;
-+
- 	/* set disp clk to dpp clk threshold */
- 
- 	clk_mgr->funcs->set_dispclk(clk_mgr, dispclk_to_dpp_threshold);
-@@ -206,7 +271,7 @@ static void rv1_update_clocks(struct clk
- 	/* program dispclk on = as a w/a for sleep resume clock ramping issues */
- 	if (should_set_clock(safe_to_lower, new_clocks->dispclk_khz, clk_mgr_base->clks.dispclk_khz)
- 			|| new_clocks->dispclk_khz == clk_mgr_base->clks.dispclk_khz) {
--		ramp_up_dispclk_with_dpp(clk_mgr, dc, new_clocks);
-+		ramp_up_dispclk_with_dpp(clk_mgr, dc, new_clocks, safe_to_lower);
- 		clk_mgr_base->clks.dispclk_khz = new_clocks->dispclk_khz;
- 		send_request_to_lower = true;
- 	}
+ /* Enable clocks; needs emac_clks_phase1_init to be called before */
+-- 
+2.25.1
+
 
 
