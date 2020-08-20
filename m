@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B50824B5E4
+	by mail.lfdr.de (Postfix) with ESMTP id 882D324B5E5
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731495AbgHTK3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731354AbgHTK3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 06:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47352 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731512AbgHTKVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:21:11 -0400
+        id S1731522AbgHTKVO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03E8520738;
-        Thu, 20 Aug 2020 10:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4544B2075E;
+        Thu, 20 Aug 2020 10:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918871;
-        bh=bauSevcKeg4mYS85bMxFfZEB+Fpsv6jNmDuyFK76HhU=;
+        s=default; t=1597918873;
+        bh=wb9p2DCOeh7YwKQ76vVOAMWtHSt5r4AroP1eifuCw+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLV5srljC54wQTzP0ZLO4syS1oqq3bmdc8KibMI0bGnOokG89115pPhfe+h2QSOss
-         axac4Kou0+0yQ6NlBr/Z5NORa1DdUWQw0KgY1jxxwoR77K/r770W2Gsh9bpj4Vl/Hd
-         WYALc29a3YSehQlJSpGfN18hSuZhJL2DKMobeJfI=
+        b=p1R4Wt/7Sxz3OTIE4NpS4jk+XZYNoQtDGhRZpvIzAYp0DD87Yr9k7sDQ9lhEgCHPZ
+         JksINMJXTQyJAABSacBUHWuk+QdlxTZ2LcV2qn7Guc27MYH3zHOzXeGQ8kvWFV10GL
+         /423GGQzmdV+cG4CGdTGhup+3uTohJIAgcShTnoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a22c6092d003d6fe1122@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 096/149] Smack: fix another vsscanf out of bounds
-Date:   Thu, 20 Aug 2020 11:22:53 +0200
-Message-Id: <20200820092130.368312346@linuxfoundation.org>
+Subject: [PATCH 4.4 097/149] Smack: prevent underflow in smk_set_cipso()
+Date:   Thu, 20 Aug 2020 11:22:54 +0200
+Message-Id: <20200820092130.415903010@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -48,35 +46,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a6bd4f6d9b07452b0b19842044a6c3ea384b0b88 ]
+[ Upstream commit 42a2df3e829f3c5562090391b33714b2e2e5ad4a ]
 
-This is similar to commit 84e99e58e8d1 ("Smack: slab-out-of-bounds in
-vsscanf") where we added a bounds check on "rule".
+We have an upper bound on "maplevel" but forgot to check for negative
+values.
 
-Reported-by: syzbot+a22c6092d003d6fe1122@syzkaller.appspotmail.com
-Fixes: f7112e6c9abf ("Smack: allow for significantly longer Smack labels v4")
+Fixes: e114e473771c ("Smack: Simplified Mandatory Access Control Kernel")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ security/smack/smackfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index bd4d0f5a79aa3..2e2ef3a525ecb 100644
+index 2e2ef3a525ecb..df082648eb0aa 100644
 --- a/security/smack/smackfs.c
 +++ b/security/smack/smackfs.c
-@@ -939,6 +939,10 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+@@ -918,7 +918,7 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 	}
  
- 	for (i = 0; i < catlen; i++) {
- 		rule += SMK_DIGITLEN;
-+		if (rule > data + count) {
-+			rc = -EOVERFLOW;
-+			goto out;
-+		}
- 		ret = sscanf(rule, "%u", &cat);
- 		if (ret != 1 || cat > SMACK_CIPSO_MAXCATNUM)
- 			goto out;
+ 	ret = sscanf(rule, "%d", &maplevel);
+-	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
++	if (ret != 1 || maplevel < 0 || maplevel > SMACK_CIPSO_MAXLEVEL)
+ 		goto out;
+ 
+ 	rule += SMK_DIGITLEN;
 -- 
 2.25.1
 
