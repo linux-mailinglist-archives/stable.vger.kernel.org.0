@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AD624AB69
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE64724AB63
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:10:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726852AbgHTACc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728015AbgHTACc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Aug 2020 20:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59310 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727968AbgHTAC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:02:27 -0400
+        id S1727971AbgHTAC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:02:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE65E20FC3;
-        Thu, 20 Aug 2020 00:02:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80B67207FB;
+        Thu, 20 Aug 2020 00:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881747;
-        bh=8wABEDlREpvzT6ukPbd1Mmmvfg+2A2EvnE7zEw6dBsw=;
+        s=default; t=1597881748;
+        bh=TEnAfCRFKqzWR8b/LmW6mBYUZ01Boo0wZb54NQoT21g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+UFVxWbCBFWikAStdtsevk/1CoNBgRZw1JHehXwIUtf2q7se+svywePqD+qRtR3D
-         s6j1xSTIjjPU70lImod7Bphbnp7O2wf7h+ooLSBWcKTQ51C4UwmFvAC5v9XC8jluRJ
-         K+yAr2IvE02AkReXWuheYBJxaBhXRmrlSaEyo0Hs=
+        b=jaiPBI+54rorIEfUk/tFGfMDLX0FgB/pIxRl/9xEwxTRnTvAskUlurxXCWyrhwxVg
+         4Ld6m6zZcuabFZYna1KM8aW8tfvaUC6ZHWGJLFqXF27J4J32JIZIF0VRYdHS0UPkEm
+         GAt1z2N41q6W7Glyo9RiPZBquA8SHRkV9/LITJSY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        kernel test robot <lkp@intel.com>,
+Cc:     Helge Deller <deller@gmx.de>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Laurent Vivier <laurent@vivier.eu>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 23/24] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Wed, 19 Aug 2020 20:01:54 -0400
-Message-Id: <20200820000155.215089-23-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 24/24] fs/signalfd.c: fix inconsistent return codes for signalfd4
+Date:   Wed, 19 Aug 2020 20:01:55 -0400
+Message-Id: <20200820000155.215089-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000155.215089-1-sashal@kernel.org>
 References: <20200820000155.215089-1-sashal@kernel.org>
@@ -49,55 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+[ Upstream commit a089e3fd5a82aea20f3d9ec4caa5f4c65cc2cfcc ]
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+The kernel signalfd4() syscall returns different error codes when called
+either in compat or native mode.  This behaviour makes correct emulation
+in qemu and testing programs like LTP more complicated.
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
+Fix the code to always return -in both modes- EFAULT for unaccessible user
+memory, and EINVAL when called with an invalid signal mask.
 
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Laurent Vivier <laurent@vivier.eu>
+Link: http://lkml.kernel.org/r/20200530100707.GA10159@ls3530.fritz.box
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/signalfd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index e6225cf40de57..b09dd6bc98a12 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -490,10 +490,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
+diff --git a/fs/signalfd.c b/fs/signalfd.c
+index 44b6845b071c3..5b78719be4455 100644
+--- a/fs/signalfd.c
++++ b/fs/signalfd.c
+@@ -314,9 +314,10 @@ SYSCALL_DEFINE4(signalfd4, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
+ 
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, flags);
  }
- #endif
  
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+@@ -325,9 +326,10 @@ SYSCALL_DEFINE3(signalfd, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
  
- #define inb_p		inb
- #define inw_p		inw
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, 0);
+ }
+ 
 -- 
 2.25.1
 
