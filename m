@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFED724BDC5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA43524BDC3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728762AbgHTNN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:13:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52080 "EHLO mail.kernel.org"
+        id S1730354AbgHTNM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728629AbgHTJgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:36:45 -0400
+        id S1727090AbgHTJg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6097220724;
-        Thu, 20 Aug 2020 09:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70D4C20724;
+        Thu, 20 Aug 2020 09:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916204;
-        bh=80d02pedfTpF3cSJbY6um8Fk5bv/JNoyRNqEAFcDkBM=;
+        s=default; t=1597916216;
+        bh=kyZ4OQTGL/UNsZkgR+TRXjK66fbqkC2ATajEKr+L0Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/TOUPJZE79k23R9MZrlfHFTXHnnb46BnbRFY2vHhTTGTFRFIr5MdStQQ11/46tzD
-         eO/XX1O+CNBe++ttcARDbJhFrxvhfGGPK4c0Z6+rqUc/jnXHfcxxYXFKDhMF0DykFG
-         uQKLQdPUcntn/pHxFMT3gURXxadGs0EGWqNRRJW8=
+        b=NSYoAMXeSoM6WJi1eF4t056Od2NU2tRJ+U+JJCcTYapkvZkp19hxlNCzHYf/+sOA/
+         R4vFGiwfJdexmTRHgzTrCuC+3hovbcjRc/CNJvXpRpl3tCpLb0jgEG93Ja1cJyFVSp
+         TKBHFNxs8EpbRaY3F5oqRW/MaGAlcMgX0K/vpMjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 046/204] powerpc: Fix circular dependency between percpu.h and mmu.h
-Date:   Thu, 20 Aug 2020 11:19:03 +0200
-Message-Id: <20200820091608.574964047@linuxfoundation.org>
+        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.7 050/204] media: vsp1: dl: Fix NULL pointer dereference on unbind
+Date:   Thu, 20 Aug 2020 11:19:07 +0200
+Message-Id: <20200820091608.779775895@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,66 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-commit 0c83b277ada72b585e6a3e52b067669df15bcedb upstream.
+commit c92d30e4b78dc331909f8c6056c2792aa14e2166 upstream.
 
-Recently random.h started including percpu.h (see commit
-f227e3ec3b5c ("random32: update the net random state on interrupt and
-activity")), which broke corenet64_smp_defconfig:
+In commit f3b98e3c4d2e16 ("media: vsp1: Provide support for extended
+command pools"), the vsp pointer used for referencing the VSP1 device
+structure from a command pool during vsp1_dl_ext_cmd_pool_destroy() was
+not populated.
 
-  In file included from /linux/arch/powerpc/include/asm/paca.h:18,
-                   from /linux/arch/powerpc/include/asm/percpu.h:13,
-                   from /linux/include/linux/random.h:14,
-                   from /linux/lib/uuid.c:14:
-  /linux/arch/powerpc/include/asm/mmu.h:139:22: error: unknown type name 'next_tlbcam_idx'
-    139 | DECLARE_PER_CPU(int, next_tlbcam_idx);
+Correctly assign the pointer to prevent the following
+null-pointer-dereference when removing the device:
 
-This is due to a circular header dependency:
-  asm/mmu.h includes asm/percpu.h, which includes asm/paca.h, which
-  includes asm/mmu.h
+[*] h3ulcb-kf #>
+echo fea28000.vsp > /sys/bus/platform/devices/fea28000.vsp/driver/unbind
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
+ Mem abort info:
+   ESR = 0x96000006
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000006
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=00000007318be000
+ [0000000000000028] pgd=00000007333a1003, pud=00000007333a6003, pmd=0000000000000000
+ Internal error: Oops: 96000006 [#1] PREEMPT SMP
+ Modules linked in:
+ CPU: 1 PID: 486 Comm: sh Not tainted 5.7.0-rc6-arm64-renesas-00118-ge644645abf47 #185
+ Hardware name: Renesas H3ULCB Kingfisher board based on r8a77951 (DT)
+ pstate: 40000005 (nZcv daif -PAN -UAO)
+ pc : vsp1_dlm_destroy+0xe4/0x11c
+ lr : vsp1_dlm_destroy+0xc8/0x11c
+ sp : ffff800012963b60
+ x29: ffff800012963b60 x28: ffff0006f83fc440
+ x27: 0000000000000000 x26: ffff0006f5e13e80
+ x25: ffff0006f5e13ed0 x24: ffff0006f5e13ed0
+ x23: ffff0006f5e13ed0 x22: dead000000000122
+ x21: ffff0006f5e3a080 x20: ffff0006f5df2938
+ x19: ffff0006f5df2980 x18: 0000000000000003
+ x17: 0000000000000000 x16: 0000000000000016
+ x15: 0000000000000003 x14: 00000000000393c0
+ x13: ffff800011a5ec18 x12: ffff800011d8d000
+ x11: ffff0006f83fcc68 x10: ffff800011a53d70
+ x9 : ffff8000111f3000 x8 : 0000000000000000
+ x7 : 0000000000210d00 x6 : 0000000000000000
+ x5 : ffff800010872e60 x4 : 0000000000000004
+ x3 : 0000000078068000 x2 : ffff800012781000
+ x1 : 0000000000002c00 x0 : 0000000000000000
+ Call trace:
+  vsp1_dlm_destroy+0xe4/0x11c
+  vsp1_wpf_destroy+0x10/0x20
+  vsp1_entity_destroy+0x24/0x4c
+  vsp1_destroy_entities+0x54/0x130
+  vsp1_remove+0x1c/0x40
+  platform_drv_remove+0x28/0x50
+  __device_release_driver+0x178/0x220
+  device_driver_detach+0x44/0xc0
+  unbind_store+0xe0/0x104
+  drv_attr_store+0x20/0x30
+  sysfs_kf_write+0x48/0x70
+  kernfs_fop_write+0x148/0x230
+  __vfs_write+0x18/0x40
+  vfs_write+0xdc/0x1c4
+  ksys_write+0x68/0xf0
+  __arm64_sys_write+0x18/0x20
+  el0_svc_common.constprop.0+0x70/0x170
+  do_el0_svc+0x20/0x80
+  el0_sync_handler+0x134/0x1b0
+  el0_sync+0x140/0x180
+ Code: b40000c2 f9403a60 d2800084 a9400663 (f9401400)
+ ---[ end trace 3875369841fb288a ]---
 
-Which means DECLARE_PER_CPU() isn't defined when mmu.h needs it.
-
-We can fix it by moving the include of paca.h below the include of
-asm-generic/percpu.h.
-
-This moves the include of paca.h out of the #ifdef __powerpc64__, but
-that is OK because paca.h is almost entirely inside #ifdef
-CONFIG_PPC64 anyway.
-
-It also moves the include of paca.h out of the #ifdef CONFIG_SMP,
-which could possibly break something, but seems to have no ill
-effects.
-
-Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
-Cc: stable@vger.kernel.org # v5.8
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200804130558.292328-1-mpe@ellerman.id.au
+Fixes: f3b98e3c4d2e16 ("media: vsp1: Provide support for extended command pools")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/percpu.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/vsp1/vsp1_dl.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/include/asm/percpu.h
-+++ b/arch/powerpc/include/asm/percpu.h
-@@ -10,8 +10,6 @@
+--- a/drivers/media/platform/vsp1/vsp1_dl.c
++++ b/drivers/media/platform/vsp1/vsp1_dl.c
+@@ -431,6 +431,8 @@ vsp1_dl_cmd_pool_create(struct vsp1_devi
+ 	if (!pool)
+ 		return NULL;
  
- #ifdef CONFIG_SMP
- 
--#include <asm/paca.h>
--
- #define __my_cpu_offset local_paca->data_offset
- 
- #endif /* CONFIG_SMP */
-@@ -19,4 +17,6 @@
- 
- #include <asm-generic/percpu.h>
- 
-+#include <asm/paca.h>
++	pool->vsp1 = vsp1;
 +
- #endif /* _ASM_POWERPC_PERCPU_H_ */
+ 	spin_lock_init(&pool->lock);
+ 	INIT_LIST_HEAD(&pool->free);
+ 
 
 
