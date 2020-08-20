@@ -2,210 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF5A24ABF9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC6424AC28
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgHTAPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726786AbgHTAPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:15:46 -0400
-Received: from localhost (c-67-180-165-146.hsd1.ca.comcast.net [67.180.165.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76FA8207DA;
-        Thu, 20 Aug 2020 00:15:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597882545;
-        bh=sk+S3Fr21tKJgcwY1YXzpsiM/9GAWEGKg/lYjMSui+4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=1l7z5wvibXgXvTSEJvgDjsKkdtIW7G0UBv7pTYBqzxxj0CAReCzMLu3M/pIJ1cFlQ
-         c8iZM5tGhGTSPgSKrQUN4czMkXQkCCGhh0tJZxhic+A3M8iSLQN1U/sqCnsE1u19Mp
-         Ha4qbTBTnGr7DI4byNKS8SSMTZEOk4rxczFlCBgo=
-From:   Andy Lutomirski <luto@kernel.org>
-To:     x86@kernel.org
-Cc:     Kyle Huey <me@kylehuey.com>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Robert O'Callahan <rocallahan@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Will Deacon <will@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] x86/debug: Allow a single level of #DB recursion
-Date:   Wed, 19 Aug 2020 17:15:43 -0700
-Message-Id: <8b9bd05f187231df008d48cf818a6a311cbd5c98.1597882384.git.luto@kernel.org>
-X-Mailer: git-send-email 2.25.4
+        id S1726617AbgHTA2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:28:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726603AbgHTA2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 20:28:40 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEADEC061757
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:28:39 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id a65so116107otc.8
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:28:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=CfWU2zcTGgPuPRT0f2eRbd7QS2naMYApEv3xNBTmxUk=;
+        b=ZgOUt4AgSBfge8HJXtAE9emik9m/VPDpqSUpltRG0HyRaLZ/1FsS9fumdccG4GsDL6
+         ft2/vIAciwamKP2XbuB5e0MYnYEPtF9VdDiA3kGyCG2PRlfTSUHFPwdRapnkMHGk7K6l
+         uAzBApZDkDwajBGG7Upm6C1C+wFxHeH4Yli+qSNnrxLlFaMd1aLBK0Rcaa6COVlJkUsd
+         of8dOxgcJqxfiM2j0oAURriogmwAoU7MHogVwUv2XsW4D/9nCvPANiyQw81ss5XJCpfA
+         wO1st9XGoVS6ePLDW5c/urx8X7YX0LefifD9X8kOkEkzKs9M9ZfRKWYr+k8SBnjDM9Iz
+         ZKbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=CfWU2zcTGgPuPRT0f2eRbd7QS2naMYApEv3xNBTmxUk=;
+        b=qd7cD9GNG4xLi0MLVjOkzHHZCSXbuo2wn8kMD8in5n9OdwmXwG3cQjXS9BBQkQOJsX
+         ImD0Cj552I4J64XqzwIJR9pPGdyxonoYJ+17nYBcunaO2Wk2jefQYwrb0bZrKnJHUYta
+         pRqtG7/BnZXUi4jhE9L653m+i/EXSomuslBH/WBmFmSTEC99yBBf2YhgLwPw3Y6BWXOM
+         ZEV2aYNkUTfzZe7ZlkGCsrWGf7RXe32yoOtUz/31NgY6w0V9hI9JI3061hywIokqswdE
+         ghCy6G5vhhY42CrkY542XTRhon0vbcOVwmU7E4g4LF6ObTSpKgzrsdN/GaYyIczXzeUc
+         Na+A==
+X-Gm-Message-State: AOAM530wvTrvFxM5GbfSAucFlWnWoYII1hBiwW1z6KqtasPLEQ650Sxs
+        mlabMqTrMrM7DIoHrytobKydLw==
+X-Google-Smtp-Source: ABdhPJwd3q/arMUXc/VgXeXSeOQrth4TESBc2d4GX7g2E+Da4w+qClzmF7WAUHpIvzn3hZEb4wZBZQ==
+X-Received: by 2002:a9d:6b8e:: with SMTP id b14mr326527otq.307.1597883318788;
+        Wed, 19 Aug 2020 17:28:38 -0700 (PDT)
+Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id s6sm88758otq.75.2020.08.19.17.28.36
+        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
+        Wed, 19 Aug 2020 17:28:37 -0700 (PDT)
+Date:   Wed, 19 Aug 2020 17:28:10 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@eggly.anvils
+To:     gregkh@linuxfoundation.org
+cc:     hughd@google.com, aarcange@redhat.com, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
+        songliubraving@fb.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject: Re: FAILED: patch "[PATCH] khugepaged: retract_page_tables() remember
+ to test exit" failed to apply to 5.7-stable tree
+In-Reply-To: <1597839864213170@kroah.com>
+Message-ID: <alpine.LSU.2.11.2008191725400.24973@eggly.anvils>
+References: <1597839864213170@kroah.com>
+User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Trying to clear DR7 around a #DB from usermode malfunctions if we
-schedule when delivering SIGTRAP.  Rather than trying to define a
-special no-recursion region, just allow a single level of recursion.
-We do the same thing for NMI, and it hasn't caused any problems yet.
+On Wed, 19 Aug 2020, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.7-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
 
-Reported-by: Kyle Huey <me@kylehuey.com>
-Debugged-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Fixes: 9f58fdde95c9 ("x86/db: Split out dr6/7 handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
- arch/x86/kernel/traps.c | 69 +++++++++++++++++++++++------------------
- 1 file changed, 38 insertions(+), 31 deletions(-)
+------------------ rebased commit in Linus's tree ------------------
 
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 1f66d2d1e998..bf852b72f15c 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -729,20 +729,9 @@ static bool is_sysenter_singlestep(struct pt_regs *regs)
- #endif
- }
- 
--static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
-+static __always_inline unsigned long debug_read_clear_dr6(void)
- {
--	/*
--	 * Disable breakpoints during exception handling; recursive exceptions
--	 * are exceedingly 'fun'.
--	 *
--	 * Since this function is NOKPROBE, and that also applies to
--	 * HW_BREAKPOINT_X, we can't hit a breakpoint before this (XXX except a
--	 * HW_BREAKPOINT_W on our stack)
--	 *
--	 * Entry text is excluded for HW_BP_X and cpu_entry_area, which
--	 * includes the entry stack is excluded for everything.
--	 */
--	*dr7 = local_db_save();
-+	unsigned long dr6;
- 
- 	/*
- 	 * The Intel SDM says:
-@@ -755,15 +744,21 @@ static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
- 	 *
- 	 * Keep it simple: clear DR6 immediately.
- 	 */
--	get_debugreg(*dr6, 6);
-+	get_debugreg(dr6, 6);
- 	set_debugreg(0, 6);
- 	/* Filter out all the reserved bits which are preset to 1 */
--	*dr6 &= ~DR6_RESERVED;
-+	dr6 &= ~DR6_RESERVED;
-+
-+	return dr6;
-+}
-+
-+static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
-+{
-+	*dr6 = debug_read_clear_dr6();
- }
- 
- static __always_inline void debug_exit(unsigned long dr7)
- {
--	local_db_restore(dr7);
- }
- 
- /*
-@@ -863,6 +858,19 @@ static void handle_debug(struct pt_regs *regs, unsigned long dr6, bool user)
- static __always_inline void exc_debug_kernel(struct pt_regs *regs,
- 					     unsigned long dr6)
- {
-+	/*
-+	 * Disable breakpoints during exception handling; recursive exceptions
-+	 * are exceedingly 'fun'.
-+	 *
-+	 * Since this function is NOKPROBE, and that also applies to
-+	 * HW_BREAKPOINT_X, we can't hit a breakpoint before this (XXX except a
-+	 * HW_BREAKPOINT_W on our stack)
-+	 *
-+	 * Entry text is excluded for HW_BP_X and cpu_entry_area, which
-+	 * includes the entry stack is excluded for everything.
-+	 */
-+	unsigned long dr7 = local_db_save();
-+
- 	bool irq_state = idtentry_enter_nmi(regs);
- 	instrumentation_begin();
- 
-@@ -883,6 +891,8 @@ static __always_inline void exc_debug_kernel(struct pt_regs *regs,
- 
- 	instrumentation_end();
- 	idtentry_exit_nmi(regs, irq_state);
-+
-+	local_db_restore(dr7);
- }
- 
- static __always_inline void exc_debug_user(struct pt_regs *regs,
-@@ -894,6 +904,15 @@ static __always_inline void exc_debug_user(struct pt_regs *regs,
- 	 */
- 	WARN_ON_ONCE(!user_mode(regs));
- 
-+	/*
-+	 * NB: We can't easily clear DR7 here because
-+	 * idtentry_exit_to_usermode() can invoke ptrace, schedule, access
-+	 * user memory, etc.  This means that a recursive #DB is possible.  If
-+	 * this happens, that #DB will hit exc_debug_kernel() and clear DR7.
-+	 * Since we're not on the IST stack right now, everything will be
-+	 * fine.
-+	 */
-+
- 	irqentry_enter_from_user_mode(regs);
- 	instrumentation_begin();
- 
-@@ -907,36 +926,24 @@ static __always_inline void exc_debug_user(struct pt_regs *regs,
- /* IST stack entry */
- DEFINE_IDTENTRY_DEBUG(exc_debug)
- {
--	unsigned long dr6, dr7;
--
--	debug_enter(&dr6, &dr7);
--	exc_debug_kernel(regs, dr6);
--	debug_exit(dr7);
-+	exc_debug_kernel(regs, debug_read_clear_dr6());
- }
- 
- /* User entry, runs on regular task stack */
- DEFINE_IDTENTRY_DEBUG_USER(exc_debug)
- {
--	unsigned long dr6, dr7;
--
--	debug_enter(&dr6, &dr7);
--	exc_debug_user(regs, dr6);
--	debug_exit(dr7);
-+	exc_debug_user(regs, debug_read_clear_dr6());
- }
- #else
- /* 32 bit does not have separate entry points. */
- DEFINE_IDTENTRY_RAW(exc_debug)
- {
--	unsigned long dr6, dr7;
--
--	debug_enter(&dr6, &dr7);
-+	unsigned long dr6 = debug_read_clear_dr6();
- 
- 	if (user_mode(regs))
- 		exc_debug_user(regs, dr6);
- 	else
- 		exc_debug_kernel(regs, dr6);
--
--	debug_exit(dr7);
- }
- #endif
- 
--- 
-2.25.4
+From 18e77600f7a1ed69f8ce46c9e11cad0985712dfa Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 6 Aug 2020 23:26:22 -0700
+Subject: [PATCH] khugepaged: retract_page_tables() remember to test exit
 
+Only once have I seen this scenario (and forgot even to notice what forced
+the eventual crash): a sequence of "BUG: Bad page map" alerts from
+vm_normal_page(), from zap_pte_range() servicing exit_mmap();
+pmd:00000000, pte values corresponding to data in physical page 0.
+
+The pte mappings being zapped in this case were supposed to be from a huge
+page of ext4 text (but could as well have been shmem): my belief is that
+it was racing with collapse_file()'s retract_page_tables(), found *pmd
+pointing to a page table, locked it, but *pmd had become 0 by the time
+start_pte was decided.
+
+In most cases, that possibility is excluded by holding mmap lock; but
+exit_mmap() proceeds without mmap lock.  Most of what's run by khugepaged
+checks khugepaged_test_exit() after acquiring mmap lock:
+khugepaged_collapse_pte_mapped_thps() and hugepage_vma_revalidate() do so,
+for example.  But retract_page_tables() did not: fix that.
+
+The fix is for retract_page_tables() to check khugepaged_test_exit(),
+after acquiring mmap lock, before doing anything to the page table.
+Getting the mmap lock serializes with __mmput(), which briefly takes and
+drops it in __khugepaged_exit(); then the khugepaged_test_exit() check on
+mm_users makes sure we don't touch the page table once exit_mmap() might
+reach it, since exit_mmap() will be proceeding without mmap lock, not
+expecting anyone to be racing with it.
+
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021215400.27773@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index e9e7a5659d64..e30dd1865603 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1439,6 +1439,7 @@ static int khugepaged_collapse_pte_mapped_thps(struct mm_slot *mm_slot)
+ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ {
+ 	struct vm_area_struct *vma;
++	struct mm_struct *mm;
+ 	unsigned long addr;
+ 	pmd_t *pmd, _pmd;
+ 
+@@ -1467,7 +1468,8 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 			continue;
+ 		if (vma->vm_end < addr + HPAGE_PMD_SIZE)
+ 			continue;
+-		pmd = mm_find_pmd(vma->vm_mm, addr);
++		mm = vma->vm_mm;
++		pmd = mm_find_pmd(mm, addr);
+ 		if (!pmd)
+ 			continue;
+ 		/*
+@@ -1477,17 +1479,19 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		 * mmap_sem while holding page lock. Fault path does it in
+ 		 * reverse order. Trylock is a way to avoid deadlock.
+ 		 */
+-		if (down_write_trylock(&vma->vm_mm->mmap_sem)) {
+-			spinlock_t *ptl = pmd_lock(vma->vm_mm, pmd);
+-			/* assume page table is clear */
+-			_pmd = pmdp_collapse_flush(vma, addr, pmd);
+-			spin_unlock(ptl);
+-			up_write(&vma->vm_mm->mmap_sem);
+-			mm_dec_nr_ptes(vma->vm_mm);
+-			pte_free(vma->vm_mm, pmd_pgtable(_pmd));
++		if (down_write_trylock(&mm->mmap_sem)) {
++			if (!khugepaged_test_exit(mm)) {
++				spinlock_t *ptl = pmd_lock(mm, pmd);
++				/* assume page table is clear */
++				_pmd = pmdp_collapse_flush(vma, addr, pmd);
++				spin_unlock(ptl);
++				mm_dec_nr_ptes(mm);
++				pte_free(mm, pmd_pgtable(_pmd));
++			}
++			up_write(&mm->mmap_sem);
+ 		} else {
+ 			/* Try again later */
+-			khugepaged_add_pte_mapped_thp(vma->vm_mm, addr);
++			khugepaged_add_pte_mapped_thp(mm, addr);
+ 		}
+ 	}
+ 	i_mmap_unlock_write(mapping);
