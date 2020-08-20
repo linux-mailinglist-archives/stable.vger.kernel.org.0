@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBFDC24BC05
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC0A24BD02
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbgHTJrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:47:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50602 "EHLO mail.kernel.org"
+        id S1729063AbgHTJk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729189AbgHTJrN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:13 -0400
+        id S1728893AbgHTJkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 345782224D;
-        Thu, 20 Aug 2020 09:47:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCBE620724;
+        Thu, 20 Aug 2020 09:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916832;
-        bh=LNdruWfsdbl7VgaTM+oKt/5xrO+jpxMzIJCb/U8B/98=;
+        s=default; t=1597916451;
+        bh=4ECfkLhEYHdEtCnhAdduHmkM3iWQ8LHlr8d9E3NNG1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaP7Wt/+Iig07XImrSMF/O1tdxWDZJHlSW+4Ihd/26UgwGBJ9Cyb/dM70qiImph49
-         TOXH+mvlX5FyWG38BJPd4uH3UDP4AAQGmFQ9Ut//dH3H8AKHkZezQ3Oxd+Qwne50t0
-         6L+H8Lnoi+oFeVw3tI4Cg+HxfbV/UyBP8jDUO6fc=
+        b=2QNVteTn9SrrhSPtPIJiPCZp3ZA3kTFQjeHNWkpyL0MNDWaPtTQnqnCDeS2sbtep5
+         3mi57GGSBTQrfl7IGTTedh0e9wLCb/e5qSy3ny/eREXDSMSg0RGfCKcc6UL7z5ZgrN
+         JkdxYRHQez4tRd1gSL/hE7ZUGWPHJNVv+KBE7oRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.4 062/152] watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
-Date:   Thu, 20 Aug 2020 11:20:29 +0200
-Message-Id: <20200820091556.901619073@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 133/204] clk: actions: Fix h_clk for Actions S500 SoC
+Date:   Thu, 20 Aug 2020 11:20:30 +0200
+Message-Id: <20200820091612.920283039@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-commit e871e93fb08a619dfc015974a05768ed6880fd82 upstream.
+[ Upstream commit f47ee279d25fb0e010cae5d6e758e39b40eb6378 ]
 
-The driver supports populating bootstatus with WDIOF_CARDRESET, but so
-far userspace couldn't portably determine whether absence of this flag
-meant no watchdog reset or no driver support. Or-in the bit to fix this.
+The h_clk clock in the Actions Semi S500 SoC clock driver has an
+invalid parent. Replace with the correct one.
 
-Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200611191750.28096-3-a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/c57e7ebabfa970014f073b92fe95b47d3e5a70b1.1593788312.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/f71808e_wdt.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/actions/owl-s500.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -691,7 +691,8 @@ static int __init watchdog_init(int sioa
- 	watchdog.sioaddr = sioaddr;
- 	watchdog.ident.options = WDIOC_SETTIMEOUT
- 				| WDIOF_MAGICCLOSE
--				| WDIOF_KEEPALIVEPING;
-+				| WDIOF_KEEPALIVEPING
-+				| WDIOF_CARDRESET;
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index e2007ac4d235d..0eb83a0b70bcc 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -183,7 +183,7 @@ static OWL_GATE(timer_clk, "timer_clk", "hosc", CMU_DEVCLKEN1, 27, 0, 0);
+ static OWL_GATE(hdmi_clk, "hdmi_clk", "hosc", CMU_DEVCLKEN1, 3, 0, 0);
  
- 	snprintf(watchdog.ident.identity,
- 		sizeof(watchdog.ident.identity), "%s watchdog",
+ /* divider clocks */
+-static OWL_DIVIDER(h_clk, "h_clk", "ahbprevdiv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
++static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
+ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNETPLL, 1, 1, rmii_ref_div_table, 0, 0);
+ 
+ /* factor clocks */
+-- 
+2.25.1
+
 
 
