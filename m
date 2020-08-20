@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E7F24B794
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A0F24B632
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:34:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731363AbgHTK7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58582 "EHLO mail.kernel.org"
+        id S1731145AbgHTKd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:33:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731090AbgHTKNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:13:38 -0400
+        id S1731446AbgHTKTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:19:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0725F2067C;
-        Thu, 20 Aug 2020 10:13:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4E3320658;
+        Thu, 20 Aug 2020 10:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918418;
-        bh=V+lz7/siG4c9XdPPITwRwWgfq5p7uZfJ6aoge+OydFI=;
+        s=default; t=1597918773;
+        bh=ty18EZHzNNsdgv8w9u5VplsWbIv4nX7VRyU0h2WE+W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EanQxAekEDMVYdb6/tdTm2NbJEnsXdKH+BtZjRI7rM7bT+gTRXLZMQcQnO4BTgc7n
-         G4VR3m+ls5/wWGnw6EkwhdSmLHGofpCVijDpqlNfPYjkrSGVhT59euokmv3gUb7JXp
-         Fbd6vVctzVUtcV3pWFxh+tYTcq43gqP5FhX/Jkgw=
+        b=0eNZHyNW0x0qLVR61LfCZOt9IRcjomj4OTPbfCi+c7TUMO2QsmyWbSdkv6i03hJh0
+         DRhjoCkBgzwfCu2y1onqLV7Iw2lHWPsp5YjeA4dbFTjHxaSYSUFU8J1FgBgMLGCNP3
+         VbsRMlt+ES9uMsGSuIjk/C+RtB6GOAuVinVrGqMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 163/228] irqdomain/treewide: Free firmware node after domain removal
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 061/149] ARM: socfpga: PM: add missing put_device() call in socfpga_setup_ocram_self_refresh()
 Date:   Thu, 20 Aug 2020 11:22:18 +0200
-Message-Id: <20200820091615.722537215@linuxfoundation.org>
+Message-Id: <20200820092128.691269940@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,103 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit ec0160891e387f4771f953b888b1fe951398e5d9 upstream.
+[ Upstream commit 3ad7b4e8f89d6bcc9887ca701cf2745a6aedb1a0 ]
 
-Commit 711419e504eb ("irqdomain: Add the missing assignment of
-domain->fwnode for named fwnode") unintentionally caused a dangling pointer
-page fault issue on firmware nodes that were freed after IRQ domain
-allocation. Commit e3beca48a45b fixed that dangling pointer issue by only
-freeing the firmware node after an IRQ domain allocation failure. That fix
-no longer frees the firmware node immediately, but leaves the firmware node
-allocated after the domain is removed.
+if of_find_device_by_node() succeed, socfpga_setup_ocram_self_refresh
+doesn't have a corresponding put_device(). Thus add a jump target to
+fix the exception handling for this function implementation.
 
-The firmware node must be kept around through irq_domain_remove, but should be
-freed it afterwards.
-
-Add the missing free operations after domain removal where where appropriate.
-
-Fixes: e3beca48a45b ("irqdomain/treewide: Keep firmware node unconditionally allocated")
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>	# drivers/pci
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1595363169-7157-1-git-send-email-jonathan.derrick@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 44fd8c7d4005 ("ARM: socfpga: support suspend to ram")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c      |    5 +++++
- drivers/iommu/intel_irq_remapping.c |    8 ++++++++
- drivers/pci/host/vmd.c              |    3 +++
- 3 files changed, 16 insertions(+)
+ arch/arm/mach-socfpga/pm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2252,8 +2252,13 @@ static int mp_irqdomain_create(int ioapi
- 
- static void ioapic_destroy_irqdomain(int idx)
- {
-+	struct ioapic_domain_cfg *cfg = &ioapics[idx].irqdomain_cfg;
-+	struct fwnode_handle *fn = ioapics[idx].irqdomain->fwnode;
-+
- 	if (ioapics[idx].irqdomain) {
- 		irq_domain_remove(ioapics[idx].irqdomain);
-+		if (!cfg->dev)
-+			irq_domain_free_fwnode(fn);
- 		ioapics[idx].irqdomain = NULL;
- 	}
- }
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -601,13 +601,21 @@ out_free_table:
- 
- static void intel_teardown_irq_remapping(struct intel_iommu *iommu)
- {
-+	struct fwnode_handle *fn;
-+
- 	if (iommu && iommu->ir_table) {
- 		if (iommu->ir_msi_domain) {
-+			fn = iommu->ir_msi_domain->fwnode;
-+
- 			irq_domain_remove(iommu->ir_msi_domain);
-+			irq_domain_free_fwnode(fn);
- 			iommu->ir_msi_domain = NULL;
- 		}
- 		if (iommu->ir_domain) {
-+			fn = iommu->ir_domain->fwnode;
-+
- 			irq_domain_remove(iommu->ir_domain);
-+			irq_domain_free_fwnode(fn);
- 			iommu->ir_domain = NULL;
- 		}
- 		free_pages((unsigned long)iommu->ir_table->base,
---- a/drivers/pci/host/vmd.c
-+++ b/drivers/pci/host/vmd.c
-@@ -651,6 +651,7 @@ static int vmd_enable_domain(struct vmd_
- 	if (!vmd->bus) {
- 		pci_free_resource_list(&resources);
- 		irq_domain_remove(vmd->irq_domain);
-+		irq_domain_free_fwnode(fn);
- 		return -ENODEV;
+diff --git a/arch/arm/mach-socfpga/pm.c b/arch/arm/mach-socfpga/pm.c
+index c378ab0c24317..93f2245c97750 100644
+--- a/arch/arm/mach-socfpga/pm.c
++++ b/arch/arm/mach-socfpga/pm.c
+@@ -60,14 +60,14 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
  
-@@ -753,6 +754,7 @@ static void vmd_cleanup_srcu(struct vmd_
- static void vmd_remove(struct pci_dev *dev)
- {
- 	struct vmd_dev *vmd = pci_get_drvdata(dev);
-+	struct fwnode_handle *fn = vmd->irq_domain->fwnode;
+ 	ocram_base = gen_pool_alloc(ocram_pool, socfpga_sdram_self_refresh_sz);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 	sysfs_remove_link(&vmd->dev->dev.kobj, "domain");
- 	pci_stop_root_bus(vmd->bus);
-@@ -761,6 +763,7 @@ static void vmd_remove(struct pci_dev *d
- 	vmd_teardown_dma_ops(vmd);
- 	vmd_detach_resources(vmd);
- 	irq_domain_remove(vmd->irq_domain);
-+	irq_domain_free_fwnode(fn);
- }
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -78,7 +78,7 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!suspend_ocram_base) {
+ 		pr_warn("%s: __arm_ioremap_exec failed!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- #ifdef CONFIG_PM_SLEEP
+ 	/* Copy the code that puts DDR in self refresh to ocram */
+@@ -92,6 +92,8 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!socfpga_sdram_self_refresh_in_ocram)
+ 		ret = -EFAULT;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(np);
+ 
+-- 
+2.25.1
+
 
 
