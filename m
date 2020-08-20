@@ -2,168 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9598424C53D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 20:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA4124C541
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 20:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726985AbgHTSXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 14:23:37 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:2403 "EHLO pegase1.c-s.fr"
+        id S1727049AbgHTSZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 14:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726949AbgHTSXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 14:23:37 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4BXY1f2ynwz9v1R9;
-        Thu, 20 Aug 2020 20:23:34 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id NXZNIUL1tC2R; Thu, 20 Aug 2020 20:23:34 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4BXY1f1S9Dz9v0xQ;
-        Thu, 20 Aug 2020 20:23:34 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 1C2A08B863;
-        Thu, 20 Aug 2020 20:23:34 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id vk2POjKl9U-w; Thu, 20 Aug 2020 20:23:34 +0200 (CEST)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id BF0858B764;
-        Thu, 20 Aug 2020 20:23:32 +0200 (CEST)
-Subject: Re: [PATCH] powerpc: Fix a bug in __div64_32 if divisor is zero
-To:     Guohua Zhong <zhongguohua1@huawei.com>, paulus@samba.org,
-        mpe@ellerman.id.au, benh@kernel.crashing.org,
-        gregkh@linuxfoundation.org
-Cc:     nixiaoming@huawei.com, wangle6@huawei.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200820131049.42940-1-zhongguohua1@huawei.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <8dedfcce-04e0-ec7d-6af5-ec1d6d8602b0@csgroup.eu>
-Date:   Thu, 20 Aug 2020 20:23:30 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726896AbgHTSZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 14:25:20 -0400
+Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 336AA204FD;
+        Thu, 20 Aug 2020 18:25:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597947918;
+        bh=HD+6B26pOM3xOHTkv4x7zLa79Thbsh5pJUjBsUjrp/w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2apTTtZszk/WzWxBLqb/GueTDxRXME6bRh6QcMCrNyO3oVk9djn5GlimeaQC41dpa
+         Zw62S5Yh/2y87P89CE4SeNzYO72SecBzL6gocrBJJDApjxzjILh0IFlfiQJAu2HQ5o
+         nDFntFlLqzJpbcftsqC+BSodnlGcJY19CIVjW39g=
+Date:   Thu, 20 Aug 2020 11:25:16 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        LTP List <ltp@lists.linux.it>,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org
+Subject: Re: [PATCH 5.8 000/232] 5.8.3-rc1 review
+Message-ID: <20200820182516.GA49496@sol.localdomain>
+References: <20200820091612.692383444@linuxfoundation.org>
+ <CA+G9fYtebf78TH-XpqArunHc1L6s9mHdLEbpY1EY9tSyDjp=sg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200820131049.42940-1-zhongguohua1@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtebf78TH-XpqArunHc1L6s9mHdLEbpY1EY9tSyDjp=sg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Aug 20, 2020 at 08:57:57PM +0530, Naresh Kamboju wrote:
+> On Thu, 20 Aug 2020 at 14:55, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.8.3 release.
+> > There are 232 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.3-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> > Herbert Xu <herbert@gondor.apana.org.au>
+> >     crypto: af_alg - Fix regression on empty requests
+> 
+> Results from Linaro’s test farm.
+> Regressions detected.
+> 
+>   ltp-crypto-tests:
+>     * af_alg02
+>   ltp-cve-tests:
+>     * cve-2017-17805
+> 
+> af_alg02.c:52: BROK: Timed out while reading from request socket.
+> We are running the LTP 20200515 tag released test suite.
+>  https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/crypto/af_alg02.c
+> 
+> Summary
+> ------------------------------------------------------------------------
+> 
+> kernel: 5.8.3-rc1
+> git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> git branch: linux-5.8.y
+> git commit: 201fff807310ce10485bcff294d47be95f3769eb
+> git describe: v5.8.2-233-g201fff807310
+> Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.8-oe/build/v5.8.2-233-g201fff807310
+> 
+> Regressions (compared to build v5.8.2)
+> ------------------------------------------------------------------------
+> 
+> x15:
+>   ltp-crypto-tests:
+>     * af_alg02
+> 
+>   ltp-cve-tests:
+>     * cve-2017-17805
+> 
 
+Looks like this test is still "broken" because it assumes behavior that isn't
+clearly specified, as previously discussed at
+https://lkml.kernel.org/r/20200702033221.GA19367@gondor.apana.org.au.
 
-Le 20/08/2020 à 15:10, Guohua Zhong a écrit :
-> When cat /proc/pid/stat, do_task_stat will call into cputime_adjust,
-> which call stack is like this:
-> 
-> [17179954.674326]BookE Watchdog detected hard LOCKUP on cpu 0
-> [17179954.674331]dCPU: 0 PID: 1262 Comm: TICK Tainted: P        W  O    4.4.176 #1
-> [17179954.674339]dtask: dc9d7040 task.stack: d3cb4000
-> [17179954.674344]NIP: c001b1a8 LR: c006a7ac CTR: 00000000
-> [17179954.674349]REGS: e6fe1f10 TRAP: 3202   Tainted: P        W  O     (4.4.176)
-> [17179954.674355]MSR: 00021002 <CE,ME>  CR: 28002224  XER: 00000000
-> [17179954.674364]
-> GPR00: 00000016 d3cb5cb0 dc9d7040 d3cb5cc0 00000000 0000025d ffe15b24 ffffffff
-> GPR08: de86aead 00000000 000003ff ffffffff 28002222 0084d1c0 00000000 ffffffff
-> GPR16: b5929ca0 b4bb7a48 c0863c08 0000048d 00000062 00000062 00000000 0000000f
-> GPR24: 00000000 d3cb5d08 d3cb5d60 d3cb5d64 00029002 d3e9c214 fffff30e d3e9c20c
-> [17179954.674410]NIP [c001b1a8] __div64_32+0x60/0xa0
-> [17179954.674422]LR [c006a7ac] cputime_adjust+0x124/0x138
-> [17179954.674434]Call Trace:
-> [17179961.832693]Call Trace:
-> [17179961.832695][d3cb5cb0] [c006a6dc] cputime_adjust+0x54/0x138 (unreliable)
-> [17179961.832705][d3cb5cf0] [c006a818] task_cputime_adjusted+0x58/0x80
-> [17179961.832713][d3cb5d20] [c01dab44] do_task_stat+0x298/0x870
-> [17179961.832720][d3cb5de0] [c01d4948] proc_single_show+0x60/0xa4
-> [17179961.832728][d3cb5e10] [c01963d8] seq_read+0x2d8/0x52c
-> [17179961.832736][d3cb5e80] [c01702fc] __vfs_read+0x40/0x114
-> [17179961.832744][d3cb5ef0] [c0170b1c] vfs_read+0x9c/0x10c
-> [17179961.832751][d3cb5f10] [c0171440] SyS_read+0x68/0xc4
-> [17179961.832759][d3cb5f40] [c0010a40] ret_from_syscall+0x0/0x3c
-> 
-> do_task_stat->task_cputime_adjusted->cputime_adjust->scale_stime->div_u64
-> ->div_u64_rem->do_div->__div64_32
-> 
-> In some corner case, stime + utime = 0 if overflow. Even in v5.8.2  kernel
-> the cputime has changed from unsigned long to u64 data type. About 200
-> days, the lowwer 32 bit will be 0x00000000. Because divisor for __div64_32
-> is unsigned long data type,which is 32 bit for powepc 32, the bug still
-> exists.
-> 
-> So it is also a bug in the cputime_adjust which does not check if
-> stime + utime = 0
-> 
-> time = scale_stime((__force u64)stime, (__force u64)rtime,
->                  (__force u64)(stime + utime));
-> 
-> The commit 3dc167ba5729 ("sched/cputime: Improve cputime_adjust()") in
-> mainline kernel may has fixed this case. But it is also better to check
-> if divisor is 0 in __div64_32 for other situation.
-> 
-> Signed-off-by: Guohua Zhong <zhongguohua1@huawei.com>
-> Fixes:14cf11af6cf6 "( powerpc: Merge enough to start building in arch/powerpc.)"
-> Fixes:94b212c29f68 "( powerpc: Move ppc64 boot wrapper code over to arch/powerpc)"
-> Cc: stable@vger.kernel.org # v2.6.15+
-> ---
->   arch/powerpc/boot/div64.S | 4 ++++
->   arch/powerpc/lib/div64.S  | 4 ++++
->   2 files changed, 8 insertions(+)
-> 
-> diff --git a/arch/powerpc/boot/div64.S b/arch/powerpc/boot/div64.S
-> index 4354928ed62e..39a25b9712d1 100644
-> --- a/arch/powerpc/boot/div64.S
-> +++ b/arch/powerpc/boot/div64.S
-> @@ -13,6 +13,9 @@
->   
->   	.globl __div64_32
->   __div64_32:
-> +	li	r9,0
-> +	cmplw	r4,r9	# check if divisor r4 is zero
-> +	beq	5f			# jump to label 5 if r4(divisor) is zero
+I sent out LTP patches to fix it:
+https://lkml.kernel.org/linux-crypto/20200820181918.404758-1-ebiggers@kernel.org/T/#u
 
-In generic version in lib/math/div64.c, there is no checking of 'base' 
-either.
-Do we really want to add this check in the powerpc version only ?
-
-The only user of __div64_32() is do_div() in 
-include/asm-generic/div64.h. Wouldn't it be better to do the check there ?
-
-Christophe
-
-
->   	lwz	r5,0(r3)	# get the dividend into r5/r6
->   	lwz	r6,4(r3)
->   	cmplw	r5,r4
-> @@ -52,6 +55,7 @@ __div64_32:
->   4:	stw	r7,0(r3)	# return the quotient in *r3
->   	stw	r8,4(r3)
->   	mr	r3,r6		# return the remainder in r3
-> +5:					# return if divisor r4 is zero
->   	blr
->   
->   /*
-> diff --git a/arch/powerpc/lib/div64.S b/arch/powerpc/lib/div64.S
-> index 3d5426e7dcc4..1cc9bcabf678 100644
-> --- a/arch/powerpc/lib/div64.S
-> +++ b/arch/powerpc/lib/div64.S
-> @@ -13,6 +13,9 @@
->   #include <asm/processor.h>
->   
->   _GLOBAL(__div64_32)
-> +	li	r9,0
-> +	cmplw	r4,r9	# check if divisor r4 is zero
-> +	beq	5f			# jump to label 5 if r4(divisor) is zero
->   	lwz	r5,0(r3)	# get the dividend into r5/r6
->   	lwz	r6,4(r3)
->   	cmplw	r5,r4
-> @@ -52,4 +55,5 @@ _GLOBAL(__div64_32)
->   4:	stw	r7,0(r3)	# return the quotient in *r3
->   	stw	r8,4(r3)
->   	mr	r3,r6		# return the remainder in r3
-> +5:					# return if divisor r4 is zero
->   	blr
-> 
+- Eric
