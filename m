@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96B4E24BF17
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD5124BF69
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730073AbgHTNjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S1730523AbgHTNjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728174AbgHTJah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:30:37 -0400
+        id S1726841AbgHTJak (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:30:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D96206FA;
-        Thu, 20 Aug 2020 09:30:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECB8A21775;
+        Thu, 20 Aug 2020 09:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915833;
-        bh=MDDyBPpHCPkjL6gnxEy7Y1yVEhWZUKASThmRxTHfrlk=;
+        s=default; t=1597915839;
+        bh=4ECfkLhEYHdEtCnhAdduHmkM3iWQ8LHlr8d9E3NNG1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnc2GzkOfn5PUZAyg9fT9nAbjc/QbuSdr71FsXLEhuo4J9N+keMvTjsFefQi6uOde
-         rZVLaMb8al1W4MaLLxlaE2xqcO1KOZYMKPtROHi9jwLtdphbVWYbGtmrjD5HrDtdeX
-         QesFdtK3U44eda3wB6e06099bVEGpDmH5ixWzmwY=
+        b=J1xuJW6a8IUyooyB/TstdtaI7GAmbqv6d1dId1maA4yfxZAMUIQ77w9b93Am3RFT7
+         QH5ExdCvRb2259OVb14Fe8Z8YrVryMq4KbC4V/umFpTTkvaGdqfzAjxDdGCWPgnape
+         +kko84jOmGj7/qLzOxzls0ldy+/wupZ1h+1NXLpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 149/232] ima: Fail rule parsing when appraise_flag=blacklist is unsupportable
-Date:   Thu, 20 Aug 2020 11:20:00 +0200
-Message-Id: <20200820091620.030559584@linuxfoundation.org>
+Subject: [PATCH 5.8 151/232] clk: actions: Fix h_clk for Actions S500 SoC
+Date:   Thu, 20 Aug 2020 11:20:02 +0200
+Message-Id: <20200820091620.125563669@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,66 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit 5f3e92657bbfb63ad3109433d843c89996114b03 ]
+[ Upstream commit f47ee279d25fb0e010cae5d6e758e39b40eb6378 ]
 
-Verifying that a file hash is not blacklisted is currently only
-supported for files with appended signatures (modsig).  In the future,
-this might change.
+The h_clk clock in the Actions Semi S500 SoC clock driver has an
+invalid parent. Replace with the correct one.
 
-For now, the "appraise_flag" option is only appropriate for appraise
-actions and its "blacklist" value is only appropriate when
-CONFIG_IMA_APPRAISE_MODSIG is enabled and "appraise_flag=blacklist" is
-only appropriate when "appraise_type=imasig|modsig" is also present.
-Make this clear at policy load so that IMA policy authors don't assume
-that other uses of "appraise_flag=blacklist" are supported.
-
-Fixes: 273df864cf74 ("ima: Check against blacklisted hashes for files with modsig")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reivewed-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/c57e7ebabfa970014f073b92fe95b47d3e5a70b1.1593788312.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/clk/actions/owl-s500.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 3e3e568c81309..a59bf2f5b2d4f 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1035,6 +1035,11 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		return false;
- 	}
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index e2007ac4d235d..0eb83a0b70bcc 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -183,7 +183,7 @@ static OWL_GATE(timer_clk, "timer_clk", "hosc", CMU_DEVCLKEN1, 27, 0, 0);
+ static OWL_GATE(hdmi_clk, "hdmi_clk", "hosc", CMU_DEVCLKEN1, 3, 0, 0);
  
-+	/* Ensure that combinations of flags are compatible with each other */
-+	if (entry->flags & IMA_CHECK_BLACKLIST &&
-+	    !(entry->flags & IMA_MODSIG_ALLOWED))
-+		return false;
-+
- 	return true;
- }
+ /* divider clocks */
+-static OWL_DIVIDER(h_clk, "h_clk", "ahbprevdiv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
++static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
+ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNETPLL, 1, 1, rmii_ref_div_table, 0, 0);
  
-@@ -1371,9 +1376,17 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 				result = -EINVAL;
- 			break;
- 		case Opt_appraise_flag:
-+			if (entry->action != APPRAISE) {
-+				result = -EINVAL;
-+				break;
-+			}
-+
- 			ima_log_string(ab, "appraise_flag", args[0].from);
--			if (strstr(args[0].from, "blacklist"))
-+			if (IS_ENABLED(CONFIG_IMA_APPRAISE_MODSIG) &&
-+			    strstr(args[0].from, "blacklist"))
- 				entry->flags |= IMA_CHECK_BLACKLIST;
-+			else
-+				result = -EINVAL;
- 			break;
- 		case Opt_permit_directio:
- 			entry->flags |= IMA_PERMIT_DIRECTIO;
+ /* factor clocks */
 -- 
 2.25.1
 
