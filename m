@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A97824B77E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B297B24B609
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731074AbgHTKOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:14:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60104 "EHLO mail.kernel.org"
+        id S1729814AbgHTKbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:31:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730918AbgHTKOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:04 -0400
+        id S1731479AbgHTKUq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:20:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 504C52075E;
-        Thu, 20 Aug 2020 10:14:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2279206DA;
+        Thu, 20 Aug 2020 10:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918443;
-        bh=+A7dgYrhmSz0Iyr0Yl0y4R65UKkk26bWGrDgGtQ//yU=;
+        s=default; t=1597918846;
+        bh=RYKXhrn6ZF+MK1Oo2SpdcneoS8H8JLGPx3YQJ8SZw50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk3T4OW3R5xl3oyP8aKOIqcVtZ/pbWQH+IRXm4NLmfhnXr1nNJHUMUSPFYvqZtYR5
-         m+TvSnjdk7UiMtiO05PgNyYcx3VImXyjnYH/IoNx7BKYCAeb/wsMC2TDpOA53Nt3FJ
-         5sLZdTr1H8l7rk0uO0n3Qjlg+X3DW1vqLjEXAH5g=
+        b=EU38jvIxJc35pqIXcTqvZauuVtD5zb2ywym+9EqBG2Hk8eCBOoQviuiKJvzwoKwf7
+         BBYBDDxCSCSXkVz34dRgOWx0dG+MrkOAixybfm37Fd99uCsDeuETrXhfVH/1od6F7u
+         zb+D8M3Gnw3/dIOJ+fuiFnRgxRcmZBwFEkPuQfG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 171/228] btrfs: fix memory leaks after failure to lookup checksums during inode logging
-Date:   Thu, 20 Aug 2020 11:22:26 +0200
-Message-Id: <20200820091616.128171630@linuxfoundation.org>
+        Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Wright Feng <wright.feng@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 070/149] brcmfmac: To fix Bss Info flag definition Bug
+Date:   Thu, 20 Aug 2020 11:22:27 +0200
+Message-Id: <20200820092129.126314256@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
 
-commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
+[ Upstream commit fa3266541b13f390eb35bdbc38ff4a03368be004 ]
 
-While logging an inode, at copy_items(), if we fail to lookup the checksums
-for an extent we release the destination path, free the ins_data array and
-then return immediately. However a previous iteration of the for loop may
-have added checksums to the ordered_sums list, in which case we leak the
-memory used by them.
+Bss info flag definition need to be fixed from 0x2 to 0x4
+This flag is for rssi info received on channel.
+All Firmware branches defined as 0x4 and this is bug in brcmfmac.
 
-So fix this by making sure we iterate the ordered_sums list and free all
-its checksums before returning.
-
-Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Prasanna Kerekoppa <prasanna.kerekoppa@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200604071835.3842-6-wright.feng@cypress.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/wireless/brcm80211/brcmfmac/fwil_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3854,11 +3854,8 @@ static noinline int copy_items(struct bt
- 						fs_info->csum_root,
- 						ds + cs, ds + cs + cl - 1,
- 						&ordered_sums, 0);
--				if (ret) {
--					btrfs_release_path(dst_path);
--					kfree(ins_data);
--					return ret;
--				}
-+				if (ret)
-+					break;
- 			}
- 		}
- 	}
-@@ -3871,7 +3868,6 @@ static noinline int copy_items(struct bt
- 	 * we have to do this after the loop above to avoid changing the
- 	 * log tree while trying to change the log tree.
- 	 */
--	ret = 0;
- 	while (!list_empty(&ordered_sums)) {
- 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
- 						   struct btrfs_ordered_sum,
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/fwil_types.h b/drivers/net/wireless/brcm80211/brcmfmac/fwil_types.h
+index 4320c4cae53e1..7eb9f31dde1a2 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/fwil_types.h
++++ b/drivers/net/wireless/brcm80211/brcmfmac/fwil_types.h
+@@ -30,7 +30,7 @@
+ #define BRCMF_ARP_OL_PEER_AUTO_REPLY	0x00000008
+ 
+ #define	BRCMF_BSS_INFO_VERSION	109 /* curr ver of brcmf_bss_info_le struct */
+-#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0002
++#define BRCMF_BSS_RSSI_ON_CHANNEL	0x0004
+ 
+ #define BRCMF_STA_WME              0x00000002      /* WMM association */
+ #define BRCMF_STA_AUTHE            0x00000008      /* Authenticated */
+-- 
+2.25.1
+
 
 
