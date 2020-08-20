@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA07F24B316
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E6624B42E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbgHTJlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:41:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
+        id S1730372AbgHTJ7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:59:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729092AbgHTJlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:13 -0400
+        id S1730290AbgHTJ7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:59:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E02D20724;
-        Thu, 20 Aug 2020 09:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A4EE207FB;
+        Thu, 20 Aug 2020 09:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916472;
-        bh=0mOpG+4Dx+/t0qGb2Ucxbs/NO8xyTowGeePEyf6kuW8=;
+        s=default; t=1597917555;
+        bh=YPjsRFQv74ePM9/WKkdHGjWplj1QCuqn9U5gRqEfeuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLHxI+HFig/QtHHuncs483BHdCrtgrlSsgZJs3eit2dntkH8593z7YqdfsOpgmziE
-         jbKBSffbOkXIzWYP3DECzAXv8bRjaSV62x8hpAZP0vPA3SnNN9EUxF95wtqa2uIBl/
-         5MKGNpsBa9VuB0TJm4SCaiZjaQqVzqJ+NsbFmpRI=
+        b=rYeTIYDJIRDXUIcSE0q2iEXjrlSR5lkg2U9SwjbLoXqPQGqUzNE51zk+01s1g7Q1t
+         wE26Kywow7qy4us4ThnHBi2yMg2zO0WcVzCf6E658y/EJfB7oHELxSFA0XS/+wSuNw
+         PVY4kb2PPBAON/Aw0oR3IzvaRoF88SHOFHz2i7U8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 141/204] i2c: rcar: slave: only send STOP event when we have been addressed
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 065/212] drm/nouveau/fbcon: fix module unload when fbcon init has failed for some reason
 Date:   Thu, 20 Aug 2020 11:20:38 +0200
-Message-Id: <20200820091613.296403546@linuxfoundation.org>
+Message-Id: <20200820091605.652920898@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 314139f9f0abdba61ed9a8463bbcb0bf900ac5a2 ]
+[ Upstream commit 498595abf5bd51f0ae074cec565d888778ea558f ]
 
-When the SSR interrupt is activated, it will detect every STOP condition
-on the bus, not only the ones after we have been addressed. So, enable
-this interrupt only after we have been addressed, and disable it
-otherwise.
+Stale pointer was tripping up the unload path.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 50dd98803ca0c..76bcdb27070e1 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -583,13 +583,14 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- 			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
- 		}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index 2b79e27dd89c6..275abc424ce25 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -584,6 +584,7 @@ fini:
+ 	drm_fb_helper_fini(&fbcon->helper);
+ free:
+ 	kfree(fbcon);
++	drm->fbcon = NULL;
+ 	return ret;
+ }
  
--		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
-+		/* Clear SSR, too, because of old STOPs to other clients than us */
-+		rcar_i2c_write(priv, ICSSR, ~(SAR | SSR) & 0xff);
- 	}
- 
- 	/* master sent stop */
- 	if (ssr_filtered & SSR) {
- 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
--		rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+		rcar_i2c_write(priv, ICSIER, SAR);
- 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
- 	}
- 
-@@ -853,7 +854,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
- 	priv->slave = slave;
- 	rcar_i2c_write(priv, ICSAR, slave->addr);
- 	rcar_i2c_write(priv, ICSSR, 0);
--	rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+	rcar_i2c_write(priv, ICSIER, SAR);
- 	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
- 
- 	return 0;
 -- 
 2.25.1
 
