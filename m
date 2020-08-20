@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F2A24B515
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AE1024B452
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729565AbgHTKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
+        id S1730603AbgHTKDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:03:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731361AbgHTKRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:17:44 -0400
+        id S1730144AbgHTKBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:01:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEECE2067C;
-        Thu, 20 Aug 2020 10:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 831DF22B43;
+        Thu, 20 Aug 2020 10:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918663;
-        bh=bZHxh33PZkH/MAFburC2lqHt5TjiyHUeFr/pGPuH/zU=;
+        s=default; t=1597917702;
+        bh=zYYe/3XhZ9XbEWFkH7IQDGmhde0mizLRbj0rj1QQQms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CpOnklwJs28aezUNhEl4mVetrKh9uiSM2T9BL3LZugsziHVMMpQ/L0h6zHinaUuoJ
-         FI089dRNhYWquGLsu9co5Va9t350b/0GnfIizCfGmUcOcV07YeB9QmtIxbbbRsAY96
-         AgVl0B+HtLow2OyaZAU1nPdhsuuevwfatalb/wcY=
+        b=aS9P44AiprGHBO/ZDWVZ6/8RuxJ9LUqzinRMJFRRIz1R/b32OaK3RpD1Wt5RFl6GD
+         UUSVBvLM8qE6AmJxbfmDk8yMhlfXRNjTYX1CnpZrVl7kVjrvhMrRfYiIzGvPKMfgPw
+         dLVLDjxOB2IMHGvsB9ZHL1QXSsdNEVQU0PK3nzYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 022/149] nfc: s3fwrn5: add missing release on skb in s3fwrn5_recv_frame
+Subject: [PATCH 4.9 126/212] scsi: scsi_debug: Add check for sdebug_max_queue during module init
 Date:   Thu, 20 Aug 2020 11:21:39 +0200
-Message-Id: <20200820092126.786782277@linuxfoundation.org>
+Message-Id: <20200820091608.713749824@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 1e8fd3a97f2d83a7197876ceb4f37b4c2b00a0f3 ]
+[ Upstream commit c87bf24cfb60bce27b4d2c7e56ebfd86fb9d16bb ]
 
-The implementation of s3fwrn5_recv_frame() is supposed to consume skb on
-all execution paths. Release skb before returning -ENODEV.
+sdebug_max_queue should not exceed SDEBUG_CANQUEUE, otherwise crashes like
+this can be triggered by passing an out-of-range value:
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0 - V1.16.01 03/15/2019
+ pstate: 20400009 (nzCv daif +PAN -UAO BTYPE=--)
+ pc : schedule_resp+0x2a4/0xa70 [scsi_debug]
+ lr : schedule_resp+0x52c/0xa70 [scsi_debug]
+ sp : ffff800022ab36f0
+ x29: ffff800022ab36f0 x28: ffff0023a935a610
+ x27: ffff800008e0a648 x26: 0000000000000003
+ x25: ffff0023e84f3200 x24: 00000000003d0900
+ x23: 0000000000000000 x22: 0000000000000000
+ x21: ffff0023be60a320 x20: ffff0023be60b538
+ x19: ffff800008e13000 x18: 0000000000000000
+ x17: 0000000000000000 x16: 0000000000000000
+ x15: 0000000000000000 x14: 0000000000000000
+ x13: 0000000000000000 x12: 0000000000000000
+ x11: 0000000000000000 x10: 0000000000000000
+ x9 : 0000000000000001 x8 : 0000000000000000
+ x7 : 0000000000000000 x6 : 00000000000000c1
+ x5 : 0000020000200000 x4 : dead0000000000ff
+ x3 : 0000000000000200 x2 : 0000000000000200
+ x1 : ffff800008e13d88 x0 : 0000000000000000
+ Call trace:
+schedule_resp+0x2a4/0xa70 [scsi_debug]
+scsi_debug_queuecommand+0x2c4/0x9e0 [scsi_debug]
+scsi_queue_rq+0x698/0x840
+__blk_mq_try_issue_directly+0x108/0x228
+blk_mq_request_issue_directly+0x58/0x98
+blk_mq_try_issue_list_directly+0x5c/0xf0
+blk_mq_sched_insert_requests+0x18c/0x200
+blk_mq_flush_plug_list+0x11c/0x190
+blk_flush_plug_list+0xdc/0x110
+blk_finish_plug+0x38/0x210
+blkdev_direct_IO+0x450/0x4d8
+generic_file_read_iter+0x84/0x180
+blkdev_read_iter+0x3c/0x50
+aio_read+0xc0/0x170
+io_submit_one+0x5c8/0xc98
+__arm64_sys_io_submit+0x1b0/0x258
+el0_svc_common.constprop.3+0x68/0x170
+do_el0_svc+0x24/0x90
+el0_sync_handler+0x13c/0x1a8
+el0_sync+0x158/0x180
+ Code: 528847e0 72a001e0 6b00003f 540018cd (3941c340)
+
+In addition, it should not be less than 1.
+
+So add checks for these, and fail the module init for those cases.
+
+[mkp: changed if condition to match error message]
+
+Link: https://lore.kernel.org/r/1594297400-24756-2-git-send-email-john.garry@huawei.com
+Fixes: c483739430f1 ("scsi_debug: add multiple queue support")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/scsi_debug.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
-index 0d866ca295e3f..cafab107ba9bc 100644
---- a/drivers/nfc/s3fwrn5/core.c
-+++ b/drivers/nfc/s3fwrn5/core.c
-@@ -209,6 +209,7 @@ int s3fwrn5_recv_frame(struct nci_dev *ndev, struct sk_buff *skb,
- 	case S3FWRN5_MODE_FW:
- 		return s3fwrn5_fw_recv_frame(ndev, skb);
- 	default:
-+		kfree_skb(skb);
- 		return -ENODEV;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index d7118d3767c35..99bfb003be3fc 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -4986,6 +4986,12 @@ static int __init scsi_debug_init(void)
+ 		pr_err("submit_queues must be 1 or more\n");
+ 		return -EINVAL;
  	}
- }
++
++	if ((sdebug_max_queue > SDEBUG_CANQUEUE) || (sdebug_max_queue < 1)) {
++		pr_err("max_queue must be in range [1, %d]\n", SDEBUG_CANQUEUE);
++		return -EINVAL;
++	}
++
+ 	sdebug_q_arr = kcalloc(submit_queues, sizeof(struct sdebug_queue),
+ 			       GFP_KERNEL);
+ 	if (sdebug_q_arr == NULL)
 -- 
 2.25.1
 
