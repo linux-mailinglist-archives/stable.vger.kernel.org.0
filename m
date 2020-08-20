@@ -2,51 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9CF24B7D4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9BA124B7C4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727914AbgHTLFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53878 "EHLO mail.kernel.org"
+        id S1730866AbgHTKNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729964AbgHTKMZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:25 -0400
+        id S1731059AbgHTKMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:12:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A751206DA;
-        Thu, 20 Aug 2020 10:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C314C2078D;
+        Thu, 20 Aug 2020 10:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918345;
-        bh=0HD+PdibKx0WpBI1QWnfb7b763tjZrSmw3YiJDUjSDE=;
+        s=default; t=1597918359;
+        bh=qrdaKOIVavS/UpsqEh0jTdT1tTtGvj0c6xdHIGU2Kmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KphHcdfxT+4eYiqxXk27dw+tpnP7MP1cI3ofe5Whb4kKtTYxQdOqDE9xDRjR/o0mp
-         HaZwpVSsMzm2gT8eO2Z0TXOmlbgWifvPvmcmyhovdH3LNwYAzh8gWaDmthfbDRSYOT
-         v9p4eYIgRWyA3BhcJDLg+5WJm56ZTDD5jgygND9k=
+        b=afCviD8tB8kazQR5DyfVfdSD5406+b7pl7Pqn62o4no9OeSql+dDGoQd283UFfPoa
+         IJsklz9iAdKKWcDtlpWBK5CPougPYVNB6qfqdjAnx78Uyza4jTcqq5W77hA1Fe5l6M
+         MURRG0KwIKy61GsakRPJZXMKRp1IoDl+YIGtqZ8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Brian Gerst <brgerst@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Denys Vlasenko <dvlasenk@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Markus T Metzger <markus.t.metzger@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Shankar <ravi.v.shankar@intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jann Horn <jannh@google.com>
-Subject: [PATCH 4.14 137/228] x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task
-Date:   Thu, 20 Aug 2020 11:21:52 +0200
-Message-Id: <20200820091614.435538879@linuxfoundation.org>
+        stable@vger.kernel.org, Qingyu Li <ieatmuttonchuan@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 141/228] net/nfc/rawsock.c: add CAP_NET_RAW check.
+Date:   Thu, 20 Aug 2020 11:21:56 +0200
+Message-Id: <20200820091614.634392402@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -59,75 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Qingyu Li <ieatmuttonchuan@gmail.com>
 
-[ Upstream commit 8ab49526b53d3172d1d8dd03a75c7d1f5bd21239 ]
+[ Upstream commit 26896f01467a28651f7a536143fe5ac8449d4041 ]
 
-syzbot found its way in 86_fsgsbase_read_task() and triggered this oops:
+When creating a raw AF_NFC socket, CAP_NET_RAW needs to be checked first.
 
-   KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-   CPU: 0 PID: 6866 Comm: syz-executor262 Not tainted 5.8.0-syzkaller #0
-   RIP: 0010:x86_fsgsbase_read_task+0x16d/0x310 arch/x86/kernel/process_64.c:393
-   Call Trace:
-     putreg32+0x3ab/0x530 arch/x86/kernel/ptrace.c:876
-     genregs32_set arch/x86/kernel/ptrace.c:1026 [inline]
-     genregs32_set+0xa4/0x100 arch/x86/kernel/ptrace.c:1006
-     copy_regset_from_user include/linux/regset.h:326 [inline]
-     ia32_arch_ptrace arch/x86/kernel/ptrace.c:1061 [inline]
-     compat_arch_ptrace+0x36c/0xd90 arch/x86/kernel/ptrace.c:1198
-     __do_compat_sys_ptrace kernel/ptrace.c:1420 [inline]
-     __se_compat_sys_ptrace kernel/ptrace.c:1389 [inline]
-     __ia32_compat_sys_ptrace+0x220/0x2f0 kernel/ptrace.c:1389
-     do_syscall_32_irqs_on arch/x86/entry/common.c:84 [inline]
-     __do_fast_syscall_32+0x57/0x80 arch/x86/entry/common.c:126
-     do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:149
-     entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
-
-This can happen if ptrace() or sigreturn() pokes an LDT selector into FS
-or GS for a task with no LDT and something tries to read the base before
-a return to usermode notices the bad selector and fixes it.
-
-The fix is to make sure ldt pointer is not NULL.
-
-Fixes: 07e1d88adaae ("x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately")
-Co-developed-by: Jann Horn <jannh@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Chang S. Bae <chang.seok.bae@intel.com>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Markus T Metzger <markus.t.metzger@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Shankar <ravi.v.shankar@intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qingyu Li <ieatmuttonchuan@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/ptrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/rawsock.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index 734549492a18b..dc4d27000aa35 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -374,7 +374,7 @@ static unsigned long task_seg_base(struct task_struct *task,
- 		 */
- 		mutex_lock(&task->mm->context.lock);
- 		ldt = task->mm->context.ldt;
--		if (unlikely(idx >= ldt->nr_entries))
-+		if (unlikely(!ldt || idx >= ldt->nr_entries))
- 			base = 0;
- 		else
- 			base = get_desc_base(ldt->entries + idx);
--- 
-2.25.1
-
+--- a/net/nfc/rawsock.c
++++ b/net/nfc/rawsock.c
+@@ -344,10 +344,13 @@ static int rawsock_create(struct net *ne
+ 	if ((sock->type != SOCK_SEQPACKET) && (sock->type != SOCK_RAW))
+ 		return -ESOCKTNOSUPPORT;
+ 
+-	if (sock->type == SOCK_RAW)
++	if (sock->type == SOCK_RAW) {
++		if (!capable(CAP_NET_RAW))
++			return -EPERM;
+ 		sock->ops = &rawsock_raw_ops;
+-	else
++	} else {
+ 		sock->ops = &rawsock_ops;
++	}
+ 
+ 	sk = sk_alloc(net, PF_NFC, GFP_ATOMIC, nfc_proto->proto, kern);
+ 	if (!sk)
 
 
