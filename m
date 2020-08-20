@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6960924B593
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7939E24B5D1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731278AbgHTKXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51912 "EHLO mail.kernel.org"
+        id S1731256AbgHTKVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731404AbgHTKXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:23:04 -0400
+        id S1731372AbgHTKVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B991020658;
-        Thu, 20 Aug 2020 10:23:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A1052078B;
+        Thu, 20 Aug 2020 10:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918984;
-        bh=TbYttwsit8afSxU52oAguL40jvVU0NKBVmZDQiyeMdo=;
+        s=default; t=1597918907;
+        bh=vHK/cYfCkH6S2lRCLbZoov92dZX5JyM42uxfEnSmiag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWRbaMURvAsKE7Dntb/wVGZpXUy0F0T1/Uu2yKZCRfEkqdR9eMP0K7zF2f8maVbA7
-         ub+v0O1dxiCvGpeF69+bWdlbz1ucDoPI1iLapO3dSiLpLV80AL5vOQI/ud8ZV7uSUf
-         pgWdfNCEdoRaM9QeLIDVBKNfdJyFy5f0LmVfAPP4=
+        b=fZETCCtcxglXzkrI9wsa9L/Rz/npl+9NpHKjE7VA2/xIxWYjvBOXmlcAq8zQDzCx/
+         GKw/5cS1sOhDtF3TMCf63qp/Y1WnB1wAs/nQd1uSOb0rhsDJthBf8+X+FIYngjPNj6
+         intltgaRulLcdTFoQBrwwhYw6QbAGETpGv2pT2Hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 101/149] net: spider_net: Fix the size used in a dma_free_coherent() call
-Date:   Thu, 20 Aug 2020 11:22:58 +0200
-Message-Id: <20200820092130.602247882@linuxfoundation.org>
+Subject: [PATCH 4.4 102/149] dlm: Fix kobject memleak
+Date:   Thu, 20 Aug 2020 11:22:59 +0200
+Message-Id: <20200820092130.645244184@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,37 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 36f28f7687a9ce665479cce5d64ce7afaa9e77ae ]
+[ Upstream commit 0ffddafc3a3970ef7013696e7f36b3d378bc4c16 ]
 
-Update the size used in 'dma_free_coherent()' in order to match the one
-used in the corresponding 'dma_alloc_coherent()', in
-'spider_net_init_chain()'.
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-Fixes: d4ed8f8d1fb7 ("Spidernet DMA coalescing")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Set do_unreg = 1 before kobject_init_and_add() to ensure that
+kobject_put() can be called in its error patch.
+
+Fixes: 901195ed7f4b ("Kobject: change GFS2 to use kobject_init_and_add")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/toshiba/spider_net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/dlm/lockspace.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/toshiba/spider_net.c b/drivers/net/ethernet/toshiba/spider_net.c
-index 8e53211aedd82..53600e28d93b7 100644
---- a/drivers/net/ethernet/toshiba/spider_net.c
-+++ b/drivers/net/ethernet/toshiba/spider_net.c
-@@ -297,8 +297,8 @@ spider_net_free_chain(struct spider_net_card *card,
- 		descr = descr->next;
- 	} while (descr != chain->ring);
+diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
+index b14bb2c460426..499f54f99891c 100644
+--- a/fs/dlm/lockspace.c
++++ b/fs/dlm/lockspace.c
+@@ -626,6 +626,9 @@ static int new_lockspace(const char *name, const char *cluster,
+ 	wait_event(ls->ls_recover_lock_wait,
+ 		   test_bit(LSFL_RECOVER_LOCK, &ls->ls_flags));
  
--	dma_free_coherent(&card->pdev->dev, chain->num_desc,
--	    chain->hwring, chain->dma_addr);
-+	dma_free_coherent(&card->pdev->dev, chain->num_desc * sizeof(struct spider_net_hw_descr),
-+			  chain->hwring, chain->dma_addr);
- }
++	/* let kobject handle freeing of ls if there's an error */
++	do_unreg = 1;
++
+ 	ls->ls_kobj.kset = dlm_kset;
+ 	error = kobject_init_and_add(&ls->ls_kobj, &dlm_ktype, NULL,
+ 				     "%s", ls->ls_name);
+@@ -633,9 +636,6 @@ static int new_lockspace(const char *name, const char *cluster,
+ 		goto out_recoverd;
+ 	kobject_uevent(&ls->ls_kobj, KOBJ_ADD);
  
- /**
+-	/* let kobject handle freeing of ls if there's an error */
+-	do_unreg = 1;
+-
+ 	/* This uevent triggers dlm_controld in userspace to add us to the
+ 	   group of nodes that are members of this lockspace (managed by the
+ 	   cluster infrastructure.)  Once it's done that, it tells us who the
 -- 
 2.25.1
 
