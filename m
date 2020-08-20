@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58ADB24B51E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CD624B4D7
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731424AbgHTKS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:18:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41828 "EHLO mail.kernel.org"
+        id S1731113AbgHTKNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:13:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731418AbgHTKSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:18:55 -0400
+        id S1730876AbgHTKNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 533C92067C;
-        Thu, 20 Aug 2020 10:18:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85F6D2067C;
+        Thu, 20 Aug 2020 10:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918734;
-        bh=i20cTE8zZsa2S8I21mR46fM0KH4ljoFs0YmBjUWK0kc=;
+        s=default; t=1597918387;
+        bh=298ivzhcBLRyRA38lYcnrq2YKbioF13wTBksvqrIRYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6X6zdWmeMqaa6aYWkr5qi3HLOI1zUurYE9MZadWxMUCLUzmsqzLnvHJhVrOFi5n2
-         3B+ndDDflQ10HDiqeaOk88vTCur48TKImplSMBJuN64RzaDLufkRfowNKDx1EI2/nr
-         WIvLItkAYXNyqp1OCcwGioJX4P8wiPiA545jCgNE=
+        b=nAIko872TiG7r6u/OvZ4PsSPCR+HgKbwayAXA8nydmBUL85oZywSbJ8hqA2klau9L
+         fkzWVRimqcMvhg/7wQlBVaKK5oT24IzF7f1TTaXyYf1OD2IPDkRH/jx1Ea5sBf9I9M
+         FYiEXtiaiFhJ8sHfpCzxzU55WHZpUbSrwEwukRpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 047/149] ipv4: Silence suspicious RCU usage warning
-Date:   Thu, 20 Aug 2020 11:22:04 +0200
-Message-Id: <20200820092128.011909266@linuxfoundation.org>
+        stable@vger.kernel.org, John Allen <john.allen@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 150/228] crypto: ccp - Fix use of merged scatterlists
+Date:   Thu, 20 Aug 2020 11:22:05 +0200
+Message-Id: <20200820091615.074888787@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: John Allen <john.allen@amd.com>
 
-[ Upstream commit 83f3522860f702748143e022f1a546547314c715 ]
+commit 8a302808c60d441d9884cb00ea7f2b534f2e3ca5 upstream.
 
-fib_trie_unmerge() is called with RTNL held, but not from an RCU
-read-side critical section. This leads to the following warning [1] when
-the FIB alias list in a leaf is traversed with
-hlist_for_each_entry_rcu().
+Running the crypto manager self tests with
+CONFIG_CRYPTO_MANAGER_EXTRA_TESTS may result in several types of errors
+when using the ccp-crypto driver:
 
-Since the function is always called with RTNL held and since
-modification of the list is protected by RTNL, simply use
-hlist_for_each_entry() and silence the warning.
+alg: skcipher: cbc-des3-ccp encryption failed on test vector 0; expected_error=0, actual_error=-5 ...
 
-[1]
-WARNING: suspicious RCU usage
-5.8.0-rc4-custom-01520-gc1f937f3f83b #30 Not tainted
------------------------------
-net/ipv4/fib_trie.c:1867 RCU-list traversed in non-reader section!!
+alg: skcipher: ctr-aes-ccp decryption overran dst buffer on test vector 0 ...
 
-other info that might help us debug this:
+alg: ahash: sha224-ccp test failed (wrong result) on test vector ...
 
-rcu_scheduler_active = 2, debug_locks = 1
-1 lock held by ip/164:
- #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
+These errors are the result of improper processing of scatterlists mapped
+for DMA.
 
-stack backtrace:
-CPU: 0 PID: 164 Comm: ip Not tainted 5.8.0-rc4-custom-01520-gc1f937f3f83b #30
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack+0x100/0x184
- lockdep_rcu_suspicious+0x153/0x15d
- fib_trie_unmerge+0x608/0xdb0
- fib_unmerge+0x44/0x360
- fib4_rule_configure+0xc8/0xad0
- fib_nl_newrule+0x37a/0x1dd0
- rtnetlink_rcv_msg+0x4f7/0xbd0
- netlink_rcv_skb+0x17a/0x480
- rtnetlink_rcv+0x22/0x30
- netlink_unicast+0x5ae/0x890
- netlink_sendmsg+0x98a/0xf40
- ____sys_sendmsg+0x879/0xa00
- ___sys_sendmsg+0x122/0x190
- __sys_sendmsg+0x103/0x1d0
- __x64_sys_sendmsg+0x7d/0xb0
- do_syscall_64+0x54/0xa0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fc80a234e97
-Code: Bad RIP value.
-RSP: 002b:00007ffef8b66798 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc80a234e97
-RDX: 0000000000000000 RSI: 00007ffef8b66800 RDI: 0000000000000003
-RBP: 000000005f141b1c R08: 0000000000000001 R09: 0000000000000000
-R10: 00007fc80a2a8ac0 R11: 0000000000000246 R12: 0000000000000001
-R13: 0000000000000000 R14: 00007ffef8b67008 R15: 0000556fccb10020
+Given a scatterlist in which entries are merged as part of mapping the
+scatterlist for DMA, the DMA length of a merged entry will reflect the
+combined length of the entries that were merged. The subsequent
+scatterlist entry will contain DMA information for the scatterlist entry
+after the last merged entry, but the non-DMA information will be that of
+the first merged entry.
 
-Fixes: 0ddcf43d5d4a ("ipv4: FIB Local/MAIN table collapse")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The ccp driver does not take this scatterlist merging into account. To
+address this, add a second scatterlist pointer to track the current
+position in the DMA mapped representation of the scatterlist. Both the DMA
+representation and the original representation of the scatterlist must be
+tracked as while most of the driver can use just the DMA representation,
+scatterlist_map_and_copy() must use the original representation and
+expects the scatterlist pointer to be accurate to the original
+representation.
+
+In order to properly walk the original scatterlist, the scatterlist must
+be walked until the combined lengths of the entries seen is equal to the
+DMA length of the current entry being processed in the DMA mapped
+representation.
+
+Fixes: 63b945091a070 ("crypto: ccp - CCP device driver and interface support")
+Signed-off-by: John Allen <john.allen@amd.com>
+Cc: stable@vger.kernel.org
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/fib_trie.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -1696,7 +1696,7 @@ struct fib_table *fib_trie_unmerge(struc
- 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
- 		struct key_vector *local_l = NULL, *local_tp;
+---
+ drivers/crypto/ccp/ccp-dev.h |    1 +
+ drivers/crypto/ccp/ccp-ops.c |   37 ++++++++++++++++++++++++++-----------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
+
+--- a/drivers/crypto/ccp/ccp-dev.h
++++ b/drivers/crypto/ccp/ccp-dev.h
+@@ -471,6 +471,7 @@ struct ccp_sg_workarea {
+ 	unsigned int sg_used;
  
--		hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
-+		hlist_for_each_entry(fa, &l->leaf, fa_list) {
- 			struct fib_alias *new_fa;
+ 	struct scatterlist *dma_sg;
++	struct scatterlist *dma_sg_head;
+ 	struct device *dma_dev;
+ 	unsigned int dma_count;
+ 	enum dma_data_direction dma_dir;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -67,7 +67,7 @@ static u32 ccp_gen_jobid(struct ccp_devi
+ static void ccp_sg_free(struct ccp_sg_workarea *wa)
+ {
+ 	if (wa->dma_count)
+-		dma_unmap_sg(wa->dma_dev, wa->dma_sg, wa->nents, wa->dma_dir);
++		dma_unmap_sg(wa->dma_dev, wa->dma_sg_head, wa->nents, wa->dma_dir);
  
- 			if (local_tb->tb_id != fa->tb_id)
+ 	wa->dma_count = 0;
+ }
+@@ -96,6 +96,7 @@ static int ccp_init_sg_workarea(struct c
+ 		return 0;
+ 
+ 	wa->dma_sg = sg;
++	wa->dma_sg_head = sg;
+ 	wa->dma_dev = dev;
+ 	wa->dma_dir = dma_dir;
+ 	wa->dma_count = dma_map_sg(dev, sg, wa->nents, dma_dir);
+@@ -108,14 +109,28 @@ static int ccp_init_sg_workarea(struct c
+ static void ccp_update_sg_workarea(struct ccp_sg_workarea *wa, unsigned int len)
+ {
+ 	unsigned int nbytes = min_t(u64, len, wa->bytes_left);
++	unsigned int sg_combined_len = 0;
+ 
+ 	if (!wa->sg)
+ 		return;
+ 
+ 	wa->sg_used += nbytes;
+ 	wa->bytes_left -= nbytes;
+-	if (wa->sg_used == wa->sg->length) {
+-		wa->sg = sg_next(wa->sg);
++	if (wa->sg_used == sg_dma_len(wa->dma_sg)) {
++		/* Advance to the next DMA scatterlist entry */
++		wa->dma_sg = sg_next(wa->dma_sg);
++
++		/* In the case that the DMA mapped scatterlist has entries
++		 * that have been merged, the non-DMA mapped scatterlist
++		 * must be advanced multiple times for each merged entry.
++		 * This ensures that the current non-DMA mapped entry
++		 * corresponds to the current DMA mapped entry.
++		 */
++		do {
++			sg_combined_len += wa->sg->length;
++			wa->sg = sg_next(wa->sg);
++		} while (wa->sg_used > sg_combined_len);
++
+ 		wa->sg_used = 0;
+ 	}
+ }
+@@ -304,7 +319,7 @@ static unsigned int ccp_queue_buf(struct
+ 	/* Update the structures and generate the count */
+ 	buf_count = 0;
+ 	while (sg_wa->bytes_left && (buf_count < dm_wa->length)) {
+-		nbytes = min(sg_wa->sg->length - sg_wa->sg_used,
++		nbytes = min(sg_dma_len(sg_wa->dma_sg) - sg_wa->sg_used,
+ 			     dm_wa->length - buf_count);
+ 		nbytes = min_t(u64, sg_wa->bytes_left, nbytes);
+ 
+@@ -336,11 +351,11 @@ static void ccp_prepare_data(struct ccp_
+ 	 * and destination. The resulting len values will always be <= UINT_MAX
+ 	 * because the dma length is an unsigned int.
+ 	 */
+-	sg_src_len = sg_dma_len(src->sg_wa.sg) - src->sg_wa.sg_used;
++	sg_src_len = sg_dma_len(src->sg_wa.dma_sg) - src->sg_wa.sg_used;
+ 	sg_src_len = min_t(u64, src->sg_wa.bytes_left, sg_src_len);
+ 
+ 	if (dst) {
+-		sg_dst_len = sg_dma_len(dst->sg_wa.sg) - dst->sg_wa.sg_used;
++		sg_dst_len = sg_dma_len(dst->sg_wa.dma_sg) - dst->sg_wa.sg_used;
+ 		sg_dst_len = min_t(u64, src->sg_wa.bytes_left, sg_dst_len);
+ 		op_len = min(sg_src_len, sg_dst_len);
+ 	} else {
+@@ -370,7 +385,7 @@ static void ccp_prepare_data(struct ccp_
+ 		/* Enough data in the sg element, but we need to
+ 		 * adjust for any previously copied data
+ 		 */
+-		op->src.u.dma.address = sg_dma_address(src->sg_wa.sg);
++		op->src.u.dma.address = sg_dma_address(src->sg_wa.dma_sg);
+ 		op->src.u.dma.offset = src->sg_wa.sg_used;
+ 		op->src.u.dma.length = op_len & ~(block_size - 1);
+ 
+@@ -391,7 +406,7 @@ static void ccp_prepare_data(struct ccp_
+ 			/* Enough room in the sg element, but we need to
+ 			 * adjust for any previously used area
+ 			 */
+-			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.sg);
++			op->dst.u.dma.address = sg_dma_address(dst->sg_wa.dma_sg);
+ 			op->dst.u.dma.offset = dst->sg_wa.sg_used;
+ 			op->dst.u.dma.length = op->src.u.dma.length;
+ 		}
+@@ -2034,7 +2049,7 @@ ccp_run_passthru_cmd(struct ccp_cmd_queu
+ 	dst.sg_wa.sg_used = 0;
+ 	for (i = 1; i <= src.sg_wa.dma_count; i++) {
+ 		if (!dst.sg_wa.sg ||
+-		    (dst.sg_wa.sg->length < src.sg_wa.sg->length)) {
++		    (sg_dma_len(dst.sg_wa.sg) < sg_dma_len(src.sg_wa.sg))) {
+ 			ret = -EINVAL;
+ 			goto e_dst;
+ 		}
+@@ -2060,8 +2075,8 @@ ccp_run_passthru_cmd(struct ccp_cmd_queu
+ 			goto e_dst;
+ 		}
+ 
+-		dst.sg_wa.sg_used += src.sg_wa.sg->length;
+-		if (dst.sg_wa.sg_used == dst.sg_wa.sg->length) {
++		dst.sg_wa.sg_used += sg_dma_len(src.sg_wa.sg);
++		if (dst.sg_wa.sg_used == sg_dma_len(dst.sg_wa.sg)) {
+ 			dst.sg_wa.sg = sg_next(dst.sg_wa.sg);
+ 			dst.sg_wa.sg_used = 0;
+ 		}
 
 
