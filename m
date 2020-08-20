@@ -2,83 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 996C524C7DE
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 00:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958F224C89E
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 01:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728502AbgHTWnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 18:43:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45326 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728489AbgHTWnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 18:43:21 -0400
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4087622BED
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 22:43:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597963400;
-        bh=5xHB7attkpmdUNvdTySFDMgYf8GNV6BlGCYBOuLcHEc=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=COYHVBXO3lN06Rb02cRiYn5f/fqzDSmlDtxTdw1OZp0e9jpSARPBBrCgxDlqxBLz8
-         3zUefbTY6RZimHz3I2/okoRrPpv88Ovypw14zYVVXm/XzNuCCy22hRi0qNBQST53YK
-         /tCG9XElPADBs8w74fIZAZbk6itbOWNkyAxd3fps=
-Received: by mail-ed1-f54.google.com with SMTP id k25so1504676edj.13
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 15:43:20 -0700 (PDT)
-X-Gm-Message-State: AOAM532fam7UIaSlXI8pZtiP95IBSoMUg4Kwzgb7ON40OoFgUTRtbyI0
-        4/j16+QpbKoh7+fhA8zZpqGsQBXUe1VXbLSzoMXLAg==
-X-Google-Smtp-Source: ABdhPJyIgAqsMA8JsQyikj/7ZlGQn610nb8EEcUeoTdpgwBdv87N4yg0Jjwegi5kVutkq43iZp2VoPR538rleGH4AVg=
-X-Received: by 2002:adf:cc88:: with SMTP id p8mr7829wrj.70.1597963398679; Thu,
- 20 Aug 2020 15:43:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <8b9bd05f187231df008d48cf818a6a311cbd5c98.1597882384.git.luto@kernel.org>
- <20200820084427.GO2674@hirez.programming.kicks-ass.net>
-In-Reply-To: <20200820084427.GO2674@hirez.programming.kicks-ass.net>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Thu, 20 Aug 2020 15:43:07 -0700
-X-Gmail-Original-Message-ID: <CALCETrXkZdR4Vvk1UXeWapHrBug+d6Nr-=VcbFHzw8PKzvLJCw@mail.gmail.com>
-Message-ID: <CALCETrXkZdR4Vvk1UXeWapHrBug+d6Nr-=VcbFHzw8PKzvLJCw@mail.gmail.com>
-Subject: Re: [PATCH] x86/debug: Allow a single level of #DB recursion
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Andy Lutomirski <luto@kernel.org>, X86 ML <x86@kernel.org>,
-        Kyle Huey <me@kylehuey.com>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        "Robert O'Callahan" <rocallahan@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Will Deacon <will@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        id S1728615AbgHTXe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 19:34:59 -0400
+Received: from mail105.syd.optusnet.com.au ([211.29.132.249]:57828 "EHLO
+        mail105.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728605AbgHTXe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 19:34:58 -0400
+Received: from dread.disaster.area (pa49-181-146-199.pa.nsw.optusnet.com.au [49.181.146.199])
+        by mail105.syd.optusnet.com.au (Postfix) with ESMTPS id 8D0153A4683;
+        Fri, 21 Aug 2020 09:34:47 +1000 (AEST)
+Received: from dave by dread.disaster.area with local (Exim 4.92.3)
+        (envelope-from <david@fromorbit.com>)
+        id 1k8u50-0007Ze-JP; Fri, 21 Aug 2020 09:34:46 +1000
+Date:   Fri, 21 Aug 2020 09:34:46 +1000
+From:   Dave Chinner <david@fromorbit.com>
+To:     Gao Xiang <hsiangkao@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Rafael Aquini <aquini@redhat.com>,
         stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by
+ mistake
+Message-ID: <20200820233446.GB7728@dread.disaster.area>
+References: <20200820045323.7809-1-hsiangkao@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200820045323.7809-1-hsiangkao@redhat.com>
+X-Optus-CM-Score: 0
+X-Optus-CM-Analysis: v=2.3 cv=QKgWuTDL c=1 sm=1 tr=0 cx=a_idp_d
+        a=GorAHYkI+xOargNMzM6qxQ==:117 a=GorAHYkI+xOargNMzM6qxQ==:17
+        a=kj9zAlcOel0A:10 a=y4yBn9ojGxQA:10 a=7-415B0cAAAA:8
+        a=xbHa4w0rJhsKUg1b8lYA:9 a=CjuIK1q_8ugA:10 a=biEYGPWJfzWAr4FL6Ov7:22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 1:44 AM <peterz@infradead.org> wrote:
->
-> On Wed, Aug 19, 2020 at 05:15:43PM -0700, Andy Lutomirski wrote:
-> > +static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
-> > +{
-> > +     *dr6 = debug_read_clear_dr6();
-> >  }
-> >
-> >  static __always_inline void debug_exit(unsigned long dr7)
-> >  {
-> > -     local_db_restore(dr7);
-> >  }
->
-> That's all unused after this patch, might as well remove it.
+On Thu, Aug 20, 2020 at 12:53:23PM +0800, Gao Xiang wrote:
+> SWP_FS is used to make swap_{read,write}page() go through
+> the filesystem, and it's only used for swap files over
+> NFS. So, !SWP_FS means non NFS for now, it could be either
+> file backed or device backed. Something similar goes with
+> legacy SWP_FILE.
+> 
+> So in order to achieve the goal of the original patch,
+> SWP_BLKDEV should be used instead.
+> 
+> FS corruption can be observed with SSD device + XFS +
+> fragmented swapfile due to CONFIG_THP_SWAP=y.
+> 
+> I reproduced the issue with the following details:
+> 
+> Environment:
+> QEMU + upstream kernel + buildroot + NVMe (2 GB)
+> 
+> Kernel config:
+> CONFIG_BLK_DEV_NVME=y
+> CONFIG_THP_SWAP=y
 
-Whoops.
+Ok, so at it's core this is a swap file extent versus THP swap
+cluster alignment issue?
+
+> diff --git a/mm/swapfile.c b/mm/swapfile.c
+> index 6c26916e95fd..2937daf3ca02 100644
+> --- a/mm/swapfile.c
+> +++ b/mm/swapfile.c
+> @@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
+>  			goto nextsi;
+>  		}
+>  		if (size == SWAPFILE_CLUSTER) {
+> -			if (!(si->flags & SWP_FS))
+> +			if (si->flags & SWP_BLKDEV)
+>  				n_ret = swap_alloc_cluster(si, swp_entries);
+>  		} else
+>  			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
+
+IOWs, if you don't make this change, does the corruption problem go
+away if you align swap extents in iomap_swapfile_add_extent() to
+(SWAPFILE_CLUSTER * PAGE_SIZE) instead of just PAGE_SIZE?
+
+I.e. if the swapfile extents are aligned correctly to huge page swap
+cluster size and alignment, does the swap clustering optimisations
+for swapping THP pages work correctly? And, if so, is there any
+performance benefit we get from enabling proper THP swap clustering
+on swapfiles?
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
