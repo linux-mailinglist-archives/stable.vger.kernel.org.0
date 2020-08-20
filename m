@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDE324B7ED
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 394CD24B7FA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgHTKL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
+        id S1730322AbgHTLHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:07:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729797AbgHTKLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:11:53 -0400
+        id S1730745AbgHTKLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:11:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C532206DA;
-        Thu, 20 Aug 2020 10:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B71D20885;
+        Thu, 20 Aug 2020 10:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918312;
-        bh=iJSfOu5xXFIHOTc9+QzvzLzsYl0R+SLT14vGfz3hFts=;
+        s=default; t=1597918297;
+        bh=gTLRA3ulGVzYqjj0OJoYWPcDhF3IYNJ+AcMX/wCReJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfSJWIvzS2nHBGDhp8QzGQxiIBOffPg8JA0rhsurBbFnFk8cBjnJBgpPLcYmd6l2L
-         w2K0BfXfPi/xjAXgk+Ys50LUoJTAMfzZimp/JoltTjpkP/ZIFcA9iTFeRPifngEk67
-         flmQGp4S2S8pdM76EMSVzHzWwH9SmLXGDCMi9qVM=
+        b=YDSfjh0ZQNEdVh/9uH6NlKJJV2eVvQkfJqLa6xNES+LOuQ3PbtRZ/gBx9DYO8B6QD
+         dG6xWNSP4MqQHnERKkDM+HoRVflwhnloxjbRac1/11/L3U/MIzddkHNHvnAgMKJVk0
+         vJctD38h8UgM6LwKbt45/F1iqOsqED6dBcV1CXbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/228] iio: improve IIO_CONCENTRATION channel type description
-Date:   Thu, 20 Aug 2020 11:21:00 +0200
-Message-Id: <20200820091611.862981888@linuxfoundation.org>
+Subject: [PATCH 4.14 090/228] scsi: cumana_2: Fix different dev_id between request_irq() and free_irq()
+Date:   Thu, 20 Aug 2020 11:21:05 +0200
+Message-Id: <20200820091612.114821306@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,41 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit df16c33a4028159d1ba8a7061c9fa950b58d1a61 ]
+[ Upstream commit 040ab9c4fd0070cd5fa71ba3a7b95b8470db9b4d ]
 
-IIO_CONCENTRATION together with INFO_RAW specifier is used for reporting
-raw concentrations of pollutants. Raw value should be meaningless
-before being properly scaled. Because of that description shouldn't
-mention raw value unit whatsoever.
+The dev_id used in request_irq() and free_irq() should match.  Use 'info'
+in both cases.
 
-Fix this by rephrasing existing description so it follows conventions
-used throughout IIO ABI docs.
-
-Fixes: 8ff6b3bc94930 ("iio: chemical: Add IIO_CONCENTRATION channel type")
-Signed-off-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/20200625204730.943520-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-bus-iio | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/arm/cumana_2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-index 64e65450f4833..e21e2ca3e4f91 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio
-+++ b/Documentation/ABI/testing/sysfs-bus-iio
-@@ -1524,7 +1524,8 @@ What:		/sys/bus/iio/devices/iio:deviceX/in_concentrationX_voc_raw
- KernelVersion:	4.3
- Contact:	linux-iio@vger.kernel.org
- Description:
--		Raw (unscaled no offset etc.) percentage reading of a substance.
-+		Raw (unscaled no offset etc.) reading of a substance. Units
-+		after application of scale and offset are percents.
+diff --git a/drivers/scsi/arm/cumana_2.c b/drivers/scsi/arm/cumana_2.c
+index edce5f3cfdba0..93ba83e3148eb 100644
+--- a/drivers/scsi/arm/cumana_2.c
++++ b/drivers/scsi/arm/cumana_2.c
+@@ -454,7 +454,7 @@ static int cumanascsi2_probe(struct expansion_card *ec,
  
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistance_raw
- What:		/sys/bus/iio/devices/iio:deviceX/in_resistanceX_raw
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
+ 
+  out_release:
+ 	fas216_release(host);
 -- 
 2.25.1
 
