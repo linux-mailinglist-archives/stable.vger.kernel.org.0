@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29C824BF6C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4B924BF70
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730574AbgHTNjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40736 "EHLO mail.kernel.org"
+        id S1730490AbgHTNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728129AbgHTJaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:30:01 -0400
+        id S1728131AbgHTJaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:30:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3599422BEB;
-        Thu, 20 Aug 2020 09:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B92922CB1;
+        Thu, 20 Aug 2020 09:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915800;
-        bh=qIeXM+NKCoFlMSstjLORdhuyqn+uoFkSc/8KPoObLQc=;
+        s=default; t=1597915803;
+        bh=xyDZYkyPG1JpMD3a/x9ITUBO7mLGiopl2omnRGsYpl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQ/Y6iYqAL1IQeYffaGRyZ1WI1Krew42A5zwYLjwNJ87CxxEXXpTJM+AfXQ6Per7W
-         YYvjAeBMRoHfqsArC2HxvSnoIdZJbD3XsaNksscONwvmNFXkYKZ+c0RM6G3TqnmJYi
-         HFRxt9Ciyl3TN5tG5u12lvJHDIvPuwLL4ly2Nb8Y=
+        b=VWI7xS5jfSbnsdYNFJKSZGPkUc1NIEHf0UXDleCqRkprE0+c4W/l0JR7sMceTE4Bw
+         JcPWwa59qU96Eu1+fbydG87ODiMyqr2GB1XK1kYOJh89JW0ZMjOrAyEONekyI1+G4k
+         zGJSyu1UIs4AtQQy2zsbPJYwhbzN7+A+AIAVFafQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 139/232] devres: keep both device name and resource name in pretty name
-Date:   Thu, 20 Aug 2020 11:19:50 +0200
-Message-Id: <20200820091619.557998492@linuxfoundation.org>
+Subject: [PATCH 5.8 140/232] RDMA/counter: Only bind user QPs in auto mode
+Date:   Thu, 20 Aug 2020 11:19:51 +0200
+Message-Id: <20200820091619.606650918@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,112 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Mark Zhang <markz@mellanox.com>
 
-[ Upstream commit 35bd8c07db2ce8fd2834ef866240613a4ef982e7 ]
+[ Upstream commit c9f557421e505f75da4234a6af8eff46bc08614b ]
 
-Sometimes debugging a device is easiest using devmem on its register
-map, and that can be seen with /proc/iomem. But some device drivers have
-many memory regions. Take for example a networking switch. Its memory
-map used to look like this in /proc/iomem:
+In auto mode only bind user QPs to a dynamic counter, since this feature
+is mainly used for system statistic and diagnostic purpose, while there's
+no need to counter kernel QPs so far.
 
-1fc000000-1fc3fffff : pcie@1f0000000
-  1fc000000-1fc3fffff : 0000:00:00.5
-    1fc010000-1fc01ffff : sys
-    1fc030000-1fc03ffff : rew
-    1fc060000-1fc0603ff : s2
-    1fc070000-1fc0701ff : devcpu_gcb
-    1fc080000-1fc0800ff : qs
-    1fc090000-1fc0900cb : ptp
-    1fc100000-1fc10ffff : port0
-    1fc110000-1fc11ffff : port1
-    1fc120000-1fc12ffff : port2
-    1fc130000-1fc13ffff : port3
-    1fc140000-1fc14ffff : port4
-    1fc150000-1fc15ffff : port5
-    1fc200000-1fc21ffff : qsys
-    1fc280000-1fc28ffff : ana
-
-But after the patch in Fixes: was applied, the information is now
-presented in a much more opaque way:
-
-1fc000000-1fc3fffff : pcie@1f0000000
-  1fc000000-1fc3fffff : 0000:00:00.5
-    1fc010000-1fc01ffff : 0000:00:00.5
-    1fc030000-1fc03ffff : 0000:00:00.5
-    1fc060000-1fc0603ff : 0000:00:00.5
-    1fc070000-1fc0701ff : 0000:00:00.5
-    1fc080000-1fc0800ff : 0000:00:00.5
-    1fc090000-1fc0900cb : 0000:00:00.5
-    1fc100000-1fc10ffff : 0000:00:00.5
-    1fc110000-1fc11ffff : 0000:00:00.5
-    1fc120000-1fc12ffff : 0000:00:00.5
-    1fc130000-1fc13ffff : 0000:00:00.5
-    1fc140000-1fc14ffff : 0000:00:00.5
-    1fc150000-1fc15ffff : 0000:00:00.5
-    1fc200000-1fc21ffff : 0000:00:00.5
-    1fc280000-1fc28ffff : 0000:00:00.5
-
-That patch made a fair comment that /proc/iomem might be confusing when
-it shows resources without an associated device, but we can do better
-than just hide the resource name altogether. Namely, we can print the
-device name _and_ the resource name. Like this:
-
-1fc000000-1fc3fffff : pcie@1f0000000
-  1fc000000-1fc3fffff : 0000:00:00.5
-    1fc010000-1fc01ffff : 0000:00:00.5 sys
-    1fc030000-1fc03ffff : 0000:00:00.5 rew
-    1fc060000-1fc0603ff : 0000:00:00.5 s2
-    1fc070000-1fc0701ff : 0000:00:00.5 devcpu_gcb
-    1fc080000-1fc0800ff : 0000:00:00.5 qs
-    1fc090000-1fc0900cb : 0000:00:00.5 ptp
-    1fc100000-1fc10ffff : 0000:00:00.5 port0
-    1fc110000-1fc11ffff : 0000:00:00.5 port1
-    1fc120000-1fc12ffff : 0000:00:00.5 port2
-    1fc130000-1fc13ffff : 0000:00:00.5 port3
-    1fc140000-1fc14ffff : 0000:00:00.5 port4
-    1fc150000-1fc15ffff : 0000:00:00.5 port5
-    1fc200000-1fc21ffff : 0000:00:00.5 qsys
-    1fc280000-1fc28ffff : 0000:00:00.5 ana
-
-Fixes: 8d84b18f5678 ("devres: always use dev_name() in devm_ioremap_resource()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20200601095826.1757621-1-olteanv@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 99fa331dc862 ("RDMA/counter: Add "auto" configuration mode support")
+Link: https://lore.kernel.org/r/20200702082933.424537-3-leon@kernel.org
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/devres.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/counters.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/devres.c b/lib/devres.c
-index 6ef51f159c54b..ca0d28727ccef 100644
---- a/lib/devres.c
-+++ b/lib/devres.c
-@@ -119,6 +119,7 @@ __devm_ioremap_resource(struct device *dev, const struct resource *res,
- {
- 	resource_size_t size;
- 	void __iomem *dest_ptr;
-+	char *pretty_name;
+diff --git a/drivers/infiniband/core/counters.c b/drivers/infiniband/core/counters.c
+index 738d1faf4bba5..6deb1901fbd02 100644
+--- a/drivers/infiniband/core/counters.c
++++ b/drivers/infiniband/core/counters.c
+@@ -288,7 +288,7 @@ int rdma_counter_bind_qp_auto(struct ib_qp *qp, u8 port)
+ 	struct rdma_counter *counter;
+ 	int ret;
  
- 	BUG_ON(!dev);
+-	if (!qp->res.valid)
++	if (!qp->res.valid || rdma_is_kernel_res(&qp->res))
+ 		return 0;
  
-@@ -129,7 +130,15 @@ __devm_ioremap_resource(struct device *dev, const struct resource *res,
- 
- 	size = resource_size(res);
- 
--	if (!devm_request_mem_region(dev, res->start, size, dev_name(dev))) {
-+	if (res->name)
-+		pretty_name = devm_kasprintf(dev, GFP_KERNEL, "%s %s",
-+					     dev_name(dev), res->name);
-+	else
-+		pretty_name = devm_kstrdup(dev, dev_name(dev), GFP_KERNEL);
-+	if (!pretty_name)
-+		return IOMEM_ERR_PTR(-ENOMEM);
-+
-+	if (!devm_request_mem_region(dev, res->start, size, pretty_name)) {
- 		dev_err(dev, "can't request region for resource %pR\n", res);
- 		return IOMEM_ERR_PTR(-EBUSY);
- 	}
+ 	if (!rdma_is_port_valid(dev, port))
 -- 
 2.25.1
 
