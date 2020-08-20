@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 494E124B83D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:14:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528EB24B835
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbgHTLMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43072 "EHLO mail.kernel.org"
+        id S1727781AbgHTLMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:12:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727798AbgHTKJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:09:17 -0400
+        id S1730573AbgHTKJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:09:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5F9620724;
-        Thu, 20 Aug 2020 10:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8DCF2067C;
+        Thu, 20 Aug 2020 10:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918156;
-        bh=JCjjjWbCYvT0bGRkX2Iilrpaa0f75hvq0QdyHN79ywc=;
+        s=default; t=1597918168;
+        bh=J982j0pUCT6dEHzjO48L3Uiqi+YmVsxDWByPj/wuRbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQlLbiKc88k098lUpm/wLb9SyLHTGgKWf4Fpg9ZqvcMG287Dsd4wHbb92K69I890z
-         JfjDgHWnHSlDPKfSyyjZCLyiZDj6foztvEKyPfDZ1nHP6HIgr+82Z2eStW7pnBYcSy
-         na5MOQAX1vtpeTdEu/6iHDJg0BlOJVR8y8y6uNM8=
+        b=pOPLAEksmUfV9hrrx2k/JEsB5OMVB51AC/nOivKe0h9B0DeRV5+l6pjB66jZ0FauG
+         iQsWbjaur9njyY5zfKf98S2Ey5FzR3V4HrpjZdVWbK9Ey2hTmRNiQpH3a38pEGdC2D
+         i2rSOHT8WdUZep392O/D/8wOILKnZ/MMnohm4UkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Wright Feng <wright.feng@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Sasi Kumar <sasi.kumar@broadcom.com>,
+        Al Cooper <alcooperx@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/228] brcmfmac: set state of hanger slot to FREE when flushing PSQ
-Date:   Thu, 20 Aug 2020 11:20:47 +0200
-Message-Id: <20200820091611.202545237@linuxfoundation.org>
+Subject: [PATCH 4.14 076/228] bdc: Fix bug causing crash after multiple disconnects
+Date:   Thu, 20 Aug 2020 11:20:51 +0200
+Message-Id: <20200820091611.402162699@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -47,78 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wright Feng <wright.feng@cypress.com>
+From: Sasi Kumar <sasi.kumar@broadcom.com>
 
-[ Upstream commit fcdd7a875def793c38d7369633af3eba6c7cf089 ]
+[ Upstream commit a95bdfd22076497288868c028619bc5995f5cc7f ]
 
-When USB or SDIO device got abnormal bus disconnection, host driver
-tried to clean up the skbs in PSQ and TXQ (The skb's pointer in hanger
-slot linked to PSQ and TSQ), so we should set the state of skb hanger slot
-to BRCMF_FWS_HANGER_ITEM_STATE_FREE before freeing skb.
-In brcmf_fws_bus_txq_cleanup it already sets
-BRCMF_FWS_HANGER_ITEM_STATE_FREE before freeing skb, therefore we add the
-same thing in brcmf_fws_psq_flush to avoid following warning message.
+Multiple connects/disconnects can cause a crash on the second
+disconnect. The driver had a problem where it would try to send
+endpoint commands after it was disconnected which is not allowed
+by the hardware. The fix is to only allow the endpoint commands
+when the endpoint is connected. This will also fix issues that
+showed up when using configfs to create gadgets.
 
-   [ 1580.012880] ------------   [ cut here ]------------
-   [ 1580.017550] WARNING: CPU: 3 PID: 3065 at
-drivers/net/wireless/broadcom/brcm80211/brcmutil/utils.c:49
-brcmu_pkt_buf_free_skb+0x21/0x30 [brcmutil]
-   [ 1580.184017] Call Trace:
-   [ 1580.186514]  brcmf_fws_cleanup+0x14e/0x190 [brcmfmac]
-   [ 1580.191594]  brcmf_fws_del_interface+0x70/0x90 [brcmfmac]
-   [ 1580.197029]  brcmf_proto_bcdc_del_if+0xe/0x10 [brcmfmac]
-   [ 1580.202418]  brcmf_remove_interface+0x69/0x190 [brcmfmac]
-   [ 1580.207888]  brcmf_detach+0x90/0xe0 [brcmfmac]
-   [ 1580.212385]  brcmf_usb_disconnect+0x76/0xb0 [brcmfmac]
-   [ 1580.217557]  usb_unbind_interface+0x72/0x260
-   [ 1580.221857]  device_release_driver_internal+0x141/0x200
-   [ 1580.227152]  device_release_driver+0x12/0x20
-   [ 1580.231460]  bus_remove_device+0xfd/0x170
-   [ 1580.235504]  device_del+0x1d9/0x300
-   [ 1580.239041]  usb_disable_device+0x9e/0x270
-   [ 1580.243160]  usb_disconnect+0x94/0x270
-   [ 1580.246980]  hub_event+0x76d/0x13b0
-   [ 1580.250499]  process_one_work+0x144/0x360
-   [ 1580.254564]  worker_thread+0x4d/0x3c0
-   [ 1580.258247]  kthread+0x109/0x140
-   [ 1580.261515]  ? rescuer_thread+0x340/0x340
-   [ 1580.265543]  ? kthread_park+0x60/0x60
-   [ 1580.269237]  ? SyS_exit_group+0x14/0x20
-   [ 1580.273118]  ret_from_fork+0x25/0x30
-   [ 1580.300446] ------------   [ cut here ]------------
-
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Wright Feng <wright.feng@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200624091608.25154-2-wright.feng@cypress.com
+Signed-off-by: Sasi Kumar <sasi.kumar@broadcom.com>
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/udc/bdc/bdc_core.c |  4 ++++
+ drivers/usb/gadget/udc/bdc/bdc_ep.c   | 16 ++++++++++------
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-index 2370060ef980a..0807331284895 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-@@ -653,6 +653,7 @@ static inline int brcmf_fws_hanger_poppkt(struct brcmf_fws_hanger *h,
- static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
- 				int ifidx)
- {
-+	struct brcmf_fws_hanger_item *hi;
- 	bool (*matchfn)(struct sk_buff *, void *) = NULL;
- 	struct sk_buff *skb;
- 	int prec;
-@@ -664,6 +665,9 @@ static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
- 		skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
- 		while (skb) {
- 			hslot = brcmf_skb_htod_tag_get_field(skb, HSLOT);
-+			hi = &fws->hanger.items[hslot];
-+			WARN_ON(skb != hi->pkt);
-+			hi->state = BRCMF_FWS_HANGER_ITEM_STATE_FREE;
- 			brcmf_fws_hanger_poppkt(&fws->hanger, hslot, &skb,
- 						true);
- 			brcmu_pkt_buf_free_skb(skb);
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
+index 7a8af4b916cff..2660cc2e42a08 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_core.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
+@@ -288,6 +288,7 @@ static void bdc_mem_init(struct bdc *bdc, bool reinit)
+ 	 * in that case reinit is passed as 1
+ 	 */
+ 	if (reinit) {
++		int i;
+ 		/* Enable interrupts */
+ 		temp = bdc_readl(bdc->regs, BDC_BDCSC);
+ 		temp |= BDC_GIE;
+@@ -297,6 +298,9 @@ static void bdc_mem_init(struct bdc *bdc, bool reinit)
+ 		/* Initialize SRR to 0 */
+ 		memset(bdc->srr.sr_bds, 0,
+ 					NUM_SR_ENTRIES * sizeof(struct bdc_bd));
++		/* clear ep flags to avoid post disconnect stops/deconfigs */
++		for (i = 1; i < bdc->num_eps; ++i)
++			bdc->bdc_ep_array[i]->flags = 0;
+ 	} else {
+ 		/* One time initiaization only */
+ 		/* Enable status report function pointers */
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_ep.c b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+index be9f40bc9c12b..bb2d5ebd97b52 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+@@ -621,7 +621,6 @@ int bdc_ep_enable(struct bdc_ep *ep)
+ 	}
+ 	bdc_dbg_bd_list(bdc, ep);
+ 	/* only for ep0: config ep is called for ep0 from connect event */
+-	ep->flags |= BDC_EP_ENABLED;
+ 	if (ep->ep_num == 1)
+ 		return ret;
+ 
+@@ -765,10 +764,13 @@ static int ep_dequeue(struct bdc_ep *ep, struct bdc_req *req)
+ 					__func__, ep->name, start_bdi, end_bdi);
+ 	dev_dbg(bdc->dev, "ep_dequeue ep=%p ep->desc=%p\n",
+ 						ep, (void *)ep->usb_ep.desc);
+-	/* Stop the ep to see where the HW is ? */
+-	ret = bdc_stop_ep(bdc, ep->ep_num);
+-	/* if there is an issue with stopping ep, then no need to go further */
+-	if (ret)
++	/* if still connected, stop the ep to see where the HW is ? */
++	if (!(bdc_readl(bdc->regs, BDC_USPC) & BDC_PST_MASK)) {
++		ret = bdc_stop_ep(bdc, ep->ep_num);
++		/* if there is an issue, then no need to go further */
++		if (ret)
++			return 0;
++	} else
+ 		return 0;
+ 
+ 	/*
+@@ -1917,7 +1919,9 @@ static int bdc_gadget_ep_disable(struct usb_ep *_ep)
+ 		__func__, ep->name, ep->flags);
+ 
+ 	if (!(ep->flags & BDC_EP_ENABLED)) {
+-		dev_warn(bdc->dev, "%s is already disabled\n", ep->name);
++		if (bdc->gadget.speed != USB_SPEED_UNKNOWN)
++			dev_warn(bdc->dev, "%s is already disabled\n",
++				 ep->name);
+ 		return 0;
+ 	}
+ 	spin_lock_irqsave(&bdc->lock, flags);
 -- 
 2.25.1
 
