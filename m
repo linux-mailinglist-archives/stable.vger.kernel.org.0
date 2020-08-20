@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7E424B40D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE0C24B362
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729088AbgHTJ41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:56:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
+        id S1729143AbgHTJqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730256AbgHTJ4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:23 -0400
+        id S1729332AbgHTJqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4C8320885;
-        Thu, 20 Aug 2020 09:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74BE520724;
+        Thu, 20 Aug 2020 09:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917381;
-        bh=YwZJ9W+XJlZjVI5HfWYlwaHFRfhwEswTi5fcPpoXoI4=;
+        s=default; t=1597916795;
+        bh=t7QQ+H33mo6eZ63X2f6jUu77Uht3ePV6CRkL8tYfkLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GdhPfefC2DSs+KxmhHbKYYg4oYX4qKgwKqZHXIdfSKfT0EFdguVSI/ky2Uo0NtD3T
-         lnw0T4fr7+XrBW0TIvYO02QiS7WA0wMQGhM8zatJhO1BEaVLsmLCA6zWOM2zGjyGfN
-         R8QcVRxt97GJbJox/XE/NxkA4NrOW8eFGcb70Vmk=
+        b=RStXzMsYbjALsyQ1kyJgM3erRdTdBDqhG90UjEBf5qsvKM+DnnOhZyWuD9kEWUidL
+         hUcaf/FZstYIqUQjFwzbBMXLC1aCFim7fvgWhkIompLt3EkRRkP8/vVolfjUoL8dnU
+         VlUt8JsSM+sGq6beIrusJcXMQKORyJFS2jGMBGjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Cohen <cohens@codeaurora.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.9 012/212] drm: hold gem reference until object is no longer accessed
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 018/152] btrfs: relocation: review the call sites which can be interrupted by signal
 Date:   Thu, 20 Aug 2020 11:19:45 +0200
-Message-Id: <20200820091602.949207208@linuxfoundation.org>
+Message-Id: <20200820091554.580138411@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Cohen <cohens@codeaurora.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 8490d6a7e0a0a6fab5c2d82d57a3937306660864 upstream.
+commit 44d354abf33e92a5e73b965c84caf5a5d5e58a0b upstream.
 
-A use-after-free in drm_gem_open_ioctl can happen if the
-GEM object handle is closed between the idr lookup and
-retrieving the size from said object since a local reference
-is not being held at that point. Hold the local reference
-while the object can still be accessed to fix this and
-plug the potential security hole.
+Since most metadata reservation calls can return -EINTR when get
+interrupted by fatal signal, we need to review the all the metadata
+reservation call sites.
 
-Signed-off-by: Steve Cohen <cohens@codeaurora.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/1595284250-31580-1-git-send-email-cohens@codeaurora.org
+In relocation code, the metadata reservation happens in the following
+sites:
+
+- btrfs_block_rsv_refill() in merge_reloc_root()
+  merge_reloc_root() is a pretty critical section, we don't want to be
+  interrupted by signal, so change the flush status to
+  BTRFS_RESERVE_FLUSH_LIMIT, so it won't get interrupted by signal.
+  Since such change can be ENPSPC-prone, also shrink the amount of
+  metadata to reserve least amount avoid deadly ENOSPC there.
+
+- btrfs_block_rsv_refill() in reserve_metadata_space()
+  It calls with BTRFS_RESERVE_FLUSH_LIMIT, which won't get interrupted
+  by signal.
+
+- btrfs_block_rsv_refill() in prepare_to_relocate()
+
+- btrfs_block_rsv_add() in prepare_to_relocate()
+
+- btrfs_block_rsv_refill() in relocate_block_group()
+
+- btrfs_delalloc_reserve_metadata() in relocate_file_extent_cluster()
+
+- btrfs_start_transaction() in relocate_block_group()
+
+- btrfs_start_transaction() in create_reloc_inode()
+  Can be interrupted by fatal signal and we can handle it easily.
+  For these call sites, just catch the -EINTR value in btrfs_balance()
+  and count them as canceled.
+
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_gem.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ fs/btrfs/relocation.c |   12 ++++++++++--
+ fs/btrfs/volumes.c    |   17 ++++++++++++++++-
+ 2 files changed, 26 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -694,9 +694,6 @@ err:
-  * @file_priv: drm file-private structure
-  *
-  * Open an object using the global name, returning a handle and the size.
-- *
-- * This handle (of course) holds a reference to the object, so the object
-- * will not go away until the handle is deleted.
-  */
- int
- drm_gem_open_ioctl(struct drm_device *dev, void *data,
-@@ -721,14 +718,15 @@ drm_gem_open_ioctl(struct drm_device *de
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2312,12 +2312,20 @@ static noinline_for_stack int merge_relo
+ 		btrfs_unlock_up_safe(path, 0);
+ 	}
  
- 	/* drm_gem_handle_create_tail unlocks dev->object_name_lock. */
- 	ret = drm_gem_handle_create_tail(file_priv, obj, &handle);
--	drm_gem_object_unreference_unlocked(obj);
- 	if (ret)
--		return ret;
-+		goto err;
+-	min_reserved = fs_info->nodesize * (BTRFS_MAX_LEVEL - 1) * 2;
++	/*
++	 * In merge_reloc_root(), we modify the upper level pointer to swap the
++	 * tree blocks between reloc tree and subvolume tree.  Thus for tree
++	 * block COW, we COW at most from level 1 to root level for each tree.
++	 *
++	 * Thus the needed metadata size is at most root_level * nodesize,
++	 * and * 2 since we have two trees to COW.
++	 */
++	min_reserved = fs_info->nodesize * btrfs_root_level(root_item) * 2;
+ 	memset(&next_key, 0, sizeof(next_key));
  
- 	args->handle = handle;
- 	args->size = obj->size;
- 
--	return 0;
-+err:
-+	drm_gem_object_unreference_unlocked(obj);
-+	return ret;
- }
- 
- /**
+ 	while (1) {
+ 		ret = btrfs_block_rsv_refill(root, rc->block_rsv, min_reserved,
+-					     BTRFS_RESERVE_FLUSH_ALL);
++					     BTRFS_RESERVE_FLUSH_LIMIT);
+ 		if (ret) {
+ 			err = ret;
+ 			goto out;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4261,7 +4261,22 @@ int btrfs_balance(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->balance_mutex);
+ 	if (ret == -ECANCELED && atomic_read(&fs_info->balance_pause_req))
+ 		btrfs_info(fs_info, "balance: paused");
+-	else if (ret == -ECANCELED && atomic_read(&fs_info->balance_cancel_req))
++	/*
++	 * Balance can be canceled by:
++	 *
++	 * - Regular cancel request
++	 *   Then ret == -ECANCELED and balance_cancel_req > 0
++	 *
++	 * - Fatal signal to "btrfs" process
++	 *   Either the signal caught by wait_reserve_ticket() and callers
++	 *   got -EINTR, or caught by btrfs_should_cancel_balance() and
++	 *   got -ECANCELED.
++	 *   Either way, in this case balance_cancel_req = 0, and
++	 *   ret == -EINTR or ret == -ECANCELED.
++	 *
++	 * So here we only check the return value to catch canceled balance.
++	 */
++	else if (ret == -ECANCELED || ret == -EINTR)
+ 		btrfs_info(fs_info, "balance: canceled");
+ 	else
+ 		btrfs_info(fs_info, "balance: ended with status: %d", ret);
 
 
