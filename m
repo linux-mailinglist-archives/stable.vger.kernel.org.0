@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE1724B8B3
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 513DB24B8B5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730488AbgHTLZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35030 "EHLO mail.kernel.org"
+        id S1730514AbgHTLZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730285AbgHTKGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:06:22 -0400
+        id S1730661AbgHTKGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:06:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 236B820724;
-        Thu, 20 Aug 2020 10:06:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DE462075E;
+        Thu, 20 Aug 2020 10:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917981;
-        bh=e8gQ3zOfaVjuisO0HzCcBCFCp+DfNDcdB5sf0MndGTU=;
+        s=default; t=1597917984;
+        bh=igrc9LS6KgOqAWwGySkc8AsRthglM0xdy+TPaKJVD3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBGHr0ULv8jVtnZ5b38agZomtgk/nzQ5WEaCNENgf+YAnrCp3Rrt9AyPhzTYa5h7X
-         5pUMH+KEj8pGMkZEZQes4i7bozOQSorJAxCc1H71VxNZJVh0IPf+g++31yJTYFPH4L
-         wTY/lzkfZ2XET0DpjHMn/FmkuwbLqcX4hrfR0e5E=
+        b=I6jDBOvTtIZDVrHXhQ+Tk3gzRW64dr9JE4gPUNv8JTN4+7HNsfZssiWAOafcNu1G9
+         IeYTZqL8J4A6u84FX5ot+f724dO8tifC8t4g1l9FjDlK5SW5qLc+2XedtuqpddhwC1
+         Xf7WNel8LX97CqPYtD8UsAq0E9ZAZnD57T2ria04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        Jann Horn <jannh@google.com>, Martijn Coenen <maco@android.com>
-Subject: [PATCH 4.14 012/228] binder: Prevent context manager from incrementing ref 0
-Date:   Thu, 20 Aug 2020 11:19:47 +0200
-Message-Id: <20200820091608.142323214@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Kyungtae Kim <kt0755@gmail.com>, linux-fbdev@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Solar Designer <solar@openwall.com>,
+        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
+        Anthony Liguori <aliguori@amazon.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 4.14 013/228] vgacon: Fix for missing check in scrollback handling
+Date:   Thu, 20 Aug 2020 11:19:48 +0200
+Message-Id: <20200820091608.192283912@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -43,92 +51,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Yunhai Zhang <zhangyunhai@nsfocus.com>
 
-commit 4b836a1426cb0f1ef2a6e211d7e553221594f8fc upstream.
+commit ebfdfeeae8c01fcb2b3b74ffaf03876e20835d2d upstream.
 
-Binder is designed such that a binder_proc never has references to
-itself. If this rule is violated, memory corruption can occur when a
-process sends a transaction to itself; see e.g.
-<https://syzkaller.appspot.com/bug?extid=09e05aba06723a94d43d>.
+vgacon_scrollback_update() always leaves enbough room in the scrollback
+buffer for the next call, but if the console size changed that room
+might not actually be enough, and so we need to re-check.
 
-There is a remaining edgecase through which such a transaction-to-self
-can still occur from the context of a task with BINDER_SET_CONTEXT_MGR
-access:
+The check should be in the loop since vgacon_scrollback_cur->tail is
+updated in the loop and count may be more than 1 when triggered by CSI M,
+as Jiri's PoC:
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
 
- - task A opens /dev/binder twice, creating binder_proc instances P1
-   and P2
- - P1 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 0 in its
-   handle table
- - P1 dies (by closing the /dev/binder fd and waiting a bit)
- - P2 becomes context manager
- - P2 calls ACQUIRE on the magic handle 0, allocating index 1 in its
-   handle table
-   [this triggers a warning: "binder: 1974:1974 tried to acquire
-   reference to desc 0, got 1 instead"]
- - task B opens /dev/binder once, creating binder_proc instance P3
- - P3 calls P2 (via magic handle 0) with (void*)1 as argument (two-way
-   transaction)
- - P2 receives the handle and uses it to call P3 (two-way transaction)
- - P3 calls P2 (via magic handle 0) (two-way transaction)
- - P2 calls P2 (via handle 1) (two-way transaction)
+int main(int argc, char** argv)
+{
+        int fd = open("/dev/tty1", O_RDWR);
+        unsigned short size[3] = {25, 200, 0};
+        ioctl(fd, 0x5609, size); // VT_RESIZE
 
-And then, if P2 does *NOT* accept the incoming transaction work, but
-instead closes the binder fd, we get a crash.
+        write(fd, "\e[1;1H", 6);
+        for (int i = 0; i < 30; i++)
+                write(fd, "\e[10M", 5);
+}
 
-Solve it by preventing the context manager from using ACQUIRE on ref 0.
-There shouldn't be any legitimate reason for the context manager to do
-that.
+It leads to various crashes as vgacon_scrollback_update writes out of
+the buffer:
+ BUG: unable to handle page fault for address: ffffc900001752a0
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ RIP: 0010:mutex_unlock+0x13/0x30
+...
+ Call Trace:
+  n_tty_write+0x1a0/0x4d0
+  tty_write+0x1a0/0x2e0
 
-Additionally, print a warning if someone manages to find another way to
-trigger a transaction-to-self bug in the future.
+Or to KASAN reports:
+BUG: KASAN: slab-out-of-bounds in vgacon_scroll+0x57a/0x8ed
 
+This fixes CVE-2020-14331.
+
+Reported-by: 张云海 <zhangyunhai@nsfocus.com>
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Fixes: 15bdab959c9b ([PATCH] vgacon: Add support for soft scrollback)
 Cc: stable@vger.kernel.org
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Link: https://lore.kernel.org/r/20200727120424.1627555-1-jannh@google.com
+Cc: linux-fbdev@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Solar Designer <solar@openwall.com>
+Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc: Anthony Liguori <aliguori@amazon.com>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Yunhai Zhang <zhangyunhai@nsfocus.com>
+Link: https://lore.kernel.org/r/9fb43895-ca91-9b07-ebfd-808cf854ca95@nsfocus.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/video/console/vgacon.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2813,6 +2813,12 @@ static void binder_transaction(struct bi
- 			goto err_dead_binder;
- 		}
- 		e->to_node = target_node->debug_id;
-+		if (WARN_ON(proc == target_proc)) {
-+			return_error = BR_FAILED_REPLY;
-+			return_error_param = -EINVAL;
-+			return_error_line = __LINE__;
-+			goto err_invalid_target_handle;
-+		}
- 		if (security_binder_transaction(proc->tsk,
- 						target_proc->tsk) < 0) {
- 			return_error = BR_FAILED_REPLY;
-@@ -3288,10 +3294,17 @@ static int binder_thread_write(struct bi
- 				struct binder_node *ctx_mgr_node;
- 				mutex_lock(&context->context_mgr_node_lock);
- 				ctx_mgr_node = context->binder_context_mgr_node;
--				if (ctx_mgr_node)
-+				if (ctx_mgr_node) {
-+					if (ctx_mgr_node->proc == proc) {
-+						binder_user_error("%d:%d context manager tried to acquire desc 0\n",
-+								  proc->pid, thread->pid);
-+						mutex_unlock(&context->context_mgr_node_lock);
-+						return -EINVAL;
-+					}
- 					ret = binder_inc_ref_for_node(
- 							proc, ctx_mgr_node,
- 							strong, NULL, &rdata);
-+				}
- 				mutex_unlock(&context->context_mgr_node_lock);
- 			}
- 			if (ret)
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -246,6 +246,10 @@ static void vgacon_scrollback_update(str
+ 	p = (void *) (c->vc_origin + t * c->vc_size_row);
+ 
+ 	while (count--) {
++		if ((vgacon_scrollback_cur->tail + c->vc_size_row) >
++		    vgacon_scrollback_cur->size)
++			vgacon_scrollback_cur->tail = 0;
++
+ 		scr_memcpyw(vgacon_scrollback_cur->data +
+ 			    vgacon_scrollback_cur->tail,
+ 			    p, c->vc_size_row);
 
 
