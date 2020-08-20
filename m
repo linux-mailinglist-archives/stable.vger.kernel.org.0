@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B57D424B4F6
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A8824B4F0
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:15:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbgHTKPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33802 "EHLO mail.kernel.org"
+        id S1731210AbgHTKOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbgHTKO4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:56 -0400
+        id S1731206AbgHTKOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:14:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6418320724;
-        Thu, 20 Aug 2020 10:14:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F26720738;
+        Thu, 20 Aug 2020 10:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918495;
-        bh=6DHbHLVvao1IOlB/zt8+RprsouiSiHG/qkIEQ1H8n/k=;
+        s=default; t=1597918482;
+        bh=Vnlfd91f9jY6V0NUMDifoozT8NMnDbS+d6M8OKwcTcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B66iuBnZ28ijEuin1xOsWN6LWMoesHib7iskyMMnKvipHZVAxWCJACKa63Xjn5YDc
-         P9mgAMinvR7Y2mJdvgxUriJcv84KGSlsY7QA3XTNYlq6SnnyFf/dLpdV7J7cwHr25B
-         nxafjTiikLNFR9g/PzrI6C1eHz3mezrLjyOAmrfA=
+        b=RyVHFbs1Cc55RPjuRT4OkkSuol2glquX/E21C1DQwS0L5nOFAJJMk7jS5KoMWOQDP
+         MA/o3vmfL2lEl4IewunEhnKxl2EolpnK9lmnexPaLx0pEF9molgPfkETn7bfFJhoJz
+         TZUkJ9A3in+fbhYpRs9ok7+bkgGwtYpnnpV7gwhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 151/228] crypto: cpt - dont sleep of CRYPTO_TFM_REQ_MAY_SLEEP was not specified
-Date:   Thu, 20 Aug 2020 11:22:06 +0200
-Message-Id: <20200820091615.125267995@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 156/228] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
+Date:   Thu, 20 Aug 2020 11:22:11 +0200
+Message-Id: <20200820091615.374078967@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -43,103 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Hector Martin <marcan@marcan.st>
 
-commit 9e27c99104707f083dccd3b4d79762859b5a0614 upstream.
+commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
 
-There is this call chain:
-cvm_encrypt -> cvm_enc_dec -> cptvf_do_request -> process_request -> kzalloc
-where we call sleeping allocator function even if CRYPTO_TFM_REQ_MAY_SLEEP
-was not specified.
+Further investigation of the L-R swap problem on the MS2109 reveals that
+the problem isn't that the channels are swapped, but rather that they
+are swapped and also out of phase by one sample. In other words, the
+issue is actually that the very first frame that comes from the hardware
+is a half-frame containing only the right channel, and after that
+everything becomes offset.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org	# v4.11+
-Fixes: c694b233295b ("crypto: cavium - Add the Virtual Function driver for CPT")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+So introduce a new quirk field to drop the very first 2 bytes that come
+in after the format is configured and a capture stream starts. This puts
+the channels in phase and in the correct order.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/cavium/cpt/cptvf_algs.c       |    1 +
- drivers/crypto/cavium/cpt/cptvf_reqmanager.c |   12 ++++++------
- drivers/crypto/cavium/cpt/request_manager.h  |    2 ++
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ sound/usb/card.h   |    1 +
+ sound/usb/pcm.c    |    6 ++++++
+ sound/usb/quirks.c |    3 +++
+ sound/usb/stream.c |    1 +
+ 4 files changed, 11 insertions(+)
 
---- a/drivers/crypto/cavium/cpt/cptvf_algs.c
-+++ b/drivers/crypto/cavium/cpt/cptvf_algs.c
-@@ -205,6 +205,7 @@ static inline int cvm_enc_dec(struct abl
- 	int status;
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -126,6 +126,7 @@ struct snd_usb_substream {
+ 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
+ 	unsigned int fmt_type;		/* USB audio format type (1-3) */
+ 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
++	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
  
- 	memset(req_info, 0, sizeof(struct cpt_request_info));
-+	req_info->may_sleep = (req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) != 0;
- 	memset(fctx, 0, sizeof(struct fc_context));
- 	create_input_list(req, enc, enc_iv_len);
- 	create_output_list(req, enc_iv_len);
---- a/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
-+++ b/drivers/crypto/cavium/cpt/cptvf_reqmanager.c
-@@ -136,7 +136,7 @@ static inline int setup_sgio_list(struct
+ 	unsigned int running: 1;	/* running status */
  
- 	/* Setup gather (input) components */
- 	g_sz_bytes = ((req->incnt + 3) / 4) * sizeof(struct sglist_component);
--	info->gather_components = kzalloc(g_sz_bytes, GFP_KERNEL);
-+	info->gather_components = kzalloc(g_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->gather_components) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -153,7 +153,7 @@ static inline int setup_sgio_list(struct
- 
- 	/* Setup scatter (output) components */
- 	s_sz_bytes = ((req->outcnt + 3) / 4) * sizeof(struct sglist_component);
--	info->scatter_components = kzalloc(s_sz_bytes, GFP_KERNEL);
-+	info->scatter_components = kzalloc(s_sz_bytes, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->scatter_components) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -170,7 +170,7 @@ static inline int setup_sgio_list(struct
- 
- 	/* Create and initialize DPTR */
- 	info->dlen = g_sz_bytes + s_sz_bytes + SG_LIST_HDR_SIZE;
--	info->in_buffer = kzalloc(info->dlen, GFP_KERNEL);
-+	info->in_buffer = kzalloc(info->dlen, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->in_buffer) {
- 		ret = -ENOMEM;
- 		goto  scatter_gather_clean;
-@@ -198,7 +198,7 @@ static inline int setup_sgio_list(struct
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1313,6 +1313,12 @@ static void retire_capture_urb(struct sn
+ 			// continue;
+ 		}
+ 		bytes = urb->iso_frame_desc[i].actual_length;
++		if (subs->stream_offset_adj > 0) {
++			unsigned int adj = min(subs->stream_offset_adj, bytes);
++			cp += adj;
++			bytes -= adj;
++			subs->stream_offset_adj -= adj;
++		}
+ 		frames = bytes / stride;
+ 		if (!subs->txfr_quirk)
+ 			bytes = frames * stride;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1120,6 +1120,9 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
++		subs->stream_offset_adj = 2;
++		break;
  	}
+ }
  
- 	/* Create and initialize RPTR */
--	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, GFP_KERNEL);
-+	info->out_buffer = kzalloc(COMPLETION_CODE_SIZE, req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (!info->out_buffer) {
- 		ret = -ENOMEM;
- 		goto scatter_gather_clean;
-@@ -434,7 +434,7 @@ int process_request(struct cpt_vf *cptvf
- 	struct cpt_vq_command vq_cmd;
- 	union cpt_inst_s cptinst;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -95,6 +95,7 @@ static void snd_usb_init_substream(struc
+ 	subs->tx_length_quirk = as->chip->tx_length_quirk;
+ 	subs->speed = snd_usb_get_speed(subs->dev);
+ 	subs->pkt_offset_adj = 0;
++	subs->stream_offset_adj = 0;
  
--	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	info = kzalloc(sizeof(*info), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (unlikely(!info)) {
- 		dev_err(&pdev->dev, "Unable to allocate memory for info_buffer\n");
- 		return -ENOMEM;
-@@ -456,7 +456,7 @@ int process_request(struct cpt_vf *cptvf
- 	 * Get buffer for union cpt_res_s response
- 	 * structure and its physical address
- 	 */
--	info->completion_addr = kzalloc(sizeof(union cpt_res_s), GFP_KERNEL);
-+	info->completion_addr = kzalloc(sizeof(union cpt_res_s), req->may_sleep ? GFP_KERNEL : GFP_ATOMIC);
- 	if (unlikely(!info->completion_addr)) {
- 		dev_err(&pdev->dev, "Unable to allocate memory for completion_addr\n");
- 		ret = -ENOMEM;
---- a/drivers/crypto/cavium/cpt/request_manager.h
-+++ b/drivers/crypto/cavium/cpt/request_manager.h
-@@ -65,6 +65,8 @@ struct cpt_request_info {
- 	union ctrl_info ctrl; /* User control information */
- 	struct cptvf_request req; /* Request Information (Core specific) */
- 
-+	bool may_sleep;
-+
- 	struct buf_ptr in[MAX_BUF_CNT];
- 	struct buf_ptr out[MAX_BUF_CNT];
+ 	snd_usb_set_pcm_ops(as->pcm, stream);
  
 
 
