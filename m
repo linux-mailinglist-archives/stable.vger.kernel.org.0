@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499DF24B31D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4676224B393
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729105AbgHTJlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35162 "EHLO mail.kernel.org"
+        id S1729619AbgHTJta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:49:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728710AbgHTJlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:35 -0400
+        id S1729606AbgHTJt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42D4C2075E;
-        Thu, 20 Aug 2020 09:41:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 131D420724;
+        Thu, 20 Aug 2020 09:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916493;
-        bh=tl+cUgc5OR6puSRkQCFPVS3w587cIlAO4ks3kHm9LrM=;
+        s=default; t=1597916967;
+        bh=ORQZ4mJGxF6U0yKnWdBlVnULk+8btVLLBgKyZAetErA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LR0f1NqBJL1sYoUh+ORFu+AD7OFmw+muA6j523+HuvjYdRgdleTg75yqqPzAfztRg
-         ZSrUcYWoYf2n8D5n8itmcl01d8ijKIRawF2B46i6Gun07aAK0tLuXOz6F+vtFXyMrf
-         FInxHZs5gXQMVBcGC3rmb8LnnAGbeqsmsUCfcapg=
+        b=I+wv06eJLefht3cQH3WKIGqB/lyJ+F4Ji3fTmkmTq1bpSnaKKOPUGeeQavaokaciL
+         epxFJGp16OfZSVSoQaVFDEo7IrkpVMlZYc/0Z6in8Be9nRbd1QZSFCoPzJog0anfyo
+         iBd3FJgx10UDAczFjydkL0iNjYSzrRuDkqCifNp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 147/204] pwm: bcm-iproc: handle clk_get_rate() return
-Date:   Thu, 20 Aug 2020 11:20:44 +0200
-Message-Id: <20200820091613.588844723@linuxfoundation.org>
+Subject: [PATCH 5.4 078/152] mfd: arizona: Ensure 32k clock is put on driver unbind and error
+Date:   Thu, 20 Aug 2020 11:20:45 +0200
+Message-Id: <20200820091557.732040272@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 6ced5ff0be8e94871ba846dfbddf69d21363f3d7 ]
+[ Upstream commit ddff6c45b21d0437ce0c85f8ac35d7b5480513d7 ]
 
-Handle clk_get_rate() returning 0 to avoid possible division by zero.
+Whilst it doesn't matter if the internal 32k clock register settings
+are cleaned up on exit, as the part will be turned off losing any
+settings, hence the driver hasn't historially bothered. The external
+clock should however be cleaned up, as it could cause clocks to be
+left on, and will at best generate a warning on unbind.
 
-Fixes: daa5abc41c80 ("pwm: Add support for Broadcom iProc PWM controller")
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Add clean up on both the probe error path and unbind for the 32k
+clock.
+
+Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-bcm-iproc.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/mfd/arizona-core.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/pwm/pwm-bcm-iproc.c b/drivers/pwm/pwm-bcm-iproc.c
-index 1f829edd8ee70..d392a828fc493 100644
---- a/drivers/pwm/pwm-bcm-iproc.c
-+++ b/drivers/pwm/pwm-bcm-iproc.c
-@@ -85,8 +85,6 @@ static void iproc_pwmc_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	u64 tmp, multi, rate;
- 	u32 value, prescale;
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index 4a31907a4525f..3ff872c205eeb 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -1430,6 +1430,15 @@ int arizona_dev_init(struct arizona *arizona)
+ 	arizona_irq_exit(arizona);
+ err_pm:
+ 	pm_runtime_disable(arizona->dev);
++
++	switch (arizona->pdata.clk32k_src) {
++	case ARIZONA_32KZ_MCLK1:
++	case ARIZONA_32KZ_MCLK2:
++		arizona_clk32k_disable(arizona);
++		break;
++	default:
++		break;
++	}
+ err_reset:
+ 	arizona_enable_reset(arizona);
+ 	regulator_disable(arizona->dcvdd);
+@@ -1452,6 +1461,15 @@ int arizona_dev_exit(struct arizona *arizona)
+ 	regulator_disable(arizona->dcvdd);
+ 	regulator_put(arizona->dcvdd);
  
--	rate = clk_get_rate(ip->clk);
--
- 	value = readl(ip->base + IPROC_PWM_CTRL_OFFSET);
- 
- 	if (value & BIT(IPROC_PWM_CTRL_EN_SHIFT(pwm->hwpwm)))
-@@ -99,6 +97,13 @@ static void iproc_pwmc_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	else
- 		state->polarity = PWM_POLARITY_INVERSED;
- 
-+	rate = clk_get_rate(ip->clk);
-+	if (rate == 0) {
-+		state->period = 0;
-+		state->duty_cycle = 0;
-+		return;
++	switch (arizona->pdata.clk32k_src) {
++	case ARIZONA_32KZ_MCLK1:
++	case ARIZONA_32KZ_MCLK2:
++		arizona_clk32k_disable(arizona);
++		break;
++	default:
++		break;
 +	}
 +
- 	value = readl(ip->base + IPROC_PWM_PRESCALE_OFFSET);
- 	prescale = value >> IPROC_PWM_PRESCALE_SHIFT(pwm->hwpwm);
- 	prescale &= IPROC_PWM_PRESCALE_MAX;
+ 	mfd_remove_devices(arizona->dev);
+ 	arizona_free_irq(arizona, ARIZONA_IRQ_UNDERCLOCKED, arizona);
+ 	arizona_free_irq(arizona, ARIZONA_IRQ_OVERCLOCKED, arizona);
 -- 
 2.25.1
 
