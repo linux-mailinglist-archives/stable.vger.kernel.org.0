@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7589724B500
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C638524B5EB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728465AbgHTKQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
+        id S1731524AbgHTKVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:21:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730092AbgHTKQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:24 -0400
+        id S1731522AbgHTKVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2256B2075E;
-        Thu, 20 Aug 2020 10:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B476A20738;
+        Thu, 20 Aug 2020 10:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918583;
-        bh=puvKffSzIc9VgFsOKv/Hz0j402nCyaacHYWMEmCK1R4=;
+        s=default; t=1597918860;
+        bh=kWs4muxCzOiLp83mocfcq5fC24GhCoVS5HOY531HJDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YWNQG629PgZ6VLNBdw/jZzy+j8C7iHeiHLC32FqvqUPgUukL0pDWCxKValAXoL5J
-         qAMewMvjt4FpnkJ/bmTFA3UEyxade0H+qafC2ZRCK+SrF3iKflt4fBPYb0qC8bR8Hv
-         y0DMYPJIwwPOvhW6b5ybRnywkRLFW68q2hy7uYGo=
+        b=DcJHbRyXxHmMUZOHVV4/n2cAlQ9ZOnX8t0vllrSuWah1SBIvv+jqusleda0Sq5Qpg
+         8M4MM/C7SQ0GokueOkvyTNSntSGpeJaAvhnFbcO5bd048IXL6Xf0HXwW7+xrPLr5HO
+         nS/pUWJrJSxb+iNoNUFmB+HgDD//h4NFM4BJflN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 193/228] perf intel-pt: Fix FUP packet state
-Date:   Thu, 20 Aug 2020 11:22:48 +0200
-Message-Id: <20200820091617.206453657@linuxfoundation.org>
+        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
+        Anton Blanchard <anton@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 092/149] powerpc/vdso: Fix vdso cpu truncation
+Date:   Thu, 20 Aug 2020 11:22:49 +0200
+Message-Id: <20200820092130.180810916@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Milton Miller <miltonm@us.ibm.com>
 
-commit 401136bb084fd021acd9f8c51b52fe0a25e326b2 upstream.
+[ Upstream commit a9f675f950a07d5c1dbcbb97aabac56f5ed085e3 ]
 
-While walking code towards a FUP ip, the packet state is
-INTEL_PT_STATE_FUP or INTEL_PT_STATE_FUP_NO_TIP. That was mishandled
-resulting in the state becoming INTEL_PT_STATE_IN_SYNC prematurely.  The
-result was an occasional lost EXSTOP event.
+The code in vdso_cpu_init that exposes the cpu and numa node to
+userspace via SPRG_VDSO incorrctly masks the cpu to 12 bits. This means
+that any kernel running on a box with more than 4096 threads (NR_CPUS
+advertises a limit of of 8192 cpus) would expose userspace to two cpu
+contexts running at the same time with the same cpu number.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200710151104.15137-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note: I'm not aware of any distro shipping a kernel with support for more
+than 4096 threads today, nor of any system image that currently exceeds
+4096 threads. Found via code browsing.
 
+Fixes: 18ad51dd342a7eb09dbcd059d0b451b616d4dafc ("powerpc: Add VDSO version of getcpu")
+Signed-off-by: Milton Miller <miltonm@us.ibm.com>
+Signed-off-by: Anton Blanchard <anton@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200715233704.1352257-1-anton@ozlabs.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   21 ++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
+ arch/powerpc/kernel/vdso.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1129,6 +1129,7 @@ static int intel_pt_walk_fup(struct inte
- 			return 0;
- 		if (err == -EAGAIN ||
- 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
-+			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			if (intel_pt_fup_event(decoder))
- 				return 0;
- 			return -EAGAIN;
-@@ -1780,17 +1781,13 @@ next:
- 			}
- 			if (decoder->set_fup_mwait)
- 				no_tip = true;
-+			if (no_tip)
-+				decoder->pkt_state = INTEL_PT_STATE_FUP_NO_TIP;
-+			else
-+				decoder->pkt_state = INTEL_PT_STATE_FUP;
- 			err = intel_pt_walk_fup(decoder);
--			if (err != -EAGAIN) {
--				if (err)
--					return err;
--				if (no_tip)
--					decoder->pkt_state =
--						INTEL_PT_STATE_FUP_NO_TIP;
--				else
--					decoder->pkt_state = INTEL_PT_STATE_FUP;
--				return 0;
--			}
-+			if (err != -EAGAIN)
-+				return err;
- 			if (no_tip) {
- 				no_tip = false;
- 				break;
-@@ -2375,15 +2372,11 @@ const struct intel_pt_state *intel_pt_de
- 			err = intel_pt_walk_tip(decoder);
- 			break;
- 		case INTEL_PT_STATE_FUP:
--			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			err = intel_pt_walk_fup(decoder);
- 			if (err == -EAGAIN)
- 				err = intel_pt_walk_fup_tip(decoder);
--			else if (!err)
--				decoder->pkt_state = INTEL_PT_STATE_FUP;
- 			break;
- 		case INTEL_PT_STATE_FUP_NO_TIP:
--			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			err = intel_pt_walk_fup(decoder);
- 			if (err == -EAGAIN)
- 				err = intel_pt_walk_trace(decoder);
+diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
+index b457bfa284360..05c17429e5442 100644
+--- a/arch/powerpc/kernel/vdso.c
++++ b/arch/powerpc/kernel/vdso.c
+@@ -702,7 +702,7 @@ int vdso_getcpu_init(void)
+ 	node = cpu_to_node(cpu);
+ 	WARN_ON_ONCE(node > 0xffff);
+ 
+-	val = (cpu & 0xfff) | ((node & 0xffff) << 16);
++	val = (cpu & 0xffff) | ((node & 0xffff) << 16);
+ 	mtspr(SPRN_SPRG_VDSO_WRITE, val);
+ 	get_paca()->sprg_vdso = val;
+ 
+-- 
+2.25.1
+
 
 
