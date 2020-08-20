@@ -2,55 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D0724B3C1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA9324B58E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729753AbgHTJwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:52:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
+        id S1730638AbgHTKZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729872AbgHTJv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:58 -0400
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1731680AbgHTKZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:25:26 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB7ED2078D;
-        Thu, 20 Aug 2020 09:51:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C4C20658;
+        Thu, 20 Aug 2020 10:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917117;
-        bh=k8bHNWPEvo8AEqebY8y2/WT7UgwuSqcajPAFIHA45aM=;
-        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
-        b=dTL5NQR/x6e3RqXFaRPGx9zUtnOwtdtSB/9GlC1z2H5M+Lnp3rf2Lpq5qkOajhQZL
-         hcbYhFjzGcHaDmKJLNPV2aheslT2/aIJsqe4wO/CZWSc9pySpd1aW38cwmkoNtz+Wv
-         xbEowmOQVT5fTeSXpp5kkNG+RC5mFxTRtBvrFMUw=
-Received: by mail-qt1-f171.google.com with SMTP id s16so743059qtn.7;
-        Thu, 20 Aug 2020 02:51:57 -0700 (PDT)
-X-Gm-Message-State: AOAM531jPxBC39Lb0YgviNypwnP3iqsO4cLIKuwhnttfk1G39PtRuhYr
-        YNh4cys+auVh8jMY3DaVClclFRyJ7vJHIxG9cew=
-X-Google-Smtp-Source: ABdhPJzhapaxSj4V8NhsKO88U5UOzo8ejbnz1E/FhRIpVkbie7D2Zb4ypv7T7anhTEDZxHMKp8nG6pWRn2Bf+vaXCns=
-X-Received: by 2002:ac8:5354:: with SMTP id d20mr1950917qto.120.1597917117096;
- Thu, 20 Aug 2020 02:51:57 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a0c:efc2:0:0:0:0:0 with HTTP; Thu, 20 Aug 2020 02:51:56
- -0700 (PDT)
-In-Reply-To: <20200820091619.460392380@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org> <20200820091619.460392380@linuxfoundation.org>
-From:   Johan Hovold <johan@kernel.org>
-Date:   Thu, 20 Aug 2020 11:51:56 +0200
-X-Gmail-Original-Message-ID: <CAMgPeKX54WqE0Wc56u6W3M2JwttV=E7sBKmM5eRa5_Mu7m+okg@mail.gmail.com>
-Message-ID: <CAMgPeKX54WqE0Wc56u6W3M2JwttV=E7sBKmM5eRa5_Mu7m+okg@mail.gmail.com>
-Subject: Re: [PATCH 5.8 137/232] USB: serial: ftdi_sio: fix break and sysrq handling
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        s=default; t=1597919125;
+        bh=BOjAsGPtbJQYY1chuWkpdg5mJVtRTxQcinkcqu30H+E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tpJejPWg1yxrOH1xsXfHSPfvoyogk7X55PODEaXOe1jkG3323bssfe6OMqPBCB5LI
+         hs0Q4HAvCJwlS8ISOr85faR/aTANdyN3EHFZBCpJY8sjwV7QK0D/2+Tdo/6uFVczKE
+         6t5JPif+bCYY+TKGmBLoxM7+R1CArEldj/n3AZcU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, "Xu, Wen" <wen.xu@gatech.edu>,
+        Eric Sandeen <sandeen@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH 4.9 003/212] xfs: dont call xfs_da_shrink_inode with NULL bp
+Date:   Thu, 20 Aug 2020 11:19:36 +0200
+Message-Id: <20200820091602.424819869@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This was never intended for stable as it is not a critical fix and has
-never worked properly in the first place. Please drop this one and the
-preparatory clean ups from all stable trees.
+From: Eric Sandeen <sandeen@sandeen.net>
 
-Johan
+[ Upstream commit bb3d48dcf86a97dc25fe9fc2c11938e19cb4399a ]
+
+xfs_attr3_leaf_create may have errored out before instantiating a buffer,
+for example if the blkno is out of range.  In that case there is no work
+to do to remove it, and in fact xfs_da_shrink_inode will lead to an oops
+if we try.
+
+This also seems to fix a flaw where the original error from
+xfs_attr3_leaf_create gets overwritten in the cleanup case, and it
+removes a pointless assignment to bp which isn't used after this.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=199969
+Reported-by: Xu, Wen <wen.xu@gatech.edu>
+Tested-by: Xu, Wen <wen.xu@gatech.edu>
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/xfs/libxfs/xfs_attr_leaf.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index c6c15e5717e42..70da4113c2baf 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -785,9 +785,8 @@ xfs_attr_shortform_to_leaf(xfs_da_args_t *args)
+ 	ASSERT(blkno == 0);
+ 	error = xfs_attr3_leaf_create(args, blkno, &bp);
+ 	if (error) {
+-		error = xfs_da_shrink_inode(args, 0, bp);
+-		bp = NULL;
+-		if (error)
++		/* xfs_attr3_leaf_create may not have instantiated a block */
++		if (bp && (xfs_da_shrink_inode(args, 0, bp) != 0))
+ 			goto out;
+ 		xfs_idata_realloc(dp, size, XFS_ATTR_FORK);	/* try to put */
+ 		memcpy(ifp->if_u1.if_data, tmpbuffer, size);	/* it back */
+-- 
+2.25.1
+
+
+
