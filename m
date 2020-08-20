@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF35124B782
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4354324B650
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731404AbgHTK4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
+        id S1731161AbgHTKfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:35:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730323AbgHTKOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:01 -0400
+        id S1731343AbgHTKTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:19:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFBEC20724;
-        Thu, 20 Aug 2020 10:14:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E73EA20658;
+        Thu, 20 Aug 2020 10:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918441;
-        bh=Vz1IWgRRXlQKFbJAubLEj5+gx2dz54XngUGfMWWbNtA=;
+        s=default; t=1597918745;
+        bh=He8D27RUgtVkrpdDKqvL1ZvbxJaLrXCDhhWsBSygfEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUIayVyxAW5mkD4rK098obgeEh5mZOXraFl2BFStvHeCDtx8oMSGUA27h4KLZaU0C
-         JM+U+BXiOwrhUifoCDqe0qMUl/6pNwJn5eCUMd1/VL2OoP/SagWDzWWRP+l55KB/Ch
-         Zvxl+0qlm+GZLlJ6WlErU461EQwIYZ7KYH7Z9T4U=
+        b=RIXhx60Lg6FBQcvyXQFlkXWqT+WaHQnU8ICDqiNCLS/xhA6MoQXbU48hGmEiOU7Z1
+         n3EJyiuoHYYH89w/cRH8gVrMfs85ReSiHYxmvBdCOx+0NYAGg0EQbsirSF8loEgCtg
+         ROlun66XvAvRFkjnRZJrBGUJBQCT6dlg/+x5o7t0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 153/228] fs/minix: check return value of sb_getblk()
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 051/149] usb: hso: check for return value in hso_serial_common_create()
 Date:   Thu, 20 Aug 2020 11:22:08 +0200
-Message-Id: <20200820091615.228057563@linuxfoundation.org>
+Message-Id: <20200820092128.201332561@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,78 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit da27e0a0e5f655f0d58d4e153c3182bb2b290f64 upstream.
+[ Upstream commit e911e99a0770f760377c263bc7bac1b1593c6147 ]
 
-Patch series "fs/minix: fix syzbot bugs and set s_maxbytes".
+in case of an error tty_register_device_attr() returns ERR_PTR(),
+add IS_ERR() check
 
-This series fixes all syzbot bugs in the minix filesystem:
-
-	KASAN: null-ptr-deref Write in get_block
-	KASAN: use-after-free Write in get_block
-	KASAN: use-after-free Read in get_block
-	WARNING in inc_nlink
-	KMSAN: uninit-value in get_block
-	WARNING in drop_nlink
-
-It also fixes the minix filesystem to set s_maxbytes correctly, so that
-userspace sees the correct behavior when exceeding the max file size.
-
-This patch (of 6):
-
-sb_getblk() can fail, so check its return value.
-
-This fixes a NULL pointer dereference.
-
-Originally from Qiujun Huang.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200628060846.682158-1-ebiggers@kernel.org
-Link: http://lkml.kernel.org/r/20200628060846.682158-2-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-and-tested-by: syzbot+67b2bd0e34f952d0321e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=67b2bd0e34f952d0321e
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/minix/itree_common.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/usb/hso.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/minix/itree_common.c
-+++ b/fs/minix/itree_common.c
-@@ -75,6 +75,7 @@ static int alloc_branch(struct inode *in
- 	int n = 0;
- 	int i;
- 	int parent = minix_new_block(inode);
-+	int err = -ENOSPC;
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2280,12 +2280,14 @@ static int hso_serial_common_create(stru
  
- 	branch[0].key = cpu_to_block(parent);
- 	if (parent) for (n = 1; n < num; n++) {
-@@ -85,6 +86,11 @@ static int alloc_branch(struct inode *in
- 			break;
- 		branch[n].key = cpu_to_block(nr);
- 		bh = sb_getblk(inode->i_sb, parent);
-+		if (!bh) {
-+			minix_free_block(inode, nr);
-+			err = -ENOMEM;
-+			break;
-+		}
- 		lock_buffer(bh);
- 		memset(bh->b_data, 0, bh->b_size);
- 		branch[n].bh = bh;
-@@ -103,7 +109,7 @@ static int alloc_branch(struct inode *in
- 		bforget(branch[i].bh);
- 	for (i = 0; i < n; i++)
- 		minix_free_block(inode, block_to_cpu(branch[i].key));
--	return -ENOSPC;
-+	return err;
+ 	minor = get_free_serial_index();
+ 	if (minor < 0)
+-		goto exit;
++		goto exit2;
+ 
+ 	/* register our minor number */
+ 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
+ 			tty_drv, minor, &serial->parent->interface->dev,
+ 			serial->parent, hso_serial_dev_groups);
++	if (IS_ERR(serial->parent->dev))
++		goto exit2;
+ 	dev = serial->parent->dev;
+ 
+ 	/* fill in specific data for later use */
+@@ -2335,6 +2337,7 @@ static int hso_serial_common_create(stru
+ 	return 0;
+ exit:
+ 	hso_serial_tty_unregister(serial);
++exit2:
+ 	hso_serial_common_free(serial);
+ 	return -1;
  }
- 
- static inline int splice_branch(struct inode *inode,
 
 
