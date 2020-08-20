@@ -2,131 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D5A24B9B9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107CF24B9F9
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729101AbgHTLyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:54:04 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:25645 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730749AbgHTLtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 07:49:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597924167;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=9saac307wOKfkkuwU6eXgFAqSu4oqXrr/wJpcDGuHPE=;
-        b=fRLGzk05uVsMuEPZ4LIR3C1cLic7LGfKtPtghvorYK1ztmzhxJOl1tNf9Y1czPIeaZPdCX
-        f2pE9q8so5dEpOQkIRkc2h7O8vaQy+TnYe7FAeLduc9YuepnXG4IJBX0sxNRJA3wCCQDQV
-        Z1S5cbG61iWqFbsUfR1Hej08bkgzwBU=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-407-oPMS4CnXNr2oA6WiB_CH_w-1; Thu, 20 Aug 2020 07:49:24 -0400
-X-MC-Unique: oPMS4CnXNr2oA6WiB_CH_w-1
-Received: by mail-pj1-f69.google.com with SMTP id cp23so1069463pjb.9
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 04:49:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9saac307wOKfkkuwU6eXgFAqSu4oqXrr/wJpcDGuHPE=;
-        b=uXVXwKIo25jbinQoKuiwfcfuMYWsoK1sScmIupY0cmJtwkqbEGqyrn15PMKmfE+R5w
-         W6mbMH+ikdXL445SS6HdL9XNgPBPRVYc1+30MXkTdEqsx4tlS9FkEybf1zM+iYfIJgjF
-         rb0ZFNssIDgxdZfq88qDVmA44jsblQfzoEzo9uJ2q1EuClyauYlXXBIxI1MpyTG7lzuF
-         qd46KlZfuWDoFq9nRnGGFGzH3jfaV0u90QAGbUUhH+Y7YTacc16hoOiRo02wvFbII/9T
-         /KJBtYLVeiT2WU0wd+b2rrO9r2YCxjZTOEvmOHfKy0ioNQAuLNmUCGZ3Qk5uGGTh6jpZ
-         rkJA==
-X-Gm-Message-State: AOAM533NwzEzSMAxzuwxkNUNMXelRQEYMi5/+wMRu//w97tBMYJfmZtD
-        XCOLR/we+xVdPDG67owlDiyjdTNmrt2HR+QkL6bgsC5SbHpGovjPWsbmTrbHdXFc6JyiYnar0Bu
-        8WhovrHEGp0SdN2XW
-X-Received: by 2002:a17:90a:fca:: with SMTP id 68mr2139387pjz.12.1597924163749;
-        Thu, 20 Aug 2020 04:49:23 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxBjLpZdhtO7F74YwmOts0pQqOWh6y/Tz0vd4MXLA4VdNuTc/QS10DWsZj7Ckm0QBRZGJGSRA==
-X-Received: by 2002:a17:90a:fca:: with SMTP id 68mr2139363pjz.12.1597924163438;
-        Thu, 20 Aug 2020 04:49:23 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id b22sm2671768pfb.52.2020.08.20.04.49.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2020 04:49:23 -0700 (PDT)
-Date:   Thu, 20 Aug 2020 19:49:11 +0800
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by
- mistake
-Message-ID: <20200820114911.GA12068@xiangao.remote.csb>
-References: <20200820045323.7809-1-hsiangkao@redhat.com>
- <20200820113448.GM17456@casper.infradead.org>
+        id S1730574AbgHTL5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:57:45 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:5935 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729180AbgHTL5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 07:57:41 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f3e65270001>; Thu, 20 Aug 2020 04:57:27 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 20 Aug 2020 04:57:41 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 20 Aug 2020 04:57:41 -0700
+Received: from [10.26.73.68] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 20 Aug
+ 2020 11:57:38 +0000
+Subject: Re: [PATCH 4.14 000/228] 4.14.194-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200820091607.532711107@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <a6b632f8-b327-3f8d-5306-12989cfaf4e3@nvidia.com>
+Date:   Thu, 20 Aug 2020 12:57:36 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200820113448.GM17456@casper.infradead.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1597924647; bh=r74Ro8+IvD+U7RWZxt3Uhr4cSN8tdC8hsw3f2VfgBWY=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=EDnzEc4BtXXN2Z6iYGaCk4soNiKt6ocAw/EzEH638I8e2hL9q2ySHS63lio1j0vuo
+         KSdG7zStYd1JGGSiwQF3D64sJ3HH20eRRuXdF6vkM9yOsqeWvETu/XTq705wT0uoGl
+         je6QJuSOGiMXOYG98fWDqo+3fntUl3lKkg5fFQm6rt77GPm/FmZEhQ2UvaGaKb3WOM
+         6b9WNMm8mX27L7t87dFVCbM5+sLn1l9WKs3Pg5ZUnqPlsLx/OwQo251YkB9totrmkA
+         KK0qLGyH0wgr7e6oHXvg6Iiy9EW1o+oMXDBb+6INYbCrdoHsBKetdQnU5pZMpUTmTS
+         tNO6mOoxdEMlw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Matthew,
 
-On Thu, Aug 20, 2020 at 12:34:48PM +0100, Matthew Wilcox wrote:
-> On Thu, Aug 20, 2020 at 12:53:23PM +0800, Gao Xiang wrote:
-> > SWP_FS is used to make swap_{read,write}page() go through
-> > the filesystem, and it's only used for swap files over
-> > NFS. So, !SWP_FS means non NFS for now, it could be either
-> > file backed or device backed. Something similar goes with
-> > legacy SWP_FILE.
-> > 
-> > So in order to achieve the goal of the original patch,
-> > SWP_BLKDEV should be used instead.
+On 20/08/2020 10:19, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.194 release.
+> There are 228 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This is clearly confusing.  I think we need to rename SWP_FS to SWP_FS_OPS.
+> Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
+> Anything received after that time might be too late.
 > 
-> More generally, the swap code seems insane.  I appreciate that it's an
-> inherited design from over twenty-five years ago, and nobody wants to
-> touch it, but it's crazy that it cares about how the filesystem has
-> mapped file blocks to disk blocks.  I understand that the filesystem
-> has to know not to allocate memory in order to free memory, but this
-> is already something filesystems have to understand.  It's also useful
-> for filesystems to know that this is data which has no meaning after a
-> power cycle (so it doesn't need to be journalled or snapshotted or ...),
-> but again, that's useful functionality which we could stand to present
-> to userspace anyway.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.194-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
 > 
-> I suppose the tricky thing about it is that working on the swap code is
-> not as sexy as working on a filesystem, and doing the swap code right
-> is essentially writing a filesystem, so everybody who's capable already
-> has something better to do.
-
-Yeah, I agree with your point. After looking into swap code a bit
-(swapfile.c and swap.c), I think such code really needs to be
-cleaned up... But I'm lack of motivation about this since I couldn't
-guarantee to introduce some new regression and honestly I don't care
-much about this piece of code.
-
-Maybe some new projects based on this could help clean up that
-as well. :)
-
-Anyway, we really need a quick fix to avoid such FS corruption,
-which looks dangerous on the consumer side.
-
+> thanks,
 > 
-> Anyway, Gao, please can you submit a follow-on patch to rename SWP_FS?
-
-Ok, anyway, that is another stuff and may need some other thread.
-I will seek some time to send out a patch for further discussion later.
-
-Thanks,
-Gao Xiang
-
+> greg k-h
 > 
+> -------------
+> Pseudo-Shortlog of commits:
 
+...
+
+> Tomasz Maciej Nowak <tmn505@gmail.com>
+>     arm64: dts: marvell: espressobin: add ethernet alias
+
+
+The above change is causing the following build failure for ARM64 ...
+
+arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb: ERROR (path_references): Reference to non-existent node or label "uart1"
+ERROR: Input tree has errors, aborting (use -f to force output)
+scripts/Makefile.lib:317: recipe for target 'arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb' failed
+make[3]: *** [arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb] Error 2
+
+Reverting this fixes the problem.
+
+Cheers
+Jon
+
+-- 
+nvpublic
