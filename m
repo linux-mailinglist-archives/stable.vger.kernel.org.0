@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C1524B6CC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651E824B6CA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729477AbgHTKlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
+        id S1731084AbgHTKk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728575AbgHTKQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:56 -0400
+        id S1731201AbgHTKQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:16:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1950F2075E;
-        Thu, 20 Aug 2020 10:16:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1109206DA;
+        Thu, 20 Aug 2020 10:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918615;
-        bh=DyTO4RfgGHBKAg1KNIpGopBSSIC4Cv+XS2pjlELWVz0=;
+        s=default; t=1597918618;
+        bh=kf6T1Pr/cxHT3VYaVH8TOb34w4UJw8RQcyzdC9Pj4AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSLXRXQw1cS1/385yy9jK00S0t+XoI0BOLw1MWH16dU0CI+jPHHB8XQxoPAAUs6bn
-         CRMyy+n3ub0evBoNI6d3Brzux3jzpYIxaX9Y9WjoZZcylI0GVFCvmCoEJM2fsYWpLR
-         FIPY/c+/KMFvJtZhygQRek+Ev/5jPrnMPt2IhCrw=
+        b=slCeo7Ijl9XTAZge4JKyw5Q1tlXCYe7ZuuQ362tjWKAW/JWBfXthSSORxcaIPPoTU
+         55RRW3l6RGl/FSYhG1hAVrShtxMqDq305P9df65oKqHfRNo6iWzohAFOUAZYKoxMwH
+         BX/okyvf8kWmjkbUN9vfPi5p+4Yh69v/XVZ8zRAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 4.14 223/228] genirq/affinity: Make affinity setting if activated opt-in
-Date:   Thu, 20 Aug 2020 11:23:18 +0200
-Message-Id: <20200820091618.656275329@linuxfoundation.org>
+        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.14 224/228] arm64: dts: marvell: espressobin: add ethernet alias
+Date:   Thu, 20 Aug 2020 11:23:19 +0200
+Message-Id: <20200820091618.704547105@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,138 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Tomasz Maciej Nowak <tmn505@gmail.com>
 
-commit f0c7baca180046824e07fc5f1326e83a8fd150c7 upstream.
+commit 5253cb8c00a6f4356760efb38bca0e0393aa06de upstream.
 
-John reported that on a RK3288 system the perf per CPU interrupts are all
-affine to CPU0 and provided the analysis:
+The maker of this board and its variants, stores MAC address in U-Boot
+environment. Add alias for bootloader to recognise, to which ethernet
+node inject the factory MAC address.
 
- "It looks like what happens is that because the interrupts are not per-CPU
-  in the hardware, armpmu_request_irq() calls irq_force_affinity() while
-  the interrupt is deactivated and then request_irq() with IRQF_PERCPU |
-  IRQF_NOBALANCING.
-
-  Now when irq_startup() runs with IRQ_STARTUP_NORMAL, it calls
-  irq_setup_affinity() which returns early because IRQF_PERCPU and
-  IRQF_NOBALANCING are set, leaving the interrupt on its original CPU."
-
-This was broken by the recent commit which blocked interrupt affinity
-setting in hardware before activation of the interrupt. While this works in
-general, it does not work for this particular case. As contrary to the
-initial analysis not all interrupt chip drivers implement an activate
-callback, the safe cure is to make the deferred interrupt affinity setting
-at activation time opt-in.
-
-Implement the necessary core logic and make the two irqchip implementations
-for which this is required opt-in. In hindsight this would have been the
-right thing to do, but ...
-
-Fixes: baedb87d1b53 ("genirq/affinity: Handle affinity setting on inactive interrupts correctly")
-Reported-by: John Keeping <john@metanate.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87blk4tzgm.fsf@nanos.tec.linutronix.de
-[fllinden@amazon.com - backported to 4.14]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+[pali: Backported to 5.4 and older versions]
+Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/vector.c    |    4 ++++
- drivers/irqchip/irq-gic-v3-its.c |    5 ++++-
- include/linux/irq.h              |   12 ++++++++++++
- kernel/irq/manage.c              |    6 +++++-
- 4 files changed, 25 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -368,6 +368,10 @@ static int x86_vector_alloc_irqs(struct
- 		irq_data->chip = &lapic_controller;
- 		irq_data->chip_data = data;
- 		irq_data->hwirq = virq + i;
+--- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
+@@ -52,6 +52,12 @@
+ 	model = "Globalscale Marvell ESPRESSOBin Board";
+ 	compatible = "globalscale,espressobin", "marvell,armada3720", "marvell,armada3710";
+ 
++	aliases {
++		ethernet0 = &eth0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++	};
 +
-+		/* Don't invoke affinity setter on deactivated interrupts */
-+		irqd_set_affinity_on_activate(irq_data);
-+
- 		err = assign_irq_vector_policy(virq + i, node, data, info,
- 					       irq_data);
- 		if (err) {
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2199,6 +2199,7 @@ static int its_irq_domain_alloc(struct i
- {
- 	msi_alloc_info_t *info = args;
- 	struct its_device *its_dev = info->scratchpad[0].ptr;
-+	struct irq_data *irqd;
- 	irq_hw_number_t hwirq;
- 	int err;
- 	int i;
-@@ -2214,7 +2215,9 @@ static int its_irq_domain_alloc(struct i
- 
- 		irq_domain_set_hwirq_and_chip(domain, virq + i,
- 					      hwirq + i, &its_irq_chip, its_dev);
--		irqd_set_single_target(irq_desc_get_irq_data(irq_to_desc(virq + i)));
-+		irqd = irq_get_irq_data(virq + i);
-+		irqd_set_single_target(irqd);
-+		irqd_set_affinity_on_activate(irqd);
- 		pr_debug("ID:%d pID:%d vID:%d\n",
- 			 (int)(hwirq + i - its_dev->event_map.lpi_base),
- 			 (int)(hwirq + i), virq + i);
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -212,6 +212,8 @@ struct irq_data {
-  *				  mask. Applies only to affinity managed irqs.
-  * IRQD_SINGLE_TARGET		- IRQ allows only a single affinity target
-  * IRQD_DEFAULT_TRIGGER_SET	- Expected trigger already been set
-+ * IRQD_AFFINITY_ON_ACTIVATE	- Affinity is set on activation. Don't call
-+ *				  irq_chip::irq_set_affinity() when deactivated.
-  */
- enum {
- 	IRQD_TRIGGER_MASK		= 0xf,
-@@ -233,6 +235,7 @@ enum {
- 	IRQD_MANAGED_SHUTDOWN		= (1 << 23),
- 	IRQD_SINGLE_TARGET		= (1 << 24),
- 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
-+	IRQD_AFFINITY_ON_ACTIVATE	= (1 << 29),
- };
- 
- #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
-@@ -377,6 +380,15 @@ static inline bool irqd_is_managed_and_s
- 	return __irqd_to_state(d) & IRQD_MANAGED_SHUTDOWN;
- }
- 
-+static inline void irqd_set_affinity_on_activate(struct irq_data *d)
-+{
-+	__irqd_to_state(d) |= IRQD_AFFINITY_ON_ACTIVATE;
-+}
-+
-+static inline bool irqd_affinity_on_activate(struct irq_data *d)
-+{
-+	return __irqd_to_state(d) & IRQD_AFFINITY_ON_ACTIVATE;
-+}
- #undef __irqd_to_state
- 
- static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -221,12 +221,16 @@ static bool irq_set_affinity_deactivated
- 	struct irq_desc *desc = irq_data_to_desc(data);
- 
- 	/*
-+	 * Handle irq chips which can handle affinity only in activated
-+	 * state correctly
-+	 *
- 	 * If the interrupt is not yet activated, just store the affinity
- 	 * mask and do not call the chip driver at all. On activation the
- 	 * driver has to make sure anyway that the interrupt is in a
- 	 * useable state so startup works.
- 	 */
--	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
-+	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) ||
-+	    irqd_is_activated(data) || !irqd_affinity_on_activate(data))
- 		return false;
- 
- 	cpumask_copy(desc->irq_common_data.affinity, mask);
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
 
 
