@@ -2,163 +2,919 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F2624BD15
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F38224BDE3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727863AbgHTM6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60984 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728208AbgHTM54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 08:57:56 -0400
-Received: from ozlabs.org (ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E4EC061385
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 05:57:55 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S1729620AbgHTNPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:15:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50388 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728556AbgHTJgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:06 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BXPnp5gctz9sTN;
-        Thu, 20 Aug 2020 22:57:50 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1597928271;
-        bh=MGxd9s2W6OeMizI2dQ6n3Kkt0bIh7n4yoMfhByTa3Fs=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=qc5jgOlcaahvMe5b4oUe0zO7SgWD/C81qYT5K5pv1fWYC3qayShFs4nccIq01PCeD
-         4hF0v36lRbmoMyE587WJeG6JiLgE167kwwZaDNoSbFlAMC1I62EgMpQJllIhAJ9mEU
-         iwaI51BuhljJWY6wNRqwL2SgPi44trgTOHxmjoFfO1lI/roesKICLK3P6ZIUeeKGlv
-         Jt8dKmQpC40qKAbMHrEoxM6uFTZ/AJWjcJeU6H66HAZSebvSKL8U16jDn3QpezXXdC
-         gNFVtUx7pRc9M5HTri8WFXiZyZpvaFeHBcV373zHSjeXQjsONK7V92VvFpP7J/96wO
-         nDykW9BjyFU/Q==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org
-Cc:     Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>
-Subject: Re: [PATCH v2] powerpc/pseries: Do not initiate shutdown when system is running on UPS
-In-Reply-To: <20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com>
-References: <20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com>
-Date:   Thu, 20 Aug 2020 22:57:46 +1000
-Message-ID: <871rk1iiet.fsf@mpe.ellerman.id.au>
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BD1420724;
+        Thu, 20 Aug 2020 09:36:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597916163;
+        bh=xu5t1A8pCds/wibv2zY+gfhRO7yoHXdjVj+OiOC9yhI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GGn00oveJF5gcECrsJQA4W1qdnPtfamulFnWvNj+Je7Sx5ztz800QRunAPxBY9FPN
+         Dcjjbhi1rTohgc66Ili329w3NuktYIPm+AnOgnNU6Zt3dHJX5jdCNP1XDc0ucEoukG
+         6KgvLphNx5aY/t5ul76FrPjNaG514QQbrRkVU0bc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.7 000/204] 5.7.17-rc1 review
+Date:   Thu, 20 Aug 2020 11:18:17 +0200
+Message-Id: <20200820091606.194320503@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.7.17-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.7.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.7.17-rc1
+X-KernelTest-Deadline: 2020-08-22T09:16+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vasant Hegde <hegdevasant@linux.vnet.ibm.com> writes:
-> As per PAPR we have to look for both EPOW sensor value and event modifier=
- to
-> identify type of event and take appropriate action.
->
-> Sensor value =3D 3 (EPOW_SYSTEM_SHUTDOWN) schedule system to be shutdown =
-after
->                   OS defined delay (default 10 mins).
->
-> EPOW Event Modifier for sensor value =3D 3:
->    We have to initiate immediate shutdown for most of the event modifier =
-except
->    value =3D 2 (system running on UPS).
->
-> Checking with firmware document its clear that we have to wait for predef=
-ined
-> time before initiating shutdown. If power is restored within time we shou=
-ld
-> cancel the shutdown process. I think commit 79872e35 accidently enabled
-> immediate poweroff for EPOW_SHUTDOWN_ON_UPS event.
+This is the start of the stable review cycle for the 5.7.17 release.
+There are 204 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-It's not that clear to me :)
+Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
+Anything received after that time might be too late.
 
-LoPAPR v1.1 section 10.2.2 includes table 136 "EPOW Action Codes":
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.17-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+and the diffstat can be found below.
 
-  SYSTEM_SHUTDOWN 3
-=20=20
-  The system must be shut down. An EPOW-aware OS logs the EPOW error
-  log information, then schedules the system to be shut down to begin
-  after an OS defined delay internal (default is 10 minutes.)
+thanks,
 
-And then in section 10.3.2.2.8 there is table 146 "Platform Event Log
-Format, Version 6, EPOW Section", which includes the "EPOW Event
-Modifier":
+greg k-h
 
-  For EPOW sensor value =3D 3
-  0x01 =3D Normal system shutdown with no additional delay
-  0x02 =3D Loss of utility power, system is running on UPS/Battery
-  0x03 =3D Loss of system critical functions, system should be shutdown
-  0x04 =3D Ambient temperature too high
-  All other values =3D reserved
+-------------
+Pseudo-Shortlog of commits:
 
-There is also section 7.3.6.4 which includes a note saying:
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.7.17-rc1
 
-  2. The report that a system needs to be shutdown due to running under
-  a UPS would be given by the platform as an EPOW event with EPOW event
-  modifier being given as, 0x02 =3D Loss of utility power, system is
-  running on UPS/Battery, as described in section Section 10.3.2.2.8=E2=80=
-=9A
-  =E2=80=9CPlatform Event Log Format, EPOW Section=E2=80=9A=E2=80=9D on pag=
-e 308.
+hersen wu <hersenxs.wu@amd.com>
+    drm/amd/display: dchubbub p-state warning during surface planes switch
+
+Stylon Wang <stylon.wang@amd.com>
+    drm/amd/display: Fix dmesg warning from setting abm level
+
+Sandeep Raghuraman <sandy.8925@gmail.com>
+    drm/amdgpu: Fix bug where DPM is not enabled after hibernate and resume
+
+Xin Xiong <xiongx18@fudan.edu.cn>
+    drm: fix drm_dp_mst_port refcount leaks in drm_dp_mst_allocate_vcpi
+
+Marius Iacob <themariusus@gmail.com>
+    drm: Added orientation quirk for ASUS tablet model T103HAF
+
+Tomi Valkeinen <tomi.valkeinen@ti.com>
+    drm/tidss: fix modeset init for DPI panels
+
+Tomi Valkeinen <tomi.valkeinen@ti.com>
+    drm/omap: force runtime PM suspend on system suspend
+
+Alex Deucher <alexdeucher@gmail.com>
+    drm/amdgpu: fix ordering of psp suspend
+
+Imre Deak <imre.deak@intel.com>
+    drm/dp_mst: Fix the DDC I2C device registration of an MST port
+
+Denis Efremov <efremov@linux.com>
+    drm/panfrost: Use kvfree() to free bo->sgts
+
+Chris Wilson <chris@chris-wilson.co.uk>
+    drm/i915/gt: Force the GT reset on shutdown
+
+Denis Efremov <efremov@linux.com>
+    drm/radeon: fix fb_div check in ni_init_smc_spll_table()
+
+Sowjanya Komatineni <skomatineni@nvidia.com>
+    ASoC: tegra: Enable audio mclk during tegra_asoc_utils_init()
+
+Sowjanya Komatineni <skomatineni@nvidia.com>
+    ASoC: tegra: Add audio mclk parent configuration
+
+Sowjanya Komatineni <skomatineni@nvidia.com>
+    ASoC: tegra: Use device managed resource APIs to get the clock
+
+Hugh Dickins <hughd@google.com>
+    khugepaged: retract_page_tables() remember to test exit
+
+Geert Uytterhoeven <geert+renesas@glider.be>
+    sh: landisk: Add missing initialization of sh_io_port_base
+
+Zhang Rui <rui.zhang@intel.com>
+    perf/x86/rapl: Fix missing psys sysfs attributes
+
+Daniel Díaz <daniel.diaz@linaro.org>
+    tools build feature: Quote CC and CXX for their arguments
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    perf bench mem: Always memset source before memcpy
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
+
+Ondrej Mosnacek <omosnace@redhat.com>
+    crypto: algif_aead - fix uninitialized ctx->init
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    mfd: dln2: Run event handler loop under spinlock
+
+Dhananjay Phadke <dphadke@linux.microsoft.com>
+    i2c: iproc: fix race between client unreg and isr
+
+Tiezhu Yang <yangtiezhu@loongson.cn>
+    test_kmod: avoid potential double free in trigger_config_run_type()
+
+Colin Ian King <colin.king@canonical.com>
+    fs/ufs: avoid potential u32 multiplication overflow
+
+Eric Biggers <ebiggers@google.com>
+    fs/minix: remove expected error message in block_to_path()
+
+Eric Biggers <ebiggers@google.com>
+    fs/minix: fix block limit check for V1 filesystems
+
+Eric Biggers <ebiggers@google.com>
+    fs/minix: set s_maxbytes correctly
+
+Tiezhu Yang <yangtiezhu@loongson.cn>
+    lib/test_lockup.c: fix return value of test_lockup_init()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: Fix flexfiles read failover
+
+Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+    nfs: Fix getxattr kernel panic and memory overflow
+
+Wang Hai <wanghai38@huawei.com>
+    net: qcom/emac: add missed clk_disable_unprepare in error path of emac_clks_phase1_init
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    s390/Kconfig: add missing ZCRYPT dependency to VFIO_AP
+
+Wang Hai <wanghai38@huawei.com>
+    s390/test_unwind: fix possible memleak in test_unwind()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    drm/vmwgfx: Fix two list_for_each loop exit tests
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    drm/vmwgfx: Use correct vmw_legacy_display_unit pointer
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    vdpa: Fix pointer math bug in vdpasim_get_config()
+
+Christophe Leroy <christophe.leroy@csgroup.eu>
+    recordmcount: Fix build failure on non arm64
+
+Michael S. Tsirkin <mst@redhat.com>
+    vdpa_sim: init iommu lock
+
+Colin Ian King <colin.king@canonical.com>
+    Input: sentelic - fix error return when fsp_reg_write fails
+
+Andrii Nakryiko <andriin@fb.com>
+    selftests/bpf: Prevent runqslower from racing on building bpftool
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs/multihit: Fix mitigation reporting when VMX is not in use
+
+Dilip Kota <eswara.kota@linux.intel.com>
+    x86/tsr: Fix tsc frequency enumeration bug on Lightning Mountain SoC
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    md-cluster: Fix potential error pointer dereference in resize_bitmaps()
+
+Tero Kristo <t-kristo@ti.com>
+    watchdog: rti-wdt: balance pm runtime enable calls
+
+Krzysztof Sobota <krzysztof.sobota@nokia.com>
+    watchdog: initialize device before misc_register
+
+Scott Mayhew <smayhew@redhat.com>
+    nfs: nfs_file_write() should check for writeback errors
+
+Ewan D. Milne <emilne@redhat.com>
+    scsi: lpfc: nvmet: Avoid hang / use-after-free again when destroying targetport
+
+Stafford Horne <shorne@gmail.com>
+    openrisc: Fix oops caused when dumping stack
+
+Jane Chu <jane.chu@oracle.com>
+    libnvdimm/security: ensure sysfs poll thread woke up and fetch updated attr
+
+Jane Chu <jane.chu@oracle.com>
+    libnvdimm/security: fix a typo
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    clk: bcm2835: Do not use prediv with bcm2711's PLLs
+
+Zhihao Cheng <chengzhihao1@huawei.com>
+    ubifs: Fix wrong orphan node deletion in ubifs_jnl_update|rename
+
+Scott Mayhew <smayhew@redhat.com>
+    nfs: ensure correct writeback errors are returned on close()
+
+Wolfram Sang <wsa+renesas@sang-engineering.com>
+    i2c: rcar: avoid race when unregistering slave
+
+Thomas Hebb <tommyhebb@gmail.com>
+    tools build feature: Use CC and CXX from parent
+
+Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+    pwm: bcm-iproc: handle clk_get_rate() return
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Fix a deadlock when enabling uclamp static key
+
+Sagi Grimberg <sagi@grimberg.me>
+    nvme: fix deadlock in disconnect during scan_work and/or ana_work
+
+Xu Wang <vulab@iscas.ac.cn>
+    clk: clk-atlas6: fix return value check in atlas6_clk_init()
+
+Konrad Dybcio <konradybcio@gmail.com>
+    clk: qcom: gcc-sdm660: Fix up gcc_mss_mnoc_bimc_axi_clk
+
+Chao Yu <chao@kernel.org>
+    f2fs: compress: fix to update isize when overwriting compressed file
+
+Wolfram Sang <wsa+renesas@sang-engineering.com>
+    i2c: rcar: slave: only send STOP event when we have been addressed
+
+Liu Yi L <yi.l.liu@intel.com>
+    iommu/vt-d: Enforce PASID devTLB field mask
+
+Jonathan Marek <jonathan@marek.ca>
+    clk: qcom: clk-alpha-pll: remove unused/incorrect PLL_CAL_VAL
+
+Jonathan Marek <jonathan@marek.ca>
+    clk: qcom: gcc: fix sm8150 GPU and NPU clocks
+
+Colin Ian King <colin.king@canonical.com>
+    iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
+
+Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+    selftests/powerpc: ptrace-pkey: Don't update expected UAMOR value
+
+Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+    selftests/powerpc: ptrace-pkey: Update the test to mark an invalid pkey correctly
+
+Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+    selftests/powerpc: ptrace-pkey: Rename variables to make it easier to follow code
+
+Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+    clk: actions: Fix h_clk for Actions S500 SoC
+
+Chao Yu <chao@kernel.org>
+    f2fs: compress: fix to avoid memory leak on cc->cpages
+
+Tyler Hicks <tyhicks@linux.microsoft.com>
+    ima: Fail rule parsing when appraise_flag=blacklist is unsupportable
+
+Ming Lei <ming.lei@redhat.com>
+    dm rq: don't call blk_mq_queue_stopped() in dm_stop_queue()
+
+Steve Longerbeam <slongerbeam@gmail.com>
+    gpu: ipu-v3: image-convert: Wait for all EOFs before completing a tile
+
+Steve Longerbeam <slongerbeam@gmail.com>
+    gpu: ipu-v3: image-convert: Combine rotate/no-rotate irq handlers
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: caam - Remove broken arc4 support
+
+Sudeep Holla <sudeep.holla@arm.com>
+    rtc: pl031: fix set_alarm by adding back call to alarm_irq_enable
+
+Yan-Hsuan Chuang <yhchuang@realtek.com>
+    rtw88: pci: disable aspm for platform inter-op with module parameter
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    mmc: renesas_sdhi_internal_dmac: clean up the code for dma complete
+
+Mark Zhang <markz@mellanox.com>
+    RDMA/counter: Allow manually bind QPs with different pids to same counter
+
+Mark Zhang <markz@mellanox.com>
+    RDMA/counter: Only bind user QPs in auto mode
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    devres: keep both device name and resource name in pretty name
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: af_alg - Fix regression on empty requests
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: ftdi_sio: fix break and sysrq handling
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: ftdi_sio: clean up receive processing
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: ftdi_sio: make process-packet buffer unsigned
+
+Jesper Dangaard Brouer <brouer@redhat.com>
+    selftests/bpf: test_progs avoid minus shell exit codes
+
+Jesper Dangaard Brouer <brouer@redhat.com>
+    selftests/bpf: test_progs use another shell exit on non-actions
+
+Martin KaFai Lau <kafai@fb.com>
+    bpf: selftests: Restore netns after each test
+
+Jesper Dangaard Brouer <brouer@redhat.com>
+    selftests/bpf: Test_progs indicate to shell on non-actions
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Protect uclamp fast path code with static key
+
+Yishai Hadas <yishaih@mellanox.com>
+    IB/uverbs: Set IOVA on IB MR in uverbs layer
+
+Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+    media: rockchip: rga: Only set output CSC mode for RGB input
+
+Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+    media: rockchip: rga: Introduce color fmt macros and refactor CSC mode logic
+
+Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+    media: staging: rkisp1: remove macro RKISP1_DIR_SINK_SRC
+
+Sebastian Reichel <sebastian.reichel@collabora.com>
+    rtc: cpcap: fix range
+
+Jason Gunthorpe <jgg@nvidia.com>
+    RDMA/ipoib: Fix ABBA deadlock with ipoib_reap_ah()
+
+Kamal Heib <kamalheib1@gmail.com>
+    RDMA/ipoib: Return void from ipoib_ib_dev_stop()
+
+Qiushi Wu <wu000273@umn.edu>
+    platform/chrome: cros_ec_ishtp: Fix a double-unlock issue
+
+Kamal Dasu <kdasu.kdev@gmail.com>
+    mtd: rawnand: brcmnand: ECC error handling on EDU transfers
+
+Boris Brezillon <boris.brezillon@collabora.com>
+    mtd: rawnand: fsl_upm: Remove unused mtd var
+
+Eric Dumazet <edumazet@google.com>
+    octeontx2-af: change (struct qmem)->entry_sz from u8 to u16
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    mfd: arizona: Ensure 32k clock is put on driver unbind and error
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: algif_aead - Only wake up when ctx->more is zero
+
+Paul Cercueil <paul@crapouillou.net>
+    drm/ingenic: Fix incorrect assumption about plane->index
+
+Liu Ying <victor.liu@nxp.com>
+    drm/imx: imx-ldb: Disable both channels for split mode in enc->disable()
+
+Sibi Sankar <sibis@codeaurora.org>
+    remoteproc: qcom_q6v5_mss: Validate modem blob firmware size before load
+
+Sibi Sankar <sibis@codeaurora.org>
+    remoteproc: qcom_q6v5_mss: Validate MBA firmware size before load
+
+Sibi Sankar <sibis@codeaurora.org>
+    remoteproc: qcom: q6v5: Update running state before requesting stop
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: Never call gfs2_block_zero_range with an open transaction
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix duplicate branch after CBR
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix FUP packet state
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    perf probe: Fix memory leakage when the probe point is not found
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    perf probe: Fix wrong variable warning when the probe point is not found
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    bootconfig: Fix to find the initargs correctly
+
+Kees Cook <keescook@chromium.org>
+    module: Correctly truncate sysfs sections output
+
+Johannes Thumshirn <johannes.thumshirn@wdc.com>
+    dm: don't call report zones for more than the user requested
+
+Anton Blanchard <anton@ozlabs.org>
+    pseries: Fix 64 bit logical memory block panic
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: handle zero-length feature mask in session messages
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: set sec_context xattr on symlink creation
+
+Ahmad Fatoum <a.fatoum@pengutronix.de>
+    watchdog: f71808e_wdt: clear watchdog timeout occurred flag
+
+Ahmad Fatoum <a.fatoum@pengutronix.de>
+    watchdog: f71808e_wdt: remove use of wrong watchdog_info option
+
+Ahmad Fatoum <a.fatoum@pengutronix.de>
+    watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Use trace_sched_process_free() instead of exit() for pid tracing
+
+Kevin Hao <haokexin@gmail.com>
+    tracing/hwlat: Honor the tracing_cpumask
+
+Muchun Song <songmuchun@bytedance.com>
+    kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
+
+Chengming Zhou <zhouchengming@bytedance.com>
+    ftrace: Setup correct FTRACE_FL_REGS flags for module
+
+Jia He <justin.he@arm.com>
+    mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    cma: don't quit at first error when activating reserved areas
+
+Michal Koutný <mkoutny@suse.com>
+    mm/page_counter.c: fix protection usage propagation
+
+Junxiao Bi <junxiao.bi@oracle.com>
+    ocfs2: change slot number type s16 to u16
+
+David Hildenbrand <david@redhat.com>
+    mm/shuffle: don't move pages between zones and don't read garbage memmaps
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
+
+Hugh Dickins <hughd@google.com>
+    khugepaged: collapse_pte_mapped_thp() protect the pmd lock
+
+Peter Xu <peterx@redhat.com>
+    mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+
+Hugh Dickins <hughd@google.com>
+    khugepaged: collapse_pte_mapped_thp() flush the right range
+
+Mikulas Patocka <mpatocka@redhat.com>
+    ext2: fix missing percpu_counter_inc
+
+Mike Rapoport <rppt@linux.ibm.com>
+    MIPS: SGI-IP27: always enable NUMA in Kconfig
+
+Paul Cercueil <paul@crapouillou.net>
+    MIPS: qi_lb60: Fix routing to audio amplifier
+
+Huacai Chen <chenhc@lemote.com>
+    MIPS: CPU#0 is not hotpluggable
+
+Lukas Wunner <lukas@wunner.de>
+    driver core: Avoid binding drivers to dead devices
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: fix misplaced while instead of if
+
+Coly Li <colyli@suse.de>
+    bcache: fix overflow in offset_to_stripe()
+
+Coly Li <colyli@suse.de>
+    bcache: allocate meta data pages as compound pages
+
+ChangSyun Peng <allenpeng@synology.com>
+    md/raid5: Fix Force reconstruct-write io stuck in degraded raid5
+
+Kees Cook <keescook@chromium.org>
+    selftests/seccomp: Set NNP for TSYNC ESRCH flag test
+
+Kees Cook <keescook@chromium.org>
+    net/compat: Add missing sock updates for SCM_RIGHTS
+
+Kees Cook <keescook@chromium.org>
+    pidfd: Add missing sock updates for pidfd_getfd()
+
+Zenghui Yu <yuzenghui@huawei.com>
+    irqchip/gic-v4.1: Ensure accessing the correct RD when writing INVALLR
+
+Huacai Chen <chenhc@lemote.com>
+    irqchip/loongson-liointc: Fix misuse of gc->mask_cache
+
+Jonathan McDowell <noodles@earth.li>
+    net: stmmac: dwmac1000: provide multicast filter fallback
+
+Jonathan McDowell <noodles@earth.li>
+    net: ethernet: stmmac: Disable hardware multicast filter
+
+Eugeniu Rosca <erosca@de.adit-jv.com>
+    media: vsp1: dl: Fix NULL pointer dereference on unbind
+
+Mansur Alisha Shaik <mansur@codeaurora.org>
+    media: venus: fix multiple encoder crash
+
+Paul Cercueil <paul@crapouillou.net>
+    pinctrl: ingenic: Properly detect GPIO direction when configured for IRQ
+
+Paul Cercueil <paul@crapouillou.net>
+    pinctrl: ingenic: Enhance support for IRQ_TYPE_EDGE_BOTH
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc: Fix circular dependency between percpu.h and mmu.h
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc: Allow 4224 bytes of stack expansion for the signal frame
+
+Christophe Leroy <christophe.leroy@csgroup.eu>
+    powerpc/ptdump: Fix build failure in hashpagetable.c
+
+Paul Aurich <paul@darkrain42.org>
+    cifs: Fix leak when handling lease break for cached root fid
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: fix xtensa_pmu_setup prototype
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: add missing exclusive access state management
+
+Lorenzo Bianconi <lorenzo@kernel.org>
+    iio: imu: st_lsm6dsx: reset hw ts after resume
+
+Alexandru Ardelean <alexandru.ardelean@analog.com>
+    iio: dac: ad5592r: fix unbalanced mutex unlocks in ad5592r_read_raw()
+
+Christian Eggers <ceggers@arri.de>
+    dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+
+Shaokun Zhang <zhangshaokun@hisilicon.com>
+    arm64: perf: Correct the event index in sysfs
+
+Pavel Machek <pavel@denx.de>
+    btrfs: fix return value mixup in btrfs_get_extent
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: make sure SB_I_VERSION doesn't get unset by remount
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: trim: fix underflow in trim length to prevent access beyond device boundary
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix memory leaks after failure to lookup checksums during inode logging
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: inode: fix NULL pointer dereference if inode doesn't need compression
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: only search for left_info if there is no right_info in try_merge_free_space
+
+David Sterba <dsterba@suse.com>
+    btrfs: fix messages after changing compression level by remount
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: don't show full path of bind mounts in subvol=
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race between page release and a fast fsync
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: don't WARN if we abort a transaction with EROFS
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: sysfs: use NOFS for device creation
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: return EROFS for BTRFS_FS_STATE_ERROR cases
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: avoid possible signal interruption of btrfs_drop_snapshot() on relocation tree
+
+David Sterba <dsterba@suse.com>
+    btrfs: add missing check for nocow and compression inode flags
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: relocation: review the call sites which can be interrupted by signal
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: move the chunk_mutex in btrfs_read_chunk_tree
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: open device without device_list_mutex
+
+Johannes Thumshirn <johannes.thumshirn@wdc.com>
+    btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: don't traverse into the seed devices in show_devname
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: remove no longer needed use of log_writers for the log root tree
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: only commit delayed items at fsync if we are logging a directory
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: stop incremening log_batch for the log root tree when syncing log
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: only commit the delayed inode when doing a full fsync
+
+Tom Rix <trix@redhat.com>
+    btrfs: ref-verify: fix memory leak in add_block_entry
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: don't allocate anonymous block device for user invisible roots
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: free anon block device right after subvolume deletion
+
+David Sterba <dsterba@suse.com>
+    btrfs: allow use of global block reserve for balance item deletion
+
+Ansuel Smith <ansuelsmth@gmail.com>
+    PCI: qcom: Add support for tx term offset for rev 2.1.0
+
+Ansuel Smith <ansuelsmth@gmail.com>
+    PCI: qcom: Define some PARF params needed for ipq8064 SoC
+
+Rajat Jain <rajatja@google.com>
+    PCI: Add device even if driver attach failed
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    PCI: Mark AMD Navi10 GPU rev 0x00 ATS as broken
+
+Ashok Raj <ashok.raj@intel.com>
+    PCI/ATS: Add pci_pri_supported() to check device or associated PF
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    PCI: hotplug: ACPI: Fix context refcounting in acpiphp_grab_context()
+
+Guenter Roeck <linux@roeck-us.net>
+    genirq/PM: Always unlock IRQ descriptor in rearm_wake_irq()
+
+Thomas Gleixner <tglx@linutronix.de>
+    genirq/affinity: Make affinity setting if activated opt-in
+
+Steve French <stfrench@microsoft.com>
+    smb3: warn on confusing error scenario with sec=krb5
 
 
-So the only mention of the 10 minutes is in relation to all
-SYSTEM_SHUTDOWN events. ie. according to that we should not be doing an
-immediate shutdown for any of the events.
+-------------
 
-> We have user space tool (rtas_errd) on LPAR to monitor for EPOW_SHUTDOWN_=
-ON_UPS.
-> Once it gets event it initiates shutdown after predefined time. Also star=
-ts
-> monitoring for any new EPOW events. If it receives "Power restored" event
-> before predefined time it will cancel the shutdown. Otherwise after
-> predefined time it will shutdown the system.
+Diffstat:
 
-What event are you referring to as the "Power restored" event? AFAICS
-PAPR just says we "may" receive an EPOW_RESET.
+ Documentation/admin-guide/hw-vuln/multihit.rst     |   4 +
+ .../bindings/iio/multiplexer/io-channel-mux.txt    |   2 +-
+ Makefile                                           |   4 +-
+ arch/arm64/kernel/perf_event.c                     |  13 +-
+ arch/mips/Kconfig                                  |   1 +
+ arch/mips/boot/dts/ingenic/qi_lb60.dts             |   2 +-
+ arch/mips/kernel/topology.c                        |   2 +-
+ arch/openrisc/kernel/stacktrace.c                  |  18 ++-
+ arch/powerpc/include/asm/percpu.h                  |   4 +-
+ arch/powerpc/mm/fault.c                            |   7 +-
+ arch/powerpc/mm/ptdump/hashpagetable.c             |   2 +-
+ arch/powerpc/platforms/pseries/hotplug-memory.c    |   2 +-
+ arch/s390/Kconfig                                  |   1 +
+ arch/s390/lib/test_unwind.c                        |   1 +
+ arch/sh/boards/mach-landisk/setup.c                |   3 +
+ arch/x86/events/rapl.c                             |   2 +-
+ arch/x86/kernel/apic/vector.c                      |   4 +
+ arch/x86/kernel/cpu/bugs.c                         |   8 +-
+ arch/x86/kernel/tsc_msr.c                          |   9 +-
+ arch/xtensa/include/asm/thread_info.h              |   4 +
+ arch/xtensa/kernel/asm-offsets.c                   |   3 +
+ arch/xtensa/kernel/entry.S                         |  11 ++
+ arch/xtensa/kernel/perf_event.c                    |   2 +-
+ crypto/af_alg.c                                    |  11 +-
+ crypto/algif_aead.c                                |  10 +-
+ crypto/algif_skcipher.c                            |  11 +-
+ drivers/base/dd.c                                  |   4 +-
+ drivers/clk/actions/owl-s500.c                     |   2 +-
+ drivers/clk/bcm/clk-bcm2835.c                      |  25 +++-
+ drivers/clk/qcom/clk-alpha-pll.c                   |   2 -
+ drivers/clk/qcom/gcc-sdm660.c                      |   3 +
+ drivers/clk/qcom/gcc-sm8150.c                      |   8 +-
+ drivers/clk/sirf/clk-atlas6.c                      |   2 +-
+ drivers/crypto/caam/caamalg.c                      |  29 -----
+ drivers/crypto/caam/compat.h                       |   1 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c            |   8 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  |  23 ++++
+ .../drm/amd/display/dc/clk_mgr/dcn10/rv1_clk_mgr.c |  69 +++++++++-
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c   |   5 +-
+ drivers/gpu/drm/drm_dp_mst_topology.c              |  35 ++---
+ drivers/gpu/drm/drm_panel_orientation_quirks.c     |   6 +
+ drivers/gpu/drm/i915/gt/intel_gt.c                 |   5 +
+ drivers/gpu/drm/imx/imx-ldb.c                      |   7 +-
+ drivers/gpu/drm/ingenic/ingenic-drm.c              |   2 +-
+ drivers/gpu/drm/omapdrm/dss/dispc.c                |   1 +
+ drivers/gpu/drm/omapdrm/dss/dsi.c                  |   1 +
+ drivers/gpu/drm/omapdrm/dss/dss.c                  |   1 +
+ drivers/gpu/drm/omapdrm/dss/venc.c                 |   1 +
+ drivers/gpu/drm/panfrost/panfrost_gem.c            |   2 +-
+ drivers/gpu/drm/panfrost/panfrost_mmu.c            |   2 +-
+ drivers/gpu/drm/radeon/ni_dpm.c                    |   2 +-
+ drivers/gpu/drm/tidss/tidss_kms.c                  |   2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                |   8 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c                |   5 +-
+ drivers/gpu/ipu-v3/ipu-image-convert.c             | 145 +++++++++++++--------
+ drivers/i2c/busses/i2c-bcm-iproc.c                 |  13 +-
+ drivers/i2c/busses/i2c-rcar.c                      |  15 ++-
+ drivers/iio/dac/ad5592r-base.c                     |   4 +-
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h            |   3 +-
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c     |  23 ++--
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c       |   2 +-
+ drivers/infiniband/core/counters.c                 |   4 +-
+ drivers/infiniband/core/uverbs_cmd.c               |   4 +
+ drivers/infiniband/hw/cxgb4/mem.c                  |   1 -
+ drivers/infiniband/hw/mlx4/mr.c                    |   1 -
+ drivers/infiniband/ulp/ipoib/ipoib.h               |   2 +-
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c            |  67 +++++-----
+ drivers/infiniband/ulp/ipoib/ipoib_main.c          |   2 +
+ drivers/input/mouse/sentelic.c                     |   2 +-
+ drivers/iommu/intel-iommu.c                        |   2 +-
+ drivers/iommu/omap-iommu-debug.c                   |   3 +
+ drivers/irqchip/irq-gic-v3-its.c                   |  15 ++-
+ drivers/irqchip/irq-loongson-liointc.c             |  10 +-
+ drivers/md/bcache/bcache.h                         |   2 +-
+ drivers/md/bcache/bset.c                           |   2 +-
+ drivers/md/bcache/btree.c                          |   2 +-
+ drivers/md/bcache/journal.c                        |   4 +-
+ drivers/md/bcache/super.c                          |   2 +-
+ drivers/md/bcache/writeback.c                      |  14 +-
+ drivers/md/bcache/writeback.h                      |  19 ++-
+ drivers/md/dm-rq.c                                 |   3 -
+ drivers/md/dm.c                                    |   3 +-
+ drivers/md/md-cluster.c                            |   1 +
+ drivers/md/raid5.c                                 |   3 +-
+ drivers/media/platform/qcom/venus/pm_helpers.c     |   4 +
+ drivers/media/platform/rockchip/rga/rga-hw.c       |  29 +++--
+ drivers/media/platform/rockchip/rga/rga-hw.h       |   5 +
+ drivers/media/platform/vsp1/vsp1_dl.c              |   2 +
+ drivers/mfd/arizona-core.c                         |  18 +++
+ drivers/mfd/dln2.c                                 |   4 +
+ drivers/mmc/host/renesas_sdhi_internal_dmac.c      |  18 ++-
+ drivers/mtd/nand/raw/brcmnand/brcmnand.c           |  26 ++++
+ drivers/mtd/nand/raw/fsl_upm.c                     |   1 -
+ drivers/net/ethernet/marvell/octeontx2/af/common.h |   2 +-
+ drivers/net/ethernet/qualcomm/emac/emac.c          |  17 ++-
+ .../net/ethernet/stmicro/stmmac/dwmac-ipq806x.c    |   1 +
+ .../net/ethernet/stmicro/stmmac/dwmac1000_core.c   |   3 +
+ drivers/net/wireless/realtek/rtw88/pci.c           |   9 ++
+ drivers/nvdimm/security.c                          |  13 +-
+ drivers/nvme/host/core.c                           |  15 +++
+ drivers/nvme/host/fabrics.c                        |   2 +-
+ drivers/nvme/host/fabrics.h                        |   3 +-
+ drivers/nvme/host/fc.c                             |   1 +
+ drivers/nvme/host/multipath.c                      |  18 ++-
+ drivers/nvme/host/nvme.h                           |   1 +
+ drivers/nvme/host/rdma.c                           |  10 +-
+ drivers/nvme/host/tcp.c                            |  15 ++-
+ drivers/pci/ats.c                                  |  15 +++
+ drivers/pci/bus.c                                  |   6 +-
+ drivers/pci/controller/dwc/pcie-qcom.c             |  41 +++++-
+ drivers/pci/hotplug/acpiphp_glue.c                 |  14 +-
+ drivers/pci/quirks.c                               |   5 +-
+ drivers/pinctrl/pinctrl-ingenic.c                  |   9 +-
+ drivers/platform/chrome/cros_ec_ishtp.c            |   4 +-
+ drivers/pwm/pwm-bcm-iproc.c                        |   9 +-
+ drivers/remoteproc/qcom_q6v5.c                     |   2 +
+ drivers/remoteproc/qcom_q6v5_mss.c                 |  11 +-
+ drivers/rtc/rtc-cpcap.c                            |   2 +-
+ drivers/rtc/rtc-pl031.c                            |   1 +
+ drivers/scsi/lpfc/lpfc_nvmet.c                     |   2 +-
+ drivers/staging/media/rkisp1/rkisp1-isp.c          |  25 ++--
+ drivers/usb/serial/ftdi_sio.c                      |  57 ++++----
+ drivers/vdpa/vdpa_sim/vdpa_sim.c                   |   3 +-
+ drivers/watchdog/f71808e_wdt.c                     |  13 +-
+ drivers/watchdog/rti_wdt.c                         |   2 +
+ drivers/watchdog/watchdog_dev.c                    |  18 +--
+ fs/btrfs/ctree.h                                   |   4 +-
+ fs/btrfs/disk-io.c                                 |  13 +-
+ fs/btrfs/extent-io-tree.h                          |   2 +
+ fs/btrfs/extent-tree.c                             |  23 +++-
+ fs/btrfs/extent_io.c                               |  18 ++-
+ fs/btrfs/free-space-cache.c                        |   4 +-
+ fs/btrfs/inode.c                                   |  20 ++-
+ fs/btrfs/ioctl.c                                   |  46 +++++--
+ fs/btrfs/ref-verify.c                              |   2 +
+ fs/btrfs/relocation.c                              |  12 +-
+ fs/btrfs/scrub.c                                   |   2 +-
+ fs/btrfs/super.c                                   |  51 +++++---
+ fs/btrfs/sysfs.c                                   |   3 +
+ fs/btrfs/transaction.c                             |   5 +-
+ fs/btrfs/tree-log.c                                |  43 ++----
+ fs/btrfs/volumes.c                                 |  48 ++++++-
+ fs/ceph/dir.c                                      |   4 +
+ fs/ceph/mds_client.c                               |   6 +-
+ fs/cifs/smb2misc.c                                 |  73 ++++++++---
+ fs/cifs/smb2pdu.c                                  |   2 +
+ fs/ext2/ialloc.c                                   |   3 +-
+ fs/f2fs/compress.c                                 |   2 +
+ fs/f2fs/data.c                                     |   4 +
+ fs/gfs2/bmap.c                                     |  69 +++++-----
+ fs/minix/inode.c                                   |  12 +-
+ fs/minix/itree_v1.c                                |  12 +-
+ fs/minix/itree_v2.c                                |  13 +-
+ fs/minix/minix.h                                   |   1 -
+ fs/nfs/file.c                                      |  17 ++-
+ fs/nfs/flexfilelayout/flexfilelayout.c             |  50 +++++--
+ fs/nfs/nfs4file.c                                  |   5 +-
+ fs/nfs/nfs4proc.c                                  |   2 -
+ fs/nfs/nfs4xdr.c                                   |   6 +-
+ fs/nfs/pnfs.c                                      |   4 +-
+ fs/nfs/pnfs.h                                      |   2 +-
+ fs/ocfs2/ocfs2.h                                   |   4 +-
+ fs/ocfs2/suballoc.c                                |   4 +-
+ fs/ocfs2/super.c                                   |   4 +-
+ fs/ubifs/journal.c                                 |  10 +-
+ fs/ufs/super.c                                     |   2 +-
+ include/crypto/if_alg.h                            |   4 +-
+ include/linux/fs.h                                 |  10 ++
+ include/linux/hugetlb.h                            |   8 +-
+ include/linux/intel-iommu.h                        |   4 +-
+ include/linux/irq.h                                |  13 ++
+ include/linux/pci-ats.h                            |   4 +
+ include/net/sock.h                                 |   4 +
+ include/uapi/linux/btrfs.h                         |  14 +-
+ init/main.c                                        |  14 +-
+ kernel/irq/manage.c                                |   6 +-
+ kernel/irq/pm.c                                    |   8 +-
+ kernel/kprobes.c                                   |   7 +
+ kernel/module.c                                    |  22 +++-
+ kernel/pid.c                                       |   7 +-
+ kernel/sched/core.c                                |  81 +++++++++++-
+ kernel/sched/cpufreq_schedutil.c                   |   2 +-
+ kernel/sched/sched.h                               |  47 ++++++-
+ kernel/trace/ftrace.c                              |  15 ++-
+ kernel/trace/trace_events.c                        |   4 +-
+ kernel/trace/trace_hwlat.c                         |   5 +-
+ lib/devres.c                                       |  11 +-
+ lib/test_kmod.c                                    |   2 +-
+ lib/test_lockup.c                                  |   4 +-
+ mm/cma.c                                           |  23 ++--
+ mm/hugetlb.c                                       |  39 +++---
+ mm/khugepaged.c                                    |  70 +++++-----
+ mm/memory_hotplug.c                                |   5 +-
+ mm/page_counter.c                                  |   6 +-
+ mm/rmap.c                                          |   2 +-
+ mm/shuffle.c                                       |  18 +--
+ net/compat.c                                       |   1 +
+ net/core/sock.c                                    |  21 +++
+ net/mac80211/sta_info.c                            |   2 +-
+ scripts/recordmcount.c                             |   2 +
+ security/integrity/ima/ima_policy.c                |  15 ++-
+ sound/pci/echoaudio/echoaudio.c                    |   2 -
+ sound/soc/tegra/tegra_alc5632.c                    |   7 +-
+ sound/soc/tegra/tegra_asoc_utils.c                 | 113 ++++++++--------
+ sound/soc/tegra/tegra_asoc_utils.h                 |   1 -
+ sound/soc/tegra/tegra_max98090.c                   |  22 +---
+ sound/soc/tegra/tegra_rt5640.c                     |  22 +---
+ sound/soc/tegra/tegra_rt5677.c                     |   7 +-
+ sound/soc/tegra/tegra_sgtl5000.c                   |   7 +-
+ sound/soc/tegra/tegra_wm8753.c                     |  22 +---
+ sound/soc/tegra/tegra_wm8903.c                     |  22 +---
+ sound/soc/tegra/tegra_wm9712.c                     |   8 +-
+ sound/soc/tegra/trimslice.c                        |  18 +--
+ tools/build/Makefile.feature                       |   2 +-
+ tools/build/feature/Makefile                       |   2 -
+ tools/perf/bench/mem-functions.c                   |  21 +--
+ .../perf/util/intel-pt-decoder/intel-pt-decoder.c  |  29 ++---
+ tools/perf/util/probe-finder.c                     |   5 +-
+ tools/testing/selftests/bpf/Makefile               |   5 +-
+ tools/testing/selftests/bpf/test_progs.c           |  33 ++++-
+ tools/testing/selftests/bpf/test_progs.h           |   2 +
+ .../testing/selftests/powerpc/ptrace/ptrace-pkey.c |  55 ++++----
+ tools/testing/selftests/seccomp/seccomp_bpf.c      |   5 +
+ 223 files changed, 1815 insertions(+), 933 deletions(-)
 
-I can't see anything else about what we're supposed to do if power is
-restored.
 
-Anyway I'm not opposed to the change, but I don't think it's correct to
-say that PAPR defines the behaviour.
-
-Rather we used to implement a certain behaviour, and we have at least
-one customer who relies on that old behaviour and dislikes the new
-behaviour. It's also generally good to defer decisions like this to
-userspace, so that administrators can customise the behaviour.
-
-Anyway I'll massage the change log a bit to incorporate some of the
-above and apply it.
-
-cheers
-
-> Fixes: 79872e35 (powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must=
- initiate shutdown)
-> Cc: stable@vger.kernel.org # v4.0+
-> Cc: Tyrel Datwyler <tyreld@linux.ibm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-> ---
-> Changes in v2:
->   - Updated patch description based on mpe, Tyrel comment.
->
-> -Vasant
->  arch/powerpc/platforms/pseries/ras.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platform=
-s/pseries/ras.c
-> index f3736fcd98fc..13c86a292c6d 100644
-> --- a/arch/powerpc/platforms/pseries/ras.c
-> +++ b/arch/powerpc/platforms/pseries/ras.c
-> @@ -184,7 +184,6 @@ static void handle_system_shutdown(char event_modifie=
-r)
->  	case EPOW_SHUTDOWN_ON_UPS:
->  		pr_emerg("Loss of system power detected. System is running on"
->  			 " UPS/battery. Check RTAS error log for details\n");
-> -		orderly_poweroff(true);
->  		break;
->=20=20
->  	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
-> --=20
-> 2.26.2
