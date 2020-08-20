@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E140024B236
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C9924B23B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbgHTJZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
+        id S1727828AbgHTJZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726983AbgHTJYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:24:36 -0400
+        id S1726795AbgHTJZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:25:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 889C822CB2;
-        Thu, 20 Aug 2020 09:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 212F322CB1;
+        Thu, 20 Aug 2020 09:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915476;
-        bh=OztBmgibWac0/yJ+f4OlaPKdZfBiGL7/ahnGw2aTiHg=;
+        s=default; t=1597915500;
+        bh=yftGnr7TyooLqUgV7TUEcQ9nkwaYA4xThnSHYjZ/N6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzxwoVbdhZTpv3bxLwbo7gkolheU6t1Cohvhp7Z61QLbDGK3aJ/RO6aFnEQ9MV2kL
-         mJMp85sidBsujP3Rlty4t2rbYokuYnVwkGG3EARCmYsVrkAmK1cjfr3rY69c+dUsKf
-         SHs9D8Astc2T2JlVZlmcONTnqfs95k0CPXQq2zTQ=
+        b=grWl6KE5tcNErUGDrk0OKbeisU+xUyqlOD+N/Sb1c3Hp0UqsATh76TEmAU4k2S0Of
+         +ds9dGGgwmJvjrMRPesDHuEf+VYfGtSXTcuwO8AFSuYuNjO/pEjJoCW5CxfI6OBwGP
+         2S8Ggf9/cTgD93tCCYEAJ9BI/f+9CuQVFBj/n1mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 026/232] btrfs: relocation: review the call sites which can be interrupted by signal
-Date:   Thu, 20 Aug 2020 11:17:57 +0200
-Message-Id: <20200820091614.014697416@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 028/232] btrfs: avoid possible signal interruption of btrfs_drop_snapshot() on relocation tree
+Date:   Thu, 20 Aug 2020 11:17:59 +0200
+Message-Id: <20200820091614.116316607@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,102 +45,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-commit 44d354abf33e92a5e73b965c84caf5a5d5e58a0b upstream.
+commit f3e3d9cc35252a70a2fd698762c9687718268ec6 upstream.
 
-Since most metadata reservation calls can return -EINTR when get
-interrupted by fatal signal, we need to review the all the metadata
-reservation call sites.
+[BUG]
+There is a bug report about bad signal timing could lead to read-only
+fs during balance:
 
-In relocation code, the metadata reservation happens in the following
-sites:
+  BTRFS info (device xvdb): balance: start -d -m -s
+  BTRFS info (device xvdb): relocating block group 73001861120 flags metadata
+  BTRFS info (device xvdb): found 12236 extents, stage: move data extents
+  BTRFS info (device xvdb): relocating block group 71928119296 flags data
+  BTRFS info (device xvdb): found 3 extents, stage: move data extents
+  BTRFS info (device xvdb): found 3 extents, stage: update data pointers
+  BTRFS info (device xvdb): relocating block group 60922265600 flags metadata
+  BTRFS: error (device xvdb) in btrfs_drop_snapshot:5505: errno=-4 unknown
+  BTRFS info (device xvdb): forced readonly
+  BTRFS info (device xvdb): balance: ended with status: -4
 
-- btrfs_block_rsv_refill() in merge_reloc_root()
-  merge_reloc_root() is a pretty critical section, we don't want to be
-  interrupted by signal, so change the flush status to
-  BTRFS_RESERVE_FLUSH_LIMIT, so it won't get interrupted by signal.
-  Since such change can be ENPSPC-prone, also shrink the amount of
-  metadata to reserve least amount avoid deadly ENOSPC there.
+[CAUSE]
+The direct cause is the -EINTR from the following call chain when a
+fatal signal is pending:
 
-- btrfs_block_rsv_refill() in reserve_metadata_space()
-  It calls with BTRFS_RESERVE_FLUSH_LIMIT, which won't get interrupted
-  by signal.
+ relocate_block_group()
+ |- clean_dirty_subvols()
+    |- btrfs_drop_snapshot()
+       |- btrfs_start_transaction()
+          |- btrfs_delayed_refs_rsv_refill()
+             |- btrfs_reserve_metadata_bytes()
+                |- __reserve_metadata_bytes()
+                   |- wait_reserve_ticket()
+                      |- prepare_to_wait_event();
+                      |- ticket->error = -EINTR;
 
-- btrfs_block_rsv_refill() in prepare_to_relocate()
+Normally this behavior is fine for most btrfs_start_transaction()
+callers, as they need to catch any other error, same for the signal, and
+exit ASAP.
 
-- btrfs_block_rsv_add() in prepare_to_relocate()
+However for balance, especially for the clean_dirty_subvols() case, we're
+already doing cleanup works, getting -EINTR from btrfs_drop_snapshot()
+could cause a lot of unexpected problems.
 
-- btrfs_block_rsv_refill() in relocate_block_group()
+>From the mentioned forced read-only report, to later balance error due
+to half dropped reloc trees.
 
-- btrfs_delalloc_reserve_metadata() in relocate_file_extent_cluster()
+[FIX]
+Fix this problem by using btrfs_join_transaction() if
+btrfs_drop_snapshot() is called from relocation context.
 
-- btrfs_start_transaction() in relocate_block_group()
-
-- btrfs_start_transaction() in create_reloc_inode()
-  Can be interrupted by fatal signal and we can handle it easily.
-  For these call sites, just catch the -EINTR value in btrfs_balance()
-  and count them as canceled.
+Since btrfs_join_transaction() won't get interrupted by signal, we can
+continue the cleanup.
 
 CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>3
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/relocation.c |   12 ++++++++++--
- fs/btrfs/volumes.c    |   17 ++++++++++++++++-
- 2 files changed, 26 insertions(+), 3 deletions(-)
+ fs/btrfs/extent-tree.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1686,12 +1686,20 @@ static noinline_for_stack int merge_relo
- 		btrfs_unlock_up_safe(path, 0);
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5298,7 +5298,14 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 		goto out;
  	}
  
--	min_reserved = fs_info->nodesize * (BTRFS_MAX_LEVEL - 1) * 2;
+-	trans = btrfs_start_transaction(tree_root, 0);
 +	/*
-+	 * In merge_reloc_root(), we modify the upper level pointer to swap the
-+	 * tree blocks between reloc tree and subvolume tree.  Thus for tree
-+	 * block COW, we COW at most from level 1 to root level for each tree.
-+	 *
-+	 * Thus the needed metadata size is at most root_level * nodesize,
-+	 * and * 2 since we have two trees to COW.
++	 * Use join to avoid potential EINTR from transaction start. See
++	 * wait_reserve_ticket and the whole reservation callchain.
 +	 */
-+	min_reserved = fs_info->nodesize * btrfs_root_level(root_item) * 2;
- 	memset(&next_key, 0, sizeof(next_key));
- 
- 	while (1) {
- 		ret = btrfs_block_rsv_refill(root, rc->block_rsv, min_reserved,
--					     BTRFS_RESERVE_FLUSH_ALL);
-+					     BTRFS_RESERVE_FLUSH_LIMIT);
- 		if (ret) {
- 			err = ret;
- 			goto out;
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4150,7 +4150,22 @@ int btrfs_balance(struct btrfs_fs_info *
- 	mutex_lock(&fs_info->balance_mutex);
- 	if (ret == -ECANCELED && atomic_read(&fs_info->balance_pause_req))
- 		btrfs_info(fs_info, "balance: paused");
--	else if (ret == -ECANCELED && atomic_read(&fs_info->balance_cancel_req))
-+	/*
-+	 * Balance can be canceled by:
-+	 *
-+	 * - Regular cancel request
-+	 *   Then ret == -ECANCELED and balance_cancel_req > 0
-+	 *
-+	 * - Fatal signal to "btrfs" process
-+	 *   Either the signal caught by wait_reserve_ticket() and callers
-+	 *   got -EINTR, or caught by btrfs_should_cancel_balance() and
-+	 *   got -ECANCELED.
-+	 *   Either way, in this case balance_cancel_req = 0, and
-+	 *   ret == -EINTR or ret == -ECANCELED.
-+	 *
-+	 * So here we only check the return value to catch canceled balance.
-+	 */
-+	else if (ret == -ECANCELED || ret == -EINTR)
- 		btrfs_info(fs_info, "balance: canceled");
- 	else
- 		btrfs_info(fs_info, "balance: ended with status: %d", ret);
++	if (for_reloc)
++		trans = btrfs_join_transaction(tree_root);
++	else
++		trans = btrfs_start_transaction(tree_root, 0);
+ 	if (IS_ERR(trans)) {
+ 		err = PTR_ERR(trans);
+ 		goto out_free;
 
 
