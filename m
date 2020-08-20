@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 859A924B63C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6050524B795
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727106AbgHTKeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:34:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43162 "EHLO mail.kernel.org"
+        id S1731563AbgHTK7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:59:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731434AbgHTKT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:19:28 -0400
+        id S1731140AbgHTKNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D40A2078D;
-        Thu, 20 Aug 2020 10:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D45A20738;
+        Thu, 20 Aug 2020 10:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918768;
-        bh=o9Sn3xaHKCAzMTdqGvBWLQH5M6n1P9EPHhFgTTMgUTA=;
+        s=default; t=1597918412;
+        bh=nxbijIe3mjlBYbtASARKH08UZo8+8GTitovu0fEMvmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+dx2cVdmP0NAdChKATb74Xq9S5B7w+O7wSdSVYKc4xX5OhpTRIZWpaQQbgCT08DH
-         PCSIT4m0qrqsCUC+XWTTRPjVQJ89aqGsWRjIZ5IhcEck2iYAwW+eJm6b/L4PqvA5j3
-         6wa/h3Shi9pArvrY2bmZw9VaKCrbanQBFikFR/5Y=
+        b=TWEmPXLpqW5u8v2mDYOMH5OdmmNGgtQzT74h4/w3VeRElkrnKCGnp1z3Q7+IsdQXj
+         F8JWgG/kiTjNoycm/hEn1L5r2sN7S5FP/txgw/6BhCa6aXqe4eOTomzmDmJygR4kqQ
+         m+P1Igi3oAN8jyo90SLM/KgKmXxCKnjwLhYJbbR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        Joshua Thompson <funaho@jurai.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 059/149] m68k: mac: Fix IOP status/control register writes
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 161/228] parisc: mask out enable and reserved bits from sba imask
 Date:   Thu, 20 Aug 2020 11:22:16 +0200
-Message-Id: <20200820092128.592711684@linuxfoundation.org>
+Message-Id: <20200820091615.623702917@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 931fc82a6aaf4e2e4a5490addaa6a090d78c24a7 ]
+commit 5b24993c21cbf2de11aff077a48c5cb0505a0450 upstream.
 
-When writing values to the IOP status/control register make sure those
-values do not have any extraneous bits that will clear interrupt flags.
+When using kexec the SBA IOMMU IBASE might still have the RE
+bit set. This triggers a WARN_ON when trying to write back the
+IBASE register later, and it also makes some mask calculations fail.
 
-To place the SCC IOP into bypass mode would be desirable but this is not
-achieved by writing IOP_DMAINACTIVE | IOP_RUN | IOP_AUTOINC | IOP_BYPASS
-to the control register. Drop this ineffective register write.
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Remove the flawed and unused iop_bypass() function. Make use of the
-unused iop_stop() function.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Cc: Joshua Thompson <funaho@jurai.org>
-Link: https://lore.kernel.org/r/09bcb7359a1719a18b551ee515da3c4c3cf709e6.1590880333.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mac/iop.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/parisc/sba_iommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/mac/iop.c b/arch/m68k/mac/iop.c
-index c89ed66908f91..358ca965cf824 100644
---- a/arch/m68k/mac/iop.c
-+++ b/arch/m68k/mac/iop.c
-@@ -173,7 +173,7 @@ static __inline__ void iop_writeb(volatile struct mac_iop *iop, __u16 addr, __u8
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -1291,7 +1291,7 @@ sba_ioc_init_pluto(struct parisc_device
+ 	** (one that doesn't overlap memory or LMMIO space) in the
+ 	** IBASE and IMASK registers.
+ 	*/
+-	ioc->ibase = READ_REG(ioc->ioc_hpa + IOC_IBASE);
++	ioc->ibase = READ_REG(ioc->ioc_hpa + IOC_IBASE) & ~0x1fffffULL;
+ 	iova_space_size = ~(READ_REG(ioc->ioc_hpa + IOC_IMASK) & 0xFFFFFFFFUL) + 1;
  
- static __inline__ void iop_stop(volatile struct mac_iop *iop)
- {
--	iop->status_ctrl &= ~IOP_RUN;
-+	iop->status_ctrl = IOP_AUTOINC;
- }
- 
- static __inline__ void iop_start(volatile struct mac_iop *iop)
-@@ -181,14 +181,9 @@ static __inline__ void iop_start(volatile struct mac_iop *iop)
- 	iop->status_ctrl = IOP_RUN | IOP_AUTOINC;
- }
- 
--static __inline__ void iop_bypass(volatile struct mac_iop *iop)
--{
--	iop->status_ctrl |= IOP_BYPASS;
--}
--
- static __inline__ void iop_interrupt(volatile struct mac_iop *iop)
- {
--	iop->status_ctrl |= IOP_IRQ;
-+	iop->status_ctrl = IOP_IRQ | IOP_RUN | IOP_AUTOINC;
- }
- 
- static int iop_alive(volatile struct mac_iop *iop)
-@@ -239,7 +234,6 @@ void __init iop_preinit(void)
- 		} else {
- 			iop_base[IOP_NUM_SCC] = (struct mac_iop *) SCC_IOP_BASE_QUADRA;
- 		}
--		iop_base[IOP_NUM_SCC]->status_ctrl = 0x87;
- 		iop_scc_present = 1;
- 	} else {
- 		iop_base[IOP_NUM_SCC] = NULL;
-@@ -251,7 +245,7 @@ void __init iop_preinit(void)
- 		} else {
- 			iop_base[IOP_NUM_ISM] = (struct mac_iop *) ISM_IOP_BASE_QUADRA;
- 		}
--		iop_base[IOP_NUM_ISM]->status_ctrl = 0;
-+		iop_stop(iop_base[IOP_NUM_ISM]);
- 		iop_ism_present = 1;
- 	} else {
- 		iop_base[IOP_NUM_ISM] = NULL;
--- 
-2.25.1
-
+ 	if ((ioc->ibase < 0xfed00000UL) && ((ioc->ibase + iova_space_size) > 0xfee00000UL)) {
 
 
