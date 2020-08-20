@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B30C24B455
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55F524B460
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729999AbgHTKDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
+        id S1730384AbgHTKEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730494AbgHTKB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:01:58 -0400
+        id S1728613AbgHTKCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:02:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CB5122BF3;
-        Thu, 20 Aug 2020 10:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B285208E4;
+        Thu, 20 Aug 2020 10:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917713;
-        bh=V+/Zi4mxR5Rb4HM+/QHOT7Y2fxlm21G4sCP879RSQ0I=;
+        s=default; t=1597917734;
+        bh=rHY6bYRMoExjyfEcAUsfa6ZPTbkCpO03krJyyBwM/NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXvmsl015aQa31kW1T55w5D/PJFN1BJJBlfxUYZLcdwXHZTjrjTDCryL+n5qcTWZr
-         93t5X5/OOKcC4GzVxl5J4AYaUawHy6nbkBADAASRbSax1o5MUvq9jOWSUUgouzfCBZ
-         Dodkev546ixUtpm2A1AItznyWqmBnaqZ2VSAeB9Y=
+        b=xEyd4Vl/BG8NmugjHG/qWpMx75Ml83gFtFAXIwlwxYXYtmKTMK5DBGdA8B7lQ9Ewq
+         FXUcX4vonMHJa/++RCYq/oG7qjz0ga0L2ZFwT5BlfUxHDsNFNER+pKVdvVuMJ8blPN
+         jCQHVUH4/i4O1QgP+Whj08CMSXM19LhKt6tKrFS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 129/212] staging: rtl8192u: fix a dubious looking mask before a shift
-Date:   Thu, 20 Aug 2020 11:21:42 +0200
-Message-Id: <20200820091608.864370010@linuxfoundation.org>
+Subject: [PATCH 4.9 131/212] drm/imx: tve: fix regulator_disable error path
+Date:   Thu, 20 Aug 2020 11:21:44 +0200
+Message-Id: <20200820091608.964012615@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,40 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit c4283950a9a4d3bf4a3f362e406c80ab14f10714 ]
+[ Upstream commit 7bb58b987fee26da2a1665c01033022624986b7c ]
 
-Currently the masking of ret with 0xff and followed by a right shift
-of 8 bits always leaves a zero result.  It appears the mask of 0xff
-is incorrect and should be 0xff00, but I don't have the hardware to
-test this. Fix this to mask the upper 8 bits before shifting.
+Add missing regulator_disable() as devm_action to avoid dedicated
+unbind() callback and fix the missing error handling.
 
-[ Not tested ]
-
-Addresses-Coverity: ("Operands don't affect result")
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200716154720.1710252-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fcbc51e54d2a ("staging: drm/imx: Add support for Television Encoder (TVEv2)")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/r8192U_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/imx/imx-tve.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index 6ec3790566504..fa4c47c7d2166 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -2522,7 +2522,7 @@ static int rtl8192_read_eeprom_info(struct net_device *dev)
- 				ret = eprom_read(dev, (EEPROM_TxPwIndex_CCK >> 1));
- 				if (ret < 0)
- 					return ret;
--				priv->EEPROMTxPowerLevelCCK = ((u16)ret & 0xff) >> 8;
-+				priv->EEPROMTxPowerLevelCCK = ((u16)ret & 0xff00) >> 8;
- 			} else
- 				priv->EEPROMTxPowerLevelCCK = 0x10;
- 			RT_TRACE(COMP_EPROM, "CCK Tx Power Levl: 0x%02x\n", priv->EEPROMTxPowerLevelCCK);
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index 89cf0090feaca..9ae515f3171ec 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -511,6 +511,13 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
+ 	return 0;
+ }
+ 
++static void imx_tve_disable_regulator(void *data)
++{
++	struct imx_tve *tve = data;
++
++	regulator_disable(tve->dac_reg);
++}
++
+ static bool imx_tve_readable_reg(struct device *dev, unsigned int reg)
+ {
+ 	return (reg % 4 == 0) && (reg <= 0xdc);
+@@ -635,6 +642,9 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 		ret = regulator_enable(tve->dac_reg);
+ 		if (ret)
+ 			return ret;
++		ret = devm_add_action_or_reset(dev, imx_tve_disable_regulator, tve);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	tve->clk = devm_clk_get(dev, "tve");
+@@ -681,18 +691,8 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
+ 	return 0;
+ }
+ 
+-static void imx_tve_unbind(struct device *dev, struct device *master,
+-	void *data)
+-{
+-	struct imx_tve *tve = dev_get_drvdata(dev);
+-
+-	if (!IS_ERR(tve->dac_reg))
+-		regulator_disable(tve->dac_reg);
+-}
+-
+ static const struct component_ops imx_tve_ops = {
+ 	.bind	= imx_tve_bind,
+-	.unbind	= imx_tve_unbind,
+ };
+ 
+ static int imx_tve_probe(struct platform_device *pdev)
 -- 
 2.25.1
 
