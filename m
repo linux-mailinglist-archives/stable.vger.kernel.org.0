@@ -2,136 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A837624C22F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 17:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6934E24C23D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 17:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728466AbgHTP2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 11:28:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56004 "EHLO
+        id S1728209AbgHTPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 11:32:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726852AbgHTP2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 11:28:10 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35915C061385
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 08:28:10 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id i129so1279165vsi.3
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 08:28:10 -0700 (PDT)
+        with ESMTP id S1726852AbgHTPcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 11:32:00 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1732AC061385;
+        Thu, 20 Aug 2020 08:32:00 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id o18so3000309eje.7;
+        Thu, 20 Aug 2020 08:32:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=uYPF26fOsnSxq0X3BeFPOk0SUrFLHUyRFGGzgVJXfq8=;
-        b=yL9tqtIiWrwVP/vk+PNTbPQudFqQ/Nku03VDHttP1IrTMx970xW8h0wDtHQ7KNfK+I
-         SWrGQnvnwuRocjuXw6z77wNdi8Nvhd5I+47g+pDfhaHGkxBrHs04+0q9VRPmUi9bTZlD
-         CyuWwq4cV7pUsyLb2cOjDle8eG+aggRgOAFAwDs0D6Ae1uZ927VlLwHo6AXcdIyZePh4
-         js71qeG+n+b7/7Iy3nieGkp+iWW2pfeTaKbyCK8OA2Kn/JfDUMbsjTIKuFqRsGkM8i0J
-         MEXNsxeYZg2U1hetwLztffdgRucy6cAy8re+dFL3IgCy2CgB5p/DZOVQRHd3lgEY8iS1
-         WySg==
+         :cc;
+        bh=msZh1S5NuZX02zho73S2OZYmPkkP6K5y19k9T2pRLlU=;
+        b=eEQiNAr7rWImjK6RLknd81QWM9qtZqSYCjD9pFF78tYd4TULEoiAOd8XfONRjXELup
+         E4CNQ1gh1sZl0QDdS6kR8HrKAHNfSD+4o0BLmZc4Rt5ObBJHIUcBPiiBhfYSHIsJQGEv
+         GOK6LIqNuD/dnKlE0VEvbndrg3mORYdlPSWKgZRcW76Ucd2BJmf1B9QSmhwPCeMoMtM/
+         Yng6JQdTv/He2XKn2KdPtyGWPSehTDalQBD2wuBGTb92X89VDQShPYLtgU22ECsgcCb7
+         mfTETbXBT2BnlsJ7RTJUySNQnCAtIoC54fKjVRxTl/dkN9JeIok7CTmdO3W9KBDEKZkO
+         bIoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=uYPF26fOsnSxq0X3BeFPOk0SUrFLHUyRFGGzgVJXfq8=;
-        b=OVpH9SXWJRwnRaAclvrp3C13l8DCM5v+F+tAx47sxpdJiJPERjpCtKA4SmzF5hEU0U
-         K7Dlilqa8vhqFNQR95mK2Wep1rMuAMbjWzTBzkQR5IAzn6wB/66dcER/QWgt2cFjpA9C
-         4La2cET1OHaC1HRtiJc8Twe2PMcyG8bxTeJiWcVdLqPKRmJwx+B/b9l+sNo3GK01LO1z
-         nx08z8qB5yttX9cVu8J3AyzghRagri+2PhZZKXVb/mgfG8STwmQ+f3w22dVaJsiQxvT3
-         nrDfLV7DwjvvZtxuE2DX2w94OXL0c+C98d/5E3EEZ7bkA3K7ahULf0qcgD9YoDgIHLe2
-         jZOw==
-X-Gm-Message-State: AOAM531t1yC2Jchj1CeOfTZeQ3VsJM95/DvNNDkuTzqZ3WdqFCUFHHXM
-        BO6+XbJ/D3xXn5ZSXVA9aXhXc1Ipa3cezAKE9nhFHQ==
-X-Google-Smtp-Source: ABdhPJw3x/JjWeGkqsHzLhjFeoMAMLmCjvIghKiFM19pnVR2pzadjfWz1sl+deP5Pc9dZd8e9wEdeR0iwIOlz36At6A=
-X-Received: by 2002:a67:e45:: with SMTP id 66mr2349582vso.191.1597937289189;
- Thu, 20 Aug 2020 08:28:09 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=msZh1S5NuZX02zho73S2OZYmPkkP6K5y19k9T2pRLlU=;
+        b=QTlFnil6mVQyWvnfyrACdcFe7xUzVI38P9CdLNCkCquvd5tN4laAwxt5f2YJSGjBM8
+         HQHQmNrAgDcxzPpyEfZkealtUeaSDICzSH7LuORPkUrSTxfM0ro1nLdV9GmkbXTQPfmC
+         sRWnBPFBrXbVGdzjHxFto8mVaRT5/6P5oUMUQpgaemDePipDA2Hzl9qiZKugdJSdN5A8
+         9/h+WBgEa4iUL22Ft3OCoxbDjkSjSWaaZatSSoOLmRRErKgpmSf6bve/2tzX/Cj7bUKR
+         rlV5FIyOgTe1YovLKQdlvyO9CvIyRBXJ8z4xhe7dWs+X2DxvAqgeNGIS7nbOmeEFNh+3
+         bwdA==
+X-Gm-Message-State: AOAM532haOYFblxxWoYvoR6C+idtGIGXRYJCTSAwyLk332w8aZUzxaWv
+        un3WgSe8aooIsm9yq6sZmpfrxQuX+WTow2+VQ+Y=
+X-Google-Smtp-Source: ABdhPJzD+zk0t+nWGD6xbgEYzbLJU9rJ448TkrySkRv6QD+kn8cqo7BHXH1FT90ym+QcSpF3F2Vrku7Pi7nKPbUArzU=
+X-Received: by 2002:a17:906:84e1:: with SMTP id zp1mr3535972ejb.499.1597937518785;
+ Thu, 20 Aug 2020 08:31:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200820091612.692383444@linuxfoundation.org>
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 20 Aug 2020 20:57:57 +0530
-Message-ID: <CA+G9fYtebf78TH-XpqArunHc1L6s9mHdLEbpY1EY9tSyDjp=sg@mail.gmail.com>
-Subject: Re: [PATCH 5.8 000/232] 5.8.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        LTP List <ltp@lists.linux.it>,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        Eric Biggers <ebiggers@kernel.org>
+References: <20200820045323.7809-1-hsiangkao@redhat.com>
+In-Reply-To: <20200820045323.7809-1-hsiangkao@redhat.com>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Thu, 20 Aug 2020 08:31:46 -0700
+Message-ID: <CAHbLzkramrQbkQeBBy-ZzHKy6Uqt6ONVxKeouVyu-6_cvFpNmA@mail.gmail.com>
+Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by mistake
+To:     Gao Xiang <hsiangkao@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 20 Aug 2020 at 14:55, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Wed, Aug 19, 2020 at 9:54 PM Gao Xiang <hsiangkao@redhat.com> wrote:
 >
-> This is the start of the stable review cycle for the 5.8.3 release.
-> There are 232 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> SWP_FS is used to make swap_{read,write}page() go through
+> the filesystem, and it's only used for swap files over
+> NFS. So, !SWP_FS means non NFS for now, it could be either
+> file backed or device backed. Something similar goes with
+> legacy SWP_FILE.
 >
-> Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
-> Anything received after that time might be too late.
+> So in order to achieve the goal of the original patch,
+> SWP_BLKDEV should be used instead.
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.8.3-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.8.y
-> and the diffstat can be found below.
+> FS corruption can be observed with SSD device + XFS +
+> fragmented swapfile due to CONFIG_THP_SWAP=y.
 >
-> thanks,
+> I reproduced the issue with the following details:
 >
-> greg k-h
+> Environment:
+> QEMU + upstream kernel + buildroot + NVMe (2 GB)
+>
+> Kernel config:
+> CONFIG_BLK_DEV_NVME=y
+> CONFIG_THP_SWAP=y
+>
+> Some reproducable steps:
+> mkfs.xfs -f /dev/nvme0n1
+> mkdir /tmp/mnt
+> mount /dev/nvme0n1 /tmp/mnt
+> bs="32k"
+> sz="1024m"    # doesn't matter too much, I also tried 16m
+> xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+> xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+> xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+> xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+> xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
+>
+> mkswap /tmp/mnt/sw
+> swapon /tmp/mnt/sw
+>
+> stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
+>
+> Symptoms:
+>  - FS corruption (e.g. checksum failure)
+>  - memory corruption at: 0xd2808010
+>  - segfault
+>
+> Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+> Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
+> Cc: "Huang, Ying" <ying.huang@intel.com>
+> Cc: Yang Shi <yang.shi@linux.alibaba.com>
+> Cc: Rafael Aquini <aquini@redhat.com>
+> Cc: Dave Chinner <david@fromorbit.com>
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+> ---
+> v1: https://lore.kernel.org/r/20200819195613.24269-1-hsiangkao@redhat.com
+>
+> changes since v1:
+>  - improve commit message description
 
-> Herbert Xu <herbert@gondor.apana.org.au>
->     crypto: af_alg - Fix regression on empty requests
+Thanks for incorporating this. Reviewed-by: Yang Shi <shy828301@gmail.com>
 
-Results from Linaro=E2=80=99s test farm.
-Regressions detected.
-
-  ltp-crypto-tests:
-    * af_alg02
-  ltp-cve-tests:
-    * cve-2017-17805
-
-af_alg02.c:52: BROK: Timed out while reading from request socket.
-We are running the LTP 20200515 tag released test suite.
- https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/cry=
-pto/af_alg02.c
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.8.3-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.8.y
-git commit: 201fff807310ce10485bcff294d47be95f3769eb
-git describe: v5.8.2-233-g201fff807310
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.8-oe/bui=
-ld/v5.8.2-233-g201fff807310
-
-Regressions (compared to build v5.8.2)
-------------------------------------------------------------------------
-
-x15:
-  ltp-crypto-tests:
-    * af_alg02
-
-  ltp-cve-tests:
-    * cve-2017-17805
-
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+>
+> Hi Andrew,
+> Kindly consider this one instead if no other concerns...
+>
+> Thanks,
+> Gao Xiang
+>
+>  mm/swapfile.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/mm/swapfile.c b/mm/swapfile.c
+> index 6c26916e95fd..2937daf3ca02 100644
+> --- a/mm/swapfile.c
+> +++ b/mm/swapfile.c
+> @@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
+>                         goto nextsi;
+>                 }
+>                 if (size == SWAPFILE_CLUSTER) {
+> -                       if (!(si->flags & SWP_FS))
+> +                       if (si->flags & SWP_BLKDEV)
+>                                 n_ret = swap_alloc_cluster(si, swp_entries);
+>                 } else
+>                         n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
+> --
+> 2.18.1
+>
+>
