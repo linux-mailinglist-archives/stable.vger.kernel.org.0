@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEBAE24B53E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB5B24B5F1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbgHTKVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47138 "EHLO mail.kernel.org"
+        id S1730574AbgHTK34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:29:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731529AbgHTKVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:21:07 -0400
+        id S1731187AbgHTKVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEB5B20738;
-        Thu, 20 Aug 2020 10:21:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B65D12072D;
+        Thu, 20 Aug 2020 10:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918866;
-        bh=EHuWEAqef+MFu2ZDsYXQpvGQaTZJwqP5kF7KV4YBlUM=;
+        s=default; t=1597918869;
+        bh=HrDPvE7Q066fLsktKOZxwx3cPJ26Ip3k+jJSfLa+A4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvNAoiZ8s/JJPLiTJQvxHnPh/QdRPTuWC94gi6MmqXprV1kihJ6F5zf8G+e9eLzFn
-         Hf+iyQ7NE9G0KxGwMxq3osgSvm9BJA3Y0cEdm9Zj9QgSYbmQ0GSI6cVXi24gcuGHIQ
-         uldn+CfNoauKo2ZaEtyIrBVJoD87NdWtDV4jCMRU=
+        b=l6gQxQiF/26bmQE4knCwycc3Cr/tUb+oV90Vi2i3OdeXuxN6F/NwEiigFp+kl/K+D
+         ICdG74kCIx/h2kSoiK7IA+fUfBqzIeKjZmapoIru8tkCfAFT85egGEZ47k9NqvbEzi
+         ch5ZTUWg3uRFtTNbdlcEu03ywXcjw7iTnSEMA4iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 094/149] usb: dwc2: Fix error path in gadget registration
-Date:   Thu, 20 Aug 2020 11:22:51 +0200
-Message-Id: <20200820092130.275835519@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Stan Johnson <userm57@yahoo.com>
+Subject: [PATCH 4.4 095/149] scsi: mesh: Fix panic after host or bus reset
+Date:   Thu, 20 Aug 2020 11:22:52 +0200
+Message-Id: <20200820092130.319348248@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,95 +46,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 33a06f1300a79cfd461cea0268f05e969d4f34ec ]
+[ Upstream commit edd7dd2292ab9c3628b65c4d04514c3068ad54f6 ]
 
-When gadget registration fails, one should not call usb_del_gadget_udc().
-Ensure this by setting gadget->udc to NULL. Also in case of a failure
-there is no need to disable low-level hardware, so return immiedetly
-instead of jumping to error_init label.
+Booting Linux with a Conner CP3200 drive attached to the MESH SCSI bus
+results in EH measures and a panic:
 
-This fixes the following kernel NULL ptr dereference on gadget failure
-(can be easily triggered with g_mass_storage without any module
-parameters):
+[   25.499838] mesh: configured for synchronous 5 MB/s
+[   25.787154] mesh: performing initial bus reset...
+[   29.867115] scsi host0: MESH
+[   29.929527] mesh: target 0 synchronous at 3.6 MB/s
+[   29.998763] scsi 0:0:0:0: Direct-Access     CONNER   CP3200-200mb-3.5 4040 PQ: 0 ANSI: 1 CCS
+[   31.989975] sd 0:0:0:0: [sda] 415872 512-byte logical blocks: (213 MB/203 MiB)
+[   32.070975] sd 0:0:0:0: [sda] Write Protect is off
+[   32.137197] sd 0:0:0:0: [sda] Mode Sense: 5b 00 00 08
+[   32.209661] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+[   32.332708]  sda: [mac] sda1 sda2 sda3
+[   32.417733] sd 0:0:0:0: [sda] Attached SCSI disk
+... snip ...
+[   76.687067] mesh_abort((ptrval))
+[   76.743606] mesh: state at (ptrval), regs at (ptrval), dma at (ptrval)
+[   76.810798]     ct=6000 seq=86 bs=4017 fc= 0 exc= 0 err= 0 im= 7 int= 0 sp=85
+[   76.880720]     dma stat=84e0 cmdptr=1f73d000
+[   76.941387]     phase=4 msgphase=0 conn_tgt=0 data_ptr=24576
+[   77.005567]     dma_st=1 dma_ct=0 n_msgout=0
+[   77.065456]     target 0: req=(ptrval) goes_out=0 saved_ptr=0
+[   77.130512] mesh_abort((ptrval))
+[   77.187670] mesh: state at (ptrval), regs at (ptrval), dma at (ptrval)
+[   77.255594]     ct=6000 seq=86 bs=4017 fc= 0 exc= 0 err= 0 im= 7 int= 0 sp=85
+[   77.325778]     dma stat=84e0 cmdptr=1f73d000
+[   77.387239]     phase=4 msgphase=0 conn_tgt=0 data_ptr=24576
+[   77.453665]     dma_st=1 dma_ct=0 n_msgout=0
+[   77.515900]     target 0: req=(ptrval) goes_out=0 saved_ptr=0
+[   77.582902] mesh_host_reset
+[   88.187083] Kernel panic - not syncing: mesh: double DMA start !
+[   88.254510] CPU: 0 PID: 358 Comm: scsi_eh_0 Not tainted 5.6.13-pmac #1
+[   88.323302] Call Trace:
+[   88.378854] [e16ddc58] [c0027080] panic+0x13c/0x308 (unreliable)
+[   88.446221] [e16ddcb8] [c02b2478] mesh_start.part.12+0x130/0x414
+[   88.513298] [e16ddcf8] [c02b2fc8] mesh_queue+0x54/0x70
+[   88.577097] [e16ddd18] [c02a1848] scsi_send_eh_cmnd+0x374/0x384
+[   88.643476] [e16dddc8] [c02a1938] scsi_eh_tur+0x5c/0xb8
+[   88.707878] [e16dddf8] [c02a1ab8] scsi_eh_test_devices+0x124/0x178
+[   88.775663] [e16dde28] [c02a2094] scsi_eh_ready_devs+0x588/0x8a8
+[   88.843124] [e16dde98] [c02a31d8] scsi_error_handler+0x344/0x520
+[   88.910697] [e16ddf08] [c00409c8] kthread+0xe4/0xe8
+[   88.975166] [e16ddf38] [c000f234] ret_from_kernel_thread+0x14/0x1c
+[   89.044112] Rebooting in 180 seconds..
 
-dwc2 12480000.hsotg: dwc2_check_params: Invalid parameter besl=1
-dwc2 12480000.hsotg: dwc2_check_params: Invalid parameter g_np_tx_fifo_size=1024
-dwc2 12480000.hsotg: EPs: 16, dedicated fifos, 7808 entries in SPRAM
-Mass Storage Function, version: 2009/09/11
-LUN: removable file: (no medium)
-no file given for LUN0
-g_mass_storage 12480000.hsotg: failed to start g_mass_storage: -22
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000104
-pgd = (ptrval)
-[00000104] *pgd=00000000
-Internal error: Oops: 805 [#1] PREEMPT SMP ARM
-Modules linked in:
-CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.8.0-rc5 #3133
-Hardware name: Samsung Exynos (Flattened Device Tree)
-Workqueue: events deferred_probe_work_func
-PC is at usb_del_gadget_udc+0x38/0xc4
-LR is at __mutex_lock+0x31c/0xb18
-...
-Process kworker/0:1 (pid: 12, stack limit = 0x(ptrval))
-Stack: (0xef121db0 to 0xef122000)
-...
-[<c076bf3c>] (usb_del_gadget_udc) from [<c0726bec>] (dwc2_hsotg_remove+0x10/0x20)
-[<c0726bec>] (dwc2_hsotg_remove) from [<c0711208>] (dwc2_driver_probe+0x57c/0x69c)
-[<c0711208>] (dwc2_driver_probe) from [<c06247c0>] (platform_drv_probe+0x6c/0xa4)
-[<c06247c0>] (platform_drv_probe) from [<c0621df4>] (really_probe+0x200/0x48c)
-[<c0621df4>] (really_probe) from [<c06221e8>] (driver_probe_device+0x78/0x1fc)
-[<c06221e8>] (driver_probe_device) from [<c061fcd4>] (bus_for_each_drv+0x74/0xb8)
-[<c061fcd4>] (bus_for_each_drv) from [<c0621b54>] (__device_attach+0xd4/0x16c)
-[<c0621b54>] (__device_attach) from [<c0620c98>] (bus_probe_device+0x88/0x90)
-[<c0620c98>] (bus_probe_device) from [<c06211b0>] (deferred_probe_work_func+0x3c/0xd0)
-[<c06211b0>] (deferred_probe_work_func) from [<c0149280>] (process_one_work+0x234/0x7dc)
-[<c0149280>] (process_one_work) from [<c014986c>] (worker_thread+0x44/0x51c)
-[<c014986c>] (worker_thread) from [<c0150b1c>] (kthread+0x158/0x1a0)
-[<c0150b1c>] (kthread) from [<c0100114>] (ret_from_fork+0x14/0x20)
-Exception stack(0xef121fb0 to 0xef121ff8)
-...
----[ end trace 9724c2fc7cc9c982 ]---
+In theory, a panic can happen after a bus or host reset with dma_started
+flag set. Fix this by halting the DMA before reinitializing the host.
+Don't assume that ms->current_req is set when halt_dma() is invoked as it
+may not hold for bus or host reset.
 
-While fixing this also fix the double call to dwc2_lowlevel_hw_disable()
-if dr_mode is set to USB_DR_MODE_PERIPHERAL. In such case low-level
-hardware is already disabled before calling usb_add_gadget_udc(). That
-function correctly preserves low-level hardware state, there is no need
-for the second unconditional dwc2_lowlevel_hw_disable() call.
+BTW, this particular Conner drive can be made to work by inhibiting
+disconnect/reselect with 'mesh.resel_targets=0'.
 
-Fixes: 207324a321a8 ("usb: dwc2: Postponed gadget registration to the udc class driver")
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/3952bc691e150a7128b29120999b6092071b039a.1595460351.git.fthain@telegraphics.com.au
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/platform.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/mesh.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
-index 5e554b1d5a8f9..d9fafd6a7927f 100644
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -458,6 +458,7 @@ static int dwc2_driver_probe(struct platform_device *dev)
- 	if (hsotg->gadget_enabled) {
- 		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
- 		if (retval) {
-+			hsotg->gadget.udc = NULL;
- 			dwc2_hsotg_remove(hsotg);
- 			goto error;
- 		}
-@@ -466,7 +467,8 @@ static int dwc2_driver_probe(struct platform_device *dev)
- 	return 0;
- 
- error:
--	dwc2_lowlevel_hw_disable(hsotg);
-+	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
-+		dwc2_lowlevel_hw_disable(hsotg);
- 	return retval;
+diff --git a/drivers/scsi/mesh.c b/drivers/scsi/mesh.c
+index 555367f002282..18ed4b44bc513 100644
+--- a/drivers/scsi/mesh.c
++++ b/drivers/scsi/mesh.c
+@@ -1044,6 +1044,8 @@ static void handle_error(struct mesh_state *ms)
+ 		while ((in_8(&mr->bus_status1) & BS1_RST) != 0)
+ 			udelay(1);
+ 		printk("done\n");
++		if (ms->dma_started)
++			halt_dma(ms);
+ 		handle_reset(ms);
+ 		/* request_q is empty, no point in mesh_start() */
+ 		return;
+@@ -1356,7 +1358,8 @@ static void halt_dma(struct mesh_state *ms)
+ 		       ms->conn_tgt, ms->data_ptr, scsi_bufflen(cmd),
+ 		       ms->tgts[ms->conn_tgt].data_goes_out);
+ 	}
+-	scsi_dma_unmap(cmd);
++	if (cmd)
++		scsi_dma_unmap(cmd);
+ 	ms->dma_started = 0;
  }
  
+@@ -1711,6 +1714,9 @@ static int mesh_host_reset(struct scsi_cmnd *cmd)
+ 
+ 	spin_lock_irqsave(ms->host->host_lock, flags);
+ 
++	if (ms->dma_started)
++		halt_dma(ms);
++
+ 	/* Reset the controller & dbdma channel */
+ 	out_le32(&md->control, (RUN|PAUSE|FLUSH|WAKE) << 16);	/* stop dma */
+ 	out_8(&mr->exception, 0xff);	/* clear all exception bits */
 -- 
 2.25.1
 
