@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A20024B259
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94AD24B26C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbgHTJ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
+        id S1728095AbgHTJ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:29:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbgHTJ1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:27:02 -0400
+        id S1728030AbgHTJ3L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E153222D02;
-        Thu, 20 Aug 2020 09:27:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A14CF21744;
+        Thu, 20 Aug 2020 09:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915621;
-        bh=7a11vyjkFBvgDh5rGkcLcXiUPLhdNhbeJ8aUbN/3XCk=;
+        s=default; t=1597915751;
+        bh=Jen+qfOZNmYM0kSGwzovdZBTZXKl8VbilUIN2LKYbyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vj9xj3iA0bRK6mUk9bDb27WJ3F3eWmlsFKvhEktXO2yXraB0gGeQpEgtzIYOek72c
-         nZujJmsmGwyMxzArtocCyTB818rDxoi0qQyUhXKo9edIRpUNA/gO1+SB+NS/Uv5Lxk
-         j7ggkhKt+WOnpVRD5xm6LmLyrRidH3GWxyCT4luY=
+        b=fc4YBdMT2Fqcelr5PzAAPc0b98nnN9fjXSIY5mckynUfi9gZbMGPD8jg/BkeW+2vy
+         EgyukgnhaLqg0znCllSwORIALjTH51H7eRKWurka4v2IkqpIxoCjmlRCmlpOrgWPYy
+         FfYpsgwFBS1FlEA0rHqt9Do8QfMAEVbm29+eAans=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 078/232] mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
-Date:   Thu, 20 Aug 2020 11:18:49 +0200
-Message-Id: <20200820091616.590598104@linuxfoundation.org>
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.8 094/232] watchdog: f71808e_wdt: clear watchdog timeout occurred flag
+Date:   Thu, 20 Aug 2020 11:19:05 +0200
+Message-Id: <20200820091617.390038716@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -47,91 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream.
+commit 4f39d575844148fbf3081571a1f3b4ae04150958 upstream.
 
-This is found by code observation only.
+The flag indicating a watchdog timeout having occurred normally persists
+till Power-On Reset of the Fintek Super I/O chip. The user can clear it
+by writing a `1' to the bit.
 
-Firstly, the worst case scenario should assume the whole range was covered
-by pmd sharing.  The old algorithm might not work as expected for ranges
-like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
-expected range should be (0, 2g).
+The driver doesn't offer a restart method, so regular system reboot
+might not reset the Super I/O and if the watchdog isn't enabled, we
+won't touch the register containing the bit on the next boot.
+In this case all subsequent regular reboots will be wrongly flagged
+by the driver as being caused by the watchdog.
 
-Since at it, remove the loop since it should not be required.  With that,
-the new code should be faster too when the invalidating range is huge.
+Fix this by having the flag cleared after read. This is also done by
+other drivers like those for the i6300esb and mpc8xxx_wdt.
 
-Mike said:
-
-: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
-: adjust to (0, 1g+2m) which is incorrect.
-:
-: We should cc stable.  The original reason for adjusting the range was to
-: prevent data corruption (getting wrong page).  Since the range is not
-: always adjusted correctly, the potential for corruption still exists.
-:
-: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
-: is only gong to be called in two cases:
-:
-: 1) for a single page
-: 2) for range == entire vma
-:
-: In those cases, the current code should produce the correct results.
-:
-: To be safe, let's just cc stable.
-
-Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200611191750.28096-5-a.fatoum@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/hugetlb.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/watchdog/f71808e_wdt.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5313,25 +5313,21 @@ static bool vma_shareable(struct vm_area
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
- {
--	unsigned long check_addr;
-+	unsigned long a_start, a_end;
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -706,6 +706,13 @@ static int __init watchdog_init(int sioa
+ 	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
+ 	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
  
- 	if (!(vma->vm_flags & VM_MAYSHARE))
- 		return;
- 
--	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
--		unsigned long a_start = check_addr & PUD_MASK;
--		unsigned long a_end = a_start + PUD_SIZE;
-+	/* Extend the range to be PUD aligned for a worst case scenario */
-+	a_start = ALIGN_DOWN(*start, PUD_SIZE);
-+	a_end = ALIGN(*end, PUD_SIZE);
- 
--		/*
--		 * If sharing is possible, adjust start/end if necessary.
--		 */
--		if (range_in_vma(vma, a_start, a_end)) {
--			if (a_start < *start)
--				*start = a_start;
--			if (a_end > *end)
--				*end = a_end;
--		}
--	}
 +	/*
-+	 * Intersect the range with the vma range, since pmd sharing won't be
-+	 * across vma after all
++	 * We don't want WDTMOUT_STS to stick around till regular reboot.
++	 * Write 1 to the bit to clear it to zero.
 +	 */
-+	*start = max(vma->vm_start, a_start);
-+	*end = min(vma->vm_end, a_end);
- }
++	superio_outb(sioaddr, F71808FG_REG_WDT_CONF,
++		     wdt_conf | BIT(F71808FG_FLAG_WDTMOUT_STS));
++
+ 	superio_exit(sioaddr);
  
- /*
+ 	err = watchdog_set_timeout(timeout);
 
 
