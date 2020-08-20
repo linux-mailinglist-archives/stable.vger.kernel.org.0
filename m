@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF9A24B779
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1F124B77B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731061AbgHTKON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60512 "EHLO mail.kernel.org"
+        id S1730011AbgHTKzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731095AbgHTKOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:12 -0400
+        id S1731157AbgHTKOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:14:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D203A20724;
-        Thu, 20 Aug 2020 10:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B23A20724;
+        Thu, 20 Aug 2020 10:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918451;
-        bh=fkOJEgxnlLfFoY4VoR+l/3xqMq5UzsO9nPMTzem0mjU=;
+        s=default; t=1597918454;
+        bh=80d02pedfTpF3cSJbY6um8Fk5bv/JNoyRNqEAFcDkBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbYkbVe3XVycxhQanWGpS56Kvw66GrUROLH+AejuRNALFio2KNwbBftCg3DngpKRz
-         tQd407T77fpZQC7JYJpgMMLsPq7MzCY2fnU3Av+/x/dyCTsTStNP9fsB1DvQ1XWuh+
-         EOKlRh7iTYFHTv+Y1cO9a1tKgjXhJU6rSL5TAphM=
+        b=N3wMT0kw8qHm/ksn4r+AFdozLRNzMO88B2kHNxL51ortA4PX+9D13NMVvPjaKSZnZ
+         a1HyzHA2dXa2OXPZRp55z95O2leurhuLYfemDHMMsd9KhpHNg40V4xIlOc8+42UxCz
+         OapqHvo3aVcgXP+P+gQKnXaWv+tjaYGw60RbIdSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.14 174/228] xtensa: fix xtensa_pmu_setup prototype
-Date:   Thu, 20 Aug 2020 11:22:29 +0200
-Message-Id: <20200820091616.273559522@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 175/228] powerpc: Fix circular dependency between percpu.h and mmu.h
+Date:   Thu, 20 Aug 2020 11:22:30 +0200
+Message-Id: <20200820091616.323325226@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -42,35 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 6d65d3769d1910379e1cfa61ebf387efc6bfb22c upstream.
+commit 0c83b277ada72b585e6a3e52b067669df15bcedb upstream.
 
-Fix the following build error in configurations with
-CONFIG_XTENSA_VARIANT_HAVE_PERF_EVENTS=y:
+Recently random.h started including percpu.h (see commit
+f227e3ec3b5c ("random32: update the net random state on interrupt and
+activity")), which broke corenet64_smp_defconfig:
 
-  arch/xtensa/kernel/perf_event.c:420:29: error: passing argument 3 of
-  ‘cpuhp_setup_state’ from incompatible pointer type
+  In file included from /linux/arch/powerpc/include/asm/paca.h:18,
+                   from /linux/arch/powerpc/include/asm/percpu.h:13,
+                   from /linux/include/linux/random.h:14,
+                   from /linux/lib/uuid.c:14:
+  /linux/arch/powerpc/include/asm/mmu.h:139:22: error: unknown type name 'next_tlbcam_idx'
+    139 | DECLARE_PER_CPU(int, next_tlbcam_idx);
 
-Cc: stable@vger.kernel.org
-Fixes: 25a77b55e74c ("xtensa/perf: Convert the hotplug notifier to state machine callbacks")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+This is due to a circular header dependency:
+  asm/mmu.h includes asm/percpu.h, which includes asm/paca.h, which
+  includes asm/mmu.h
+
+Which means DECLARE_PER_CPU() isn't defined when mmu.h needs it.
+
+We can fix it by moving the include of paca.h below the include of
+asm-generic/percpu.h.
+
+This moves the include of paca.h out of the #ifdef __powerpc64__, but
+that is OK because paca.h is almost entirely inside #ifdef
+CONFIG_PPC64 anyway.
+
+It also moves the include of paca.h out of the #ifdef CONFIG_SMP,
+which could possibly break something, but seems to have no ill
+effects.
+
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Cc: stable@vger.kernel.org # v5.8
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200804130558.292328-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/xtensa/kernel/perf_event.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/percpu.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/xtensa/kernel/perf_event.c
-+++ b/arch/xtensa/kernel/perf_event.c
-@@ -404,7 +404,7 @@ static struct pmu xtensa_pmu = {
- 	.read = xtensa_pmu_read,
- };
+--- a/arch/powerpc/include/asm/percpu.h
++++ b/arch/powerpc/include/asm/percpu.h
+@@ -10,8 +10,6 @@
  
--static int xtensa_pmu_setup(int cpu)
-+static int xtensa_pmu_setup(unsigned int cpu)
- {
- 	unsigned i;
+ #ifdef CONFIG_SMP
  
+-#include <asm/paca.h>
+-
+ #define __my_cpu_offset local_paca->data_offset
+ 
+ #endif /* CONFIG_SMP */
+@@ -19,4 +17,6 @@
+ 
+ #include <asm-generic/percpu.h>
+ 
++#include <asm/paca.h>
++
+ #endif /* _ASM_POWERPC_PERCPU_H_ */
 
 
