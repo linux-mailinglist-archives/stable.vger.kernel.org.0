@@ -2,102 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5D724AAB3
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A8E24ABE3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728479AbgHTAEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:04:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728461AbgHTAEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:04:21 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EFB2208E4;
-        Thu, 20 Aug 2020 00:04:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881861;
-        bh=4hK1erPQRlP1+oL9gdRiB7F0rzjISyPy6USi40HgIjg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHl8AiitCyMT5o22zzMs6WH0nBbCEEVqgeTSJwXferqYd16qjN7sZ2CCDZHqaq1JK
-         hipKFNCohFVI8CU0rgbplR7z2tp5Z9anAdUnvzLzJzBvBIsj9by08nJ60bcKafqpkN
-         EMWtrZC5Bfu6OWO5Djrtg0hLBUCtPCwLoE9GLXL8=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/10] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Wed, 19 Aug 2020 20:04:06 -0400
-Message-Id: <20200820000406.216050-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200820000406.216050-1-sashal@kernel.org>
-References: <20200820000406.216050-1-sashal@kernel.org>
+        id S1728180AbgHTAOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:14:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727912AbgHTAOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Aug 2020 20:14:00 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D535AC061757
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:13:59 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id h2so213321plr.0
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 17:13:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fSEYrX5ACCj62ngKp36MmVum7AWiPuR/R+X34o+7xuE=;
+        b=GZgsINVjA/iPVwpqT/wdawM2LvRnSYS0j70GlPgoxgV9M4sanwWBFOsmDMGbuAVIRa
+         fInE81nFqMhoKq8aeK2wXF23ckv+8mvNAsIAMNsaEXyznMXVLd+MFeyWTryUYHfbHhoL
+         kS9sYMtCAKiqoxBbxYxGEpzZdonBKqbwUdIwbuasbQS/1Reg518ZvopiGNEAOnVxezPZ
+         0fc1L1znuoVPGemAh7QXesW7icu7VBfCaj9yWLu28K5Ix0mIvzQPh6O3AT9pCabC9Qlt
+         bd32bNMb1gX+jDIWkWEa7SXABnbuMe2PsEgAvpvtqbTRKy6kOBIF4TCyzYtrGbZrqAki
+         rq8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fSEYrX5ACCj62ngKp36MmVum7AWiPuR/R+X34o+7xuE=;
+        b=Ngj2y5k+LJXzr51L5R0c6oJXBsGOutiPZnZ1A3t255kf8AvelLdpLkUCnXLJ9HZ0RG
+         9uo8YDj5xEAZQ00NJLoSViRYP8PH46I4pVhd09MljOLgixb7eF1RBvX5IBnjkmILCL+V
+         U5CKlVFYUy7t+zrtMVtxieURfpXLBGWELdWlIK3X2+H/N5DNS+aDC22xcGWASYTeB8n6
+         gPwhvrH8ugZIN+CVVA3ast140X6m83PiMBEPVFPQhXY0FNNkG+2aR4+USjysefKdtCfI
+         AtwA51dIqAS/eaIgNGPMm/hbKEeBf2hVSWjZ5tiH+gB7PfciYANJRZeL/t4XxkK3h7c8
+         +1Uw==
+X-Gm-Message-State: AOAM530j7L8n8lmDjQNA4btPZMbenf4UwzUUe5J/qxDGSNbLWh012nbe
+        +KAcA/sOkriWs21pGMUh51lbAQ57sg0HgjprMKaRbA==
+X-Google-Smtp-Source: ABdhPJzl6F5E2iWMKn+8J0GL89vR8SvenD67R1x0TWLjRLW3Uw/3w3cewKL6RgzutABpZ4MtNfBH5ztYpmF9l9LEG8A=
+X-Received: by 2002:a17:90a:a10c:: with SMTP id s12mr340778pjp.32.1597882439098;
+ Wed, 19 Aug 2020 17:13:59 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200730205112.2099429-1-ndesaulniers@google.com>
+ <20200730205112.2099429-3-ndesaulniers@google.com> <CAN=-Rxty=Ux5rj-VQSZH-ryj1RiNJvy7mRE7uyx_YAndGtcq7Q@mail.gmail.com>
+ <CAKwvOdkNLK2cRfY+DA0u3KuY5PuEss5Qox6X3zzpL053pARfrA@mail.gmail.com>
+In-Reply-To: <CAKwvOdkNLK2cRfY+DA0u3KuY5PuEss5Qox6X3zzpL053pARfrA@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 19 Aug 2020 17:13:47 -0700
+Message-ID: <CAKwvOdnDyUw7TZ-ZsWQ=d7ZNPM_ziFnimmbYoVAexWmg2DL36A@mail.gmail.com>
+Subject: Re: [PATCH 2/4] ARM: backtrace-clang: add fixup for lr dereference
+To:     Nathan Huckleberry <nhuck15@gmail.com>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-mediatek@lists.infradead.org,
+        Lvqiang Huang <lvqiang.huang@unisoc.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Nathan Huckleberry <nhuck@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+On Mon, Aug 10, 2020 at 3:33 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
+>
+> On Thu, Aug 6, 2020 at 3:39 PM Nathan Huckleberry <nhuck15@gmail.com> wrote:
+> >
+> > Mostly looks good to me. Just a minor nit.
+> >
+> > On Thu, Jul 30, 2020 at 3:51 PM Nick Desaulniers
+> > <ndesaulniers@google.com> wrote:
+> > > +/*
+> > > + * Accessing the address pointed to by the link register triggered an
+> > > + * exception, don't try to unwind through it.
+> > > + */
+> > > +bad_lr:                mov     sv_fp, #0
+> >
+> > It might be nice to emit a warning here since we'll
+> > only hit this case if something fishy is going on
+> > with the saved lr.
+>
+> Yeah, something fishy is going on if that ever happens.  Let me create
+> a V2 with an additional print.
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+FWIW, I ran into another bug on -next when trying to update this.
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+Report:
+https://lore.kernel.org/lkml/20200811204729.1116341-1-ndesaulniers@google.com/
+Fix:
+https://lore.kernel.org/lkml/20200814212525.6118-1-john.ogness@linutronix.de/T/#t
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
-
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index ff4049155c840..355aec0867f4d 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -491,10 +491,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
- }
- #endif
- 
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
- 
- #define inb_p		inb
- #define inw_p		inw
+Then I got bogged down in planning for plumbers and other fires. I
+hope to revisit the series after plumbers.
 -- 
-2.25.1
-
+Thanks,
+~Nick Desaulniers
