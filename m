@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC2924B9C8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFDE24B92A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729854AbgHTLsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53786 "EHLO mail.kernel.org"
+        id S1730323AbgHTLj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:39:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729936AbgHTKD3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:29 -0400
+        id S1729429AbgHTKFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:05:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E50222BF5;
-        Thu, 20 Aug 2020 10:03:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DD5D22B40;
+        Thu, 20 Aug 2020 10:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917801;
-        bh=0vbpsik9GH1sOS6luzvN5FmPVmEen3xws3Rpjd3rdO4=;
+        s=default; t=1597917919;
+        bh=tcGqj/7/ZofFfawDGf6YWAYDXchoGbIZXO0mDruMJEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVdpmPhiO6DH5c8isGQW1uUVU6An4JHXBkwM4tB8vRcLJf7YK/yJmj4Zogeg/hAgQ
-         TwLMAcRnjfGJbcPtFphyDdsdUe4KQGejUYQe2iUFkpeG5O98E2lrhOYB4BQj2Ky+0Z
-         e0XqdoehSD6iL47JJeVmDP0MNRARfipra0wVzAgo=
+        b=j/zpOTUcLBPc/ZAzKh8iZt+mcexzVdZUDb+74AAB0BxwR36l2Oab5lRXp059yKMyq
+         YuRzgo5nHNSPyKotSNB+TbHgpwYVw89JPZH/TpkcMEOFNjF1mM1tZR2HzWjakHXYiR
+         oikZrsTNevfqu3ICDI1P8AvzgMtYhOdMS5lSlzo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com,
-        syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com,
-        syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Qiujun Huang <anenbupt@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 162/212] fs/minix: reject too-large maximum file size
-Date:   Thu, 20 Aug 2020 11:22:15 +0200
-Message-Id: <20200820091610.585803499@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 163/212] ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109
+Date:   Thu, 20 Aug 2020 11:22:16 +0200
+Message-Id: <20200820091610.636812289@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -50,76 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Hector Martin <marcan@marcan.st>
 
-commit 270ef41094e9fa95273f288d7d785313ceab2ff3 upstream.
+commit 1b7ecc241a67ad6b584e071bd791a54e0cd5f097 upstream.
 
-If the minix filesystem tries to map a very large logical block number to
-its on-disk location, block_to_path() can return offsets that are too
-large, causing out-of-bounds memory accesses when accessing indirect index
-blocks.  This should be prevented by the check against the maximum file
-size, but this doesn't work because the maximum file size is read directly
-from the on-disk superblock and isn't validated itself.
+Further investigation of the L-R swap problem on the MS2109 reveals that
+the problem isn't that the channels are swapped, but rather that they
+are swapped and also out of phase by one sample. In other words, the
+issue is actually that the very first frame that comes from the hardware
+is a half-frame containing only the right channel, and after that
+everything becomes offset.
 
-Fix this by validating the maximum file size at mount time.
+So introduce a new quirk field to drop the very first 2 bytes that come
+in after the format is configured and a capture stream starts. This puts
+the channels in phase and in the correct order.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+c7d9ec7a1a7272dd71b3@syzkaller.appspotmail.com
-Reported-by: syzbot+3b7b03a0c28948054fb5@syzkaller.appspotmail.com
-Reported-by: syzbot+6e056ee473568865f3e6@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Qiujun Huang <anenbupt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200628060846.682158-4-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20200810082400.225858-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/minix/inode.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ sound/usb/card.h   |    1 +
+ sound/usb/pcm.c    |    6 ++++++
+ sound/usb/quirks.c |    3 +++
+ sound/usb/stream.c |    1 +
+ 4 files changed, 11 insertions(+)
 
---- a/fs/minix/inode.c
-+++ b/fs/minix/inode.c
-@@ -155,6 +155,23 @@ static int minix_remount (struct super_b
- 	return 0;
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -125,6 +125,7 @@ struct snd_usb_substream {
+ 	unsigned int tx_length_quirk:1;	/* add length specifier to transfers */
+ 	unsigned int fmt_type;		/* USB audio format type (1-3) */
+ 	unsigned int pkt_offset_adj;	/* Bytes to drop from beginning of packets (for non-compliant devices) */
++	unsigned int stream_offset_adj;	/* Bytes to drop from beginning of stream (for non-compliant devices) */
+ 
+ 	unsigned int running: 1;	/* running status */
+ 
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1312,6 +1312,12 @@ static void retire_capture_urb(struct sn
+ 			// continue;
+ 		}
+ 		bytes = urb->iso_frame_desc[i].actual_length;
++		if (subs->stream_offset_adj > 0) {
++			unsigned int adj = min(subs->stream_offset_adj, bytes);
++			cp += adj;
++			bytes -= adj;
++			subs->stream_offset_adj -= adj;
++		}
+ 		frames = bytes / stride;
+ 		if (!subs->txfr_quirk)
+ 			bytes = frames * stride;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1121,6 +1121,9 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
++		subs->stream_offset_adj = 2;
++		break;
+ 	}
  }
  
-+static bool minix_check_superblock(struct minix_sb_info *sbi)
-+{
-+	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
-+		return false;
-+
-+	/*
-+	 * s_max_size must not exceed the block mapping limitation.  This check
-+	 * is only needed for V1 filesystems, since V2/V3 support an extra level
-+	 * of indirect blocks which places the limit well above U32_MAX.
-+	 */
-+	if (sbi->s_version == MINIX_V1 &&
-+	    sbi->s_max_size > (7 + 512 + 512*512) * BLOCK_SIZE)
-+		return false;
-+
-+	return true;
-+}
-+
- static int minix_fill_super(struct super_block *s, void *data, int silent)
- {
- 	struct buffer_head *bh;
-@@ -233,11 +250,12 @@ static int minix_fill_super(struct super
- 	} else
- 		goto out_no_fs;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -95,6 +95,7 @@ static void snd_usb_init_substream(struc
+ 	subs->tx_length_quirk = as->chip->tx_length_quirk;
+ 	subs->speed = snd_usb_get_speed(subs->dev);
+ 	subs->pkt_offset_adj = 0;
++	subs->stream_offset_adj = 0;
  
-+	if (!minix_check_superblock(sbi))
-+		goto out_illegal_sb;
-+
- 	/*
- 	 * Allocate the buffer map to keep the superblock small.
- 	 */
--	if (sbi->s_imap_blocks == 0 || sbi->s_zmap_blocks == 0)
--		goto out_illegal_sb;
- 	i = (sbi->s_imap_blocks + sbi->s_zmap_blocks) * sizeof(bh);
- 	map = kzalloc(i, GFP_KERNEL);
- 	if (!map)
+ 	snd_usb_set_pcm_ops(as->pcm, stream);
+ 
 
 
