@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5645A24BF07
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2216024BF08
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729655AbgHTNjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729810AbgHTNjT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728013AbgHTJ3C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:29:02 -0400
+        id S1728043AbgHTJ3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:29:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54AC422D06;
-        Thu, 20 Aug 2020 09:29:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7B8A2075E;
+        Thu, 20 Aug 2020 09:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915741;
-        bh=io+BRFKGROeR38sVt8rmEmwA9RE4GWl4AZRy24OAa9A=;
+        s=default; t=1597915745;
+        bh=ifY08RktxRwj5+E/Tr2wAaVytBAVd0Gw42ZhtSRJAxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVF8HTJvWZDWyIrb6kwY2XW9wzsj9HC/vPy7L/Fdhmg9/SFTsBEn0xRkwaqcpsAAz
-         ifYS3zh/36/7FJpPSeo7B56uy0R5yaSwrkTdITdVdSKWNB8vbE3SJCe337+C+HEuu0
-         Ts7TPYAnx9hyzzz75aOIhAS2FO9hyylqaLuHQF98=
+        b=KibHYYbGH7UxkXmCssSaaDPSYVsVjliLmSqvIc4+sGb0ToqATVvpxr70K0q2HzlAm
+         vVQcr9twatlXhq3b+KF11DhOlXfUb6Uw7YYlG/pyF8GVUCprEhEscw45YErlHjY4ZL
+         andHM43jZHEGYB5AZs8dEEdPU8y5toBcUStUa7Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Mathew King <mathewk@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 118/232] mtd: rawnand: brcmnand: ECC error handling on EDU transfers
-Date:   Thu, 20 Aug 2020 11:19:29 +0200
-Message-Id: <20200820091618.529746352@linuxfoundation.org>
+Subject: [PATCH 5.8 119/232] platform/chrome: cros_ec_ishtp: Fix a double-unlock issue
+Date:   Thu, 20 Aug 2020 11:19:30 +0200
+Message-Id: <20200820091618.583013949@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,86 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Dasu <kdasu.kdev@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 4551e78ad98add1f16b70cf286d5aad3ce7bcd4c ]
+[ Upstream commit aaa3cbbac326c95308e315f1ab964a3369c4d07d ]
 
-Implement ECC correctable and uncorrectable error handling for EDU
-reads. If ECC correctable bitflips are encountered on EDU transfer,
-read page again using PIO. This is needed due to a NAND controller
-limitation where corrected data is not transferred to the DMA buffer
-on ECC error. This applies to ECC correctable errors that are reported
-by the controller hardware based on set number of bitflips threshold in
-the controller threshold register, bitflips below the threshold are
-corrected silently and are not reported by the controller hardware.
+In function cros_ec_ishtp_probe(), "up_write" is already called
+before function "cros_ec_dev_init". But "up_write" will be called
+again after the calling of the function "cros_ec_dev_init" failed.
+Thus add a call of the function “down_write” in this if branch
+for the completion of the exception handling.
 
-Fixes: a5d53ad26a8b ("mtd: rawnand: brcmnand: Add support for flash-edu for dma transfers")
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200612212902.21347-3-kdasu.kdev@gmail.com
+Fixes: 26a14267aff2 ("platform/chrome: Add ChromeOS EC ISHTP driver")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Tested-by: Mathew King <mathewk@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c | 26 ++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/platform/chrome/cros_ec_ishtp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-index ac934a715a194..a4033d32a7103 100644
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -1918,6 +1918,22 @@ static int brcmnand_edu_trans(struct brcmnand_host *host, u64 addr, u32 *buf,
- 	edu_writel(ctrl, EDU_STOP, 0); /* force stop */
- 	edu_readl(ctrl, EDU_STOP);
+diff --git a/drivers/platform/chrome/cros_ec_ishtp.c b/drivers/platform/chrome/cros_ec_ishtp.c
+index ed794a7ddba9b..81364029af367 100644
+--- a/drivers/platform/chrome/cros_ec_ishtp.c
++++ b/drivers/platform/chrome/cros_ec_ishtp.c
+@@ -681,8 +681,10 @@ static int cros_ec_ishtp_probe(struct ishtp_cl_device *cl_device)
  
-+	if (!ret && edu_cmd == EDU_CMD_READ) {
-+		u64 err_addr = 0;
-+
-+		/*
-+		 * check for ECC errors here, subpage ECC errors are
-+		 * retained in ECC error address register
-+		 */
-+		err_addr = brcmnand_get_uncorrecc_addr(ctrl);
-+		if (!err_addr) {
-+			err_addr = brcmnand_get_correcc_addr(ctrl);
-+			if (err_addr)
-+				ret = -EUCLEAN;
-+		} else
-+			ret = -EBADMSG;
+ 	/* Register croc_ec_dev mfd */
+ 	rv = cros_ec_dev_init(client_data);
+-	if (rv)
++	if (rv) {
++		down_write(&init_lock);
+ 		goto end_cros_ec_dev_init_error;
 +	}
-+
- 	return ret;
- }
  
-@@ -2124,6 +2140,7 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
- 	u64 err_addr = 0;
- 	int err;
- 	bool retry = true;
-+	bool edu_err = false;
+ 	return 0;
  
- 	dev_dbg(ctrl->dev, "read %llx -> %p\n", (unsigned long long)addr, buf);
- 
-@@ -2141,6 +2158,10 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
- 			else
- 				return -EIO;
- 		}
-+
-+		if (has_edu(ctrl) && err_addr)
-+			edu_err = true;
-+
- 	} else {
- 		if (oob)
- 			memset(oob, 0x99, mtd->oobsize);
-@@ -2188,6 +2209,11 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
- 	if (mtd_is_bitflip(err)) {
- 		unsigned int corrected = brcmnand_count_corrected(ctrl);
- 
-+		/* in case of EDU correctable error we read again using PIO */
-+		if (edu_err)
-+			err = brcmnand_read_by_pio(mtd, chip, addr, trans, buf,
-+						   oob, &err_addr);
-+
- 		dev_dbg(ctrl->dev, "corrected error at 0x%llx\n",
- 			(unsigned long long)err_addr);
- 		mtd->ecc_stats.corrected += corrected;
 -- 
 2.25.1
 
