@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D318F24BC51
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E3A24BC46
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729537AbgHTMoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:44:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S1728276AbgHTMne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:43:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729312AbgHTJpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:45 -0400
+        id S1729173AbgHTJqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EEEB22D03;
-        Thu, 20 Aug 2020 09:45:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C86422B43;
+        Thu, 20 Aug 2020 09:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916737;
-        bh=vP9r/k3O0VUEQNdvy7TNwB5dGZg5WLLdWIBH9UWlk68=;
+        s=default; t=1597916768;
+        bh=hKw4VeEPTvlU9LP6XXahCcYoetS6SUJD6tZ/nSvmgRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZVdcHnYAt8qczYPL8+gAQ5kfntxMIUujguBMYFAXVReSsyaCiwvu7wunH1q6wnyP
-         axrI597x7VPCB4mW93Ex1RXGdfPBpeI+IkbtITOKWU32f5jDrl7ulsigBfaeF8ZkEz
-         Rq6+UIrbJRRPjtOo1FP/Ppewn+/y8U/EIa1VEi3c=
+        b=ifofEWdQGFn0QjImxRDDB+JyhgfBg3Y1f3wCT2YnV0QsSkJxsbjO7T1zEbBFXvuWP
+         1lMjGZluCnZuMxSTTCKnbLLKHvuqpUTp5wCcwxJAvKThc4w7veiGVJ0XM15s4qg1TV
+         2A6T/pFBMbH44t0uDxs3LL8hWC5ub7kXBdtk6Sys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
-        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 011/152] btrfs: dont allocate anonymous block device for user invisible roots
-Date:   Thu, 20 Aug 2020 11:19:38 +0200
-Message-Id: <20200820091554.212800590@linuxfoundation.org>
+Subject: [PATCH 5.4 012/152] btrfs: ref-verify: fix memory leak in add_block_entry
+Date:   Thu, 20 Aug 2020 11:19:39 +0200
+Message-Id: <20200820091554.266984251@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -44,90 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 851fd730a743e072badaf67caf39883e32439431 upstream.
+commit d60ba8de1164e1b42e296ff270c622a070ef8fe7 upstream.
 
-[BUG]
-When a lot of subvolumes are created, there is a user report about
-transaction aborted:
+clang static analysis flags this error
 
-  BTRFS: Transaction aborted (error -24)
-  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  Call Trace:
-   create_pending_snapshots+0x82/0xa0 [btrfs]
-   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
-   btrfs_mksubvol+0x4b9/0x500 [btrfs]
-   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
-   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
-   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
-   do_vfs_ioctl+0xa9/0x640
-   ksys_ioctl+0x67/0x90
-   __x64_sys_ioctl+0x1a/0x20
-   do_syscall_64+0x5a/0x110
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace 33f2f83f3d5250e9 ]---
-  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
-  BTRFS info (device sda1): forced readonly
-  BTRFS warning (device sda1): Skipping commit of aborted transaction.
-  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
+fs/btrfs/ref-verify.c:290:3: warning: Potential leak of memory pointed to by 're' [unix.Malloc]
+                kfree(be);
+                ^~~~~
 
-[CAUSE]
-The error is EMFILE (Too many files open) and comes from the anonymous
-block device allocation. The ids are in a shared pool of size 1<<20.
+The problem is in this block of code:
 
-The ids are assigned to live subvolumes, ie. the root structure exists
-in memory (eg. after creation or after the root appears in some path).
-The pool could be exhausted if the numbers are not reclaimed fast
-enough, after subvolume deletion or if other system component uses the
-anon block devices.
+	if (root_objectid) {
+		struct root_entry *exist_re;
 
-[WORKAROUND]
-Since it's not possible to completely solve the problem, we can only
-minimize the time the id is allocated to a subvolume root.
+		exist_re = insert_root_entry(&exist->roots, re);
+		if (exist_re)
+			kfree(re);
+	}
 
-Firstly, we can reduce the use of anon_dev by trees that are not
-subvolume roots, like data reloc tree.
+There is no 'else' block freeing when root_objectid is 0. Add the
+missing kfree to the else branch.
 
-This patch will do extra check on root objectid, to skip roots that
-don't need anon_dev.  Currently it's only data reloc tree and orphan
-roots.
-
-Reported-by: Greed Rong <greedrong@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Fixes: fd708b81d972 ("Btrfs: add a extent ref verify tool")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Tom Rix <trix@redhat.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/disk-io.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ fs/btrfs/ref-verify.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1475,9 +1475,16 @@ int btrfs_init_fs_root(struct btrfs_root
- 	spin_lock_init(&root->ino_cache_lock);
- 	init_waitqueue_head(&root->ino_cache_wait);
- 
--	ret = get_anon_bdev(&root->anon_dev);
--	if (ret)
--		goto fail;
-+	/*
-+	 * Don't assign anonymous block device to roots that are not exposed to
-+	 * userspace, the id pool is limited to 1M
-+	 */
-+	if (is_fstree(root->root_key.objectid) &&
-+	    btrfs_root_refs(&root->root_item) > 0) {
-+		ret = get_anon_bdev(&root->anon_dev);
-+		if (ret)
-+			goto fail;
-+	}
- 
- 	mutex_lock(&root->objectid_mutex);
- 	ret = btrfs_find_highest_objectid(root,
+--- a/fs/btrfs/ref-verify.c
++++ b/fs/btrfs/ref-verify.c
+@@ -286,6 +286,8 @@ static struct block_entry *add_block_ent
+ 			exist_re = insert_root_entry(&exist->roots, re);
+ 			if (exist_re)
+ 				kfree(re);
++		} else {
++			kfree(re);
+ 		}
+ 		kfree(be);
+ 		return exist;
 
 
