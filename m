@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22FE924BC02
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E42724BD04
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbgHTMhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
+        id S1729077AbgHTJlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729439AbgHTJrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:25 -0400
+        id S1728664AbgHTJk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9327322B43;
-        Thu, 20 Aug 2020 09:47:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3D53207DE;
+        Thu, 20 Aug 2020 09:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916845;
-        bh=ZCIaIKK+Z3e8lovzmRzIhNjqbW5hwoLUWSXfDgGyKBk=;
+        s=default; t=1597916459;
+        bh=kJJouGqpk7y9KGYIB/qSQlzNKFugPURJbr0dDf5g/yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7oMXOBuqA28TWrlo5UFOwQrGufdXPZs5GOnw4j0NGKjMoc8IQQgw3EsJ5ZClYWHd
-         oAREbGZYJgARpo023WvxPUdxFQnlL88wPFTksTuiHvindhtGzmE4S0IwHM526yVd4j
-         C3GfedXLXp3cddE+pFydPUV4kPgx4m0FxUjOLNsc=
+        b=0wfeIL3d3NY/nr6fwBh/HHYxN49BfUc1KdvjQSCM+JMWyRD0cEH6ZDQk7W4AAGnwL
+         FYP9vRQMhavfhT4bn2mCoZvqZoU+U1I/H5uS31m5aSSDSMd3Hy/r7JnUllSbtVgP8H
+         wTCyZuSvL9QEzmP+TS3VMraqWy4UjjoaamjuFnSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Patrick Donnelly <pdonnell@redhat.com>
-Subject: [PATCH 5.4 066/152] ceph: handle zero-length feature mask in session messages
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 136/204] selftests/powerpc: ptrace-pkey: Dont update expected UAMOR value
 Date:   Thu, 20 Aug 2020 11:20:33 +0200
-Message-Id: <20200820091557.110918167@linuxfoundation.org>
+Message-Id: <20200820091613.052924066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 02e37571f9e79022498fd0525c073b07e9d9ac69 upstream.
+[ Upstream commit 3563b9bea0ca7f53e4218b5e268550341a49f333 ]
 
-Most session messages contain a feature mask, but the MDS will
-routinely send a REJECT message with one that is zero-length.
+With commit 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation
+must not change pkey registers") we are not updating UAMOR on key
+allocation. So don't update the expected uamor value in the test.
 
-Commit 0fa8263367db ("ceph: fix endianness bug when handling MDS
-session feature bits") fixed the decoding of the feature mask,
-but failed to account for the MDS sending a zero-length feature
-mask. This causes REJECT message decoding to fail.
-
-Skip trying to decode a feature mask if the word count is zero.
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/46823
-Fixes: 0fa8263367db ("ceph: fix endianness bug when handling MDS session feature bits")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Tested-by: Patrick Donnelly <pdonnell@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation must not change pkey registers")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200709032946.881753-23-aneesh.kumar@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3091,8 +3091,10 @@ static void handle_session(struct ceph_m
- 			goto bad;
- 		/* version >= 3, feature bits */
- 		ceph_decode_32_safe(&p, end, len, bad);
--		ceph_decode_64_safe(&p, end, features, bad);
--		p += len - sizeof(features);
-+		if (len) {
-+			ceph_decode_64_safe(&p, end, features, bad);
-+			p += len - sizeof(features);
-+		}
- 	}
+diff --git a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
+index bc33d748d95b4..3694613f418f6 100644
+--- a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
++++ b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
+@@ -101,15 +101,20 @@ static int child(struct shared_info *info)
+ 	 */
+ 	info->invalid_amr = info->amr2 | (~0x0UL & ~info->expected_uamor);
  
- 	mutex_lock(&mdsc->mutex);
++	/*
++	 * if PKEY_DISABLE_EXECUTE succeeded we should update the expected_iamr
++	 */
+ 	if (disable_execute)
+ 		info->expected_iamr |= 1ul << pkeyshift(pkey1);
+ 	else
+ 		info->expected_iamr &= ~(1ul << pkeyshift(pkey1));
+ 
+-	info->expected_iamr &= ~(1ul << pkeyshift(pkey2) | 1ul << pkeyshift(pkey3));
++	/*
++	 * We allocated pkey2 and pkey 3 above. Clear the IAMR bits.
++	 */
++	info->expected_iamr &= ~(1ul << pkeyshift(pkey2));
++	info->expected_iamr &= ~(1ul << pkeyshift(pkey3));
+ 
+-	info->expected_uamor |= 3ul << pkeyshift(pkey1) |
+-				3ul << pkeyshift(pkey2);
+ 	/*
+ 	 * Create an IAMR value different from expected value.
+ 	 * Kernel will reject an IAMR and UAMOR change.
+-- 
+2.25.1
+
 
 
