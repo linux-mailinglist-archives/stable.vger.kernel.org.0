@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AAD424BF9F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F27C524BF9E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729416AbgHTNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726854AbgHTNue (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbgHTJ1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:27:15 -0400
+        id S1727957AbgHTJ1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F0202075E;
-        Thu, 20 Aug 2020 09:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7907822D07;
+        Thu, 20 Aug 2020 09:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915629;
-        bh=MHhUlzLlI69tOcSkrDiQ7ZqvzmpcP6BrO37C/4ObuX4=;
+        s=default; t=1597915633;
+        bh=9xDfmuzMpfCCSYjMK6VIbaZ1gKuDfRRz343P9dQQaIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s32Be73Ffwh+Mv8Q2hxPlOvJKjHNT3k6QTZ5EbfeGj1b0LQf3LVfZSOQXgIdG5gX5
-         vuFQpY+kQJkJ1azpUUaEApgN1EEivAMzG53omd3rqH53gSpjvrw7a2P5MRAca2okl+
-         VPVhSoIRfiXiHvP3142yNuXUeHk/Pj2SdN6z3yFo=
+        b=sXNsBR4GGlZmTQoUvNfapFsI+Np+/E/XVs9HlVja5Axuz1J1Bb8M/x1vP8nhg9eG8
+         HNi00dONpqTfr+b3PGxI0AGhsAitAnhGncmpHEDdyL1DxYpvli61sPH3FKXJN2AoIN
+         TsxBXfQFThIiyGgqCLL0kMgQA7IJixsSWcZbYV30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
-        Song Liu <songliubraving@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A.Shutemov" <kirill.shutemov@linux.intel.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Prakash Sangappa <prakash.sangappa@oracle.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 080/232] khugepaged: retract_page_tables() remember to test exit
-Date:   Thu, 20 Aug 2020 11:18:51 +0200
-Message-Id: <20200820091616.689152030@linuxfoundation.org>
+Subject: [PATCH 5.8 081/232] hugetlbfs: remove call to huge_pte_alloc without i_mmap_rwsem
+Date:   Thu, 20 Aug 2020 11:18:52 +0200
+Message-Id: <20200820091616.739964406@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -48,99 +53,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit 18e77600f7a1ed69f8ce46c9e11cad0985712dfa upstream.
+commit 34ae204f18519f0920bd50a644abd6fefc8dbfcf upstream.
 
-Only once have I seen this scenario (and forgot even to notice what forced
-the eventual crash): a sequence of "BUG: Bad page map" alerts from
-vm_normal_page(), from zap_pte_range() servicing exit_mmap();
-pmd:00000000, pte values corresponding to data in physical page 0.
+Commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
+synchronization") requires callers of huge_pte_alloc to hold i_mmap_rwsem
+in at least read mode.  This is because the explicit locking in
+huge_pmd_share (called by huge_pte_alloc) was removed.  When restructuring
+the code, the call to huge_pte_alloc in the else block at the beginning of
+hugetlb_fault was missed.
 
-The pte mappings being zapped in this case were supposed to be from a huge
-page of ext4 text (but could as well have been shmem): my belief is that
-it was racing with collapse_file()'s retract_page_tables(), found *pmd
-pointing to a page table, locked it, but *pmd had become 0 by the time
-start_pte was decided.
+Unfortunately, that else clause is exercised when there is no page table
+entry.  This will likely lead to a call to huge_pmd_share.  If
+huge_pmd_share thinks pmd sharing is possible, it will traverse the
+mapping tree (i_mmap) without holding i_mmap_rwsem.  If someone else is
+modifying the tree, bad things such as addressing exceptions or worse
+could happen.
 
-In most cases, that possibility is excluded by holding mmap lock; but
-exit_mmap() proceeds without mmap lock.  Most of what's run by khugepaged
-checks khugepaged_test_exit() after acquiring mmap lock:
-khugepaged_collapse_pte_mapped_thps() and hugepage_vma_revalidate() do so,
-for example.  But retract_page_tables() did not: fix that.
+Simply remove the else clause.  It should have been removed previously.
+The code following the else will call huge_pte_alloc with the appropriate
+locking.
 
-The fix is for retract_page_tables() to check khugepaged_test_exit(),
-after acquiring mmap lock, before doing anything to the page table.
-Getting the mmap lock serializes with __mmput(), which briefly takes and
-drops it in __khugepaged_exit(); then the khugepaged_test_exit() check on
-mm_users makes sure we don't touch the page table once exit_mmap() might
-reach it, since exit_mmap() will be proceeding without mmap lock, not
-expecting anyone to be racing with it.
+To prevent this type of issue in the future, add routines to assert that
+i_mmap_rwsem is held, and call these routines in huge pmd sharing
+routines.
 
-Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021215400.27773@eggly.anvils
+Cc: "Kirill A.Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Prakash Sangappa <prakash.sangappa@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/e670f327-5cf9-1959-96e4-6dc7cc30d3d5@oracle.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/khugepaged.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ include/linux/fs.h      |   10 ++++++++++
+ include/linux/hugetlb.h |    8 +++++---
+ mm/hugetlb.c            |   15 +++++++--------
+ mm/rmap.c               |    2 +-
+ 4 files changed, 23 insertions(+), 12 deletions(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1532,6 +1532,7 @@ out:
- static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- {
- 	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
- 	unsigned long addr;
- 	pmd_t *pmd, _pmd;
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -549,6 +549,16 @@ static inline void i_mmap_unlock_read(st
+ 	up_read(&mapping->i_mmap_rwsem);
+ }
  
-@@ -1560,7 +1561,8 @@ static void retract_page_tables(struct a
++static inline void i_mmap_assert_locked(struct address_space *mapping)
++{
++	lockdep_assert_held(&mapping->i_mmap_rwsem);
++}
++
++static inline void i_mmap_assert_write_locked(struct address_space *mapping)
++{
++	lockdep_assert_held_write(&mapping->i_mmap_rwsem);
++}
++
+ /*
+  * Might pages of this file be mapped into userspace?
+  */
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -164,7 +164,8 @@ pte_t *huge_pte_alloc(struct mm_struct *
+ 			unsigned long addr, unsigned long sz);
+ pte_t *huge_pte_offset(struct mm_struct *mm,
+ 		       unsigned long addr, unsigned long sz);
+-int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep);
++int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
++				unsigned long *addr, pte_t *ptep);
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end);
+ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
+@@ -203,8 +204,9 @@ static inline struct address_space *huge
+ 	return NULL;
+ }
+ 
+-static inline int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr,
+-					pte_t *ptep)
++static inline int huge_pmd_unshare(struct mm_struct *mm,
++					struct vm_area_struct *vma,
++					unsigned long *addr, pte_t *ptep)
+ {
+ 	return 0;
+ }
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3952,7 +3952,7 @@ void __unmap_hugepage_range(struct mmu_g
  			continue;
- 		if (vma->vm_end < addr + HPAGE_PMD_SIZE)
- 			continue;
--		pmd = mm_find_pmd(vma->vm_mm, addr);
-+		mm = vma->vm_mm;
-+		pmd = mm_find_pmd(mm, addr);
- 		if (!pmd)
- 			continue;
- 		/*
-@@ -1570,17 +1572,19 @@ static void retract_page_tables(struct a
- 		 * mmap_lock while holding page lock. Fault path does it in
- 		 * reverse order. Trylock is a way to avoid deadlock.
- 		 */
--		if (mmap_write_trylock(vma->vm_mm)) {
--			spinlock_t *ptl = pmd_lock(vma->vm_mm, pmd);
--			/* assume page table is clear */
--			_pmd = pmdp_collapse_flush(vma, addr, pmd);
--			spin_unlock(ptl);
--			mmap_write_unlock(vma->vm_mm);
--			mm_dec_nr_ptes(vma->vm_mm);
--			pte_free(vma->vm_mm, pmd_pgtable(_pmd));
-+		if (mmap_write_trylock(mm)) {
-+			if (!khugepaged_test_exit(mm)) {
-+				spinlock_t *ptl = pmd_lock(mm, pmd);
-+				/* assume page table is clear */
-+				_pmd = pmdp_collapse_flush(vma, addr, pmd);
-+				spin_unlock(ptl);
-+				mm_dec_nr_ptes(mm);
-+				pte_free(mm, pmd_pgtable(_pmd));
-+			}
-+			mmap_write_unlock(mm);
- 		} else {
- 			/* Try again later */
--			khugepaged_add_pte_mapped_thp(vma->vm_mm, addr);
-+			khugepaged_add_pte_mapped_thp(mm, addr);
- 		}
+ 
+ 		ptl = huge_pte_lock(h, mm, ptep);
+-		if (huge_pmd_unshare(mm, &address, ptep)) {
++		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
+ 			spin_unlock(ptl);
+ 			/*
+ 			 * We just unmapped a page of PMDs by clearing a PUD.
+@@ -4539,10 +4539,6 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
+ 			return VM_FAULT_HWPOISON_LARGE |
+ 				VM_FAULT_SET_HINDEX(hstate_index(h));
+-	} else {
+-		ptep = huge_pte_alloc(mm, haddr, huge_page_size(h));
+-		if (!ptep)
+-			return VM_FAULT_OOM;
  	}
- 	i_mmap_unlock_write(mapping);
+ 
+ 	/*
+@@ -5019,7 +5015,7 @@ unsigned long hugetlb_change_protection(
+ 		if (!ptep)
+ 			continue;
+ 		ptl = huge_pte_lock(h, mm, ptep);
+-		if (huge_pmd_unshare(mm, &address, ptep)) {
++		if (huge_pmd_unshare(mm, vma, &address, ptep)) {
+ 			pages++;
+ 			spin_unlock(ptl);
+ 			shared_pmd = true;
+@@ -5400,12 +5396,14 @@ out:
+  * returns: 1 successfully unmapped a shared pte page
+  *	    0 the underlying pte page is not shared, or it is the last user
+  */
+-int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
++int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
++					unsigned long *addr, pte_t *ptep)
+ {
+ 	pgd_t *pgd = pgd_offset(mm, *addr);
+ 	p4d_t *p4d = p4d_offset(pgd, *addr);
+ 	pud_t *pud = pud_offset(p4d, *addr);
+ 
++	i_mmap_assert_write_locked(vma->vm_file->f_mapping);
+ 	BUG_ON(page_count(virt_to_page(ptep)) == 0);
+ 	if (page_count(virt_to_page(ptep)) == 1)
+ 		return 0;
+@@ -5423,7 +5421,8 @@ pte_t *huge_pmd_share(struct mm_struct *
+ 	return NULL;
+ }
+ 
+-int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
++int huge_pmd_unshare(struct mm_struct *mm, struct vm_area_struct *vma,
++				unsigned long *addr, pte_t *ptep)
+ {
+ 	return 0;
+ }
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1469,7 +1469,7 @@ static bool try_to_unmap_one(struct page
+ 			 * do this outside rmap routines.
+ 			 */
+ 			VM_BUG_ON(!(flags & TTU_RMAP_LOCKED));
+-			if (huge_pmd_unshare(mm, &address, pvmw.pte)) {
++			if (huge_pmd_unshare(mm, vma, &address, pvmw.pte)) {
+ 				/*
+ 				 * huge_pmd_unshare unmapped an entire PMD
+ 				 * page.  There is no way of knowing exactly
 
 
