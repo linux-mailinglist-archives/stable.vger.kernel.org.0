@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FD524BAC1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB87824BAB7
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730164AbgHTMQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40426 "EHLO mail.kernel.org"
+        id S1730271AbgHTJ5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730093AbgHTJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:51 -0400
+        id S1730267AbgHTJ45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 426E620855;
-        Thu, 20 Aug 2020 09:56:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 515B92067C;
+        Thu, 20 Aug 2020 09:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917410;
-        bh=v82VMAnIc4Uxb3auCZw26sAs6sE1Xz0aSxH4vCm1s5o=;
+        s=default; t=1597917413;
+        bh=OaT3fz4TOia5W0ucvvmAPTLlSe+2mKY5qoePCnvDDcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmRAzxyRgibsOC9w5OyuT6ffhFKbnegvBZ1t4s5ixJvZAoKA1XQy4ETG0UtkhZo8D
-         XQHHPN1cLnUWiESYITvkOYguZQIScsATMsHCOTcqMHDScCx4/g1rHhKvEtp603+k6s
-         7RuNIZo9nQBeZptrlaQCSH9VmvaLpS/Mj6MY/3fg=
+        b=op0nDSqYVGd+JjjGheO1clVPsDEbzH0SnPjfrztuvWol51GveSa4q5GMfA4Wlz8xH
+         uHzfR9HGmfmSOWGXvaISbXfESgspJ01GW88qSnrX4iWJKaqukuPTX0BuaEjLJ/K5Xr
+         xgBIL64grWS2unw6b6sDrvxWP9BfKR8+7m8SaU3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
-        Rik van Riel <riel@surriel.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Samuel Mendoza-Jonas <samjonas@amazon.com>,
-        Frank van der Linden <fllinden@amazon.com>,
-        Suraj Jitindar Singh <surajjs@amazon.com>,
-        Benjamin Herrenschmidt <benh@amazon.com>,
-        Anchal Agarwal <anchalag@amazon.com>
-Subject: [PATCH 4.9 021/212] xfs: fix missed wakeup on l_flush_wait
-Date:   Thu, 20 Aug 2020 11:19:54 +0200
-Message-Id: <20200820091603.404319017@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Rolf Eike Beer <eb@emlix.com>
+Subject: [PATCH 4.9 022/212] uapi: includes linux/types.h before exporting files
+Date:   Thu, 20 Aug 2020 11:19:55 +0200
+Message-Id: <20200820091603.459161619@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -50,90 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit cdea5459ce263fbc963657a7736762ae897a8ae6 upstream.
+commit 9078b4eea119c13d633d45af0397c821a517b522 upstream.
 
-The code in xlog_wait uses the spinlock to make adding the task to
-the wait queue, and setting the task state to UNINTERRUPTIBLE atomic
-with respect to the waker.
+Some files will be exported after a following patch. 0-day tests report the
+following warning/error:
+./usr/include/linux/bcache.h:8: include of <linux/types.h> is preferred over <asm/types.h>
+./usr/include/linux/bcache.h:11: found __[us]{8,16,32,64} type without #include <linux/types.h>
+./usr/include/linux/qrtr.h:8: found __[us]{8,16,32,64} type without #include <linux/types.h>
+./usr/include/linux/cryptouser.h:39: found __[us]{8,16,32,64} type without #include <linux/types.h>
+./usr/include/linux/pr.h:14: found __[us]{8,16,32,64} type without #include <linux/types.h>
+./usr/include/linux/btrfs_tree.h:337: found __[us]{8,16,32,64} type without #include <linux/types.h>
+./usr/include/rdma/bnxt_re-abi.h:45: found __[us]{8,16,32,64} type without #include <linux/types.h>
 
-Doing the wakeup after releasing the spinlock opens up the following
-race condition:
-
-Task 1					task 2
-add task to wait queue
-					wake up task
-set task state to UNINTERRUPTIBLE
-
-This issue was found through code inspection as a result of kworkers
-being observed stuck in UNINTERRUPTIBLE state with an empty
-wait queue. It is rare and largely unreproducable.
-
-Simply moving the spin_unlock to after the wake_up_all results
-in the waker not being able to see a task on the waitqueue before
-it has set its state to UNINTERRUPTIBLE.
-
-This bug dates back to the conversion of this code to generic
-waitqueue infrastructure from a counting semaphore back in 2008
-which didn't place the wakeups consistently w.r.t. to the relevant
-spin locks.
-
-[dchinner: Also fix a similar issue in the shutdown path on
-xc_commit_wait. Update commit log with more details of the issue.]
-
-Fixes: d748c62367eb ("[XFS] Convert l_flushsema to a sv_t")
-Reported-by: Chris Mason <clm@fb.com>
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Cc: stable@vger.kernel.org # 4.9.x-4.19.x
-[modified for contextual change near xlog_state_do_callback()]
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Reviewed-by: Frank van der Linden <fllinden@amazon.com>
-Reviewed-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
-Reviewed-by: Anchal Agarwal <anchalag@amazon.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+reb: left out include/uapi/rdma/bnxt_re-abi.h as it's not in this kernel version
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/xfs_log.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ include/uapi/linux/bcache.h     |    2 +-
+ include/uapi/linux/btrfs_tree.h |    2 ++
+ include/uapi/linux/cryptouser.h |    2 ++
+ include/uapi/linux/pr.h         |    2 ++
+ include/uapi/linux/qrtr.h       |    1 +
+ 5 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_log.c
-+++ b/fs/xfs/xfs_log.c
-@@ -2634,7 +2634,6 @@ xlog_state_do_callback(
- 	int		   funcdidcallbacks; /* flag: function did callbacks */
- 	int		   repeats;	/* for issuing console warnings if
- 					 * looping too many times */
--	int		   wake = 0;
+--- a/include/uapi/linux/bcache.h
++++ b/include/uapi/linux/bcache.h
+@@ -5,7 +5,7 @@
+  * Bcache on disk data structures
+  */
  
- 	spin_lock(&log->l_icloglock);
- 	first_iclog = iclog = log->l_iclog;
-@@ -2836,11 +2835,9 @@ xlog_state_do_callback(
- #endif
+-#include <asm/types.h>
++#include <linux/types.h>
  
- 	if (log->l_iclog->ic_state & (XLOG_STATE_ACTIVE|XLOG_STATE_IOERROR))
--		wake = 1;
--	spin_unlock(&log->l_icloglock);
--
--	if (wake)
- 		wake_up_all(&log->l_flush_wait);
+ #define BITMASK(name, type, field, offset, size)		\
+ static inline __u64 name(const type *k)				\
+--- a/include/uapi/linux/btrfs_tree.h
++++ b/include/uapi/linux/btrfs_tree.h
+@@ -1,6 +1,8 @@
+ #ifndef _BTRFS_CTREE_H_
+ #define _BTRFS_CTREE_H_
+ 
++#include <linux/types.h>
 +
-+	spin_unlock(&log->l_icloglock);
- }
+ /*
+  * This header contains the structure definitions and constants used
+  * by file system objects that can be retrieved using
+--- a/include/uapi/linux/cryptouser.h
++++ b/include/uapi/linux/cryptouser.h
+@@ -18,6 +18,8 @@
+  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+  */
  
++#include <linux/types.h>
++
+ /* Netlink configuration messages.  */
+ enum {
+ 	CRYPTO_MSG_BASE = 0x10,
+--- a/include/uapi/linux/pr.h
++++ b/include/uapi/linux/pr.h
+@@ -1,6 +1,8 @@
+ #ifndef _UAPI_PR_H
+ #define _UAPI_PR_H
  
-@@ -4002,7 +3999,9 @@ xfs_log_force_umount(
- 	 * item committed callback functions will do this again under lock to
- 	 * avoid races.
- 	 */
-+	spin_lock(&log->l_cilp->xc_push_lock);
- 	wake_up_all(&log->l_cilp->xc_commit_wait);
-+	spin_unlock(&log->l_cilp->xc_push_lock);
- 	xlog_state_do_callback(log, XFS_LI_ABORTED, NULL);
++#include <linux/types.h>
++
+ enum pr_type {
+ 	PR_WRITE_EXCLUSIVE		= 1,
+ 	PR_EXCLUSIVE_ACCESS		= 2,
+--- a/include/uapi/linux/qrtr.h
++++ b/include/uapi/linux/qrtr.h
+@@ -2,6 +2,7 @@
+ #define _LINUX_QRTR_H
  
- #ifdef XFSERRORDEBUG
+ #include <linux/socket.h>
++#include <linux/types.h>
+ 
+ struct sockaddr_qrtr {
+ 	__kernel_sa_family_t sq_family;
 
 
