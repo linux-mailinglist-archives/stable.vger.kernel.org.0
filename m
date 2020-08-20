@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E6624B42E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C64C424B319
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730372AbgHTJ7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:59:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45166 "EHLO mail.kernel.org"
+        id S1729091AbgHTJlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730290AbgHTJ7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:16 -0400
+        id S1728856AbgHTJlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A4EE207FB;
-        Thu, 20 Aug 2020 09:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 264AD20724;
+        Thu, 20 Aug 2020 09:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917555;
-        bh=YPjsRFQv74ePM9/WKkdHGjWplj1QCuqn9U5gRqEfeuE=;
+        s=default; t=1597916478;
+        bh=YwCUYJ3M+NOBCMTGQwF6bnEEU2OBYP4CIDFQrvVrv8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYeTIYDJIRDXUIcSE0q2iEXjrlSR5lkg2U9SwjbLoXqPQGqUzNE51zk+01s1g7Q1t
-         wE26Kywow7qy4us4ThnHBi2yMg2zO0WcVzCf6E658y/EJfB7oHELxSFA0XS/+wSuNw
-         PVY4kb2PPBAON/Aw0oR3IzvaRoF88SHOFHz2i7U8=
+        b=l1+4pzc6Gm3C9zwCfAmQqAAsgtXsbgVAA9jfHtrQl1w9v+pDD8Y7fyBMrrTUGaENn
+         ZzXLceSHuwGWC3WQXJZiMLk9Za4SPNbtglOvMuSQdp/tngXfjM/G1Hiorjbn3Nj3T6
+         RZWKgYXGrRtS1MweUhDiPNlAvq1Cu/6bheaNcep0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 065/212] drm/nouveau/fbcon: fix module unload when fbcon init has failed for some reason
-Date:   Thu, 20 Aug 2020 11:20:38 +0200
-Message-Id: <20200820091605.652920898@linuxfoundation.org>
+Subject: [PATCH 5.7 142/204] f2fs: compress: fix to update isize when overwriting compressed file
+Date:   Thu, 20 Aug 2020 11:20:39 +0200
+Message-Id: <20200820091613.347167633@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 498595abf5bd51f0ae074cec565d888778ea558f ]
+[ Upstream commit 944dd22ea4475bd11180fd2f431a4a547ca4d8f5 ]
 
-Stale pointer was tripping up the unload path.
+We missed to update isize of compressed file in write_end() with
+below case:
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+cluster size is 16KB
+
+- write 14KB data from offset 0
+- overwrite 16KB data from offset 0
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_fbcon.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/data.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
-index 2b79e27dd89c6..275abc424ce25 100644
---- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
-@@ -584,6 +584,7 @@ fini:
- 	drm_fb_helper_fini(&fbcon->helper);
- free:
- 	kfree(fbcon);
-+	drm->fbcon = NULL;
- 	return ret;
- }
- 
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 10491ae1cb850..329afa55a581c 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3353,6 +3353,10 @@ static int f2fs_write_end(struct file *file,
+ 	if (f2fs_compressed_file(inode) && fsdata) {
+ 		f2fs_compress_write_end(inode, fsdata, page->index, copied);
+ 		f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
++
++		if (pos + copied > i_size_read(inode) &&
++				!f2fs_verity_in_progress(inode))
++			f2fs_i_size_write(inode, pos + copied);
+ 		return copied;
+ 	}
+ #endif
 -- 
 2.25.1
 
