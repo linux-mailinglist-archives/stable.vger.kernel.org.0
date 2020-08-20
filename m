@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAD224BADD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BB424BADA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730257AbgHTMTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39388 "EHLO mail.kernel.org"
+        id S1730185AbgHTMTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730239AbgHTJ4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:01 -0400
+        id S1730246AbgHTJ4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B758E2078D;
-        Thu, 20 Aug 2020 09:56:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 652BE20855;
+        Thu, 20 Aug 2020 09:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917361;
-        bh=0QtL807o9NkRWL4R+s8aHKmq0fUx/smANmm7cNR3LnI=;
+        s=default; t=1597917363;
+        bh=diE3N2CBro8OHsuIjnaYGxC4OcsqUFKElYd2GeKgqc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdCOrZhFiujoCU42oTuVW6M9yj9ESz6B1R7DDu6yhSoj8IysunqJCAQwHdAj/ulVk
-         3F//bwhdTJpWFnNE7qnSiQ+hTnjCv7npr6wOyvBwO0hHbhfhIi9kj4Gr+AuTa7BHq5
-         cDqkQSZrpKEtc483V5MKfEOc5YCS7cLz7DPthmtc=
+        b=uOsuaHlGYLcZCzcDlKl9vz8J3Ig7UCJ8Pr42wbct6jZqkJU7T+GyuNOG2QfkKdq4Z
+         xu+pKqRmJkd1TR19gxRRssThthU1LMgKGE9pnhQcojBDpu8kobwq1Ps0oWoGAEp4j3
+         WNaReu1MfULWcOmk72kV3lEt4lV/dA4FNbesIOY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 83/92] mfd: dln2: Run event handler loop under spinlock
-Date:   Thu, 20 Aug 2020 11:22:08 +0200
-Message-Id: <20200820091541.964627271@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 84/92] ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
+Date:   Thu, 20 Aug 2020 11:22:09 +0200
+Message-Id: <20200820091542.011298432@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -45,66 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
+[ Upstream commit 5a25de6df789cc805a9b8ba7ab5deef5067af47e ]
 
-The event handler loop must be run with interrupts disabled.
-Otherwise we will have a warning:
+Freeing chip on error may lead to an Oops at the next time
+the system goes to resume. Fix this by removing all
+snd_echo_free() calls on error.
 
-[ 1970.785649] irq 31 handler lineevent_irq_handler+0x0/0x20 enabled interrupts
-[ 1970.792739] WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x162/0x170
-[ 1970.860732] RIP: 0010:__handle_irq_event_percpu+0x162/0x170
-...
-[ 1970.946994] Call Trace:
-[ 1970.949446]  <IRQ>
-[ 1970.951471]  handle_irq_event_percpu+0x2c/0x80
-[ 1970.955921]  handle_irq_event+0x23/0x43
-[ 1970.959766]  handle_simple_irq+0x57/0x70
-[ 1970.963695]  generic_handle_irq+0x42/0x50
-[ 1970.967717]  dln2_rx+0xc1/0x210 [dln2]
-[ 1970.971479]  ? usb_hcd_unmap_urb_for_dma+0xa6/0x1c0
-[ 1970.976362]  __usb_hcd_giveback_urb+0x77/0xe0
-[ 1970.980727]  usb_giveback_urb_bh+0x8e/0xe0
-[ 1970.984837]  tasklet_action_common.isra.0+0x4a/0xe0
-...
-
-Recently xHCI driver switched to tasklets in the commit 36dc01657b49
-("usb: host: xhci: Support running urb giveback in tasklet context").
-
-The handle_irq_event_* functions are expected to be called with interrupts
-disabled and they rightfully complain here because we run in tasklet context
-with interrupts enabled.
-
-Use a event spinlock to protect event handler from being interrupted.
-
-Note, that there are only two users of this GPIO and ADC drivers and both of
-them are using generic_handle_irq() which makes above happen.
-
-Fixes: 338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 47b5d028fdce8 ("ALSA: Echoaudio - Add suspend support #2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20200813074632.17022-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/echoaudio/echoaudio.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 6ea0dd37b4535..fe614ba5fec90 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -290,7 +290,11 @@ static void dln2_rx(struct urb *urb)
- 	len = urb->actual_length - sizeof(struct dln2_header);
+diff --git a/sound/pci/echoaudio/echoaudio.c b/sound/pci/echoaudio/echoaudio.c
+index 3ef2b27ebbe8c..f32c55ffffc79 100644
+--- a/sound/pci/echoaudio/echoaudio.c
++++ b/sound/pci/echoaudio/echoaudio.c
+@@ -2216,7 +2216,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (err < 0) {
+ 		kfree(commpage_bak);
+ 		dev_err(dev, "resume init_hw err=%d\n", err);
+-		snd_echo_free(chip);
+ 		return err;
+ 	}
  
- 	if (handle == DLN2_HANDLE_EVENT) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&dln2->event_cb_lock, flags);
- 		dln2_run_event_callbacks(dln2, id, echo, data, len);
-+		spin_unlock_irqrestore(&dln2->event_cb_lock, flags);
- 	} else {
- 		/* URB will be re-submitted in _dln2_transfer (free_rx_slot) */
- 		if (dln2_transfer_complete(dln2, urb, handle, echo))
+@@ -2243,7 +2242,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (request_irq(pci->irq, snd_echo_interrupt, IRQF_SHARED,
+ 			KBUILD_MODNAME, chip)) {
+ 		dev_err(chip->card->dev, "cannot grab irq\n");
+-		snd_echo_free(chip);
+ 		return -EBUSY;
+ 	}
+ 	chip->irq = pci->irq;
 -- 
 2.25.1
 
