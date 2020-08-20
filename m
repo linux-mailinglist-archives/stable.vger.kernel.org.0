@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3148724B75F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5018A24B617
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731478AbgHTKwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32830 "EHLO mail.kernel.org"
+        id S1731138AbgHTKcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731168AbgHTKOY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:24 -0400
+        id S1728857AbgHTKUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:20:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D14F32067C;
-        Thu, 20 Aug 2020 10:14:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0417206DA;
+        Thu, 20 Aug 2020 10:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918464;
-        bh=XCOsw6EYaCe/VuNEJW7IXNxuEoH4nyKL4wkuResnRA0=;
+        s=default; t=1597918818;
+        bh=L0itbpPiO4MRlbECPSP6dIepO+SW5mw2otITVqoXJVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzqNJjyHmcm4YmCIlGnIjYT49VOXt2Zao3mzEcHhSATtLASuUG4yKrPqUCp343VW/
-         nluFlcsfyl46e2oxeqJTwBkyHucLSf6Ec3A29T5UIObSZo6t7Ei1YTI2ZuzmMxJJlo
-         Uu5X5nO3RMGlBS6KeIYN9YcBpKp+yUX86ZTPrdKs=
+        b=IMnlHN8vTL2sTi78KDIJURkPF5IhsP2ZYPCnj7Y6gG7TiSzFmqfjToH/R6kh/GFRG
+         CWLeyJZfWyYw6uJIABIsc55vhy2/2kLNnCHd6FCeCGJB1MOL+xv2Gg4RgvLD0Qtr6l
+         CbXzqG143aimoRi2iXyTj1npcNiY+VRTJ3K327pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Wu <alexwu@synology.com>,
-        BingJing Chang <bingjingc@synology.com>,
-        Danny Shih <dannyshih@synology.com>,
-        ChangSyun Peng <allenpeng@synology.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.14 179/228] md/raid5: Fix Force reconstruct-write io stuck in degraded raid5
-Date:   Thu, 20 Aug 2020 11:22:34 +0200
-Message-Id: <20200820091616.523407496@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Dejin Zheng <zhengdejin5@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 078/149] video: fbdev: sm712fb: fix an issue about iounmap for a wrong address
+Date:   Thu, 20 Aug 2020 11:22:35 +0200
+Message-Id: <20200820092129.506302936@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChangSyun Peng <allenpeng@synology.com>
+From: Dejin Zheng <zhengdejin5@gmail.com>
 
-commit a1c6ae3d9f3dd6aa5981a332a6f700cf1c25edef upstream.
+[ Upstream commit 98bd4f72988646c35569e1e838c0ab80d06c77f6 ]
 
-In degraded raid5, we need to read parity to do reconstruct-write when
-data disks fail. However, we can not read parity from
-handle_stripe_dirtying() in force reconstruct-write mode.
+the sfb->fb->screen_base is not save the value get by iounmap() when
+the chip id is 0x720. so iounmap() for address sfb->fb->screen_base
+is not right.
 
-Reproducible Steps:
-
-1. Create degraded raid5
-mdadm -C /dev/md2 --assume-clean -l5 -n3 /dev/sda2 /dev/sdb2 missing
-2. Set rmw_level to 0
-echo 0 > /sys/block/md2/md/rmw_level
-3. IO to raid5
-
-Now some io may be stuck in raid5. We can use handle_stripe_fill() to read
-the parity in this situation.
-
-Cc: <stable@vger.kernel.org> # v4.4+
-Reviewed-by: Alex Wu <alexwu@synology.com>
-Reviewed-by: BingJing Chang <bingjingc@synology.com>
-Reviewed-by: Danny Shih <dannyshih@synology.com>
-Signed-off-by: ChangSyun Peng <allenpeng@synology.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1461d6672864854 ("staging: sm7xxfb: merge sm712fb with fbdev")
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200422160719.27763-1-zhengdejin5@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/sm712fb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -3593,6 +3593,7 @@ static int need_this_block(struct stripe
- 	 * is missing/faulty, then we need to read everything we can.
- 	 */
- 	if (sh->raid_conf->level != 6 &&
-+	    sh->raid_conf->rmw_level != PARITY_DISABLE_RMW &&
- 	    sh->sector < sh->raid_conf->mddev->recovery_cp)
- 		/* reconstruct-write isn't being forced */
- 		return 0;
-@@ -4829,7 +4830,7 @@ static void handle_stripe(struct stripe_
- 	 * or to load a block that is being partially written.
- 	 */
- 	if (s.to_read || s.non_overwrite
--	    || (conf->level == 6 && s.to_write && s.failed)
-+	    || (s.to_write && s.failed)
- 	    || (s.syncing && (s.uptodate + s.compute < disks))
- 	    || s.replacing
- 	    || s.expanding)
+diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
+index 589ac7e754130..c8ee58e0ae3ec 100644
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1428,6 +1428,8 @@ static int smtc_map_smem(struct smtcfb_info *sfb,
+ static void smtc_unmap_smem(struct smtcfb_info *sfb)
+ {
+ 	if (sfb && sfb->fb->screen_base) {
++		if (sfb->chip_id == 0x720)
++			sfb->fb->screen_base -= 0x00200000;
+ 		iounmap(sfb->fb->screen_base);
+ 		sfb->fb->screen_base = NULL;
+ 	}
+-- 
+2.25.1
+
 
 
