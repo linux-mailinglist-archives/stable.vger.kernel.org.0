@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E77324B296
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD65324B297
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728409AbgHTJdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43340 "EHLO mail.kernel.org"
+        id S1727882AbgHTJdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728244AbgHTJb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:27 -0400
+        id S1727822AbgHTJba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:31:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09011207FB;
-        Thu, 20 Aug 2020 09:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C284B208E4;
+        Thu, 20 Aug 2020 09:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915886;
-        bh=9I2S2HgMrgai4q7C6nc9rocRMFt/8KsGXnWPakbYF0c=;
+        s=default; t=1597915889;
+        bh=x7h681IlolzOdL7F1weUGqr7IZLFaG+yAVLcUGiSZWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwazPfjODAr//sTmK9qQWFYHQezPcKFdZ5YyysOksaCaofD2QiWl/EWcyVWlGVenW
-         8p8ykm/XC7wQoDQNV2QpxHASWptNaxEpQhHv5Z0rcxvGo29P/arq7+Iq6hX89WAmp8
-         B8ipxPO2QwZ7YPnbsgJtgChVDngcz0dUYzuX23LQ=
+        b=cnzBBvTdzi5tEank9BHLCXjYRQ4ja7+e23q+Q19HIw3LhzSA15g75c0qVxSQ0jzyf
+         B1Lakafo23nwev2LR8ARPpr/XZG8BGjEHU4gU+wNbmVPUxFy+qmyPJaTq/0fQ99y9m
+         cUj+u78ctmTRRJaerqi/bq8EIVErpFqWlV9zccnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Michael Petlan <mpetlan@redhat.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        David Carrillo-Cisneros <davidcc@google.com>,
+        Ian Rogers <irogers@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Song Liu <songliubraving@fb.com>,
         Stephane Eranian <eranian@google.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 170/232] perf tools: Fix term parsing for raw syntax
-Date:   Thu, 20 Aug 2020 11:20:21 +0200
-Message-Id: <20200820091621.052418052@linuxfoundation.org>
+Subject: [PATCH 5.8 171/232] tools build feature: Use CC and CXX from parent
+Date:   Thu, 20 Aug 2020 11:20:22 +0200
+Message-Id: <20200820091621.101308451@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -52,209 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 4929e95a1400e45b4b5a87fd3ce10273444187d4 ]
+[ Upstream commit e3232c2f39acafd5a29128425bc30b9884642cfa ]
 
-Jin Yao reported issue with possible conflict between raw events and
-term values in pmu event syntax.
+commit c8c188679ccf ("tools build: Use the same CC for feature detection
+and actual build") changed these assignments from unconditional (:=) to
+conditional (?=) so that they wouldn't clobber values from the
+environment. However, conditional assignment does not work properly for
+variables that Make implicitly sets, among which are CC and CXX. To
+quote tools/scripts/Makefile.include, which handles this properly:
 
-Currently following syntax is resolved as raw event with 0xead value:
+  # Makefiles suck: This macro sets a default value of $(2) for the
+  # variable named by $(1), unless the variable has been set by
+  # environment or command line. This is necessary for CC and AR
+  # because make sets default values, so the simpler ?= approach
+  # won't work as expected.
 
-  uncore_imc_free_running/read/
+In other words, the conditional assignments will not run even if the
+variables are not overridden in the environment; Make will set CC to
+"cc" and CXX to "g++" when it starts[1], meaning the variables are not
+empty by the time the conditional assignments are evaluated. This breaks
+cross-compilation when CROSS_COMPILE is set but CC isn't, since "cc"
+gets used for feature detection instead of the cross compiler (and
+likewise for CXX).
 
-instead of using 'read' term from uncore_imc_free_running pmu, because
-'read' is correct raw event syntax with 0xead value.
+To fix the issue, just pass down the values of CC and CXX computed by
+the parent Makefile, which gets included by the Makefile that actually
+builds whatever we're detecting features for and so is guaranteed to
+have good values. This is a better solution anyway, since it means we
+aren't trying to replicate the logic of the parent build system and so
+don't risk it getting out of sync.
 
-To solve this issue we do following:
+Leave PKG_CONFIG alone, since 1) there's no common logic to compute it
+in Makefile.include, and 2) it's not an implicit variable, so
+conditional assignment works properly.
 
-  - check existing terms during rXXXX syntax processing
-    and make them priority in case of conflict
+[1] https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
-  - allow pmu/r0x1234/ syntax to be able to specify conflicting
-    raw event (implemented in previous patch)
-
-Also add automated tests for this and perf_pmu__parse_cleanup call to
-parse_events_terms, so the test gets properly cleaned up.
-
-Fixes: 3a6c51e4d66c ("perf parser: Add support to specify rXXX event with pmu")
-Reported-by: Jin Yao <yao.jin@linux.intel.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Jin Yao <yao.jin@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
+Fixes: c8c188679ccf ("tools build: Use the same CC for feature detection and actual build")
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: David Carrillo-Cisneros <davidcc@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Igor Lubashev <ilubashe@akamai.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Song Liu <songliubraving@fb.com>
 Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20200726075244.1191481-2-jolsa@kernel.org
+Cc: thomas hebb <tommyhebb@gmail.com>
+Link: http://lore.kernel.org/lkml/0a6e69d1736b0fa231a648f50b0cce5d8a6734ef.1595822871.git.tommyhebb@gmail.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/parse-events.c | 37 ++++++++++++++++++++++++++++++++-
- tools/perf/util/parse-events.c  | 28 +++++++++++++++++++++++++
- tools/perf/util/parse-events.h  |  2 ++
- tools/perf/util/parse-events.l  | 19 ++++++++++-------
- 4 files changed, 77 insertions(+), 9 deletions(-)
+ tools/build/Makefile.feature | 2 +-
+ tools/build/feature/Makefile | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/perf/tests/parse-events.c b/tools/perf/tests/parse-events.c
-index 895188b63f963..6a2ec6ec0d0ef 100644
---- a/tools/perf/tests/parse-events.c
-+++ b/tools/perf/tests/parse-events.c
-@@ -631,6 +631,34 @@ static int test__checkterms_simple(struct list_head *terms)
- 	TEST_ASSERT_VAL("wrong val", term->val.num == 1);
- 	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "umask"));
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index cb152370fdefd..774f0b0ca28ac 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -8,7 +8,7 @@ endif
  
-+	/*
-+	 * read
-+	 *
-+	 * The perf_pmu__test_parse_init injects 'read' term into
-+	 * perf_pmu_events_list, so 'read' is evaluated as read term
-+	 * and not as raw event with 'ead' hex value.
-+	 */
-+	term = list_entry(term->list.next, struct parse_events_term, list);
-+	TEST_ASSERT_VAL("wrong type term",
-+			term->type_term == PARSE_EVENTS__TERM_TYPE_USER);
-+	TEST_ASSERT_VAL("wrong type val",
-+			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
-+	TEST_ASSERT_VAL("wrong val", term->val.num == 1);
-+	TEST_ASSERT_VAL("wrong config", !strcmp(term->config, "read"));
-+
-+	/*
-+	 * r0xead
-+	 *
-+	 * To be still able to pass 'ead' value with 'r' syntax,
-+	 * we added support to parse 'r0xHEX' event.
-+	 */
-+	term = list_entry(term->list.next, struct parse_events_term, list);
-+	TEST_ASSERT_VAL("wrong type term",
-+			term->type_term == PARSE_EVENTS__TERM_TYPE_CONFIG);
-+	TEST_ASSERT_VAL("wrong type val",
-+			term->type_val == PARSE_EVENTS__TERM_TYPE_NUM);
-+	TEST_ASSERT_VAL("wrong val", term->val.num == 0xead);
-+	TEST_ASSERT_VAL("wrong config", !term->config);
- 	return 0;
- }
+ feature_check = $(eval $(feature_check_code))
+ define feature_check_code
+-  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
++  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
+ endef
  
-@@ -1776,7 +1804,7 @@ struct terms_test {
+ feature_set = $(eval $(feature_set_code))
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index b1f0321180f5c..93b590d81209c 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -74,8 +74,6 @@ FILES=                                          \
  
- static struct terms_test test__terms[] = {
- 	[0] = {
--		.str   = "config=10,config1,config2=3,umask=1",
-+		.str   = "config=10,config1,config2=3,umask=1,read,r0xead",
- 		.check = test__checkterms_simple,
- 	},
- };
-@@ -1836,6 +1864,13 @@ static int test_term(struct terms_test *t)
+ FILES := $(addprefix $(OUTPUT),$(FILES))
  
- 	INIT_LIST_HEAD(&terms);
- 
-+	/*
-+	 * The perf_pmu__test_parse_init prepares perf_pmu_events_list
-+	 * which gets freed in parse_events_terms.
-+	 */
-+	if (perf_pmu__test_parse_init())
-+		return -1;
-+
- 	ret = parse_events_terms(&terms, t->str);
- 	if (ret) {
- 		pr_debug("failed to parse terms '%s', err %d\n",
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 3decbb203846a..4476de0e678aa 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -2017,6 +2017,32 @@ static void perf_pmu__parse_init(void)
- 	perf_pmu__parse_cleanup();
- }
- 
-+/*
-+ * This function injects special term in
-+ * perf_pmu_events_list so the test code
-+ * can check on this functionality.
-+ */
-+int perf_pmu__test_parse_init(void)
-+{
-+	struct perf_pmu_event_symbol *list;
-+
-+	list = malloc(sizeof(*list) * 1);
-+	if (!list)
-+		return -ENOMEM;
-+
-+	list->type   = PMU_EVENT_SYMBOL;
-+	list->symbol = strdup("read");
-+
-+	if (!list->symbol) {
-+		free(list);
-+		return -ENOMEM;
-+	}
-+
-+	perf_pmu_events_list = list;
-+	perf_pmu_events_list_num = 1;
-+	return 0;
-+}
-+
- enum perf_pmu_event_symbol_type
- perf_pmu__parse_check(const char *name)
- {
-@@ -2078,6 +2104,8 @@ int parse_events_terms(struct list_head *terms, const char *str)
- 	int ret;
- 
- 	ret = parse_events__scanner(str, &parse_state);
-+	perf_pmu__parse_cleanup();
-+
- 	if (!ret) {
- 		list_splice(parse_state.terms, terms);
- 		zfree(&parse_state.terms);
-diff --git a/tools/perf/util/parse-events.h b/tools/perf/util/parse-events.h
-index 1fe23a2f9b36e..0b8cdb7270f04 100644
---- a/tools/perf/util/parse-events.h
-+++ b/tools/perf/util/parse-events.h
-@@ -253,4 +253,6 @@ static inline bool is_sdt_event(char *str __maybe_unused)
- }
- #endif /* HAVE_LIBELF_SUPPORT */
- 
-+int perf_pmu__test_parse_init(void);
-+
- #endif /* __PERF_PARSE_EVENTS_H */
-diff --git a/tools/perf/util/parse-events.l b/tools/perf/util/parse-events.l
-index 002802e17059e..7332d16cb4fc7 100644
---- a/tools/perf/util/parse-events.l
-+++ b/tools/perf/util/parse-events.l
-@@ -41,14 +41,6 @@ static int value(yyscan_t scanner, int base)
- 	return __value(yylval, text, base, PE_VALUE);
- }
- 
--static int raw(yyscan_t scanner)
--{
--	YYSTYPE *yylval = parse_events_get_lval(scanner);
--	char *text = parse_events_get_text(scanner);
--
--	return __value(yylval, text + 1, 16, PE_RAW);
--}
--
- static int str(yyscan_t scanner, int token)
- {
- 	YYSTYPE *yylval = parse_events_get_lval(scanner);
-@@ -72,6 +64,17 @@ static int str(yyscan_t scanner, int token)
- 	return token;
- }
- 
-+static int raw(yyscan_t scanner)
-+{
-+	YYSTYPE *yylval = parse_events_get_lval(scanner);
-+	char *text = parse_events_get_text(scanner);
-+
-+	if (perf_pmu__parse_check(text) == PMU_EVENT_SYMBOL)
-+		return str(scanner, PE_NAME);
-+
-+	return __value(yylval, text + 1, 16, PE_RAW);
-+}
-+
- static bool isbpf_suffix(char *text)
- {
- 	int len = strlen(text);
+-CC ?= $(CROSS_COMPILE)gcc
+-CXX ?= $(CROSS_COMPILE)g++
+ PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
+ LLVM_CONFIG ?= llvm-config
+ CLANG ?= clang
 -- 
 2.25.1
 
