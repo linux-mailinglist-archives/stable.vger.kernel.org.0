@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB69B24B241
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8259B24B244
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbgHTJ0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+        id S1727899AbgHTJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726132AbgHTJZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:25:48 -0400
+        id S1727831AbgHTJ0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 385FF22BEB;
-        Thu, 20 Aug 2020 09:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BADAE22B4B;
+        Thu, 20 Aug 2020 09:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915536;
-        bh=FIUM0NKdIHClkIpShLsvi5SG3eLwROH51o+dhKJGRbA=;
+        s=default; t=1597915542;
+        bh=ZmAVdYFN3OYsn8GaQ5qXLi46UhQNtMpPd4a8JIzOVmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iovHvmkRiKyngeOQInEDumritsStevbtWgAZfZFbk/VH2PLNTSmkCwgkBJvFvySlF
-         bH+WW+GVgoc9MheM5mnpGHVcUm9u1AJyMrl9ihBCmQXgx/YnXoLCNDxBO+nMnRYU3E
-         BY0n5PuEV7yAKHEgQJfjEZY6PLNXTIiQIF93+zjw=
+        b=mnAQz8pKfA7uRfTIyGbkewnLHVTsfRZ2BmyeAAkEhMGYgF4OdOALe48aIk/H1sxMi
+         2j4SePYUMxupDHXDdGIg6noIkkAfJfZwGsLIYdzBLA3rk3BHwU12T8Y/slsFuFIn8J
+         DzPvsrApp1QidBip9fOxxch0Ior8M+pn2ChrUk1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.8 048/232] xtensa: fix xtensa_pmu_setup prototype
-Date:   Thu, 20 Aug 2020 11:18:19 +0200
-Message-Id: <20200820091615.109034487@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.8 050/232] powerpc/ptdump: Fix build failure in hashpagetable.c
+Date:   Thu, 20 Aug 2020 11:18:21 +0200
+Message-Id: <20200820091615.202793136@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -42,35 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 6d65d3769d1910379e1cfa61ebf387efc6bfb22c upstream.
+commit 7c466b0807960edc13e4b855be85ea765df9a6cd upstream.
 
-Fix the following build error in configurations with
-CONFIG_XTENSA_VARIANT_HAVE_PERF_EVENTS=y:
+H_SUCCESS is only defined when CONFIG_PPC_PSERIES is defined.
 
-  arch/xtensa/kernel/perf_event.c:420:29: error: passing argument 3 of
-  ‘cpuhp_setup_state’ from incompatible pointer type
+!= H_SUCCESS means != 0. Modify the test accordingly.
 
+Fixes: 65e701b2d2a8 ("powerpc/ptdump: drop non vital #ifdefs")
 Cc: stable@vger.kernel.org
-Fixes: 25a77b55e74c ("xtensa/perf: Convert the hotplug notifier to state machine callbacks")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/795158fc1d2b3dff3bf7347881947a887ea9391a.1592227105.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/xtensa/kernel/perf_event.c |    2 +-
+ arch/powerpc/mm/ptdump/hashpagetable.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/xtensa/kernel/perf_event.c
-+++ b/arch/xtensa/kernel/perf_event.c
-@@ -399,7 +399,7 @@ static struct pmu xtensa_pmu = {
- 	.read = xtensa_pmu_read,
- };
+--- a/arch/powerpc/mm/ptdump/hashpagetable.c
++++ b/arch/powerpc/mm/ptdump/hashpagetable.c
+@@ -258,7 +258,7 @@ static int pseries_find(unsigned long ea
+ 	for (i = 0; i < HPTES_PER_GROUP; i += 4, hpte_group += 4) {
+ 		lpar_rc = plpar_pte_read_4(0, hpte_group, (void *)ptes);
  
--static int xtensa_pmu_setup(int cpu)
-+static int xtensa_pmu_setup(unsigned int cpu)
- {
- 	unsigned i;
- 
+-		if (lpar_rc != H_SUCCESS)
++		if (lpar_rc)
+ 			continue;
+ 		for (j = 0; j < 4; j++) {
+ 			if (HPTE_V_COMPARE(ptes[j].v, want_v) &&
 
 
