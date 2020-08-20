@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C8024B2FB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4135A24B41F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbgHTJj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:39:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59440 "EHLO mail.kernel.org"
+        id S1727064AbgHTJ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbgHTJjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:39:48 -0400
+        id S1730393AbgHTJ6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:58:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4653B20724;
-        Thu, 20 Aug 2020 09:39:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F4F120855;
+        Thu, 20 Aug 2020 09:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916387;
-        bh=9iIh+itXFCiJpzJCgY8kQPXUYNArH99tHwymyYCggEs=;
+        s=default; t=1597917497;
+        bh=K1xhDAwcr1pkUBiTyzmneGxC31Quu0OUGPHPH6RjErU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Me2fqTJmJYMBrbN8/59y4xvaMtow2gUCpf39oP1zH9rvueYVJo/RALCEOzegXipku
-         X/VdoGlLQtskw3FhPMdY8SM+Ft8hLxdWuOuYqOqJOsqm8pNyzmpdO6n0f85XyemGfy
-         uGtfr3U/p7dV245eY/ME19tS+d/4RKaEPZFN1V9E=
+        b=sobJxSzA79TOppFGtF4ZAbLUZk3miQ6ke+ev4iW38CpttzyY68mp2UkeiNFC8+4Gx
+         oquBTXLIPogPtrmvmSUaTzhBc0hrIvFJXGf1XbL3nOK7yBp0wJCITSkM/c8OLVpoXf
+         ShEPE/XNh/LuWST42lISRnCLYuOB1W4QcivPUlMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 110/204] media: rockchip: rga: Only set output CSC mode for RGB input
+Subject: [PATCH 4.9 034/212] mac80211: mesh: Free pending skb when destroying a mpath
 Date:   Thu, 20 Aug 2020 11:20:07 +0200
-Message-Id: <20200820091611.810174248@linuxfoundation.org>
+Message-Id: <20200820091604.086908070@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit 0f879bab72f47e8ba2421a984e7acfa763d3e84e ]
+[ Upstream commit 5e43540c2af0a0c0a18e39579b1ad49541f87506 ]
 
-Setting the output CSC mode is required for a YUV output, but must not
-be set when the input is also YUV. Doing this (as tested with a YUV420P
-to YUV420P conversion) results in wrong colors.
+A mpath object can hold reference on a list of skb that are waiting for
+mpath resolution to be sent. When destroying a mpath this skb list
+should be cleaned up in order to not leak memory.
 
-Adapt the logic to only set the output CSC mode when the output is YUV and
-the input is RGB. Also add a comment to clarify the rationale.
+Fixing that kind of leak:
 
-Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+unreferenced object 0xffff0000181c9300 (size 1088):
+  comm "openvpn", pid 1782, jiffies 4295071698 (age 80.416s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 f9 80 36 00 00 00 00 00  ..........6.....
+    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<000000002caaef13>] sk_prot_alloc.isra.39+0x34/0x178
+    [<00000000ceeaa916>] sk_alloc+0x34/0x228
+    [<00000000ca1f1d04>] inet_create+0x198/0x518
+    [<0000000035626b1c>] __sock_create+0x134/0x328
+    [<00000000a12b3a87>] __sys_socket+0xb0/0x158
+    [<00000000ff859f23>] __arm64_sys_socket+0x40/0x58
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+unreferenced object 0xffff000012973a40 (size 216):
+  comm "openvpn", pid 1782, jiffies 4295082137 (age 38.660s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 c0 06 16 00 00 ff ff 00 93 1c 18 00 00 ff ff  ................
+  backtrace:
+    [<000000004bc6a443>] kmem_cache_alloc+0x1a4/0x2f0
+    [<0000000023c8c8f9>] __alloc_skb+0xc0/0x2b8
+    [<000000007ad950bb>] alloc_skb_with_frags+0x60/0x320
+    [<00000000ef90023a>] sock_alloc_send_pskb+0x388/0x3c0
+    [<00000000104fb1a3>] sock_alloc_send_skb+0x1c/0x28
+    [<000000006919d2dd>] __ip_append_data+0xba4/0x11f0
+    [<0000000083477587>] ip_make_skb+0x14c/0x1a8
+    [<0000000024f3d592>] udp_sendmsg+0xaf0/0xcf0
+    [<000000005aabe255>] inet_sendmsg+0x5c/0x80
+    [<000000008651ea08>] __sys_sendto+0x15c/0x218
+    [<000000003505c99b>] __arm64_sys_sendto+0x74/0x90
+    [<00000000263486ec>] el0_svc_handler+0xd0/0x1a0
+    [<0000000005b5157d>] el0_svc+0x8/0xc
+
+Fixes: 2bdaf386f99c (mac80211: mesh: move path tables into if_mesh)
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Link: https://lore.kernel.org/r/20200704135419.27703-1-repk@triplefau.lt
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rga/rga-hw.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/mac80211/mesh_pathtbl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/rockchip/rga/rga-hw.c b/drivers/media/platform/rockchip/rga/rga-hw.c
-index 5607ee8d19176..aaa96f256356b 100644
---- a/drivers/media/platform/rockchip/rga/rga-hw.c
-+++ b/drivers/media/platform/rockchip/rga/rga-hw.c
-@@ -200,6 +200,11 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
- 	dst_info.data.format = ctx->out.fmt->hw_format;
- 	dst_info.data.swap = ctx->out.fmt->color_swap;
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 8c17d498df301..7c409ba1ddc74 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -555,6 +555,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl,
+ 	del_timer_sync(&mpath->timer);
+ 	atomic_dec(&sdata->u.mesh.mpaths);
+ 	atomic_dec(&tbl->entries);
++	mesh_path_flush_pending(mpath);
+ 	kfree_rcu(mpath, rcu);
+ }
  
-+	/*
-+	 * CSC mode must only be set when the colorspace families differ between
-+	 * input and output. It must remain unset (zeroed) if both are the same.
-+	 */
-+
- 	if (RGA_COLOR_FMT_IS_YUV(ctx->in.fmt->hw_format) &&
- 	    RGA_COLOR_FMT_IS_RGB(ctx->out.fmt->hw_format)) {
- 		switch (ctx->in.colorspace) {
-@@ -212,7 +217,8 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
- 		}
- 	}
- 
--	if (RGA_COLOR_FMT_IS_YUV(ctx->out.fmt->hw_format)) {
-+	if (RGA_COLOR_FMT_IS_RGB(ctx->in.fmt->hw_format) &&
-+	    RGA_COLOR_FMT_IS_YUV(ctx->out.fmt->hw_format)) {
- 		switch (ctx->out.colorspace) {
- 		case V4L2_COLORSPACE_REC709:
- 			dst_info.data.csc_mode = RGA_SRC_CSC_MODE_BT709_R0;
 -- 
 2.25.1
 
