@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50C6624B91C
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A260C24B8D6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729248AbgHTLjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:39:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
+        id S1730147AbgHTL3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:29:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730566AbgHTKFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:05:31 -0400
+        id S1730577AbgHTKFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:05:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BC2E206DA;
-        Thu, 20 Aug 2020 10:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B32D92067C;
+        Thu, 20 Aug 2020 10:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917931;
-        bh=XNKaTE2ci2wFaOo4QSprTRSo8NpV/zmGFkbk4YYhCi8=;
+        s=default; t=1597917934;
+        bh=Mlre0NfdZn5TVHGLM/JcqLK5nl+zozSKCg2mXww6fb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhszG3m1WzWY+kLEK3IaPogzRG3asVCriF+GeBh86rXHS7gXheDKJ1YVevSCchnnh
-         zKtP/ZfrEWeidlWzzgzh6TgYc+/+4umuaRE4WgWAzXOzY8Wijdvy28M6p/4+SJ10GZ
-         Ki2QaagqZfj/X4e79s9xZ7swSIL+I69k2iZYaJ3Y=
+        b=AgIBTmX1xDMf0hi/R9oDg0fwHFh6AvqJCtvM6ZE2olLVO7Y9I42nHrBKNZsej0+tJ
+         YVmdpZmxv/2xDtbQ46DeRMtbhXHtsALhAG4TPg68W869UMEIma7A/ulmmiVdxwE0Wb
+         QF2QwbqmpW3DweqOt/vSQ+KjHnifdf7sL6BQyJbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 208/212] ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
-Date:   Thu, 20 Aug 2020 11:23:01 +0200
-Message-Id: <20200820091612.851722448@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 209/212] sh: landisk: Add missing initialization of sh_io_port_base
+Date:   Thu, 20 Aug 2020 11:23:02 +0200
+Message-Id: <20200820091612.901063054@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,43 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 5a25de6df789cc805a9b8ba7ab5deef5067af47e ]
+[ Upstream commit 0c64a0dce51faa9c706fdf1f957d6f19878f4b81 ]
 
-Freeing chip on error may lead to an Oops at the next time
-the system goes to resume. Fix this by removing all
-snd_echo_free() calls on error.
+The Landisk setup code maps the CF IDE area using ioremap_prot(), and
+passes the resulting virtual addresses to the pata_platform driver,
+disguising them as I/O port addresses.  Hence the pata_platform driver
+translates them again using ioport_map().
+As CONFIG_GENERIC_IOMAP=n, and CONFIG_HAS_IOPORT_MAP=y, the
+SuperH-specific mapping code in arch/sh/kernel/ioport.c translates
+I/O port addresses to virtual addresses by adding sh_io_port_base, which
+defaults to -1, thus breaking the assumption of an identity mapping.
 
-Fixes: 47b5d028fdce8 ("ALSA: Echoaudio - Add suspend support #2")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20200813074632.17022-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix this by setting sh_io_port_base to zero.
+
+Fixes: 37b7a97884ba64bf ("sh: machvec IO death.")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/echoaudio/echoaudio.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/sh/boards/mach-landisk/setup.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/echoaudio/echoaudio.c b/sound/pci/echoaudio/echoaudio.c
-index d73ee11a32bd0..db14ee43e461a 100644
---- a/sound/pci/echoaudio/echoaudio.c
-+++ b/sound/pci/echoaudio/echoaudio.c
-@@ -2215,7 +2215,6 @@ static int snd_echo_resume(struct device *dev)
- 	if (err < 0) {
- 		kfree(commpage_bak);
- 		dev_err(dev, "resume init_hw err=%d\n", err);
--		snd_echo_free(chip);
- 		return err;
- 	}
+diff --git a/arch/sh/boards/mach-landisk/setup.c b/arch/sh/boards/mach-landisk/setup.c
+index f1147caebacf0..af69fb7fef7c7 100644
+--- a/arch/sh/boards/mach-landisk/setup.c
++++ b/arch/sh/boards/mach-landisk/setup.c
+@@ -85,6 +85,9 @@ device_initcall(landisk_devices_setup);
  
-@@ -2242,7 +2241,6 @@ static int snd_echo_resume(struct device *dev)
- 	if (request_irq(pci->irq, snd_echo_interrupt, IRQF_SHARED,
- 			KBUILD_MODNAME, chip)) {
- 		dev_err(chip->card->dev, "cannot grab irq\n");
--		snd_echo_free(chip);
- 		return -EBUSY;
- 	}
- 	chip->irq = pci->irq;
+ static void __init landisk_setup(char **cmdline_p)
+ {
++	/* I/O port identity mapping */
++	__set_io_port_base(0);
++
+ 	/* LED ON */
+ 	__raw_writeb(__raw_readb(PA_LED) | 0x03, PA_LED);
+ 
 -- 
 2.25.1
 
