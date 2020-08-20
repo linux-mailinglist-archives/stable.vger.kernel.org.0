@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7FD24BCBF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CA424BBCA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbgHTJng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37794 "EHLO mail.kernel.org"
+        id S1729607AbgHTJtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:49:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729154AbgHTJm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:42:29 -0400
+        id S1729599AbgHTJs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB2ED2173E;
-        Thu, 20 Aug 2020 09:42:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAB0A2078D;
+        Thu, 20 Aug 2020 09:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916549;
-        bh=o5V+TZzJ4oLw40P7fnqae4aYSj8Ai1i0CGcdbBn5HyY=;
+        s=default; t=1597916938;
+        bh=sL0968/HFFbREq/hgGicNt4OaxmzlMEkH2rS4F4Lc48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14KAbc5NcZ30SwSnOWgovAedJAf4MZluFxI2aqW5hpVF5kZhvsFOJqzifYH9dIuS+
-         3LBAwWdl3Xvf24exSIXJUTOEFpdvzPt9R8MeOxNWgLzQ/MDqhqv6CrOkVUeE0T1Vrd
-         +GoPkXZ3UGe9y/pOcED0DB25mGoGUWQwwiwuYUTA=
+        b=dTTJ+g4z7YjuoheVZ2iLXPWHPFH4RrUF+0KWipiV1Fqu3JlyBQZY4YfF6p/nIlnHM
+         O+tJkrWP9SJhGTe6kiVHrMaDLKmGEsJwonx1Kh+iekWa49IkUUbdy8DGFLmtwhqNgp
+         0mgmhMUe4DtNPqe9jz5VbPazz74JYOsy+83gw1e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Roland Scheidegger <sroland@vmware.com>,
+        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 168/204] drm/vmwgfx: Use correct vmw_legacy_display_unit pointer
+Subject: [PATCH 5.4 098/152] gpu: ipu-v3: image-convert: Combine rotate/no-rotate irq handlers
 Date:   Thu, 20 Aug 2020 11:21:05 +0200
-Message-Id: <20200820091614.604780507@linuxfoundation.org>
+Message-Id: <20200820091558.776719205@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Steve Longerbeam <slongerbeam@gmail.com>
 
-[ Upstream commit 1d2c0c565bc0da25f5e899a862fb58e612b222df ]
+[ Upstream commit 0f6245f42ce9b7e4d20f2cda8d5f12b55a44d7d1 ]
 
-The "entry" pointer is an offset from the list head and it doesn't
-point to a valid vmw_legacy_display_unit struct.  Presumably the
-intent was to point to the last entry.
+Combine the rotate_irq() and norotate_irq() handlers into a single
+eof_irq() handler.
 
-Also the "i++" wasn't used so I have removed that as well.
-
-Fixes: d7e1958dbe4a ("drm/vmwgfx: Support older hardware.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Roland Scheidegger <sroland@vmware.com>
-Signed-off-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/ipu-v3/ipu-image-convert.c | 58 +++++++++-----------------
+ 1 file changed, 20 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c b/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
-index 16dafff5cab19..009f1742bed51 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c
-@@ -81,7 +81,7 @@ static int vmw_ldu_commit_list(struct vmw_private *dev_priv)
- 	struct vmw_legacy_display_unit *entry;
- 	struct drm_framebuffer *fb = NULL;
- 	struct drm_crtc *crtc = NULL;
--	int i = 0;
-+	int i;
+diff --git a/drivers/gpu/ipu-v3/ipu-image-convert.c b/drivers/gpu/ipu-v3/ipu-image-convert.c
+index eeca50d9a1ee4..f8b031ded3cf2 100644
+--- a/drivers/gpu/ipu-v3/ipu-image-convert.c
++++ b/drivers/gpu/ipu-v3/ipu-image-convert.c
+@@ -1709,9 +1709,10 @@ static irqreturn_t do_irq(struct ipu_image_convert_run *run)
+ 	return IRQ_WAKE_THREAD;
+ }
  
- 	/* If there is no display topology the host just assumes
- 	 * that the guest will set the same layout as the host.
-@@ -92,12 +92,11 @@ static int vmw_ldu_commit_list(struct vmw_private *dev_priv)
- 			crtc = &entry->base.crtc;
- 			w = max(w, crtc->x + crtc->mode.hdisplay);
- 			h = max(h, crtc->y + crtc->mode.vdisplay);
--			i++;
- 		}
+-static irqreturn_t norotate_irq(int irq, void *data)
++static irqreturn_t eof_irq(int irq, void *data)
+ {
+ 	struct ipu_image_convert_chan *chan = data;
++	struct ipu_image_convert_priv *priv = chan->priv;
+ 	struct ipu_image_convert_ctx *ctx;
+ 	struct ipu_image_convert_run *run;
+ 	unsigned long flags;
+@@ -1728,45 +1729,26 @@ static irqreturn_t norotate_irq(int irq, void *data)
  
- 		if (crtc == NULL)
- 			return 0;
--		fb = entry->base.crtc.primary->state->fb;
-+		fb = crtc->primary->state->fb;
+ 	ctx = run->ctx;
  
- 		return vmw_kms_write_svga(dev_priv, w, h, fb->pitches[0],
- 					  fb->format->cpp[0] * 8,
+-	if (ipu_rot_mode_is_irt(ctx->rot_mode)) {
+-		/* this is a rotation operation, just ignore */
+-		spin_unlock_irqrestore(&chan->irqlock, flags);
+-		return IRQ_HANDLED;
+-	}
+-
+-	ret = do_irq(run);
+-out:
+-	spin_unlock_irqrestore(&chan->irqlock, flags);
+-	return ret;
+-}
+-
+-static irqreturn_t rotate_irq(int irq, void *data)
+-{
+-	struct ipu_image_convert_chan *chan = data;
+-	struct ipu_image_convert_priv *priv = chan->priv;
+-	struct ipu_image_convert_ctx *ctx;
+-	struct ipu_image_convert_run *run;
+-	unsigned long flags;
+-	irqreturn_t ret;
+-
+-	spin_lock_irqsave(&chan->irqlock, flags);
+-
+-	/* get current run and its context */
+-	run = chan->current_run;
+-	if (!run) {
++	if (irq == chan->out_eof_irq) {
++		if (ipu_rot_mode_is_irt(ctx->rot_mode)) {
++			/* this is a rotation op, just ignore */
++			ret = IRQ_HANDLED;
++			goto out;
++		}
++	} else if (irq == chan->rot_out_eof_irq) {
++		if (!ipu_rot_mode_is_irt(ctx->rot_mode)) {
++			/* this was NOT a rotation op, shouldn't happen */
++			dev_err(priv->ipu->dev,
++				"Unexpected rotation interrupt\n");
++			ret = IRQ_HANDLED;
++			goto out;
++		}
++	} else {
++		dev_err(priv->ipu->dev, "Received unknown irq %d\n", irq);
+ 		ret = IRQ_NONE;
+ 		goto out;
+ 	}
+ 
+-	ctx = run->ctx;
+-
+-	if (!ipu_rot_mode_is_irt(ctx->rot_mode)) {
+-		/* this was NOT a rotation operation, shouldn't happen */
+-		dev_err(priv->ipu->dev, "Unexpected rotation interrupt\n");
+-		spin_unlock_irqrestore(&chan->irqlock, flags);
+-		return IRQ_HANDLED;
+-	}
+-
+ 	ret = do_irq(run);
+ out:
+ 	spin_unlock_irqrestore(&chan->irqlock, flags);
+@@ -1859,7 +1841,7 @@ static int get_ipu_resources(struct ipu_image_convert_chan *chan)
+ 						  chan->out_chan,
+ 						  IPU_IRQ_EOF);
+ 
+-	ret = request_threaded_irq(chan->out_eof_irq, norotate_irq, do_bh,
++	ret = request_threaded_irq(chan->out_eof_irq, eof_irq, do_bh,
+ 				   0, "ipu-ic", chan);
+ 	if (ret < 0) {
+ 		dev_err(priv->ipu->dev, "could not acquire irq %d\n",
+@@ -1872,7 +1854,7 @@ static int get_ipu_resources(struct ipu_image_convert_chan *chan)
+ 						     chan->rotation_out_chan,
+ 						     IPU_IRQ_EOF);
+ 
+-	ret = request_threaded_irq(chan->rot_out_eof_irq, rotate_irq, do_bh,
++	ret = request_threaded_irq(chan->rot_out_eof_irq, eof_irq, do_bh,
+ 				   0, "ipu-ic", chan);
+ 	if (ret < 0) {
+ 		dev_err(priv->ipu->dev, "could not acquire irq %d\n",
 -- 
 2.25.1
 
