@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C77424B9CB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:55:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E909224B97D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728694AbgHTLsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56858 "EHLO mail.kernel.org"
+        id S1730699AbgHTLsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:48:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730606AbgHTKDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:48 -0400
+        id S1728238AbgHTKDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:03:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B88A22BEF;
-        Thu, 20 Aug 2020 10:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF42B22BEB;
+        Thu, 20 Aug 2020 10:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917828;
-        bh=URnzKMQdQ1hvZZ1N/UHFn3EthGqfHgSOY68Vi7+N82E=;
+        s=default; t=1597917831;
+        bh=2xhDejPCoJNUZGSpbwq/HA5M4V1OMaAxiLC57IJTps8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3xLP5jyRcpJ9JjGKM7MYIDB/lbjtCqDa69A52YaTZc4Fqn/6okmUteMWvxjx2OOV
-         I6xie987rR6GTyxqjgMigFPLkqlrYYv5NVK7FU79XgIqxpXnbGDGqyhNCcXreYjpZc
-         CbBCqRaen4DRF1nOXJ5c1CXL0gkMYduD/PjqbC9Q=
+        b=nQ/wQdRgIJycJCnzbBxqzjQeiwdC0mavBSDVBC4wffmvIWkGlcKYo84bq3SDoSnwi
+         kRlfS6POgX2efCP/AYBeQB4in+/ro5DepnRIsnb3g46sCSgrCSnSK3Msq5ZHUe3jFQ
+         KQrmdrrghQw8M8Q9LjkWTTvGU8JN17w2suoAS4NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 173/212] btrfs: fix memory leaks after failure to lookup checksums during inode logging
-Date:   Thu, 20 Aug 2020 11:22:26 +0200
-Message-Id: <20200820091611.132834127@linuxfoundation.org>
+        Charles Stanhope <charles.stanhope@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 174/212] iio: dac: ad5592r: fix unbalanced mutex unlocks in ad5592r_read_raw()
+Date:   Thu, 20 Aug 2020 11:22:27 +0200
+Message-Id: <20200820091611.181295528@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,54 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
+commit 65afb0932a81c1de719ceee0db0b276094b10ac8 upstream.
 
-While logging an inode, at copy_items(), if we fail to lookup the checksums
-for an extent we release the destination path, free the ins_data array and
-then return immediately. However a previous iteration of the for loop may
-have added checksums to the ordered_sums list, in which case we leak the
-memory used by them.
+There are 2 exit paths where the lock isn't held, but try to unlock the
+mutex when exiting. In these places we should just return from the
+function.
 
-So fix this by making sure we iterate the ordered_sums list and free all
-its checksums before returning.
+A neater approach would be to cleanup the ad5592r_read_raw(), but that
+would make this patch more difficult to backport to stable versions.
 
-Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes 56ca9db862bf3: ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Reported-by: Charles Stanhope <charles.stanhope@gmail.com>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/iio/dac/ad5592r-base.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3755,11 +3755,8 @@ static noinline int copy_items(struct bt
- 						log->fs_info->csum_root,
- 						ds + cs, ds + cs + cl - 1,
- 						&ordered_sums, 0);
--				if (ret) {
--					btrfs_release_path(dst_path);
--					kfree(ins_data);
--					return ret;
--				}
-+				if (ret)
-+					break;
- 			}
- 		}
+--- a/drivers/iio/dac/ad5592r-base.c
++++ b/drivers/iio/dac/ad5592r-base.c
+@@ -417,7 +417,7 @@ static int ad5592r_read_raw(struct iio_d
+ 			s64 tmp = *val * (3767897513LL / 25LL);
+ 			*val = div_s64_rem(tmp, 1000000000LL, val2);
+ 
+-			ret = IIO_VAL_INT_PLUS_MICRO;
++			return IIO_VAL_INT_PLUS_MICRO;
+ 		} else {
+ 			int mult;
+ 
+@@ -448,7 +448,7 @@ static int ad5592r_read_raw(struct iio_d
+ 		ret =  IIO_VAL_INT;
+ 		break;
+ 	default:
+-		ret = -EINVAL;
++		return -EINVAL;
  	}
-@@ -3772,7 +3769,6 @@ static noinline int copy_items(struct bt
- 	 * we have to do this after the loop above to avoid changing the
- 	 * log tree while trying to change the log tree.
- 	 */
--	ret = 0;
- 	while (!list_empty(&ordered_sums)) {
- 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
- 						   struct btrfs_ordered_sum,
+ 
+ unlock:
 
 
