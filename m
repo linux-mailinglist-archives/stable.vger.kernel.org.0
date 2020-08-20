@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 219A524BC10
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F48024BBFC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729723AbgHTMjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51650 "EHLO mail.kernel.org"
+        id S1729715AbgHTMhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729482AbgHTJrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:40 -0400
+        id S1729522AbgHTJrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B963320724;
-        Thu, 20 Aug 2020 09:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5D8020724;
+        Thu, 20 Aug 2020 09:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916860;
-        bh=JhwcJ/tqepTYH27UU61VLZNErKUrP6QK/XJvsBUTs9I=;
+        s=default; t=1597916865;
+        bh=gxyljUXskyWu0WRXoIl0lAS2I6vIPL5JTgN3D6quj4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EstavljkfRUQADvAUFTGTDs0mZLic/YN5SyT6yO8bo7jH/JwN6cfM+rLJZpVM0/Sd
-         fBRCbSN9R38CCbVRlqgkFwaB0fvE/7T3MgjFVsTuMc8sa+Ok1h7+wOMB4o43Xi2ByV
-         Xk/APSsjWi1c1BCfY/XlsV/HWb3hHZfgCxbrE7ak=
+        b=mkGRngaoUy4XDiiLIbC7bQdI6Vs/lBd8arD15t7AG6hRHK/5alRY+CsJoYeVXA4Gc
+         F2fV6tb73PjAFXNtDt1qYZdf2OsRD+kjBR8y95eZSVODaX6w0pYIcCK7Ea3ggMuLK0
+         Z8RwMfMvnnB9E9m3Ds+jRRxEPBHx3oq1D4kcmzmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.4 071/152] remoteproc: qcom: q6v5: Update running state before requesting stop
-Date:   Thu, 20 Aug 2020 11:20:38 +0200
-Message-Id: <20200820091557.359022608@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sibi Sankar <sibis@codeaurora.org>
+Subject: [PATCH 5.4 072/152] remoteproc: qcom_q6v5_mss: Validate MBA firmware size before load
+Date:   Thu, 20 Aug 2020 11:20:39 +0200
+Message-Id: <20200820091557.405250411@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -46,42 +46,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sibi Sankar <sibis@codeaurora.org>
 
-commit 5b7be880074c73540948f8fc597e0407b98fabfa upstream.
+commit e013f455d95add874f310dc47c608e8c70692ae5 upstream.
 
-Sometimes the stop triggers a watchdog rather than a stop-ack. Update
-the running state to false on requesting stop to skip the watchdog
-instead.
+The following mem abort is observed when the mba firmware size exceeds
+the allocated mba region. MBA firmware size is restricted to a maximum
+size of 1M and remaining memory region is used by modem debug policy
+firmware when available. Hence verify whether the MBA firmware size lies
+within the allocated memory region and is not greater than 1M before
+loading.
 
-Error Logs:
-$ echo stop > /sys/class/remoteproc/remoteproc0/state
-ipa 1e40000.ipa: received modem stopping event
-remoteproc-modem: watchdog received: sys_m_smsm_mpss.c:291:APPS force stop
-qcom-q6v5-mss 4080000.remoteproc-modem: port failed halt
-ipa 1e40000.ipa: received modem offline event
-remoteproc0: stopped remote processor 4080000.remoteproc-modem
+Err Logs:
+Unable to handle kernel paging request at virtual address
+Mem abort info:
+...
+Call trace:
+  __memcpy+0x110/0x180
+  rproc_start+0x40/0x218
+  rproc_boot+0x5b4/0x608
+  state_store+0x54/0xf8
+  dev_attr_store+0x44/0x60
+  sysfs_kf_write+0x58/0x80
+  kernfs_fop_write+0x140/0x230
+  vfs_write+0xc4/0x208
+  ksys_write+0x74/0xf8
+  __arm64_sys_write+0x24/0x30
+...
 
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Fixes: 3b415c8fb263 ("remoteproc: q6v5: Extract common resource handling")
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 051fb70fd4ea4 ("remoteproc: qcom: Driver for the self-authenticating Hexagon v5")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20200602163257.26978-1-sibis@codeaurora.org
+Link: https://lore.kernel.org/r/20200722201047.12975-2-sibis@codeaurora.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/remoteproc/qcom_q6v5.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/remoteproc/qcom_q6v5_mss.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/remoteproc/qcom_q6v5.c
-+++ b/drivers/remoteproc/qcom_q6v5.c
-@@ -151,6 +151,8 @@ int qcom_q6v5_request_stop(struct qcom_q
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -381,6 +381,12 @@ static int q6v5_load(struct rproc *rproc
  {
- 	int ret;
+ 	struct q6v5 *qproc = rproc->priv;
  
-+	q6v5->running = false;
++	/* MBA is restricted to a maximum size of 1M */
++	if (fw->size > qproc->mba_size || fw->size > SZ_1M) {
++		dev_err(qproc->dev, "MBA firmware load failed\n");
++		return -EINVAL;
++	}
 +
- 	qcom_smem_state_update_bits(q6v5->state,
- 				    BIT(q6v5->stop_bit), BIT(q6v5->stop_bit));
+ 	memcpy(qproc->mba_region, fw->data, fw->size);
  
+ 	return 0;
 
 
