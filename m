@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6D924B7C1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:04:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EB024B7E6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727108AbgHTLEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:04:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56324 "EHLO mail.kernel.org"
+        id S1731012AbgHTKMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731067AbgHTKNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:13:12 -0400
+        id S1731027AbgHTKL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:11:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A59D5206DA;
-        Thu, 20 Aug 2020 10:13:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B37282078D;
+        Thu, 20 Aug 2020 10:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918392;
-        bh=mRNhh1lWE0ACQJaCgePkAq8AsNjxTNJsNxwtcfDVRI4=;
+        s=default; t=1597918318;
+        bh=oz8I1uWJ0oVYI+UQKd++SggARFIdtjlWiOTOgv1IVTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDEDLuEnfhqWtDR4R2sfe0IF+vhUHp8KkYEvQ3DS9PojI+OUShXNJi18Kj+kMv11X
-         2/LjgPfBUKSEMCFa9oB5oW+kAR4SJNMBH/lN93WIV4KNdujAc7RauPx8Sc8+ZDILnb
-         vAdGB/6t+MbwVU6cs1MMTehNzlznitVDA7N0lXcw=
+        b=0fbsXhLBoGMR1kf8GRal/29PkeG3IPjGS9L9KJKyyGc3VG0di1N0LcX6ZVXCuuAkW
+         gllEg1w0CI1LCQRGRajcm9j662aXrm9Ml+DCVEK+lUTCkPbUa4fuiqdiI6knHrUcGN
+         hNJwIr160e9EI5QOQQ1Wf2Ng+p4B+n03Nrr0R3fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Rick Farrington <ricardo.farrington@cavium.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/228] selftests/powerpc: Fix online CPU selection
-Date:   Thu, 20 Aug 2020 11:21:38 +0200
-Message-Id: <20200820091613.740372695@linuxfoundation.org>
+Subject: [PATCH 4.14 128/228] liquidio: Fix wrong return value in cn23xx_get_pf_num()
+Date:   Thu, 20 Aug 2020 11:21:43 +0200
+Message-Id: <20200820091613.984792749@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,91 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit dfa03fff86027e58c8dba5c03ae68150d4e513ad ]
+[ Upstream commit aa027850a292ea65524b8fab83eb91a124ad362c ]
 
-The size of the CPU affinity mask must be large enough for
-systems with a very large number of CPUs. Otherwise, tests
-which try to determine the first online CPU by calling
-sched_getaffinity() will fail. This makes sure that the size
-of the allocated affinity mask is dependent on the number of
-CPUs as reported by get_nprocs_conf().
+On an error exit path, a negative error code should be returned
+instead of a positive return value.
 
-Fixes: 3752e453f6ba ("selftests/powerpc: Add tests of PMU EBBs")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a408c4b8e9a23bb39b539417a21eb0ff47bb5127.1596084858.git.sandipan@linux.ibm.com
+Fixes: 0c45d7fe12c7e ("liquidio: fix use of pf in pass-through mode in a virtual machine")
+Cc: Rick Farrington <ricardo.farrington@cavium.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/utils.c | 37 +++++++++++++++++--------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
-index d46916867a6fb..77db4f6ecf2f0 100644
---- a/tools/testing/selftests/powerpc/utils.c
-+++ b/tools/testing/selftests/powerpc/utils.c
-@@ -12,6 +12,7 @@
- #include <sched.h>
- #include <stdio.h>
- #include <sys/stat.h>
-+#include <sys/sysinfo.h>
- #include <sys/types.h>
- #include <unistd.h>
+diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+index 2e089b5ff8f32..30f0e54f658e9 100644
+--- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
++++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+@@ -1167,7 +1167,7 @@ static int cn23xx_get_pf_num(struct octeon_device *oct)
+ 		oct->pf_num = ((fdl_bit >> CN23XX_PCIE_SRIOV_FDL_BIT_POS) &
+ 			       CN23XX_PCIE_SRIOV_FDL_MASK);
+ 	} else {
+-		ret = EINVAL;
++		ret = -EINVAL;
  
-@@ -81,26 +82,38 @@ void *get_auxv_entry(int type)
- 
- int pick_online_cpu(void)
- {
--	cpu_set_t mask;
--	int cpu;
-+	int ncpus, cpu = -1;
-+	cpu_set_t *mask;
-+	size_t size;
-+
-+	ncpus = get_nprocs_conf();
-+	size = CPU_ALLOC_SIZE(ncpus);
-+	mask = CPU_ALLOC(ncpus);
-+	if (!mask) {
-+		perror("malloc");
-+		return -1;
-+	}
- 
--	CPU_ZERO(&mask);
-+	CPU_ZERO_S(size, mask);
- 
--	if (sched_getaffinity(0, sizeof(mask), &mask)) {
-+	if (sched_getaffinity(0, size, mask)) {
- 		perror("sched_getaffinity");
--		return -1;
-+		goto done;
- 	}
- 
- 	/* We prefer a primary thread, but skip 0 */
--	for (cpu = 8; cpu < CPU_SETSIZE; cpu += 8)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = 8; cpu < ncpus; cpu += 8)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	/* Search for anything, but in reverse */
--	for (cpu = CPU_SETSIZE - 1; cpu >= 0; cpu--)
--		if (CPU_ISSET(cpu, &mask))
--			return cpu;
-+	for (cpu = ncpus - 1; cpu >= 0; cpu--)
-+		if (CPU_ISSET_S(cpu, size, mask))
-+			goto done;
- 
- 	printf("No cpus in affinity mask?!\n");
--	return -1;
-+
-+done:
-+	CPU_FREE(mask);
-+	return cpu;
- }
+ 		/* Under some virtual environments, extended PCI regs are
+ 		 * inaccessible, in which case the above read will have failed.
 -- 
 2.25.1
 
