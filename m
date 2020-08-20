@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BCEC24B91F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7551F24B8DA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729769AbgHTLjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
+        id S1730237AbgHTL3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730475AbgHTKFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:05:22 -0400
+        id S1730598AbgHTKFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:05:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E99B722B43;
-        Thu, 20 Aug 2020 10:05:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F372067C;
+        Thu, 20 Aug 2020 10:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917922;
-        bh=jEodp2XBbycLqhu6saZoTXE2lkh+HwkeWPk6lozDk6k=;
+        s=default; t=1597917945;
+        bh=woRjvQMWZSHzJeQHe1qRaTxqDw8BUnNLYf05/32UtA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYWNAHkcOQNaK0ZoktK59aFhaqJ5KuEkYjoibg9vlpdrW727+pPX8/lUrNaLkzuhx
-         dkUfsszD1Q/0EgKxSj4dUuqTNj2b8fQCxRRnkjtz/EFatJCzkLJIGN1ndeiFt2YpyA
-         SLTCRIm4YIvSMhBmoZiUA1pKM597qiMQ1N9WRXzY=
+        b=cJqkz6ANZkDOtHJaggmSeE9s3+ldSWeoi9CSQbDatvDhW7MA/0EWT7T39wSSEfzcr
+         RRjfpN/kFm2nakXbVsV4yl9oFDmYdWe6XrjmE1lHRRos2HzBghhcMN+F9Av688Io7Y
+         qrwRokv8Ni7KLJtI4wC+BunZuyXXr3AInwYxZ3LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Liu Yi L <yi.l.liu@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Eric Auger <eric.auger@redhat.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 197/212] iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
-Date:   Thu, 20 Aug 2020 11:22:50 +0200
-Message-Id: <20200820091612.307306966@linuxfoundation.org>
+Subject: [PATCH 4.9 198/212] iommu/vt-d: Enforce PASID devTLB field mask
+Date:   Thu, 20 Aug 2020 11:22:51 +0200
+Message-Id: <20200820091612.357140639@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -43,41 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Liu Yi L <yi.l.liu@intel.com>
 
-[ Upstream commit dee9d154f40c58d02f69acdaa5cfd1eae6ebc28b ]
+[ Upstream commit 5f77d6ca5ca74e4b4a5e2e010f7ff50c45dea326 ]
 
-It is possible for the call to omap_iommu_dump_ctx to return
-a negative error number, so check for the failure and return
-the error number rather than pass the negative value to
-simple_read_from_buffer.
+Set proper masks to avoid invalid input spillover to reserved bits.
 
-Fixes: 14e0e6796a0d ("OMAP: iommu: add initial debugfs support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200714192211.744776-1-colin.king@canonical.com
-Addresses-Coverity: ("Improper use of negative value")
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20200724014925.15523-2-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/intel-iommu.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index 505548aafeff2..cec33e90e3998 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -101,8 +101,11 @@ static ssize_t debug_read_regs(struct file *file, char __user *userbuf,
- 	mutex_lock(&iommu_debug_lock);
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 27dbab59f034c..d86ac620f0aac 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -317,8 +317,8 @@ enum {
  
- 	bytes = omap_iommu_dump_ctx(obj, p, count);
-+	if (bytes < 0)
-+		goto err;
- 	bytes = simple_read_from_buffer(userbuf, count, ppos, buf, bytes);
- 
-+err:
- 	mutex_unlock(&iommu_debug_lock);
- 	kfree(buf);
- 
+ #define QI_DEV_EIOTLB_ADDR(a)	((u64)(a) & VTD_PAGE_MASK)
+ #define QI_DEV_EIOTLB_SIZE	(((u64)1) << 11)
+-#define QI_DEV_EIOTLB_GLOB(g)	((u64)g)
+-#define QI_DEV_EIOTLB_PASID(p)	(((u64)p) << 32)
++#define QI_DEV_EIOTLB_GLOB(g)	((u64)(g) & 0x1)
++#define QI_DEV_EIOTLB_PASID(p)	((u64)((p) & 0xfffff) << 32)
+ #define QI_DEV_EIOTLB_SID(sid)	((u64)((sid) & 0xffff) << 16)
+ #define QI_DEV_EIOTLB_QDEP(qd)	((u64)((qd) & 0x1f) << 4)
+ #define QI_DEV_EIOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | \
 -- 
 2.25.1
 
