@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D64D024BC7B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AD324BC71
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgHTMrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
+        id S1729967AbgHTMqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:46:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbgHTJp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:29 -0400
+        id S1728328AbgHTJpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:45:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F79022D6D;
-        Thu, 20 Aug 2020 09:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9321222D6E;
+        Thu, 20 Aug 2020 09:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916696;
-        bh=4Pu5l+a7R0giKXEjk93F4XnVBL48zhHRz7T5g0HZRQc=;
+        s=default; t=1597916700;
+        bh=+jlW5mBM0KX/G8DIWN/J/SV8dzYCZkFhr/5qSTloDdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0R89/UlMfCk1dw0PXngaU+kvwFjI8T7lm3yTcsj++RqxW+18v3lKVZnxyu41wx6gk
-         PP6gh1QcxrX6kyWBlgqJu1z/TcM1Wu9JREIxb3CTYNtSq6iFurBLwXyKvX6f4HjVoL
-         Ufo1sz0QI9YdyNK/ffeaWd4j74M9Q2eOpkyotqdE=
+        b=1pF1n7kHFUx/IM0GX2+TPNlxjP394ZY7SUVcZZcBeENsHi4Zbo3MFg7lEvwZSlo1w
+         sm5Bylsi516gZ2mH9anJizy0UlRXov99ay8YPJJOP8q7wdW9A0Y0K2t8jwinLmSpND
+         av8jaPzEsHq9EQtyX7BA2PqQZ8WeHfaukTQB8nJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        stable@vger.kernel.org, Sham Muthayyan <smuthayy@codeaurora.org>,
+        Ansuel Smith <ansuelsmth@gmail.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
         Stanimir Varbanov <svarbanov@mm-sol.com>
-Subject: [PATCH 5.4 007/152] PCI: qcom: Define some PARF params needed for ipq8064 SoC
-Date:   Thu, 20 Aug 2020 11:19:34 +0200
-Message-Id: <20200820091554.011441096@linuxfoundation.org>
+Subject: [PATCH 5.4 008/152] PCI: qcom: Add support for tx term offset for rev 2.1.0
+Date:   Thu, 20 Aug 2020 11:19:35 +0200
+Message-Id: <20200820091554.056807863@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -47,71 +47,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ansuel Smith <ansuelsmth@gmail.com>
 
-commit 5149901e9e6deca487c01cc434a3ac4125c7b00b upstream.
+commit de3c4bf648975ea0b1d344d811e9b0748907b47c upstream.
 
-Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
-needed on some ipq8064 based device (Netgear R7800 for example). Without
-this the system locks on kernel load.
+Add tx term offset support to pcie qcom driver need in some revision of
+the ipq806x SoC. Ipq8064 needs tx term offset set to 7.
 
-Link: https://lore.kernel.org/r/20200615210608.21469-8-ansuelsmth@gmail.com
+Link: https://lore.kernel.org/r/20200615210608.21469-9-ansuelsmth@gmail.com
 Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
 Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
 Cc: stable@vger.kernel.org # v4.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/pci/controller/dwc/pcie-qcom.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 --- a/drivers/pci/controller/dwc/pcie-qcom.c
 +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -76,6 +76,18 @@
- #define DBI_RO_WR_EN				1
+@@ -45,7 +45,13 @@
+ #define PCIE_CAP_CPL_TIMEOUT_DISABLE		0x10
  
- #define PERST_DELAY_US				1000
-+/* PARF registers */
-+#define PCIE20_PARF_PCS_DEEMPH			0x34
-+#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
+ #define PCIE20_PARF_PHY_CTRL			0x40
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK	GENMASK(20, 16)
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET(x)		((x) << 16)
 +
-+#define PCIE20_PARF_PCS_SWING			0x38
-+#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
-+#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
+ #define PCIE20_PARF_PHY_REFCLK			0x4C
++#define PHY_REFCLK_SSP_EN			BIT(16)
++#define PHY_REFCLK_USE_PAD			BIT(12)
 +
-+#define PCIE20_PARF_CONFIG_BITS		0x50
-+#define PHY_RX0_EQ(x)				((x) << 24)
- 
- #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
- #define SLV_ADDR_SPACE_SZ			0x10000000
-@@ -275,6 +287,7 @@ static int qcom_pcie_init_2_1_0(struct q
- 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
- 	struct dw_pcie *pci = pcie->pci;
- 	struct device *dev = pci->dev;
-+	struct device_node *node = dev->of_node;
- 	u32 val;
- 	int ret;
- 
-@@ -319,6 +332,17 @@ static int qcom_pcie_init_2_1_0(struct q
- 	val &= ~BIT(0);
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+ #define PCIE20_PARF_DBI_BASE_ADDR		0x168
+ #define PCIE20_PARF_SLV_ADDR_SPACE_SIZE		0x16C
+ #define PCIE20_PARF_MHI_CLOCK_RESET_CTRL	0x174
+@@ -343,9 +349,18 @@ static int qcom_pcie_init_2_1_0(struct q
+ 		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
+ 	}
  
 +	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
-+		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
-+		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
-+		writel(PCS_SWING_TX_SWING_FULL(120) |
-+			       PCS_SWING_TX_SWING_LOW(120),
-+		       pcie->parf + PCIE20_PARF_PCS_SWING);
-+		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
++		/* set TX termination offset */
++		val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
++		val &= ~PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK;
++		val |= PHY_CTRL_PHY_TX0_TERM_OFFSET(7);
++		writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
 +	}
 +
  	/* enable external reference clock */
  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
- 	val |= BIT(16);
+-	val |= BIT(16);
++	val &= ~PHY_REFCLK_USE_PAD;
++	val |= PHY_REFCLK_SSP_EN;
+ 	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
+ 
+ 	ret = reset_control_deassert(res->phy_reset);
 
 
