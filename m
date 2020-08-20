@@ -2,140 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29CC424BDB4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9575124BE39
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728250AbgHTNLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:11:12 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:9795 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727084AbgHTNLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 09:11:06 -0400
-Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id DE87FE644D56D59FBCBC;
-        Thu, 20 Aug 2020 21:10:58 +0800 (CST)
-Received: from DESKTOP-8N3QUD5.china.huawei.com (10.67.102.173) by
- DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
- 14.3.487.0; Thu, 20 Aug 2020 21:10:49 +0800
-From:   Guohua Zhong <zhongguohua1@huawei.com>
-To:     <paulus@samba.org>, <mpe@ellerman.id.au>,
-        <benh@kernel.crashing.org>, <gregkh@linuxfoundation.org>
-CC:     <linuxppc-dev@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, <nixiaoming@huawei.com>,
-        <wangle6@huawei.com>
-Subject: [PATCH] powerpc: Fix a bug in __div64_32 if divisor is zero
-Date:   Thu, 20 Aug 2020 21:10:49 +0800
-Message-ID: <20200820131049.42940-1-zhongguohua1@huawei.com>
-X-Mailer: git-send-email 2.21.0.windows.1
+        id S1728632AbgHTNV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:21:57 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:10928 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729856AbgHTNTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 09:19:31 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f3e77e40004>; Thu, 20 Aug 2020 06:17:24 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 20 Aug 2020 06:19:19 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 20 Aug 2020 06:19:19 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 20 Aug
+ 2020 13:19:18 +0000
+Received: from [127.0.1.1] (10.124.1.5) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 20 Aug 2020 13:19:16 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.7 000/204] 5.7.17-rc1 review
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.102.173]
-X-CFilter-Loop: Reflected
+Message-ID: <046a413540c945c8a1dc39e0fb84ee2f@HQMAIL105.nvidia.com>
+Date:   Thu, 20 Aug 2020 13:19:16 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1597929444; bh=Zy/zfOFJSdyO4u2B5Y8lN92gP3fDtydibASZPz6r474=;
+        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
+         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
+         Content-Transfer-Encoding;
+        b=A+UetdQuv1U9k0qXW30Bp+RCLVFj8ah19j9CP0008rIqLdluONYfAb5wyZV8gvqAQ
+         gEmOKybuNL64A0jUTBTHBORgDv5leVdu9Ncdnf5LxS/RcVlV/ljQpnOB1V5O26vUxL
+         5S7FqCj39qH1zhIEi45slLIWnTRNifutLplcXy52kcKkPL5dlrXrzjkV7nIVkuquKC
+         TN1Z98LsevBMISm4N7lmsfOSHqnkt28/Bw0NvpBxrej+KOvtbz3KCzt+4MQp89w/Hk
+         v6typ8E1Sdjvrkw+gQX9Pb8yt1aZfb6z1zhCfnuB5DOAk5/QzGuaZAcW0J4tMKNqG+
+         G4FAT6l7ibR/w==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When cat /proc/pid/stat, do_task_stat will call into cputime_adjust,
-which call stack is like this:
+On Thu, 20 Aug 2020 11:18:17 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.17 release.
+> There are 204 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-[17179954.674326]BookE Watchdog detected hard LOCKUP on cpu 0
-[17179954.674331]dCPU: 0 PID: 1262 Comm: TICK Tainted: P        W  O    4.4.176 #1
-[17179954.674339]dtask: dc9d7040 task.stack: d3cb4000
-[17179954.674344]NIP: c001b1a8 LR: c006a7ac CTR: 00000000
-[17179954.674349]REGS: e6fe1f10 TRAP: 3202   Tainted: P        W  O     (4.4.176)
-[17179954.674355]MSR: 00021002 <CE,ME>  CR: 28002224  XER: 00000000
-[17179954.674364]
-GPR00: 00000016 d3cb5cb0 dc9d7040 d3cb5cc0 00000000 0000025d ffe15b24 ffffffff
-GPR08: de86aead 00000000 000003ff ffffffff 28002222 0084d1c0 00000000 ffffffff
-GPR16: b5929ca0 b4bb7a48 c0863c08 0000048d 00000062 00000062 00000000 0000000f
-GPR24: 00000000 d3cb5d08 d3cb5d60 d3cb5d64 00029002 d3e9c214 fffff30e d3e9c20c
-[17179954.674410]NIP [c001b1a8] __div64_32+0x60/0xa0
-[17179954.674422]LR [c006a7ac] cputime_adjust+0x124/0x138
-[17179954.674434]Call Trace:
-[17179961.832693]Call Trace:
-[17179961.832695][d3cb5cb0] [c006a6dc] cputime_adjust+0x54/0x138 (unreliable)
-[17179961.832705][d3cb5cf0] [c006a818] task_cputime_adjusted+0x58/0x80
-[17179961.832713][d3cb5d20] [c01dab44] do_task_stat+0x298/0x870
-[17179961.832720][d3cb5de0] [c01d4948] proc_single_show+0x60/0xa4
-[17179961.832728][d3cb5e10] [c01963d8] seq_read+0x2d8/0x52c
-[17179961.832736][d3cb5e80] [c01702fc] __vfs_read+0x40/0x114
-[17179961.832744][d3cb5ef0] [c0170b1c] vfs_read+0x9c/0x10c
-[17179961.832751][d3cb5f10] [c0171440] SyS_read+0x68/0xc4
-[17179961.832759][d3cb5f40] [c0010a40] ret_from_syscall+0x0/0x3c
+All tests passing for Tegra ...
 
-do_task_stat->task_cputime_adjusted->cputime_adjust->scale_stime->div_u64
-->div_u64_rem->do_div->__div64_32
+Test results for stable-v5.7:
+    11 builds:	11 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-In some corner case, stime + utime = 0 if overflow. Even in v5.8.2  kernel
-the cputime has changed from unsigned long to u64 data type. About 200
-days, the lowwer 32 bit will be 0x00000000. Because divisor for __div64_32
-is unsigned long data type,which is 32 bit for powepc 32, the bug still
-exists.
+Linux version:	5.7.17-rc1-g7366707e7e99
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-So it is also a bug in the cputime_adjust which does not check if
-stime + utime = 0
-
-time = scale_stime((__force u64)stime, (__force u64)rtime,
-                (__force u64)(stime + utime));
-
-The commit 3dc167ba5729 ("sched/cputime: Improve cputime_adjust()") in
-mainline kernel may has fixed this case. But it is also better to check
-if divisor is 0 in __div64_32 for other situation.
-
-Signed-off-by: Guohua Zhong <zhongguohua1@huawei.com>
-Fixes:14cf11af6cf6 "( powerpc: Merge enough to start building in arch/powerpc.)"
-Fixes:94b212c29f68 "( powerpc: Move ppc64 boot wrapper code over to arch/powerpc)"
-Cc: stable@vger.kernel.org # v2.6.15+
----
- arch/powerpc/boot/div64.S | 4 ++++
- arch/powerpc/lib/div64.S  | 4 ++++
- 2 files changed, 8 insertions(+)
-
-diff --git a/arch/powerpc/boot/div64.S b/arch/powerpc/boot/div64.S
-index 4354928ed62e..39a25b9712d1 100644
---- a/arch/powerpc/boot/div64.S
-+++ b/arch/powerpc/boot/div64.S
-@@ -13,6 +13,9 @@
- 
- 	.globl __div64_32
- __div64_32:
-+	li	r9,0
-+	cmplw	r4,r9	# check if divisor r4 is zero
-+	beq	5f			# jump to label 5 if r4(divisor) is zero
- 	lwz	r5,0(r3)	# get the dividend into r5/r6
- 	lwz	r6,4(r3)
- 	cmplw	r5,r4
-@@ -52,6 +55,7 @@ __div64_32:
- 4:	stw	r7,0(r3)	# return the quotient in *r3
- 	stw	r8,4(r3)
- 	mr	r3,r6		# return the remainder in r3
-+5:					# return if divisor r4 is zero
- 	blr
- 
- /*
-diff --git a/arch/powerpc/lib/div64.S b/arch/powerpc/lib/div64.S
-index 3d5426e7dcc4..1cc9bcabf678 100644
---- a/arch/powerpc/lib/div64.S
-+++ b/arch/powerpc/lib/div64.S
-@@ -13,6 +13,9 @@
- #include <asm/processor.h>
- 
- _GLOBAL(__div64_32)
-+	li	r9,0
-+	cmplw	r4,r9	# check if divisor r4 is zero
-+	beq	5f			# jump to label 5 if r4(divisor) is zero
- 	lwz	r5,0(r3)	# get the dividend into r5/r6
- 	lwz	r6,4(r3)
- 	cmplw	r5,r4
-@@ -52,4 +55,5 @@ _GLOBAL(__div64_32)
- 4:	stw	r7,0(r3)	# return the quotient in *r3
- 	stw	r8,4(r3)
- 	mr	r3,r6		# return the remainder in r3
-+5:					# return if divisor r4 is zero
- 	blr
--- 
-2.12.3
-
-
+Jon
