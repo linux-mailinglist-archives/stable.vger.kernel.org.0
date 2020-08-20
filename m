@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAAD024B837
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:13:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CAF24B832
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730764AbgHTKJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:09:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42178 "EHLO mail.kernel.org"
+        id S1730770AbgHTKJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730761AbgHTKJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:09:00 -0400
+        id S1730753AbgHTKJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:09:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42A5B2067C;
-        Thu, 20 Aug 2020 10:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B156620724;
+        Thu, 20 Aug 2020 10:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918138;
-        bh=F42HExEd9J2JUtD6rRXQCBAOZWp5jdvHA403Tsg9tX4=;
+        s=default; t=1597918141;
+        bh=2QCZ3VUr6GejNwX1/HPkPUgywla9ZFwSDAsdxWjBqZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlqqGkAi7dp3Mx57IrDCOt407NJqSQcd9kRHrIgP2ahgC8t2NjZUblaXpf2jRPPF9
-         nuvirD9ebRdEkDURyb3VntbjTGd0S9cgCoK26cVUlgI/nR+17GiQ47J3/XiXOqrTKA
-         Wjl+Elk9xwDpC+C/cocE8q/M9Ip5o5BFB1RnojMk=
+        b=J8PATvyiY9SrDEsgTXXKptbWI9bOuXqRWyi/2jdjWC2eVwaEr5ElIeBj/9QURjuar
+         8VoGXuQ8DgcYv5ejG3+N+CiUmkC4lvYuWB0nUuCy3LtFiWkyIM+2z/Ed+iR0dLgAUk
+         mMaYTAvw+C9EkSp/ffxTzCtByAi+IrCfe29EnU6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 067/228] drm/nouveau: fix multiple instances of reference count leaks
-Date:   Thu, 20 Aug 2020 11:20:42 +0200
-Message-Id: <20200820091610.957539668@linuxfoundation.org>
+Subject: [PATCH 4.14 068/228] drm/debugfs: fix plain echo to connector "force" attribute
+Date:   Thu, 20 Aug 2020 11:20:43 +0200
+Message-Id: <20200820091611.001983700@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,66 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
+[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-ref count before returning the error.
+Using plain echo to set the "force" connector attribute fails with
+-EINVAL, because echo appends a newline to the output.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Replace strcmp with sysfs_streq to also accept strings that end with a
+newline.
+
+v2: use sysfs_streq instead of stripping trailing whitespace
+
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
- drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-index d00524a5d7f08..fb6b1d0f7fef3 100644
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -840,8 +840,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index c1807d5754b2a..454deba13ee5b 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -250,13 +250,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
  
- 	/* need to bring up power immediately if opening device */
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
+ 	buf[len] = '\0';
  
- 	get_task_comm(tmpname, current);
- 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
-@@ -930,8 +932,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	long ret;
- 
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
- 	case DRM_NOUVEAU_NVIF:
-diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-index 60ffb70bb9089..c6149b5be073e 100644
---- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-@@ -42,8 +42,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (WARN_ON(ret < 0 && ret != -EACCES))
-+	if (WARN_ON(ret < 0 && ret != -EACCES)) {
-+		pm_runtime_put_autosuspend(dev);
- 		return;
-+	}
- 
- 	if (gem->import_attach)
- 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
+-	if (!strcmp(buf, "on"))
++	if (sysfs_streq(buf, "on"))
+ 		connector->force = DRM_FORCE_ON;
+-	else if (!strcmp(buf, "digital"))
++	else if (sysfs_streq(buf, "digital"))
+ 		connector->force = DRM_FORCE_ON_DIGITAL;
+-	else if (!strcmp(buf, "off"))
++	else if (sysfs_streq(buf, "off"))
+ 		connector->force = DRM_FORCE_OFF;
+-	else if (!strcmp(buf, "unspecified"))
++	else if (sysfs_streq(buf, "unspecified"))
+ 		connector->force = DRM_FORCE_UNSPECIFIED;
+ 	else
+ 		return -EINVAL;
 -- 
 2.25.1
 
