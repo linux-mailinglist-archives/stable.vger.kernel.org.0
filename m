@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BEC224B426
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527F924B372
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730380AbgHTJ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43216 "EHLO mail.kernel.org"
+        id S1729426AbgHTJrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730418AbgHTJ6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:58:38 -0400
+        id S1729421AbgHTJrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11FDB207FB;
-        Thu, 20 Aug 2020 09:58:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36BDB22BEA;
+        Thu, 20 Aug 2020 09:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917517;
-        bh=qDfZKbW5tQlhDiyjoFAdLl14tZm+RMqri+EzcwjuYNA=;
+        s=default; t=1597916838;
+        bh=sOLyRSVh6bLobyYs66EGqvuZqQ71VOVNcZvsXcdcfNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QomfNJT9Roqoc0qjEPzSq9yWOmyKaOuymlXLKsFm+65tAk+lZhOKmUv2bR6Xgtp/S
-         UyWcCrDxFCxkfrXFBmo3HdlFgOvuj1Amq6S8DQRr7O1cPpukdfwOCUC5RLo6Mz/dFi
-         9YcZp1gnBhmkKh0Lv58J4Z4pUTfKRjlp+lG2coQs=
+        b=IWLuWNbs7Lg6SzN0siIDTAgdI9z0W6gLxM+9xNwApjozhKSYUHgjnMOrHq/MzrX52
+         p8f3choOu6vfBu+FqDiKf5GSFjADq7Pjs60z3sdsugQ0c1uaixVRXmeJtsM1eM25Tp
+         DpQXLAuKB481eNeaGHc1TUfpyv76DxmV3MQWux4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Kyungtae Kim <kt0755@gmail.com>, linux-fbdev@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Solar Designer <solar@openwall.com>,
-        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
-        Anthony Liguori <aliguori@amazon.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 4.9 058/212] vgacon: Fix for missing check in scrollback handling
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.4 064/152] watchdog: f71808e_wdt: clear watchdog timeout occurred flag
 Date:   Thu, 20 Aug 2020 11:20:31 +0200
-Message-Id: <20200820091605.306442604@linuxfoundation.org>
+Message-Id: <20200820091557.006281830@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,86 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunhai Zhang <zhangyunhai@nsfocus.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit ebfdfeeae8c01fcb2b3b74ffaf03876e20835d2d upstream.
+commit 4f39d575844148fbf3081571a1f3b4ae04150958 upstream.
 
-vgacon_scrollback_update() always leaves enbough room in the scrollback
-buffer for the next call, but if the console size changed that room
-might not actually be enough, and so we need to re-check.
+The flag indicating a watchdog timeout having occurred normally persists
+till Power-On Reset of the Fintek Super I/O chip. The user can clear it
+by writing a `1' to the bit.
 
-The check should be in the loop since vgacon_scrollback_cur->tail is
-updated in the loop and count may be more than 1 when triggered by CSI M,
-as Jiri's PoC:
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
+The driver doesn't offer a restart method, so regular system reboot
+might not reset the Super I/O and if the watchdog isn't enabled, we
+won't touch the register containing the bit on the next boot.
+In this case all subsequent regular reboots will be wrongly flagged
+by the driver as being caused by the watchdog.
 
-int main(int argc, char** argv)
-{
-        int fd = open("/dev/tty1", O_RDWR);
-        unsigned short size[3] = {25, 200, 0};
-        ioctl(fd, 0x5609, size); // VT_RESIZE
+Fix this by having the flag cleared after read. This is also done by
+other drivers like those for the i6300esb and mpc8xxx_wdt.
 
-        write(fd, "\e[1;1H", 6);
-        for (int i = 0; i < 30; i++)
-                write(fd, "\e[10M", 5);
-}
-
-It leads to various crashes as vgacon_scrollback_update writes out of
-the buffer:
- BUG: unable to handle page fault for address: ffffc900001752a0
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- RIP: 0010:mutex_unlock+0x13/0x30
-...
- Call Trace:
-  n_tty_write+0x1a0/0x4d0
-  tty_write+0x1a0/0x2e0
-
-Or to KASAN reports:
-BUG: KASAN: slab-out-of-bounds in vgacon_scroll+0x57a/0x8ed
-
-This fixes CVE-2020-14331.
-
-Reported-by: 张云海 <zhangyunhai@nsfocus.com>
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Fixes: 15bdab959c9b ([PATCH] vgacon: Add support for soft scrollback)
+Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
 Cc: stable@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Solar Designer <solar@openwall.com>
-Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Cc: Anthony Liguori <aliguori@amazon.com>
-Cc: Yang Yingliang <yangyingliang@huawei.com>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Yunhai Zhang <zhangyunhai@nsfocus.com>
-Link: https://lore.kernel.org/r/9fb43895-ca91-9b07-ebfd-808cf854ca95@nsfocus.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200611191750.28096-5-a.fatoum@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/console/vgacon.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/watchdog/f71808e_wdt.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -219,6 +219,10 @@ static void vgacon_scrollback_update(str
- 	p = (void *) (c->vc_origin + t * c->vc_size_row);
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -705,6 +705,13 @@ static int __init watchdog_init(int sioa
+ 	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
+ 	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
  
- 	while (count--) {
-+		if ((vgacon_scrollback_tail + c->vc_size_row) >
-+		    vgacon_scrollback_size)
-+			vgacon_scrollback_tail = 0;
++	/*
++	 * We don't want WDTMOUT_STS to stick around till regular reboot.
++	 * Write 1 to the bit to clear it to zero.
++	 */
++	superio_outb(sioaddr, F71808FG_REG_WDT_CONF,
++		     wdt_conf | BIT(F71808FG_FLAG_WDTMOUT_STS));
 +
- 		scr_memcpyw(vgacon_scrollback + vgacon_scrollback_tail,
- 			    p, c->vc_size_row);
- 		vgacon_scrollback_cnt++;
+ 	superio_exit(sioaddr);
+ 
+ 	err = watchdog_set_timeout(timeout);
 
 
