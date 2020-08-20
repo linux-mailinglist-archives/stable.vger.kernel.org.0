@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1429524B28B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8A524B295
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbgHTJco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
+        id S1726701AbgHTJdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbgHTJcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:02 -0400
+        id S1726974AbgHTJcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:32:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A376208E4;
-        Thu, 20 Aug 2020 09:32:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C964922B3F;
+        Thu, 20 Aug 2020 09:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915922;
-        bh=vxvjVRskRRfqYiS7lGjlXSeNqSaOj3GOptYFi73IQUI=;
+        s=default; t=1597915930;
+        bh=NnN6YacW0a2xO0gvCRIxh7ybG+jk2VHafX/DGDFWdoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6mS+z8fPHczuDofq67fRRwn+rxRGpaYkDx7RZW/3GRDCN3/OdqfMAKi+6bcv9kka
-         8Fq0uP6wRQp8dvZFnxqoCbkcFZrYB/T+THk78PPFrkYcgKNvWsYOsIRJMt3KEELGyE
-         Gc2d96ggKkvhmt7LnvQ/HtWKLknd2q+8hg+6e/XU=
+        b=PcdJzW9ebzxprXNRxrTtWOJ64BhD/hIsFM+hj0J9yY0SAHiZ9FNcaOch2sMuHCGQ+
+         5BSmOqB4wnAn3pXVGXXjViGuxo68sIXCDM3vg7upX1EGPkQYbDDCTAYx0MKYEMaLnm
+         9ehuKyVRlZqF6NoGwqI1WRVFmiap7xiX0MXARZ2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stafford Horne <shorne@gmail.com>,
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 181/232] openrisc: Fix oops caused when dumping stack
-Date:   Thu, 20 Aug 2020 11:20:32 +0200
-Message-Id: <20200820091621.571260086@linuxfoundation.org>
+Subject: [PATCH 5.8 184/232] nfs: nfs_file_write() should check for writeback errors
+Date:   Thu, 20 Aug 2020 11:20:35 +0200
+Message-Id: <20200820091621.714245075@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -43,95 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stafford Horne <shorne@gmail.com>
+From: Scott Mayhew <smayhew@redhat.com>
 
-[ Upstream commit 57b8e277c33620e115633cdf700a260b55095460 ]
+[ Upstream commit ce368536dd614452407dc31e2449eb84681a06af ]
 
-When dumping a stack with 'cat /proc/#/stack' the kernel would oops.
-For example:
+The NFS_CONTEXT_ERROR_WRITE flag (as well as the check of said flag) was
+removed by commit 6fbda89b257f.  The absence of an error check allows
+writes to be continually queued up for a server that may no longer be
+able to handle them.  Fix it by adding an error check using the generic
+error reporting functions.
 
-    # cat /proc/690/stack
-    Unable to handle kernel access
-     at virtual address 0x7fc60f58
-
-    Oops#: 0000
-    CPU #: 0
-       PC: c00097fc    SR: 0000807f    SP: d6f09b9c
-    GPR00: 00000000 GPR01: d6f09b9c GPR02: d6f09bb8 GPR03: d6f09bc4
-    GPR04: 7fc60f5c GPR05: c00099b4 GPR06: 00000000 GPR07: d6f09ba3
-    GPR08: ffffff00 GPR09: c0009804 GPR10: d6f08000 GPR11: 00000000
-    GPR12: ffffe000 GPR13: dbb86000 GPR14: 00000001 GPR15: dbb86250
-    GPR16: 7fc60f63 GPR17: 00000f5c GPR18: d6f09bc4 GPR19: 00000000
-    GPR20: c00099b4 GPR21: ffffffc0 GPR22: 00000000 GPR23: 00000000
-    GPR24: 00000001 GPR25: 000002c6 GPR26: d78b6850 GPR27: 00000001
-    GPR28: 00000000 GPR29: dbb86000 GPR30: ffffffff GPR31: dbb862fc
-      RES: 00000000 oGPR11: ffffffff
-    Process cat (pid: 702, stackpage=d79d6000)
-
-    Stack:
-    Call trace:
-    [<598977f2>] save_stack_trace_tsk+0x40/0x74
-    [<95063f0e>] stack_trace_save_tsk+0x44/0x58
-    [<b557bfdd>] proc_pid_stack+0xd0/0x13c
-    [<a2df8eda>] proc_single_show+0x6c/0xf0
-    [<e5a737b7>] seq_read+0x1b4/0x688
-    [<2d6c7480>] do_iter_read+0x208/0x248
-    [<2182a2fb>] vfs_readv+0x64/0x90
-
-This was caused by the stack trace code in save_stack_trace_tsk using
-the wrong stack pointer.  It was using the user stack pointer instead of
-the kernel stack pointer.  Fix this by using the right stack.
-
-Also for good measure we add try_get_task_stack/put_task_stack to ensure
-the task is not lost while we are walking it's stack.
-
-Fixes: eecac38b0423a ("openrisc: support framepointers and STACKTRACE_SUPPORT")
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/stacktrace.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ fs/nfs/file.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/openrisc/kernel/stacktrace.c b/arch/openrisc/kernel/stacktrace.c
-index 43f140a28bc72..54d38809e22cb 100644
---- a/arch/openrisc/kernel/stacktrace.c
-+++ b/arch/openrisc/kernel/stacktrace.c
-@@ -13,6 +13,7 @@
- #include <linux/export.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
-+#include <linux/sched/task_stack.h>
- #include <linux/stacktrace.h>
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index d72496efa17b0..63940a7a70be1 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -590,12 +590,14 @@ static const struct vm_operations_struct nfs_file_vm_ops = {
+ 	.page_mkwrite = nfs_vm_page_mkwrite,
+ };
  
- #include <asm/processor.h>
-@@ -68,12 +69,25 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+-static int nfs_need_check_write(struct file *filp, struct inode *inode)
++static int nfs_need_check_write(struct file *filp, struct inode *inode,
++				int error)
  {
- 	unsigned long *sp = NULL;
+ 	struct nfs_open_context *ctx;
  
-+	if (!try_get_task_stack(tsk))
-+		return;
-+
- 	if (tsk == current)
- 		sp = (unsigned long *) &sp;
--	else
--		sp = (unsigned long *) KSTK_ESP(tsk);
-+	else {
-+		unsigned long ksp;
-+
-+		/* Locate stack from kernel context */
-+		ksp = task_thread_info(tsk)->ksp;
-+		ksp += STACK_FRAME_OVERHEAD;	/* redzone */
-+		ksp += sizeof(struct pt_regs);
-+
-+		sp = (unsigned long *) ksp;
-+	}
- 
- 	unwind_stack(trace, sp, save_stack_address_nosched);
-+
-+	put_task_stack(tsk);
+ 	ctx = nfs_file_open_context(filp);
+-	if (nfs_ctx_key_to_expire(ctx, inode))
++	if (nfs_error_is_fatal_on_server(error) ||
++	    nfs_ctx_key_to_expire(ctx, inode))
+ 		return 1;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+@@ -606,6 +608,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 	struct inode *inode = file_inode(file);
+ 	unsigned long written = 0;
+ 	ssize_t result;
++	errseq_t since;
++	int error;
  
+ 	result = nfs_key_timeout_notify(file, inode);
+ 	if (result)
+@@ -630,6 +634,7 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 	if (iocb->ki_pos > i_size_read(inode))
+ 		nfs_revalidate_mapping(inode, file->f_mapping);
+ 
++	since = filemap_sample_wb_err(file->f_mapping);
+ 	nfs_start_io_write(inode);
+ 	result = generic_write_checks(iocb, from);
+ 	if (result > 0) {
+@@ -648,7 +653,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 		goto out;
+ 
+ 	/* Return error values */
+-	if (nfs_need_check_write(file, inode)) {
++	error = filemap_check_wb_err(file->f_mapping, since);
++	if (nfs_need_check_write(file, inode, error)) {
+ 		int err = nfs_wb_all(inode);
+ 		if (err < 0)
+ 			result = err;
 -- 
 2.25.1
 
