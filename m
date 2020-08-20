@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E80024B548
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D334F24B4E5
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731152AbgHTKVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48584 "EHLO mail.kernel.org"
+        id S1730994AbgHTKOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731567AbgHTKVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:21:45 -0400
+        id S1731069AbgHTKOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:14:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13B9A20658;
-        Thu, 20 Aug 2020 10:21:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 099BC206DA;
+        Thu, 20 Aug 2020 10:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918904;
-        bh=tUvYHjtllxbZQA4qI9CH65ubKgchGIjpKsJigpM5qm0=;
+        s=default; t=1597918446;
+        bh=gMAJQySplqK3LODlD+yqkkSZmARBSR3jSggcw7cFqr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTKVtLZjKUlcMMnU7nWeICrqH+ZmPpWTp142HG2/wGkwn/J/n4JhcwNjfeiutCpVX
-         u4PEnfA/jZBOlh/HDVHBnHNPhX97lIjtkwcrx6KkQjSAzaFdB/TAiM2LFcn+O/i3O3
-         yiEeG3vk4C4rokbwZeGWS81cuyUshs/+CGz1g3w0=
+        b=CzqX82Ybgy6fKmY3PbUrKKv/GWdgmnisvZFclaSPJxCPqW7VTNJF3vCHm0EJ3/tQm
+         5Azf8nasiHA5AQ01z24vG3gXX2aVbNtDdYU5lqYATKO3L3JKHvSd5SBhp143eewi4M
+         4aywLMxkCir01EvwmD58uX7k+9k5pEXHagc8ws90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Emil Velikov <emil.l.velikov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 068/149] drm/debugfs: fix plain echo to connector "force" attribute
-Date:   Thu, 20 Aug 2020 11:22:25 +0200
-Message-Id: <20200820092129.031478447@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Christian Eggers <ceggers@arri.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.14 172/228] dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+Date:   Thu, 20 Aug 2020 11:22:27 +0200
+Message-Id: <20200820091616.179163271@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Tretter <m.tretter@pengutronix.de>
+From: Christian Eggers <ceggers@arri.de>
 
-[ Upstream commit c704b17071c4dc571dca3af4e4151dac51de081a ]
+commit add48ba425192c6e04ce70549129cacd01e2a09e upstream.
 
-Using plain echo to set the "force" connector attribute fails with
--EINVAL, because echo appends a newline to the output.
+The correct compatible string is "gpio-mux" (see
+bindings/mux/gpio-mux.txt).
 
-Replace strcmp with sysfs_streq to also accept strings that end with a
-newline.
+Cc: stable@vger.kernel.org # v4.13+
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Link: https://lore.kernel.org/r/20200727101605.24384-1-ceggers@arri.de
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-v2: use sysfs_streq instead of stripping trailing whitespace
-
-Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20170817104307.17124-1-m.tretter@pengutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_debugfs.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
-index 3bcf8e6a85b35..5b0fdcd0b63fd 100644
---- a/drivers/gpu/drm/drm_debugfs.c
-+++ b/drivers/gpu/drm/drm_debugfs.c
-@@ -290,13 +290,13 @@ static ssize_t connector_write(struct file *file, const char __user *ubuf,
+--- a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
++++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+@@ -21,7 +21,7 @@ controller state. The mux controller sta
  
- 	buf[len] = '\0';
+ Example:
+ 	mux: mux-controller {
+-		compatible = "mux-gpio";
++		compatible = "gpio-mux";
+ 		#mux-control-cells = <0>;
  
--	if (!strcmp(buf, "on"))
-+	if (sysfs_streq(buf, "on"))
- 		connector->force = DRM_FORCE_ON;
--	else if (!strcmp(buf, "digital"))
-+	else if (sysfs_streq(buf, "digital"))
- 		connector->force = DRM_FORCE_ON_DIGITAL;
--	else if (!strcmp(buf, "off"))
-+	else if (sysfs_streq(buf, "off"))
- 		connector->force = DRM_FORCE_OFF;
--	else if (!strcmp(buf, "unspecified"))
-+	else if (sysfs_streq(buf, "unspecified"))
- 		connector->force = DRM_FORCE_UNSPECIFIED;
- 	else
- 		return -EINVAL;
--- 
-2.25.1
-
+ 		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
 
 
