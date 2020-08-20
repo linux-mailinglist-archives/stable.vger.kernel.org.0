@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B86EC24B7D5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082AF24B7D2
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:05:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729163AbgHTLFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54080 "EHLO mail.kernel.org"
+        id S1727949AbgHTLEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731052AbgHTKM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:12:28 -0400
+        id S1728536AbgHTKNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3835E20724;
-        Thu, 20 Aug 2020 10:12:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95F26206DA;
+        Thu, 20 Aug 2020 10:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918347;
-        bh=OlvRdynhD5MxoW4Rkw37ENzyZiTNek9I+fsnj0/KSD8=;
+        s=default; t=1597918379;
+        bh=u7g0uVlz6Q7//GkAk0fCcfv0xaeMWeEVktjLJbLLEGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2dWc6qHt/hb3+IzxaXn2khCIfyrtxjD94c9Ojv0y9TskRQXavr0tHaPMSRQ4TQAe
-         qvyAjFzpo4zk7pmawAs9pf3iC+aoWQ++p66EgXU5DdnOFwPpxapsI2Oz4AQjGZ6asl
-         Dg1WpajRHXQTyVxPZ5baNX93mB/obcZQxyr5HKAg=
+        b=h0BXTvKdAf6Oghk8k7uNexQ5kTwoC6E/nre5FY8WbBDXHSt/jIX99vhBSdP5Rcyxm
+         3Hz1S9OCE/+v20pyynl4oGaTu7nNdJVeHpz3iuf1BDxmRN92/f93EZ3Rkt3v/1MU4C
+         rD3Rv6oYQJMuwTltLuUHdJFEZq8REl43GA98gY3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Harish <harish@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/228] Bluetooth: hci_serdev: Only unregister device if it was registered
-Date:   Thu, 20 Aug 2020 11:21:35 +0200
-Message-Id: <20200820091613.588638899@linuxfoundation.org>
+Subject: [PATCH 4.14 121/228] selftests/powerpc: Fix CPU affinity for child process
+Date:   Thu, 20 Aug 2020 11:21:36 +0200
+Message-Id: <20200820091613.638646348@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,35 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Harish <harish@linux.ibm.com>
 
-[ Upstream commit 202798db9570104728dce8bb57dfeed47ce764bc ]
+[ Upstream commit 854eb5022be04f81e318765f089f41a57c8e5d83 ]
 
-We should not call hci_unregister_dev if the device was not
-successfully registered.
+On systems with large number of cpus, test fails trying to set
+affinity by calling sched_setaffinity() with smaller size for affinity
+mask. This patch fixes it by making sure that the size of allocated
+affinity mask is dependent on the number of CPUs as reported by
+get_nprocs().
 
-Fixes: c34dc3bfa7642fd ("Bluetooth: hci_serdev: Introduce hci_uart_unregister_device()")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 00b7ec5c9cf3 ("selftests/powerpc: Import Anton's context_switch2 benchmark")
+Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Harish <harish@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Reviewed-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200609081423.529664-1-harish@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_serdev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../powerpc/benchmarks/context_switch.c       | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index 69c00a3db5382..72cf2d97b682c 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -361,7 +361,8 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 	struct hci_dev *hdev = hu->hdev;
+diff --git a/tools/testing/selftests/powerpc/benchmarks/context_switch.c b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+index f4241339edd2a..7136eae2170b7 100644
+--- a/tools/testing/selftests/powerpc/benchmarks/context_switch.c
++++ b/tools/testing/selftests/powerpc/benchmarks/context_switch.c
+@@ -22,6 +22,7 @@
+ #include <limits.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
++#include <sys/sysinfo.h>
+ #include <sys/types.h>
+ #include <sys/shm.h>
+ #include <linux/futex.h>
+@@ -97,8 +98,9 @@ static void start_thread_on(void *(*fn)(void *), void *arg, unsigned long cpu)
  
- 	clear_bit(HCI_UART_PROTO_READY, &hu->flags);
--	hci_unregister_dev(hdev);
-+	if (test_bit(HCI_UART_REGISTERED, &hu->flags))
-+		hci_unregister_dev(hdev);
- 	hci_free_dev(hdev);
+ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ {
+-	int pid;
+-	cpu_set_t cpuset;
++	int pid, ncpus;
++	cpu_set_t *cpuset;
++	size_t size;
  
- 	cancel_work_sync(&hu->write_work);
+ 	pid = fork();
+ 	if (pid == -1) {
+@@ -109,14 +111,23 @@ static void start_process_on(void *(*fn)(void *), void *arg, unsigned long cpu)
+ 	if (pid)
+ 		return;
+ 
+-	CPU_ZERO(&cpuset);
+-	CPU_SET(cpu, &cpuset);
++	ncpus = get_nprocs();
++	size = CPU_ALLOC_SIZE(ncpus);
++	cpuset = CPU_ALLOC(ncpus);
++	if (!cpuset) {
++		perror("malloc");
++		exit(1);
++	}
++	CPU_ZERO_S(size, cpuset);
++	CPU_SET_S(cpu, size, cpuset);
+ 
+-	if (sched_setaffinity(0, sizeof(cpuset), &cpuset)) {
++	if (sched_setaffinity(0, size, cpuset)) {
+ 		perror("sched_setaffinity");
++		CPU_FREE(cpuset);
+ 		exit(1);
+ 	}
+ 
++	CPU_FREE(cpuset);
+ 	fn(arg);
+ 
+ 	exit(0);
 -- 
 2.25.1
 
