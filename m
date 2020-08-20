@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC7524BA88
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B1524BA5C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729386AbgHTML1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41546 "EHLO mail.kernel.org"
+        id S1729648AbgHTMF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729571AbgHTJ5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:57:45 -0400
+        id S1730241AbgHTJ6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:58:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51612207FB;
-        Thu, 20 Aug 2020 09:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 377732067C;
+        Thu, 20 Aug 2020 09:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917464;
-        bh=6GgWqj3LT+d5Tkae12SGbQ9VypauZBetoPg5ltCgd1I=;
+        s=default; t=1597917527;
+        bh=L4IvYwq5UkZ4gqcORyZugXzOmQzrKFWDIB9HYyW+DXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pKkAQeBwU9OF05M0t68zuQ7pcoRWjEtzRy0aMcI8fbLc48gbs42LQ4d69vkRsPw8
-         HOjScNRs9ircJt6msgRgd66lsC0Y2/c6QHbWw6s6/H8H7ifXf+bvaTWz1QMth8gR3V
-         bycwZE1Q0jxMnCWFJYGtDwE3YTSUgV127rb1L6mk=
+        b=RDfRq0AEKtjTM/deCluh51t8JuEBMM6nNIm8eBtSKWkw5Hccuen7WhYlDwzxGAM6O
+         YAIt3ONXAFMgxTezU8OzYVvbA/sGf1QwgQx0+gf4iokB3h8tv6SmpDXcTd+a609HJ0
+         m3CYoMvCaXv/ljb5BKTDZy2Bq0gGwsJnpCoUQslA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 033/212] mac80211: mesh: Free ie data when leaving mesh
-Date:   Thu, 20 Aug 2020 11:20:06 +0200
-Message-Id: <20200820091604.036555043@linuxfoundation.org>
+        stable@vger.kernel.org, guodeqing <geffrey.guo@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 035/212] arm64: csum: Fix handling of bad packets
+Date:   Thu, 20 Aug 2020 11:20:08 +0200
+Message-Id: <20200820091604.140525508@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 6a01afcf8468d3ca2bd8bbb27503f60dcf643b20 ]
+[ Upstream commit 05fb3dbda187bbd9cc1cd0e97e5d6595af570ac6 ]
 
-At ieee80211_join_mesh() some ie data could have been allocated (see
-copy_mesh_setup()) and need to be cleaned up when leaving the mesh.
+Although iph is expected to point to at least 20 bytes of valid memory,
+ihl may be bogus, for example on reception of a corrupt packet. If it
+happens to be less than 5, we really don't want to run away and
+dereference 16GB worth of memory until it wraps back to exactly zero...
 
-This fixes the following kmemleak report:
-
-unreferenced object 0xffff0000116bc600 (size 128):
-  comm "wpa_supplicant", pid 608, jiffies 4294898983 (age 293.484s)
-  hex dump (first 32 bytes):
-    30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00  0...............
-    00 0f ac 08 00 00 00 00 c4 65 40 00 00 00 00 00  .........e@.....
-  backtrace:
-    [<00000000bebe439d>] __kmalloc_track_caller+0x1c0/0x330
-    [<00000000a349dbe1>] kmemdup+0x28/0x50
-    [<0000000075d69baa>] ieee80211_join_mesh+0x6c/0x3b8 [mac80211]
-    [<00000000683bb98b>] __cfg80211_join_mesh+0x1e8/0x4f0 [cfg80211]
-    [<0000000072cb507f>] nl80211_join_mesh+0x520/0x6b8 [cfg80211]
-    [<0000000077e9bcf9>] genl_family_rcv_msg+0x374/0x680
-    [<00000000b1bd936d>] genl_rcv_msg+0x78/0x108
-    [<0000000022c53788>] netlink_rcv_skb+0xb0/0x1c0
-    [<0000000011af8ec9>] genl_rcv+0x34/0x48
-    [<0000000069e41f53>] netlink_unicast+0x268/0x2e8
-    [<00000000a7517316>] netlink_sendmsg+0x320/0x4c0
-    [<0000000069cba205>] ____sys_sendmsg+0x354/0x3a0
-    [<00000000e06bab0f>] ___sys_sendmsg+0xd8/0x120
-    [<0000000037340728>] __sys_sendmsg+0xa4/0xf8
-    [<000000004fed9776>] __arm64_sys_sendmsg+0x44/0x58
-    [<000000001c1e5647>] el0_svc_handler+0xd0/0x1a0
-
-Fixes: c80d545da3f7 (mac80211: Let userspace enable and configure vendor specific path selection.)
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Link: https://lore.kernel.org/r/20200704135007.27292-1-repk@triplefau.lt
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 0e455d8e80aa ("arm64: Implement optimised IP checksum helpers")
+Reported-by: guodeqing <geffrey.guo@huawei.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/include/asm/checksum.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 88dd5d218fe30..1a13715b9a591 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1964,6 +1964,7 @@ static int ieee80211_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
- 	ieee80211_stop_mesh(sdata);
- 	mutex_lock(&sdata->local->mtx);
- 	ieee80211_vif_release_channel(sdata);
-+	kfree(sdata->u.mesh.ie);
- 	mutex_unlock(&sdata->local->mtx);
+diff --git a/arch/arm64/include/asm/checksum.h b/arch/arm64/include/asm/checksum.h
+index 09f65339d66df..e6d66c508d81b 100644
+--- a/arch/arm64/include/asm/checksum.h
++++ b/arch/arm64/include/asm/checksum.h
+@@ -30,16 +30,17 @@ static inline __sum16 ip_fast_csum(const void *iph, unsigned int ihl)
+ {
+ 	__uint128_t tmp;
+ 	u64 sum;
++	int n = ihl; /* we want it signed */
  
- 	return 0;
+ 	tmp = *(const __uint128_t *)iph;
+ 	iph += 16;
+-	ihl -= 4;
++	n -= 4;
+ 	tmp += ((tmp >> 64) | (tmp << 64));
+ 	sum = tmp >> 64;
+ 	do {
+ 		sum += *(const u32 *)iph;
+ 		iph += 4;
+-	} while (--ihl);
++	} while (--n > 0);
+ 
+ 	sum += ((sum >> 32) | (sum << 32));
+ 	return csum_fold(sum >> 32);
 -- 
 2.25.1
 
