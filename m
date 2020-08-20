@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D51024BDDD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD2824BDDC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728585AbgHTJgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728587AbgHTJgT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 05:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50852 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728446AbgHTJgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:36:12 -0400
+        id S1728135AbgHTJgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9124E2075E;
-        Thu, 20 Aug 2020 09:36:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0389F207DE;
+        Thu, 20 Aug 2020 09:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916172;
-        bh=UQ4lU4vOMTG6KpDHS99pL2YhxZ2lZXk8ef+bTM5O7fc=;
+        s=default; t=1597916175;
+        bh=A5/9brDvRPF70ERveEC5pLTQSGpg8dEFelBfyXyhmX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4aTdV6qs5yM4rYJlYYwqoEEFfSmm1n0mNRRMTlAkqI+PDl3UDYOQ8Wo/5sjdxWEC
-         1jljU6DhocCtaebNlHr0+9oMHi/+QQS1vLReGjkdWBTQQktCXVphfbzWup5eaegkSz
-         WsQx6Ap4A3k548DUU/z20pxnCuXFubPyqUAg+O6k=
+        b=BZbahDrovj1TARmE3l48Xp2FBXEvoy7tXPsEZpYhmU5tzQAWRq3oXHxeKFt0zAins
+         x66jH+WcQQde00wb/ZBUaHoXgAyfhcn7DY50bumPFvKIDDEDfadrDoGdN5d9D+Wule
+         emJy/jf9/7yt8mhNXdMpCpWIE/fZZe3DTafgZ4jM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        "Pavel Machek (CIP)" <pavel@denx.de>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 036/204] btrfs: fix return value mixup in btrfs_get_extent
-Date:   Thu, 20 Aug 2020 11:18:53 +0200
-Message-Id: <20200820091608.068676425@linuxfoundation.org>
+        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH 5.7 037/204] arm64: perf: Correct the event index in sysfs
+Date:   Thu, 20 Aug 2020 11:18:54 +0200
+Message-Id: <20200820091608.123251565@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,35 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Shaokun Zhang <zhangshaokun@hisilicon.com>
 
-commit 881a3a11c2b858fe9b69ef79ac5ee9978a266dc9 upstream.
+commit 539707caa1a89ee4efc57b4e4231c20c46575ccc upstream.
 
-btrfs_get_extent() sets variable ret, but out: error path expect error
-to be in variable err so the error code is lost.
+When PMU event ID is equal or greater than 0x4000, it will be reduced
+by 0x4000 and it is not the raw number in the sysfs. Let's correct it
+and obtain the raw event ID.
 
-Fixes: 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Before this patch:
+cat /sys/bus/event_source/devices/armv8_pmuv3_0/events/sample_feed
+event=0x001
+After this patch:
+cat /sys/bus/event_source/devices/armv8_pmuv3_0/events/sample_feed
+event=0x4001
+
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1592487344-30555-3-git-send-email-zhangshaokun@hisilicon.com
+[will: fixed formatting of 'if' condition]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/perf_event.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -6640,7 +6640,7 @@ struct extent_map *btrfs_get_extent(stru
- 	    extent_type == BTRFS_FILE_EXTENT_PREALLOC) {
- 		/* Only regular file could have regular/prealloc extent */
- 		if (!S_ISREG(inode->vfs_inode.i_mode)) {
--			ret = -EUCLEAN;
-+			err = -EUCLEAN;
- 			btrfs_crit(fs_info,
- 		"regular/prealloc extent found for non-regular inode %llu",
- 				   btrfs_ino(inode));
+--- a/arch/arm64/kernel/perf_event.c
++++ b/arch/arm64/kernel/perf_event.c
+@@ -155,7 +155,7 @@ armv8pmu_events_sysfs_show(struct device
+ 
+ 	pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr);
+ 
+-	return sprintf(page, "event=0x%03llx\n", pmu_attr->id);
++	return sprintf(page, "event=0x%04llx\n", pmu_attr->id);
+ }
+ 
+ #define ARMV8_EVENT_ATTR(name, config)						\
+@@ -244,10 +244,13 @@ armv8pmu_event_attr_is_visible(struct ko
+ 	    test_bit(pmu_attr->id, cpu_pmu->pmceid_bitmap))
+ 		return attr->mode;
+ 
+-	pmu_attr->id -= ARMV8_PMUV3_EXT_COMMON_EVENT_BASE;
+-	if (pmu_attr->id < ARMV8_PMUV3_MAX_COMMON_EVENTS &&
+-	    test_bit(pmu_attr->id, cpu_pmu->pmceid_ext_bitmap))
+-		return attr->mode;
++	if (pmu_attr->id >= ARMV8_PMUV3_EXT_COMMON_EVENT_BASE) {
++		u64 id = pmu_attr->id - ARMV8_PMUV3_EXT_COMMON_EVENT_BASE;
++
++		if (id < ARMV8_PMUV3_MAX_COMMON_EVENTS &&
++		    test_bit(id, cpu_pmu->pmceid_ext_bitmap))
++			return attr->mode;
++	}
+ 
+ 	return 0;
+ }
 
 
