@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FE124BD11
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FE924BC02
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729622AbgHTM5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:57:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33718 "EHLO mail.kernel.org"
+        id S1726897AbgHTMhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:37:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728208AbgHTJk5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:40:57 -0400
+        id S1729439AbgHTJrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F408D20724;
-        Thu, 20 Aug 2020 09:40:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9327322B43;
+        Thu, 20 Aug 2020 09:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916456;
-        bh=FIf245zXysx06zrfB4Thg/nzHVS7fWcttgKSzi+mJQg=;
+        s=default; t=1597916845;
+        bh=ZCIaIKK+Z3e8lovzmRzIhNjqbW5hwoLUWSXfDgGyKBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjEIXiuyN6tphESEzs8p0sZONgJxX3tif+JVyOxJukGUawVGL+nzlpJcoN4/DIrPK
-         fafN2G8ghbLWhK3lDHjN4uDxupNL20OaJS67FMYXCzYVVIipWSqwEma+0rAqEAknOp
-         yNRLDi9NN7kSx67TDXqUoHKN/Ra/sUucxb3YrD54=
+        b=S7oMXOBuqA28TWrlo5UFOwQrGufdXPZs5GOnw4j0NGKjMoc8IQQgw3EsJ5ZClYWHd
+         oAREbGZYJgARpo023WvxPUdxFQnlL88wPFTksTuiHvindhtGzmE4S0IwHM526yVd4j
+         C3GfedXLXp3cddE+pFydPUV4kPgx4m0FxUjOLNsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 135/204] selftests/powerpc: ptrace-pkey: Update the test to mark an invalid pkey correctly
-Date:   Thu, 20 Aug 2020 11:20:32 +0200
-Message-Id: <20200820091613.004423837@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Patrick Donnelly <pdonnell@redhat.com>
+Subject: [PATCH 5.4 066/152] ceph: handle zero-length feature mask in session messages
+Date:   Thu, 20 Aug 2020 11:20:33 +0200
+Message-Id: <20200820091557.110918167@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 0eaa3b5ca7b5a76e3783639c828498343be66a01 ]
+commit 02e37571f9e79022498fd0525c073b07e9d9ac69 upstream.
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200709032946.881753-22-aneesh.kumar@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Most session messages contain a feature mask, but the MDS will
+routinely send a REJECT message with one that is zero-length.
+
+Commit 0fa8263367db ("ceph: fix endianness bug when handling MDS
+session feature bits") fixed the decoding of the feature mask,
+but failed to account for the MDS sending a zero-length feature
+mask. This causes REJECT message decoding to fail.
+
+Skip trying to decode a feature mask if the word count is zero.
+
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/46823
+Fixes: 0fa8263367db ("ceph: fix endianness bug when handling MDS session feature bits")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Tested-by: Patrick Donnelly <pdonnell@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../selftests/powerpc/ptrace/ptrace-pkey.c    | 30 ++++++++-----------
- 1 file changed, 12 insertions(+), 18 deletions(-)
+ fs/ceph/mds_client.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-index f9216c7a1829e..bc33d748d95b4 100644
---- a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-+++ b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
-@@ -66,11 +66,6 @@ static int sys_pkey_alloc(unsigned long flags, unsigned long init_access_rights)
- 	return syscall(__NR_pkey_alloc, flags, init_access_rights);
- }
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -3091,8 +3091,10 @@ static void handle_session(struct ceph_m
+ 			goto bad;
+ 		/* version >= 3, feature bits */
+ 		ceph_decode_32_safe(&p, end, len, bad);
+-		ceph_decode_64_safe(&p, end, features, bad);
+-		p += len - sizeof(features);
++		if (len) {
++			ceph_decode_64_safe(&p, end, features, bad);
++			p += len - sizeof(features);
++		}
+ 	}
  
--static int sys_pkey_free(int pkey)
--{
--	return syscall(__NR_pkey_free, pkey);
--}
--
- static int child(struct shared_info *info)
- {
- 	unsigned long reg;
-@@ -100,7 +95,11 @@ static int child(struct shared_info *info)
- 
- 	info->amr1 |= 3ul << pkeyshift(pkey1);
- 	info->amr2 |= 3ul << pkeyshift(pkey2);
--	info->invalid_amr |= info->amr2 | 3ul << pkeyshift(pkey3);
-+	/*
-+	 * invalid amr value where we try to force write
-+	 * things which are deined by a uamor setting.
-+	 */
-+	info->invalid_amr = info->amr2 | (~0x0UL & ~info->expected_uamor);
- 
- 	if (disable_execute)
- 		info->expected_iamr |= 1ul << pkeyshift(pkey1);
-@@ -111,17 +110,12 @@ static int child(struct shared_info *info)
- 
- 	info->expected_uamor |= 3ul << pkeyshift(pkey1) |
- 				3ul << pkeyshift(pkey2);
--	info->invalid_iamr |= 1ul << pkeyshift(pkey1) | 1ul << pkeyshift(pkey2);
--	info->invalid_uamor |= 3ul << pkeyshift(pkey1);
--
- 	/*
--	 * We won't use pkey3. We just want a plausible but invalid key to test
--	 * whether ptrace will let us write to AMR bits we are not supposed to.
--	 *
--	 * This also tests whether the kernel restores the UAMOR permissions
--	 * after a key is freed.
-+	 * Create an IAMR value different from expected value.
-+	 * Kernel will reject an IAMR and UAMOR change.
- 	 */
--	sys_pkey_free(pkey3);
-+	info->invalid_iamr = info->expected_iamr | (1ul << pkeyshift(pkey1) | 1ul << pkeyshift(pkey2));
-+	info->invalid_uamor = info->expected_uamor & ~(0x3ul << pkeyshift(pkey1));
- 
- 	printf("%-30s AMR: %016lx pkey1: %d pkey2: %d pkey3: %d\n",
- 	       user_write, info->amr1, pkey1, pkey2, pkey3);
-@@ -196,9 +190,9 @@ static int parent(struct shared_info *info, pid_t pid)
- 	PARENT_SKIP_IF_UNSUPPORTED(ret, &info->child_sync);
- 	PARENT_FAIL_IF(ret, &info->child_sync);
- 
--	info->amr1 = info->amr2 = info->invalid_amr = regs[0];
--	info->expected_iamr = info->invalid_iamr = regs[1];
--	info->expected_uamor = info->invalid_uamor = regs[2];
-+	info->amr1 = info->amr2 = regs[0];
-+	info->expected_iamr = regs[1];
-+	info->expected_uamor = regs[2];
- 
- 	/* Wake up child so that it can set itself up. */
- 	ret = prod_child(&info->child_sync);
--- 
-2.25.1
-
+ 	mutex_lock(&mdsc->mutex);
 
 
