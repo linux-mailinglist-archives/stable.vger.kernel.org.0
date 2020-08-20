@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E909224B97D
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0CD24B96F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:46:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730699AbgHTLsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:48:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56990 "EHLO mail.kernel.org"
+        id S1728854AbgHTLqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728238AbgHTKDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:03:51 -0400
+        id S1730610AbgHTKD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:03:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF42B22BEB;
-        Thu, 20 Aug 2020 10:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F09C2067C;
+        Thu, 20 Aug 2020 10:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917831;
-        bh=2xhDejPCoJNUZGSpbwq/HA5M4V1OMaAxiLC57IJTps8=;
+        s=default; t=1597917833;
+        bh=fkOJEgxnlLfFoY4VoR+l/3xqMq5UzsO9nPMTzem0mjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ/wQdRgIJycJCnzbBxqzjQeiwdC0mavBSDVBC4wffmvIWkGlcKYo84bq3SDoSnwi
-         kRlfS6POgX2efCP/AYBeQB4in+/ro5DepnRIsnb3g46sCSgrCSnSK3Msq5ZHUe3jFQ
-         KQrmdrrghQw8M8Q9LjkWTTvGU8JN17w2suoAS4NM=
+        b=xB8NvLtsS5kSjJ1sTgjUKqQ06utB4FW8FToHUlp8my6MW+YWtfbnzdR/LQK13zkJ8
+         tYQXKcm/qixDKRWmc0qfBaTClfdaNbASmtwlF3z4mkimrOz7oZFOmUXtNwkwFROnt8
+         9QYgVEI/9wC0mGplBPe7/ERnxKrI7Sf7J1zaDj5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Stanhope <charles.stanhope@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 174/212] iio: dac: ad5592r: fix unbalanced mutex unlocks in ad5592r_read_raw()
-Date:   Thu, 20 Aug 2020 11:22:27 +0200
-Message-Id: <20200820091611.181295528@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.9 175/212] xtensa: fix xtensa_pmu_setup prototype
+Date:   Thu, 20 Aug 2020 11:22:28 +0200
+Message-Id: <20200820091611.229908245@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -46,47 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 65afb0932a81c1de719ceee0db0b276094b10ac8 upstream.
+commit 6d65d3769d1910379e1cfa61ebf387efc6bfb22c upstream.
 
-There are 2 exit paths where the lock isn't held, but try to unlock the
-mutex when exiting. In these places we should just return from the
-function.
+Fix the following build error in configurations with
+CONFIG_XTENSA_VARIANT_HAVE_PERF_EVENTS=y:
 
-A neater approach would be to cleanup the ad5592r_read_raw(), but that
-would make this patch more difficult to backport to stable versions.
+  arch/xtensa/kernel/perf_event.c:420:29: error: passing argument 3 of
+  ‘cpuhp_setup_state’ from incompatible pointer type
 
-Fixes 56ca9db862bf3: ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Reported-by: Charles Stanhope <charles.stanhope@gmail.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Fixes: 25a77b55e74c ("xtensa/perf: Convert the hotplug notifier to state machine callbacks")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/dac/ad5592r-base.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/xtensa/kernel/perf_event.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/dac/ad5592r-base.c
-+++ b/drivers/iio/dac/ad5592r-base.c
-@@ -417,7 +417,7 @@ static int ad5592r_read_raw(struct iio_d
- 			s64 tmp = *val * (3767897513LL / 25LL);
- 			*val = div_s64_rem(tmp, 1000000000LL, val2);
+--- a/arch/xtensa/kernel/perf_event.c
++++ b/arch/xtensa/kernel/perf_event.c
+@@ -404,7 +404,7 @@ static struct pmu xtensa_pmu = {
+ 	.read = xtensa_pmu_read,
+ };
  
--			ret = IIO_VAL_INT_PLUS_MICRO;
-+			return IIO_VAL_INT_PLUS_MICRO;
- 		} else {
- 			int mult;
+-static int xtensa_pmu_setup(int cpu)
++static int xtensa_pmu_setup(unsigned int cpu)
+ {
+ 	unsigned i;
  
-@@ -448,7 +448,7 @@ static int ad5592r_read_raw(struct iio_d
- 		ret =  IIO_VAL_INT;
- 		break;
- 	default:
--		ret = -EINVAL;
-+		return -EINVAL;
- 	}
- 
- unlock:
 
 
