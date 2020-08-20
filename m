@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CFD24B738
+	by mail.lfdr.de (Postfix) with ESMTP id DC24824B739
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731022AbgHTKPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34072 "EHLO mail.kernel.org"
+        id S1730798AbgHTKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:15:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728648AbgHTKPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:15:05 -0400
+        id S1731008AbgHTKPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:15:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5052120724;
-        Thu, 20 Aug 2020 10:15:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BF4020738;
+        Thu, 20 Aug 2020 10:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918503;
-        bh=NnsOgkFkY5IHESmBT5t/41GWPFnhKjY1FN9F62r2EOw=;
+        s=default; t=1597918506;
+        bh=LIyGF576MagAjqOt06FNqkLGN4XwGvEsX1dTekAscic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pn1YH+AP2UwqrlJ98L0pgTD8M5G9bzOTCWQTrnYOmM8ENRbuuT36rvrDJA6YJ40nn
-         XogaxFq6B8G1GkweY5FFv2AN02ZI8GkbMbQNdVswP48FPW0QiOLWG5BHZGYEitpoeh
-         /bAIMhRlbygzwM1E04pnW4QS3WzNHEToi7Q8wMrU=
+        b=ABp2YiZVAGI2/rvW3Ll+ufHJo/oMM+SFw1xlrQzN8zetO8yUKBaKEg5YSpgftPfmu
+         lkGGSvd5WQYAONhRYCVoNGg19RykL1yAVjhBxvzLqZ+VQqfR/cXOvQXWz30yDBureA
+         YSrIpkmZIzLAQZbck0miolFAzSH8d7tvr0Erccso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 195/228] mfd: arizona: Ensure 32k clock is put on driver unbind and error
-Date:   Thu, 20 Aug 2020 11:22:50 +0200
-Message-Id: <20200820091617.309030781@linuxfoundation.org>
+Subject: [PATCH 4.14 196/228] RDMA/ipoib: Return void from ipoib_ib_dev_stop()
+Date:   Thu, 20 Aug 2020 11:22:51 +0200
+Message-Id: <20200820091617.361805582@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,63 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit ddff6c45b21d0437ce0c85f8ac35d7b5480513d7 ]
+[ Upstream commit 95a5631f6c9f3045f26245e6045244652204dfdb ]
 
-Whilst it doesn't matter if the internal 32k clock register settings
-are cleaned up on exit, as the part will be turned off losing any
-settings, hence the driver hasn't historially bothered. The external
-clock should however be cleaned up, as it could cause clocks to be
-left on, and will at best generate a warning on unbind.
+The return value from ipoib_ib_dev_stop() is always 0 - change it to be
+void.
 
-Add clean up on both the probe error path and unbind for the 32k
-clock.
-
-Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20200623105236.18683-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/arizona-core.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/infiniband/ulp/ipoib/ipoib.h    | 2 +-
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c | 4 +---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
-index ad8a5296c50ba..9aa33141e7f14 100644
---- a/drivers/mfd/arizona-core.c
-+++ b/drivers/mfd/arizona-core.c
-@@ -1528,6 +1528,15 @@ int arizona_dev_init(struct arizona *arizona)
- 	arizona_irq_exit(arizona);
- err_pm:
- 	pm_runtime_disable(arizona->dev);
-+
-+	switch (arizona->pdata.clk32k_src) {
-+	case ARIZONA_32KZ_MCLK1:
-+	case ARIZONA_32KZ_MCLK2:
-+		arizona_clk32k_disable(arizona);
-+		break;
-+	default:
-+		break;
-+	}
- err_reset:
- 	arizona_enable_reset(arizona);
- 	regulator_disable(arizona->dcvdd);
-@@ -1550,6 +1559,15 @@ int arizona_dev_exit(struct arizona *arizona)
- 	regulator_disable(arizona->dcvdd);
- 	regulator_put(arizona->dcvdd);
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
+index 4a5c7a07a6315..268e23ba4a636 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib.h
++++ b/drivers/infiniband/ulp/ipoib/ipoib.h
+@@ -509,7 +509,7 @@ void ipoib_ib_dev_cleanup(struct net_device *dev);
  
-+	switch (arizona->pdata.clk32k_src) {
-+	case ARIZONA_32KZ_MCLK1:
-+	case ARIZONA_32KZ_MCLK2:
-+		arizona_clk32k_disable(arizona);
-+		break;
-+	default:
-+		break;
-+	}
-+
- 	mfd_remove_devices(arizona->dev);
- 	arizona_free_irq(arizona, ARIZONA_IRQ_UNDERCLOCKED, arizona);
- 	arizona_free_irq(arizona, ARIZONA_IRQ_OVERCLOCKED, arizona);
+ int ipoib_ib_dev_open_default(struct net_device *dev);
+ int ipoib_ib_dev_open(struct net_device *dev);
+-int ipoib_ib_dev_stop(struct net_device *dev);
++void ipoib_ib_dev_stop(struct net_device *dev);
+ void ipoib_ib_dev_up(struct net_device *dev);
+ void ipoib_ib_dev_down(struct net_device *dev);
+ int ipoib_ib_dev_stop_default(struct net_device *dev);
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ib.c b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
+index d77e8e2ae05f2..8e1f48fe6f2e7 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
+@@ -809,7 +809,7 @@ int ipoib_ib_dev_stop_default(struct net_device *dev)
+ 	return 0;
+ }
+ 
+-int ipoib_ib_dev_stop(struct net_device *dev)
++void ipoib_ib_dev_stop(struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
+ 
+@@ -817,8 +817,6 @@ int ipoib_ib_dev_stop(struct net_device *dev)
+ 
+ 	clear_bit(IPOIB_FLAG_INITIALIZED, &priv->flags);
+ 	ipoib_flush_ah(dev);
+-
+-	return 0;
+ }
+ 
+ void ipoib_ib_tx_timer_func(unsigned long ctx)
 -- 
 2.25.1
 
