@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D3D24B623
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D686C24B783
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730734AbgHTKct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44256 "EHLO mail.kernel.org"
+        id S1730795AbgHTK4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:56:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731307AbgHTKTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:19:53 -0400
+        id S1731156AbgHTKN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49CEF20658;
-        Thu, 20 Aug 2020 10:19:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4906C206DA;
+        Thu, 20 Aug 2020 10:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918792;
-        bh=IdDf2kmFCiCQlkr/H7Pdocwg/VRbq2e14AGXX+tSwAk=;
+        s=default; t=1597918438;
+        bh=vSitispOIH9uthRDNZAz+wOCPCaFL10vqRce8X+JzYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqX44m/rV1H+1AXQ5wCBVrLXVrPEqyXZhiz4QhGnTRYwsUxdnAOJHRcl/sNJGA+1d
-         Qe7AVuAlPGz7Urcq5lAQQk8Swll/m6myU9dUq01OJrxswHQcpy07QiExSvTOM0l2xV
-         HE0NnhlpLiSqLLsuREwO8LK8VTT5q2mIjBbw6bvY=
+        b=khuJ8vI3D1vtXNGL41XEvj8PeI4WkMbfAG6+JdfnQkl9mYhE4xfCV57p1sg26bZ2+
+         oIpSzObLr+gDwshToHCT4gPYJSrZQvrbX42fzjEjeyLF/lCcHHy2BipiQFgvszHn4N
+         udeTOkNf2uSNxz/InUIG9r18ItFHGRSq0JuBrtJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/149] drm/nouveau: fix multiple instances of reference count leaks
-Date:   Thu, 20 Aug 2020 11:22:24 +0200
-Message-Id: <20200820092128.986200888@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 170/228] btrfs: only search for left_info if there is no right_info in try_merge_free_space
+Date:   Thu, 20 Aug 2020 11:22:25 +0200
+Message-Id: <20200820091616.074540114@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
+commit bf53d4687b8f3f6b752f091eb85f62369a515dfd upstream.
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-ref count before returning the error.
+In try_to_merge_free_space we attempt to find entries to the left and
+right of the entry we are adding to see if they can be merged.  We
+search for an entry past our current info (saved into right_info), and
+then if right_info exists and it has a rb_prev() we save the rb_prev()
+into left_info.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However there's a slight problem in the case that we have a right_info,
+but no entry previous to that entry.  At that point we will search for
+an entry just before the info we're attempting to insert.  This will
+simply find right_info again, and assign it to left_info, making them
+both the same pointer.
+
+Now if right_info _can_ be merged with the range we're inserting, we'll
+add it to the info and free right_info.  However further down we'll
+access left_info, which was right_info, and thus get a use-after-free.
+
+Fix this by only searching for the left entry if we don't find a right
+entry at all.
+
+The CVE referenced had a specially crafted file system that could
+trigger this use-after-free. However with the tree checker improvements
+we no longer trigger the conditions for the UAF.  But the original
+conditions still apply, hence this fix.
+
+Reference: CVE-2019-19448
+Fixes: 963030817060 ("Btrfs: use hybrid extents+bitmap rb tree for free space")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
- drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ fs/btrfs/free-space-cache.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-index 91a61d2cca889..a90840e391100 100644
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -805,8 +805,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -2169,7 +2169,7 @@ out:
+ static bool try_merge_free_space(struct btrfs_free_space_ctl *ctl,
+ 			  struct btrfs_free_space *info, bool update_stat)
+ {
+-	struct btrfs_free_space *left_info;
++	struct btrfs_free_space *left_info = NULL;
+ 	struct btrfs_free_space *right_info;
+ 	bool merged = false;
+ 	u64 offset = info->offset;
+@@ -2184,7 +2184,7 @@ static bool try_merge_free_space(struct
+ 	if (right_info && rb_prev(&right_info->offset_index))
+ 		left_info = rb_entry(rb_prev(&right_info->offset_index),
+ 				     struct btrfs_free_space, offset_index);
+-	else
++	else if (!right_info)
+ 		left_info = tree_search_offset(ctl, offset - 1, 0, 0);
  
- 	/* need to bring up power immediately if opening device */
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	get_task_comm(tmpname, current);
- 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
-@@ -894,8 +896,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	long ret;
- 
- 	ret = pm_runtime_get_sync(dev->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(dev->dev);
- 		return ret;
-+	}
- 
- 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
- 	case DRM_NOUVEAU_NVIF:
-diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-index ae560f5977fca..e5db2a385cb65 100644
---- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-@@ -42,8 +42,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (WARN_ON(ret < 0 && ret != -EACCES))
-+	if (WARN_ON(ret < 0 && ret != -EACCES)) {
-+		pm_runtime_put_autosuspend(dev);
- 		return;
-+	}
- 
- 	if (gem->import_attach)
- 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
--- 
-2.25.1
-
+ 	if (right_info && !right_info->bitmap) {
 
 
