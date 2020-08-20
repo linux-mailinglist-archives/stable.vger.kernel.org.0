@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1662B24AB04
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C26B24AA9F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbgHTAD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32810 "EHLO mail.kernel.org"
+        id S1728267AbgHTADZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728193AbgHTADS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:03:18 -0400
+        id S1728260AbgHTADU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:03:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB3D1208E4;
-        Thu, 20 Aug 2020 00:03:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE272207FB;
+        Thu, 20 Aug 2020 00:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881798;
-        bh=RlpcFNhQhQeGISJeB07hKfvLDYKsouJijQsNCkkp6Do=;
+        s=default; t=1597881800;
+        bh=KU1Yu0QAZX0uxEKw7gvY6AXsp9BPLpZRafmjwAOBZHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeTbH4GQnQEdnhWnGMgXaDPJBum4uMVDKfuNs+ZVUSgtdA7BpRf7c26vgz3yaI8fH
-         Hg5v+KJLMK5YlFwt6Ryj7yJSBswPgSlp+YdMEfPgFZ64+6dW3zG6oeWGEEsa6cG1gm
-         KeTFsZb5qiEgupKgZbRRH7jaZ5MhBm8+NC1F9Yeg=
+        b=wX02stB0pVAWkuf4Kng0vcPg5FHhnXo65QDi3E6pjEWGkdMiQN0Er8UErwserRIyK
+         LuaSQa8isA5VaXa3rR/uOyiVGNF8aCIxw+QP5N/m9RlDCSoON3EfL+czXun3+RtKpL
+         /gFUTs9xwP9JNmcP3f/kjj2gH4sOqdLYeXbsrAdg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/18] cpufreq: intel_pstate: Fix cpuinfo_max_freq when MSR_TURBO_RATIO_LIMIT is 0
-Date:   Wed, 19 Aug 2020 20:02:55 -0400
-Message-Id: <20200820000302.215560-12-sashal@kernel.org>
+Cc:     Javed Hasan <jhasan@marvell.com>,
+        Girish Basrur <gbasrur@marvell.com>,
+        Santosh Vernekar <svernekar@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/18] scsi: libfc: Free skb in fc_disc_gpn_id_resp() for valid cases
+Date:   Wed, 19 Aug 2020 20:02:56 -0400
+Message-Id: <20200820000302.215560-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000302.215560-1-sashal@kernel.org>
 References: <20200820000302.215560-1-sashal@kernel.org>
@@ -43,45 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 4daca379c703ff55edc065e8e5173dcfeecf0148 ]
+[ Upstream commit ec007ef40abb6a164d148b0dc19789a7a2de2cc8 ]
 
-The MSR_TURBO_RATIO_LIMIT can be 0. This is not an error. User can update
-this MSR via BIOS settings on some systems or can use msr tools to update.
-Also some systems boot with value = 0.
+In fc_disc_gpn_id_resp(), skb is supposed to get freed in all cases except
+for PTR_ERR. However, in some cases it didn't.
 
-This results in display of cpufreq/cpuinfo_max_freq wrong. This value
-will be equal to cpufreq/base_frequency, even though turbo is enabled.
+This fix is to call fc_frame_free(fp) before function returns.
 
-But platform will still function normally in HWP mode as we get max
-1-core frequency from the MSR_HWP_CAPABILITIES. This MSR is already used
-to calculate cpu->pstate.turbo_freq, which is used for to set
-policy->cpuinfo.max_freq. But some other places cpu->pstate.turbo_pstate
-is used. For example to set policy->max.
-
-To fix this, also update cpu->pstate.turbo_pstate when updating
-cpu->pstate.turbo_freq.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20200729081824.30996-2-jhasan@marvell.com
+Reviewed-by: Girish Basrur <gbasrur@marvell.com>
+Reviewed-by: Santosh Vernekar <svernekar@marvell.com>
+Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/libfc/fc_disc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index e7b3d4ed8eff4..99166000ffb77 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1431,6 +1431,7 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
+diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
+index 8839f509b19ab..78cf5b32bca67 100644
+--- a/drivers/scsi/libfc/fc_disc.c
++++ b/drivers/scsi/libfc/fc_disc.c
+@@ -593,8 +593,12 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
  
- 		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
- 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
-+		cpu->pstate.turbo_pstate = phy_max;
- 	} else {
- 		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
+ 	if (PTR_ERR(fp) == -FC_EX_CLOSED)
+ 		goto out;
+-	if (IS_ERR(fp))
+-		goto redisc;
++	if (IS_ERR(fp)) {
++		mutex_lock(&disc->disc_mutex);
++		fc_disc_restart(disc);
++		mutex_unlock(&disc->disc_mutex);
++		goto out;
++	}
+ 
+ 	cp = fc_frame_payload_get(fp, sizeof(*cp));
+ 	if (!cp)
+@@ -621,7 +625,7 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 				new_rdata->disc_id = disc->disc_id;
+ 				fc_rport_login(new_rdata);
+ 			}
+-			goto out;
++			goto free_fp;
+ 		}
+ 		rdata->disc_id = disc->disc_id;
+ 		mutex_unlock(&rdata->rp_mutex);
+@@ -638,6 +642,8 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 		fc_disc_restart(disc);
+ 		mutex_unlock(&disc->disc_mutex);
  	}
++free_fp:
++	fc_frame_free(fp);
+ out:
+ 	kref_put(&rdata->kref, fc_rport_destroy);
+ 	if (!IS_ERR(fp))
 -- 
 2.25.1
 
