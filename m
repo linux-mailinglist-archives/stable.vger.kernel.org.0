@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0AF24BAD2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B726724BABB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgHTMSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39612 "EHLO mail.kernel.org"
+        id S1730324AbgHTMQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729871AbgHTJ4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:13 -0400
+        id S1730262AbgHTJ4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E71892078D;
-        Thu, 20 Aug 2020 09:56:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E28820885;
+        Thu, 20 Aug 2020 09:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917372;
-        bh=nIEEiL55U8qmkJwBXAKfaXgaadHb9EnmGhE2Nkaj4SY=;
+        s=default; t=1597917405;
+        bh=GhFvoRWDwdlAIbItK878bl23oh/B9FZs/fvE3PNlG3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcurJgGFCRHFfP8GJdfUr+E3AzbAWaP0m8RgoiYdgmBplERiUcIWEXKoXKphKQN7E
-         CwyPJnzCt4wKo/c7sGwTaqYsHB3NE6TwFmA3iarp90fJBZjcPAQdlsUK4/r83c31Zs
-         GC7040NNHJNAYteK37eiZMGfJAmxNFD2Ouzm7ie0=
+        b=jKgJ7+wOxPwjF4Z+8zCtI8LwTifg6RStLn2tVg0bgqIG/njZ9ASS0bC8V8TyPSOA5
+         6dPEjOwC4awkNeLyg4rL0uMGsYBWJtJAkVQJTo4XlaByf/6ZkGiKVpbbmq3G3BhzHs
+         D2ybEKUWyxIcmbOV58SCQC9XKsJ29w7DMd3pE358=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        stable@vger.kernel.org, Wen Xu <wen.xu@gatech.edu>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
         Carlos Maiolino <cmaiolino@redhat.com>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/212] xfs: catch inode allocation state mismatch corruption
-Date:   Thu, 20 Aug 2020 11:19:34 +0200
-Message-Id: <20200820091602.332668035@linuxfoundation.org>
+Subject: [PATCH 4.9 002/212] xfs: validate cached inodes are free when allocated
+Date:   Thu, 20 Aug 2020 11:19:35 +0200
+Message-Id: <20200820091602.380738506@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,183 +49,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit ee457001ed6c6f31ddad69c24c1da8f377d8472d ]
+[ Upstream commit afca6c5b2595fc44383919fba740c194b0b76aff ]
 
-We recently came across a V4 filesystem causing memory corruption
-due to a newly allocated inode being setup twice and being added to
-the superblock inode list twice. From code inspection, the only way
-this could happen is if a newly allocated inode was not marked as
-free on disk (i.e. di_mode wasn't zero).
+A recent fuzzed filesystem image cached random dcache corruption
+when the reproducer was run. This often showed up as panics in
+lookup_slow() on a null inode->i_ops pointer when doing pathwalks.
 
-Running the metadump on an upstream debug kernel fails during inode
-allocation like so:
-
-XFS: Assertion failed: ip->i_d.di_nblocks == 0, file: fs/xfs/xfs_inod=
-e.c, line: 838
- ------------[ cut here ]------------
-kernel BUG at fs/xfs/xfs_message.c:114!
-invalid opcode: 0000 [#1] PREEMPT SMP
-CPU: 11 PID: 3496 Comm: mkdir Not tainted 4.16.0-rc5-dgc #442
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/0=
-1/2014
-RIP: 0010:assfail+0x28/0x30
-RSP: 0018:ffffc9000236fc80 EFLAGS: 00010202
-RAX: 00000000ffffffea RBX: 0000000000004000 RCX: 0000000000000000
-RDX: 00000000ffffffc0 RSI: 000000000000000a RDI: ffffffff8227211b
-RBP: ffffc9000236fce8 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000bec R11: f000000000000000 R12: ffffc9000236fd30
-R13: ffff8805c76bab80 R14: ffff8805c77ac800 R15: ffff88083fb12e10
-FS:  00007fac8cbff040(0000) GS:ffff88083fd00000(0000) knlGS:0000000000000=
-000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fffa6783ff8 CR3: 00000005c6e2b003 CR4: 00000000000606e0
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+....
 Call Trace:
- xfs_ialloc+0x383/0x570
- xfs_dir_ialloc+0x6a/0x2a0
- xfs_create+0x412/0x670
- xfs_generic_create+0x1f7/0x2c0
- ? capable_wrt_inode_uidgid+0x3f/0x50
- vfs_mkdir+0xfb/0x1b0
- SyS_mkdir+0xcf/0xf0
- do_syscall_64+0x73/0x1a0
+ lookup_slow+0x44/0x60
+ walk_component+0x3dd/0x9f0
+ link_path_walk+0x4a7/0x830
+ path_lookupat+0xc1/0x470
+ filename_lookup+0x129/0x270
+ user_path_at_empty+0x36/0x40
+ path_listxattr+0x98/0x110
+ SyS_listxattr+0x13/0x20
+ do_syscall_64+0xf5/0x280
  entry_SYSCALL_64_after_hwframe+0x42/0xb7
 
-Extracting the inode number we crashed on from an event trace and
-looking at it with xfs_db:
+but had many different failure modes including deadlocks trying to
+lock the inode that was just allocated or KASAN reports of
+use-after-free violations.
 
-xfs_db> inode 184452204
-xfs_db> p
-core.magic = 0x494e
-core.mode = 0100644
-core.version = 2
-core.format = 2 (extents)
-core.nlinkv2 = 1
-core.onlink = 0
-.....
+The cause of the problem was a corrupt INOBT on a v4 fs where the
+root inode was marked as free in the inobt record. Hence when we
+allocated an inode, it chose the root inode to allocate, found it in
+the cache and re-initialised it.
 
-Confirms that it is not a free inode on disk. xfs_repair
-also trips over this inode:
+We recently fixed a similar inode allocation issue caused by inobt
+record corruption problem in xfs_iget_cache_miss() in commit
+ee457001ed6c ("xfs: catch inode allocation state mismatch
+corruption"). This change adds similar checks to the cache-hit path
+to catch it, and turns the reproducer into a corruption shutdown
+situation.
 
-.....
-zero length extent (off = 0, fsbno = 0) in ino 184452204
-correcting nextents for inode 184452204
-bad attribute fork in inode 184452204, would clear attr fork
-bad nblocks 1 for inode 184452204, would reset to 0
-bad anextents 1 for inode 184452204, would reset to 0
-imap claims in-use inode 184452204 is free, would correct imap
-would have cleared inode 184452204
-.....
-disconnected inode 184452204, would move to lost+found
-
-And so we have a situation where the directory structure and the
-inobt thinks the inode is free, but the inode on disk thinks it is
-still in use. Where this corruption came from is not possible to
-diagnose, but we can detect it and prevent the kernel from oopsing
-on lookup. The reproducer now results in:
-
-$ sudo mkdir /mnt/scratch/{0,1,2,3,4,5}{0,1,2,3,4,5}
-mkdir: cannot create directory =E2=80=98/mnt/scratch/00=E2=80=99: File ex=
-ists
-mkdir: cannot create directory =E2=80=98/mnt/scratch/01=E2=80=99: File ex=
-ists
-mkdir: cannot create directory =E2=80=98/mnt/scratch/03=E2=80=99: Structu=
-re needs cleaning
-mkdir: cannot create directory =E2=80=98/mnt/scratch/04=E2=80=99: Input/o=
-utput error
-mkdir: cannot create directory =E2=80=98/mnt/scratch/05=E2=80=99: Input/o=
-utput error
-....
-
-And this corruption shutdown:
-
-[   54.843517] XFS (loop0): Corruption detected! Free inode 0xafe846c not=
- marked free on disk
-[   54.845885] XFS (loop0): Internal error xfs_trans_cancel at line 1023 =
-of file fs/xfs/xfs_trans.c.  Caller xfs_create+0x425/0x670
-[   54.848994] CPU: 10 PID: 3541 Comm: mkdir Not tainted 4.16.0-rc5-dgc #=
-443
-[   54.850753] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIO=
-S 1.10.2-1 04/01/2014
-[   54.852859] Call Trace:
-[   54.853531]  dump_stack+0x85/0xc5
-[   54.854385]  xfs_trans_cancel+0x197/0x1c0
-[   54.855421]  xfs_create+0x425/0x670
-[   54.856314]  xfs_generic_create+0x1f7/0x2c0
-[   54.857390]  ? capable_wrt_inode_uidgid+0x3f/0x50
-[   54.858586]  vfs_mkdir+0xfb/0x1b0
-[   54.859458]  SyS_mkdir+0xcf/0xf0
-[   54.860254]  do_syscall_64+0x73/0x1a0
-[   54.861193]  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-[   54.862492] RIP: 0033:0x7fb73bddf547
-[   54.863358] RSP: 002b:00007ffdaa553338 EFLAGS: 00000246 ORIG_RAX: 0000=
-000000000053
-[   54.865133] RAX: ffffffffffffffda RBX: 00007ffdaa55449a RCX: 00007fb73=
-bddf547
-[   54.866766] RDX: 0000000000000001 RSI: 00000000000001ff RDI: 00007ffda=
-a55449a
-[   54.868432] RBP: 00007ffdaa55449a R08: 00000000000001ff R09: 00005623a=
-8670dd0
-[   54.870110] R10: 00007fb73be72d5b R11: 0000000000000246 R12: 000000000=
-00001ff
-[   54.871752] R13: 00007ffdaa5534b0 R14: 0000000000000000 R15: 00007ffda=
-a553500
-[   54.873429] XFS (loop0): xfs_do_force_shutdown(0x8) called from line 1=
-024 of file fs/xfs/xfs_trans.c.  Return address = ffffffff814cd050
-[   54.882790] XFS (loop0): Corruption of in-memory data detected.  Shutt=
-ing down filesystem
-[   54.884597] XFS (loop0): Please umount the filesystem and rectify the =
-problem(s)
-
-Note that this crash is only possible on v4 filesystemsi or v5
-filesystems mounted with the ikeep mount option. For all other V5
-filesystems, this problem cannot occur because we don't read inodes
-we are allocating from disk - we simply overwrite them with the new
-inode information.
-
+Reported-by: Wen Xu <wen.xu@gatech.edu>
 Signed-Off-By: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Carlos Maiolino <cmaiolino@redhat.com>
-Tested-by: Carlos Maiolino <cmaiolino@redhat.com>
 Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: fix typos in comment]
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_icache.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_icache.c | 73 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 48 insertions(+), 25 deletions(-)
 
 diff --git a/fs/xfs/xfs_icache.c b/fs/xfs/xfs_icache.c
-index 86a4911520cc5..57ec10809f4bf 100644
+index 57ec10809f4bf..69c112ddb544d 100644
 --- a/fs/xfs/xfs_icache.c
 +++ b/fs/xfs/xfs_icache.c
-@@ -471,7 +471,28 @@ xfs_iget_cache_miss(
+@@ -307,6 +307,46 @@ xfs_reinit_inode(
+ 	return error;
+ }
  
- 	trace_xfs_iget_miss(ip);
- 
--	if ((VFS_I(ip)->i_mode == 0) && !(flags & XFS_IGET_CREATE)) {
-+
-+	/*
-+	 * If we are allocating a new inode, then check what was returned is
-+	 * actually a free, empty inode. If we are not allocating an inode,
-+	 * the check we didn't find a free inode.
-+	 */
++/*
++ * If we are allocating a new inode, then check what was returned is
++ * actually a free, empty inode. If we are not allocating an inode,
++ * then check we didn't find a free inode.
++ *
++ * Returns:
++ *	0		if the inode free state matches the lookup context
++ *	-ENOENT		if the inode is free and we are not allocating
++ *	-EFSCORRUPTED	if there is any state mismatch at all
++ */
++static int
++xfs_iget_check_free_state(
++	struct xfs_inode	*ip,
++	int			flags)
++{
 +	if (flags & XFS_IGET_CREATE) {
++		/* should be a free inode */
 +		if (VFS_I(ip)->i_mode != 0) {
-+			xfs_warn(mp,
-+"Corruption detected! Free inode 0x%llx not marked free on disk",
-+				ino);
-+			error = -EFSCORRUPTED;
-+			goto out_destroy;
++			xfs_warn(ip->i_mount,
++"Corruption detected! Free inode 0x%llx not marked free! (mode 0x%x)",
++				ip->i_ino, VFS_I(ip)->i_mode);
++			return -EFSCORRUPTED;
 +		}
++
 +		if (ip->i_d.di_nblocks != 0) {
-+			xfs_warn(mp,
++			xfs_warn(ip->i_mount,
 +"Corruption detected! Free inode 0x%llx has blocks allocated!",
-+				ino);
-+			error = -EFSCORRUPTED;
-+			goto out_destroy;
++				ip->i_ino);
++			return -EFSCORRUPTED;
 +		}
-+	} else if (VFS_I(ip)->i_mode == 0) {
- 		error = -ENOENT;
- 		goto out_destroy;
++		return 0;
++	}
++
++	/* should be an allocated inode */
++	if (VFS_I(ip)->i_mode == 0)
++		return -ENOENT;
++
++	return 0;
++}
++
+ /*
+  * Check the validity of the inode we just found it the cache
+  */
+@@ -356,12 +396,12 @@ xfs_iget_cache_hit(
  	}
+ 
+ 	/*
+-	 * If lookup is racing with unlink return an error immediately.
++	 * Check the inode free state is valid. This also detects lookup
++	 * racing with unlinks.
+ 	 */
+-	if (VFS_I(ip)->i_mode == 0 && !(flags & XFS_IGET_CREATE)) {
+-		error = -ENOENT;
++	error = xfs_iget_check_free_state(ip, flags);
++	if (error)
+ 		goto out_error;
+-	}
+ 
+ 	/*
+ 	 * If IRECLAIMABLE is set, we've torn down the VFS inode already.
+@@ -473,29 +513,12 @@ xfs_iget_cache_miss(
+ 
+ 
+ 	/*
+-	 * If we are allocating a new inode, then check what was returned is
+-	 * actually a free, empty inode. If we are not allocating an inode,
+-	 * the check we didn't find a free inode.
++	 * Check the inode free state is valid. This also detects lookup
++	 * racing with unlinks.
+ 	 */
+-	if (flags & XFS_IGET_CREATE) {
+-		if (VFS_I(ip)->i_mode != 0) {
+-			xfs_warn(mp,
+-"Corruption detected! Free inode 0x%llx not marked free on disk",
+-				ino);
+-			error = -EFSCORRUPTED;
+-			goto out_destroy;
+-		}
+-		if (ip->i_d.di_nblocks != 0) {
+-			xfs_warn(mp,
+-"Corruption detected! Free inode 0x%llx has blocks allocated!",
+-				ino);
+-			error = -EFSCORRUPTED;
+-			goto out_destroy;
+-		}
+-	} else if (VFS_I(ip)->i_mode == 0) {
+-		error = -ENOENT;
++	error = xfs_iget_check_free_state(ip, flags);
++	if (error)
+ 		goto out_destroy;
+-	}
+ 
+ 	/*
+ 	 * Preload the radix tree so we can insert safely under the
 -- 
 2.25.1
 
