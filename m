@@ -2,61 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A3324BB97
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A15624BB8F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727077AbgHTMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58834 "EHLO mail.kernel.org"
+        id S1729846AbgHTMbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:31:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729750AbgHTJup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:45 -0400
+        id S1729771AbgHTJux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:50:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A34BC206B5;
-        Thu, 20 Aug 2020 09:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 425BD2067C;
+        Thu, 20 Aug 2020 09:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917044;
-        bh=Ne0socCZGcwrMblGJ2DwvxH0Vsev8VfPF/bS/K0PF6A=;
+        s=default; t=1597917052;
+        bh=+ACpozEKX377jYXGUrLZieQo6lkx4N4fszpc/655ejA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ci76go+lY92QttRGqiEz0237HuErTIFKK291avKlaU9luNA/hdi8axZtbiCYmWl6s
-         R5KaHwxqo1Ucywg3EjmYv0g9erAAS/2+1j7gECjL9WmRogKXE4NXackaCCaMudVvtL
-         mcWJel7OmMavjJqkDO3iyRgtNThmEdzNEU+mjYCA=
+        b=LeUh7XJJRo6oRxoi5Q8PiH5DGImzJkjw3I0yHgrlkBa007yXDyBjGitJeV8iMpGfE
+         2h3yW6In3KBkYF4EZRYe8ignFgE0G9gwBNzFNA5DqqzD3rrpuJvrF3Un5quO9cWYDU
+         MZ2hN4k8lXJR16qrSGlRFmetb4tSGi9mvh2yBJmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kees Cook <keescook@chromium.org>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Sergey Kvachonok <ravenexp@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Tony Vroon <chainsaw@gentoo.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/152] test_kmod: avoid potential double free in trigger_config_run_type()
-Date:   Thu, 20 Aug 2020 11:21:43 +0200
-Message-Id: <20200820091600.774879189@linuxfoundation.org>
+Subject: [PATCH 5.4 138/152] mfd: dln2: Run event handler loop under spinlock
+Date:   Thu, 20 Aug 2020 11:21:45 +0200
+Message-Id: <20200820091600.879280582@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -69,63 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 0776d1231bec0c7ab43baf440a3f5ef5f49dd795 ]
+[ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
 
-Reset the member "test_fs" of the test configuration after a call of the
-function "kfree_const" to a null pointer so that a double memory release
-will not be performed.
+The event handler loop must be run with interrupts disabled.
+Otherwise we will have a warning:
 
-Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Chuck Lever <chuck.lever@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: James Morris <jmorris@namei.org>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: J. Bruce Fields <bfields@fieldses.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Sergey Kvachonok <ravenexp@gmail.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Tony Vroon <chainsaw@gentoo.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Link: http://lkml.kernel.org/r/20200610154923.27510-4-mcgrof@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ 1970.785649] irq 31 handler lineevent_irq_handler+0x0/0x20 enabled interrupts
+[ 1970.792739] WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x162/0x170
+[ 1970.860732] RIP: 0010:__handle_irq_event_percpu+0x162/0x170
+...
+[ 1970.946994] Call Trace:
+[ 1970.949446]  <IRQ>
+[ 1970.951471]  handle_irq_event_percpu+0x2c/0x80
+[ 1970.955921]  handle_irq_event+0x23/0x43
+[ 1970.959766]  handle_simple_irq+0x57/0x70
+[ 1970.963695]  generic_handle_irq+0x42/0x50
+[ 1970.967717]  dln2_rx+0xc1/0x210 [dln2]
+[ 1970.971479]  ? usb_hcd_unmap_urb_for_dma+0xa6/0x1c0
+[ 1970.976362]  __usb_hcd_giveback_urb+0x77/0xe0
+[ 1970.980727]  usb_giveback_urb_bh+0x8e/0xe0
+[ 1970.984837]  tasklet_action_common.isra.0+0x4a/0xe0
+...
+
+Recently xHCI driver switched to tasklets in the commit 36dc01657b49
+("usb: host: xhci: Support running urb giveback in tasklet context").
+
+The handle_irq_event_* functions are expected to be called with interrupts
+disabled and they rightfully complain here because we run in tasklet context
+with interrupts enabled.
+
+Use a event spinlock to protect event handler from being interrupted.
+
+Note, that there are only two users of this GPIO and ADC drivers and both of
+them are using generic_handle_irq() which makes above happen.
+
+Fixes: 338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kmod.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/dln2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/lib/test_kmod.c b/lib/test_kmod.c
-index 9cf77628fc913..87a0cc750ea23 100644
---- a/lib/test_kmod.c
-+++ b/lib/test_kmod.c
-@@ -745,7 +745,7 @@ static int trigger_config_run_type(struct kmod_test_device *test_dev,
- 		break;
- 	case TEST_KMOD_FS_TYPE:
- 		kfree_const(config->test_fs);
--		config->test_driver = NULL;
-+		config->test_fs = NULL;
- 		copied = config_copy_test_fs(config, test_str,
- 					     strlen(test_str));
- 		break;
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 4faa8d2e5d045..707f4287ab4a0 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -287,7 +287,11 @@ static void dln2_rx(struct urb *urb)
+ 	len = urb->actual_length - sizeof(struct dln2_header);
+ 
+ 	if (handle == DLN2_HANDLE_EVENT) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&dln2->event_cb_lock, flags);
+ 		dln2_run_event_callbacks(dln2, id, echo, data, len);
++		spin_unlock_irqrestore(&dln2->event_cb_lock, flags);
+ 	} else {
+ 		/* URB will be re-submitted in _dln2_transfer (free_rx_slot) */
+ 		if (dln2_transfer_complete(dln2, urb, handle, echo))
 -- 
 2.25.1
 
