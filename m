@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2187024B57E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211EC24B56A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729925AbgHTKY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:24:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        id S1731050AbgHTKXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731759AbgHTKXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:23:35 -0400
+        id S1731530AbgHTKXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:23:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE63C2072D;
-        Thu, 20 Aug 2020 10:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 654D820658;
+        Thu, 20 Aug 2020 10:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597919015;
-        bh=GAyyTAB9P2F13Pz/jDbI5tiLoSlilL3+aFk5A9smYEY=;
+        s=default; t=1597919017;
+        bh=T0MbZLRGYeJaKY9aY7xqR2LSaHty8Sods/WB4VGiUCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiZmcSkig/6kR3AdEHBZpmLDA/NWyG+w+AVmDLX5FuIwt1L5hSQFmlFhnjCfWNajt
-         PmwZVGbCuvN/ZBC/SEfxk08kqJkd5bMAsFCRsYMYh5gAJ0spG6FJcwW1ePeEHkxNPN
-         YowcgnHxsucZrIRYev0dEbFC89FZyN9NZaVdq4FI=
+        b=Mbaj0de44G8ZloYmcNotTzL+LgzYsqBHMpQRPCjfR1Ba8wC7XRvNRkq12imooGexg
+         t7O+2/Tp0eXCSh1SCIGMM/fCUvNLs1Y1LUZ5PAlGFly60qfP+jjKGA0xRA7jRpU8zl
+         GJfPFAWaa5/vo97ObmLPP/3d/5Vr3GJChzzXy/mY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 139/149] i2c: rcar: slave: only send STOP event when we have been addressed
-Date:   Thu, 20 Aug 2020 11:23:36 +0200
-Message-Id: <20200820092132.426968365@linuxfoundation.org>
+        stable@vger.kernel.org, Xu Wang <vulab@iscas.ac.cn>,
+        Barry Song <baohua@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 140/149] clk: clk-atlas6: fix return value check in atlas6_clk_init()
+Date:   Thu, 20 Aug 2020 11:23:37 +0200
+Message-Id: <20200820092132.475487794@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -44,53 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Xu Wang <vulab@iscas.ac.cn>
 
-[ Upstream commit 314139f9f0abdba61ed9a8463bbcb0bf900ac5a2 ]
+[ Upstream commit 12b90b40854a8461a02ef19f6f4474cc88d64b66 ]
 
-When the SSR interrupt is activated, it will detect every STOP condition
-on the bus, not only the ones after we have been addressed. So, enable
-this interrupt only after we have been addressed, and disable it
-otherwise.
+In case of error, the function clk_register() returns ERR_PTR()
+and never returns NULL. The NULL test in the return value check
+should be replaced with IS_ERR().
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20200713032143.21362-1-vulab@iscas.ac.cn
+Acked-by: Barry Song <baohua@kernel.org>
+Fixes: 7bf21bc81f28 ("clk: sirf: re-arch to make the codes support both prima2 and atlas6")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/clk/sirf/clk-atlas6.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index dfe1a53ce4ad3..ddfb08a3e6c20 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -386,13 +386,14 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- 			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
- 		}
+diff --git a/drivers/clk/sirf/clk-atlas6.c b/drivers/clk/sirf/clk-atlas6.c
+index c5eaa9d162476..9af2d0dcd6a0f 100644
+--- a/drivers/clk/sirf/clk-atlas6.c
++++ b/drivers/clk/sirf/clk-atlas6.c
+@@ -137,7 +137,7 @@ static void __init atlas6_clk_init(struct device_node *np)
  
--		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
-+		/* Clear SSR, too, because of old STOPs to other clients than us */
-+		rcar_i2c_write(priv, ICSSR, ~(SAR | SSR) & 0xff);
+ 	for (i = pll1; i < maxclk; i++) {
+ 		atlas6_clks[i] = clk_register(NULL, atlas6_clk_hw_array[i]);
+-		BUG_ON(!atlas6_clks[i]);
++		BUG_ON(IS_ERR(atlas6_clks[i]));
  	}
- 
- 	/* master sent stop */
- 	if (ssr_filtered & SSR) {
- 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
--		rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+		rcar_i2c_write(priv, ICSIER, SAR);
- 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
- 	}
- 
-@@ -541,7 +542,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
- 	priv->slave = slave;
- 	rcar_i2c_write(priv, ICSAR, slave->addr);
- 	rcar_i2c_write(priv, ICSSR, 0);
--	rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+	rcar_i2c_write(priv, ICSIER, SAR);
- 	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
- 
- 	return 0;
+ 	clk_register_clkdev(atlas6_clks[cpu], NULL, "cpu");
+ 	clk_register_clkdev(atlas6_clks[io],  NULL, "io");
 -- 
 2.25.1
 
