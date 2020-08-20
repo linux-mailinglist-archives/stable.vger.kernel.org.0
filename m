@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA9324B58E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DEFD24B476
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730638AbgHTKZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S1730638AbgHTKGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:06:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731680AbgHTKZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:25:26 -0400
+        id S1730487AbgHTKGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:06:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7C4C20658;
-        Thu, 20 Aug 2020 10:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B08B1206DA;
+        Thu, 20 Aug 2020 10:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597919125;
-        bh=BOjAsGPtbJQYY1chuWkpdg5mJVtRTxQcinkcqu30H+E=;
+        s=default; t=1597918002;
+        bh=AmTZtyZUnDO5InHBHtS78KWfPouKRkGH35AeeRiiGuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpJejPWg1yxrOH1xsXfHSPfvoyogk7X55PODEaXOe1jkG3323bssfe6OMqPBCB5LI
-         hs0Q4HAvCJwlS8ISOr85faR/aTANdyN3EHFZBCpJY8sjwV7QK0D/2+Tdo/6uFVczKE
-         6t5JPif+bCYY+TKGmBLoxM7+R1CArEldj/n3AZcU=
+        b=NSTtuxV+Lqx2IOUHnokU7XutmNkSQ5uwy2u4PBbIeMZEEeAyqSlJC9GRdSg7Mk8hL
+         9WfNe2BqElz5phC9u2sI0/Jg3M6da1xYOtihapElnfV8Nd7ITZGnMjVtU2XXCmFP8z
+         kOmsHqjc4LugJa0M4D7ijp0ve3EKxewuHOX2WRx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Xu, Wen" <wen.xu@gatech.edu>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 003/212] xfs: dont call xfs_da_shrink_inode with NULL bp
-Date:   Thu, 20 Aug 2020 11:19:36 +0200
-Message-Id: <20200820091602.424819869@linuxfoundation.org>
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 002/228] net/mlx5e: Dont support phys switch id if not in switchdev mode
+Date:   Thu, 20 Aug 2020 11:19:37 +0200
+Message-Id: <20200820091607.648150053@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@sandeen.net>
 
-[ Upstream commit bb3d48dcf86a97dc25fe9fc2c11938e19cb4399a ]
+From: Roi Dayan <roid@mellanox.com>
 
-xfs_attr3_leaf_create may have errored out before instantiating a buffer,
-for example if the blkno is out of range.  In that case there is no work
-to do to remove it, and in fact xfs_da_shrink_inode will lead to an oops
-if we try.
+Support for phys switch id ndo added for representors and if
+we do not have representors there is no need to support it.
+Since each port return different switch id supporting this
+block support for creating bond over PFs and attaching to bridge
+in legacy mode.
 
-This also seems to fix a flaw where the original error from
-xfs_attr3_leaf_create gets overwritten in the cleanup case, and it
-removes a pointless assignment to bp which isn't used after this.
+This bug doesn't exist upstream as the code got refactored and the
+netdev api is totally different.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=199969
-Reported-by: Xu, Wen <wen.xu@gatech.edu>
-Tested-by: Xu, Wen <wen.xu@gatech.edu>
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index c6c15e5717e42..70da4113c2baf 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -785,9 +785,8 @@ xfs_attr_shortform_to_leaf(xfs_da_args_t *args)
- 	ASSERT(blkno == 0);
- 	error = xfs_attr3_leaf_create(args, blkno, &bp);
- 	if (error) {
--		error = xfs_da_shrink_inode(args, 0, bp);
--		bp = NULL;
--		if (error)
-+		/* xfs_attr3_leaf_create may not have instantiated a block */
-+		if (bp && (xfs_da_shrink_inode(args, 0, bp) != 0))
- 			goto out;
- 		xfs_idata_realloc(dp, size, XFS_ATTR_FORK);	/* try to put */
- 		memcpy(ifp->if_u1.if_data, tmpbuffer, size);	/* it back */
--- 
-2.25.1
-
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -180,7 +180,7 @@ int mlx5e_attr_get(struct net_device *de
+ 	struct mlx5_eswitch_rep *rep = rpriv->rep;
+ 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+ 
+-	if (esw->mode == SRIOV_NONE)
++	if (esw->mode != SRIOV_OFFLOADS)
+ 		return -EOPNOTSUPP;
+ 
+ 	switch (attr->id) {
 
 
