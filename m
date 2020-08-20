@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C6C24B6A8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C70D224B6A7
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbgHTKhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:37:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40936 "EHLO mail.kernel.org"
+        id S1731213AbgHTKhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:37:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731382AbgHTKSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:18:30 -0400
+        id S1731384AbgHTKSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:18:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9A0620738;
-        Thu, 20 Aug 2020 10:18:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40A4B20658;
+        Thu, 20 Aug 2020 10:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918709;
-        bh=dEDmkRG7YeHU1IZmCwE7m7T5vhaWdxv/IdSIN41lr+4=;
+        s=default; t=1597918711;
+        bh=BlN7wP9X3mfNk+7n63+33ec50yLnjHUOxUUiaJFJXQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gamUFoQ4cbau2JHPRM3ey4CfGY5Ib1jxRKM7YtW1e+UzU1FaxAWo/afj/3tYwIVK3
-         /Xj7m8Oq/oUZmXyeiZ5QRA/1EfvTuO91m1bRTbn/FvFGw6DmmTyb6M107Misl5yubB
-         EuX/AyxkE/yNh/Io1VO4LXzZhjSLLMxoGl6wNlyI=
+        b=SxDijN0oUGMpWTlkoAz62RLD8+93z/jwdS/S9xqJqL3imk9PQI2AUuAylarbVy68X
+         QIDo+PIaS+xVazUlxG6sM9DK2J6JsO4rEpScihzb1Oi1vpwErJYyKmA1bMMfM13lZF
+         1BjvlLtTuUXZApC17kiLXf+c61oPqpid6LZEkrKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.4 008/149] drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
-Date:   Thu, 20 Aug 2020 11:21:25 +0200
-Message-Id: <20200820092126.097749742@linuxfoundation.org>
+        stable@vger.kernel.org, Steve Cohen <cohens@codeaurora.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.4 009/149] drm: hold gem reference until object is no longer accessed
+Date:   Thu, 20 Aug 2020 11:21:26 +0200
+Message-Id: <20200820092126.146437427@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -45,44 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Steve Cohen <cohens@codeaurora.org>
 
-commit 543e8669ed9bfb30545fd52bc0e047ca4df7fb31 upstream.
+commit 8490d6a7e0a0a6fab5c2d82d57a3937306660864 upstream.
 
-Compiler leaves a 4-byte hole near the end of `dev_info`, causing
-amdgpu_info_ioctl() to copy uninitialized kernel stack memory to userspace
-when `size` is greater than 356.
+A use-after-free in drm_gem_open_ioctl can happen if the
+GEM object handle is closed between the idr lookup and
+retrieving the size from said object since a local reference
+is not being held at that point. Hold the local reference
+while the object can still be accessed to fix this and
+plug the potential security hole.
 
-In 2015 we tried to fix this issue by doing `= {};` on `dev_info`, which
-unfortunately does not initialize that 4-byte hole. Fix it by using
-memset() instead.
-
+Signed-off-by: Steve Cohen <cohens@codeaurora.org>
 Cc: stable@vger.kernel.org
-Fixes: c193fa91b918 ("drm/amdgpu: information leak in amdgpu_info_ioctl()")
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1595284250-31580-1-git-send-email-cohens@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -428,9 +428,10 @@ static int amdgpu_info_ioctl(struct drm_
- 		return n ? -EFAULT : 0;
- 	}
- 	case AMDGPU_INFO_DEV_INFO: {
--		struct drm_amdgpu_info_device dev_info = {};
-+		struct drm_amdgpu_info_device dev_info;
- 		struct amdgpu_cu_info cu_info;
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -652,9 +652,6 @@ err:
+  * @file_priv: drm file-private structure
+  *
+  * Open an object using the global name, returning a handle and the size.
+- *
+- * This handle (of course) holds a reference to the object, so the object
+- * will not go away until the handle is deleted.
+  */
+ int
+ drm_gem_open_ioctl(struct drm_device *dev, void *data,
+@@ -679,14 +676,15 @@ drm_gem_open_ioctl(struct drm_device *de
  
-+		memset(&dev_info, 0, sizeof(dev_info));
- 		dev_info.device_id = dev->pdev->device;
- 		dev_info.chip_rev = adev->rev_id;
- 		dev_info.external_rev = adev->external_rev_id;
+ 	/* drm_gem_handle_create_tail unlocks dev->object_name_lock. */
+ 	ret = drm_gem_handle_create_tail(file_priv, obj, &handle);
+-	drm_gem_object_unreference_unlocked(obj);
+ 	if (ret)
+-		return ret;
++		goto err;
+ 
+ 	args->handle = handle;
+ 	args->size = obj->size;
+ 
+-	return 0;
++err:
++	drm_gem_object_unreference_unlocked(obj);
++	return ret;
+ }
+ 
+ /**
 
 
