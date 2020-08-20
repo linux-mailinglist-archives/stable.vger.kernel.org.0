@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8245824BE4B
+	by mail.lfdr.de (Postfix) with ESMTP id EF4A124BE4C
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730724AbgHTNXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:23:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45488 "EHLO mail.kernel.org"
+        id S1730726AbgHTNXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:23:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbgHTJeI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:34:08 -0400
+        id S1728445AbgHTJeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:34:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEA9220724;
-        Thu, 20 Aug 2020 09:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1396D22BEA;
+        Thu, 20 Aug 2020 09:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916013;
-        bh=xGSghv4vVlkYjoXq27P/5hyIj+LHqAvkUJ1zVGjpX84=;
+        s=default; t=1597916016;
+        bh=+2rkOLTAojPpciCsfnRQKWhqYJpIMKTSKUdmYJd/ZrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOvN/s3uoLijCvTDm9EZkawa8YYpNf1Vp3UYWsXzgFOhc3P/rtlg5CapPFgVGgxYr
-         faVXZWHMXmf90qlBoXhF2ZW+WFr3REhF+Ff4H9TFu7Z0b27cES4u0tYgty8wyOBoLY
-         Dtrr6gqWDt6MGO+eK1MjUu4FlVLWY+QvUzMMwE08=
+        b=tdgrSbV39mPTGSZiObH+wrl1v++OXQsTVXt7zvZNjFIz560lIIA7jDRSSOPA8vSx0
+         eN8+xidLKNkQ4GEoFXbEe5Ci/efsd83ImqDXjQ0P4D56mKD361RCe2/aMlEYdmgM5J
+         z+cNKe8JlKDrdbNFEdsXhLYEpfDR9wzDp7pQ3uHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 213/232] crypto: algif_aead - fix uninitialized ctx->init
-Date:   Thu, 20 Aug 2020 11:21:04 +0200
-Message-Id: <20200820091623.114814168@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 214/232] ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
+Date:   Thu, 20 Aug 2020 11:21:05 +0200
+Message-Id: <20200820091623.161937546@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -45,78 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 21dfbcd1f5cbff9cf2f9e7e43475aed8d072b0dd ]
+[ Upstream commit 5a25de6df789cc805a9b8ba7ab5deef5067af47e ]
 
-In skcipher_accept_parent_nokey() the whole af_alg_ctx structure is
-cleared by memset() after allocation, so add such memset() also to
-aead_accept_parent_nokey() so that the new "init" field is also
-initialized to zero. Without that the initial ctx->init checks might
-randomly return true and cause errors.
+Freeing chip on error may lead to an Oops at the next time
+the system goes to resume. Fix this by removing all
+snd_echo_free() calls on error.
 
-While there, also remove the redundant zero assignments in both
-functions.
-
-Found via libkcapi testsuite.
-
-Cc: Stephan Mueller <smueller@chronox.de>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when ctx->more is zero")
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 47b5d028fdce8 ("ALSA: Echoaudio - Add suspend support #2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20200813074632.17022-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algif_aead.c     | 6 ------
- crypto/algif_skcipher.c | 7 +------
- 2 files changed, 1 insertion(+), 12 deletions(-)
+ sound/pci/echoaudio/echoaudio.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
-index d48d2156e6210..43c6aa784858b 100644
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -558,12 +558,6 @@ static int aead_accept_parent_nokey(void *private, struct sock *sk)
- 
- 	INIT_LIST_HEAD(&ctx->tsgl_list);
- 	ctx->len = len;
--	ctx->used = 0;
--	atomic_set(&ctx->rcvused, 0);
--	ctx->more = 0;
--	ctx->merge = 0;
--	ctx->enc = 0;
--	ctx->aead_assoclen = 0;
- 	crypto_init_wait(&ctx->wait);
- 
- 	ask->private = ctx;
-diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-index a51ba22fef58f..81c4022285a7c 100644
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -333,6 +333,7 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
- 	ctx = sock_kmalloc(sk, len, GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
-+	memset(ctx, 0, len);
- 
- 	ctx->iv = sock_kmalloc(sk, crypto_skcipher_ivsize(tfm),
- 			       GFP_KERNEL);
-@@ -340,16 +341,10 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
- 		sock_kfree_s(sk, ctx, len);
- 		return -ENOMEM;
+diff --git a/sound/pci/echoaudio/echoaudio.c b/sound/pci/echoaudio/echoaudio.c
+index 0941a7a17623a..456219a665a79 100644
+--- a/sound/pci/echoaudio/echoaudio.c
++++ b/sound/pci/echoaudio/echoaudio.c
+@@ -2158,7 +2158,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (err < 0) {
+ 		kfree(commpage_bak);
+ 		dev_err(dev, "resume init_hw err=%d\n", err);
+-		snd_echo_free(chip);
+ 		return err;
  	}
--
- 	memset(ctx->iv, 0, crypto_skcipher_ivsize(tfm));
  
- 	INIT_LIST_HEAD(&ctx->tsgl_list);
- 	ctx->len = len;
--	ctx->used = 0;
--	atomic_set(&ctx->rcvused, 0);
--	ctx->more = 0;
--	ctx->merge = 0;
--	ctx->enc = 0;
- 	crypto_init_wait(&ctx->wait);
- 
- 	ask->private = ctx;
+@@ -2185,7 +2184,6 @@ static int snd_echo_resume(struct device *dev)
+ 	if (request_irq(pci->irq, snd_echo_interrupt, IRQF_SHARED,
+ 			KBUILD_MODNAME, chip)) {
+ 		dev_err(chip->card->dev, "cannot grab irq\n");
+-		snd_echo_free(chip);
+ 		return -EBUSY;
+ 	}
+ 	chip->irq = pci->irq;
 -- 
 2.25.1
 
