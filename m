@@ -2,149 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A618524AE22
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 06:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313E224AE29
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 06:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725819AbgHTEyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 00:54:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50403 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725768AbgHTEyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 00:54:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597899250;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=5+VTUkZxM5oNmypKkhPEwWwEokFyqkG+NZrtkR/m294=;
-        b=Zb7Txy+fp+vxslDJ6GB8hwDM3iZgxSi05FGUTnVz5kSJQidCogqbbWi67M7al43pBJbjzH
-        bSW6vqhr+wURzZa83Mhh8W4wSfLetn8Gftsgsefn0cuVuileGEJabfkc0W68iqTSSGRuvs
-        BMwaYX0P+IPhWRA1muhs26Q4moBD1EU=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-11-5UK0aCHEP6avOyz46LLfjg-1; Thu, 20 Aug 2020 00:54:08 -0400
-X-MC-Unique: 5UK0aCHEP6avOyz46LLfjg-1
-Received: by mail-pl1-f200.google.com with SMTP id y13so829010plr.1
-        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 21:54:08 -0700 (PDT)
+        id S1725823AbgHTE6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 00:58:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725780AbgHTE6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 00:58:21 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5C19C061383
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 21:58:21 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id u20so471369pfn.0
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 21:58:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=MgWKvwbixDoVFhCX8j2Wxsz+XLL8akDRZzoDWLA4TpM=;
+        b=VBVS3y6ET9yGsjgbdBruST1OCrCP7YkfZzAMXwWOfF0L70eEf30pW+DnJBZzuDUW1y
+         XqU09zDoFXEe4BQuvViq0FLsgyJw6HjIGa5I2ZKDNid8SUQL8bzH0HhFGwB/LBjIUvxT
+         kG66Bpz1RFzPSmYOgazxJGOAQEc9b2G1pBDpCjA+jcnKtpENI+k4vs0OvDrTVIZLZUac
+         JlRxQ9Rs7OeKne6iyD6f1fLLJS4DVJbuNZNZ1tO0QxbKkYFLSpgKjw1akYJU9W7vAnmF
+         IjmeB7Aws9gq/0QeNSgdgBuyl57XwvXWeSrKiaOn/QHpg7P0gD1G7dmPNF57X8rEE65E
+         EHeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=5+VTUkZxM5oNmypKkhPEwWwEokFyqkG+NZrtkR/m294=;
-        b=chQuZ0pezRnrlM9dASx1QHexHUQ0GtTOqSb11eIxk/a8ATiBGWjNM7w/VZbavdR9/P
-         CDnrw8Pc1++PcgQqLQOW7twk5O0EFrJqRQzrvgP7SvJ1RGjqSAlyUUIEZxd5CSQfUAd1
-         TPSslC/wrqnlXstFEMTB4TI+RQ5iMjVsKbwhWN0gAxbqJbUTGnUZHBKDIC1IL/dSqku9
-         1GG7QwvmKs0me0nQQ05tmB6Pr56bjdy/Mo9L5SFTB0eowqFdWcMKZwTk3Cj17tm7KeuR
-         BaCWkp28+ysLzPcpOQHNPP0phr5Ox5X5uxL+5FWU2wb1nTAW7pbKqmpoFbCYl8StoeiN
-         48KQ==
-X-Gm-Message-State: AOAM53032vbZhJpHWQqXvedtGfInCfnR2rVfM+WYbTFlsQDDXVutqg4U
-        2CgG1NRtGIbNQi2a+1OKLXWjyYY54vwJm6pA8YGzzfGom4RaqaGBSQAtyWvMzjyPvLXqqdAzp8y
-        PxW27yOIkJ37sQUp7
-X-Received: by 2002:a62:5a87:: with SMTP id o129mr954890pfb.204.1597899247837;
-        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz+eEuz/lXHLcXBgHgYxHWdcGo0cQru9Km40vz5Mcw+NKZD7EVUPE35k7tZi3N+gJsdzQjD7g==
-X-Received: by 2002:a62:5a87:: with SMTP id o129mr954876pfb.204.1597899247575;
-        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id q16sm1017900pfg.153.2020.08.19.21.54.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by mistake
-Date:   Thu, 20 Aug 2020 12:53:23 +0800
-Message-Id: <20200820045323.7809-1-hsiangkao@redhat.com>
-X-Mailer: git-send-email 2.18.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=MgWKvwbixDoVFhCX8j2Wxsz+XLL8akDRZzoDWLA4TpM=;
+        b=p0dA6CEHh7SW6bobmDjnHhXdksYuVzW5o4vk87SWQUNAt8QEWGF2zz/Km+Xn4sgoTp
+         N2gUp3TlHJoSCIbr9zrGMqeudqpnMtOsFalMUYf3mvQm3EqHb8t918os8TjLn4tBfZCH
+         6URqxtVBjkoOK9zFGt773ANrNlbQByZEu9joCdHENsHDnVbGe15OzN0h6I14v6Sc4sNQ
+         3FbbvuFEzOnhk3l+HoHU/lqHQMWrUfvCfRYzirmIFp19/t12gHg8HpBJEBdPfegT99xi
+         X9GDPC6bgWvVOonVbRJV5MoOoxDYVlUfO5KMPrMCsNKnj4ZFFVc94pq0CIXJfC+L+3Ik
+         +xYA==
+X-Gm-Message-State: AOAM533kanIapSfI8SRM1D6oJMlPqsg7h4l4pj61Lm/5KsULA1PB+NgL
+        llf6m1N9ztiLNd0LDtDOhVepxQ==
+X-Google-Smtp-Source: ABdhPJwvQTx6yDB26PhKSrGjiiUUZn5kr0azekWGE3CsyGRDPDtjfoKsPmGjJlKHmVEGHYoKYN6MTw==
+X-Received: by 2002:aa7:9096:: with SMTP id i22mr1010445pfa.310.1597899501054;
+        Wed, 19 Aug 2020 21:58:21 -0700 (PDT)
+Received: from localhost ([122.172.43.13])
+        by smtp.gmail.com with ESMTPSA id f17sm1047306pfq.67.2020.08.19.21.58.19
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 19 Aug 2020 21:58:20 -0700 (PDT)
+Date:   Thu, 20 Aug 2020 10:28:18 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Rajendra Nayak <rnayak@codeaurora.org>,
+        Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>,
+        linux-pm@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH V2 1/4] opp: Enable resources again if they were disabled
+ earlier
+Message-ID: <20200820045818.5awujxfd5zothblv@vireshk-i7>
+References: <c6bba235a9a6fd777255bb4f1d16492fdcabc847.1597292833.git.viresh.kumar@linaro.org>
+ <20200819235657.45FC4214F1@mail.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200819235657.45FC4214F1@mail.kernel.org>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SWP_FS is used to make swap_{read,write}page() go through
-the filesystem, and it's only used for swap files over
-NFS. So, !SWP_FS means non NFS for now, it could be either
-file backed or device backed. Something similar goes with
-legacy SWP_FILE.
+On 19-08-20, 23:56, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: cd7ea582866f ("opp: Make dev_pm_opp_set_rate() handle freq = 0 to drop performance votes").
+> 
+> The bot has tested the following trees: v5.8.1, v5.7.15, v5.4.58.
+> 
+> v5.8.1: Build OK!
+> v5.7.15: Build failed! Errors:
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:849:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:849:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:849:17: error: 'struct opp_table' has no member named 'paths'
+> 
+> v5.4.58: Build failed! Errors:
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: 'struct opp_table' has no member named 'paths'
+>     drivers/opp/core.c:847:17: error: ‘struct opp_table’ has no member named ‘paths’
+>     drivers/opp/core.c:847:17: error: 'struct opp_table' has no member named 'paths'
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-So in order to achieve the goal of the original patch,
-SWP_BLKDEV should be used instead.
+We probably need to send different versions for those kernel versions.
 
-FS corruption can be observed with SSD device + XFS +
-fragmented swapfile due to CONFIG_THP_SWAP=y.
-
-I reproduced the issue with the following details:
-
-Environment:
-QEMU + upstream kernel + buildroot + NVMe (2 GB)
-
-Kernel config:
-CONFIG_BLK_DEV_NVME=y
-CONFIG_THP_SWAP=y
-
-Some reproducable steps:
-mkfs.xfs -f /dev/nvme0n1
-mkdir /tmp/mnt
-mount /dev/nvme0n1 /tmp/mnt
-bs="32k"
-sz="1024m"    # doesn't matter too much, I also tried 16m
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
-
-mkswap /tmp/mnt/sw
-swapon /tmp/mnt/sw
-
-stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
-
-Symptoms:
- - FS corruption (e.g. checksum failure)
- - memory corruption at: 0xd2808010
- - segfault
-
-Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
-Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
----
-v1: https://lore.kernel.org/r/20200819195613.24269-1-hsiangkao@redhat.com
-
-changes since v1:
- - improve commit message description
-
-Hi Andrew,
-Kindly consider this one instead if no other concerns...
-
-Thanks,
-Gao Xiang
-
- mm/swapfile.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 6c26916e95fd..2937daf3ca02 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
- 			goto nextsi;
- 		}
- 		if (size == SWAPFILE_CLUSTER) {
--			if (!(si->flags & SWP_FS))
-+			if (si->flags & SWP_BLKDEV)
- 				n_ret = swap_alloc_cluster(si, swp_entries);
- 		} else
- 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
 -- 
-2.18.1
-
+viresh
