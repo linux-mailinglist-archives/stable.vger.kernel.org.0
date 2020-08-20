@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C02FA24B9EB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457BD24BA09
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730386AbgHTKAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48806 "EHLO mail.kernel.org"
+        id S1728211AbgHTL7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730472AbgHTKAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:00:33 -0400
+        id S1730191AbgHTKAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 678B520724;
-        Thu, 20 Aug 2020 10:00:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A10C9207FB;
+        Thu, 20 Aug 2020 10:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917632;
-        bh=YZnMjO/6zwXyl+KT3ibEE6f9gUR4An819JMKRFtDwDw=;
+        s=default; t=1597917637;
+        bh=ZGfKLK7QDF6UKIB9ZK1taXhdAkb39nAqHSWRWISVJDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmlDL0CJqxVrA341MRzBt4f1da9kq1YX358lMOe1O8hM9CHgwCmD+57pA1iYOtxgc
-         BJIbzlDlQpstBztbSuFkewTQwaqFwNmWp3UBtk+BMfjjxS1RJju2HVQH1UQCKF0T0d
-         XoqINVGvavpudlgKy9e2vJ9WFyfhJgMVYEtpNXXI=
+        b=sPKxxlGeiKgz3oMq2pCZv/ndhJkdWXH2vOrvUFsTkvP93mYpLAzndPOlk5+/t3nsw
+         s5CrAwrbuj8XdMX/X528NUP8kMi3i0is11QwfoQHRV4dkfAwFl8/vBMXAfTN2CDrfJ
+         Gopzw76fFp2iV2/+4IlNr7Ai2LYzSoUReuwQYICo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Frank van der Linden <fllinden@amazon.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.9 070/212] xattr: break delegations in {set,remove}xattr
-Date:   Thu, 20 Aug 2020 11:20:43 +0200
-Message-Id: <20200820091605.901394859@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 072/212] ipv4: Silence suspicious RCU usage warning
+Date:   Thu, 20 Aug 2020 11:20:45 +0200
+Message-Id: <20200820091605.997432275@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,181 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank van der Linden <fllinden@amazon.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-commit 08b5d5014a27e717826999ad20e394a8811aae92 upstream.
+[ Upstream commit 83f3522860f702748143e022f1a546547314c715 ]
 
-set/removexattr on an exported filesystem should break NFS delegations.
-This is true in general, but also for the upcoming support for
-RFC 8726 (NFSv4 extended attribute support). Make sure that they do.
+fib_trie_unmerge() is called with RTNL held, but not from an RCU
+read-side critical section. This leads to the following warning [1] when
+the FIB alias list in a leaf is traversed with
+hlist_for_each_entry_rcu().
 
-Additionally, they need to grow a _locked variant, since callers might
-call this with i_rwsem held (like the NFS server code).
+Since the function is always called with RTNL held and since
+modification of the list is protected by RTNL, simply use
+hlist_for_each_entry() and silence the warning.
 
-Cc: stable@vger.kernel.org # v4.9+
-Cc: linux-fsdevel@vger.kernel.org
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+[1]
+WARNING: suspicious RCU usage
+5.8.0-rc4-custom-01520-gc1f937f3f83b #30 Not tainted
+-----------------------------
+net/ipv4/fib_trie.c:1867 RCU-list traversed in non-reader section!!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by ip/164:
+ #0: ffffffff85a27850 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
+
+stack backtrace:
+CPU: 0 PID: 164 Comm: ip Not tainted 5.8.0-rc4-custom-01520-gc1f937f3f83b #30
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+Call Trace:
+ dump_stack+0x100/0x184
+ lockdep_rcu_suspicious+0x153/0x15d
+ fib_trie_unmerge+0x608/0xdb0
+ fib_unmerge+0x44/0x360
+ fib4_rule_configure+0xc8/0xad0
+ fib_nl_newrule+0x37a/0x1dd0
+ rtnetlink_rcv_msg+0x4f7/0xbd0
+ netlink_rcv_skb+0x17a/0x480
+ rtnetlink_rcv+0x22/0x30
+ netlink_unicast+0x5ae/0x890
+ netlink_sendmsg+0x98a/0xf40
+ ____sys_sendmsg+0x879/0xa00
+ ___sys_sendmsg+0x122/0x190
+ __sys_sendmsg+0x103/0x1d0
+ __x64_sys_sendmsg+0x7d/0xb0
+ do_syscall_64+0x54/0xa0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fc80a234e97
+Code: Bad RIP value.
+RSP: 002b:00007ffef8b66798 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc80a234e97
+RDX: 0000000000000000 RSI: 00007ffef8b66800 RDI: 0000000000000003
+RBP: 000000005f141b1c R08: 0000000000000001 R09: 0000000000000000
+R10: 00007fc80a2a8ac0 R11: 0000000000000246 R12: 0000000000000001
+R13: 0000000000000000 R14: 00007ffef8b67008 R15: 0000556fccb10020
+
+Fixes: 0ddcf43d5d4a ("ipv4: FIB Local/MAIN table collapse")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/xattr.c            |   84 +++++++++++++++++++++++++++++++++++++++++++++-----
- include/linux/xattr.h |    2 +
- 2 files changed, 79 insertions(+), 7 deletions(-)
+ net/ipv4/fib_trie.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -203,10 +203,22 @@ int __vfs_setxattr_noperm(struct dentry
- 	return error;
- }
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1719,7 +1719,7 @@ struct fib_table *fib_trie_unmerge(struc
+ 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
+ 		struct key_vector *local_l = NULL, *local_tp;
  
--
-+/**
-+ * __vfs_setxattr_locked: set an extended attribute while holding the inode
-+ * lock
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - xattr name to set
-+ *  @value - value to set @name to
-+ *  @size - size of @value
-+ *  @flags - flags to pass into filesystem operations
-+ *  @delegated_inode - on return, will contain an inode pointer that
-+ *  a delegation was broken on, NULL if none.
-+ */
- int
--vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
--		size_t size, int flags)
-+__vfs_setxattr_locked(struct dentry *dentry, const char *name,
-+		const void *value, size_t size, int flags,
-+		struct inode **delegated_inode)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -215,15 +227,40 @@ vfs_setxattr(struct dentry *dentry, cons
- 	if (error)
- 		return error;
+-		hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
++		hlist_for_each_entry(fa, &l->leaf, fa_list) {
+ 			struct fib_alias *new_fa;
  
--	inode_lock(inode);
- 	error = security_inode_setxattr(dentry, name, value, size, flags);
- 	if (error)
- 		goto out;
- 
-+	error = try_break_deleg(inode, delegated_inode);
-+	if (error)
-+		goto out;
-+
- 	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
- 
- out:
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(__vfs_setxattr_locked);
-+
-+int
-+vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		size_t size, int flags)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct inode *delegated_inode = NULL;
-+	int error;
-+
-+retry_deleg:
-+	inode_lock(inode);
-+	error = __vfs_setxattr_locked(dentry, name, value, size, flags,
-+	    &delegated_inode);
- 	inode_unlock(inode);
-+
-+	if (delegated_inode) {
-+		error = break_deleg_wait(&delegated_inode);
-+		if (!error)
-+			goto retry_deleg;
-+	}
- 	return error;
- }
- EXPORT_SYMBOL_GPL(vfs_setxattr);
-@@ -379,8 +416,18 @@ __vfs_removexattr(struct dentry *dentry,
- }
- EXPORT_SYMBOL(__vfs_removexattr);
- 
-+/**
-+ * __vfs_removexattr_locked: set an extended attribute while holding the inode
-+ * lock
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - name of xattr to remove
-+ *  @delegated_inode - on return, will contain an inode pointer that
-+ *  a delegation was broken on, NULL if none.
-+ */
- int
--vfs_removexattr(struct dentry *dentry, const char *name)
-+__vfs_removexattr_locked(struct dentry *dentry, const char *name,
-+		struct inode **delegated_inode)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -389,11 +436,14 @@ vfs_removexattr(struct dentry *dentry, c
- 	if (error)
- 		return error;
- 
--	inode_lock(inode);
- 	error = security_inode_removexattr(dentry, name);
- 	if (error)
- 		goto out;
- 
-+	error = try_break_deleg(inode, delegated_inode);
-+	if (error)
-+		goto out;
-+
- 	error = __vfs_removexattr(dentry, name);
- 
- 	if (!error) {
-@@ -402,12 +452,32 @@ vfs_removexattr(struct dentry *dentry, c
- 	}
- 
- out:
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(__vfs_removexattr_locked);
-+
-+int
-+vfs_removexattr(struct dentry *dentry, const char *name)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct inode *delegated_inode = NULL;
-+	int error;
-+
-+retry_deleg:
-+	inode_lock(inode);
-+	error = __vfs_removexattr_locked(dentry, name, &delegated_inode);
- 	inode_unlock(inode);
-+
-+	if (delegated_inode) {
-+		error = break_deleg_wait(&delegated_inode);
-+		if (!error)
-+			goto retry_deleg;
-+	}
-+
- 	return error;
- }
- EXPORT_SYMBOL_GPL(vfs_removexattr);
- 
--
- /*
-  * Extended attribute SET operations
-  */
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -51,8 +51,10 @@ ssize_t vfs_getxattr(struct dentry *, co
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
- int __vfs_setxattr(struct dentry *, struct inode *, const char *, const void *, size_t, int);
- int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
-+int __vfs_setxattr_locked(struct dentry *, const char *, const void *, size_t, int, struct inode **);
- int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
- int __vfs_removexattr(struct dentry *, const char *);
-+int __vfs_removexattr_locked(struct dentry *, const char *, struct inode **);
- int vfs_removexattr(struct dentry *, const char *);
- 
- ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
+ 			if (local_tb->tb_id != fa->tb_id)
 
 
