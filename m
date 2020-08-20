@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F297324BB2F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F288024BB2B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730101AbgHTMYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:24:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
+        id S1730077AbgHTJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730071AbgHTJxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:44 -0400
+        id S1730078AbgHTJxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:53:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAF0821775;
-        Thu, 20 Aug 2020 09:53:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 295F12067C;
+        Thu, 20 Aug 2020 09:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917224;
-        bh=ng2dWQPIygJnSwEabXZLLCmhiuRhUXoVKVZys+erk0A=;
+        s=default; t=1597917227;
+        bh=gMAJQySplqK3LODlD+yqkkSZmARBSR3jSggcw7cFqr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUVejZn/cAiveBWTpASi2nk6sFV7RMmEVlhpVuasLyXX7Iv2BdAhuuxkCaEGJX+eO
-         QSFx3Cwo/4OCBXwaa0GmkXeW+EHfCLzxFlaviOK0Bd86GxJu6yDIu8IqBWeo7tNCvg
-         fNpMTSzLzlkApPdzrLfdpFGDBowhDADqj16Wdbo4=
+        b=nRRrb8zr/3sCzTA/5YoqZpiB7zbYb2s6p6WZ4Ko26/gkn26L9yTNqjhEb/0DAG+vQ
+         22/3YhMLUDlye4CTRCAcBszq9N8+xZ8OKCRbuU2fcjoFOpIYWwBKWC0B/JZF5C/kdt
+         asSMhXMqGGvbOoz6U/Ys+7XRgzDk8J0PBL+23lOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        "Pavel Machek (CIP)" <pavel@denx.de>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 17/92] btrfs: fix return value mixup in btrfs_get_extent
-Date:   Thu, 20 Aug 2020 11:21:02 +0200
-Message-Id: <20200820091538.452622277@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Christian Eggers <ceggers@arri.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.19 18/92] dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+Date:   Thu, 20 Aug 2020 11:21:03 +0200
+Message-Id: <20200820091538.504723836@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -44,35 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 881a3a11c2b858fe9b69ef79ac5ee9978a266dc9 upstream.
+commit add48ba425192c6e04ce70549129cacd01e2a09e upstream.
 
-btrfs_get_extent() sets variable ret, but out: error path expect error
-to be in variable err so the error code is lost.
+The correct compatible string is "gpio-mux" (see
+bindings/mux/gpio-mux.txt).
 
-Fixes: 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org # v4.13+
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Link: https://lore.kernel.org/r/20200727101605.24384-1-ceggers@arri.de
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 +-
+ Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7014,7 +7014,7 @@ struct extent_map *btrfs_get_extent(stru
- 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
- 		/* Only regular file could have regular/prealloc extent */
- 		if (!S_ISREG(inode->vfs_inode.i_mode)) {
--			ret = -EUCLEAN;
-+			err = -EUCLEAN;
- 			btrfs_crit(fs_info,
- 		"regular/prealloc extent found for non-regular inode %llu",
- 				   btrfs_ino(inode));
+--- a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
++++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+@@ -21,7 +21,7 @@ controller state. The mux controller sta
+ 
+ Example:
+ 	mux: mux-controller {
+-		compatible = "mux-gpio";
++		compatible = "gpio-mux";
+ 		#mux-control-cells = <0>;
+ 
+ 		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
 
 
