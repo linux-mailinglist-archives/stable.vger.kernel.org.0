@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D339E24B6E4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2072524B602
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731462AbgHTKnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:43:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35664 "EHLO mail.kernel.org"
+        id S1730962AbgHTKbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730673AbgHTKQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:16 -0400
+        id S1730281AbgHTKUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:20:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54B2920658;
-        Thu, 20 Aug 2020 10:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 288F82076E;
+        Thu, 20 Aug 2020 10:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918573;
-        bh=J56mPR7oQ8513EtmCO8rcounAcUp4cDDY4KfNZJ+gQA=;
+        s=default; t=1597918848;
+        bh=VsjZbyDoFnSpuIJdUWlBT69iwFkVIb5It172DSCdcZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6GOZ59F9Up/neWCj+Nf7qZZIjiJ3FdoBGN0cec/SSTB4mICxK9khyd6njxY9FYYc
-         EbcMQPasnwjPktWqqFCsdktnhcIriDh6yGSnfAaftEDYcEYpZGCzwSTYxT6W14dGXD
-         alNVfGt0938HY+bb8jt8Qnm2PLOCAroAJQ/IRmjU=
+        b=f8WRoOwi6ix0rw3eJvsnpnuO2HLcnXK+xOnw2mjFxWkIKS/4fTGDiTb3IRukZzIzm
+         grx8woxPTjpWYp1u27SpTc+CNskLY3U6vxHlS0HKShdNkSyW4VNhn+Xlk+cyYxBI3U
+         4ku/H7KaIVj6DH4Moo+v1DecK2T1g7Qgsmfvtp0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 4.14 189/228] watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
-Date:   Thu, 20 Aug 2020 11:22:44 +0200
-Message-Id: <20200820091617.017255435@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 088/149] media: firewire: Using uninitialized values in node_probe()
+Date:   Thu, 20 Aug 2020 11:22:45 +0200
+Message-Id: <20200820092129.989276439@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e871e93fb08a619dfc015974a05768ed6880fd82 upstream.
+[ Upstream commit 2505a210fc126599013aec2be741df20aaacc490 ]
 
-The driver supports populating bootstatus with WDIOF_CARDRESET, but so
-far userspace couldn't portably determine whether absence of this flag
-meant no watchdog reset or no driver support. Or-in the bit to fix this.
+If fw_csr_string() returns -ENOENT, then "name" is uninitialized.  So
+then the "strlen(model_names[i]) <= name_len" is true because strlen()
+is unsigned and -ENOENT is type promoted to a very high positive value.
+Then the "strncmp(name, model_names[i], name_len)" uses uninitialized
+data because "name" is uninitialized.
 
-Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200611191750.28096-3-a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 92374e886c75 ("[media] firedtv: drop obsolete backend abstraction")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/f71808e_wdt.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/firewire/firedtv-fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -690,7 +690,8 @@ static int __init watchdog_init(int sioa
- 	watchdog.sioaddr = sioaddr;
- 	watchdog.ident.options = WDIOC_SETTIMEOUT
- 				| WDIOF_MAGICCLOSE
--				| WDIOF_KEEPALIVEPING;
-+				| WDIOF_KEEPALIVEPING
-+				| WDIOF_CARDRESET;
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
+index 247f0e7cb5f7f..5d634706a7eaa 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -271,6 +271,8 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
  
- 	snprintf(watchdog.ident.identity,
- 		sizeof(watchdog.ident.identity), "%s watchdog",
+ 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
++	if (name_len < 0)
++		return name_len;
+ 	for (i = ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <= name_len &&
+ 		    strncmp(name, model_names[i], name_len) == 0)
+-- 
+2.25.1
+
 
 
