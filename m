@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C9624BDC0
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198A524BDB6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbgHTNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
+        id S1727084AbgHTNLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgHTJhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:17 -0400
+        id S1726964AbgHTJhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:37:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 922E822B3F;
-        Thu, 20 Aug 2020 09:37:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D646420724;
+        Thu, 20 Aug 2020 09:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916237;
-        bh=6Wt2/OLbFhN8zLqB45FFfmCoC7Jels6mZihiQFznnqI=;
+        s=default; t=1597916240;
+        bh=NX4UnJ/QnsQ3gLYq/0AoTf5Ds3zM+Bg7dKu44zP0MGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q51JtRMUjNlzQKcL4nRSmxWJbAJl8KwKVqauyWzLE/6XwsjkEyG6lcYeeGCArGVay
-         /TvN1xKeTO4BvDc4aIejSfU0X2zQs4eGX56OvM/NuTCG9WoQs3J0XHhAbPNhPUtEo1
-         eu6lz8QOr5kfN7IrlpKLkrS14mlblc8J3sugC0JM=
+        b=Fr29INpsFnhXl+BRjV+H7gj3lxRcLsjqHsRLWb/yKYzkh4ITobWcqB7MlQUYROE39
+         O8sTesh+CsKknMmEQDz2EKgXRX0AWwh3gG7dzVYq1HHcMrWNPiFriJ9aT5i04FFqfP
+         WmjOujVNiS+nAEWmH/qByjq4PDXl3Alu4r38LZ8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <chris@colorremedies.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 029/204] btrfs: dont show full path of bind mounts in subvol=
-Date:   Thu, 20 Aug 2020 11:18:46 +0200
-Message-Id: <20200820091607.716450842@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.7 030/204] btrfs: fix messages after changing compression level by remount
+Date:   Thu, 20 Aug 2020 11:18:47 +0200
+Message-Id: <20200820091607.764122274@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,63 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: David Sterba <dsterba@suse.com>
 
-commit 3ef3959b29c4a5bd65526ab310a1a18ae533172a upstream.
+commit 27942c9971cc405c60432eca9395e514a2ae9f5e upstream.
 
-Chris Murphy reported a problem where rpm ostree will bind mount a bunch
-of things for whatever voodoo it's doing.  But when it does this
-/proc/mounts shows something like
+Reported by Forza on IRC that remounting with compression options does
+not reflect the change in level, or at least it does not appear to do so
+according to the messages:
 
-  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
-  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo/bar 0 0
+  mount -o compress=zstd:1 /dev/sda /mnt
+  mount -o remount,compress=zstd:15 /mnt
 
-Despite subvolid=256 being subvol=/foo.  This is because we're just
-spitting out the dentry of the mount point, which in the case of bind
-mounts is the source path for the mountpoint.  Instead we should spit
-out the path to the actual subvol.  Fix this by looking up the name for
-the subvolid we have mounted.  With this fix the same test looks like
-this
+does not print the change to the level to syslog:
 
-  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
-  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  [   41.366060] BTRFS info (device vda): use zstd compression, level 1
+  [   41.368254] BTRFS info (device vda): disk space caching is enabled
+  [   41.390429] BTRFS info (device vda): disk space caching is enabled
 
-Reported-by: Chris Murphy <chris@colorremedies.com>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+What really happens is that the message is lost but the level is actualy
+changed.
+
+There's another weird output, if compression is reset to 'no':
+
+  [   45.413776] BTRFS info (device vda): use no compression, level 4
+
+To fix that, save the previous compression level and print the message
+in that case too and use separate message for 'no' compression.
+
+CC: stable@vger.kernel.org # 4.19+
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/super.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/btrfs/super.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
 --- a/fs/btrfs/super.c
 +++ b/fs/btrfs/super.c
-@@ -1310,6 +1310,7 @@ static int btrfs_show_options(struct seq
- {
- 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
- 	const char *compress_type;
-+	const char *subvol_name;
+@@ -440,6 +440,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 	char *compress_type;
+ 	bool compress_force = false;
+ 	enum btrfs_compression_type saved_compress_type;
++	int saved_compress_level;
+ 	bool saved_compress_force;
+ 	int no_compress = 0;
  
- 	if (btrfs_test_opt(info, DEGRADED))
- 		seq_puts(seq, ",degraded");
-@@ -1396,8 +1397,13 @@ static int btrfs_show_options(struct seq
- 		seq_puts(seq, ",ref_verify");
- 	seq_printf(seq, ",subvolid=%llu",
- 		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
--	seq_puts(seq, ",subvol=");
--	seq_dentry(seq, dentry, " \t\n\\");
-+	subvol_name = btrfs_get_subvol_name_from_objectid(info,
-+			BTRFS_I(d_inode(dentry))->root->root_key.objectid);
-+	if (!IS_ERR(subvol_name)) {
-+		seq_puts(seq, ",subvol=");
-+		seq_escape(seq, subvol_name, " \t\n\\");
-+		kfree(subvol_name);
-+	}
- 	return 0;
- }
- 
+@@ -522,6 +523,7 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				info->compress_type : BTRFS_COMPRESS_NONE;
+ 			saved_compress_force =
+ 				btrfs_test_opt(info, FORCE_COMPRESS);
++			saved_compress_level = info->compress_level;
+ 			if (token == Opt_compress ||
+ 			    token == Opt_compress_force ||
+ 			    strncmp(args[0].from, "zlib", 4) == 0) {
+@@ -566,6 +568,8 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				no_compress = 0;
+ 			} else if (strncmp(args[0].from, "no", 2) == 0) {
+ 				compress_type = "no";
++				info->compress_level = 0;
++				info->compress_type = 0;
+ 				btrfs_clear_opt(info->mount_opt, COMPRESS);
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 				compress_force = false;
+@@ -586,11 +590,11 @@ int btrfs_parse_options(struct btrfs_fs_
+ 				 */
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 			}
+-			if ((btrfs_test_opt(info, COMPRESS) &&
+-			     (info->compress_type != saved_compress_type ||
+-			      compress_force != saved_compress_force)) ||
+-			    (!btrfs_test_opt(info, COMPRESS) &&
+-			     no_compress == 1)) {
++			if (no_compress == 1) {
++				btrfs_info(info, "use no compression");
++			} else if ((info->compress_type != saved_compress_type) ||
++				   (compress_force != saved_compress_force) ||
++				   (info->compress_level != saved_compress_level)) {
+ 				btrfs_info(info, "%s %s compression, level %d",
+ 					   (compress_force) ? "force" : "use",
+ 					   compress_type, info->compress_level);
 
 
