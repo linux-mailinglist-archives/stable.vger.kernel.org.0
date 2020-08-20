@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EB724BE95
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D100A24BD50
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728401AbgHTJdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
+        id S1729750AbgHTNDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:03:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728241AbgHTJbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:41 -0400
+        id S1728641AbgHTJj4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B19C207DE;
-        Thu, 20 Aug 2020 09:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E0521775;
+        Thu, 20 Aug 2020 09:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915900;
-        bh=KkTpjo3ubxOjKtyVT6Vor4FVC+SUr0Oso39gyEFrEDs=;
+        s=default; t=1597916396;
+        bh=i44SDPyGquvr7zm0VU3xw/Q5e98c230H8iCcvVIo37s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVhDLkCspo1RVxZ0AAtugtVlUP8nxU5TZ/MP9u6HJ0htFn4AVwAZq4SXpKkV+Z4ap
-         uL4GHkwth4eb48Fpy/fQPvj4UFKtNNU7exiNeo+A9ECWE9wGd3+66y13cOssQYagwK
-         AMr9BlFMgQ8IcVuPO8uFtxjdUpa0kcSJazufQOlg=
+        b=WUIIaWaUbSCuDBOj7DwPZH4kP8P3013XvSk6/jB8PYW6+fzqp4IlW85/PPK+Ih1rY
+         dgdTSQyNgzudGgd674kUQQGnKncG/W5LngYOO2LTDYqWuL86bZ1bneKqVFJMS6VFxt
+         J4HNSoeD73LcKEYJozDRPeJIRckZVrYi9Yecc4I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 157/232] clk: qcom: clk-alpha-pll: remove unused/incorrect PLL_CAL_VAL
-Date:   Thu, 20 Aug 2020 11:20:08 +0200
-Message-Id: <20200820091620.415414589@linuxfoundation.org>
+Subject: [PATCH 5.7 113/204] selftests/bpf: Test_progs indicate to shell on non-actions
+Date:   Thu, 20 Aug 2020 11:20:10 +0200
+Message-Id: <20200820091611.961796947@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit c8b9002f44e4a1d2771b2f59f6de900864b1f9d7 ]
+[ Upstream commit 6c92bd5cd4650c39dd929565ee172984c680fead ]
 
-0x44 isn't a register offset, it is the value that goes into CAL_L_VAL.
+When a user selects a non-existing test the summary is printed with
+indication 0 for all info types, and shell "success" (EXIT_SUCCESS) is
+indicated. This can be understood by a human end-user, but for shell
+scripting is it useful to indicate a shell failure (EXIT_FAILURE).
 
-Fixes: 548a909597d5 ("clk: qcom: clk-alpha-pll: Add support for Trion PLLs")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20200709135251.643-3-jonathan@marek.ca
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/159363984736.930467.17956007131403952343.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-alpha-pll.c | 2 --
- 1 file changed, 2 deletions(-)
+ tools/testing/selftests/bpf/test_progs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/qcom/clk-alpha-pll.c b/drivers/clk/qcom/clk-alpha-pll.c
-index 9b2dfa08acb2a..1325139173c95 100644
---- a/drivers/clk/qcom/clk-alpha-pll.c
-+++ b/drivers/clk/qcom/clk-alpha-pll.c
-@@ -56,7 +56,6 @@
- #define PLL_STATUS(p)		((p)->offset + (p)->regs[PLL_OFF_STATUS])
- #define PLL_OPMODE(p)		((p)->offset + (p)->regs[PLL_OFF_OPMODE])
- #define PLL_FRAC(p)		((p)->offset + (p)->regs[PLL_OFF_FRAC])
--#define PLL_CAL_VAL(p)		((p)->offset + (p)->regs[PLL_OFF_CAL_VAL])
+diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
+index 93970ec1c9e94..ac40d9558b80e 100644
+--- a/tools/testing/selftests/bpf/test_progs.c
++++ b/tools/testing/selftests/bpf/test_progs.c
+@@ -776,5 +776,8 @@ int main(int argc, char **argv)
+ 	free_str_set(&env.subtest_selector.whitelist);
+ 	free(env.subtest_selector.num_set);
  
- const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
- 	[CLK_ALPHA_PLL_TYPE_DEFAULT] =  {
-@@ -115,7 +114,6 @@ const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
- 		[PLL_OFF_STATUS] = 0x30,
- 		[PLL_OFF_OPMODE] = 0x38,
- 		[PLL_OFF_ALPHA_VAL] = 0x40,
--		[PLL_OFF_CAL_VAL] = 0x44,
- 	},
- 	[CLK_ALPHA_PLL_TYPE_LUCID] =  {
- 		[PLL_OFF_L_VAL] = 0x04,
++	if (env.succ_cnt + env.fail_cnt + env.skip_cnt == 0)
++		return EXIT_FAILURE;
++
+ 	return env.fail_cnt ? EXIT_FAILURE : EXIT_SUCCESS;
+ }
 -- 
 2.25.1
 
