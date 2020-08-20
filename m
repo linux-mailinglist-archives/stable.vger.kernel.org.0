@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B625024BA54
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6709824BA6A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730381AbgHTJ6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42012 "EHLO mail.kernel.org"
+        id S1730282AbgHTMHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:07:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726796AbgHTJ6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:58:12 -0400
+        id S1726766AbgHTJ6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:58:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBB972067C;
-        Thu, 20 Aug 2020 09:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D279521775;
+        Thu, 20 Aug 2020 09:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917491;
-        bh=B9I86CKSfEkWeYcKIy1EwsYk+OARDO/f2z7E9feAlY0=;
+        s=default; t=1597917494;
+        bh=068LKMYQZjA+IESANMRSpu0RwUD813OMYqEHLN141CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlIUtJMwzvGRN04NkHsfNsJ1WbeuRyXWum3ATxaG2TtJzhUfKsAQl31Wu1Gwo9818
-         D582SD722ixq5tWczw9Rp8l4toYWHaC8XsEkE/PEz6lvk40+s7QJC3BQElc/0ym/B9
-         baWfN2yKa+LuMgLGBp0goFEjTGAyjXoEo1xLWTJI=
+        b=hydhMd10wmS/v5OnKaWXVHSZ0Ho3sWy8S1bzMHiOHgjOB5hilfnPw9b9oqQ9G3DmT
+         7FKdE8jBJBEp5xSx58bADLg+LNBnaxpLvWPP+RvjNVFZd20EgTXcyk6AaxkC+pG4QK
+         QLAfWuHMZqM/H/3ZtwvsQy7DUJh3ozWkpPa2qKyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Wang Long <wanglong19@meituan.com>,
-        Jiang Ying <jiangying8582@126.com>
-Subject: [PATCH 4.9 050/212] ext4: fix direct I/O read error
-Date:   Thu, 20 Aug 2020 11:20:23 +0200
-Message-Id: <20200820091604.894804916@linuxfoundation.org>
+        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 051/212] USB: serial: qcserial: add EM7305 QDL product ID
+Date:   Thu, 20 Aug 2020 11:20:24 +0200
+Message-Id: <20200820091604.948773144@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -44,139 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Ying <jiangying8582@126.com>
+From: Erik Ekman <erik@kryo.se>
 
-This patch is used to fix ext4 direct I/O read error when
-the read size is not aligned with block size.
+commit d2a4309c1ab6df424b2239fe2920d6f26f808d17 upstream.
 
-Then, I will use a test to explain the error.
+When running qmi-firmware-update on the Sierra Wireless EM7305 in a Toshiba
+laptop, it changed product ID to 0x9062 when entering QDL mode:
 
-(1) Make a file that is not aligned with block size:
-	$dd if=/dev/zero of=./test.jar bs=1000 count=3
+usb 2-4: new high-speed USB device number 78 using xhci_hcd
+usb 2-4: New USB device found, idVendor=1199, idProduct=9062, bcdDevice= 0.00
+usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+usb 2-4: Product: EM7305
+usb 2-4: Manufacturer: Sierra Wireless, Incorporated
 
-(2) I wrote a source file named "direct_io_read_file.c" as following:
+The upgrade could complete after running
+ # echo 1199 9062 > /sys/bus/usb-serial/drivers/qcserial/new_id
 
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <unistd.h>
-	#include <sys/file.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#include <string.h>
-	#define BUF_SIZE 1024
+qcserial 2-4:1.0: Qualcomm USB modem converter detected
+usb 2-4: Qualcomm USB modem converter now attached to ttyUSB0
 
-	int main()
-	{
-		int fd;
-		int ret;
-
-		unsigned char *buf;
-		ret = posix_memalign((void **)&buf, 512, BUF_SIZE);
-		if (ret) {
-			perror("posix_memalign failed");
-			exit(1);
-		}
-		fd = open("./test.jar", O_RDONLY | O_DIRECT, 0755);
-		if (fd < 0){
-			perror("open ./test.jar failed");
-			exit(1);
-		}
-
-		do {
-			ret = read(fd, buf, BUF_SIZE);
-			printf("ret=%d\n",ret);
-			if (ret < 0) {
-				perror("write test.jar failed");
-			}
-		} while (ret > 0);
-
-		free(buf);
-		close(fd);
-	}
-
-(3) Compile the source file:
-	$gcc direct_io_read_file.c -D_GNU_SOURCE
-
-(4) Run the test program:
-	$./a.out
-
-	The result is as following:
-	ret=1024
-	ret=1024
-	ret=952
-	ret=-1
-	write test.jar failed: Invalid argument.
-
-I have tested this program on XFS filesystem, XFS does not have
-this problem, because XFS use iomap_dio_rw() to do direct I/O
-read. And the comparing between read offset and file size is done
-in iomap_dio_rw(), the code is as following:
-
-	if (pos < size) {
-		retval = filemap_write_and_wait_range(mapping, pos,
-				pos + iov_length(iov, nr_segs) - 1);
-
-		if (!retval) {
-			retval = mapping->a_ops->direct_IO(READ, iocb,
-						iov, pos, nr_segs);
-		}
-		...
-	}
-
-...only when "pos < size", direct I/O can be done, or 0 will be return.
-
-I have tested the fix patch on Ext4, it is up to the mustard of
-EINVAL in man2(read) as following:
-	#include <unistd.h>
-	ssize_t read(int fd, void *buf, size_t count);
-
-	EINVAL
-		fd is attached to an object which is unsuitable for reading;
-		or the file was opened with the O_DIRECT flag, and either the
-		address specified in buf, the value specified in count, or the
-		current file offset is not suitably aligned.
-
-So I think this patch can be applied to fix ext4 direct I/O error.
-
-However Ext4 introduces direct I/O read using iomap infrastructure
-on kernel 5.5, the patch is commit <b1b4705d54ab>
-("ext4: introduce direct I/O read using iomap infrastructure"),
-then Ext4 will be the same as XFS, they all use iomap_dio_rw() to do direct
-I/O read. So this problem does not exist on kernel 5.5 for Ext4.
-
->From above description, we can see this problem exists on all the kernel
-versions between kernel 3.14 and kernel 5.4. It will cause the Applications
-to fail to read. For example, when the search service downloads a new full
-index file, the search engine is loading the previous index file and is
-processing the search request, it can not use buffer io that may squeeze
-the previous index file in use from pagecache, so the serch service must
-use direct I/O read.
-
-Please apply this patch on these kernel versions, or please use the method
-on kernel 5.5 to fix this problem.
-
-Fixes: 9fe55eea7e4b ("Fix race when checking i_size on direct i/o read")
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Wang Long <wanglong19@meituan.com>
-Signed-off-by: Jiang Ying <jiangying8582@126.com>
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Link: https://lore.kernel.org/r/20200717185118.3640219-1-erik@kryo.se
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ext4/inode.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3575,6 +3575,11 @@ static ssize_t ext4_direct_IO_read(struc
- 	struct address_space *mapping = iocb->ki_filp->f_mapping;
- 	struct inode *inode = mapping->host;
- 	ssize_t ret;
-+	loff_t offset = iocb->ki_pos;
-+	loff_t size = i_size_read(inode);
-+
-+	if (offset >= size)
-+		return 0;
- 
- 	/*
- 	 * Shared inode_lock is enough for us - it protects against concurrent
+---
+ drivers/usb/serial/qcserial.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -159,6 +159,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x9056)},	/* Sierra Wireless Modem */
+ 	{DEVICE_SWI(0x1199, 0x9060)},	/* Sierra Wireless Modem */
+ 	{DEVICE_SWI(0x1199, 0x9061)},	/* Sierra Wireless Modem */
++	{DEVICE_SWI(0x1199, 0x9062)},	/* Sierra Wireless EM7305 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9063)},	/* Sierra Wireless EM7305 */
+ 	{DEVICE_SWI(0x1199, 0x9070)},	/* Sierra Wireless MC74xx */
+ 	{DEVICE_SWI(0x1199, 0x9071)},	/* Sierra Wireless MC74xx */
 
 
