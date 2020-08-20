@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A50A24BDF9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FFF24BDF4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbgHTNQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48818 "EHLO mail.kernel.org"
+        id S1728812AbgHTNQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbgHTJfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:35:23 -0400
+        id S1728274AbgHTJf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:35:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDEB4207DE;
-        Thu, 20 Aug 2020 09:35:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2F9B22B43;
+        Thu, 20 Aug 2020 09:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916122;
-        bh=7IB28Rnay661f0RG14jsd6Y6Lhy63PrtI9OC36nTOPg=;
+        s=default; t=1597916128;
+        bh=9g+GxmoVtCiDPSQ/BV/7W1yIKuQTjDovYMXDXgSafy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4/tsbrpppfpzqD6ppdGHyIeAnan3OhDBu9d/h39jejS44QpK9gpKJbWiVFaUxGVV
-         n67SMe+cRXo9dF+tsnzjKR0EUHm7O+18VV88ha3TVN0QNMVotoAXwYhUYn8gMq2oLS
-         iT9rjXXkbH8ZtdgnF6Zz4HClgK6Kmey7fsu/LSEE=
+        b=G53Lyvf4kWgTziaBo0zX4T2wL6IvqMGPkezj7JUJBgtlNYekXsbGc8pgFTS//dC3z
+         Pamz6CoFWik99A2KrEQDHaXqp/3B6LUMPp1jgJAgxMYFnu8H2LhJVo+lzhXdPXxKB6
+         Uz4pKGM9/S8MTmtAASgNW4RpTp8rBC/yX5URskeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 019/204] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
-Date:   Thu, 20 Aug 2020 11:18:36 +0200
-Message-Id: <20200820091607.210409911@linuxfoundation.org>
+Subject: [PATCH 5.7 020/204] btrfs: open device without device_list_mutex
+Date:   Thu, 20 Aug 2020 11:18:37 +0200
+Message-Id: <20200820091607.265358941@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,125 +43,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 137c541821a83debb63b3fa8abdd1cbc41bdf3a1 upstream.
+commit 18c850fdc5a801bad4977b0f1723761d42267e45 upstream.
 
-With the recent addition of filesystem checksum types other than CRC32c,
-it is not anymore hard-coded which checksum type a btrfs filesystem uses.
+There's long existed a lockdep splat because we open our bdev's under
+the ->device_list_mutex at mount time, which acquires the bd_mutex.
+Usually this goes unnoticed, but if you do loopback devices at all
+suddenly the bd_mutex comes with a whole host of other dependencies,
+which results in the splat when you mount a btrfs file system.
 
-Up to now there is no good way to read the filesystem checksum, apart from
-reading the filesystem UUID and then query sysfs for the checksum type.
+======================================================
+WARNING: possible circular locking dependency detected
+5.8.0-0.rc3.1.fc33.x86_64+debug #1 Not tainted
+------------------------------------------------------
+systemd-journal/509 is trying to acquire lock:
+ffff970831f84db0 (&fs_info->reloc_mutex){+.+.}-{3:3}, at: btrfs_record_root_in_trans+0x44/0x70 [btrfs]
 
-Add a new csum_type and csum_size fields to the BTRFS_IOC_FS_INFO ioctl
-command which usually is used to query filesystem features. Also add a
-flags member indicating that the kernel responded with a set csum_type and
-csum_size field.
+but task is already holding lock:
+ffff97083144d598 (sb_pagefaults){.+.+}-{0:0}, at: btrfs_page_mkwrite+0x59/0x560 [btrfs]
 
-For compatibility reasons, only return the csum_type and csum_size if
-the BTRFS_FS_INFO_FLAG_CSUM_INFO flag was passed to the kernel. Also
-clear any unknown flags so we don't pass false positives to user-space
-newer than the kernel.
+which lock already depends on the new lock.
 
-To simplify further additions to the ioctl, also switch the padding to a
-u8 array. Pahole was used to verify the result of this switch:
+the existing dependency chain (in reverse order) is:
 
-The csum members are added before flags, which might look odd, but this
-is to keep the alignment requirements and not to introduce holes in the
-structure.
+ -> #6 (sb_pagefaults){.+.+}-{0:0}:
+       __sb_start_write+0x13e/0x220
+       btrfs_page_mkwrite+0x59/0x560 [btrfs]
+       do_page_mkwrite+0x4f/0x130
+       do_wp_page+0x3b0/0x4f0
+       handle_mm_fault+0xf47/0x1850
+       do_user_addr_fault+0x1fc/0x4b0
+       exc_page_fault+0x88/0x300
+       asm_exc_page_fault+0x1e/0x30
 
-  $ pahole -C btrfs_ioctl_fs_info_args fs/btrfs/btrfs.ko
-  struct btrfs_ioctl_fs_info_args {
-	  __u64                      max_id;               /*     0     8 */
-	  __u64                      num_devices;          /*     8     8 */
-	  __u8                       fsid[16];             /*    16    16 */
-	  __u32                      nodesize;             /*    32     4 */
-	  __u32                      sectorsize;           /*    36     4 */
-	  __u32                      clone_alignment;      /*    40     4 */
-	  __u16                      csum_type;            /*    44     2 */
-	  __u16                      csum_size;            /*    46     2 */
-	  __u64                      flags;                /*    48     8 */
-	  __u8                       reserved[968];        /*    56   968 */
+ -> #5 (&mm->mmap_lock#2){++++}-{3:3}:
+       __might_fault+0x60/0x80
+       _copy_from_user+0x20/0xb0
+       get_sg_io_hdr+0x9a/0xb0
+       scsi_cmd_ioctl+0x1ea/0x2f0
+       cdrom_ioctl+0x3c/0x12b4
+       sr_block_ioctl+0xa4/0xd0
+       block_ioctl+0x3f/0x50
+       ksys_ioctl+0x82/0xc0
+       __x64_sys_ioctl+0x16/0x20
+       do_syscall_64+0x52/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-	  /* size: 1024, cachelines: 16, members: 10 */
-  };
+ -> #4 (&cd->lock){+.+.}-{3:3}:
+       __mutex_lock+0x7b/0x820
+       sr_block_open+0xa2/0x180
+       __blkdev_get+0xdd/0x550
+       blkdev_get+0x38/0x150
+       do_dentry_open+0x16b/0x3e0
+       path_openat+0x3c9/0xa00
+       do_filp_open+0x75/0x100
+       do_sys_openat2+0x8a/0x140
+       __x64_sys_openat+0x46/0x70
+       do_syscall_64+0x52/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 3951e7f050ac ("btrfs: add xxhash64 to checksumming algorithms")
-Fixes: 3831bf0094ab ("btrfs: add sha256 to checksumming algorithm")
-CC: stable@vger.kernel.org # 5.5+
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+ -> #3 (&bdev->bd_mutex){+.+.}-{3:3}:
+       __mutex_lock+0x7b/0x820
+       __blkdev_get+0x6a/0x550
+       blkdev_get+0x85/0x150
+       blkdev_get_by_path+0x2c/0x70
+       btrfs_get_bdev_and_sb+0x1b/0xb0 [btrfs]
+       open_fs_devices+0x88/0x240 [btrfs]
+       btrfs_open_devices+0x92/0xa0 [btrfs]
+       btrfs_mount_root+0x250/0x490 [btrfs]
+       legacy_get_tree+0x30/0x50
+       vfs_get_tree+0x28/0xc0
+       vfs_kern_mount.part.0+0x71/0xb0
+       btrfs_mount+0x119/0x380 [btrfs]
+       legacy_get_tree+0x30/0x50
+       vfs_get_tree+0x28/0xc0
+       do_mount+0x8c6/0xca0
+       __x64_sys_mount+0x8e/0xd0
+       do_syscall_64+0x52/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ -> #2 (&fs_devs->device_list_mutex){+.+.}-{3:3}:
+       __mutex_lock+0x7b/0x820
+       btrfs_run_dev_stats+0x36/0x420 [btrfs]
+       commit_cowonly_roots+0x91/0x2d0 [btrfs]
+       btrfs_commit_transaction+0x4e6/0x9f0 [btrfs]
+       btrfs_sync_file+0x38a/0x480 [btrfs]
+       __x64_sys_fdatasync+0x47/0x80
+       do_syscall_64+0x52/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ -> #1 (&fs_info->tree_log_mutex){+.+.}-{3:3}:
+       __mutex_lock+0x7b/0x820
+       btrfs_commit_transaction+0x48e/0x9f0 [btrfs]
+       btrfs_sync_file+0x38a/0x480 [btrfs]
+       __x64_sys_fdatasync+0x47/0x80
+       do_syscall_64+0x52/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ -> #0 (&fs_info->reloc_mutex){+.+.}-{3:3}:
+       __lock_acquire+0x1241/0x20c0
+       lock_acquire+0xb0/0x400
+       __mutex_lock+0x7b/0x820
+       btrfs_record_root_in_trans+0x44/0x70 [btrfs]
+       start_transaction+0xd2/0x500 [btrfs]
+       btrfs_dirty_inode+0x44/0xd0 [btrfs]
+       file_update_time+0xc6/0x120
+       btrfs_page_mkwrite+0xda/0x560 [btrfs]
+       do_page_mkwrite+0x4f/0x130
+       do_wp_page+0x3b0/0x4f0
+       handle_mm_fault+0xf47/0x1850
+       do_user_addr_fault+0x1fc/0x4b0
+       exc_page_fault+0x88/0x300
+       asm_exc_page_fault+0x1e/0x30
+
+other info that might help us debug this:
+
+Chain exists of:
+  &fs_info->reloc_mutex --> &mm->mmap_lock#2 --> sb_pagefaults
+
+Possible unsafe locking scenario:
+
+     CPU0                    CPU1
+     ----                    ----
+ lock(sb_pagefaults);
+                             lock(&mm->mmap_lock#2);
+                             lock(sb_pagefaults);
+ lock(&fs_info->reloc_mutex);
+
+ *** DEADLOCK ***
+
+3 locks held by systemd-journal/509:
+ #0: ffff97083bdec8b8 (&mm->mmap_lock#2){++++}-{3:3}, at: do_user_addr_fault+0x12e/0x4b0
+ #1: ffff97083144d598 (sb_pagefaults){.+.+}-{0:0}, at: btrfs_page_mkwrite+0x59/0x560 [btrfs]
+ #2: ffff97083144d6a8 (sb_internal){.+.+}-{0:0}, at: start_transaction+0x3f8/0x500 [btrfs]
+
+stack backtrace:
+CPU: 0 PID: 509 Comm: systemd-journal Not tainted 5.8.0-0.rc3.1.fc33.x86_64+debug #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+Call Trace:
+ dump_stack+0x92/0xc8
+ check_noncircular+0x134/0x150
+ __lock_acquire+0x1241/0x20c0
+ lock_acquire+0xb0/0x400
+ ? btrfs_record_root_in_trans+0x44/0x70 [btrfs]
+ ? lock_acquire+0xb0/0x400
+ ? btrfs_record_root_in_trans+0x44/0x70 [btrfs]
+ __mutex_lock+0x7b/0x820
+ ? btrfs_record_root_in_trans+0x44/0x70 [btrfs]
+ ? kvm_sched_clock_read+0x14/0x30
+ ? sched_clock+0x5/0x10
+ ? sched_clock_cpu+0xc/0xb0
+ btrfs_record_root_in_trans+0x44/0x70 [btrfs]
+ start_transaction+0xd2/0x500 [btrfs]
+ btrfs_dirty_inode+0x44/0xd0 [btrfs]
+ file_update_time+0xc6/0x120
+ btrfs_page_mkwrite+0xda/0x560 [btrfs]
+ ? sched_clock+0x5/0x10
+ do_page_mkwrite+0x4f/0x130
+ do_wp_page+0x3b0/0x4f0
+ handle_mm_fault+0xf47/0x1850
+ do_user_addr_fault+0x1fc/0x4b0
+ exc_page_fault+0x88/0x300
+ ? asm_exc_page_fault+0x8/0x30
+ asm_exc_page_fault+0x1e/0x30
+RIP: 0033:0x7fa3972fdbfe
+Code: Bad RIP value.
+
+Fix this by not holding the ->device_list_mutex at this point.  The
+device_list_mutex exists to protect us from modifying the device list
+while the file system is running.
+
+However it can also be modified by doing a scan on a device.  But this
+action is specifically protected by the uuid_mutex, which we are holding
+here.  We cannot race with opening at this point because we have the
+->s_mount lock held during the mount.  Not having the
+->device_list_mutex here is perfectly safe as we're not going to change
+the devices at this point.
+
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ add some comments ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ioctl.c           |   16 +++++++++++++---
- include/uapi/linux/btrfs.h |   14 ++++++++++++--
- 2 files changed, 25 insertions(+), 5 deletions(-)
+ fs/btrfs/volumes.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3197,11 +3197,15 @@ static long btrfs_ioctl_fs_info(struct b
- 	struct btrfs_ioctl_fs_info_args *fi_args;
- 	struct btrfs_device *device;
- 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
-+	u64 flags_in;
- 	int ret = 0;
- 
--	fi_args = kzalloc(sizeof(*fi_args), GFP_KERNEL);
--	if (!fi_args)
--		return -ENOMEM;
-+	fi_args = memdup_user(arg, sizeof(*fi_args));
-+	if (IS_ERR(fi_args))
-+		return PTR_ERR(fi_args);
-+
-+	flags_in = fi_args->flags;
-+	memset(fi_args, 0, sizeof(*fi_args));
- 
- 	rcu_read_lock();
- 	fi_args->num_devices = fs_devices->num_devices;
-@@ -3217,6 +3221,12 @@ static long btrfs_ioctl_fs_info(struct b
- 	fi_args->sectorsize = fs_info->sectorsize;
- 	fi_args->clone_alignment = fs_info->sectorsize;
- 
-+	if (flags_in & BTRFS_FS_INFO_FLAG_CSUM_INFO) {
-+		fi_args->csum_type = btrfs_super_csum_type(fs_info->super_copy);
-+		fi_args->csum_size = btrfs_super_csum_size(fs_info->super_copy);
-+		fi_args->flags |= BTRFS_FS_INFO_FLAG_CSUM_INFO;
-+	}
-+
- 	if (copy_to_user(arg, fi_args, sizeof(*fi_args)))
- 		ret = -EFAULT;
- 
---- a/include/uapi/linux/btrfs.h
-+++ b/include/uapi/linux/btrfs.h
-@@ -243,6 +243,13 @@ struct btrfs_ioctl_dev_info_args {
- 	__u8 path[BTRFS_DEVICE_PATH_NAME_MAX];	/* out */
- };
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -245,7 +245,9 @@ static int __btrfs_map_block(struct btrf
+  *
+  * global::fs_devs - add, remove, updates to the global list
+  *
+- * does not protect: manipulation of the fs_devices::devices list!
++ * does not protect: manipulation of the fs_devices::devices list in general
++ * but in mount context it could be used to exclude list modifications by eg.
++ * scan ioctl
+  *
+  * btrfs_device::name - renames (write side), read is RCU
+  *
+@@ -258,6 +260,9 @@ static int __btrfs_map_block(struct btrf
+  * may be used to exclude some operations from running concurrently without any
+  * modifications to the list (see write_all_supers)
+  *
++ * Is not required at mount and close times, because our device list is
++ * protected by the uuid_mutex at that point.
++ *
+  * balance_mutex
+  * -------------
+  * protects balance structures (status, state) and context accessed from
+@@ -603,6 +608,11 @@ static int btrfs_free_stale_devices(cons
+ 	return ret;
+ }
  
 +/*
-+ * Retrieve information about the filesystem
++ * This is only used on mount, and we are protected from competing things
++ * messing with our fs_devices by the uuid_mutex, thus we do not need the
++ * fs_devices->device_list_mutex here.
 + */
-+
-+/* Request information about checksum type and size */
-+#define BTRFS_FS_INFO_FLAG_CSUM_INFO			(1 << 0)
-+
- struct btrfs_ioctl_fs_info_args {
- 	__u64 max_id;				/* out */
- 	__u64 num_devices;			/* out */
-@@ -250,8 +257,11 @@ struct btrfs_ioctl_fs_info_args {
- 	__u32 nodesize;				/* out */
- 	__u32 sectorsize;			/* out */
- 	__u32 clone_alignment;			/* out */
--	__u32 reserved32;
--	__u64 reserved[122];			/* pad to 1k */
-+	/* See BTRFS_FS_INFO_FLAG_* */
-+	__u16 csum_type;			/* out */
-+	__u16 csum_size;			/* out */
-+	__u64 flags;				/* in/out */
-+	__u8 reserved[968];			/* pad to 1k */
- };
+ static int btrfs_open_one_device(struct btrfs_fs_devices *fs_devices,
+ 			struct btrfs_device *device, fmode_t flags,
+ 			void *holder)
+@@ -1232,8 +1242,14 @@ int btrfs_open_devices(struct btrfs_fs_d
+ 	int ret;
  
- /*
+ 	lockdep_assert_held(&uuid_mutex);
++	/*
++	 * The device_list_mutex cannot be taken here in case opening the
++	 * underlying device takes further locks like bd_mutex.
++	 *
++	 * We also don't need the lock here as this is called during mount and
++	 * exclusion is provided by uuid_mutex
++	 */
+ 
+-	mutex_lock(&fs_devices->device_list_mutex);
+ 	if (fs_devices->opened) {
+ 		fs_devices->opened++;
+ 		ret = 0;
+@@ -1241,7 +1257,6 @@ int btrfs_open_devices(struct btrfs_fs_d
+ 		list_sort(NULL, &fs_devices->devices, devid_cmp);
+ 		ret = open_fs_devices(fs_devices, flags, holder);
+ 	}
+-	mutex_unlock(&fs_devices->device_list_mutex);
+ 
+ 	return ret;
+ }
 
 
