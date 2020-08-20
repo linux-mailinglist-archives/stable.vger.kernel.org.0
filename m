@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165D524B2F4
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4148724B415
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728971AbgHTJj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:39:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58596 "EHLO mail.kernel.org"
+        id S1729851AbgHTJ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728967AbgHTJj1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:39:27 -0400
+        id S1730286AbgHTJ5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:57:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E27820724;
-        Thu, 20 Aug 2020 09:39:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 061AC2067C;
+        Thu, 20 Aug 2020 09:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916366;
-        bh=NxMp6abjy8xTlR5yqGiFRuvZAaLxlVIyUALxmIvN0ck=;
+        s=default; t=1597917437;
+        bh=qnaBYUjvGUjG4EwYsGZIGob0s5WCAJNqm2B67vsURKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5f1Iou373/HDkXyZ4h19XhkTdVpeXm1a8IWzzxFYLgHDbGZOGzNC8NO+6ACBRwVu
-         EomC22YI9Hs1GHBpflg4kMRELeh+vf6r0jvAQ3t9lSubC3JOsjNmejhNIzpm3bZjTX
-         dMkuFyLp6A7OtWSIlYjuKQJeArCv/OQOxmugFkcE=
+        b=fDRhPT7imWEv8PspDY6ylA0spU8uRLypc8F2iL8yx9FDJmfI2MGyLm2OnyLU5zQGd
+         HSpjn7nOQtQCLp5hEWL53CzI44YWWBONTyxfIbvjaSQzQC89dr/vAou8XvE8NVoGNN
+         UF25rn3PA1w+ukeFLOjjTFkI3xeRxYaEPFN2kdjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Mathew King <mathewk@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 104/204] platform/chrome: cros_ec_ishtp: Fix a double-unlock issue
-Date:   Thu, 20 Aug 2020 11:20:01 +0200
-Message-Id: <20200820091611.515635319@linuxfoundation.org>
+Subject: [PATCH 4.9 030/212] mlxsw: core: Increase scope of RCU read-side critical section
+Date:   Thu, 20 Aug 2020 11:20:03 +0200
+Message-Id: <20200820091603.871846929@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit aaa3cbbac326c95308e315f1ab964a3369c4d07d ]
+[ Upstream commit 7d8e8f3433dc8d1dc87c1aabe73a154978fb4c4d ]
 
-In function cros_ec_ishtp_probe(), "up_write" is already called
-before function "cros_ec_dev_init". But "up_write" will be called
-again after the calling of the function "cros_ec_dev_init" failed.
-Thus add a call of the function “down_write” in this if branch
-for the completion of the exception handling.
+The lifetime of the Rx listener item ('rxl_item') is managed using RCU,
+but is dereferenced outside of RCU read-side critical section, which can
+lead to a use-after-free.
 
-Fixes: 26a14267aff2 ("platform/chrome: Add ChromeOS EC ISHTP driver")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Tested-by: Mathew King <mathewk@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Fix this by increasing the scope of the RCU read-side critical section.
+
+Fixes: 93c1edb27f9e ("mlxsw: Introduce Mellanox switch driver core")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_ishtp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_ishtp.c b/drivers/platform/chrome/cros_ec_ishtp.c
-index 93a71e93a2f15..41d60af618c9d 100644
---- a/drivers/platform/chrome/cros_ec_ishtp.c
-+++ b/drivers/platform/chrome/cros_ec_ishtp.c
-@@ -660,8 +660,10 @@ static int cros_ec_ishtp_probe(struct ishtp_cl_device *cl_device)
- 
- 	/* Register croc_ec_dev mfd */
- 	rv = cros_ec_dev_init(client_data);
--	if (rv)
-+	if (rv) {
-+		down_write(&init_lock);
- 		goto end_cros_ec_dev_init_error;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/core.c b/drivers/net/ethernet/mellanox/mlxsw/core.c
+index aa33d58b9f81c..6ebe88deab62a 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
+@@ -1584,9 +1584,10 @@ void mlxsw_core_skb_receive(struct mlxsw_core *mlxsw_core, struct sk_buff *skb,
+ 			break;
+ 		}
+ 	}
+-	rcu_read_unlock();
+-	if (!found)
++	if (!found) {
++		rcu_read_unlock();
+ 		goto drop;
 +	}
  
- 	return 0;
+ 	pcpu_stats = this_cpu_ptr(mlxsw_core->pcpu_stats);
+ 	u64_stats_update_begin(&pcpu_stats->syncp);
+@@ -1597,6 +1598,7 @@ void mlxsw_core_skb_receive(struct mlxsw_core *mlxsw_core, struct sk_buff *skb,
+ 	u64_stats_update_end(&pcpu_stats->syncp);
  
+ 	rxl->func(skb, local_port, rxl_item->priv);
++	rcu_read_unlock();
+ 	return;
+ 
+ drop:
 -- 
 2.25.1
 
