@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9171024BCAC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FC524BCA6
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729371AbgHTMu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45718 "EHLO mail.kernel.org"
+        id S1728498AbgHTMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729195AbgHTJpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729194AbgHTJpQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:45:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F8722D04;
-        Thu, 20 Aug 2020 09:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 022D922D08;
+        Thu, 20 Aug 2020 09:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916667;
-        bh=IUdl4LSAPkAcHLf7yKtnIwaTi7lhz1VhW2dasR7m3KU=;
+        s=default; t=1597916670;
+        bh=Bgf8F92t/ZAyenynqhNM6Yf/xAbcyUQKG4+V7kmmPnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI6lN2cio4hdmuTWvq/+dRJdieopDlcQbfZJn1zizuQDzSIwjJ3V84TsGbyuknfGJ
-         WYighinnjy1HPGCATHlMKVzyG+JJJ6iT5kp2qvHlDJJyj5K7uj4y6b8sx2LJTGSHeA
-         y9QYQGjnj+S0p+Z9LHx7fHK3gih7ExfZ5dbPqjiQ=
+        b=r2Uo7GwTX8OH3ioNvPrE4QtJv0UZhiml2VVYQMnnOYMcjujxytheCMUZyGd6H99Vl
+         V3Al9V3CifVabkrrgGMh1RFCM0Jd8oHGhuUXtsz9yH3W3BOE9R8ZmQTVjP/iauURZB
+         wxOiVM4xTS4WDoJnimrevc0BS+H76DPKRweAqG4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        stable@kernel.org, Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Subject: [PATCH 5.7 194/204] drm/i915/gt: Force the GT reset on shutdown
-Date:   Thu, 20 Aug 2020 11:21:31 +0200
-Message-Id: <20200820091615.881205586@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.7 195/204] drm/panfrost: Use kvfree() to free bo->sgts
+Date:   Thu, 20 Aug 2020 11:21:32 +0200
+Message-Id: <20200820091615.921958132@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,41 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Denis Efremov <efremov@linux.com>
 
-commit 7c4541a37bbbf83c0f16f779e85eb61d9348ed29 upstream.
+commit 114427b8927a4def2942b2b886f7e4aeae289ccb upstream.
 
-Before we return control to the system, and letting it reuse all the
-pages being accessed by HW, we must disable the HW. At the moment, we
-dare not reset the GPU if it will clobber the display, but once we know
-the display has been disabled, we can proceed with the reset as we
-shutdown the module. We know the next user must reinitialise the HW for
-their purpose.
+Use kvfree() to free bo->sgts, because the memory is allocated with
+kvmalloc_array() in panfrost_mmu_map_fault_addr().
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/489
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@kernel.org
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200525151459.12083-1-chris@chris-wilson.co.uk
+Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200608151728.234026-1-efremov@linux.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_gem.c |    2 +-
+ drivers/gpu/drm/panfrost/panfrost_mmu.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -656,6 +656,11 @@ void intel_gt_driver_unregister(struct i
- void intel_gt_driver_release(struct intel_gt *gt)
- {
- 	struct i915_address_space *vm;
-+	intel_wakeref_t wakeref;
-+
-+	/* Scrub all HW state upon release */
-+	with_intel_runtime_pm(gt->uncore->rpm, wakeref)
-+		__intel_gt_reset(gt, ALL_ENGINES);
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -46,7 +46,7 @@ static void panfrost_gem_free_object(str
+ 				sg_free_table(&bo->sgts[i]);
+ 			}
+ 		}
+-		kfree(bo->sgts);
++		kvfree(bo->sgts);
+ 	}
  
- 	vm = fetch_and_zero(&gt->vm);
- 	if (vm) /* FIXME being called twice on error paths :( */
+ 	drm_gem_shmem_free_object(obj);
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -486,7 +486,7 @@ static int panfrost_mmu_map_fault_addr(s
+ 		pages = kvmalloc_array(bo->base.base.size >> PAGE_SHIFT,
+ 				       sizeof(struct page *), GFP_KERNEL | __GFP_ZERO);
+ 		if (!pages) {
+-			kfree(bo->sgts);
++			kvfree(bo->sgts);
+ 			bo->sgts = NULL;
+ 			mutex_unlock(&bo->base.pages_lock);
+ 			ret = -ENOMEM;
 
 
