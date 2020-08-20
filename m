@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E66B24B3BC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25B724B3FB
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729853AbgHTJvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
+        id S1728244AbgHTJzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729843AbgHTJvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:44 -0400
+        id S1730178AbgHTJy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ED742067C;
-        Thu, 20 Aug 2020 09:51:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98CED2067C;
+        Thu, 20 Aug 2020 09:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917103;
-        bh=5UJlsbh62S5WTF46gRZp+YqxZvryI9EakSVfIoAb5zs=;
+        s=default; t=1597917298;
+        bh=yyE+nWCDLiFzg8TXH1V6lIX1NecfxIOE1OLjTtT2LvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNLGD8vZx33XzAO/AqOMPSaabalFikdX4spKhgCLimA8z6Trt9xHz8pv+fveaxQyb
-         qib/fPolbhHBATvzWi1vXKfqDfrYPLNylwGAd4cR5JRwbPlmzzM70tiHhUbWjeqiE9
-         ySe1QGbKqSEtiqcpIvlIQETWb51A35SLO5N61OsQ=
+        b=vAiD96o9i+qGerl6vfacZ5LV+BcZhGFO5LmGoJ/TOHH2XQcz3teMGB3/Oo2lAx8jw
+         e/maAU4iw9SYlD5dvgTTiuU4/q0uNWHVY4ZNjSrxntS7k2cOOFkNzSl6aeoPcBK9PW
+         XB7OjNqAzHYfGDUXxhrjezTKZ12k7JKrFghhpZ9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.4 146/152] arm64: dts: marvell: espressobin: add ethernet alias
-Date:   Thu, 20 Aug 2020 11:21:53 +0200
-Message-Id: <20200820091601.300686269@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 73/92] Input: sentelic - fix error return when fsp_reg_write fails
+Date:   Thu, 20 Aug 2020 11:21:58 +0200
+Message-Id: <20200820091541.476797643@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Maciej Nowak <tmn505@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 5253cb8c00a6f4356760efb38bca0e0393aa06de upstream.
+[ Upstream commit ea38f06e0291986eb93beb6d61fd413607a30ca4 ]
 
-The maker of this board and its variants, stores MAC address in U-Boot
-environment. Add alias for bootloader to recognise, to which ethernet
-node inject the factory MAC address.
+Currently when the call to fsp_reg_write fails -EIO is not being returned
+because the count is being returned instead of the return value in retval.
+Fix this by returning the value in retval instead of count.
 
-Signed-off-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-[pali: Backported to 5.4 and older versions]
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Unused value")
+Fixes: fc69f4a6af49 ("Input: add new driver for Sentelic Finger Sensing Pad")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20200603141218.131663-1-colin.king@canonical.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/mouse/sentelic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-@@ -19,6 +19,12 @@
- 	model = "Globalscale Marvell ESPRESSOBin Board";
- 	compatible = "globalscale,espressobin", "marvell,armada3720", "marvell,armada3710";
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 1d6010d463e2c..022a8cb58a066 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -454,7 +454,7 @@ static ssize_t fsp_attr_set_setreg(struct psmouse *psmouse, void *data,
  
-+	aliases {
-+		ethernet0 = &eth0;
-+		serial0 = &uart0;
-+		serial1 = &uart1;
-+	};
-+
- 	chosen {
- 		stdout-path = "serial0:115200n8";
- 	};
+ 	fsp_reg_write_enable(psmouse, false);
+ 
+-	return count;
++	return retval;
+ }
+ 
+ PSMOUSE_DEFINE_WO_ATTR(setreg, S_IWUSR, NULL, fsp_attr_set_setreg);
+-- 
+2.25.1
+
 
 
