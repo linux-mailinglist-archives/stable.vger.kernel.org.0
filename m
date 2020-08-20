@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C4024BAD5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EE024BACD
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730219AbgHTMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
+        id S1730304AbgHTMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:17:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728929AbgHTJ41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:56:27 -0400
+        id S1730219AbgHTJ4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:56:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CEFA20885;
-        Thu, 20 Aug 2020 09:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A5EE20855;
+        Thu, 20 Aug 2020 09:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917387;
-        bh=BeTxvoNRylsDfFhemtURzi9T/+hctY95SiKy9lsY9ig=;
+        s=default; t=1597917389;
+        bh=ETcx389IbtZs0pnuRneopJhc/DhdLoEkJcrfLvQfUnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sAaCu+4A1KjpbidGyMUKZLIGaRfs+dLKoEEMQfQtKswzAmqlE+Af7cGdioG83k1hg
-         uKpVjCaZhBJg3prZG34jm9Q3lm+mvXHf74Hw0JOAGDIrpaD6jPC/ELzAv+0L5ms+sA
-         weBaLvyoX6ISoYxe5+kYGa3Biz+KofG1eqP+TULE=
+        b=YCiXHZnmsR067ROyiJdGdsFTOF3D3RHwJY5g2KWesrBHEOIbRAt0TQgh0kQkLfzp2
+         qL+qEIXEoWuowqVG55I89jtOPR55+Xc1YLR+sAJSvtQhyLTRgsV+fJPJpubknTMAQY
+         CbKF1MXfZyv+tzUGghDHtWlzqmaUb6X1/SCye1q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gong Chen <gongchen4@huawei.com>,
-        Sheng Yong <shengyong1@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        syzbot+2222c34dc40b515f30dc@syzkaller.appspotmail.com,
+        Eric Van Hensbergen <ericvh@gmail.com>,
+        Latchesar Ionkov <lucho@ionkov.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 014/212] f2fs: check if file namelen exceeds max value
-Date:   Thu, 20 Aug 2020 11:19:47 +0200
-Message-Id: <20200820091603.051946798@linuxfoundation.org>
+Subject: [PATCH 4.9 015/212] 9p/trans_fd: abort p9_read_work if req status changed
+Date:   Thu, 20 Aug 2020 11:19:48 +0200
+Message-Id: <20200820091603.104543712@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -45,36 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sheng Yong <shengyong1@huawei.com>
+From: Dominique Martinet <dominique.martinet@cea.fr>
 
-[ Upstream commit 720db068634c91553a8e1d9a0fcd8c7050e06d2b ]
+[ Upstream commit e4ca13f7d075e551dc158df6af18fb412a1dba0a ]
 
-Dentry bitmap is not enough to detect incorrect dentries. So this patch
-also checks the namelen value of a dentry.
+p9_read_work would try to handle an errored req even if it got put to
+error state by another thread between the lookup (that worked) and the
+time it had been fully read.
+The request itself is safe to use because we hold a ref to it from the
+lookup (for m->rreq, so it was safe to read into the request data buffer
+until this point), but the req_list has been deleted at the same time
+status changed, and client_cb already has been called as well, so we
+should not do either.
 
-Signed-off-by: Gong Chen <gongchen4@huawei.com>
-Signed-off-by: Sheng Yong <shengyong1@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: http://lkml.kernel.org/r/1539057956-23741-1-git-send-email-asmadeus@codewreck.org
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Reported-by: syzbot+2222c34dc40b515f30dc@syzkaller.appspotmail.com
+Cc: Eric Van Hensbergen <ericvh@gmail.com>
+Cc: Latchesar Ionkov <lucho@ionkov.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/dir.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/9p/trans_fd.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 79d138756acb5..9a11b48e55ca2 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -845,7 +845,8 @@ bool f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index aa4586672cee9..91f71958c2e16 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -295,7 +295,6 @@ static void p9_read_work(struct work_struct *work)
+ {
+ 	int n, err;
+ 	struct p9_conn *m;
+-	int status = REQ_STATUS_ERROR;
  
- 		/* check memory boundary before moving forward */
- 		bit_pos += GET_DENTRY_SLOTS(le16_to_cpu(de->name_len));
--		if (unlikely(bit_pos > d->max)) {
-+		if (unlikely(bit_pos > d->max ||
-+				le16_to_cpu(de->name_len) > F2FS_NAME_LEN)) {
- 			f2fs_msg(F2FS_I_SB(d->inode)->sb, KERN_WARNING,
- 				"%s: corrupted namelen=%d, run fsck to fix.",
- 				__func__, le16_to_cpu(de->name_len));
+ 	m = container_of(work, struct p9_conn, rq);
+ 
+@@ -375,11 +374,17 @@ static void p9_read_work(struct work_struct *work)
+ 	if ((m->req) && (m->rc.offset == m->rc.capacity)) {
+ 		p9_debug(P9_DEBUG_TRANS, "got new packet\n");
+ 		spin_lock(&m->client->lock);
+-		if (m->req->status != REQ_STATUS_ERROR)
+-			status = REQ_STATUS_RCVD;
+-		list_del(&m->req->req_list);
+-		/* update req->status while holding client->lock  */
+-		p9_client_cb(m->client, m->req, status);
++		if (m->req->status == REQ_STATUS_SENT) {
++			list_del(&m->req->req_list);
++			p9_client_cb(m->client, m->req, REQ_STATUS_RCVD);
++		} else {
++			spin_unlock(&m->client->lock);
++			p9_debug(P9_DEBUG_ERROR,
++				 "Request tag %d errored out while we were reading the reply\n",
++				 m->rc.tag);
++			err = -EIO;
++			goto error;
++		}
+ 		spin_unlock(&m->client->lock);
+ 		m->rc.sdata = NULL;
+ 		m->rc.offset = 0;
 -- 
 2.25.1
 
