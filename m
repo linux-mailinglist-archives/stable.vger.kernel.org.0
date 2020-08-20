@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A754E24BF15
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456B524BF6B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgHTNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
+        id S1730567AbgHTNjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728030AbgHTJaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:30:10 -0400
+        id S1728138AbgHTJaQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:30:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7022821744;
-        Thu, 20 Aug 2020 09:30:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B48822B4B;
+        Thu, 20 Aug 2020 09:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915810;
-        bh=8Nx+WniPGYDtKfMVx4hJjYH84RdLwha1VvyMXy5JftU=;
+        s=default; t=1597915816;
+        bh=B6T1WnONVu3nGNV9d/4qR06ceS4AT9zZ5Pds7b1uD8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3lAdZcZZ2Y0lxDQFZQWSnJc/KNTwFPfVPIwql1je7WsopKlHYi2SazQJxlbQjMrz
-         erV6/S1t/tla+jM5gOQP6lSAX/XB5vGXuDtMQfQoVKnSEN5skOusSfrA7lt36gh6bW
-         8/1pFQjrOzk5HWAl8ukx4uJm8F2U6MjBsKpHnfcc=
+        b=mt+Vir9EdBrqL8pBYFcKS7QouVak/cZgQQuuvZBdTVxy0JEjIiF9H9GjpG1FWmIYU
+         xVEKP7AqDeLjhYT9m7mgA2ZbsyXzoZCd6yST7w9To0uYrJ4CZs274TRJux2ff+ERdj
+         C3FzjtTIuODXk7zYi+O6SvzGbnFKwBE3BIq56LOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 142/232] mmc: renesas_sdhi_internal_dmac: clean up the code for dma complete
-Date:   Thu, 20 Aug 2020 11:19:53 +0200
-Message-Id: <20200820091619.698560829@linuxfoundation.org>
+Subject: [PATCH 5.8 143/232] rtw88: pci: disable aspm for platform inter-op with module parameter
+Date:   Thu, 20 Aug 2020 11:19:54 +0200
+Message-Id: <20200820091619.749346624@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -46,62 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Yan-Hsuan Chuang <yhchuang@realtek.com>
 
-[ Upstream commit 2b26e34e9af3fa24fa1266e9ea2d66a1f7d62dc0 ]
+[ Upstream commit 68aa716b7dd36f55e080da9e27bc594346334c41 ]
 
-To add end() operation in the future, clean the code of
-renesas_sdhi_internal_dmac_complete_tasklet_fn(). No behavior change.
+Some platforms cannot read the DBI register successfully for the
+ASPM settings. After the read failed, the bus could be unstable,
+and the device just became unavailable [1]. For those platforms,
+the ASPM should be disabled. But as the ASPM can help the driver
+to save the power consumption in power save mode, the ASPM is still
+needed. So, add a module parameter for them to disable it, then
+the device can still work, while others can benefit from the less
+power consumption that brings by ASPM enabled.
 
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1590044466-28372-3-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=206411
+[2] Note that my lenovo T430 is the same.
+
+Fixes: 3dff7c6e3749 ("rtw88: allows to enable/disable HCI link PS mechanism")
+Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200605074703.32726-1-yhchuang@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/wireless/realtek/rtw88/pci.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index 47ac53e912411..201b8ed37f2e0 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -229,15 +229,12 @@ static void renesas_sdhi_internal_dmac_issue_tasklet_fn(unsigned long arg)
- 					    DTRAN_CTRL_DM_START);
- }
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index 8228db9a5fc86..3413973bc4750 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -14,8 +14,11 @@
+ #include "debug.h"
  
--static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
-+static bool renesas_sdhi_internal_dmac_complete(struct tmio_mmc_host *host)
- {
--	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
- 	enum dma_data_direction dir;
+ static bool rtw_disable_msi;
++static bool rtw_pci_disable_aspm;
+ module_param_named(disable_msi, rtw_disable_msi, bool, 0644);
++module_param_named(disable_aspm, rtw_pci_disable_aspm, bool, 0644);
+ MODULE_PARM_DESC(disable_msi, "Set Y to disable MSI interrupt support");
++MODULE_PARM_DESC(disable_aspm, "Set Y to disable PCI ASPM support");
  
--	spin_lock_irq(&host->lock);
--
- 	if (!host->data)
--		goto out;
-+		return false;
+ static u32 rtw_pci_tx_queue_idx_addr[] = {
+ 	[RTW_TX_QUEUE_BK]	= RTK_PCI_TXBD_IDX_BKQ,
+@@ -1200,6 +1203,9 @@ static void rtw_pci_clkreq_set(struct rtw_dev *rtwdev, bool enable)
+ 	u8 value;
+ 	int ret;
  
- 	if (host->data->flags & MMC_DATA_READ)
- 		dir = DMA_FROM_DEVICE;
-@@ -250,6 +247,17 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
- 	if (dir == DMA_FROM_DEVICE)
- 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
- 
-+	return true;
-+}
++	if (rtw_pci_disable_aspm)
++		return;
 +
-+static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
-+{
-+	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
+ 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
+ 	if (ret) {
+ 		rtw_err(rtwdev, "failed to read CLKREQ_L1, ret=%d", ret);
+@@ -1219,6 +1225,9 @@ static void rtw_pci_aspm_set(struct rtw_dev *rtwdev, bool enable)
+ 	u8 value;
+ 	int ret;
+ 
++	if (rtw_pci_disable_aspm)
++		return;
 +
-+	spin_lock_irq(&host->lock);
-+	if (!renesas_sdhi_internal_dmac_complete(host))
-+		goto out;
-+
- 	tmio_mmc_do_data_irq(host);
- out:
- 	spin_unlock_irq(&host->lock);
+ 	ret = rtw_dbi_read8(rtwdev, RTK_PCIE_LINK_CFG, &value);
+ 	if (ret) {
+ 		rtw_err(rtwdev, "failed to read ASPM, ret=%d", ret);
 -- 
 2.25.1
 
