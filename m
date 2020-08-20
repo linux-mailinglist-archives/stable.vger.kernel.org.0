@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 942C824AB8A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935C124AB73
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 02:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728132AbgHTALL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Aug 2020 20:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58678 "EHLO mail.kernel.org"
+        id S1726362AbgHTACP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Aug 2020 20:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727769AbgHTACM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:02:12 -0400
+        id S1727830AbgHTACN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:02:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0AF420FC3;
-        Thu, 20 Aug 2020 00:02:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32E8A214F1;
+        Thu, 20 Aug 2020 00:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881731;
-        bh=bN7dJrzpgTx4kNBALgXdM5o7wtL1Q+rEH6arvcnTpUo=;
+        s=default; t=1597881732;
+        bh=nzildonZ2Cp5d5EqEk9pDNpe/ArGo68DTb1T0ykhnEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fb0iD9+5vQ88441Enesn6jx3hkqldnAurZRC46S4zGiGZCOOVRF934+AGd0H/+Sqs
-         aaUDQLbxtjdGN+BdafxEwsFH/JV4RTZIS/o94H8vQoEY/yv8AhuN8xKS838kChj461
-         E13zaJnLQRI4wD7kKkPgWRQ4wy0b97jCVGJ000FA=
+        b=xkxGtGanMCKnMO1XfzpC3qwE5pr42J7J06rvB/BCDvCAWomXm+s8i7xQ00PWAbfy0
+         gcgrEuDWDJ+NGsUPKCz5z+st4x0JS1CkGJPJknOkWxYPI49+eZrDFiOgwa5+SdPoaw
+         9CdBrfxNFuJU/4A6pKVNNBZq8CZr/L5LOmAeKfLs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
-        Laurent Morichetti <laurent.morichetti@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 12/24] drm/ttm: fix offset in VMAs with a pg_offs in ttm_bo_vm_access
-Date:   Wed, 19 Aug 2020 20:01:43 -0400
-Message-Id: <20200820000155.215089-12-sashal@kernel.org>
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 13/24] riscv: Fixup static_obj() fail
+Date:   Wed, 19 Aug 2020 20:01:44 -0400
+Message-Id: <20200820000155.215089-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200820000155.215089-1-sashal@kernel.org>
 References: <20200820000155.215089-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,39 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit c0001213d195d1bac83e0744c06ff06dd5a8ba53 ]
+[ Upstream commit 6184358da0004c8fd940afda6c0a0fa4027dc911 ]
 
-VMAs with a pg_offs that's offset from the start of the vma_node need
-to adjust the offset within the BO accordingly. This matches the
-offset calculation in ttm_bo_vm_fault_reserved.
+When enable LOCKDEP, static_obj() will cause error. Because some
+__initdata static variables is before _stext:
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Tested-by: Laurent Morichetti <laurent.morichetti@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/381169/
+static int static_obj(const void *obj)
+{
+        unsigned long start = (unsigned long) &_stext,
+                      end   = (unsigned long) &_end,
+                      addr  = (unsigned long) obj;
+
+        /*
+         * static variable?
+         */
+        if ((addr >= start) && (addr < end))
+                return 1;
+
+[    0.067192] INFO: trying to register non-static key.
+[    0.067325] the code is fine but needs lockdep annotation.
+[    0.067449] turning off the locking correctness validator.
+[    0.067718] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc7-dirty #44
+[    0.067945] Call Trace:
+[    0.068369] [<ffffffe00020323c>] walk_stackframe+0x0/0xa4
+[    0.068506] [<ffffffe000203422>] show_stack+0x2a/0x34
+[    0.068631] [<ffffffe000521e4e>] dump_stack+0x94/0xca
+[    0.068757] [<ffffffe000255a4e>] register_lock_class+0x5b8/0x5bc
+[    0.068969] [<ffffffe000255abe>] __lock_acquire+0x6c/0x1d5c
+[    0.069101] [<ffffffe0002550fe>] lock_acquire+0xae/0x312
+[    0.069228] [<ffffffe000989a8e>] _raw_spin_lock_irqsave+0x40/0x5a
+[    0.069357] [<ffffffe000247c64>] complete+0x1e/0x50
+[    0.069479] [<ffffffe000984c38>] rest_init+0x1b0/0x28a
+[    0.069660] [<ffffffe0000016a2>] 0xffffffe0000016a2
+[    0.069779] [<ffffffe000001b84>] 0xffffffe000001b84
+[    0.069953] [<ffffffe000001092>] 0xffffffe000001092
+
+static __initdata DECLARE_COMPLETION(kthreadd_done);
+
+noinline void __ref rest_init(void)
+{
+	...
+	complete(&kthreadd_done);
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo_vm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index 72100b84c7a90..b08fdfa4291b2 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -505,8 +505,10 @@ static int ttm_bo_vm_access_kmap(struct ttm_buffer_object *bo,
- int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
- 		     void *buf, int len, int write)
- {
--	unsigned long offset = (addr) - vma->vm_start;
- 	struct ttm_buffer_object *bo = vma->vm_private_data;
-+	unsigned long offset = (addr) - vma->vm_start +
-+		((vma->vm_pgoff - drm_vma_node_start(&bo->base.vma_node))
-+		 << PAGE_SHIFT);
- 	int ret;
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index 0339b6bbe11ab..bf3f34dbe630b 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -22,6 +22,7 @@ SECTIONS
+ 	/* Beginning of code and text segment */
+ 	. = LOAD_OFFSET;
+ 	_start = .;
++	_stext = .;
+ 	HEAD_TEXT_SECTION
+ 	. = ALIGN(PAGE_SIZE);
  
- 	if (len < 1 || (offset + len) >> PAGE_SHIFT > bo->num_pages)
+@@ -49,7 +50,6 @@ SECTIONS
+ 	. = ALIGN(SECTION_ALIGN);
+ 	.text : {
+ 		_text = .;
+-		_stext = .;
+ 		TEXT_TEXT
+ 		SCHED_TEXT
+ 		CPUIDLE_TEXT
 -- 
 2.25.1
 
