@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A38424BD58
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D18D624BD57
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729002AbgHTND5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:03:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58756 "EHLO mail.kernel.org"
+        id S1727073AbgHTND4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:03:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728975AbgHTJja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:39:30 -0400
+        id S1728848AbgHTJjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A04220724;
-        Thu, 20 Aug 2020 09:39:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AE4B20724;
+        Thu, 20 Aug 2020 09:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916369;
-        bh=zpt2YetnxzLR/R4oNSBiaF+8lbYDDHmsyitJF7wm9mA=;
+        s=default; t=1597916375;
+        bh=vKgxG8WeJeP6CWDsoICmWqROrUHc7Mxhq5QDNjEq+kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5cjOryzjYG98iHjiI24akj8wXk4JOWTJCj5DHm+wOGIngiEswA4GHfMOCDJhBvJc
-         oyvGMWW4kqzoR8/5CgQdQpy0RD9xwmSKUT4A+4BF7DDiB56Snu/x0VOPQGNkNIUdWo
-         eorTJ0vtJ4sq3w4AprYXk+rmj/47uNxex5RJJBGk=
+        b=s+CDYsuQorpVRwDsfsu3STreOzI7xfnp7jD2DBYMR5a0rZEMYylL5Ke7ACMpvJjJg
+         23a2vjwDa0GhpK6KF1e9HKgLp6e9aPOwB05kl9nz04O+WZdVCEUwhVlERvnA0+7VNW
+         rVUZjMpcEphhBczotFd38WbyoNawedBDapdjERm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, "Sicelo A. Mhlongo" <absicsz@gmail.com>,
+        Dev Null <devnull@uvos.xyz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 105/204] RDMA/ipoib: Return void from ipoib_ib_dev_stop()
-Date:   Thu, 20 Aug 2020 11:20:02 +0200
-Message-Id: <20200820091611.566614230@linuxfoundation.org>
+Subject: [PATCH 5.7 107/204] rtc: cpcap: fix range
+Date:   Thu, 20 Aug 2020 11:20:04 +0200
+Message-Id: <20200820091611.669353859@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,57 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 95a5631f6c9f3045f26245e6045244652204dfdb ]
+[ Upstream commit 3180cfabf6fbf982ca6d1a6eb56334647cc1416b ]
 
-The return value from ipoib_ib_dev_stop() is always 0 - change it to be
-void.
+Unbreak CPCAP driver, which has one more bit in the day counter
+increasing the max. range from 2014 to 2058. The original commit
+introducing the range limit was obviously wrong, since the driver
+has only been written in 2017 (3 years after 14 bits would have
+run out).
 
-Link: https://lore.kernel.org/r/20200623105236.18683-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: d2377f8cc5a7 ("rtc: cpcap: set range")
+Reported-by: Sicelo A. Mhlongo <absicsz@gmail.com>
+Reported-by: Dev Null <devnull@uvos.xyz>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Merlijn Wajer <merlijn@wizzup.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Merlijn Wajer <merlijn@wizzup.org>
+Link: https://lore.kernel.org/r/20200629114123.27956-1-sebastian.reichel@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib.h    | 2 +-
- drivers/infiniband/ulp/ipoib/ipoib_ib.c | 4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-cpcap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
-index 9a3379c49541f..9ce6a36fe48ed 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib.h
-+++ b/drivers/infiniband/ulp/ipoib/ipoib.h
-@@ -515,7 +515,7 @@ void ipoib_ib_dev_cleanup(struct net_device *dev);
+diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
+index a603f1f211250..800667d73a6fb 100644
+--- a/drivers/rtc/rtc-cpcap.c
++++ b/drivers/rtc/rtc-cpcap.c
+@@ -261,7 +261,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(rtc->rtc_dev);
  
- int ipoib_ib_dev_open_default(struct net_device *dev);
- int ipoib_ib_dev_open(struct net_device *dev);
--int ipoib_ib_dev_stop(struct net_device *dev);
-+void ipoib_ib_dev_stop(struct net_device *dev);
- void ipoib_ib_dev_up(struct net_device *dev);
- void ipoib_ib_dev_down(struct net_device *dev);
- int ipoib_ib_dev_stop_default(struct net_device *dev);
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ib.c b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-index da3c5315bbb51..6ee64c25aaff4 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-@@ -846,7 +846,7 @@ int ipoib_ib_dev_stop_default(struct net_device *dev)
- 	return 0;
- }
+ 	rtc->rtc_dev->ops = &cpcap_rtc_ops;
+-	rtc->rtc_dev->range_max = (1 << 14) * SECS_PER_DAY - 1;
++	rtc->rtc_dev->range_max = (timeu64_t) (DAY_MASK + 1) * SECS_PER_DAY - 1;
  
--int ipoib_ib_dev_stop(struct net_device *dev)
-+void ipoib_ib_dev_stop(struct net_device *dev)
- {
- 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
- 
-@@ -854,8 +854,6 @@ int ipoib_ib_dev_stop(struct net_device *dev)
- 
- 	clear_bit(IPOIB_FLAG_INITIALIZED, &priv->flags);
- 	ipoib_flush_ah(dev);
--
--	return 0;
- }
- 
- int ipoib_ib_dev_open_default(struct net_device *dev)
+ 	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
+ 	if (err)
 -- 
 2.25.1
 
