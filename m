@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F4424B432
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6572124B326
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730306AbgHTJ7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:59:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45580 "EHLO mail.kernel.org"
+        id S1728655AbgHTJl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730426AbgHTJ7Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:24 -0400
+        id S1729128AbgHTJlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C01C920855;
-        Thu, 20 Aug 2020 09:59:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E15DF2075E;
+        Thu, 20 Aug 2020 09:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917564;
-        bh=eBXCDnZNWilzhj/f7V2+co07FctdFNJ0+O2jix7pLkw=;
+        s=default; t=1597916511;
+        bh=raWJJA6x4ZbEavM1RWR+iCgk2M8/9qEcmjWQtjyRcOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ji46omPIxEHL57uJPohmIoJviIAlV+m4fl7Fz1npPTYniohWHwIlvqU5vWOJQYq52
-         9CFdrb1bj7olJiaUkwuET0ZBdCEdUmjjj580kPOc90HaIzk8sm+LzSh5XLpB4x3zC+
-         JxYTywTXj/8KWwOIq144C4R3ifhyIZrT/OC4D04U=
+        b=yAUzPSLjWGURKroHNsJdB84pkWqo8/iZcW29tDDzgHUpL6x3rCtTJKGq8tmb6OonG
+         9gTfQoHAHhjXHKNBSy8pCV6/seGLLxYR8q4kALRoUJs3GvVv3c4UWFVRVKhwOxmj+4
+         6J/Bvv5YthN1uaSKBqVvTcrEUOpK8rvzm38kPtaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 076/212] Revert "vxlan: fix tos value before xmit"
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 152/204] clk: bcm2835: Do not use prediv with bcm2711s PLLs
 Date:   Thu, 20 Aug 2020 11:20:49 +0200
-Message-Id: <20200820091606.207508915@linuxfoundation.org>
+Message-Id: <20200820091613.834101105@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +47,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit a0dced17ad9dc08b1b25e0065b54c97a318e6e8b ]
+[ Upstream commit f34e4651ce66a754f41203284acf09b28b9dd955 ]
 
-This reverts commit 71130f29979c7c7956b040673e6b9d5643003176.
+Contrary to previous SoCs, bcm2711 doesn't have a prescaler in the PLL
+feedback loop. Bypass it by zeroing fb_prediv_mask when running on
+bcm2711.
 
-In commit 71130f29979c ("vxlan: fix tos value before xmit") we want to
-make sure the tos value are filtered by RT_TOS() based on RFC1349.
+Note that, since the prediv configuration bits were re-purposed, this
+was triggering miscalculations on all clocks hanging from the VPU clock,
+notably the aux UART, making its output unintelligible.
 
-       0     1     2     3     4     5     6     7
-    +-----+-----+-----+-----+-----+-----+-----+-----+
-    |   PRECEDENCE    |          TOS          | MBZ |
-    +-----+-----+-----+-----+-----+-----+-----+-----+
-
-But RFC1349 has been obsoleted by RFC2474. The new DSCP field defined like
-
-       0     1     2     3     4     5     6     7
-    +-----+-----+-----+-----+-----+-----+-----+-----+
-    |          DS FIELD, DSCP           | ECN FIELD |
-    +-----+-----+-----+-----+-----+-----+-----+-----+
-
-So with
-
-IPTOS_TOS_MASK          0x1E
-RT_TOS(tos)		((tos)&IPTOS_TOS_MASK)
-
-the first 3 bits DSCP info will get lost.
-
-To take all the DSCP info in xmit, we should revert the patch and just push
-all tos bits to ip_tunnel_ecn_encap(), which will handling ECN field later.
-
-Fixes: 71130f29979c ("vxlan: fix tos value before xmit")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 42de9ad400af ("clk: bcm2835: Add BCM2711_CLOCK_EMMC2 support")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20200730182619.23246-1-nsaenzjulienne@suse.de
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2110,7 +2110,7 @@ static void vxlan_xmit_one(struct sk_buf
- 		else if (info->key.tun_flags & TUNNEL_DONT_FRAGMENT)
- 			df = htons(IP_DF);
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 7c845c293af00..798f0b419c79f 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -314,6 +314,7 @@ struct bcm2835_cprman {
+ 	struct device *dev;
+ 	void __iomem *regs;
+ 	spinlock_t regs_lock; /* spinlock for all clocks */
++	unsigned int soc;
  
--		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
-+		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
- 		ttl = ttl ? : ip4_dst_hoplimit(&rt->dst);
- 		err = vxlan_build_skb(skb, &rt->dst, sizeof(struct iphdr),
- 				      vni, md, flags, udp_sum);
-@@ -2169,7 +2169,7 @@ static void vxlan_xmit_one(struct sk_buf
- 		if (!info)
- 			udp_sum = !(flags & VXLAN_F_UDP_ZERO_CSUM6_TX);
+ 	/*
+ 	 * Real names of cprman clock parents looked up through
+@@ -525,6 +526,20 @@ static int bcm2835_pll_is_on(struct clk_hw *hw)
+ 		A2W_PLL_CTRL_PRST_DISABLE;
+ }
  
--		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
-+		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
- 		ttl = ttl ? : ip6_dst_hoplimit(ndst);
- 		skb_scrub_packet(skb, xnet);
- 		err = vxlan_build_skb(skb, ndst, sizeof(struct ipv6hdr),
++static u32 bcm2835_pll_get_prediv_mask(struct bcm2835_cprman *cprman,
++				       const struct bcm2835_pll_data *data)
++{
++	/*
++	 * On BCM2711 there isn't a pre-divisor available in the PLL feedback
++	 * loop. Bits 13:14 of ANA1 (PLLA,PLLB,PLLC,PLLD) have been re-purposed
++	 * for to for VCO RANGE bits.
++	 */
++	if (cprman->soc & SOC_BCM2711)
++		return 0;
++
++	return data->ana->fb_prediv_mask;
++}
++
+ static void bcm2835_pll_choose_ndiv_and_fdiv(unsigned long rate,
+ 					     unsigned long parent_rate,
+ 					     u32 *ndiv, u32 *fdiv)
+@@ -582,7 +597,7 @@ static unsigned long bcm2835_pll_get_rate(struct clk_hw *hw,
+ 	ndiv = (a2wctrl & A2W_PLL_CTRL_NDIV_MASK) >> A2W_PLL_CTRL_NDIV_SHIFT;
+ 	pdiv = (a2wctrl & A2W_PLL_CTRL_PDIV_MASK) >> A2W_PLL_CTRL_PDIV_SHIFT;
+ 	using_prediv = cprman_read(cprman, data->ana_reg_base + 4) &
+-		data->ana->fb_prediv_mask;
++		       bcm2835_pll_get_prediv_mask(cprman, data);
+ 
+ 	if (using_prediv) {
+ 		ndiv *= 2;
+@@ -665,6 +680,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
+ 	struct bcm2835_pll *pll = container_of(hw, struct bcm2835_pll, hw);
+ 	struct bcm2835_cprman *cprman = pll->cprman;
+ 	const struct bcm2835_pll_data *data = pll->data;
++	u32 prediv_mask = bcm2835_pll_get_prediv_mask(cprman, data);
+ 	bool was_using_prediv, use_fb_prediv, do_ana_setup_first;
+ 	u32 ndiv, fdiv, a2w_ctl;
+ 	u32 ana[4];
+@@ -682,7 +698,7 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
+ 	for (i = 3; i >= 0; i--)
+ 		ana[i] = cprman_read(cprman, data->ana_reg_base + i * 4);
+ 
+-	was_using_prediv = ana[1] & data->ana->fb_prediv_mask;
++	was_using_prediv = ana[1] & prediv_mask;
+ 
+ 	ana[0] &= ~data->ana->mask0;
+ 	ana[0] |= data->ana->set0;
+@@ -692,10 +708,10 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
+ 	ana[3] |= data->ana->set3;
+ 
+ 	if (was_using_prediv && !use_fb_prediv) {
+-		ana[1] &= ~data->ana->fb_prediv_mask;
++		ana[1] &= ~prediv_mask;
+ 		do_ana_setup_first = true;
+ 	} else if (!was_using_prediv && use_fb_prediv) {
+-		ana[1] |= data->ana->fb_prediv_mask;
++		ana[1] |= prediv_mask;
+ 		do_ana_setup_first = false;
+ 	} else {
+ 		do_ana_setup_first = true;
+@@ -2232,6 +2248,7 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, cprman);
+ 
+ 	cprman->onecell.num = asize;
++	cprman->soc = pdata->soc;
+ 	hws = cprman->onecell.hws;
+ 
+ 	for (i = 0; i < asize; i++) {
+-- 
+2.25.1
+
 
 
