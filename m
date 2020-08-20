@@ -2,349 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CE024AE04
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 06:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A618524AE22
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 06:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725819AbgHTEpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 00:45:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35288 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725780AbgHTEpv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 00:45:51 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07K4XJo7183191;
-        Thu, 20 Aug 2020 00:45:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=GwVLx/xv7tBrzX2p2kv/Zfm1DHG6hQKtMPZL0xSRlZA=;
- b=oY3oB+tSjSgtqkeB9ioEz1SzIlYf0nvk6t7HWh8cf7ONaWAvxnatZob29EaF7tFXni6g
- UD+gsfE9oqjsfOj4f5mdjVZVYGOZjMacPCDvo1VkQaSvGXjbvZxHff+T7P6LLOfV1zkK
- mRxVyIYKRq6iUOkdgDPHNVqVu0swJeb7XUTfBimKnFkSPsj4Hc/g6f7o+DIs34gIjPz9
- NCXBVZQ65Gjn7G7LKrYmj5+7JXz72byx3hSjrGt+zYwZCj+U+zMM3SQp6cVxPJy7SJIt
- CoyvSrVNiZEJU8PVc2lQK4XHisYywxF1aPPb/lEji6TxH8mWv3xRtZZbl1yaUEuUSCYt HQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3304r559k1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Aug 2020 00:45:43 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07K4Xhm8184113;
-        Thu, 20 Aug 2020 00:45:42 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3304r559jd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Aug 2020 00:45:42 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07K4jQX3017057;
-        Thu, 20 Aug 2020 04:45:40 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3304um2p2g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Aug 2020 04:45:40 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07K4jco731588684
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Aug 2020 04:45:38 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96CE9AE059;
-        Thu, 20 Aug 2020 04:45:38 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 05324AE055;
-        Thu, 20 Aug 2020 04:45:38 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Aug 2020 04:45:37 +0000 (GMT)
-Received: from intelligence.ibm.com (unknown [9.102.47.244])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 46AD3A00E7;
-        Thu, 20 Aug 2020 14:45:35 +1000 (AEST)
-From:   Andrew Donnellan <ajd@linux.ibm.com>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     leobras.c@gmail.com, nathanl@linux.ibm.com, dja@axtens.net,
-        stable@vger.kernel.org
-Subject: [PATCH v2 1/2] powerpc/rtas: Restrict RTAS requests from userspace
-Date:   Thu, 20 Aug 2020 14:45:12 +1000
-Message-Id: <20200820044512.7543-1-ajd@linux.ibm.com>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-19_13:2020-08-19,2020-08-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 clxscore=1011 impostorscore=0 bulkscore=0
- priorityscore=1501 suspectscore=1 mlxlogscore=999 mlxscore=0 adultscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008200039
+        id S1725819AbgHTEyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 00:54:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50403 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725768AbgHTEyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 00:54:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597899250;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc; bh=5+VTUkZxM5oNmypKkhPEwWwEokFyqkG+NZrtkR/m294=;
+        b=Zb7Txy+fp+vxslDJ6GB8hwDM3iZgxSi05FGUTnVz5kSJQidCogqbbWi67M7al43pBJbjzH
+        bSW6vqhr+wURzZa83Mhh8W4wSfLetn8Gftsgsefn0cuVuileGEJabfkc0W68iqTSSGRuvs
+        BMwaYX0P+IPhWRA1muhs26Q4moBD1EU=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-11-5UK0aCHEP6avOyz46LLfjg-1; Thu, 20 Aug 2020 00:54:08 -0400
+X-MC-Unique: 5UK0aCHEP6avOyz46LLfjg-1
+Received: by mail-pl1-f200.google.com with SMTP id y13so829010plr.1
+        for <stable@vger.kernel.org>; Wed, 19 Aug 2020 21:54:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=5+VTUkZxM5oNmypKkhPEwWwEokFyqkG+NZrtkR/m294=;
+        b=chQuZ0pezRnrlM9dASx1QHexHUQ0GtTOqSb11eIxk/a8ATiBGWjNM7w/VZbavdR9/P
+         CDnrw8Pc1++PcgQqLQOW7twk5O0EFrJqRQzrvgP7SvJ1RGjqSAlyUUIEZxd5CSQfUAd1
+         TPSslC/wrqnlXstFEMTB4TI+RQ5iMjVsKbwhWN0gAxbqJbUTGnUZHBKDIC1IL/dSqku9
+         1GG7QwvmKs0me0nQQ05tmB6Pr56bjdy/Mo9L5SFTB0eowqFdWcMKZwTk3Cj17tm7KeuR
+         BaCWkp28+ysLzPcpOQHNPP0phr5Ox5X5uxL+5FWU2wb1nTAW7pbKqmpoFbCYl8StoeiN
+         48KQ==
+X-Gm-Message-State: AOAM53032vbZhJpHWQqXvedtGfInCfnR2rVfM+WYbTFlsQDDXVutqg4U
+        2CgG1NRtGIbNQi2a+1OKLXWjyYY54vwJm6pA8YGzzfGom4RaqaGBSQAtyWvMzjyPvLXqqdAzp8y
+        PxW27yOIkJ37sQUp7
+X-Received: by 2002:a62:5a87:: with SMTP id o129mr954890pfb.204.1597899247837;
+        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz+eEuz/lXHLcXBgHgYxHWdcGo0cQru9Km40vz5Mcw+NKZD7EVUPE35k7tZi3N+gJsdzQjD7g==
+X-Received: by 2002:a62:5a87:: with SMTP id o129mr954876pfb.204.1597899247575;
+        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id q16sm1017900pfg.153.2020.08.19.21.54.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2020 21:54:07 -0700 (PDT)
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by mistake
+Date:   Thu, 20 Aug 2020 12:53:23 +0800
+Message-Id: <20200820045323.7809-1-hsiangkao@redhat.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A number of userspace utilities depend on making calls to RTAS to retrieve
-information and update various things.
+SWP_FS is used to make swap_{read,write}page() go through
+the filesystem, and it's only used for swap files over
+NFS. So, !SWP_FS means non NFS for now, it could be either
+file backed or device backed. Something similar goes with
+legacy SWP_FILE.
 
-The existing API through which we expose RTAS to userspace exposes more
-RTAS functionality than we actually need, through the sys_rtas syscall,
-which allows root (or anyone with CAP_SYS_ADMIN) to make any RTAS call they
-want with arbitrary arguments.
+So in order to achieve the goal of the original patch,
+SWP_BLKDEV should be used instead.
 
-Many RTAS calls take the address of a buffer as an argument, and it's up to
-the caller to specify the physical address of the buffer as an argument. We
-allocate a buffer (the "RMO buffer") in the Real Memory Area that RTAS can
-access, and then expose the physical address and size of this buffer in
-/proc/powerpc/rtas/rmo_buffer. Userspace is expected to read this address,
-poke at the buffer using /dev/mem, and pass an address in the RMO buffer to
-the RTAS call.
+FS corruption can be observed with SSD device + XFS +
+fragmented swapfile due to CONFIG_THP_SWAP=y.
 
-However, there's nothing stopping the caller from specifying whatever
-address they want in the RTAS call, and it's easy to construct a series of
-RTAS calls that can overwrite arbitrary bytes (even without /dev/mem
-access).
+I reproduced the issue with the following details:
 
-Additionally, there are some RTAS calls that do potentially dangerous
-things and for which there are no legitimate userspace use cases.
+Environment:
+QEMU + upstream kernel + buildroot + NVMe (2 GB)
 
-In the past, this would not have been a particularly big deal as it was
-assumed that root could modify all system state freely, but with Secure
-Boot and lockdown we need to care about this.
+Kernel config:
+CONFIG_BLK_DEV_NVME=y
+CONFIG_THP_SWAP=y
 
-We can't fundamentally change the ABI at this point, however we can address
-this by implementing a filter that checks RTAS calls against a list
-of permitted calls and forces the caller to use addresses within the RMO
-buffer.
+Some reproducable steps:
+mkfs.xfs -f /dev/nvme0n1
+mkdir /tmp/mnt
+mount /dev/nvme0n1 /tmp/mnt
+bs="32k"
+sz="1024m"    # doesn't matter too much, I also tried 16m
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
 
-The list is based off the list of calls that are used by the librtas
-userspace library, and has been tested with a number of existing userspace
-RTAS utilities. For compatibility with any applications we are not aware of
-that require other calls, the filter can be turned off at build time.
+mkswap /tmp/mnt/sw
+swapon /tmp/mnt/sw
 
-Reported-by: Daniel Axtens <dja@axtens.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
 
+Symptoms:
+ - FS corruption (e.g. checksum failure)
+ - memory corruption at: 0xd2808010
+ - segfault
+
+Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
+Cc: "Huang, Ying" <ying.huang@intel.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Rafael Aquini <aquini@redhat.com>
+Cc: Dave Chinner <david@fromorbit.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 ---
-v1->v2:
-- address comments from mpe
-- shorten the names of some struct members
-- make the filter array static/ro_after_init, use const char *
-- genericise the fixed buffer size cases
-- simplify/get rid of some of the error printing
-- get rid of rtas_token_name()
----
- arch/powerpc/Kconfig       |  13 ++++
- arch/powerpc/kernel/rtas.c | 153 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 166 insertions(+)
+v1: https://lore.kernel.org/r/20200819195613.24269-1-hsiangkao@redhat.com
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 1f48bbfb3ce9..8dd42b82379b 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -989,6 +989,19 @@ config PPC_SECVAR_SYSFS
- 	  read/write operations on these variables. Say Y if you have
- 	  secure boot enabled and want to expose variables to userspace.
- 
-+config PPC_RTAS_FILTER
-+	bool "Enable filtering of RTAS syscalls"
-+	default y
-+	depends on PPC_RTAS
-+	help
-+	  The RTAS syscall API has security issues that could be used to
-+	  compromise system integrity. This option enforces restrictions on the
-+	  RTAS calls and arguments passed by userspace programs to mitigate
-+	  these issues.
-+
-+	  Say Y unless you know what you are doing and the filter is causing
-+	  problems for you.
-+
- endmenu
- 
- config ISA_DMA_API
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 806d554ce357..954f41676f69 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -992,6 +992,147 @@ struct pseries_errorlog *get_pseries_errorlog(struct rtas_error_log *log,
- 	return NULL;
- }
- 
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+
-+/*
-+ * The sys_rtas syscall, as originally designed, allows root to pass
-+ * arbitrary physical addresses to RTAS calls. A number of RTAS calls
-+ * can be abused to write to arbitrary memory and do other things that
-+ * are potentially harmful to system integrity, and thus should only
-+ * be used inside the kernel and not exposed to userspace.
-+ *
-+ * All known legitimate users of the sys_rtas syscall will only ever
-+ * pass addresses that fall within the RMO buffer, and use a known
-+ * subset of RTAS calls.
-+ *
-+ * Accordingly, we filter RTAS requests to check that the call is
-+ * permitted, and that provided pointers fall within the RMO buffer.
-+ * The rtas_filters list contains an entry for each permitted call,
-+ * with the indexes of the parameters which are expected to contain
-+ * addresses and sizes of buffers allocated inside the RMO buffer.
-+ */
-+struct rtas_filter {
-+	const char *name;
-+	int token;
-+	/* Indexes into the args buffer, -1 if not used */
-+	int buf_idx1;
-+	int size_idx1;
-+	int buf_idx2;
-+	int size_idx2;
-+
-+	int fixed_size;
-+};
-+
-+static struct rtas_filter rtas_filters[] __ro_after_init = {
-+	{ "ibm,activate-firmware", -1, -1, -1, -1, -1 },
-+	{ "ibm,configure-connector", -1, 0, -1, 1, -1, 4096 },	/* Special cased */
-+	{ "display-character", -1, -1, -1, -1, -1 },
-+	{ "ibm,display-message", -1, 0, -1, -1, -1 },
-+	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
-+	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
-+	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
-+	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
-+	{ "get-power-level", -1, -1, -1, -1, -1 },
-+	{ "get-sensor-state", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-system-parameter", -1, 1, 2, -1, -1 },
-+	{ "get-time-of-day", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
-+	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
-+	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
-+	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
-+	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
-+	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
-+	{ "ibm,set-eeh-option", -1, -1, -1, -1, -1 },
-+	{ "set-indicator", -1, -1, -1, -1, -1 },
-+	{ "set-power-level", -1, -1, -1, -1, -1 },
-+	{ "set-time-for-power-on", -1, -1, -1, -1, -1 },
-+	{ "ibm,set-system-parameter", -1, 1, -1, -1, -1 },
-+	{ "set-time-of-day", -1, -1, -1, -1, -1 },
-+	{ "ibm,suspend-me", -1, -1, -1, -1, -1 },
-+	{ "ibm,update-nodes", -1, 0, -1, -1, -1, 4096 },
-+	{ "ibm,update-properties", -1, 0, -1, -1, -1, 4096 },
-+	{ "ibm,physical-attestation", -1, 0, 1, -1, -1 },
-+};
-+
-+static bool in_rmo_buf(u32 base, u32 end)
-+{
-+	return base >= rtas_rmo_buf &&
-+		base < (rtas_rmo_buf + RTAS_RMOBUF_MAX) &&
-+		base <= end &&
-+		end >= rtas_rmo_buf &&
-+		end < (rtas_rmo_buf + RTAS_RMOBUF_MAX);
-+}
-+
-+static bool block_rtas_call(int token, int nargs,
-+			    struct rtas_args *args)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
-+		struct rtas_filter *f = &rtas_filters[i];
-+		u32 base, size, end;
-+
-+		if (token != f->token)
-+			continue;
-+
-+		if (f->buf_idx1 != -1) {
-+			base = be32_to_cpu(args->args[f->buf_idx1]);
-+			if (f->size_idx1 != -1)
-+				size = be32_to_cpu(args->args[f->size_idx1]);
-+			else if (f->fixed_size)
-+				size = f->fixed_size;
-+			else
-+				size = 1;
-+
-+			end = base + size - 1;
-+			if (!in_rmo_buf(base, end))
-+				goto err;
-+		}
-+
-+		if (f->buf_idx2 != -1) {
-+			base = be32_to_cpu(args->args[f->buf_idx2]);
-+			if (f->size_idx2 != -1)
-+				size = be32_to_cpu(args->args[f->size_idx2]);
-+			else if (f->fixed_size)
-+				size = f->fixed_size;
-+			else
-+				size = 1;
-+			end = base + size - 1;
-+
-+			/*
-+			 * Special case for ibm,configure-connector where the
-+			 * address can be 0
-+			 */
-+			if (!strcmp(f->name, "ibm,configure-connector") &&
-+			    base == 0)
-+				return false;
-+
-+			if (!in_rmo_buf(base, end))
-+				goto err;
-+		}
-+
-+		return false;
-+	}
-+
-+err:
-+	pr_err_ratelimited("sys_rtas: RTAS call blocked - exploit attempt?\n");
-+	pr_err_ratelimited("sys_rtas: token=0x%x, nargs=%d (called by %s)\n",
-+			   token, nargs, current->comm);
-+	return true;
-+}
-+
-+#else
-+
-+static bool block_rtas_call(int token, int nargs,
-+			    struct rtas_args *args)
-+{
-+	return false;
-+}
-+
-+#endif /* CONFIG_PPC_RTAS_FILTER */
-+
- /* We assume to be passed big endian arguments */
- SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
- {
-@@ -1029,6 +1170,9 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
- 	args.rets = &args.args[nargs];
- 	memset(args.rets, 0, nret * sizeof(rtas_arg_t));
- 
-+	if (block_rtas_call(token, nargs, &args))
-+		return -EINVAL;
-+
- 	/* Need to handle ibm,suspend_me call specially */
- 	if (token == ibm_suspend_me_token) {
- 
-@@ -1090,6 +1234,9 @@ void __init rtas_initialize(void)
- 	unsigned long rtas_region = RTAS_INSTANTIATE_MAX;
- 	u32 base, size, entry;
- 	int no_base, no_size, no_entry;
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+	int i;
-+#endif
- 
- 	/* Get RTAS dev node and fill up our "rtas" structure with infos
- 	 * about it.
-@@ -1129,6 +1276,12 @@ void __init rtas_initialize(void)
- #ifdef CONFIG_RTAS_ERROR_LOGGING
- 	rtas_last_error_token = rtas_token("rtas-last-error");
- #endif
-+
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
-+		rtas_filters[i].token = rtas_token(rtas_filters[i].name);
-+	}
-+#endif
- }
- 
- int __init early_init_dt_scan_rtas(unsigned long node,
+changes since v1:
+ - improve commit message description
+
+Hi Andrew,
+Kindly consider this one instead if no other concerns...
+
+Thanks,
+Gao Xiang
+
+ mm/swapfile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index 6c26916e95fd..2937daf3ca02 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
+ 			goto nextsi;
+ 		}
+ 		if (size == SWAPFILE_CLUSTER) {
+-			if (!(si->flags & SWP_FS))
++			if (si->flags & SWP_BLKDEV)
+ 				n_ret = swap_alloc_cluster(si, swp_entries);
+ 		} else
+ 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
 -- 
-2.20.1
+2.18.1
 
