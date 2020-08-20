@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 770C724B4AE
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B1724B463
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730896AbgHTKKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46742 "EHLO mail.kernel.org"
+        id S1730473AbgHTKEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:04:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730906AbgHTKKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:10:21 -0400
+        id S1730393AbgHTKCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:02:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9628206DA;
-        Thu, 20 Aug 2020 10:10:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ABBA20738;
+        Thu, 20 Aug 2020 10:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918221;
-        bh=ivOMTOdFsLN/sz1ORCYQGPOcLijlJUddQvL8fkZTMnE=;
+        s=default; t=1597917732;
+        bh=AtLG/bn2mZUKkfIPmi8HqODHX4L427TjEdH9nex621c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L65l6X9UM57SDqByzZ1YDHdFJ6fVFkhmbI3kcu2jVlQtYoUlYx6xHji/a/AiUHkw9
-         p5rWgsld7YF2X8+W21qVMj8LsfqakTU4JsLzEWDSjvyTCccvvKeH/+7xaWkCunlnmF
-         BvYY9wDV92gb6UYnhMg7Aimt5KHhKO9KE2tmHmsY=
+        b=kxBIKbhhQ3xpgjjkZRFh2tYGsHVwH7Ta0268sye1ifNSOhtCxfvLomWW2RQrjKjdG
+         XyCbI9P/yLzBwWJCWDw+WsHzPYdx7DZUg0blZuB0XRo95xRyMNRu8PxV6fBTFBPMKY
+         VnCzoYVp0LSV/lI0p4dwCoVBHQxWWW1qdawdEG2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 095/228] scsi: eesox: Fix different dev_id between request_irq() and free_irq()
+Subject: [PATCH 4.9 097/212] drm/nouveau: fix multiple instances of reference count leaks
 Date:   Thu, 20 Aug 2020 11:21:10 +0200
-Message-Id: <20200820091612.373029757@linuxfoundation.org>
+Message-Id: <20200820091607.242576686@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 86f2da1112ccf744ad9068b1d5d9843faf8ddee6 ]
+[ Upstream commit 659fb5f154c3434c90a34586f3b7aa1c39cf6062 ]
 
-The dev_id used in request_irq() and free_irq() should match. Use 'info' in
-both cases.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+ref count before returning the error.
 
-Link: https://lore.kernel.org/r/20200626040553.944352-1-christophe.jaillet@wanadoo.fr
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arm/eesox.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_drm.c | 8 ++++++--
+ drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/arm/eesox.c b/drivers/scsi/arm/eesox.c
-index e93e047f43165..65bb34ce93b94 100644
---- a/drivers/scsi/arm/eesox.c
-+++ b/drivers/scsi/arm/eesox.c
-@@ -575,7 +575,7 @@ static int eesoxscsi_probe(struct expansion_card *ec, const struct ecard_id *id)
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index 42829a942e33c..4e12d3d59651b 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -823,8 +823,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
  
- 	if (info->info.scsi.dma != NO_DMA)
- 		free_dma(info->info.scsi.dma);
--	free_irq(ec->irq, host);
-+	free_irq(ec->irq, info);
+ 	/* need to bring up power immediately if opening device */
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
  
-  out_remove:
- 	fas216_remove(host);
+ 	get_task_comm(tmpname, current);
+ 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
+@@ -912,8 +914,10 @@ nouveau_drm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	long ret;
+ 
+ 	ret = pm_runtime_get_sync(dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return ret;
++	}
+ 
+ 	switch (_IOC_NR(cmd) - DRM_COMMAND_BASE) {
+ 	case DRM_NOUVEAU_NVIF:
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
+index 505dca48b9f80..be6672da33a65 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
+@@ -42,8 +42,10 @@ nouveau_gem_object_del(struct drm_gem_object *gem)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (WARN_ON(ret < 0 && ret != -EACCES))
++	if (WARN_ON(ret < 0 && ret != -EACCES)) {
++		pm_runtime_put_autosuspend(dev);
+ 		return;
++	}
+ 
+ 	if (gem->import_attach)
+ 		drm_prime_gem_destroy(gem, nvbo->bo.sg);
 -- 
 2.25.1
 
