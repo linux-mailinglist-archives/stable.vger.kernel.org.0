@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A65C24BD0F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133EA24BC0B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729058AbgHTM5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:57:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
+        id S1728924AbgHTJrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:47:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729083AbgHTJlC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:02 -0400
+        id S1729450AbgHTJr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:47:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 773C720724;
-        Thu, 20 Aug 2020 09:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E472173E;
+        Thu, 20 Aug 2020 09:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916462;
-        bh=usJB+l/bgRxFMU7RdfbA4FT6nQW4eTysKwPja/RlPHM=;
+        s=default; t=1597916848;
+        bh=UpYTKo9YBI4Wb/ngMmtCZOnOgqcl6SDDieR0IfyJbOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY//QjhNfvrPYvQeaBTXJeM9r8ugYdVNwiN15TZ6carYL1y9T1inbyzW9Qtbh9qbi
-         Afd6bJ9dj84lSrkXf2Ukb0SoNOHAiCOx5YeF2xV3qjF93k1/z+lqyX7kmVxemWsDJb
-         2HzZnlPZc3woDnCR6Saw1VGcUWnObbL7iS3WP2ys=
+        b=WcPaJ2iDOyXO+BhdxLZ4q2vJ7cXPYXUX44TyXq6GnYtryCySH1tbULy7pejEZjDy8
+         Ju1fFJO5NZ5QuIKKVvMN85fni7VVrnQqw27TvRrffFnq2j0Qq2Cfhg5cpwXZQTTpVd
+         bIm5yOIslqk/LUQmk+L4aAh2plaB5OWd01NkWPdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 137/204] iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
+        stable@vger.kernel.org, Anton Blanchard <anton@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 067/152] pseries: Fix 64 bit logical memory block panic
 Date:   Thu, 20 Aug 2020 11:20:34 +0200
-Message-Id: <20200820091613.093509816@linuxfoundation.org>
+Message-Id: <20200820091557.157499539@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Anton Blanchard <anton@ozlabs.org>
 
-[ Upstream commit dee9d154f40c58d02f69acdaa5cfd1eae6ebc28b ]
+commit 89c140bbaeee7a55ed0360a88f294ead2b95201b upstream.
 
-It is possible for the call to omap_iommu_dump_ctx to return
-a negative error number, so check for the failure and return
-the error number rather than pass the negative value to
-simple_read_from_buffer.
+Booting with a 4GB LMB size causes us to panic:
 
-Fixes: 14e0e6796a0d ("OMAP: iommu: add initial debugfs support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200714192211.744776-1-colin.king@canonical.com
-Addresses-Coverity: ("Improper use of negative value")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  qemu-system-ppc64: OS terminated: OS panic:
+      Memory block size not suitable: 0x0
+
+Fix pseries_memory_block_size() to handle 64 bit LMBs.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Anton Blanchard <anton@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200715000820.1255764-1-anton@ozlabs.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/omap-iommu-debug.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index 8e19bfa94121e..a99afb5d9011c 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -98,8 +98,11 @@ static ssize_t debug_read_regs(struct file *file, char __user *userbuf,
- 	mutex_lock(&iommu_debug_lock);
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -27,7 +27,7 @@ static bool rtas_hp_event;
+ unsigned long pseries_memory_block_size(void)
+ {
+ 	struct device_node *np;
+-	unsigned int memblock_size = MIN_MEMORY_BLOCK_SIZE;
++	u64 memblock_size = MIN_MEMORY_BLOCK_SIZE;
+ 	struct resource r;
  
- 	bytes = omap_iommu_dump_ctx(obj, p, count);
-+	if (bytes < 0)
-+		goto err;
- 	bytes = simple_read_from_buffer(userbuf, count, ppos, buf, bytes);
- 
-+err:
- 	mutex_unlock(&iommu_debug_lock);
- 	kfree(buf);
- 
--- 
-2.25.1
-
+ 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 
 
