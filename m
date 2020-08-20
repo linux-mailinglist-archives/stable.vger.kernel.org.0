@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E222624B517
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8D724B464
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729948AbgHTKST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:18:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38506 "EHLO mail.kernel.org"
+        id S1729189AbgHTKEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:04:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729486AbgHTKRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:17:20 -0400
+        id S1730400AbgHTKBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:01:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B231E2078D;
-        Thu, 20 Aug 2020 10:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91AB820724;
+        Thu, 20 Aug 2020 10:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918640;
-        bh=jqX5GocdlkyARVdF0q7LJBQWlacRZIf0cSo2DDLoUeI=;
+        s=default; t=1597917681;
+        bh=8ZGoBqju/lye+2LTT4VSSUJ0uHKgnw6J0Qizfb+cNtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DNn0rHewDTJM6+jvfbpv7T0i9/NzhfALQNcSWmnJQLcqApaBPW0o3E2ccXZabMn/z
-         ExbvPvqRjDh6MxHD/CioT3QE17//ajrNV4/xTt+oT8xXNHHynPjsAfVoSYtDPszzZR
-         xdoBdYVZO9pbfF3yXQlGPoy53rE2w2JA9OyaHSHg=
+        b=NvSvVlC0xO2ycVVL/ZmApy/M3B9ipjQSFW3EvDhigPZq17ZogIu6HS7tJnQugwHBe
+         HDAclBHtvhFRcs/2NDkBCJ+eYmxW5K/8RtOrhzkPVNFFqHkGpwwQYKHzN6FbCYJrF7
+         l5WGrhvgHJfcFeotvgV1Oz6DaaUmqJtT4Es5phhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 014/149] rds: Prevent kernel-infoleak in rds_notify_queue_get()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 118/212] scsi: powertec: Fix different dev_id between request_irq() and free_irq()
 Date:   Thu, 20 Aug 2020 11:21:31 +0200
-Message-Id: <20200820092126.382688459@linuxfoundation.org>
+Message-Id: <20200820091608.311277070@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit bbc8a99e952226c585ac17477a85ef1194501762 upstream.
+[ Upstream commit d179f7c763241c1dc5077fca88ddc3c47d21b763 ]
 
-rds_notify_queue_get() is potentially copying uninitialized kernel stack
-memory to userspace since the compiler may leave a 4-byte hole at the end
-of `cmsg`.
+The dev_id used in request_irq() and free_irq() should match. Use 'info' in
+both cases.
 
-In 2016 we tried to fix this issue by doing `= { 0 };` on `cmsg`, which
-unfortunately does not always initialize that 4-byte hole. Fix it by using
-memset() instead.
-
-Cc: stable@vger.kernel.org
-Fixes: f037590fff30 ("rds: fix a leak of kernel memory")
-Fixes: bdbe6fbc6a2f ("RDS: recv.c")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200626035948.944148-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/recv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/arm/powertec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rds/recv.c
-+++ b/net/rds/recv.c
-@@ -301,12 +301,13 @@ static int rds_still_queued(struct rds_s
- int rds_notify_queue_get(struct rds_sock *rs, struct msghdr *msghdr)
- {
- 	struct rds_notifier *notifier;
--	struct rds_rdma_notify cmsg = { 0 }; /* fill holes with zero */
-+	struct rds_rdma_notify cmsg;
- 	unsigned int count = 0, max_messages = ~0U;
- 	unsigned long flags;
- 	LIST_HEAD(copy);
- 	int err = 0;
+diff --git a/drivers/scsi/arm/powertec.c b/drivers/scsi/arm/powertec.c
+index 79aa88911b7f3..b5e4a25ea1ef3 100644
+--- a/drivers/scsi/arm/powertec.c
++++ b/drivers/scsi/arm/powertec.c
+@@ -382,7 +382,7 @@ static int powertecscsi_probe(struct expansion_card *ec,
  
-+	memset(&cmsg, 0, sizeof(cmsg));	/* fill holes with zero */
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
  
- 	/* put_cmsg copies to user space and thus may sleep. We can't do this
- 	 * with rs_lock held, so first grab as many notifications as we can stuff
+  out_release:
+ 	fas216_release(host);
+-- 
+2.25.1
+
 
 
