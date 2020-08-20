@@ -2,143 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5013A24C71F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 23:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE82D24C793
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 00:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727859AbgHTVVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 17:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41970 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726976AbgHTVVy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 17:21:54 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D3572076E;
-        Thu, 20 Aug 2020 21:21:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597958513;
-        bh=p2gXg9nJIDIsetl5VIzY63aTbOJYO5HutFLqxEJU9CA=;
-        h=Date:From:To:Subject:From;
-        b=RU1aAQZcEnP/DhZK45YF6rZ2u2yn8CssSIaiQx0Mr+ukmdZc0EZfLZ0FjSOZZNqKn
-         H03RLOFbvTY/PIKa532qoHQAnB/O/6uxKFtE5sHjFYru0hAjciT+j0ybLITpVD8S5o
-         dZUQdtQQgKqk/d5BMbcu+7jM8YLK49Pi8AYhfjSE=
-Date:   Thu, 20 Aug 2020 14:21:50 -0700
-From:   akpm@linux-foundation.org
-To:     aquini@redhat.com, cmaiolino@redhat.com, esandeen@redhat.com,
-        hsiangkao@redhat.com, mm-commits@vger.kernel.org,
-        shy828301@gmail.com, stable@vger.kernel.org, willy@infradead.org,
-        ying.huang@intel.com
-Subject:  +
- mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake.patch added to
- -mm tree
-Message-ID: <20200820212150.0xnBC1KKQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725819AbgHTWKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 18:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725852AbgHTWKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 18:10:05 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B768AC061385
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 15:10:04 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id k11so61360ybp.1
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 15:10:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=yJwAau26hmxXDK7LYJ3raaNV0n3CHaFw9SQbcJH8sEA=;
+        b=jp0ZPR0FxAheFL9TaDHJpLBdkF8RMdsuqogh+TQsc9O5logL4ZbPUmQXt4iFAVsdPt
+         t0UFCsaxtebtbQEIpwLN2OHQ5vGZsaiZEaq2rdf8iL05k1zGifwMycxpvfUA4aZSNLn9
+         InR5iNt0Gz7hK9ENo46ajMKo+wMsmjep/Mhb6o1rpxtHftfrEcU2ZhPiki61DOBVgbLq
+         NbGrKmZT/TrgsZqgo+lGWiy/85ElcfQYu9/O/UALRL7Cgo2b1thGr9vBRbMPBGFbHr/X
+         hPUtkCfENG9wxazhmpR0QLpIzsWGzMUxm+uvG/QcI97aHX8Jpv+6S5K6dLDCfAyilJON
+         4Mlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=yJwAau26hmxXDK7LYJ3raaNV0n3CHaFw9SQbcJH8sEA=;
+        b=pLqx7VETJR/0Vqq6/tsNk+yRYo+nq8hHNA6R03H01r9PnB6jk5akkl67IGe73fK71H
+         k7rtNGEqA3cTSn4dGRZsIrZ5UN1prhiT3k/lq2tQCMfQpuVMjTuKZdiNloJNGQ2hmRdk
+         IH7neKKE+uKdVDkCRSp8gMnOFpIrLEeOxDzayCpWS3Uk2PjXtgo/d9bXjDttZYWcbzqt
+         ZWVkq7LYI9lPCEou7HZfn11shuyotCcASI68s2ahdY7J3ds2yDnt9UsY/MGmByD2iWvO
+         bM6fzvEtTxUvz4pDSwZvpg2jUZIRrZZuDPPduN8sf00tTXspZVFdcvx2u+u1fbRexMVt
+         SeFg==
+X-Gm-Message-State: AOAM531pwzPppfDt/pux+uvnEAaTKsffaKnwv49cCrIbvpRYXj3i+QW2
+        eIfwEGrwxNIa2yLUGXpgM5lWPrWMMwURYtcrgr8=
+X-Google-Smtp-Source: ABdhPJx30GNZ3GSuvsFhK/9SM8q9Vjp2kLIGiXlPALUfITy+qGebu7li50lrnbr4PyABra6n07ZFPtW+mf+/2rTZOzo=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:4d25])
+ (user=ndesaulniers job=sendgmr) by 2002:a25:d812:: with SMTP id
+ p18mr462820ybg.460.1597961401739; Thu, 20 Aug 2020 15:10:01 -0700 (PDT)
+Date:   Thu, 20 Aug 2020 15:09:55 -0700
+Message-Id: <20200820220955.3325555-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
+Subject: [PATCH] Makefile: add -fuse-ld=lld to KBUILD_HOSTLDFLAGS when LLVM=1
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>, stable@vger.kernel.org,
+        Matthias Maennich <maennich@google.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+While moving Android kernels over to use LLVM=1, we observe the failure
+when building in a hermetic docker image:
+  HOSTCC  scripts/basic/fixdep
+clang: error: unable to execute command: Executable "ld" doesn't exist!
 
-The patch titled
-     Subject: mm, THP, swap: fix allocating cluster for swapfile by mistake
-has been added to the -mm tree.  Its filename is
-     mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake.patch
+The is because the build of the host utility fixdep builds the fixdep
+executable in one step by invoking the compiler as the driver, rather
+than individual compile then link steps.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake.patch
+Clang when configured from source defaults to use the system's linker,
+and not LLVM's own LLD, unless the CMake config
+-DCLANG_DEFAULT_LINKER='lld' is set when configuring a build of clang
+itself.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Don't rely on the compiler's implicit default linker; be explicit.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Gao Xiang <hsiangkao@redhat.com>
-Subject: mm, THP, swap: fix allocating cluster for swapfile by mistake
-
-SWP_FS is used to make swap_{read,write}page() go through the filesystem,
-and it's only used for swap files over NFS.  So, !SWP_FS means non NFS for
-now, it could be either file backed or device backed.  Something similar
-goes with legacy SWP_FILE.
-
-So in order to achieve the goal of the original patch, SWP_BLKDEV should
-be used instead.
-
-FS corruption can be observed with SSD device + XFS + fragmented swapfile
-due to CONFIG_THP_SWAP=y.
-
-I reproduced the issue with the following details:
-
-Environment:
-QEMU + upstream kernel + buildroot + NVMe (2 GB)
-
-Kernel config:
-CONFIG_BLK_DEV_NVME=y
-CONFIG_THP_SWAP=y
-
-Some reproducable steps:
-mkfs.xfs -f /dev/nvme0n1
-mkdir /tmp/mnt
-mount /dev/nvme0n1 /tmp/mnt
-bs="32k"
-sz="1024m"    # doesn't matter too much, I also tried 16m
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
-
-mkswap /tmp/mnt/sw
-swapon /tmp/mnt/sw
-
-stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
-
-Symptoms:
- - FS corruption (e.g. checksum failure)
- - memory corruption at: 0xd2808010
- - segfault
-
-
-Link: https://lkml.kernel.org/r/20200820045323.7809-1-hsiangkao@redhat.com
-Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
-Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Acked-by: Rafael Aquini <aquini@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Carlos Maiolino <cmaiolino@redhat.com>
-Cc: Eric Sandeen <esandeen@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: commit a0d1c951ef08 ("kbuild: support LLVM=1 to switch the default tools to Clang/LLVM")
+Reported-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
- mm/swapfile.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/swapfile.c~mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake
-+++ a/mm/swapfile.c
-@@ -1078,7 +1078,7 @@ start_over:
- 			goto nextsi;
- 		}
- 		if (size == SWAPFILE_CLUSTER) {
--			if (!(si->flags & SWP_FS))
-+			if (si->flags & SWP_BLKDEV)
- 				n_ret = swap_alloc_cluster(si, swp_entries);
- 		} else
- 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
-_
-
-Patches currently in -mm which might be from hsiangkao@redhat.com are
-
-mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake.patch
+diff --git a/Makefile b/Makefile
+index def590b743a9..b4e93b228a26 100644
+--- a/Makefile
++++ b/Makefile
+@@ -436,6 +436,7 @@ OBJDUMP		= llvm-objdump
+ READELF		= llvm-readelf
+ OBJSIZE		= llvm-size
+ STRIP		= llvm-strip
++KBUILD_HOSTLDFLAGS	+= -fuse-ld=lld
+ else
+ CC		= $(CROSS_COMPILE)gcc
+ LD		= $(CROSS_COMPILE)ld
+-- 
+2.28.0.297.g1956fa8f8d-goog
 
