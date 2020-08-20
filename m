@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F9624BCC1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EED924BBDA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729958AbgHTMwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:52:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
+        id S1729561AbgHTMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:34:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729258AbgHTJni (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:38 -0400
+        id S1729548AbgHTJsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1572207DE;
-        Thu, 20 Aug 2020 09:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A98D2173E;
+        Thu, 20 Aug 2020 09:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916617;
-        bh=0pkLbZ3ecE1PW8MfK1EZfq9ZmaccVL2nFYhP+U3ugMU=;
+        s=default; t=1597916914;
+        bh=uPeGqQXkvY7c5Sqc18JCLPAOGTvavRRRr4EheBmcF8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=So3GdkBPDNuDbnX4Mf1/Oa1EOXBzybH05Zt9b8Barb2CDxUNSClmd6tesQ7hZrBbD
-         Jeh4+tIsScvKVcmmwJJz+gBnkqshSvq+dUcDDzDEUceGTqE7Y3dhfKu8R1qCecJlM/
-         iFZJ4zsHVozIq2+IrMbao+wRq+cV8EUP6Kq2aJnw=
+        b=L6h3D9SdSKfh9N8mxr9KSlipbeVWOukTw0DwaieA1EIm1Y7i0i+G4VETXfDNeDroS
+         xlREJaA6pcJun3SqDotaItZPHmMOrK01bn4rSrMOEuO234MS2+e3Gy92MCdNhZMshV
+         ficsrojkan6WqRUd5clTCseLh1LzMR1yV4+hB7Sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dilip Kota <eswara.kota@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 161/204] x86/tsr: Fix tsc frequency enumeration bug on Lightning Mountain SoC
+Subject: [PATCH 5.4 091/152] USB: serial: ftdi_sio: fix break and sysrq handling
 Date:   Thu, 20 Aug 2020 11:20:58 +0200
-Message-Id: <20200820091614.262581605@linuxfoundation.org>
+Message-Id: <20200820091558.394549455@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dilip Kota <eswara.kota@linux.intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 7d98585860d845e36ee612832a5ff021f201dbaf ]
+[ Upstream commit 733fff67941dad64b8a630450b8372b1873edc41 ]
 
-Frequency descriptor of Lightning Mountain SoC doesn't have all the
-frequency entries so resulting in the below failure causing a kernel hang:
+Only the last NUL in a packet should be flagged as a break character,
+for example, to avoid dropping unrelated characters when IGNBRK is set.
 
-    Error MSR_FSB_FREQ index 15 is unknown
-    tsc: Fast TSC calibration failed
+Also make sysrq work by consuming the break character instead of having
+it immediately cancel the sysrq request, and by not processing it
+prematurely to avoid triggering a sysrq based on an unrelated character
+received in the same packet (which was received *before* the break).
 
-So, add all the frequency entries in the Lightning Mountain SoC frequency
-descriptor.
+Note that the break flag can be left set also for a packet received
+immediately following a break and that and an ending NUL in such a
+packet will continue to be reported as a break as there's no good way to
+tell it apart from an actual break.
 
-Fixes: 0cc5359d8fd45 ("x86/cpu: Update init data for new Airmont CPU model")
-Fixes: 812c2d7506fd ("x86/tsc_msr: Use named struct initializers")
-Signed-off-by: Dilip Kota <eswara.kota@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/211c643ae217604b46cbec43a2c0423946dc7d2d.1596440057.git.eswara.kota@linux.intel.com
+Tested on FT232R and FT232H.
+
+Fixes: 72fda3ca6fc1 ("USB: serial: ftd_sio: implement sysrq handling on break")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tsc_msr.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ftdi_sio.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/tsc_msr.c b/arch/x86/kernel/tsc_msr.c
-index 4fec6f3a1858b..a654a9b4b77c0 100644
---- a/arch/x86/kernel/tsc_msr.c
-+++ b/arch/x86/kernel/tsc_msr.c
-@@ -133,10 +133,15 @@ static const struct freq_desc freq_desc_ann = {
- 	.mask = 0x0f,
- };
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 33f1cca7eaa61..07b146d7033a6 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -2483,6 +2483,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 		struct ftdi_private *priv, unsigned char *buf, int len)
+ {
+ 	unsigned char status;
++	bool brkint = false;
+ 	int i;
+ 	char flag;
  
--/* 24 MHz crystal? : 24 * 13 / 4 = 78 MHz */
-+/*
-+ * 24 MHz crystal? : 24 * 13 / 4 = 78 MHz
-+ * Frequency step for Lightning Mountain SoC is fixed to 78 MHz,
-+ * so all the frequency entries are 78000.
-+ */
- static const struct freq_desc freq_desc_lgm = {
- 	.use_msr_plat = true,
--	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
-+	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000,
-+		   78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
- 	.mask = 0x0f,
- };
+@@ -2534,13 +2535,17 @@ static int ftdi_process_packet(struct usb_serial_port *port,
+ 	 */
+ 	flag = TTY_NORMAL;
+ 	if (buf[1] & FTDI_RS_ERR_MASK) {
+-		/* Break takes precedence over parity, which takes precedence
+-		 * over framing errors */
+-		if (buf[1] & FTDI_RS_BI) {
+-			flag = TTY_BREAK;
++		/*
++		 * Break takes precedence over parity, which takes precedence
++		 * over framing errors. Note that break is only associated
++		 * with the last character in the buffer and only when it's a
++		 * NUL.
++		 */
++		if (buf[1] & FTDI_RS_BI && buf[len - 1] == '\0') {
+ 			port->icount.brk++;
+-			usb_serial_handle_break(port);
+-		} else if (buf[1] & FTDI_RS_PE) {
++			brkint = true;
++		}
++		if (buf[1] & FTDI_RS_PE) {
+ 			flag = TTY_PARITY;
+ 			port->icount.parity++;
+ 		} else if (buf[1] & FTDI_RS_FE) {
+@@ -2556,8 +2561,13 @@ static int ftdi_process_packet(struct usb_serial_port *port,
  
+ 	port->icount.rx += len - 2;
+ 
+-	if (port->port.console && port->sysrq) {
++	if (brkint || (port->port.console && port->sysrq)) {
+ 		for (i = 2; i < len; i++) {
++			if (brkint && i == len - 1) {
++				if (usb_serial_handle_break(port))
++					return len - 3;
++				flag = TTY_BREAK;
++			}
+ 			if (usb_serial_handle_sysrq_char(port, buf[i]))
+ 				continue;
+ 			tty_insert_flip_char(&port->port, buf[i], flag);
 -- 
 2.25.1
 
