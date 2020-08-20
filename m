@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C237F24BB16
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726BF24BB84
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:30:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbgHTMWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37688 "EHLO mail.kernel.org"
+        id S1729505AbgHTJvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730160AbgHTJyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:54:52 -0400
+        id S1729795AbgHTJvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:51:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6A0A207FB;
-        Thu, 20 Aug 2020 09:54:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D2852067C;
+        Thu, 20 Aug 2020 09:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917292;
-        bh=gkyn4aFGhKY9SDdydZTGTsLeU28H236Tk3wbC9RA6Mo=;
+        s=default; t=1597917076;
+        bh=hrY0NhL1R5l5ToViiwDTlNThpTbAJifen/N2VMBxI74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+kRcYb5sZ6VC5/4skRC/YG5dILWdoAlcYfl1/o/8T0AZ6gsiUErqSooX49RfNWZo
-         KZTwpo8Bo7Vvb1Pgx2ZpnsWLM1DsRRw3CEhCuIuo2e/OAATioUkkQgaEPwprzP6QeW
-         Gw6kMfuFNt8zITfMU9bB7ZzjzN8UZwLza00Zjukg=
+        b=DAXifZWN/ui39O7rLZtehbBg7cTCZB4suqdpzSw+K6CkzedIInkei1xmlRCm3wjKa
+         DPIWL5MQInnSwbAMToH63WExv5tg35nK+N3ixqMehf4hARIxs7vcJ1d5RDiqMa7Zzr
+         73XLR3StS26fY5nfzZUR+69RCbpqSuMu/zs8z7rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 71/92] scsi: lpfc: nvmet: Avoid hang / use-after-free again when destroying targetport
+        stable@vger.kernel.org, Marius Iacob <themariusus@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 149/152] drm: Added orientation quirk for ASUS tablet model T103HAF
 Date:   Thu, 20 Aug 2020 11:21:56 +0200
-Message-Id: <20200820091541.356760236@linuxfoundation.org>
+Message-Id: <20200820091601.454836276@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Marius Iacob <themariusus@gmail.com>
 
-[ Upstream commit af6de8c60fe9433afa73cea6fcccdccd98ad3e5e ]
+commit b5ac98cbb8e5e30c34ebc837d1e5a3982d2b5f5c upstream.
 
-We cannot wait on a completion object in the lpfc_nvme_targetport structure
-in the _destroy_targetport() code path because the NVMe/fc transport will
-free that structure immediately after the .targetport_delete() callback.
-This results in a use-after-free, and a crash if slub_debug=FZPU is
-enabled.
+Signed-off-by: Marius Iacob <themariusus@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200801123445.1514567-1-themariusus@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-An earlier fix put put the completion on the stack, but commit 2a0fb340fcc8
-("scsi: lpfc: Correct localport timeout duration error") subsequently
-changed the code to reference the completion through a pointer in the
-object rather than the local stack variable.  Fix this by using the stack
-variable directly.
-
-Link: https://lore.kernel.org/r/20200729231011.13240-1-emilne@redhat.com
-Fixes: 2a0fb340fcc8 ("scsi: lpfc: Correct localport timeout duration error")
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvmet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index 768eba8c111d9..5bc33817568ea 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -1712,7 +1712,7 @@ lpfc_nvmet_destroy_targetport(struct lpfc_hba *phba)
- 		}
- 		tgtp->tport_unreg_cmp = &tport_unreg_cmp;
- 		nvmet_fc_unregister_targetport(phba->targetport);
--		if (!wait_for_completion_timeout(tgtp->tport_unreg_cmp,
-+		if (!wait_for_completion_timeout(&tport_unreg_cmp,
- 					msecs_to_jiffies(LPFC_NVMET_WAIT_TMO)))
- 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME,
- 					"6179 Unreg targetport %p timeout "
--- 
-2.25.1
-
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -121,6 +121,12 @@ static const struct dmi_system_id orient
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T101HA"),
+ 		},
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* Asus T103HAF */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T103HAF"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
 
 
