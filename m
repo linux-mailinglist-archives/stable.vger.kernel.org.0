@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F4924B4F5
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDE224B532
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:20:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731229AbgHTKPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:15:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33860 "EHLO mail.kernel.org"
+        id S1729065AbgHTKUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731227AbgHTKO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:14:59 -0400
+        id S1731303AbgHTKUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:20:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD02B2067C;
-        Thu, 20 Aug 2020 10:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F6BF206DA;
+        Thu, 20 Aug 2020 10:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918498;
-        bh=HyOIHmSDJ15NT7/szmLfX12OAORiTgw/DRPWArtZKGc=;
+        s=default; t=1597918839;
+        bh=H4lOMUjgYZwWlmf4jRSv9cJKqKrsfE2ELDh2LqDv/nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1610iFOTEpHACmHOZjcqvKSDews/Jaa4OnwYT00P2k7Vq6VmqKDaQo1foJvJskof
-         YhBd4w1GB154EmOgez4p1mYmDDNnnNXGv6o0XrKACIpbrkzCvs3A4Eg26QPHmZHTyG
-         duGejT4FQsuccfm5pd5w0NihK+yswXBkcv3bTQOQ=
+        b=npE9sif+4P3radQrHkqF8x13LslwnOMNNHdM9z9C7ELBmaTRMxoyvge4Dwivi0zCd
+         wa69/Wpi4XE4i6qrDBL9yvezdc1zluJ8xkPIA169P2/NkIsbs9UJcjL0znKEfiJ91+
+         f0kT4diLO+p8yqciEyiNW4eTFRDWOLZq+U/0Fr1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 185/228] ftrace: Setup correct FTRACE_FL_REGS flags for module
-Date:   Thu, 20 Aug 2020 11:22:40 +0200
-Message-Id: <20200820091616.819992188@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 086/149] scsi: powertec: Fix different dev_id between request_irq() and free_irq()
+Date:   Thu, 20 Aug 2020 11:22:43 +0200
+Message-Id: <20200820092129.892016356@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 8a224ffb3f52b0027f6b7279854c71a31c48fc97 upstream.
+[ Upstream commit d179f7c763241c1dc5077fca88ddc3c47d21b763 ]
 
-When module loaded and enabled, we will use __ftrace_replace_code
-for module if any ftrace_ops referenced it found. But we will get
-wrong ftrace_addr for module rec in ftrace_get_addr_new, because
-rec->flags has not been setup correctly. It can cause the callback
-function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
-with pt_regs set to NULL.
-So setup correct FTRACE_FL_REGS flags for rec when we call
-referenced_filters to find ftrace_ops references it.
+The dev_id used in request_irq() and free_irq() should match. Use 'info' in
+both cases.
 
-Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
-
-Cc: stable@vger.kernel.org
-Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200626035948.944148-1-christophe.jaillet@wanadoo.fr
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/scsi/arm/powertec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5721,8 +5721,11 @@ static int referenced_filters(struct dyn
- 	int cnt = 0;
+diff --git a/drivers/scsi/arm/powertec.c b/drivers/scsi/arm/powertec.c
+index 5e1b73e1b743e..b6724ba9b36e7 100644
+--- a/drivers/scsi/arm/powertec.c
++++ b/drivers/scsi/arm/powertec.c
+@@ -382,7 +382,7 @@ static int powertecscsi_probe(struct expansion_card *ec,
  
- 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
--		if (ops_references_rec(ops, rec))
--		    cnt++;
-+		if (ops_references_rec(ops, rec)) {
-+			cnt++;
-+			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
-+				rec->flags |= FTRACE_FL_REGS;
-+		}
- 	}
+ 	if (info->info.scsi.dma != NO_DMA)
+ 		free_dma(info->info.scsi.dma);
+-	free_irq(ec->irq, host);
++	free_irq(ec->irq, info);
  
- 	return cnt;
-@@ -5871,8 +5874,8 @@ void ftrace_module_enable(struct module
- 		if (ftrace_start_up)
- 			cnt += referenced_filters(rec);
- 
--		/* This clears FTRACE_FL_DISABLED */
--		rec->flags = cnt;
-+		rec->flags &= ~FTRACE_FL_DISABLED;
-+		rec->flags += cnt;
- 
- 		if (ftrace_start_up && cnt) {
- 			int failed = __ftrace_replace_code(rec, 1);
+  out_release:
+ 	fas216_release(host);
+-- 
+2.25.1
+
 
 
