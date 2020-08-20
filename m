@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB9E24B3DC
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E17024B436
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730055AbgHTJxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:53:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
+        id S1729668AbgHTJ7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:59:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729902AbgHTJwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:52:19 -0400
+        id S1729362AbgHTJ7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:59:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 918AC2075E;
-        Thu, 20 Aug 2020 09:52:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25123208DB;
+        Thu, 20 Aug 2020 09:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917139;
-        bh=jJZQ2Q5plHGfXu41EuKebQ1bTsoUq7FzMItxBUilFGQ=;
+        s=default; t=1597917580;
+        bh=BmFvSYOC5avABBb19lAm61NvJ0ZOipqaWWp6VsdLIJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccOdvE/lTABzNprIxsRXuPIDyT+hxwEpNV1a4XLsZchKY5saibcetcnqd3Pgm2LSl
-         6wgUkZcc5GQGQSa9iVG+gzEM2PWIgUDcvuaPm+XM0gZDswqtS6Bf6T6PT2VFVZhDW6
-         XcIs/fNgBbESrxbDhoWK+TjDeufYAaYwT4/bRqXE=
+        b=vRi8R1Ppwxfrr9et1ynmS4tbqMjQuKCBfQbGJxw5NGeZy0E7Avsnnf1N4yH3nbmd6
+         8wM41VrAGDZ9O3/6i3YmMxjcaHOxpC+fPDzwVIzpuZeUTftQVm9bHWOTTIVqXta3GR
+         ipuKo24sQOkm075vblnt/rfAvVhvtNbs6q02WCmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
-        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 09/92] btrfs: free anon block device right after subvolume deletion
-Date:   Thu, 20 Aug 2020 11:20:54 +0200
-Message-Id: <20200820091537.984571719@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 082/212] EDAC: Fix reference count leaks
+Date:   Thu, 20 Aug 2020 11:20:55 +0200
+Message-Id: <20200820091606.504127526@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 082b6c970f02fefd278c7833880cda29691a5f34 upstream.
+[ Upstream commit 17ed808ad243192fb923e4e653c1338d3ba06207 ]
 
-[BUG]
-When a lot of subvolumes are created, there is a user report about
-transaction aborted caused by slow anonymous block device reclaim:
+When kobject_init_and_add() returns an error, it should be handled
+because kobject_init_and_add() takes a reference even when it fails. If
+this function returns an error, kobject_put() must be called to properly
+clean up the memory associated with the object.
 
-  BTRFS: Transaction aborted (error -24)
-  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
-  Call Trace:
-   create_pending_snapshots+0x82/0xa0 [btrfs]
-   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
-   btrfs_mksubvol+0x4b9/0x500 [btrfs]
-   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
-   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
-   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
-   do_vfs_ioctl+0xa9/0x640
-   ksys_ioctl+0x67/0x90
-   __x64_sys_ioctl+0x1a/0x20
-   do_syscall_64+0x5a/0x110
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace 33f2f83f3d5250e9 ]---
-  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
-  BTRFS info (device sda1): forced readonly
-  BTRFS warning (device sda1): Skipping commit of aborted transaction.
-  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
+Therefore, replace calling kfree() and call kobject_put() and add a
+missing kobject_put() in the edac_device_register_sysfs_main_kobj()
+error path.
 
-[CAUSE]
-The anonymous device pool is shared and its size is 1M. It's possible to
-hit that limit if the subvolume deletion is not fast enough and the
-subvolumes to be cleaned keep the ids allocated.
+ [ bp: Massage and merge into a single patch. ]
 
-[WORKAROUND]
-We can't avoid the anon device pool exhaustion but we can shorten the
-time the id is attached to the subvolume root once the subvolume becomes
-invisible to the user.
-
-Reported-by: Greed Rong <greedrong@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b2ed215a3338 ("Kobject: change drivers/edac to use kobject_init_and_add")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200528202238.18078-1-wu000273@umn.edu
+Link: https://lkml.kernel.org/r/20200528203526.20908-1-wu000273@umn.edu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/edac/edac_device_sysfs.c | 1 +
+ drivers/edac/edac_pci_sysfs.c    | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4458,6 +4458,8 @@ int btrfs_delete_subvolume(struct inode
- 		}
- 	}
+diff --git a/drivers/edac/edac_device_sysfs.c b/drivers/edac/edac_device_sysfs.c
+index 93da1a45c7161..470b02fc2de96 100644
+--- a/drivers/edac/edac_device_sysfs.c
++++ b/drivers/edac/edac_device_sysfs.c
+@@ -275,6 +275,7 @@ int edac_device_register_sysfs_main_kobj(struct edac_device_ctl_info *edac_dev)
  
-+	free_anon_bdev(dest->anon_dev);
-+	dest->anon_dev = 0;
- out_end_trans:
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
+ 	/* Error exit stack */
+ err_kobj_reg:
++	kobject_put(&edac_dev->kobj);
+ 	module_put(edac_dev->owner);
+ 
+ err_out:
+diff --git a/drivers/edac/edac_pci_sysfs.c b/drivers/edac/edac_pci_sysfs.c
+index 6e3428ba400f3..622d117e25335 100644
+--- a/drivers/edac/edac_pci_sysfs.c
++++ b/drivers/edac/edac_pci_sysfs.c
+@@ -386,7 +386,7 @@ static int edac_pci_main_kobj_setup(void)
+ 
+ 	/* Error unwind statck */
+ kobject_init_and_add_fail:
+-	kfree(edac_pci_top_main_kobj);
++	kobject_put(edac_pci_top_main_kobj);
+ 
+ kzalloc_fail:
+ 	module_put(THIS_MODULE);
+-- 
+2.25.1
+
 
 
