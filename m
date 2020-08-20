@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8520C24B55B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:23:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F8E24B5B1
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731473AbgHTKWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:22:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
+        id S1731527AbgHTK0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:26:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731106AbgHTKWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:22:45 -0400
+        id S1731315AbgHTKWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:22:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF3CF20885;
-        Thu, 20 Aug 2020 10:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B3402072D;
+        Thu, 20 Aug 2020 10:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918964;
-        bh=7mNdEbVqYb/OiS51REFvYk6wutZQVjUnedpnmRsen8E=;
+        s=default; t=1597918966;
+        bh=WJ9ZT0O1YGpSVm1T84ZpeJOMhTdeLBMnwR3HruRUL44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WiiTADNkKKixAeBE+INwfDiiFa41UDssJWX14onVwLb1e9lzBvVWOT25IXQsq9UU
-         TNHJJl9E89i06RuOWvmVJzv5rxbqFKnt8OtO/1GdOcl45K7AW9F2fwyk4w6dq8UbCC
-         /hAYhES+9wG/ro9ronCwTYEEqYVmjoK79IpIOFaQ=
+        b=kArCAki0ugTwk7wVDnmEESP8kNVCgRfJNCrei5rxwY9oqqrDsShXSP/TnkzH+qoWc
+         GDB3GmPEaqSSKeOCJQgeXt7X6lVPqTCDSDrU8EyPl9UfXY10Ay4HPr9o557jTaR3Zg
+         pyU/n9Aqlhfj12b6STB1w0FgeA5QE8On4DCcehK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Gang He <ghe@suse.com>, Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 131/149] ocfs2: change slot number type s16 to u16
-Date:   Thu, 20 Aug 2020 11:23:28 +0200
-Message-Id: <20200820092132.049586653@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.4 132/149] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
+Date:   Thu, 20 Aug 2020 11:23:29 +0200
+Message-Id: <20200820092132.098841681@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -50,87 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 38d51b2dd171ad973afc1f5faab825ed05a2d5e9 upstream.
+commit 0cb2f1372baa60af8456388a574af6133edd7d80 upstream.
 
-Dan Carpenter reported the following static checker warning.
+We found a case of kernel panic on our server. The stack trace is as
+follows(omit some irrelevant information):
 
-	fs/ocfs2/super.c:1269 ocfs2_parse_options() warn: '(-1)' 65535 can't fit into 32767 'mopt->slot'
-	fs/ocfs2/suballoc.c:859 ocfs2_init_inode_steal_slot() warn: '(-1)' 65535 can't fit into 32767 'osb->s_inode_steal_slot'
-	fs/ocfs2/suballoc.c:867 ocfs2_init_meta_steal_slot() warn: '(-1)' 65535 can't fit into 32767 'osb->s_meta_steal_slot'
+  BUG: kernel NULL pointer dereference, address: 0000000000000080
+  RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
+  RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
+  RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
+  RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
+  RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+  R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <IRQ>
+   ftrace_ops_assist_func+0x56/0xe0
+   ftrace_call+0x5/0x34
+   tcpa_statistic_send+0x5/0x130 [ttcp_engine]
 
-That's because OCFS2_INVALID_SLOT is (u16)-1. Slot number in ocfs2 can be
-never negative, so change s16 to u16.
+The tcpa_statistic_send is the function being kprobed. After analysis,
+the root cause is that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
 
-Fixes: 9277f8334ffc ("ocfs2: fix value of OCFS2_INVALID_SLOT")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Gang He <ghe@suse.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200627001259.19757-1-junxiao.bi@oracle.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  crash> dis tcpa_statistic_send -r
+         <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
+
+The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller.
+So it is reasonable that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. In theory, we should call the ftrace_regs_caller instead of the
+ftrace_caller. After in-depth analysis, we found a reproducible path.
+
+  Writing a simple kernel module which starts a periodic timer. The
+  timer's handler is named 'kprobe_test_timer_handler'. The module
+  name is kprobe_test.ko.
+
+  1) insmod kprobe_test.ko
+  2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+  3) echo 0 > /proc/sys/kernel/ftrace_enabled
+  4) rmmod kprobe_test
+  5) stop step 2) kprobe
+  6) insmod kprobe_test.ko
+  7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+
+We mark the kprobe as GONE but not disarm the kprobe in the step 4).
+The step 5) also do not disarm the kprobe when unregister kprobe. So
+we do not remove the ip from the filter. In this case, when the module
+loads again in the step 6), we will replace the code to ftrace_caller
+via the ftrace_module_enable(). When we register kprobe again, we will
+not replace ftrace_caller to ftrace_regs_caller because the ftrace is
+disabled in the step 3). So the step 7) will trigger kernel panic. Fix
+this problem by disarming the kprobe when the module is going away.
+
+Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedance.com
+
+Cc: stable@vger.kernel.org
+Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/ocfs2.h    |    4 ++--
- fs/ocfs2/suballoc.c |    4 ++--
- fs/ocfs2/super.c    |    4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ kernel/kprobes.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/ocfs2/ocfs2.h
-+++ b/fs/ocfs2/ocfs2.h
-@@ -337,8 +337,8 @@ struct ocfs2_super
- 	spinlock_t osb_lock;
- 	u32 s_next_generation;
- 	unsigned long osb_flags;
--	s16 s_inode_steal_slot;
--	s16 s_meta_steal_slot;
-+	u16 s_inode_steal_slot;
-+	u16 s_meta_steal_slot;
- 	atomic_t s_num_inodes_stolen;
- 	atomic_t s_num_meta_stolen;
- 
---- a/fs/ocfs2/suballoc.c
-+++ b/fs/ocfs2/suballoc.c
-@@ -895,9 +895,9 @@ static void __ocfs2_set_steal_slot(struc
- {
- 	spin_lock(&osb->osb_lock);
- 	if (type == INODE_ALLOC_SYSTEM_INODE)
--		osb->s_inode_steal_slot = slot;
-+		osb->s_inode_steal_slot = (u16)slot;
- 	else if (type == EXTENT_ALLOC_SYSTEM_INODE)
--		osb->s_meta_steal_slot = slot;
-+		osb->s_meta_steal_slot = (u16)slot;
- 	spin_unlock(&osb->osb_lock);
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2029,6 +2029,13 @@ static void kill_kprobe(struct kprobe *p
+ 	 * the original probed function (which will be freed soon) any more.
+ 	 */
+ 	arch_remove_kprobe(p);
++
++	/*
++	 * The module is going away. We should disarm the kprobe which
++	 * is using ftrace.
++	 */
++	if (kprobe_ftrace(p))
++		disarm_kprobe_ftrace(p);
  }
  
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -96,7 +96,7 @@ struct mount_options
- 	unsigned long	commit_interval;
- 	unsigned long	mount_opt;
- 	unsigned int	atime_quantum;
--	signed short	slot;
-+	unsigned short	slot;
- 	int		localalloc_opt;
- 	unsigned int	resv_level;
- 	int		dir_resv_level;
-@@ -1372,7 +1372,7 @@ static int ocfs2_parse_options(struct su
- 				goto bail;
- 			}
- 			if (option)
--				mopt->slot = (s16)option;
-+				mopt->slot = (u16)option;
- 			break;
- 		case Opt_commit:
- 			option = 0;
+ /* Disable one kprobe */
 
 
