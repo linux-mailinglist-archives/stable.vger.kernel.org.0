@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B0924B6D7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 775BE24B6DD
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730966AbgHTKmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36880 "EHLO mail.kernel.org"
+        id S1731366AbgHTKmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:42:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725819AbgHTKQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:16:33 -0400
+        id S1731177AbgHTKQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:16:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F52922B43;
-        Thu, 20 Aug 2020 10:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B2272075E;
+        Thu, 20 Aug 2020 10:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918592;
-        bh=yj64/f6KMzmdL0D/Mpp854/Qw3KqLXwTwQSrjmwQjaQ=;
+        s=default; t=1597918594;
+        bh=TY8/cOOwKH06Y/se8nJzoffgbJQ37ddRZX3ahYPV7pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aX6yY0PsLkOaHexnJe7Us51Cs9l2U+92iFNaQcpfUGuWYaoq+f15lUVUFtNG/1T3Q
-         SFEzuyOvNnVHb1TO3sS0ZIwALOw50RZYqxcuG8eP4eZT3BHWeCgbVu3r5OxgWKrwBu
-         4C+b3F7eJmavImH1GoPLSh2iN5tZM4YVua1Kq0mc=
+        b=nq1R0gJT/2IiVV85gZBhE/0o+83IFkTGPQMBiwUe5hWE9q76te2IeHzuhsyvJvBmJ
+         ROecg69+xt54gTmKkEn95FxoawzzDDNZYojfk+l3IqLHKxWcPRCAt/jDJdzBgfXe3r
+         bYAkJ556SUUTVOKPG4/8+XahpBa0JqoYB2Y6xyKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 226/228] dm cache: submit writethrough writes in parallel to origin and cache
-Date:   Thu, 20 Aug 2020 11:23:21 +0200
-Message-Id: <20200820091618.800636670@linuxfoundation.org>
+Subject: [PATCH 4.14 227/228] dm cache: remove all obsolete writethrough-specific code
+Date:   Thu, 20 Aug 2020 11:23:22 +0200
+Message-Id: <20200820091618.849761692@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -44,137 +44,169 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Snitzer <snitzer@redhat.com>
 
-commit 2df3bae9a6543e90042291707b8db0cbfbae9ee9 upstream.
+commit 9958f1d9a04efb3db19134482b3f4c6897e0e7b8 upstream.
 
-Discontinue issuing writethrough write IO in series to the origin and
-then cache.
+Now that the writethrough code is much simpler there is no need to track
+so much state or cascade bio submission (as was done, via
+writethrough_endio(), to issue origin then cache IO in series).
 
-Use bio_clone_fast() to create a new origin clone bio that will be
-mapped to the origin device and then bio_chain() it to the bio that gets
-remapped to the cache device.  The origin clone bio does _not_ have a
-copy of the per_bio_data -- as such check_if_tick_bio_needed() will not
-be called.
-
-The cache bio (parent bio) will not complete until the origin bio has
-completed -- this fulfills bio_clone_fast()'s requirements as well as
-the requirement to not complete the original IO until the write IO has
-completed to both the origin and cache device.
+As such the obsolete writethrough list and workqueue is also removed.
 
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-cache-target.c |   54 +++++++++++++++++++++++++++++--------------
- 1 file changed, 37 insertions(+), 17 deletions(-)
+ drivers/md/dm-cache-target.c |   82 -------------------------------------------
+ 1 file changed, 1 insertion(+), 81 deletions(-)
 
 --- a/drivers/md/dm-cache-target.c
 +++ b/drivers/md/dm-cache-target.c
-@@ -450,6 +450,7 @@ struct cache {
+@@ -410,7 +410,6 @@ struct cache {
+ 	spinlock_t lock;
+ 	struct list_head deferred_cells;
+ 	struct bio_list deferred_bios;
+-	struct bio_list deferred_writethrough_bios;
+ 	sector_t migration_threshold;
+ 	wait_queue_head_t migration_wait;
+ 	atomic_t nr_allocated_migrations;
+@@ -446,7 +445,6 @@ struct cache {
+ 	struct dm_kcopyd_client *copier;
+ 	struct workqueue_struct *wq;
+ 	struct work_struct deferred_bio_worker;
+-	struct work_struct deferred_writethrough_worker;
  	struct work_struct migration_worker;
  	struct delayed_work waker;
  	struct dm_bio_prison_v2 *prison;
-+	struct bio_set *bs;
+@@ -491,15 +489,6 @@ struct per_bio_data {
+ 	struct dm_bio_prison_cell_v2 *cell;
+ 	struct dm_hook_info hook_info;
+ 	sector_t len;
+-
+-	/*
+-	 * writethrough fields.  These MUST remain at the end of this
+-	 * structure and the 'cache' member must be the first as it
+-	 * is used to determine the offset of the writethrough fields.
+-	 */
+-	struct cache *cache;
+-	dm_cblock_t cblock;
+-	struct dm_bio_details bio_details;
+ };
  
- 	mempool_t *migration_pool;
- 
-@@ -868,16 +869,23 @@ static void check_if_tick_bio_needed(str
- 	spin_unlock_irqrestore(&cache->lock, flags);
+ struct dm_cache_migration {
+@@ -538,11 +527,6 @@ static void wake_deferred_bio_worker(str
+ 	queue_work(cache->wq, &cache->deferred_bio_worker);
  }
  
--static void remap_to_origin_clear_discard(struct cache *cache, struct bio *bio,
--					  dm_oblock_t oblock)
-+static void __remap_to_origin_clear_discard(struct cache *cache, struct bio *bio,
-+					    dm_oblock_t oblock, bool bio_has_pbd)
+-static void wake_deferred_writethrough_worker(struct cache *cache)
+-{
+-	queue_work(cache->wq, &cache->deferred_writethrough_worker);
+-}
+-
+ static void wake_migration_worker(struct cache *cache)
  {
--	// FIXME: this is called way too much.
--	check_if_tick_bio_needed(cache, bio);
-+	if (bio_has_pbd)
-+		check_if_tick_bio_needed(cache, bio);
- 	remap_to_origin(cache, bio);
- 	if (bio_data_dir(bio) == WRITE)
- 		clear_discard(cache, oblock_to_dblock(cache, oblock));
+ 	if (passthrough_mode(cache))
+@@ -619,15 +603,9 @@ static unsigned lock_level(struct bio *b
+  * Per bio data
+  *--------------------------------------------------------------*/
+ 
+-/*
+- * If using writeback, leave out struct per_bio_data's writethrough fields.
+- */
+-#define PB_DATA_SIZE_WB (offsetof(struct per_bio_data, cache))
+-#define PB_DATA_SIZE_WT (sizeof(struct per_bio_data))
+-
+ static size_t get_per_bio_data_size(struct cache *cache)
+ {
+-	return writethrough_mode(cache) ? PB_DATA_SIZE_WT : PB_DATA_SIZE_WB;
++	return sizeof(struct per_bio_data);
  }
  
-+static void remap_to_origin_clear_discard(struct cache *cache, struct bio *bio,
-+					  dm_oblock_t oblock)
-+{
-+	// FIXME: check_if_tick_bio_needed() is called way too much through this interface
-+	__remap_to_origin_clear_discard(cache, bio, oblock, true);
-+}
-+
- static void remap_to_cache_dirty(struct cache *cache, struct bio *bio,
- 				 dm_oblock_t oblock, dm_cblock_t cblock)
- {
-@@ -971,23 +979,25 @@ static void writethrough_endio(struct bi
+ static struct per_bio_data *get_per_bio_data(struct bio *bio, size_t data_size)
+@@ -945,39 +923,6 @@ static void issue_op(struct bio *bio, vo
+ 	accounted_request(cache, bio);
  }
  
- /*
-- * FIXME: send in parallel, huge latency as is.
-  * When running in writethrough mode we need to send writes to clean blocks
-- * to both the cache and origin devices.  In future we'd like to clone the
-- * bio and send them in parallel, but for now we're doing them in
-- * series as this is easier.
-+ * to both the cache and origin devices.  Clone the bio and send them in parallel.
-  */
--static void remap_to_origin_then_cache(struct cache *cache, struct bio *bio,
--				       dm_oblock_t oblock, dm_cblock_t cblock)
-+static void remap_to_origin_and_cache(struct cache *cache, struct bio *bio,
-+				      dm_oblock_t oblock, dm_cblock_t cblock)
- {
+-static void defer_writethrough_bio(struct cache *cache, struct bio *bio)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&cache->lock, flags);
+-	bio_list_add(&cache->deferred_writethrough_bios, bio);
+-	spin_unlock_irqrestore(&cache->lock, flags);
+-
+-	wake_deferred_writethrough_worker(cache);
+-}
+-
+-static void writethrough_endio(struct bio *bio)
+-{
 -	struct per_bio_data *pb = get_per_bio_data(bio, PB_DATA_SIZE_WT);
-+	struct bio *origin_bio = bio_clone_fast(bio, GFP_NOIO, cache->bs);
-+
-+	BUG_ON(!origin_bio);
- 
--	pb->cache = cache;
--	pb->cblock = cblock;
--	dm_hook_bio(&pb->hook_info, bio, writethrough_endio, NULL);
--	dm_bio_record(&pb->bio_details, bio);
-+	bio_chain(origin_bio, bio);
-+	/*
-+	 * Passing false to __remap_to_origin_clear_discard() skips
-+	 * all code that might use per_bio_data (since clone doesn't have it)
-+	 */
-+	__remap_to_origin_clear_discard(cache, origin_bio, oblock, false);
-+	submit_bio(origin_bio);
- 
--	remap_to_origin_clear_discard(pb->cache, bio, oblock);
-+	remap_to_cache(cache, bio, cblock);
+-
+-	dm_unhook_bio(&pb->hook_info, bio);
+-
+-	if (bio->bi_status) {
+-		bio_endio(bio);
+-		return;
+-	}
+-
+-	dm_bio_restore(&pb->bio_details, bio);
+-	remap_to_cache(pb->cache, bio, pb->cblock);
+-
+-	/*
+-	 * We can't issue this bio directly, since we're in interrupt
+-	 * context.  So it gets put on a bio list for processing by the
+-	 * worker thread.
+-	 */
+-	defer_writethrough_bio(pb->cache, bio);
+-}
+-
+ /*
+  * When running in writethrough mode we need to send writes to clean blocks
+  * to both the cache and origin devices.  Clone the bio and send them in parallel.
+@@ -2013,28 +1958,6 @@ static void process_deferred_bios(struct
+ 		schedule_commit(&cache->committer);
  }
  
+-static void process_deferred_writethrough_bios(struct work_struct *ws)
+-{
+-	struct cache *cache = container_of(ws, struct cache, deferred_writethrough_worker);
+-
+-	unsigned long flags;
+-	struct bio_list bios;
+-	struct bio *bio;
+-
+-	bio_list_init(&bios);
+-
+-	spin_lock_irqsave(&cache->lock, flags);
+-	bio_list_merge(&bios, &cache->deferred_writethrough_bios);
+-	bio_list_init(&cache->deferred_writethrough_bios);
+-	spin_unlock_irqrestore(&cache->lock, flags);
+-
+-	/*
+-	 * These bios have already been through accounted_begin()
+-	 */
+-	while ((bio = bio_list_pop(&bios)))
+-		generic_make_request(bio);
+-}
+-
  /*----------------------------------------------------------------
-@@ -1873,7 +1883,7 @@ static int map_bio(struct cache *cache,
- 		} else {
- 			if (bio_data_dir(bio) == WRITE && writethrough_mode(cache) &&
- 			    !is_dirty(cache, cblock)) {
--				remap_to_origin_then_cache(cache, bio, block, cblock);
-+				remap_to_origin_and_cache(cache, bio, block, cblock);
- 				accounted_begin(cache, bio);
- 			} else
- 				remap_to_cache_dirty(cache, bio, block, cblock);
-@@ -2132,6 +2142,9 @@ static void destroy(struct cache *cache)
- 		kfree(cache->ctr_args[i]);
- 	kfree(cache->ctr_args);
- 
-+	if (cache->bs)
-+		bioset_free(cache->bs);
-+
- 	kfree(cache);
- }
- 
-@@ -2589,6 +2602,13 @@ static int cache_create(struct cache_arg
- 	cache->features = ca->features;
- 	ti->per_io_data_size = get_per_bio_data_size(cache);
- 
-+	if (writethrough_mode(cache)) {
-+		/* Create bioset for writethrough bios issued to origin */
-+		cache->bs = bioset_create(BIO_POOL_SIZE, 0, 0);
-+		if (!cache->bs)
-+			goto bad;
-+	}
-+
- 	cache->callbacks.congested_fn = cache_is_congested;
- 	dm_table_add_target_callbacks(ti->table, &cache->callbacks);
+  * Main worker loop
+  *--------------------------------------------------------------*/
+@@ -2690,7 +2613,6 @@ static int cache_create(struct cache_arg
+ 	spin_lock_init(&cache->lock);
+ 	INIT_LIST_HEAD(&cache->deferred_cells);
+ 	bio_list_init(&cache->deferred_bios);
+-	bio_list_init(&cache->deferred_writethrough_bios);
+ 	atomic_set(&cache->nr_allocated_migrations, 0);
+ 	atomic_set(&cache->nr_io_migrations, 0);
+ 	init_waitqueue_head(&cache->migration_wait);
+@@ -2729,8 +2651,6 @@ static int cache_create(struct cache_arg
+ 		goto bad;
+ 	}
+ 	INIT_WORK(&cache->deferred_bio_worker, process_deferred_bios);
+-	INIT_WORK(&cache->deferred_writethrough_worker,
+-		  process_deferred_writethrough_bios);
+ 	INIT_WORK(&cache->migration_worker, check_migrations);
+ 	INIT_DELAYED_WORK(&cache->waker, do_waker);
  
 
 
