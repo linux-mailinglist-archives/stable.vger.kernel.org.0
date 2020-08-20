@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 628C424B35E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE2424B27C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729274AbgHTJqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48532 "EHLO mail.kernel.org"
+        id S1728193AbgHTJbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728983AbgHTJqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:20 -0400
+        id S1727046AbgHTJa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:30:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DE492173E;
-        Thu, 20 Aug 2020 09:46:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57B4420724;
+        Thu, 20 Aug 2020 09:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916780;
-        bh=a0mQ9l867mnZMQADo1PEs3gYwox1kqQXfbw0BZLxdJQ=;
+        s=default; t=1597915857;
+        bh=RNUcBcNTkD1GFy4fHwktE1gUYbc2wxtI+X1AHVFZdjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmPFQRXAZIqIbgVv1f4lDkfwQnG/T5XQg33ywlOEX1oJjesDc+IfM+fqgq6DGjxyH
-         gD2rWr9pPZ/x+DMWFu8UDSg2QV2gZItWMMatCFrA37SP9lN1nmWwIDqpXKSz4j3I/f
-         CszVghM94s27jv2ykCxeRoMv1yOqONrIheyQXpA8=
+        b=gC8Zicp+S/EiipPYosB3tPN48yidcc/BY6qSibYHG1bsf2gk7oCROiYAEpqeVpJtV
+         ipT0Ge8cJbqAQXLArX9lg86LYDY2czI51GgrKApuByiJU74MwHfQlpDt6PfZB8zL71
+         40Qf+RWoRn4f472U7pCVw8FW3dl2Umviszu7vX40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 013/152] btrfs: stop incremening log_batch for the log root tree when syncing log
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 129/232] IB/uverbs: Set IOVA on IB MR in uverbs layer
 Date:   Thu, 20 Aug 2020 11:19:40 +0200
-Message-Id: <20200820091554.328851118@linuxfoundation.org>
+Message-Id: <20200820091619.064879283@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
+References: <20200820091612.692383444@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-commit 28a9579561bcb9082715e720eac93012e708ab94 upstream.
+[ Upstream commit 04c0a5fcfcf65aade2fb238b6336445f1a99b646 ]
 
-We are incrementing the log_batch atomic counter of the root log tree but
-we never use that counter, it's used only for the log trees of subvolume
-roots. We started doing it when we moved the log_batch and log_write
-counters from the global, per fs, btrfs_fs_info structure, into the
-btrfs_root structure in commit 7237f1833601dc ("Btrfs: fix tree logs
-parallel sync").
+Set IOVA on IB MR in uverbs layer to let all drivers have it, this
+includes both reg/rereg MR flows.
+As part of this change cleaned-up this setting from the drivers that
+already did it by themselves in their user flows.
 
-So just stop doing it for the log root tree and add a comment over the
-field declaration so inform it's used only for log trees of subvolume
-roots.
-
-This patch is part of a series that has the following patches:
-
-1/4 btrfs: only commit the delayed inode when doing a full fsync
-2/4 btrfs: only commit delayed items at fsync if we are logging a directory
-3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
-4/4 btrfs: remove no longer needed use of log_writers for the log root tree
-
-After the entire patchset applied I saw about 12% decrease on max latency
-reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
-ram, using kvm and using a raw NVMe device directly (no intermediary fs on
-the host). The test was invoked like the following:
-
-  mkfs.btrfs -f /dev/sdk
-  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
-  dbench -D /mnt/sdk -t 300 8
-  umount /mnt/dsk
-
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e6f0330106f4 ("mlx4_ib: set user mr attributes in struct ib_mr")
+Link: https://lore.kernel.org/r/20200630093916.332097-3-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h    |    1 +
- fs/btrfs/tree-log.c |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/uverbs_cmd.c | 4 ++++
+ drivers/infiniband/hw/cxgb4/mem.c    | 1 -
+ drivers/infiniband/hw/mlx4/mr.c      | 1 -
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -992,6 +992,7 @@ struct btrfs_root {
- 	struct list_head log_ctxs[2];
- 	atomic_t log_writers;
- 	atomic_t log_commit[2];
-+	/* Used only for log trees of subvolumes, not for the log root tree */
- 	atomic_t log_batch;
- 	int log_transid;
- 	/* No matter the commit succeeds or not*/
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3140,7 +3140,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 	btrfs_init_log_ctx(&root_log_ctx, NULL);
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index b48b3f6e632d4..557644dcc9237 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -770,6 +770,7 @@ static int ib_uverbs_reg_mr(struct uverbs_attr_bundle *attrs)
+ 	mr->uobject = uobj;
+ 	atomic_inc(&pd->usecnt);
+ 	mr->res.type = RDMA_RESTRACK_MR;
++	mr->iova = cmd.hca_va;
+ 	rdma_restrack_uadd(&mr->res);
  
- 	mutex_lock(&log_root_tree->log_mutex);
--	atomic_inc(&log_root_tree->log_batch);
- 	atomic_inc(&log_root_tree->log_writers);
+ 	uobj->object = mr;
+@@ -861,6 +862,9 @@ static int ib_uverbs_rereg_mr(struct uverbs_attr_bundle *attrs)
+ 		atomic_dec(&old_pd->usecnt);
+ 	}
  
- 	index2 = log_root_tree->log_transid % 2;
++	if (cmd.flags & IB_MR_REREG_TRANS)
++		mr->iova = cmd.hca_va;
++
+ 	memset(&resp, 0, sizeof(resp));
+ 	resp.lkey      = mr->lkey;
+ 	resp.rkey      = mr->rkey;
+diff --git a/drivers/infiniband/hw/cxgb4/mem.c b/drivers/infiniband/hw/cxgb4/mem.c
+index 962dc97a8ff2b..1e4f4e5255980 100644
+--- a/drivers/infiniband/hw/cxgb4/mem.c
++++ b/drivers/infiniband/hw/cxgb4/mem.c
+@@ -399,7 +399,6 @@ static int finish_mem_reg(struct c4iw_mr *mhp, u32 stag)
+ 	mmid = stag >> 8;
+ 	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
+ 	mhp->ibmr.length = mhp->attr.len;
+-	mhp->ibmr.iova = mhp->attr.va_fbo;
+ 	mhp->ibmr.page_size = 1U << (mhp->attr.page_size + 12);
+ 	pr_debug("mmid 0x%x mhp %p\n", mmid, mhp);
+ 	return xa_insert_irq(&mhp->rhp->mrs, mmid, mhp, GFP_KERNEL);
+diff --git a/drivers/infiniband/hw/mlx4/mr.c b/drivers/infiniband/hw/mlx4/mr.c
+index 7e0b205c05eb3..d7c78f841d2f5 100644
+--- a/drivers/infiniband/hw/mlx4/mr.c
++++ b/drivers/infiniband/hw/mlx4/mr.c
+@@ -439,7 +439,6 @@ struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 
+ 	mr->ibmr.rkey = mr->ibmr.lkey = mr->mmr.key;
+ 	mr->ibmr.length = length;
+-	mr->ibmr.iova = virt_addr;
+ 	mr->ibmr.page_size = 1U << shift;
+ 
+ 	return &mr->ibmr;
+-- 
+2.25.1
+
 
 
