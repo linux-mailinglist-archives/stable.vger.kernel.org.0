@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C3D24B413
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2238B24B2F2
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730283AbgHTJ5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:57:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
+        id S1728961AbgHTJjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729684AbgHTJ5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:57:05 -0400
+        id S1728943AbgHTJjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FF39207FB;
-        Thu, 20 Aug 2020 09:57:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C03920724;
+        Thu, 20 Aug 2020 09:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917424;
-        bh=p6TsHCvvkp3SLABaDg9z5pQt9RWPKGLg3o7T1fgNJ4E=;
+        s=default; t=1597916364;
+        bh=8xb+Gv2zVXgerD4FU1n/Tb5A6ZPUmJJhP1tj6t/q9gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWBxhVCm5/oz3ZK7spiqxA2/9zD5tAcCOx7H1fyDrSQpSVSq0CY0ZtSHEgnfeJSd+
-         IHbhcnWAC69r+nLKAn9OUbo0f4Gw7s05UlNOrcjNg3nsmbWyj6dAQoVk9hnSQLC7z9
-         ue60B/8mMpWOTJnWSw5B3PeF7bJCEBRf331OpXds=
+        b=WvcMxVmUd2cEnwMxu9RXkHG9IYNiN5XBH4jNhrzsgot3jWvxunrzAWqlDPeA3q4cG
+         CcYhy76PWPL03ALs86kfRAv0G1wz4Znj7oLiNeTEAiLmjbmr1ykg17QSa7JtkpUADI
+         BVI/JhSU4HTMolpFsDOSKOG8oz0/2FZJW+vzuMe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/212] sh: Fix validation of system call number
-Date:   Thu, 20 Aug 2020 11:19:59 +0200
-Message-Id: <20200820091603.663937357@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 103/204] mtd: rawnand: brcmnand: ECC error handling on EDU transfers
+Date:   Thu, 20 Aug 2020 11:20:00 +0200
+Message-Id: <20200820091611.466364001@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
 
-[ Upstream commit 04a8a3d0a73f51c7c2da84f494db7ec1df230e69 ]
+[ Upstream commit 4551e78ad98add1f16b70cf286d5aad3ce7bcd4c ]
 
-The slow path for traced system call entries accessed a wrong memory
-location to get the number of the maximum allowed system call number.
-Renumber the numbered "local" label for the correct location to avoid
-collisions with actual local labels.
+Implement ECC correctable and uncorrectable error handling for EDU
+reads. If ECC correctable bitflips are encountered on EDU transfer,
+read page again using PIO. This is needed due to a NAND controller
+limitation where corrected data is not transferred to the DMA buffer
+on ECC error. This applies to ECC correctable errors that are reported
+by the controller hardware based on set number of bitflips threshold in
+the controller threshold register, bitflips below the threshold are
+corrected silently and are not reported by the controller hardware.
 
-Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Fixes: f3a8308864f920d2 ("sh: Add a few missing irqflags tracing markers.")
-Signed-off-by: Rich Felker <dalias@libc.org>
+Fixes: a5d53ad26a8b ("mtd: rawnand: brcmnand: Add support for flash-edu for dma transfers")
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200612212902.21347-3-kdasu.kdev@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/entry-common.S | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/raw/brcmnand/brcmnand.c | 26 ++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/arch/sh/kernel/entry-common.S b/arch/sh/kernel/entry-common.S
-index 28cc61216b649..ed5b758c650d7 100644
---- a/arch/sh/kernel/entry-common.S
-+++ b/arch/sh/kernel/entry-common.S
-@@ -203,7 +203,7 @@ syscall_trace_entry:
- 	mov.l	@(OFF_R7,r15), r7   ! arg3
- 	mov.l	@(OFF_R3,r15), r3   ! syscall_nr
- 	!
--	mov.l	2f, r10			! Number of syscalls
-+	mov.l	6f, r10			! Number of syscalls
- 	cmp/hs	r10, r3
- 	bf	syscall_call
- 	mov	#-ENOSYS, r0
-@@ -357,7 +357,7 @@ ENTRY(system_call)
- 	tst	r9, r8
- 	bf	syscall_trace_entry
- 	!
--	mov.l	2f, r8			! Number of syscalls
-+	mov.l	6f, r8			! Number of syscalls
- 	cmp/hs	r8, r3
- 	bt	syscall_badsys
- 	!
-@@ -396,7 +396,7 @@ syscall_exit:
- #if !defined(CONFIG_CPU_SH2)
- 1:	.long	TRA
- #endif
--2:	.long	NR_syscalls
-+6:	.long	NR_syscalls
- 3:	.long	sys_call_table
- 7:	.long	do_syscall_trace_enter
- 8:	.long	do_syscall_trace_leave
+diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+index cdae2311a3b69..0b1ea965cba08 100644
+--- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+@@ -1859,6 +1859,22 @@ static int brcmnand_edu_trans(struct brcmnand_host *host, u64 addr, u32 *buf,
+ 	edu_writel(ctrl, EDU_STOP, 0); /* force stop */
+ 	edu_readl(ctrl, EDU_STOP);
+ 
++	if (!ret && edu_cmd == EDU_CMD_READ) {
++		u64 err_addr = 0;
++
++		/*
++		 * check for ECC errors here, subpage ECC errors are
++		 * retained in ECC error address register
++		 */
++		err_addr = brcmnand_get_uncorrecc_addr(ctrl);
++		if (!err_addr) {
++			err_addr = brcmnand_get_correcc_addr(ctrl);
++			if (err_addr)
++				ret = -EUCLEAN;
++		} else
++			ret = -EBADMSG;
++	}
++
+ 	return ret;
+ }
+ 
+@@ -2065,6 +2081,7 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
+ 	u64 err_addr = 0;
+ 	int err;
+ 	bool retry = true;
++	bool edu_err = false;
+ 
+ 	dev_dbg(ctrl->dev, "read %llx -> %p\n", (unsigned long long)addr, buf);
+ 
+@@ -2082,6 +2099,10 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
+ 			else
+ 				return -EIO;
+ 		}
++
++		if (has_edu(ctrl) && err_addr)
++			edu_err = true;
++
+ 	} else {
+ 		if (oob)
+ 			memset(oob, 0x99, mtd->oobsize);
+@@ -2129,6 +2150,11 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
+ 	if (mtd_is_bitflip(err)) {
+ 		unsigned int corrected = brcmnand_count_corrected(ctrl);
+ 
++		/* in case of EDU correctable error we read again using PIO */
++		if (edu_err)
++			err = brcmnand_read_by_pio(mtd, chip, addr, trans, buf,
++						   oob, &err_addr);
++
+ 		dev_dbg(ctrl->dev, "corrected error at 0x%llx\n",
+ 			(unsigned long long)err_addr);
+ 		mtd->ecc_stats.corrected += corrected;
 -- 
 2.25.1
 
