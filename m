@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144B624BD43
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE2124BD3E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728282AbgHTNCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:02:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60362 "EHLO mail.kernel.org"
+        id S1729036AbgHTJk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:40:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728528AbgHTJkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:40:14 -0400
+        id S1728092AbgHTJk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:40:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6043F2075E;
-        Thu, 20 Aug 2020 09:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B516207DE;
+        Thu, 20 Aug 2020 09:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916413;
-        bh=5AckTXm0iPCXnCFpyigvpzwr1s+pozYsuJuIRPH0wgk=;
+        s=default; t=1597916425;
+        bh=kWnBaufKUqvCtbG/HZ7TugvbLVyRRBhbOYdabkB1sKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgTp/A7pWnJXvp1tTOm0QUuySRSOmuAjqgwUVCgPIHtB3BHeG/aSoRqhKv0LduqFf
-         zxD5notlbFuAnfL/n9K0MJAYsfld7TCLWN1K4d+u2l2DOzPrbifkXj8lxn9dQNc3N8
-         TxGPE20kCG9LND0e1GMwCTNVRI8BUIoOS8OEWCyo=
+        b=sJFmLOTczel5mXZp09kp30eN0IeRjIKeutUylYvc/Y67UCsSZoxSdM3o4BENSvjgm
+         UAYYbCpzBBG8BFcDhlzroue2JTXbuWeFuZJLihLdVbAOVr+tzrvAiOXulVD4RuEqxo
+         YSBR4pqcdVpRxHy7q4x9gU8vsX2yh9PoCjQ1vL50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>
-Subject: [PATCH 5.7 092/204] perf intel-pt: Fix duplicate branch after CBR
-Date:   Thu, 20 Aug 2020 11:19:49 +0200
-Message-Id: <20200820091610.928636133@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.7 093/204] gfs2: Never call gfs2_block_zero_range with an open transaction
+Date:   Thu, 20 Aug 2020 11:19:50 +0200
+Message-Id: <20200820091610.978944493@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -45,77 +43,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit a58a057ce65b52125dd355b7d8b0d540ea267a5f upstream.
+commit 70499cdfeb3625c87eebe4f7a7ea06fa7447e5df upstream.
 
-CBR events can result in a duplicate branch event, because the state
-type defaults to a branch. Fix by clearing the state type.
+Before this patch, some functions started transactions then they called
+gfs2_block_zero_range. However, gfs2_block_zero_range, like writes, can
+start transactions, which results in a recursive transaction error.
+For example:
 
-Example: trace 'sleep' and hope for a frequency change
+do_shrink
+   trunc_start
+      gfs2_trans_begin <------------------------------------------------
+         gfs2_block_zero_range
+            iomap_zero_range(inode, from, length, NULL, &gfs2_iomap_ops);
+               iomap_apply ... iomap_zero_range_actor
+                  iomap_begin
+                     gfs2_iomap_begin
+                        gfs2_iomap_begin_write
+                  actor (iomap_zero_range_actor)
+		     iomap_zero
+			iomap_write_begin
+			   gfs2_iomap_page_prepare
+			      gfs2_trans_begin <------------------------
 
- Before:
+This patch reorders the callers of gfs2_block_zero_range so that they
+only start their transactions after the call. It also adds a BUG_ON to
+ensure this doesn't happen again.
 
-   $ perf record -e intel_pt//u sleep 0.1
-   [ perf record: Woken up 1 times to write data ]
-   [ perf record: Captured and wrote 0.034 MB perf.data ]
-   $ perf script --itrace=bpe > before.txt
-
- After:
-
-   $ perf script --itrace=bpe > after.txt
-   $ diff -u before.txt after.txt
-#  --- before.txt  2020-07-07 14:42:18.191508098 +0300
-#  +++ after.txt   2020-07-07 14:42:36.587891753 +0300
-   @@ -29673,7 +29673,6 @@
-               sleep 93431 [007] 15411.619905:          1  branches:u:                 0 [unknown] ([unknown]) =>     7f0818abb2e0 clock_nanosleep@@GLIBC_2.17+0x0 (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
-               sleep 93431 [007] 15411.619905:          1  branches:u:      7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>                0 [unknown] ([unknown])
-               sleep 93431 [007] 15411.720069:         cbr:  cbr: 15 freq: 1507 MHz ( 56%)         7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
-   -           sleep 93431 [007] 15411.720069:          1  branches:u:      7f0818abb30c clock_nanosleep@@GLIBC_2.17+0x2c (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>                0 [unknown] ([unknown])
-               sleep 93431 [007] 15411.720076:          1  branches:u:                 0 [unknown] ([unknown]) =>     7f0818abb30e clock_nanosleep@@GLIBC_2.17+0x2e (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
-               sleep 93431 [007] 15411.720077:          1  branches:u:      7f0818abb323 clock_nanosleep@@GLIBC_2.17+0x43 (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>     7f0818ac0eb7 __nanosleep+0x17 (/usr/lib/x86_64-linux-gnu/libc-2.31.so)
-               sleep 93431 [007] 15411.720077:          1  branches:u:      7f0818ac0ebf __nanosleep+0x1f (/usr/lib/x86_64-linux-gnu/libc-2.31.so) =>     55cb7e4c2827 rpl_nanosleep+0x97 (/usr/bin/sleep)
-
-Fixes: 91de8684f1cff ("perf intel-pt: Cater for CBR change in PSB+")
-Fixes: abe5a1d3e4bee ("perf intel-pt: Decoder to output CBR changes immediately")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200710151104.15137-3-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 2257e468a63b ("gfs2: implement gfs2_block_zero_range using iomap_zero_range")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/gfs2/bmap.c |   69 ++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 39 insertions(+), 30 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1977,8 +1977,10 @@ next:
- 			 * possibility of another CBR change that gets caught up
- 			 * in the PSB+.
- 			 */
--			if (decoder->cbr != decoder->cbr_seen)
-+			if (decoder->cbr != decoder->cbr_seen) {
-+				decoder->state.type = 0;
- 				return 0;
-+			}
- 			break;
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -1351,9 +1351,15 @@ int gfs2_extent_map(struct inode *inode,
+ 	return ret;
+ }
  
- 		case INTEL_PT_PIP:
-@@ -2019,8 +2021,10 @@ next:
++/*
++ * NOTE: Never call gfs2_block_zero_range with an open transaction because it
++ * uses iomap write to perform its actions, which begin their own transactions
++ * (iomap_begin, page_prepare, etc.)
++ */
+ static int gfs2_block_zero_range(struct inode *inode, loff_t from,
+ 				 unsigned int length)
+ {
++	BUG_ON(current->journal_info);
+ 	return iomap_zero_range(inode, from, length, NULL, &gfs2_iomap_ops);
+ }
  
- 		case INTEL_PT_CBR:
- 			intel_pt_calc_cbr(decoder);
--			if (decoder->cbr != decoder->cbr_seen)
-+			if (decoder->cbr != decoder->cbr_seen) {
-+				decoder->state.type = 0;
- 				return 0;
-+			}
- 			break;
+@@ -1414,6 +1420,16 @@ static int trunc_start(struct inode *ino
+ 	u64 oldsize = inode->i_size;
+ 	int error;
  
- 		case INTEL_PT_MODE_EXEC:
++	if (!gfs2_is_stuffed(ip)) {
++		unsigned int blocksize = i_blocksize(inode);
++		unsigned int offs = newsize & (blocksize - 1);
++		if (offs) {
++			error = gfs2_block_zero_range(inode, newsize,
++						      blocksize - offs);
++			if (error)
++				return error;
++		}
++	}
+ 	if (journaled)
+ 		error = gfs2_trans_begin(sdp, RES_DINODE + RES_JDATA, GFS2_JTRUNC_REVOKES);
+ 	else
+@@ -1427,19 +1443,10 @@ static int trunc_start(struct inode *ino
+ 
+ 	gfs2_trans_add_meta(ip->i_gl, dibh);
+ 
+-	if (gfs2_is_stuffed(ip)) {
++	if (gfs2_is_stuffed(ip))
+ 		gfs2_buffer_clear_tail(dibh, sizeof(struct gfs2_dinode) + newsize);
+-	} else {
+-		unsigned int blocksize = i_blocksize(inode);
+-		unsigned int offs = newsize & (blocksize - 1);
+-		if (offs) {
+-			error = gfs2_block_zero_range(inode, newsize,
+-						      blocksize - offs);
+-			if (error)
+-				goto out;
+-		}
++	else
+ 		ip->i_diskflags |= GFS2_DIF_TRUNC_IN_PROG;
+-	}
+ 
+ 	i_size_write(inode, newsize);
+ 	ip->i_inode.i_mtime = ip->i_inode.i_ctime = current_time(&ip->i_inode);
+@@ -2448,25 +2455,7 @@ int __gfs2_punch_hole(struct file *file,
+ 	loff_t start, end;
+ 	int error;
+ 
+-	start = round_down(offset, blocksize);
+-	end = round_up(offset + length, blocksize) - 1;
+-	error = filemap_write_and_wait_range(inode->i_mapping, start, end);
+-	if (error)
+-		return error;
+-
+-	if (gfs2_is_jdata(ip))
+-		error = gfs2_trans_begin(sdp, RES_DINODE + 2 * RES_JDATA,
+-					 GFS2_JTRUNC_REVOKES);
+-	else
+-		error = gfs2_trans_begin(sdp, RES_DINODE, 0);
+-	if (error)
+-		return error;
+-
+-	if (gfs2_is_stuffed(ip)) {
+-		error = stuffed_zero_range(inode, offset, length);
+-		if (error)
+-			goto out;
+-	} else {
++	if (!gfs2_is_stuffed(ip)) {
+ 		unsigned int start_off, end_len;
+ 
+ 		start_off = offset & (blocksize - 1);
+@@ -2489,6 +2478,26 @@ int __gfs2_punch_hole(struct file *file,
+ 		}
+ 	}
+ 
++	start = round_down(offset, blocksize);
++	end = round_up(offset + length, blocksize) - 1;
++	error = filemap_write_and_wait_range(inode->i_mapping, start, end);
++	if (error)
++		return error;
++
++	if (gfs2_is_jdata(ip))
++		error = gfs2_trans_begin(sdp, RES_DINODE + 2 * RES_JDATA,
++					 GFS2_JTRUNC_REVOKES);
++	else
++		error = gfs2_trans_begin(sdp, RES_DINODE, 0);
++	if (error)
++		return error;
++
++	if (gfs2_is_stuffed(ip)) {
++		error = stuffed_zero_range(inode, offset, length);
++		if (error)
++			goto out;
++	}
++
+ 	if (gfs2_is_jdata(ip)) {
+ 		BUG_ON(!current->journal_info);
+ 		gfs2_journaled_truncate_range(inode, offset, length);
 
 
