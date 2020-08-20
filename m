@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5928F24B863
+	by mail.lfdr.de (Postfix) with ESMTP id C5BF524B864
 	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbgHTLTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:19:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
+        id S1729976AbgHTLTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:19:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729049AbgHTKH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:07:57 -0400
+        id S1729790AbgHTKIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:08:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F21232067C;
-        Thu, 20 Aug 2020 10:07:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03A5B2078D;
+        Thu, 20 Aug 2020 10:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918076;
-        bh=kVRhEtl+UAk4V947xnY62S2SgqgbROmEWjYLUe4PZH4=;
+        s=default; t=1597918082;
+        bh=HVJC6K6oUqf0NTWf0N29VA5BeABOH0MfAAvmGv5LN8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HnR+NM4N3uMXyx5U3aSKxRb4uMc1nDbW5uuKoYoEN4xTuP5tlmYBNyeoEj3CDEDqI
-         E+p0O8oc4fURLlD9/+ldWw6/K1XotXq8A7XJmI+j1NDNqFRh5buqvm+TjerhpSLIM3
-         CXUiXassmDJk/bmx1RLzhq+QbamsB7gBJj3+ni3M=
+        b=FaTYYZhbJbUUZ6+x15bk4sseRYUtYqiV2U8/HZUBbfmnj1ZV4EE0UabwLH5DaEvEF
+         7GfR3bf7jGzDYJeyE7U0jBHZCekeDRkrtdMkCcm2eL4uYUVZUo6fYtQd2+3ue3sSQm
+         1YrzcfIsjs6IULnNlFtGKEA11R+AGiA1kf36US4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>,
-        Darren Hart <darren@dvhart.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Darren Hart <dvhart@infradead.org>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 044/228] HID: input: Fix devices that return multiple bytes in battery report
-Date:   Thu, 20 Aug 2020 11:20:19 +0200
-Message-Id: <20200820091609.804574301@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 046/228] x86/mce/inject: Fix a wrong assignment of i_mce.status
+Date:   Thu, 20 Aug 2020 11:20:21 +0200
+Message-Id: <20200820091609.915096064@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -47,61 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Likely <grant.likely@secretlab.ca>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-commit 4f57cace81438cc873a96f9f13f08298815c9b51 upstream.
+[ Upstream commit 5d7f7d1d5e01c22894dee7c9c9266500478dca99 ]
 
-Some devices, particularly the 3DConnexion Spacemouse wireless 3D
-controllers, return more than just the battery capacity in the battery
-report. The Spacemouse devices return an additional byte with a device
-specific field. However, hidinput_query_battery_capacity() only
-requests a 2 byte transfer.
+The original code is a nop as i_mce.status is or'ed with part of itself,
+fix it.
 
-When a spacemouse is connected via USB (direct wire, no wireless dongle)
-and it returns a 3 byte report instead of the assumed 2 byte battery
-report the larger transfer confuses and frightens the USB subsystem
-which chooses to ignore the transfer. Then after 2 seconds assume the
-device has stopped responding and reset it. This can be reproduced
-easily by using a wired connection with a wireless spacemouse. The
-Spacemouse will enter a loop of resetting every 2 seconds which can be
-observed in dmesg.
-
-This patch solves the problem by increasing the transfer request to 4
-bytes instead of 2. The fix isn't particularly elegant, but it is simple
-and safe to backport to stable kernels. A further patch will follow to
-more elegantly handle battery reports that contain additional data.
-
-Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
-Cc: Darren Hart <darren@dvhart.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Tested-by: Darren Hart <dvhart@infradead.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a1300e505297 ("x86/ras/mce_amd_inj: Trigger deferred and thresholding errors interrupts")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Link: https://lkml.kernel.org/r/20200611023238.3830-1-zhenzhong.duan@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -362,13 +362,13 @@ static int hidinput_query_battery_capaci
- 	u8 *buf;
- 	int ret;
- 
--	buf = kmalloc(2, GFP_KERNEL);
-+	buf = kmalloc(4, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
-+	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 4,
- 				 dev->battery_report_type, HID_REQ_GET_REPORT);
--	if (ret != 2) {
-+	if (ret < 2) {
- 		kfree(buf);
- 		return -ENODATA;
+diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+index e57b59762f9f5..94aa91b09c288 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
++++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+@@ -518,7 +518,7 @@ static void do_inject(void)
+ 	 */
+ 	if (inj_type == DFR_INT_INJ) {
+ 		i_mce.status |= MCI_STATUS_DEFERRED;
+-		i_mce.status |= (i_mce.status & ~MCI_STATUS_UC);
++		i_mce.status &= ~MCI_STATUS_UC;
  	}
+ 
+ 	/*
+-- 
+2.25.1
+
 
 
