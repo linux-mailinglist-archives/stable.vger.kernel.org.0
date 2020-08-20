@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD6824BCCD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E23F24BCBE
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730001AbgHTMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40874 "EHLO mail.kernel.org"
+        id S1728518AbgHTJnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728449AbgHTJnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729237AbgHTJnX (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 Aug 2020 05:43:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2513E208E4;
-        Thu, 20 Aug 2020 09:43:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 946BD2173E;
+        Thu, 20 Aug 2020 09:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916599;
-        bh=+2rkOLTAojPpciCsfnRQKWhqYJpIMKTSKUdmYJd/ZrI=;
+        s=default; t=1597916602;
+        bh=SyegA3bvJrFg8dpHJ5/ardA2mwqjWJ6lgwFOeVX86zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwLlMdhM6rxUeQxoqg84zaxDAvL2u/M94oln0JqzvQdkKPMSPRn+p6JlQIaYmilXl
-         inSSwhluST+QUHO081SbxSKAwFQWsCQHa4vmGjOPB1tp6j0lA+ay0/ZYvwx151U4cg
-         LHGwSMmYDBceropi4VNiPqQJPQ0Jtm1Tr/dTxSJY=
+        b=imJp3Olux2Gtf1MSftCoXJJGVPDZ0GkK1kF0AiOqzYPGX/uucUrzlDBVUZrmL2Y9b
+         XZQFKGkYShKJIGHFQZu29p9Un/nEsgNKgzM4kaj4ZkBP4LbIbFw2kTkZ7IzaTEI779
+         S6bLMsrT/J6RcTeqleN9vDGMvDguwmx2wjATBFng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 184/204] ALSA: echoaudio: Fix potential Oops in snd_echo_resume()
-Date:   Thu, 20 Aug 2020 11:21:21 +0200
-Message-Id: <20200820091615.386738415@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, kernel@axis.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 185/204] perf bench mem: Always memset source before memcpy
+Date:   Thu, 20 Aug 2020 11:21:22 +0200
+Message-Id: <20200820091615.427174598@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,43 +50,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 5a25de6df789cc805a9b8ba7ab5deef5067af47e ]
+[ Upstream commit 1beaef29c34154ccdcb3f1ae557f6883eda18840 ]
 
-Freeing chip on error may lead to an Oops at the next time
-the system goes to resume. Fix this by removing all
-snd_echo_free() calls on error.
+For memcpy, the source pages are memset to zero only when --cycles is
+used.  This leads to wildly different results with or without --cycles,
+since all sources pages are likely to be mapped to the same zero page
+without explicit writes.
 
-Fixes: 47b5d028fdce8 ("ALSA: Echoaudio - Add suspend support #2")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20200813074632.17022-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Before this fix:
+
+$ export cmd="./perf stat -e LLC-loads -- ./perf bench \
+  mem memcpy -s 1024MB -l 100 -f default"
+$ $cmd
+
+         2,935,826      LLC-loads
+       3.821677452 seconds time elapsed
+
+$ $cmd --cycles
+
+       217,533,436      LLC-loads
+       8.616725985 seconds time elapsed
+
+After this fix:
+
+$ $cmd
+
+       214,459,686      LLC-loads
+       8.674301124 seconds time elapsed
+
+$ $cmd --cycles
+
+       214,758,651      LLC-loads
+       8.644480006 seconds time elapsed
+
+Fixes: 47b5757bac03c338 ("perf bench mem: Move boilerplate memory allocation to the infrastructure")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: kernel@axis.com
+Link: http://lore.kernel.org/lkml/20200810133404.30829-1-vincent.whitchurch@axis.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/echoaudio/echoaudio.c | 2 --
- 1 file changed, 2 deletions(-)
+ tools/perf/bench/mem-functions.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/sound/pci/echoaudio/echoaudio.c b/sound/pci/echoaudio/echoaudio.c
-index 0941a7a17623a..456219a665a79 100644
---- a/sound/pci/echoaudio/echoaudio.c
-+++ b/sound/pci/echoaudio/echoaudio.c
-@@ -2158,7 +2158,6 @@ static int snd_echo_resume(struct device *dev)
- 	if (err < 0) {
- 		kfree(commpage_bak);
- 		dev_err(dev, "resume init_hw err=%d\n", err);
--		snd_echo_free(chip);
- 		return err;
- 	}
+diff --git a/tools/perf/bench/mem-functions.c b/tools/perf/bench/mem-functions.c
+index 9235b76501be8..19d45c377ac18 100644
+--- a/tools/perf/bench/mem-functions.c
++++ b/tools/perf/bench/mem-functions.c
+@@ -223,12 +223,8 @@ static int bench_mem_common(int argc, const char **argv, struct bench_mem_info *
+ 	return 0;
+ }
  
-@@ -2185,7 +2184,6 @@ static int snd_echo_resume(struct device *dev)
- 	if (request_irq(pci->irq, snd_echo_interrupt, IRQF_SHARED,
- 			KBUILD_MODNAME, chip)) {
- 		dev_err(chip->card->dev, "cannot grab irq\n");
--		snd_echo_free(chip);
- 		return -EBUSY;
- 	}
- 	chip->irq = pci->irq;
+-static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
++static void memcpy_prefault(memcpy_t fn, size_t size, void *src, void *dst)
+ {
+-	u64 cycle_start = 0ULL, cycle_end = 0ULL;
+-	memcpy_t fn = r->fn.memcpy;
+-	int i;
+-
+ 	/* Make sure to always prefault zero pages even if MMAP_THRESH is crossed: */
+ 	memset(src, 0, size);
+ 
+@@ -237,6 +233,15 @@ static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, vo
+ 	 * to not measure page fault overhead:
+ 	 */
+ 	fn(dst, src, size);
++}
++
++static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
++{
++	u64 cycle_start = 0ULL, cycle_end = 0ULL;
++	memcpy_t fn = r->fn.memcpy;
++	int i;
++
++	memcpy_prefault(fn, size, src, dst);
+ 
+ 	cycle_start = get_cycles();
+ 	for (i = 0; i < nr_loops; ++i)
+@@ -252,11 +257,7 @@ static double do_memcpy_gettimeofday(const struct function *r, size_t size, void
+ 	memcpy_t fn = r->fn.memcpy;
+ 	int i;
+ 
+-	/*
+-	 * We prefault the freshly allocated memory range here,
+-	 * to not measure page fault overhead:
+-	 */
+-	fn(dst, src, size);
++	memcpy_prefault(fn, size, src, dst);
+ 
+ 	BUG_ON(gettimeofday(&tv_start, NULL));
+ 	for (i = 0; i < nr_loops; ++i)
 -- 
 2.25.1
 
