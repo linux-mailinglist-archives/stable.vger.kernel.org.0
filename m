@@ -2,38 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D74C224BBC0
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC05024BCFD
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbgHTMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55038 "EHLO mail.kernel.org"
+        id S1729403AbgHTM4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728132AbgHTJtQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:49:16 -0400
+        id S1729021AbgHTJlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 850E42173E;
-        Thu, 20 Aug 2020 09:49:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B72C0207DE;
+        Thu, 20 Aug 2020 09:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916956;
-        bh=7stOTL4c0r0SmATase0Q11SoLc9JM33qxJma8oASAuE=;
+        s=default; t=1597916496;
+        bh=kd2Yr6+wbTLLBxWO7E4xpvAev+G/QmkPgWGalcRAUp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upyd6Pjgq7Wc6GvDDMOwd4/3LTjV9cL8twMyz8z4SHC7DgRuoV6KHWj0NaE2p8rzA
-         hMrR7vhkIAAsQw2obJjSkxnfzqkxnJspHeiaN/Xu2nG4kGl/lZK3vQ5S5juUip/2oa
-         yqoXaNvURtrX3Oq2p/b0EJ7sLfJt3DzyP8COHPBM=
+        b=nDcYJHLfnjj4JXq/efBlrZALO/MLxOU17AMKq4uQ5Jps1makruNWuaVVLI4+70lK5
+         eeWZQkbfDt7p5ATyh6MiW6uCqBp7XEYPAFEjL0R/foLBBsE5cFcjXRqMb83GRIziun
+         M2TPz8y2xEDBo8REhJzsixz4mNOVsI0ApugdkN/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        David Carrillo-Cisneros <davidcc@google.com>,
+        Ian Rogers <irogers@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 077/152] crypto: algif_aead - Only wake up when ctx->more is zero
-Date:   Thu, 20 Aug 2020 11:20:44 +0200
-Message-Id: <20200820091557.681528438@linuxfoundation.org>
+Subject: [PATCH 5.7 148/204] tools build feature: Use CC and CXX from parent
+Date:   Thu, 20 Aug 2020 11:20:45 +0200
+Message-Id: <20200820091613.639065276@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit f3c802a1f30013f8f723b62d7fa49eb9e991da23 ]
+[ Upstream commit e3232c2f39acafd5a29128425bc30b9884642cfa ]
 
-AEAD does not support partial requests so we must not wake up
-while ctx->more is set.  In order to distinguish between the
-case of no data sent yet and a zero-length request, a new init
-flag has been added to ctx.
+commit c8c188679ccf ("tools build: Use the same CC for feature detection
+and actual build") changed these assignments from unconditional (:=) to
+conditional (?=) so that they wouldn't clobber values from the
+environment. However, conditional assignment does not work properly for
+variables that Make implicitly sets, among which are CC and CXX. To
+quote tools/scripts/Makefile.include, which handles this properly:
 
-SKCIPHER has also been modified to ensure that at least a block
-of data is available if there is more data to come.
+  # Makefiles suck: This macro sets a default value of $(2) for the
+  # variable named by $(1), unless the variable has been set by
+  # environment or command line. This is necessary for CC and AR
+  # because make sets default values, so the simpler ?= approach
+  # won't work as expected.
 
-Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In other words, the conditional assignments will not run even if the
+variables are not overridden in the environment; Make will set CC to
+"cc" and CXX to "g++" when it starts[1], meaning the variables are not
+empty by the time the conditional assignments are evaluated. This breaks
+cross-compilation when CROSS_COMPILE is set but CC isn't, since "cc"
+gets used for feature detection instead of the cross compiler (and
+likewise for CXX).
+
+To fix the issue, just pass down the values of CC and CXX computed by
+the parent Makefile, which gets included by the Makefile that actually
+builds whatever we're detecting features for and so is guaranteed to
+have good values. This is a better solution anyway, since it means we
+aren't trying to replicate the logic of the parent build system and so
+don't risk it getting out of sync.
+
+Leave PKG_CONFIG alone, since 1) there's no common logic to compute it
+in Makefile.include, and 2) it's not an implicit variable, so
+conditional assignment works properly.
+
+[1] https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+Fixes: c8c188679ccf ("tools build: Use the same CC for feature detection and actual build")
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: David Carrillo-Cisneros <davidcc@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Igor Lubashev <ilubashe@akamai.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: thomas hebb <tommyhebb@gmail.com>
+Link: http://lore.kernel.org/lkml/0a6e69d1736b0fa231a648f50b0cce5d8a6734ef.1595822871.git.tommyhebb@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c         | 11 ++++++++---
- crypto/algif_aead.c     |  4 ++--
- crypto/algif_skcipher.c |  4 ++--
- include/crypto/if_alg.h |  4 +++-
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ tools/build/Makefile.feature | 2 +-
+ tools/build/feature/Makefile | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index a3b9df99af6de..ed8ace8675b77 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -635,6 +635,7 @@ void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index 3e0c019ef2971..941cddd5c00cd 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -8,7 +8,7 @@ endif
  
- 	if (!ctx->used)
- 		ctx->merge = 0;
-+	ctx->init = ctx->more;
- }
- EXPORT_SYMBOL_GPL(af_alg_pull_tsgl);
+ feature_check = $(eval $(feature_check_code))
+ define feature_check_code
+-  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
++  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
+ endef
  
-@@ -734,9 +735,10 @@ EXPORT_SYMBOL_GPL(af_alg_wmem_wakeup);
-  *
-  * @sk socket of connection to user space
-  * @flags If MSG_DONTWAIT is set, then only report if function would sleep
-+ * @min Set to minimum request size if partial requests are allowed.
-  * @return 0 when writable memory is available, < 0 upon error
-  */
--int af_alg_wait_for_data(struct sock *sk, unsigned flags)
-+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min)
- {
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct alg_sock *ask = alg_sk(sk);
-@@ -754,7 +756,9 @@ int af_alg_wait_for_data(struct sock *sk, unsigned flags)
- 		if (signal_pending(current))
- 			break;
- 		timeout = MAX_SCHEDULE_TIMEOUT;
--		if (sk_wait_event(sk, &timeout, (ctx->used || !ctx->more),
-+		if (sk_wait_event(sk, &timeout,
-+				  ctx->init && (!ctx->more ||
-+						(min && ctx->used >= min)),
- 				  &wait)) {
- 			err = 0;
- 			break;
-@@ -843,7 +847,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	}
+ feature_set = $(eval $(feature_set_code))
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index 92012381393ad..ef4ca6e408427 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -73,8 +73,6 @@ FILES=                                          \
  
- 	lock_sock(sk);
--	if (!ctx->more && ctx->used) {
-+	if (ctx->init && (init || !ctx->more)) {
- 		err = -EINVAL;
- 		goto unlock;
- 	}
-@@ -854,6 +858,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 			memcpy(ctx->iv, con.iv->iv, ivsize);
+ FILES := $(addprefix $(OUTPUT),$(FILES))
  
- 		ctx->aead_assoclen = con.aead_assoclen;
-+		ctx->init = true;
- 	}
- 
- 	while (size) {
-diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
-index 0ae000a61c7f5..d48d2156e6210 100644
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -106,8 +106,8 @@ static int _aead_recvmsg(struct socket *sock, struct msghdr *msg,
- 	size_t usedpages = 0;		/* [in]  RX bufs to be used from user */
- 	size_t processed = 0;		/* [in]  TX bufs to be consumed */
- 
--	if (!ctx->used) {
--		err = af_alg_wait_for_data(sk, flags);
-+	if (!ctx->init || ctx->more) {
-+		err = af_alg_wait_for_data(sk, flags, 0);
- 		if (err)
- 			return err;
- 	}
-diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-index ec5567c87a6df..a51ba22fef58f 100644
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -61,8 +61,8 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
- 	int err = 0;
- 	size_t len = 0;
- 
--	if (!ctx->used) {
--		err = af_alg_wait_for_data(sk, flags);
-+	if (!ctx->init || (ctx->more && ctx->used < bs)) {
-+		err = af_alg_wait_for_data(sk, flags, bs);
- 		if (err)
- 			return err;
- 	}
-diff --git a/include/crypto/if_alg.h b/include/crypto/if_alg.h
-index 864849e942c45..c1a8d4a41bb16 100644
---- a/include/crypto/if_alg.h
-+++ b/include/crypto/if_alg.h
-@@ -135,6 +135,7 @@ struct af_alg_async_req {
-  *			SG?
-  * @enc:		Cryptographic operation to be performed when
-  *			recvmsg is invoked.
-+ * @init:		True if metadata has been sent.
-  * @len:		Length of memory allocated for this data structure.
-  */
- struct af_alg_ctx {
-@@ -151,6 +152,7 @@ struct af_alg_ctx {
- 	bool more;
- 	bool merge;
- 	bool enc;
-+	bool init;
- 
- 	unsigned int len;
- };
-@@ -226,7 +228,7 @@ unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset);
- void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
- 		      size_t dst_offset);
- void af_alg_wmem_wakeup(struct sock *sk);
--int af_alg_wait_for_data(struct sock *sk, unsigned flags);
-+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min);
- int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		   unsigned int ivsize);
- ssize_t af_alg_sendpage(struct socket *sock, struct page *page,
+-CC ?= $(CROSS_COMPILE)gcc
+-CXX ?= $(CROSS_COMPILE)g++
+ PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
+ LLVM_CONFIG ?= llvm-config
+ CLANG ?= clang
 -- 
 2.25.1
 
