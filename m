@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AED124B9F7
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5EBE24BA0D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730415AbgHTL5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 07:57:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S1729877AbgHTL7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 07:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730481AbgHTKAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:00:42 -0400
+        id S1730335AbgHTKA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C14D5208E4;
-        Thu, 20 Aug 2020 10:00:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AB822173E;
+        Thu, 20 Aug 2020 10:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917642;
-        bh=McGCwYC+BC0s+KKmOlE6YpRkcTGvJ3EU52u2hcJ7Ew4=;
+        s=default; t=1597917626;
+        bh=qiSuuWBMSyShVnhW2u6bdkeMmDZ6T2EMNDEsJ/IiqMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWoPvkLU7eSoZSGOAPBgETWVR+dflYSjbxcBYWhG9W3Zl8u6USSFA6jXH6HiveJ1H
-         7KgtZeO+zzt9fYEvdcgr1Dcq7rjjGX+4EaTwBrV36UGVA5Ub6vGuiunulNNlJxjNpv
-         4r6dGKe971BiV1B6d4OLa9ZeNo06Jl09PMUaFTC4=
+        b=EI/znfWbpGcTEFT8xwNl3nin2vEWkp59oLLsowIv0eoxG45i17xta+vQZFf1PARfB
+         ceB/Xgc7BykNK7dy4XdSdNNxK3k0bkCQLo/Q5H/fSB2P270lIOEmtFiqpgUfoouLiH
+         4oxrb5Eyp44Ln7olqoJvonRPR4XdfiwtjxcLSJtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e6f77e16ff68b2434a2c@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 064/212] net/9p: validate fds in p9_fd_open
-Date:   Thu, 20 Aug 2020 11:20:37 +0200
-Message-Id: <20200820091605.601050071@linuxfoundation.org>
+Subject: [PATCH 4.9 068/212] atm: fix atm_dev refcnt leaks in atmtcp_remove_persistent
+Date:   Thu, 20 Aug 2020 11:20:41 +0200
+Message-Id: <20200820091605.798643890@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
 References: <20200820091602.251285210@linuxfoundation.org>
@@ -46,68 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit a39c46067c845a8a2d7144836e9468b7f072343e ]
+[ Upstream commit 51875dad43b44241b46a569493f1e4bfa0386d86 ]
 
-p9_fd_open just fgets file descriptors passed in from userspace, but
-doesn't verify that they are valid for read or writing.  This gets
-cought down in the VFS when actually attempting a read or write, but
-a new warning added in linux-next upsets syzcaller.
+atmtcp_remove_persistent() invokes atm_dev_lookup(), which returns a
+reference of atm_dev with increased refcount or NULL if fails.
 
-Fix this by just verifying the fds early on.
+The refcount leaks issues occur in two error handling paths. If
+dev_data->persist is zero or PRIV(dev)->vcc isn't NULL, the function
+returns 0 without decreasing the refcount kept by a local variable,
+resulting in refcount leaks.
 
-Link: http://lkml.kernel.org/r/20200710085722.435850-1-hch@lst.de
-Reported-by: syzbot+e6f77e16ff68b2434a2c@syzkaller.appspotmail.com
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-[Dominique: amend goto as per Doug Nazar's review]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Fix the issue by adding atm_dev_put() before returning 0 both when
+dev_data->persist is zero or PRIV(dev)->vcc isn't NULL.
+
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/atm/atmtcp.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index b0f47563f0bf3..bad27b0ec65d6 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -815,20 +815,28 @@ static int p9_fd_open(struct p9_client *client, int rfd, int wfd)
- 		return -ENOMEM;
- 
- 	ts->rd = fget(rfd);
-+	if (!ts->rd)
-+		goto out_free_ts;
-+	if (!(ts->rd->f_mode & FMODE_READ))
-+		goto out_put_rd;
- 	ts->wr = fget(wfd);
--	if (!ts->rd || !ts->wr) {
--		if (ts->rd)
--			fput(ts->rd);
--		if (ts->wr)
--			fput(ts->wr);
--		kfree(ts);
--		return -EIO;
--	}
-+	if (!ts->wr)
-+		goto out_put_rd;
-+	if (!(ts->wr->f_mode & FMODE_WRITE))
-+		goto out_put_wr;
- 
- 	client->trans = ts;
- 	client->status = Connected;
- 
- 	return 0;
-+
-+out_put_wr:
-+	fput(ts->wr);
-+out_put_rd:
-+	fput(ts->rd);
-+out_free_ts:
-+	kfree(ts);
-+	return -EIO;
- }
- 
- static int p9_socket_open(struct p9_client *client, struct socket *csocket)
+diff --git a/drivers/atm/atmtcp.c b/drivers/atm/atmtcp.c
+index 480fa6ffbc090..04fca6db273ef 100644
+--- a/drivers/atm/atmtcp.c
++++ b/drivers/atm/atmtcp.c
+@@ -432,9 +432,15 @@ static int atmtcp_remove_persistent(int itf)
+ 		return -EMEDIUMTYPE;
+ 	}
+ 	dev_data = PRIV(dev);
+-	if (!dev_data->persist) return 0;
++	if (!dev_data->persist) {
++		atm_dev_put(dev);
++		return 0;
++	}
+ 	dev_data->persist = 0;
+-	if (PRIV(dev)->vcc) return 0;
++	if (PRIV(dev)->vcc) {
++		atm_dev_put(dev);
++		return 0;
++	}
+ 	kfree(dev_data);
+ 	atm_dev_put(dev);
+ 	atm_dev_deregister(dev);
 -- 
 2.25.1
 
