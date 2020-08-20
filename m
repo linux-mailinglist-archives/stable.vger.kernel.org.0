@@ -2,80 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B04024B039
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 09:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBE824B0AF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 10:01:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725820AbgHTHgZ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 20 Aug 2020 03:36:25 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:51243 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725798AbgHTHgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 03:36:25 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22181544-1500050 
-        for multiple; Thu, 20 Aug 2020 08:36:13 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1725797AbgHTIB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 04:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725798AbgHTIB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 04:01:57 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A96E2080C;
+        Thu, 20 Aug 2020 08:01:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597910516;
+        bh=AXRSCclaOFZ2qfG5TN0/by/Vee9wPQljElWaf2OkM7k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OBr7tUvTujDv7eJ9oMYwA3T0VjLw8dChba+scj/M3p3f6KeW0H/QnvBdOuK5mZrfH
+         sSTz7Wy8GlyoxDIH+vJzSCKu612dqRNjgecyva5pmL6mjKC7D8r//NRW9qLS9uPvQF
+         /E7JITgZk5ofm3bUd/CiT8Su3ZMTDejKSr1R8c8w=
+Date:   Thu, 20 Aug 2020 10:02:18 +0200
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Justin He <Justin.He@arm.com>
+Cc:     "Jonathan.Cameron@Huawei.com" <Jonathan.Cameron@huawei.com>,
+        Kaly Xin <Kaly.Xin@arm.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "bhe@redhat.com" <bhe@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        "dalias@libc.org" <dalias@libc.org>,
+        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "dave.jiang@intel.com" <dave.jiang@intel.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "hslester96@gmail.com" <hslester96@gmail.com>,
+        "logang@deltatee.com" <logang@deltatee.com>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "masahiroy@kernel.org" <masahiroy@kernel.org>,
+        "mhocko@suse.com" <mhocko@suse.com>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "tony.luck@intel.com" <tony.luck@intel.com>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "vishal.l.verma@intel.com" <vishal.l.verma@intel.com>,
+        "will@kernel.org" <will@kernel.org>,
+        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>
+Subject: Re: FAILED: patch "[PATCH] mm/memory_hotplug: fix unpaired
+ mem_hotplug_begin/done" failed to apply to 4.19-stable tree
+Message-ID: <20200820080218.GA4049659@kroah.com>
+References: <1597840117224138@kroah.com>
+ <AM6PR08MB4069874E06B127B704F0D683F75A0@AM6PR08MB4069.eurprd08.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200819193326.p62h2dj7jpzfkeyy@duo.ucw.cz>
-References: <20200819103952.19083-1-chris@chris-wilson.co.uk> <20200819172331.GA4796@amd> <159785861047.667.10730572472834322633@build.alporthouse.com> <20200819193326.p62h2dj7jpzfkeyy@duo.ucw.cz>
-Subject: Re: [PATCH 1/2] drm/i915/gem: Replace reloc chain with terminator on error unwind
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org
-To:     Pavel Machek <pavel@ucw.cz>
-Date:   Thu, 20 Aug 2020 08:36:11 +0100
-Message-ID: <159790897155.667.4491040035549523476@build.alporthouse.com>
-User-Agent: alot/0.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR08MB4069874E06B127B704F0D683F75A0@AM6PR08MB4069.eurprd08.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Pavel Machek (2020-08-19 20:33:26)
-> Hi!
+On Thu, Aug 20, 2020 at 02:27:40AM +0000, Justin He wrote:
+> Hi Greg,
+> If anybody wants to backport it to stable tree, there are 2 pre-condition for
+> this commit ("[PATCH] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done")
 > 
-> > > > If we hit an error during construction of the reloc chain, we need to
-> > > > replace the chain into the next batch with the terminator so that upon
-> > > > flushing the relocations so far, we do not execute a hanging batch.
-> > > 
-> > > Thanks for the patches. I assume this should fix problem from
-> > > "5.9-rc1: graphics regression moved from -next to mainline" thread.
-> > > 
-> > > I have applied them over current -next, and my machine seems to be
-> > > working so far (but uptime is less than 30 minutes).
-> > > 
-> > > If the machine still works tommorow, I'll assume problem is solved.
-> > 
-> > Aye, best wait until we have to start competing with Chromium for
-> > memory... The suspicion is that it was the resource allocation failure
-> > path.
+> 1. eca499ab3 ("mm/hotplug: make remove_memory() interface usable") applied
+> in v5.2, it disabled the BUG() when check_memblock_offlined_cb() failed.
+> 2. f1037ec0c ("mm/memory_hotplug: fix remove_memory() lockdep splat")
+> in v5.5, it introduced the unpair but depends on eca499ab3
 > 
-> Yep, my machines are low on memory.
-> 
-> But ... test did not work that well. I have dead X and blinking
-> screen. Machine still works reasonably well over ssh, so I guess
-> that's an improvement.
+> I checked https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/mm/memory_hotplug.c?h=linux-4.19.y#n1913.
+> Looks like stable tree v4.19 hasn't applied eca499ab3 but applied f1037ec0c.
+> Hence I don't think v4.19 needs this patch.
 
-Well my last remaining 32bit gen3 device is currently pushing up the
-daises, so could you try removing the attempt to use WC? Something like
+Thanks, I'll just leave this out of 4.19.y for now then.
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 44df98d85b38..b26f7de913c3 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -955,10 +955,7 @@ static u32 *__reloc_gpu_map(struct reloc_cache *cache,
- {
-        u32 *map;
-
--       map = i915_gem_object_pin_map(pool->obj,
--                                     cache->has_llc ?
--                                     I915_MAP_FORCE_WB :
--                                     I915_MAP_FORCE_WC);
-+       map = i915_gem_object_pin_map(pool->obj, I915_MAP_FORCE_WB);
-
-on top of the previous patch. Faultinjection didn't turn up anything in
-eb_relocate_vma, so we need to dig deeper.
--Chris
+greg k-h
