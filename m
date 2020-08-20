@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D18D624BD57
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:04:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D397324BD52
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbgHTND4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:03:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
+        id S1729701AbgHTNDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:03:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728848AbgHTJjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:39:36 -0400
+        id S1728987AbgHTJjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE4B20724;
-        Thu, 20 Aug 2020 09:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E76F0208E4;
+        Thu, 20 Aug 2020 09:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916375;
-        bh=vKgxG8WeJeP6CWDsoICmWqROrUHc7Mxhq5QDNjEq+kM=;
+        s=default; t=1597916384;
+        bh=fjrrMDfBO1Mz4mhFZZuxpgLz4SiHw1f/z7NFYaXekAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+CDYsuQorpVRwDsfsu3STreOzI7xfnp7jD2DBYMR5a0rZEMYylL5Ke7ACMpvJjJg
-         23a2vjwDa0GhpK6KF1e9HKgLp6e9aPOwB05kl9nz04O+WZdVCEUwhVlERvnA0+7VNW
-         rVUZjMpcEphhBczotFd38WbyoNawedBDapdjERm0=
+        b=Kf77VFaqMtoz2QS52rWXjAP2W7OnqD2qsVeJPkf+SLV5cveAJDjsU/SUM0Q+b9lri
+         MJ4odyJCmCuDQdpA1h/nGKUGYh+HuPosI+mtpQ3t6EIGjXmAW6DtbsC7uEocFp/dri
+         dlcAEOKItT3Cgf+waTJepRJsmNvZXIWPPdSv0Sl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Sicelo A. Mhlongo" <absicsz@gmail.com>,
-        Dev Null <devnull@uvos.xyz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 107/204] rtc: cpcap: fix range
-Date:   Thu, 20 Aug 2020 11:20:04 +0200
-Message-Id: <20200820091611.669353859@linuxfoundation.org>
+Subject: [PATCH 5.7 109/204] media: rockchip: rga: Introduce color fmt macros and refactor CSC mode logic
+Date:   Thu, 20 Aug 2020 11:20:06 +0200
+Message-Id: <20200820091611.761551562@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -48,43 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit 3180cfabf6fbf982ca6d1a6eb56334647cc1416b ]
+[ Upstream commit ded874ece29d3fe2abd3775810a06056067eb68c ]
 
-Unbreak CPCAP driver, which has one more bit in the day counter
-increasing the max. range from 2014 to 2058. The original commit
-introducing the range limit was obviously wrong, since the driver
-has only been written in 2017 (3 years after 14 bits would have
-run out).
+This introduces two macros: RGA_COLOR_FMT_IS_YUV and RGA_COLOR_FMT_IS_RGB
+which allow quick checking of the colorspace familily of a RGA color format.
 
-Fixes: d2377f8cc5a7 ("rtc: cpcap: set range")
-Reported-by: Sicelo A. Mhlongo <absicsz@gmail.com>
-Reported-by: Dev Null <devnull@uvos.xyz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Tested-by: Merlijn Wajer <merlijn@wizzup.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Merlijn Wajer <merlijn@wizzup.org>
-Link: https://lore.kernel.org/r/20200629114123.27956-1-sebastian.reichel@collabora.com
+These macros are then used to refactor the logic for CSC mode selection.
+The two nested tests for input colorspace are simplified into a single one,
+with a logical and, making the whole more readable.
+
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cpcap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rga/rga-hw.c | 23 +++++++++-----------
+ drivers/media/platform/rockchip/rga/rga-hw.h |  5 +++++
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
-index a603f1f211250..800667d73a6fb 100644
---- a/drivers/rtc/rtc-cpcap.c
-+++ b/drivers/rtc/rtc-cpcap.c
-@@ -261,7 +261,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
- 		return PTR_ERR(rtc->rtc_dev);
+diff --git a/drivers/media/platform/rockchip/rga/rga-hw.c b/drivers/media/platform/rockchip/rga/rga-hw.c
+index 4be6dcf292fff..5607ee8d19176 100644
+--- a/drivers/media/platform/rockchip/rga/rga-hw.c
++++ b/drivers/media/platform/rockchip/rga/rga-hw.c
+@@ -200,22 +200,19 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
+ 	dst_info.data.format = ctx->out.fmt->hw_format;
+ 	dst_info.data.swap = ctx->out.fmt->color_swap;
  
- 	rtc->rtc_dev->ops = &cpcap_rtc_ops;
--	rtc->rtc_dev->range_max = (1 << 14) * SECS_PER_DAY - 1;
-+	rtc->rtc_dev->range_max = (timeu64_t) (DAY_MASK + 1) * SECS_PER_DAY - 1;
+-	if (ctx->in.fmt->hw_format >= RGA_COLOR_FMT_YUV422SP) {
+-		if (ctx->out.fmt->hw_format < RGA_COLOR_FMT_YUV422SP) {
+-			switch (ctx->in.colorspace) {
+-			case V4L2_COLORSPACE_REC709:
+-				src_info.data.csc_mode =
+-					RGA_SRC_CSC_MODE_BT709_R0;
+-				break;
+-			default:
+-				src_info.data.csc_mode =
+-					RGA_SRC_CSC_MODE_BT601_R0;
+-				break;
+-			}
++	if (RGA_COLOR_FMT_IS_YUV(ctx->in.fmt->hw_format) &&
++	    RGA_COLOR_FMT_IS_RGB(ctx->out.fmt->hw_format)) {
++		switch (ctx->in.colorspace) {
++		case V4L2_COLORSPACE_REC709:
++			src_info.data.csc_mode = RGA_SRC_CSC_MODE_BT709_R0;
++			break;
++		default:
++			src_info.data.csc_mode = RGA_SRC_CSC_MODE_BT601_R0;
++			break;
+ 		}
+ 	}
  
- 	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
- 	if (err)
+-	if (ctx->out.fmt->hw_format >= RGA_COLOR_FMT_YUV422SP) {
++	if (RGA_COLOR_FMT_IS_YUV(ctx->out.fmt->hw_format)) {
+ 		switch (ctx->out.colorspace) {
+ 		case V4L2_COLORSPACE_REC709:
+ 			dst_info.data.csc_mode = RGA_SRC_CSC_MODE_BT709_R0;
+diff --git a/drivers/media/platform/rockchip/rga/rga-hw.h b/drivers/media/platform/rockchip/rga/rga-hw.h
+index 96cb0314dfa70..e8917e5630a48 100644
+--- a/drivers/media/platform/rockchip/rga/rga-hw.h
++++ b/drivers/media/platform/rockchip/rga/rga-hw.h
+@@ -95,6 +95,11 @@
+ #define RGA_COLOR_FMT_CP_8BPP 15
+ #define RGA_COLOR_FMT_MASK 15
+ 
++#define RGA_COLOR_FMT_IS_YUV(fmt) \
++	(((fmt) >= RGA_COLOR_FMT_YUV422SP) && ((fmt) < RGA_COLOR_FMT_CP_1BPP))
++#define RGA_COLOR_FMT_IS_RGB(fmt) \
++	((fmt) < RGA_COLOR_FMT_YUV422SP)
++
+ #define RGA_COLOR_NONE_SWAP 0
+ #define RGA_COLOR_RB_SWAP 1
+ #define RGA_COLOR_ALPHA_SWAP 2
 -- 
 2.25.1
 
