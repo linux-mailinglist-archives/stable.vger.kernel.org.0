@@ -2,39 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EDA24BB8A
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 788D424BCC3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbgHTJvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59806 "EHLO mail.kernel.org"
+        id S1730504AbgHTMwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:52:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729788AbgHTJvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:51:07 -0400
+        id S1728831AbgHTJn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:43:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F16472078D;
-        Thu, 20 Aug 2020 09:51:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A71D5207DE;
+        Thu, 20 Aug 2020 09:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917066;
-        bh=7HHKGc3ZY9MsR7dZjfof1I8hHOlnpQN05gY57xtXUoE=;
+        s=default; t=1597916605;
+        bh=ZSVSCLk6sgVSzJxYcmu3SBHBa8jjlddTn9NVrtyCIvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOcZPb0EJ5b/9U7ODZxFb0NWs8exh0oyzsgfRT5ka+zlNKYEko4hNjNL8SL3J5HHn
-         0RCV8+eN25d0QRyVX6VbH+ZEQlOJb6kXul4lWQa/Ug1C3ITGLAgobSQovFwTAzXpxj
-         WQPPUCoqk87Wwkz6H2s1vdFlvKkMSVPS/ILeUPcM=
+        b=OdRNgbUV5vTB/Ie41QHPu3E4sy8ISPELdP3wxuoiPUUQTQKQ2k/mKBEOALowkWEQ/
+         vKZGMtpeGwAZbcOh5E0bSYAq6iI/HLGr5elGdcpac6WIyg9B3Trnx8smJlfQOkRVNY
+         uyK9b8tks8FX4OJTb+NGraetdd+H0jJnILty0Nn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        Thomas Hebb <tommyhebb@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/152] nfs: ensure correct writeback errors are returned on close()
-Date:   Thu, 20 Aug 2020 11:21:22 +0200
-Message-Id: <20200820091559.647346613@linuxfoundation.org>
+Subject: [PATCH 5.7 186/204] tools build feature: Quote CC and CXX for their arguments
+Date:   Thu, 20 Aug 2020 11:21:23 +0200
+Message-Id: <20200820091615.477649993@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Daniel Díaz <daniel.diaz@linaro.org>
 
-[ Upstream commit 67dd23f9e6fbaf163431912ef5599c5e0693476c ]
+[ Upstream commit fa5c893181ed2ca2f96552f50073786d2cfce6c0 ]
 
-nfs_wb_all() calls filemap_write_and_wait(), which uses
-filemap_check_errors() to determine the error to return.
-filemap_check_errors() only looks at the mapping->flags and will
-therefore only return either -ENOSPC or -EIO.  To ensure that the
-correct error is returned on close(), nfs{,4}_file_flush() should call
-filemap_check_wb_err() which looks at the errseq value in
-mapping->wb_err without consuming it.
+When using a cross-compilation environment, such as OpenEmbedded,
+the CC an CXX variables are set to something more than just a
+command: there are arguments (such as --sysroot) that need to be
+passed on to the compiler so that the right set of headers and
+libraries are used.
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with
-generic one")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+For the particular case that our systems detected, CC is set to
+the following:
+
+  export CC="aarch64-linaro-linux-gcc  --sysroot=/oe/build/tmp/work/machine/perf/1.0-r9/recipe-sysroot"
+
+Without quotes, detection is as follows:
+
+  Auto-detecting system features:
+  ...                         dwarf: [ OFF ]
+  ...            dwarf_getlocations: [ OFF ]
+  ...                         glibc: [ OFF ]
+  ...                          gtk2: [ OFF ]
+  ...                        libbfd: [ OFF ]
+  ...                        libcap: [ OFF ]
+  ...                        libelf: [ OFF ]
+  ...                       libnuma: [ OFF ]
+  ...        numa_num_possible_cpus: [ OFF ]
+  ...                       libperl: [ OFF ]
+  ...                     libpython: [ OFF ]
+  ...                     libcrypto: [ OFF ]
+  ...                     libunwind: [ OFF ]
+  ...            libdw-dwarf-unwind: [ OFF ]
+  ...                          zlib: [ OFF ]
+  ...                          lzma: [ OFF ]
+  ...                     get_cpuid: [ OFF ]
+  ...                           bpf: [ OFF ]
+  ...                        libaio: [ OFF ]
+  ...                       libzstd: [ OFF ]
+  ...        disassembler-four-args: [ OFF ]
+
+  Makefile.config:414: *** No gnu/libc-version.h found, please install glibc-dev[el].  Stop.
+  Makefile.perf:230: recipe for target 'sub-make' failed
+  make[1]: *** [sub-make] Error 2
+  Makefile:69: recipe for target 'all' failed
+  make: *** [all] Error 2
+
+With CC and CXX quoted, some of those features are now detected.
+
+Fixes: e3232c2f39ac ("tools build feature: Use CC and CXX from parent")
+Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
+Reviewed-by: Thomas Hebb <tommyhebb@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andriin@fb.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@chromium.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Link: http://lore.kernel.org/lkml/20200812221518.2869003-1-daniel.diaz@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/file.c     | 5 ++++-
- fs/nfs/nfs4file.c | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ tools/build/Makefile.feature | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index 95dc90570786c..348f67c8f3224 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -140,6 +140,7 @@ static int
- nfs_file_flush(struct file *file, fl_owner_t id)
- {
- 	struct inode	*inode = file_inode(file);
-+	errseq_t since;
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index 941cddd5c00cd..82d6c43333fbd 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -8,7 +8,7 @@ endif
  
- 	dprintk("NFS: flush(%pD2)\n", file);
+ feature_check = $(eval $(feature_check_code))
+ define feature_check_code
+-  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC=$(CC) CXX=$(CXX) CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
++  feature-$(1) := $(shell $(MAKE) OUTPUT=$(OUTPUT_FEATURES) CC="$(CC)" CXX="$(CXX)" CFLAGS="$(EXTRA_CFLAGS) $(FEATURE_CHECK_CFLAGS-$(1))" CXXFLAGS="$(EXTRA_CXXFLAGS) $(FEATURE_CHECK_CXXFLAGS-$(1))" LDFLAGS="$(LDFLAGS) $(FEATURE_CHECK_LDFLAGS-$(1))" -C $(feature_dir) $(OUTPUT_FEATURES)test-$1.bin >/dev/null 2>/dev/null && echo 1 || echo 0)
+ endef
  
-@@ -148,7 +149,9 @@ nfs_file_flush(struct file *file, fl_owner_t id)
- 		return 0;
- 
- 	/* Flush writes to the server and return any errors */
--	return nfs_wb_all(inode);
-+	since = filemap_sample_wb_err(file->f_mapping);
-+	nfs_wb_all(inode);
-+	return filemap_check_wb_err(file->f_mapping, since);
- }
- 
- ssize_t
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index fb55c04cdc6bd..534b6fd70ffdb 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -109,6 +109,7 @@ static int
- nfs4_file_flush(struct file *file, fl_owner_t id)
- {
- 	struct inode	*inode = file_inode(file);
-+	errseq_t since;
- 
- 	dprintk("NFS: flush(%pD2)\n", file);
- 
-@@ -124,7 +125,9 @@ nfs4_file_flush(struct file *file, fl_owner_t id)
- 		return filemap_fdatawrite(file->f_mapping);
- 
- 	/* Flush writes to the server and return any errors */
--	return nfs_wb_all(inode);
-+	since = filemap_sample_wb_err(file->f_mapping);
-+	nfs_wb_all(inode);
-+	return filemap_check_wb_err(file->f_mapping, since);
- }
- 
- #ifdef CONFIG_NFS_V4_2
+ feature_set = $(eval $(feature_set_code))
 -- 
 2.25.1
 
