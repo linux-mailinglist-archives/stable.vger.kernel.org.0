@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D595524B524
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF6F24B456
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731439AbgHTKTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:19:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S1730613AbgHTKD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:03:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731309AbgHTKRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:17:37 -0400
+        id S1730475AbgHTKBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:01:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9B9B2067C;
-        Thu, 20 Aug 2020 10:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2872822B40;
+        Thu, 20 Aug 2020 10:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918657;
-        bh=lmIsvYU/A3zU0Wj4Gfl5Fb/bHZfLG7fczTimL1Pejz0=;
+        s=default; t=1597917696;
+        bh=nomXhcYIp8cGk9ExnDbF/NwHaf8ImgxM9gUxQ+TVNfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVcKwBcHkkYJOblnyJxmnARNn1i2IfxmdqrA+ptijM1hSUpBwoFgFTueZDB6b2RRX
-         0GH5lgBTRTKTnr/BKs317fymF8JOO2HVnAKv2F1XmPj+le1RNXvKMpl3g6mKytSU1J
-         9L10pGJ5TO6Obx8qUDSH7Gzv5w1F6LPrkpQlARfE=
+        b=08Eov4rGhGH0BTvqmm5oMMM2A/Kex+u8iPGiRSPiEku83iQFkzwTegkjXZbaRzd0W
+         YGmmkW6i5OHBND29zIpOS0EYqr7TjIPfcoR3FcWG99lGDw+zhfn1ZttQJWBPas3Jgv
+         nt0nUK1hBZ3BcFpJ6D+kd2xhqa7eYM8i9l0ycvbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 020/149] mlxsw: core: Increase scope of RCU read-side critical section
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 124/212] leds: core: Flush scheduled work for system suspend
 Date:   Thu, 20 Aug 2020 11:21:37 +0200
-Message-Id: <20200820092126.685237164@linuxfoundation.org>
+Message-Id: <20200820091608.611404453@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 7d8e8f3433dc8d1dc87c1aabe73a154978fb4c4d ]
+[ Upstream commit 302a085c20194bfa7df52e0fe684ee0c41da02e6 ]
 
-The lifetime of the Rx listener item ('rxl_item') is managed using RCU,
-but is dereferenced outside of RCU read-side critical section, which can
-lead to a use-after-free.
+Sometimes LED won't be turned off by LED_CORE_SUSPENDRESUME flag upon
+system suspend.
 
-Fix this by increasing the scope of the RCU read-side critical section.
+led_set_brightness_nopm() uses schedule_work() to set LED brightness.
+However, there's no guarantee that the scheduled work gets executed
+because no one flushes the work.
 
-Fixes: 93c1edb27f9e ("mlxsw: Introduce Mellanox switch driver core")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So flush the scheduled work to make sure LED gets turned off.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Fixes: 81fe8e5b73e3 ("leds: core: Add led_set_brightness_nosleep{nopm} functions")
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/leds/led-class.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core.c b/drivers/net/ethernet/mellanox/mlxsw/core.c
-index 97f0d93caf994..085aaad902937 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -1208,9 +1208,10 @@ void mlxsw_core_skb_receive(struct mlxsw_core *mlxsw_core, struct sk_buff *skb,
- 			break;
- 		}
- 	}
--	rcu_read_unlock();
--	if (!found)
-+	if (!found) {
-+		rcu_read_unlock();
- 		goto drop;
-+	}
+diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
+index aa84e5b375931..7d3f23bad88dd 100644
+--- a/drivers/leds/led-class.c
++++ b/drivers/leds/led-class.c
+@@ -110,6 +110,7 @@ void led_classdev_suspend(struct led_classdev *led_cdev)
+ {
+ 	led_cdev->flags |= LED_SUSPENDED;
+ 	led_set_brightness_nopm(led_cdev, 0);
++	flush_work(&led_cdev->set_brightness_work);
+ }
+ EXPORT_SYMBOL_GPL(led_classdev_suspend);
  
- 	pcpu_stats = this_cpu_ptr(mlxsw_core->pcpu_stats);
- 	u64_stats_update_begin(&pcpu_stats->syncp);
-@@ -1221,6 +1222,7 @@ void mlxsw_core_skb_receive(struct mlxsw_core *mlxsw_core, struct sk_buff *skb,
- 	u64_stats_update_end(&pcpu_stats->syncp);
- 
- 	rxl->func(skb, local_port, rxl_item->priv);
-+	rcu_read_unlock();
- 	return;
- 
- drop:
 -- 
 2.25.1
 
