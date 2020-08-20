@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A9D24B3C2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B8124B39A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729852AbgHTJwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        id S1729640AbgHTJth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbgHTJwA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:52:00 -0400
+        id S1729674AbgHTJtg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86166207FB;
-        Thu, 20 Aug 2020 09:51:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B99820724;
+        Thu, 20 Aug 2020 09:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917120;
-        bh=J54xSCntPSaWHZxpEYggTZx+DXeSiCJF8unRn8cZZio=;
+        s=default; t=1597916976;
+        bh=hRXr8wczIZrt0cJy0jW7KdOBS7YZgK4GYprUqa0cFWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qwu9JS3wvvQ5GJx3vy5GNSsIbhVbbXfBJ/I9qvUryP+amQxSeuLChSyq3mXrPlRX1
-         KLGB+yc+Kiwtg1Ua+ppZ5zYFVm8bIQokqPguYRZ96bV68EO5qtTmOHhThUiy4vW2W/
-         e/QuzZF8JHh+pTToulHLTm3s5+pPapkS6RqMflGo=
+        b=E4lvxI6OP10eBmLNYe88BEVVNVSSBoz9mtSCYN52sLXJ3Ikeg6wuXk7L4JDwy7qeM
+         DjrQcMyhxAUYIXoquY9cELzNp/gNR7ixyKtrSbMr+SmTLXEI5Sr0qAKatXV1BpvOzL
+         CWGoAvSzfL10IZUZ1jw13Pc8wRVY65ZsAIWY7rHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 02/92] genirq/affinity: Make affinity setting if activated opt-in
-Date:   Thu, 20 Aug 2020 11:20:47 +0200
-Message-Id: <20200820091537.624101245@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Mathew King <mathewk@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 081/152] platform/chrome: cros_ec_ishtp: Fix a double-unlock issue
+Date:   Thu, 20 Aug 2020 11:20:48 +0200
+Message-Id: <20200820091557.890172669@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,138 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit f0c7baca180046824e07fc5f1326e83a8fd150c7 upstream.
+[ Upstream commit aaa3cbbac326c95308e315f1ab964a3369c4d07d ]
 
-John reported that on a RK3288 system the perf per CPU interrupts are all
-affine to CPU0 and provided the analysis:
+In function cros_ec_ishtp_probe(), "up_write" is already called
+before function "cros_ec_dev_init". But "up_write" will be called
+again after the calling of the function "cros_ec_dev_init" failed.
+Thus add a call of the function “down_write” in this if branch
+for the completion of the exception handling.
 
- "It looks like what happens is that because the interrupts are not per-CPU
-  in the hardware, armpmu_request_irq() calls irq_force_affinity() while
-  the interrupt is deactivated and then request_irq() with IRQF_PERCPU |
-  IRQF_NOBALANCING.
-
-  Now when irq_startup() runs with IRQ_STARTUP_NORMAL, it calls
-  irq_setup_affinity() which returns early because IRQF_PERCPU and
-  IRQF_NOBALANCING are set, leaving the interrupt on its original CPU."
-
-This was broken by the recent commit which blocked interrupt affinity
-setting in hardware before activation of the interrupt. While this works in
-general, it does not work for this particular case. As contrary to the
-initial analysis not all interrupt chip drivers implement an activate
-callback, the safe cure is to make the deferred interrupt affinity setting
-at activation time opt-in.
-
-Implement the necessary core logic and make the two irqchip implementations
-for which this is required opt-in. In hindsight this would have been the
-right thing to do, but ...
-
-Fixes: baedb87d1b53 ("genirq/affinity: Handle affinity setting on inactive interrupts correctly")
-Reported-by: John Keeping <john@metanate.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87blk4tzgm.fsf@nanos.tec.linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 26a14267aff2 ("platform/chrome: Add ChromeOS EC ISHTP driver")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Tested-by: Mathew King <mathewk@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/vector.c    |    4 ++++
- drivers/irqchip/irq-gic-v3-its.c |    5 ++++-
- include/linux/irq.h              |   13 +++++++++++++
- kernel/irq/manage.c              |    6 +++++-
- 4 files changed, 26 insertions(+), 2 deletions(-)
+ drivers/platform/chrome/cros_ec_ishtp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -556,6 +556,10 @@ static int x86_vector_alloc_irqs(struct
- 		irqd->chip_data = apicd;
- 		irqd->hwirq = virq + i;
- 		irqd_set_single_target(irqd);
-+
-+		/* Don't invoke affinity setter on deactivated interrupts */
-+		irqd_set_affinity_on_activate(irqd);
-+
- 		/*
- 		 * Legacy vectors are already assigned when the IOAPIC
- 		 * takes them over. They stay on the same vector. This is
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2458,6 +2458,7 @@ static int its_irq_domain_alloc(struct i
- {
- 	msi_alloc_info_t *info = args;
- 	struct its_device *its_dev = info->scratchpad[0].ptr;
-+	struct irq_data *irqd;
- 	irq_hw_number_t hwirq;
- 	int err;
- 	int i;
-@@ -2473,7 +2474,9 @@ static int its_irq_domain_alloc(struct i
+diff --git a/drivers/platform/chrome/cros_ec_ishtp.c b/drivers/platform/chrome/cros_ec_ishtp.c
+index 25ca2c894b4de..ab0662a33b41a 100644
+--- a/drivers/platform/chrome/cros_ec_ishtp.c
++++ b/drivers/platform/chrome/cros_ec_ishtp.c
+@@ -645,8 +645,10 @@ static int cros_ec_ishtp_probe(struct ishtp_cl_device *cl_device)
  
- 		irq_domain_set_hwirq_and_chip(domain, virq + i,
- 					      hwirq + i, &its_irq_chip, its_dev);
--		irqd_set_single_target(irq_desc_get_irq_data(irq_to_desc(virq + i)));
-+		irqd = irq_get_irq_data(virq + i);
-+		irqd_set_single_target(irqd);
-+		irqd_set_affinity_on_activate(irqd);
- 		pr_debug("ID:%d pID:%d vID:%d\n",
- 			 (int)(hwirq + i - its_dev->event_map.lpi_base),
- 			 (int)(hwirq + i), virq + i);
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -210,6 +210,8 @@ struct irq_data {
-  * IRQD_CAN_RESERVE		- Can use reservation mode
-  * IRQD_MSI_NOMASK_QUIRK	- Non-maskable MSI quirk for affinity change
-  *				  required
-+ * IRQD_AFFINITY_ON_ACTIVATE	- Affinity is set on activation. Don't call
-+ *				  irq_chip::irq_set_affinity() when deactivated.
-  */
- enum {
- 	IRQD_TRIGGER_MASK		= 0xf,
-@@ -233,6 +235,7 @@ enum {
- 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
- 	IRQD_CAN_RESERVE		= (1 << 26),
- 	IRQD_MSI_NOMASK_QUIRK		= (1 << 27),
-+	IRQD_AFFINITY_ON_ACTIVATE	= (1 << 29),
- };
+ 	/* Register croc_ec_dev mfd */
+ 	rv = cros_ec_dev_init(client_data);
+-	if (rv)
++	if (rv) {
++		down_write(&init_lock);
+ 		goto end_cros_ec_dev_init_error;
++	}
  
- #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
-@@ -407,6 +410,16 @@ static inline bool irqd_msi_nomask_quirk
- 	return __irqd_to_state(d) & IRQD_MSI_NOMASK_QUIRK;
- }
+ 	return 0;
  
-+static inline void irqd_set_affinity_on_activate(struct irq_data *d)
-+{
-+	__irqd_to_state(d) |= IRQD_AFFINITY_ON_ACTIVATE;
-+}
-+
-+static inline bool irqd_affinity_on_activate(struct irq_data *d)
-+{
-+	return __irqd_to_state(d) & IRQD_AFFINITY_ON_ACTIVATE;
-+}
-+
- #undef __irqd_to_state
- 
- static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -280,12 +280,16 @@ static bool irq_set_affinity_deactivated
- 	struct irq_desc *desc = irq_data_to_desc(data);
- 
- 	/*
-+	 * Handle irq chips which can handle affinity only in activated
-+	 * state correctly
-+	 *
- 	 * If the interrupt is not yet activated, just store the affinity
- 	 * mask and do not call the chip driver at all. On activation the
- 	 * driver has to make sure anyway that the interrupt is in a
- 	 * useable state so startup works.
- 	 */
--	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
-+	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) ||
-+	    irqd_is_activated(data) || !irqd_affinity_on_activate(data))
- 		return false;
- 
- 	cpumask_copy(desc->irq_common_data.affinity, mask);
+-- 
+2.25.1
+
 
 
