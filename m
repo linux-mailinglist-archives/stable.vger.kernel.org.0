@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACC924B338
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6012A24B38E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbgHTJnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:43:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37388 "EHLO mail.kernel.org"
+        id S1729639AbgHTJtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:49:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729183AbgHTJmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:42:44 -0400
+        id S1729635AbgHTJtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:49:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9603C208DB;
-        Thu, 20 Aug 2020 09:42:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11CDA20724;
+        Thu, 20 Aug 2020 09:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916564;
-        bh=XNfxmt/kbxj2BQBPav5mMIPjAsXbiARPItUl6kns2pw=;
+        s=default; t=1597916958;
+        bh=kJJouGqpk7y9KGYIB/qSQlzNKFugPURJbr0dDf5g/yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQwShqkBvc4yo/sRMdUE/RtD4HR9fykUGWJykp2iC+c6ZkBawkUC9B/xZfmgLfbdk
-         4U0fRrfaTAzboTXlO/2xWWy/rfr0ZWgE5uyK6IuKTh4RPyw4zc2+gHC5gY4VcjyR9i
-         hVxFiIlLvE+axhDF4Oqhj44o3qrbjss7q0CEK2C0=
+        b=az+WDyqsGYPuFsrJDR0yxqIkl4o2oXK5s5OncRgCc+x8VjNlwRrRmA+PhOriNNoqf
+         L2Nj4cIL27heq75RUzBbPubbSK2CTDizy+VGPvth1tFko82OOqpKi4XwW8k/+IdoE8
+         4mW+3rrZX6Dewo1y3R5tqgxFNnKzC8y50vLw4kW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 173/204] nfs: Fix getxattr kernel panic and memory overflow
-Date:   Thu, 20 Aug 2020 11:21:10 +0200
-Message-Id: <20200820091614.847215277@linuxfoundation.org>
+Subject: [PATCH 5.4 104/152] selftests/powerpc: ptrace-pkey: Dont update expected UAMOR value
+Date:   Thu, 20 Aug 2020 11:21:11 +0200
+Message-Id: <20200820091559.091775062@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit b4487b93545214a9db8cbf32e86411677b0cca21 ]
+[ Upstream commit 3563b9bea0ca7f53e4218b5e268550341a49f333 ]
 
-Move the buffer size check to decode_attr_security_label() before memcpy()
-Only call memcpy() if the buffer is large enough
+With commit 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation
+must not change pkey registers") we are not updating UAMOR on key
+allocation. So don't update the expected uamor value in the test.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-[Trond: clean up duplicate test of label->len != 0]
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 4a4a5e5d2aad ("powerpc/pkeys: key allocation/deallocation must not change pkey registers")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200709032946.881753-23-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 2 --
- fs/nfs/nfs4xdr.c  | 6 +++++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 2e2dac29a9e91..45e0585e0667c 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5845,8 +5845,6 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
- 		return ret;
- 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
- 		return -ENOENT;
--	if (buflen < label.len)
--		return -ERANGE;
- 	return 0;
- }
+diff --git a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
+index bc33d748d95b4..3694613f418f6 100644
+--- a/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
++++ b/tools/testing/selftests/powerpc/ptrace/ptrace-pkey.c
+@@ -101,15 +101,20 @@ static int child(struct shared_info *info)
+ 	 */
+ 	info->invalid_amr = info->amr2 | (~0x0UL & ~info->expected_uamor);
  
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 47817ef0aadb1..4e0d8a3b89b67 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4166,7 +4166,11 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
- 			return -EIO;
- 		if (len < NFS4_MAXLABELLEN) {
- 			if (label) {
--				memcpy(label->label, p, len);
-+				if (label->len) {
-+					if (label->len < len)
-+						return -ERANGE;
-+					memcpy(label->label, p, len);
-+				}
- 				label->len = len;
- 				label->pi = pi;
- 				label->lfs = lfs;
++	/*
++	 * if PKEY_DISABLE_EXECUTE succeeded we should update the expected_iamr
++	 */
+ 	if (disable_execute)
+ 		info->expected_iamr |= 1ul << pkeyshift(pkey1);
+ 	else
+ 		info->expected_iamr &= ~(1ul << pkeyshift(pkey1));
+ 
+-	info->expected_iamr &= ~(1ul << pkeyshift(pkey2) | 1ul << pkeyshift(pkey3));
++	/*
++	 * We allocated pkey2 and pkey 3 above. Clear the IAMR bits.
++	 */
++	info->expected_iamr &= ~(1ul << pkeyshift(pkey2));
++	info->expected_iamr &= ~(1ul << pkeyshift(pkey3));
+ 
+-	info->expected_uamor |= 3ul << pkeyshift(pkey1) |
+-				3ul << pkeyshift(pkey2);
+ 	/*
+ 	 * Create an IAMR value different from expected value.
+ 	 * Kernel will reject an IAMR and UAMOR change.
 -- 
 2.25.1
 
