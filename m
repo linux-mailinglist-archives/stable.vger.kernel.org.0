@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC1324BEC0
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE4224BEB8
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729045AbgHTNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
+        id S1728901AbgHTNbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:31:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728271AbgHTJcc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:32 -0400
+        id S1728272AbgHTJce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:32:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D90A22BED;
-        Thu, 20 Aug 2020 09:32:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06FB822BEF;
+        Thu, 20 Aug 2020 09:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915952;
-        bh=yNimt8oteiua9Ywn8PfbraGv1Dkc6uXM8n1oYGvyJHM=;
+        s=default; t=1597915954;
+        bh=rOZmfox11fUmQvakmoBgObEEml7gBuYfZpBmV3cPfbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmNOoKFp8KkD3okx9IZeH+71Tn+0LGrIQttC1uh+9WQTssb2We8cSz170rKuRPPYc
-         uBpJInrK+3heo9oquJRMFyIjrp+rOK+8Wd7m81TAFbIxQjrIeEQcTwkAf8lGFiBTZw
-         Sk7G6qaihw91ZJTBPsUhS4q44HLzsMao+e7EYafs=
+        b=fuFN5He1zIBZY4WzSuACAmtTyZjGfLjXGK3nxX4XfH0719iQjm3KnI3Nr20Ol/5Wr
+         xbFw2UkudGAYMiZ5ir2TJJhmv0Jkz9gPMQ3cMo8DI6JVEujHD9wCuY7ei6zHQg5PaT
+         MStcHyHllepw4lFM4l/mv/D1B1g8NXCiRvIk0nxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 162/232] i2c: rcar: slave: only send STOP event when we have been addressed
-Date:   Thu, 20 Aug 2020 11:20:13 +0200
-Message-Id: <20200820091620.658340785@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 163/232] f2fs: compress: fix to update isize when overwriting compressed file
+Date:   Thu, 20 Aug 2020 11:20:14 +0200
+Message-Id: <20200820091620.706719697@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,53 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 314139f9f0abdba61ed9a8463bbcb0bf900ac5a2 ]
+[ Upstream commit 944dd22ea4475bd11180fd2f431a4a547ca4d8f5 ]
 
-When the SSR interrupt is activated, it will detect every STOP condition
-on the bus, not only the ones after we have been addressed. So, enable
-this interrupt only after we have been addressed, and disable it
-otherwise.
+We missed to update isize of compressed file in write_end() with
+below case:
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+cluster size is 16KB
+
+- write 14KB data from offset 0
+- overwrite 16KB data from offset 0
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/f2fs/data.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 2e3e1bb750134..76c615be5acae 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -583,13 +583,14 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- 			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
- 		}
- 
--		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
-+		/* Clear SSR, too, because of old STOPs to other clients than us */
-+		rcar_i2c_write(priv, ICSSR, ~(SAR | SSR) & 0xff);
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 326c63879ddc8..6e9017e6a8197 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3432,6 +3432,10 @@ static int f2fs_write_end(struct file *file,
+ 	if (f2fs_compressed_file(inode) && fsdata) {
+ 		f2fs_compress_write_end(inode, fsdata, page->index, copied);
+ 		f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
++
++		if (pos + copied > i_size_read(inode) &&
++				!f2fs_verity_in_progress(inode))
++			f2fs_i_size_write(inode, pos + copied);
+ 		return copied;
  	}
- 
- 	/* master sent stop */
- 	if (ssr_filtered & SSR) {
- 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
--		rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+		rcar_i2c_write(priv, ICSIER, SAR);
- 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
- 	}
- 
-@@ -853,7 +854,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
- 	priv->slave = slave;
- 	rcar_i2c_write(priv, ICSAR, slave->addr);
- 	rcar_i2c_write(priv, ICSSR, 0);
--	rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+	rcar_i2c_write(priv, ICSIER, SAR);
- 	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
- 
- 	return 0;
+ #endif
 -- 
 2.25.1
 
