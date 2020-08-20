@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CB224BDAB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84D0C24BDA9
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728965AbgHTNKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728807AbgHTNKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbgHTJh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:29 -0400
+        id S1728730AbgHTJhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:37:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B01E208E4;
-        Thu, 20 Aug 2020 09:37:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC9D021775;
+        Thu, 20 Aug 2020 09:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916249;
-        bh=f9rXPAQaNcbv4cfIA5Asq/mz1mnROIrze4c9fJmGeOA=;
+        s=default; t=1597916252;
+        bh=YiCWZ5e1HLOx/GrVAEQIblWnR6UfnF5l0qNFx2MaCFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ol3iLldBZSqoNX7ZrzD62FbtvQOlfxnyjZU22H+6QC9t4nXWllhcakgQ3aPUARmAg
-         xB/AVw2dd601Tj76xPTJL9vVtQHoIlffZ3FsFDE5c8zYtnAWUkjjgwOoadLqsUZmWi
-         Y1bnLofTXDc/dBD7B+LYot947KozkHDp/6csreiM=
+        b=L9zRe+4U+vAgAuKStv+4K7fgVXq0kpp4hBniwkDLUye5WEHr/BzfIyjYI3FNT3kTP
+         aMOQsxr7HlFjOEPvJ86IxHJEHZ1OvzMD0zdMoRQLgPGGdr6EATd/7yuq5Si9FqysJf
+         JxZO3Z1O1x3GKKtmGzzL0T2uTYK9fcsqGPuu6OKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
         Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 033/204] btrfs: fix memory leaks after failure to lookup checksums during inode logging
-Date:   Thu, 20 Aug 2020 11:18:50 +0200
-Message-Id: <20200820091607.918890265@linuxfoundation.org>
+Subject: [PATCH 5.7 034/204] btrfs: trim: fix underflow in trim length to prevent access beyond device boundary
+Date:   Thu, 20 Aug 2020 11:18:51 +0200
+Message-Id: <20200820091607.970513537@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -45,54 +44,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 4f26433e9b3eb7a55ed70d8f882ae9cd48ba448b upstream.
+commit c57dd1f2f6a7cd1bb61802344f59ccdc5278c983 upstream.
 
-While logging an inode, at copy_items(), if we fail to lookup the checksums
-for an extent we release the destination path, free the ins_data array and
-then return immediately. However a previous iteration of the for loop may
-have added checksums to the ordered_sums list, in which case we leak the
-memory used by them.
+[BUG]
+The following script can lead to tons of beyond device boundary access:
 
-So fix this by making sure we iterate the ordered_sums list and free all
-its checksums before returning.
+  mkfs.btrfs -f $dev -b 10G
+  mount $dev $mnt
+  trimfs $mnt
+  btrfs filesystem resize 1:-1G $mnt
+  trimfs $mnt
 
-Fixes: 3650860b90cc2a ("Btrfs: remove almost all of the BUG()'s from tree-log.c")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+[CAUSE]
+Since commit 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to
+find_first_clear_extent_bit"), we try to avoid trimming ranges that's
+already trimmed.
+
+So we check device->alloc_state by finding the first range which doesn't
+have CHUNK_TRIMMED and CHUNK_ALLOCATED not set.
+
+But if we shrunk the device, that bits are not cleared, thus we could
+easily got a range starts beyond the shrunk device size.
+
+This results the returned @start and @end are all beyond device size,
+then we call "end = min(end, device->total_bytes -1);" making @end
+smaller than device size.
+
+Then finally we goes "len = end - start + 1", totally underflow the
+result, and lead to the beyond-device-boundary access.
+
+[FIX]
+This patch will fix the problem in two ways:
+
+- Clear CHUNK_TRIMMED | CHUNK_ALLOCATED bits when shrinking device
+  This is the root fix
+
+- Add extra safety check when trimming free device extents
+  We check and warn if the returned range is already beyond current
+  device.
+
+Link: https://github.com/kdave/btrfs-progs/issues/282
+Fixes: 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to find_first_clear_extent_bit")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ fs/btrfs/extent-io-tree.h |    2 ++
+ fs/btrfs/extent-tree.c    |   14 ++++++++++++++
+ fs/btrfs/volumes.c        |    4 ++++
+ 3 files changed, 20 insertions(+)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4040,11 +4040,8 @@ static noinline int copy_items(struct bt
- 						fs_info->csum_root,
- 						ds + cs, ds + cs + cl - 1,
- 						&ordered_sums, 0);
--				if (ret) {
--					btrfs_release_path(dst_path);
--					kfree(ins_data);
--					return ret;
--				}
-+				if (ret)
-+					break;
- 			}
- 		}
+--- a/fs/btrfs/extent-io-tree.h
++++ b/fs/btrfs/extent-io-tree.h
+@@ -34,6 +34,8 @@ struct io_failure_record;
+  */
+ #define CHUNK_ALLOCATED				EXTENT_DIRTY
+ #define CHUNK_TRIMMED				EXTENT_DEFRAG
++#define CHUNK_STATE_MASK			(CHUNK_ALLOCATED |		\
++						 CHUNK_TRIMMED)
+ 
+ enum {
+ 	IO_TREE_FS_PINNED_EXTENTS,
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -33,6 +33,7 @@
+ #include "delalloc-space.h"
+ #include "block-group.h"
+ #include "discard.h"
++#include "rcu-string.h"
+ 
+ #undef SCRAMBLE_DELAYED_REFS
+ 
+@@ -5685,6 +5686,19 @@ static int btrfs_trim_free_extents(struc
+ 					    &start, &end,
+ 					    CHUNK_TRIMMED | CHUNK_ALLOCATED);
+ 
++		/* Check if there are any CHUNK_* bits left */
++		if (start > device->total_bytes) {
++			WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++			btrfs_warn_in_rcu(fs_info,
++"ignoring attempt to trim beyond device size: offset %llu length %llu device %s device size %llu",
++					  start, end - start + 1,
++					  rcu_str_deref(device->name),
++					  device->total_bytes);
++			mutex_unlock(&fs_info->chunk_mutex);
++			ret = 0;
++			break;
++		}
++
+ 		/* Ensure we skip the reserved area in the first 1M */
+ 		start = max_t(u64, start, SZ_1M);
+ 
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4724,6 +4724,10 @@ again:
  	}
-@@ -4057,7 +4054,6 @@ static noinline int copy_items(struct bt
- 	 * we have to do this after the loop above to avoid changing the
- 	 * log tree while trying to change the log tree.
- 	 */
--	ret = 0;
- 	while (!list_empty(&ordered_sums)) {
- 		struct btrfs_ordered_sum *sums = list_entry(ordered_sums.next,
- 						   struct btrfs_ordered_sum,
+ 
+ 	mutex_lock(&fs_info->chunk_mutex);
++	/* Clear all state bits beyond the shrunk device size */
++	clear_extent_bits(&device->alloc_state, new_size, (u64)-1,
++			  CHUNK_STATE_MASK);
++
+ 	btrfs_device_set_disk_total_bytes(device, new_size);
+ 	if (list_empty(&device->post_commit_list))
+ 		list_add_tail(&device->post_commit_list,
 
 
