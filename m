@@ -2,97 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5558E24C673
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 21:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B282624C67A
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 22:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725852AbgHTT6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 15:58:12 -0400
-Received: from mga04.intel.com ([192.55.52.120]:59267 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725819AbgHTT6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 15:58:12 -0400
-IronPort-SDR: FsrGtP93efUMa9jhdiFWhFrUVwLTzFpCy7rFlGZ5Y6p2ECj/P6uSoLGFSnHZX0llEalwooJGbk
- pDiMjTC8Sn5A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9718"; a="152810177"
-X-IronPort-AV: E=Sophos;i="5.76,334,1592895600"; 
-   d="scan'208";a="152810177"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Aug 2020 12:58:12 -0700
-IronPort-SDR: 7ff5AW1OqJFyIq9w0Y0w/6okfpx2Z6o8s+b+Kgv9kt9JBCuS0bhUtg2F5m17yH+1gocNNLuzQ4
- me8rXcGpPHGA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,334,1592895600"; 
-   d="scan'208";a="497741219"
-Received: from otc-nc-03.jf.intel.com (HELO otc-nc-03) ([10.54.39.36])
-  by fmsmga006.fm.intel.com with ESMTP; 20 Aug 2020 12:58:11 -0700
-Date:   Thu, 20 Aug 2020 12:58:11 -0700
-From:   "Raj, Ashok" <ashok.raj@intel.com>
-To:     Evan Green <evgreen@chromium.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Ashok Raj <ashok.raj@intel.com>
-Subject: Re: [PATCH] x86/hotplug: Silence APIC only after all irq's are
- migrated
-Message-ID: <20200820195811.GA22799@otc-nc-03>
-References: <20200814213842.31151-1-ashok.raj@intel.com>
- <CAE=gft6fQ7cLQO025TDYNF-d6xxMeGkOHVieMZDq6wAZ84NsGQ@mail.gmail.com>
- <20200817183322.GA11486@araj-mobl1.jf.intel.com>
- <CAE=gft6D_1NWVczfO3JFhwCGeYBKsUUtt03TrtgWVViOVgP=4w@mail.gmail.com>
+        id S1727086AbgHTUBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 16:01:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727075AbgHTUBd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 16:01:33 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2678C061385;
+        Thu, 20 Aug 2020 13:01:33 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id g33so1657521pgb.4;
+        Thu, 20 Aug 2020 13:01:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=h+miwv8LAMr5TFIhqp9pUhs9myJFHfbcZ0KOW5GLjaQ=;
+        b=D3CY6lFhRxSll8o41pCjala4TvvYO3mfWYyXoH6CHFC6b024EWDhqMywhjSR8skodQ
+         ery6oobLSO+AQXZzGQ3FlY6BQkOnwl9BBXnqZyUGGOykRwtAelgyvez4zUve6o2pnhNX
+         XDJPuERV/i1b/RO6D2eqGkTtLLOYN4ju9MRNK8N+0pNJOaMbZdTIipXFuVAYNHHe5kG0
+         CTndAbLa8i9OkqqRLjLv3zyriQIRmDe5HYQIDmb2P/HbAc6ZcODF/YWtA19QqvkQI2DD
+         nzcqahxt4onOr1jA8/lDxUsDtHabRmKYWT5xC/DQIX7comSujF1F56nLPZ5laNaJeWX+
+         giOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=h+miwv8LAMr5TFIhqp9pUhs9myJFHfbcZ0KOW5GLjaQ=;
+        b=Hi35zN80wFGnjPxmbIipm2izbeMBgx45z6LSbX0YYHlmuTCKXhTYrzHd/NgDbIBPOO
+         WDuMaeZ137zK6YxMZPSJyIG+qUsNLVM3xVhVxGhQmcPCYBAfSvG4Om1ucU5Gtzqa6g5W
+         dEhQLYEzchSRk6GzD9sxQpHSbuAnGuJd8F/zEyVEcK5GuJ1kKF5+fOEtZIQDXxrQ2n9D
+         RJbCvb7r/01LSb10YSGyGMadJKqTJQXQBTzUXmKTmXD4rFPjgs+uEFhpbT6LifN2Du+C
+         AwdpEZ6+2wgXHa/ecR3ts5v/PqDuxrbTeXgABQV2UvbY5PPSOMF6BymhcvP3dI7//q34
+         j6sA==
+X-Gm-Message-State: AOAM533YQYLKGvyY7KdbNB3+hxe1T27mDeJPi94vKzsOvcvzJXN+5Imn
+        /tKkK4BmGcU0z2Abdq65q0Y=
+X-Google-Smtp-Source: ABdhPJxKxG/PPWqlLnI+QurhdIUycK59OyOk8X3EcAaavkqEeGU+2MohjLrqPpmS9J5XCZ3RaTYx8Q==
+X-Received: by 2002:a63:cc17:: with SMTP id x23mr293746pgf.19.1597953693195;
+        Thu, 20 Aug 2020 13:01:33 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y20sm3687790pfn.183.2020.08.20.13.01.31
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 20 Aug 2020 13:01:32 -0700 (PDT)
+Date:   Thu, 20 Aug 2020 13:01:31 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 000/149] 4.4.233-rc1 review
+Message-ID: <20200820200131.GA84616@roeck-us.net>
+References: <20200820092125.688850368@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAE=gft6D_1NWVczfO3JFhwCGeYBKsUUtt03TrtgWVViOVgP=4w@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 11:21:24AM -0700, Evan Green wrote:
-> > >
-> > > I'm slightly unclear about whether interrupts are disabled at the core
-> > > by this point or not. I followed native_cpu_disable() up to
-> > > __cpu_disable(), up to take_cpu_down(). This is passed into a call to
-> > > stop_machine_cpuslocked(), where interrupts get disabled at the core.
-> > > So unless there's another path, it seems like interrupts are always
-> > > disabled at the core by this point.
-> >
-> > local_irq_disable() just does cli() which allows interrupts to trickle
-> > in to the IRR bits, and once you do sti() things would flow back for
-> > normal interrupt processing.
-> >
-> >
-> > >
-> > > If interrupts are always disabled, then the comment above is a little
-> >
-> > Disable interrupts is different from disabling LAPIC. Once you do the
-> > apic_soft_disable(), there is nothing flowing into the LAPIC except
-> > for INIT, NMI, SMI and SIPI messages.
-> >
-> > This turns off the pipe for all other interrupts to enter LAPIC. Which
-> > is different from doing a cli().
+On Thu, Aug 20, 2020 at 11:21:17AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.233 release.
+> There are 149 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I understand the distinction. I was mostly musing on the difference in
-> behavior your change causes if this function is entered with
-> interrupts enabled at the core (ie sti()). But I think it never is, so
-> that thought is moot.
+> Responses should be made by Sat, 22 Aug 2020 09:21:01 +0000.
+> Anything received after that time might be too late.
 > 
-> I could never repro the issue reliably on comet lake after Thomas'
-> original fix. But I can still repro it easily on jasper lake. And this
-> patch fixes the issue for me on that platform. Thanks for the fix.
-> 
-> Reviewed-by: Evan Green <evgreen@chromium.org>
-> Tested-by: Evan Green <evgreen@chromium.org>
+Build results:
+	total: 169 pass: 169 fail: 0
+Qemu test results:
+	total: 332 pass: 332 fail: 0
 
-Thanks Evan for testing. I'll wait for thomas if he finds anything else
-that needs to be fixed and send a final v2 after fixing the typos and
-others identified by Randy. 
-
-Cheers,
-Ashok
+Guenter
