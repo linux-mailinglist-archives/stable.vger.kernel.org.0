@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A9E24B3A9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E83FC24B350
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729447AbgHTJum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:50:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58328 "EHLO mail.kernel.org"
+        id S1729203AbgHTJpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729744AbgHTJub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:31 -0400
+        id S1729155AbgHTJoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:44:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70E3A206B5;
-        Thu, 20 Aug 2020 09:50:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A534722CAF;
+        Thu, 20 Aug 2020 09:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917031;
-        bh=CKmop5NxXMa6Qh4q5NPvZefp3Hs//G66zjEg9SEtlnM=;
+        s=default; t=1597916643;
+        bh=gt9J90YxiTewYRvQZD/vhF0BJRoLAcmDDVwMBuPbrF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWdWuwI8MTxnnZ7J+8ArKzhQfaHf4kahYIfP6VHXZpuQvhijoyRZAIPYtClCyM93B
-         VhCeFXROLq4Va04prcsd/oG9HSbKbDEIkJ9ACsQqhYnnJi8tXC+P9sU0/Ivvs5sEBR
-         +JIxl1ojeroJSa7GimoNs2P+lOvr0jb1+AMIUnNU=
+        b=HUyX41ON0xqMRsh/IOqdHn7bTLN7pbKJKiPufh1a/X4OA6Ngre/KwBlZdStV1crb+
+         t70/dJJXFCola1vRLJBHUBBbkriX3jrWruC2qhT8cvVw/8flFCqPGzewLsln4Dznta
+         /iXPN8+mG5KKXZSBem38TC1HkaBTAY21Ni7Itw4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 131/152] nfs: Fix getxattr kernel panic and memory overflow
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.7 201/204] drm: fix drm_dp_mst_port refcount leaks in drm_dp_mst_allocate_vcpi
 Date:   Thu, 20 Aug 2020 11:21:38 +0200
-Message-Id: <20200820091600.521265080@linuxfoundation.org>
+Message-Id: <20200820091616.222343459@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit b4487b93545214a9db8cbf32e86411677b0cca21 ]
+commit a34a0a632dd991a371fec56431d73279f9c54029 upstream.
 
-Move the buffer size check to decode_attr_security_label() before memcpy()
-Only call memcpy() if the buffer is large enough
+drm_dp_mst_allocate_vcpi() invokes
+drm_dp_mst_topology_get_port_validated(), which increases the refcount
+of the "port".
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-[Trond: clean up duplicate test of label->len != 0]
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These reference counting issues take place in two exception handling
+paths separately. Either when “slots” is less than 0 or when
+drm_dp_init_vcpi() returns a negative value, the function forgets to
+reduce the refcnt increased drm_dp_mst_topology_get_port_validated(),
+which results in a refcount leak.
+
+Fix these issues by pulling up the error handling when "slots" is less
+than 0, and calling drm_dp_mst_topology_put_port() before termination
+when drm_dp_init_vcpi() returns a negative value.
+
+Fixes: 1e797f556c61 ("drm/dp: Split drm_dp_mst_allocate_vcpi")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200719154545.GA41231@xin-virtual-machine
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfs4proc.c | 2 --
- fs/nfs/nfs4xdr.c  | 6 +++++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 1a1bd2fe6e98d..d0cb827b72cfa 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5811,8 +5811,6 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
- 		return ret;
- 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
- 		return -ENOENT;
--	if (buflen < label.len)
--		return -ERANGE;
- 	return 0;
- }
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -4319,11 +4319,11 @@ bool drm_dp_mst_allocate_vcpi(struct drm
+ {
+ 	int ret;
  
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 7c0ff1a3b5914..677751bc3a334 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4169,7 +4169,11 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
- 			return -EIO;
- 		if (len < NFS4_MAXLABELLEN) {
- 			if (label) {
--				memcpy(label->label, p, len);
-+				if (label->len) {
-+					if (label->len < len)
-+						return -ERANGE;
-+					memcpy(label->label, p, len);
-+				}
- 				label->len = len;
- 				label->pi = pi;
- 				label->lfs = lfs;
--- 
-2.25.1
-
+-	port = drm_dp_mst_topology_get_port_validated(mgr, port);
+-	if (!port)
++	if (slots < 0)
+ 		return false;
+ 
+-	if (slots < 0)
++	port = drm_dp_mst_topology_get_port_validated(mgr, port);
++	if (!port)
+ 		return false;
+ 
+ 	if (port->vcpi.vcpi > 0) {
+@@ -4339,6 +4339,7 @@ bool drm_dp_mst_allocate_vcpi(struct drm
+ 	if (ret) {
+ 		DRM_DEBUG_KMS("failed to init vcpi slots=%d max=63 ret=%d\n",
+ 			      DIV_ROUND_UP(pbn, mgr->pbn_div), ret);
++		drm_dp_mst_topology_put_port(port);
+ 		goto out;
+ 	}
+ 	DRM_DEBUG_KMS("initing vcpi for pbn=%d slots=%d\n",
 
 
