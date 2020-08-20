@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 950EE24BD75
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BC024BD7E
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728701AbgHTJis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56776 "EHLO mail.kernel.org"
+        id S1729093AbgHTNGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728466AbgHTJin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:38:43 -0400
+        id S1728298AbgHTJiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:38:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7367620724;
-        Thu, 20 Aug 2020 09:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E99320724;
+        Thu, 20 Aug 2020 09:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916323;
-        bh=VppUcPlONVni2nQ4Jyvp0d8kh+BKibzpQqi+FzoPaU4=;
+        s=default; t=1597916325;
+        bh=qyt87pzmTp24Sz1p8Tt2FxVV5c23LEOA5GmK4+jMLYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4dtkgnzQMluFf2reMpF3o2fr+bInYtuzxKveEiKIR8JBp1AVcdA0kacW7sD6VM+a
-         q1cHGBr8uav4qYEylgrg/qQbXtlkcYdTzfNNatg3UfP2z0rK3CBDposPJyXpfOUNPo
-         kNh1pw3xdWGwHZVsaMPioso3jMqutQKmyFLo3LT0=
+        b=I/qmcqris9Zu/pMXutsJx/qJc6hG9DMnGPvvGEqjErM1jFqRt6Cjn7Il7wYUxv06/
+         ZIgTv5dNs+qCuk62EXE6qhX9KB62gAPFPCC7tcPkZHv0ASW7ExdfB59iD95wiIcEPE
+         5wKzZSeKxE/dL3Ik06sxTV/xyTL0A3/lmox09ZiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.7 087/204] module: Correctly truncate sysfs sections output
-Date:   Thu, 20 Aug 2020 11:19:44 +0200
-Message-Id: <20200820091610.686783667@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.7 088/204] bootconfig: Fix to find the initargs correctly
+Date:   Thu, 20 Aug 2020 11:19:45 +0200
+Message-Id: <20200820091610.732050537@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -43,77 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 11990a5bd7e558e9203c1070fc52fb6f0488e75b upstream.
+commit 477d08478170469d10b533624342d13701e24b34 upstream.
 
-The only-root-readable /sys/module/$module/sections/$section files
-did not truncate their output to the available buffer size. While most
-paths into the kernfs read handlers end up using PAGE_SIZE buffers,
-it's possible to get there through other paths (e.g. splice, sendfile).
-Actually limit the output to the "count" passed into the read function,
-and report it back correctly. *sigh*
+Since the parse_args() stops parsing at '--', bootconfig_params()
+will never get the '--' as param and initargs_found never be true.
+In the result, if we pass some init arguments via the bootconfig,
+those are always appended to the kernel command line with '--'
+even if the kernel command line already has '--'.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/20200805002015.GE23458@shao2-debian
-Fixes: ed66f991bb19 ("module: Refactor section attr into bin attribute")
+To fix this correctly, check the return value of parse_args()
+and set initargs_found true if the return value is not an error
+but a valid address.
+
+Link: https://lkml.kernel.org/r/159650953285.270383.14822353843556363851.stgit@devnote2
+
+Fixes: f61872bb58a1 ("bootconfig: Use parse_args() to find bootconfig and '--'")
 Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Arvind Sankar <nivedita@alum.mit.edu>
+Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/module.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ init/main.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1517,18 +1517,34 @@ struct module_sect_attrs {
- 	struct module_sect_attr attrs[];
- };
- 
-+#define MODULE_SECT_READ_SIZE (3 /* "0x", "\n" */ + (BITS_PER_LONG / 4))
- static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
- 				struct bin_attribute *battr,
- 				char *buf, loff_t pos, size_t count)
+--- a/init/main.c
++++ b/init/main.c
+@@ -385,8 +385,6 @@ static int __init bootconfig_params(char
  {
- 	struct module_sect_attr *sattr =
- 		container_of(battr, struct module_sect_attr, battr);
-+	char bounce[MODULE_SECT_READ_SIZE + 1];
-+	size_t wrote;
- 
- 	if (pos != 0)
- 		return -EINVAL;
- 
--	return sprintf(buf, "0x%px\n",
--		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
-+	/*
-+	 * Since we're a binary read handler, we must account for the
-+	 * trailing NUL byte that sprintf will write: if "buf" is
-+	 * too small to hold the NUL, or the NUL is exactly the last
-+	 * byte, the read will look like it got truncated by one byte.
-+	 * Since there is no way to ask sprintf nicely to not write
-+	 * the NUL, we have to use a bounce buffer.
-+	 */
-+	wrote = scnprintf(bounce, sizeof(bounce), "0x%px\n",
-+			 kallsyms_show_value(file->f_cred)
-+				? (void *)sattr->address : NULL);
-+	count = min(count, wrote);
-+	memcpy(buf, bounce, count);
-+
-+	return count;
- }
- 
- static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
-@@ -1577,7 +1593,7 @@ static void add_sect_attrs(struct module
- 			goto out;
- 		sect_attrs->nsections++;
- 		sattr->battr.read = module_sect_read;
--		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
-+		sattr->battr.size = MODULE_SECT_READ_SIZE;
- 		sattr->battr.attr.mode = 0400;
- 		*(gattr++) = &(sattr++)->battr;
+ 	if (strcmp(param, "bootconfig") == 0) {
+ 		bootconfig_found = true;
+-	} else if (strcmp(param, "--") == 0) {
+-		initargs_found = true;
  	}
+ 	return 0;
+ }
+@@ -397,19 +395,23 @@ static void __init setup_boot_config(con
+ 	const char *msg;
+ 	int pos;
+ 	u32 size, csum;
+-	char *data, *copy;
++	char *data, *copy, *err;
+ 	int ret;
+ 
+ 	/* Cut out the bootconfig data even if we have no bootconfig option */
+ 	data = get_boot_config_from_initrd(&size, &csum);
+ 
+ 	strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+-	parse_args("bootconfig", tmp_cmdline, NULL, 0, 0, 0, NULL,
+-		   bootconfig_params);
++	err = parse_args("bootconfig", tmp_cmdline, NULL, 0, 0, 0, NULL,
++			 bootconfig_params);
+ 
+-	if (!bootconfig_found)
++	if (IS_ERR(err) || !bootconfig_found)
+ 		return;
+ 
++	/* parse_args() stops at '--' and returns an address */
++	if (err)
++		initargs_found = true;
++
+ 	if (!data) {
+ 		pr_err("'bootconfig' found on command line, but no bootconfig found\n");
+ 		return;
 
 
