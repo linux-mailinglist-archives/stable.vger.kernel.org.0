@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 608D424B7B8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D42B24B7B3
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 13:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731136AbgHTK7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:59:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58008 "EHLO mail.kernel.org"
+        id S1730362AbgHTK7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730882AbgHTKNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:13:30 -0400
+        id S1730723AbgHTKNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76CF12067C;
-        Thu, 20 Aug 2020 10:13:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 476C620724;
+        Thu, 20 Aug 2020 10:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918410;
-        bh=OfHRRPHxxDfYempPEOygjPh9yr/jA78GxAdqC4RCe1E=;
+        s=default; t=1597918429;
+        bh=2RFugXFY8l1TNplHohrCPXjqVwzZuu0ou9TwaVKZXu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESy8JtMJFQxlK2N+3WFUnaxrWnhzqk4U8g+9vmLU+qKulP3elJ1r28rRh9uo1epuE
-         4g9KGkSarRWa/XK4URa30IRvvqZIV5HznWQD1LHCVBZqsMTwladLBMINDsiVhhWJv1
-         yxluG8moJHYGItDLrxUvHTb1WoWvUmh8Ji54SpTI=
+        b=c+BWlx6FRVdeacT9DSFFuQVVW2iSRCgMcCgmEqGGkEIZBOoL5UrchwlwW8BRsYz9w
+         JsNS4HunoensxhbrF/UqyQp6ItPQpAj1Usn4BzwRr8t2l5TdfBR9A4Tr3zdr6kfXIw
+         iLliOrQwsta9aS5Yt/2gwK/VkKSIQLppp9wmS0Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sami Tolvanen <samitolvanen@google.com>
-Subject: [PATCH 4.14 152/228] bitfield.h: dont compile-time validate _val in FIELD_FIT
-Date:   Thu, 20 Aug 2020 11:22:07 +0200
-Message-Id: <20200820091615.178301688@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 167/228] smb3: warn on confusing error scenario with sec=krb5
+Date:   Thu, 20 Aug 2020 11:22:22 +0200
+Message-Id: <20200820091615.920071635@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -46,55 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Steve French <stfrench@microsoft.com>
 
-commit 444da3f52407d74c9aa12187ac6b01f76ee47d62 upstream.
+commit 0a018944eee913962bce8ffebbb121960d5125d9 upstream.
 
-When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
-compiler to deduce a case where _val can only have the value of -1 at
-compile time. Specifically,
+When mounting with Kerberos, users have been confused about the
+default error returned in scenarios in which either keyutils is
+not installed or the user did not properly acquire a krb5 ticket.
+Log a warning message in the case that "ENOKEY" is returned
+from the get_spnego_key upcall so that users can better understand
+why mount failed in those two cases.
 
-/* struct bpf_insn: _s32 imm */
-u64 imm = insn->imm; /* sign extend */
-if (imm >> 32) { /* non-zero only if insn->imm is negative */
-  /* inlined from ur_load_imm_any */
-  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
-  if (__builtin_constant_p(__imm) && __imm > 255)
-    compiletime_assert_XXX()
-
-This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
-checks that a given value is representable in one byte (interpreted as
-unsigned).
-
-FIELD_FIT() should return true or false at runtime for whether a value
-can fit for not. Don't break the build over a value that's too large for
-the mask. We'd prefer to keep the inlining and compiler optimizations
-though we know this case will always return false.
-
-Cc: stable@vger.kernel.org
-Fixes: 1697599ee301a ("bitfield.h: add FIELD_FIT() helper")
-Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/bitfield.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/bitfield.h
-+++ b/include/linux/bitfield.h
-@@ -71,7 +71,7 @@
-  */
- #define FIELD_FIT(_mask, _val)						\
- 	({								\
--		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
-+		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
- 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
- 	})
- 
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -942,6 +942,8 @@ SMB2_auth_kerberos(struct SMB2_sess_data
+ 	spnego_key = cifs_get_spnego_key(ses);
+ 	if (IS_ERR(spnego_key)) {
+ 		rc = PTR_ERR(spnego_key);
++		if (rc == -ENOKEY)
++			cifs_dbg(VFS, "Verify user has a krb5 ticket and keyutils is installed\n");
+ 		spnego_key = NULL;
+ 		goto out;
+ 	}
 
 
