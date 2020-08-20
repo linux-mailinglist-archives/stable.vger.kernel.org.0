@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF36624B252
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A20024B259
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726980AbgHTJ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33620 "EHLO mail.kernel.org"
+        id S1727994AbgHTJ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:27:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727949AbgHTJ1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:27:00 -0400
+        id S1727955AbgHTJ1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:27:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B759122D08;
-        Thu, 20 Aug 2020 09:26:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E153222D02;
+        Thu, 20 Aug 2020 09:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915618;
-        bh=7INpsne5XqqcM9dgEgvMScCRO9DTUSEYmf2NWPPV3P4=;
+        s=default; t=1597915621;
+        bh=7a11vyjkFBvgDh5rGkcLcXiUPLhdNhbeJ8aUbN/3XCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HY3fnobaP9xShBvvdAxyVoP5IYHKfjG6dwndLcQByu1mQq6zrzwPSqswB30lxJJ4f
-         prFvRv+kY0xuqVmmXOXWh0I9KcjWbFuDZJEp6Pa1k0FTt7k8ktC2kUdw2cyxOwMaUt
-         9aZ3Ua3wnBb4FN8lpXN3lt8K6wGGi1+X6rV5fFpk=
+        b=vj9xj3iA0bRK6mUk9bDb27WJ3F3eWmlsFKvhEktXO2yXraB0gGeQpEgtzIYOek72c
+         nZujJmsmGwyMxzArtocCyTB818rDxoi0qQyUhXKo9edIRpUNA/gO1+SB+NS/Uv5Lxk
+         j7ggkhKt+WOnpVRD5xm6LmLyrRidH3GWxyCT4luY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
-        Song Liu <songliubraving@fb.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 077/232] khugepaged: collapse_pte_mapped_thp() flush the right range
-Date:   Thu, 20 Aug 2020 11:18:48 +0200
-Message-Id: <20200820091616.540850550@linuxfoundation.org>
+Subject: [PATCH 5.8 078/232] mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+Date:   Thu, 20 Aug 2020 11:18:49 +0200
+Message-Id: <20200820091616.590598104@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -48,50 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Peter Xu <peterx@redhat.com>
 
-commit 723a80dafed5c95889d48baab9aa433a6ffa0b4e upstream.
+commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream.
 
-pmdp_collapse_flush() should be given the start address at which the huge
-page is mapped, haddr: it was given addr, which at that point has been
-used as a local variable, incremented to the end address of the extent.
+This is found by code observation only.
 
-Found by source inspection while chasing a hugepage locking bug, which I
-then could not explain by this.  At first I thought this was very bad;
-then saw that all of the page translations that were not flushed would
-actually still point to the right pages afterwards, so harmless; then
-realized that I know nothing of how different architectures and models
-cache intermediate paging structures, so maybe it matters after all -
-particularly since the page table concerned is immediately freed.
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
 
-Much easier to fix than to think about.
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
 
-Fixes: 27e1f8273113 ("khugepaged: enable collapse pmd for pte-mapped THP")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+:
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+:
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+:
+: 1) for a single page
+: 2) for range == entire vma
+:
+: In those cases, the current code should produce the correct results.
+:
+: To be safe, let's just cc stable.
+
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021204390.27773@eggly.anvils
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/khugepaged.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1502,7 +1502,7 @@ void collapse_pte_mapped_thp(struct mm_s
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5313,25 +5313,21 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr;
++	unsigned long a_start, a_end;
  
- 	/* step 4: collapse pmd */
- 	ptl = pmd_lock(vma->vm_mm, pmd);
--	_pmd = pmdp_collapse_flush(vma, addr, pmd);
-+	_pmd = pmdp_collapse_flush(vma, haddr, pmd);
- 	spin_unlock(ptl);
- 	mm_dec_nr_ptes(mm);
- 	pte_free(mm, pmd_pgtable(_pmd));
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
 
 
