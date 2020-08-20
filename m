@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3016D24B3E6
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C678B24B437
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729840AbgHTJx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
+        id S1729922AbgHTJ7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:59:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730085AbgHTJx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:57 -0400
+        id S1727794AbgHTJ7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:59:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134B72067C;
-        Thu, 20 Aug 2020 09:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 539372067C;
+        Thu, 20 Aug 2020 09:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917236;
-        bh=crriVwRzruW/S6F9UNpL/puyd/CplqrZrX/VuKY9V9w=;
+        s=default; t=1597917588;
+        bh=y9ShighU1IxoGurbS7G9NRZYkUnFsrUe92tmo3VmKjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJdW9Q3mXSRC/5/I3iFxCIrZmeLnsFCqJkkDS9UCdNuHfFFUOU9dQH3cQ3Yxd9sda
-         rbvHuqhk/y4vvOCCFMkC/xw+z01IdfleV0zJ+MKeU8HPTxcdTL3XVd3ZF+DhWtJV4y
-         dUQNxi0lxTnyHEO5mmdIq6ykcCzypKOfLEA0hR8c=
+        b=KN1JNKYgYezvCCwNvElB8Ae8YVOix5srGiJgI7sTRD9x1faY8Yg65bilZ+6KNQjza
+         60aQrwt2CwtUr5dxI+CjVny128+Gweb3KAaHIatGdwJIyAN4L+9zLE2xYH5sMLZ8EX
+         PTZR2QTuBWdo+FuYbJQgXxolxh/BECcjA/FUll88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 11/92] btrfs: ref-verify: fix memory leak in add_block_entry
-Date:   Thu, 20 Aug 2020 11:20:56 +0200
-Message-Id: <20200820091538.100290697@linuxfoundation.org>
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 084/212] arm64: dts: exynos: Fix silent hang after boot on Espresso
+Date:   Thu, 20 Aug 2020 11:20:57 +0200
+Message-Id: <20200820091606.601139326@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Alim Akhtar <alim.akhtar@samsung.com>
 
-commit d60ba8de1164e1b42e296ff270c622a070ef8fe7 upstream.
+[ Upstream commit b072714bfc0e42c984b8fd6e069f3ca17de8137a ]
 
-clang static analysis flags this error
+Once regulators are disabled after kernel boot, on Espresso board silent
+hang observed because of LDO7 being disabled.  LDO7 actually provide
+power to CPU cores and non-cpu blocks circuitries.  Keep this regulator
+always-on to fix this hang.
 
-fs/btrfs/ref-verify.c:290:3: warning: Potential leak of memory pointed to by 're' [unix.Malloc]
-                kfree(be);
-                ^~~~~
-
-The problem is in this block of code:
-
-	if (root_objectid) {
-		struct root_entry *exist_re;
-
-		exist_re = insert_root_entry(&exist->roots, re);
-		if (exist_re)
-			kfree(re);
-	}
-
-There is no 'else' block freeing when root_objectid is 0. Add the
-missing kfree to the else branch.
-
-Fixes: fd708b81d972 ("Btrfs: add a extent ref verify tool")
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ref-verify.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/btrfs/ref-verify.c
-+++ b/fs/btrfs/ref-verify.c
-@@ -297,6 +297,8 @@ static struct block_entry *add_block_ent
- 			exist_re = insert_root_entry(&exist->roots, re);
- 			if (exist_re)
- 				kfree(re);
-+		} else {
-+			kfree(re);
- 		}
- 		kfree(be);
- 		return exist;
+diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
+index c528dd52ba2d3..2f7d144d556da 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
++++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
+@@ -131,6 +131,7 @@ ldo7_reg: LDO7 {
+ 				regulator-min-microvolt = <700000>;
+ 				regulator-max-microvolt = <1150000>;
+ 				regulator-enable-ramp-delay = <125>;
++				regulator-always-on;
+ 			};
+ 
+ 			ldo8_reg: LDO8 {
+-- 
+2.25.1
+
 
 
