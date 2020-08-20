@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FDCD24BC92
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A039924BC87
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729789AbgHTMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45788 "EHLO mail.kernel.org"
+        id S1729924AbgHTMrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:47:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729201AbgHTJpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:16 -0400
+        id S1728991AbgHTJpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:45:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2ACF22D0B;
-        Thu, 20 Aug 2020 09:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B36E522D2A;
+        Thu, 20 Aug 2020 09:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916679;
-        bh=CBItiV+ncK2sEwjebH3R9xKeqirIkCsYTLz+7WjFaA0=;
+        s=default; t=1597916682;
+        bh=V8mgtuJ1xb39mF04ExaHcs3bXguc+ra7u5gvPnmzK4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPNPvU1yDZK+sckG18DRfMWQYvwrssey6Me6oZOT88lngfRtBwBJ67euJ8kTdzUUH
-         qqJMwdMYxz77Wx/uspEENTqASm9ly5ZfXnY+1fjqtd/qopqatQozIgF6R4fL1RxfOz
-         +9ndgfinTbyzia8fqV6RLSniFh9NHWaF+maZTJdc=
+        b=SELXNzm9Rl4Rktu+SEr8RteDvPRMptSZphLila1d967K57mnvWY66ML2aXNwrmoj4
+         2V/4xce1Wx82qulZlUw4wRtlLObL6/SJvszxWKT3lZmfjbz+awyC8Vz3QQKCUZlrWE
+         SE82u5zlIoP12rMmalv2/6vZ+dtkoL4MWiACd74E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 001/152] smb3: warn on confusing error scenario with sec=krb5
-Date:   Thu, 20 Aug 2020 11:19:28 +0200
-Message-Id: <20200820091553.699874152@linuxfoundation.org>
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 002/152] genirq/affinity: Make affinity setting if activated opt-in
+Date:   Thu, 20 Aug 2020 11:19:29 +0200
+Message-Id: <20200820091553.743081949@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,35 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 0a018944eee913962bce8ffebbb121960d5125d9 upstream.
+commit f0c7baca180046824e07fc5f1326e83a8fd150c7 upstream.
 
-When mounting with Kerberos, users have been confused about the
-default error returned in scenarios in which either keyutils is
-not installed or the user did not properly acquire a krb5 ticket.
-Log a warning message in the case that "ENOKEY" is returned
-from the get_spnego_key upcall so that users can better understand
-why mount failed in those two cases.
+John reported that on a RK3288 system the perf per CPU interrupts are all
+affine to CPU0 and provided the analysis:
 
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+ "It looks like what happens is that because the interrupts are not per-CPU
+  in the hardware, armpmu_request_irq() calls irq_force_affinity() while
+  the interrupt is deactivated and then request_irq() with IRQF_PERCPU |
+  IRQF_NOBALANCING.
+
+  Now when irq_startup() runs with IRQ_STARTUP_NORMAL, it calls
+  irq_setup_affinity() which returns early because IRQF_PERCPU and
+  IRQF_NOBALANCING are set, leaving the interrupt on its original CPU."
+
+This was broken by the recent commit which blocked interrupt affinity
+setting in hardware before activation of the interrupt. While this works in
+general, it does not work for this particular case. As contrary to the
+initial analysis not all interrupt chip drivers implement an activate
+callback, the safe cure is to make the deferred interrupt affinity setting
+at activation time opt-in.
+
+Implement the necessary core logic and make the two irqchip implementations
+for which this is required opt-in. In hindsight this would have been the
+right thing to do, but ...
+
+Fixes: baedb87d1b53 ("genirq/affinity: Handle affinity setting on inactive interrupts correctly")
+Reported-by: John Keeping <john@metanate.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/87blk4tzgm.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/apic/vector.c    |    4 ++++
+ drivers/irqchip/irq-gic-v3-its.c |    5 ++++-
+ include/linux/irq.h              |   13 +++++++++++++
+ kernel/irq/manage.c              |    6 +++++-
+ 4 files changed, 26 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -1323,6 +1323,8 @@ SMB2_auth_kerberos(struct SMB2_sess_data
- 	spnego_key = cifs_get_spnego_key(ses);
- 	if (IS_ERR(spnego_key)) {
- 		rc = PTR_ERR(spnego_key);
-+		if (rc == -ENOKEY)
-+			cifs_dbg(VFS, "Verify user has a krb5 ticket and keyutils is installed\n");
- 		spnego_key = NULL;
- 		goto out;
- 	}
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -554,6 +554,10 @@ static int x86_vector_alloc_irqs(struct
+ 		irqd->chip_data = apicd;
+ 		irqd->hwirq = virq + i;
+ 		irqd_set_single_target(irqd);
++
++		/* Don't invoke affinity setter on deactivated interrupts */
++		irqd_set_affinity_on_activate(irqd);
++
+ 		/*
+ 		 * Legacy vectors are already assigned when the IOAPIC
+ 		 * takes them over. They stay on the same vector. This is
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2581,6 +2581,7 @@ static int its_irq_domain_alloc(struct i
+ 	msi_alloc_info_t *info = args;
+ 	struct its_device *its_dev = info->scratchpad[0].ptr;
+ 	struct its_node *its = its_dev->its;
++	struct irq_data *irqd;
+ 	irq_hw_number_t hwirq;
+ 	int err;
+ 	int i;
+@@ -2600,7 +2601,9 @@ static int its_irq_domain_alloc(struct i
+ 
+ 		irq_domain_set_hwirq_and_chip(domain, virq + i,
+ 					      hwirq + i, &its_irq_chip, its_dev);
+-		irqd_set_single_target(irq_desc_get_irq_data(irq_to_desc(virq + i)));
++		irqd = irq_get_irq_data(virq + i);
++		irqd_set_single_target(irqd);
++		irqd_set_affinity_on_activate(irqd);
+ 		pr_debug("ID:%d pID:%d vID:%d\n",
+ 			 (int)(hwirq + i - its_dev->event_map.lpi_base),
+ 			 (int)(hwirq + i), virq + i);
+--- a/include/linux/irq.h
++++ b/include/linux/irq.h
+@@ -211,6 +211,8 @@ struct irq_data {
+  * IRQD_CAN_RESERVE		- Can use reservation mode
+  * IRQD_MSI_NOMASK_QUIRK	- Non-maskable MSI quirk for affinity change
+  *				  required
++ * IRQD_AFFINITY_ON_ACTIVATE	- Affinity is set on activation. Don't call
++ *				  irq_chip::irq_set_affinity() when deactivated.
+  */
+ enum {
+ 	IRQD_TRIGGER_MASK		= 0xf,
+@@ -234,6 +236,7 @@ enum {
+ 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
+ 	IRQD_CAN_RESERVE		= (1 << 26),
+ 	IRQD_MSI_NOMASK_QUIRK		= (1 << 27),
++	IRQD_AFFINITY_ON_ACTIVATE	= (1 << 29),
+ };
+ 
+ #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
+@@ -408,6 +411,16 @@ static inline bool irqd_msi_nomask_quirk
+ 	return __irqd_to_state(d) & IRQD_MSI_NOMASK_QUIRK;
+ }
+ 
++static inline void irqd_set_affinity_on_activate(struct irq_data *d)
++{
++	__irqd_to_state(d) |= IRQD_AFFINITY_ON_ACTIVATE;
++}
++
++static inline bool irqd_affinity_on_activate(struct irq_data *d)
++{
++	return __irqd_to_state(d) & IRQD_AFFINITY_ON_ACTIVATE;
++}
++
+ #undef __irqd_to_state
+ 
+ static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -281,12 +281,16 @@ static bool irq_set_affinity_deactivated
+ 	struct irq_desc *desc = irq_data_to_desc(data);
+ 
+ 	/*
++	 * Handle irq chips which can handle affinity only in activated
++	 * state correctly
++	 *
+ 	 * If the interrupt is not yet activated, just store the affinity
+ 	 * mask and do not call the chip driver at all. On activation the
+ 	 * driver has to make sure anyway that the interrupt is in a
+ 	 * useable state so startup works.
+ 	 */
+-	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) || irqd_is_activated(data))
++	if (!IS_ENABLED(CONFIG_IRQ_DOMAIN_HIERARCHY) ||
++	    irqd_is_activated(data) || !irqd_affinity_on_activate(data))
+ 		return false;
+ 
+ 	cpumask_copy(desc->irq_common_data.affinity, mask);
 
 
