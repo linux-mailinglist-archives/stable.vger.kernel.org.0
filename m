@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8C124BF82
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CD124BF1D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbgHTNjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:39:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
+        id S1730534AbgHTNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726858AbgHTJ2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:28:15 -0400
+        id S1727899AbgHTJ2i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:28:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3A0B22D37;
-        Thu, 20 Aug 2020 09:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E471522CB1;
+        Thu, 20 Aug 2020 09:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915686;
-        bh=qlZatptjxTirg4Rm1dhbqHVFHrmeSZ2GGI51mK8nO1g=;
+        s=default; t=1597915718;
+        bh=qODI7FfI8D79fxtK+8MRpGep8DMuZaOYzP9AJdDA99k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npjHmCvQH6+oO79WX0pRh3KODBoCddGD8jQjLxBcXZHk4z6Yr/8fJjbDfxy/VgWzW
-         Tqa5rfsZ3Y77CY6Z/ulAOokyhLmcL/U1in3C/pRv6gD8yJMevLtlCqEKFE9TE3TwCO
-         iZvXeQlY72pxEdfx+alGuqdloOauTUk5kzyYDXBI=
+        b=Kby8K5Ffht2g/QF0thXRp/4kZGSl9FkHezrFigR3nCq8HvcnTpJ+nzbq6KvtXeq+p
+         S79WneX2D7pOSx/gCkadr2oJNEsGrEioaDiaF+NrTaoFx13MFCaiTlOnxV3kNtx7uf
+         i19ISaHlnPIaczrol+YgAI0hsECuCQGR8RHBkyBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.8 092/232] watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
-Date:   Thu, 20 Aug 2020 11:19:03 +0200
-Message-Id: <20200820091617.292866001@linuxfoundation.org>
+Subject: [PATCH 5.8 093/232] watchdog: f71808e_wdt: remove use of wrong watchdog_info option
+Date:   Thu, 20 Aug 2020 11:19:04 +0200
+Message-Id: <20200820091617.340152564@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -46,36 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit e871e93fb08a619dfc015974a05768ed6880fd82 upstream.
+commit 802141462d844f2e6a4d63a12260d79b7afc4c34 upstream.
 
-The driver supports populating bootstatus with WDIOF_CARDRESET, but so
-far userspace couldn't portably determine whether absence of this flag
-meant no watchdog reset or no driver support. Or-in the bit to fix this.
+The flags that should be or-ed into the watchdog_info.options by drivers
+all start with WDIOF_, e.g. WDIOF_SETTIMEOUT, which indicates that the
+driver's watchdog_ops has a usable set_timeout.
 
-Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
+WDIOC_SETTIMEOUT was used instead, which expands to 0xc0045706, which
+equals:
+
+   WDIOF_FANFAULT | WDIOF_EXTERN1 | WDIOF_PRETIMEOUT | WDIOF_ALARMONLY |
+   WDIOF_MAGICCLOSE | 0xc0045000
+
+These were so far indicated to userspace on WDIOC_GETSUPPORT.
+As the driver has not yet been migrated to the new watchdog kernel API,
+the constant can just be dropped without substitute.
+
+Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
 Cc: stable@vger.kernel.org
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200611191750.28096-3-a.fatoum@pengutronix.de
+Link: https://lore.kernel.org/r/20200611191750.28096-4-a.fatoum@pengutronix.de
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/f71808e_wdt.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/f71808e_wdt.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/drivers/watchdog/f71808e_wdt.c
 +++ b/drivers/watchdog/f71808e_wdt.c
-@@ -692,7 +692,8 @@ static int __init watchdog_init(int sioa
+@@ -690,8 +690,7 @@ static int __init watchdog_init(int sioa
+ 	 * into the module have been registered yet.
+ 	 */
  	watchdog.sioaddr = sioaddr;
- 	watchdog.ident.options = WDIOC_SETTIMEOUT
- 				| WDIOF_MAGICCLOSE
--				| WDIOF_KEEPALIVEPING;
-+				| WDIOF_KEEPALIVEPING
-+				| WDIOF_CARDRESET;
+-	watchdog.ident.options = WDIOC_SETTIMEOUT
+-				| WDIOF_MAGICCLOSE
++	watchdog.ident.options = WDIOF_MAGICCLOSE
+ 				| WDIOF_KEEPALIVEPING
+ 				| WDIOF_CARDRESET;
  
- 	snprintf(watchdog.ident.identity,
- 		sizeof(watchdog.ident.identity), "%s watchdog",
 
 
