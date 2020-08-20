@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB0A24BDBF
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25AE824BD6C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728706AbgHTJhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53168 "EHLO mail.kernel.org"
+        id S1728944AbgHTNFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728695AbgHTJhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:12 -0400
+        id S1728934AbgHTJjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36E3C2075E;
-        Thu, 20 Aug 2020 09:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CC15207DE;
+        Thu, 20 Aug 2020 09:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916231;
-        bh=fYjUzlgWLrjLPQZGD7uGMfTq09k9G2bdCDizIxzhr2c=;
+        s=default; t=1597916346;
+        bh=hxnkYDokfMdzD7JcjugJExZde+jyPY1bN80LzIM4ZMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LByY+ros8UBPcwsCg04o+KHUvcSMFX9blXnpzwuJ4BrccOIih5JKOl6VYjGdEirqQ
-         EhB6xioa56DjRDHuekM1JDBgks8K+qCtgAVI+ImnrX8aBIs93ZE9F1CLkg+k2J7cFj
-         zFH4CGiuq4IyJw5tZ6d/hMzRMLJrM199Drbcqouw=
+        b=GRkWixXCdgpsKk3HiNQW0dT0JAvfdC6wg5gowj+Lv56DSml6T8yEhvmqI3PhZU7so
+         VoUDtbhl4zxNjXwDosXKYYy75whvcrnnaV5/hFRXMCFTRPDy/u8xvdVNFS9CQHAUWB
+         PF1sy0JHecwG28yG67QFO9sZEf7y4TGNImZ//QDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.7 055/204] pidfd: Add missing sock updates for pidfd_getfd()
-Date:   Thu, 20 Aug 2020 11:19:12 +0200
-Message-Id: <20200820091609.017231573@linuxfoundation.org>
+Subject: [PATCH 5.7 057/204] selftests/seccomp: Set NNP for TSYNC ESRCH flag test
+Date:   Thu, 20 Aug 2020 11:19:14 +0200
+Message-Id: <20200820091609.117503211@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -49,51 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-commit 4969f8a073977123504609d7310b42a588297aa4 upstream.
+commit e4d05028a07f505a08802a6d1b11674c149df2b3 upstream.
 
-The sock counting (sock_update_netprioidx() and sock_update_classid())
-was missing from pidfd's implementation of received fd installation. Add
-a call to the new __receive_sock() helper.
+The TSYNC ESRCH flag test will fail for regular users because NNP was
+not set yet. Add NNP setting.
 
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Fixes: 51891498f2da ("seccomp: allow TSYNC and USER_NOTIF together")
 Cc: stable@vger.kernel.org
-Fixes: 8649c322f75c ("pid: Implement pidfd_getfd syscall")
+Reviewed-by: Tycho Andersen <tycho@tycho.ws>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/pid.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/seccomp/seccomp_bpf.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -42,6 +42,7 @@
- #include <linux/sched/signal.h>
- #include <linux/sched/task.h>
- #include <linux/idr.h>
-+#include <net/sock.h>
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -3257,6 +3257,11 @@ TEST(user_notification_with_tsync)
+ 	int ret;
+ 	unsigned int flags;
  
- struct pid init_struct_pid = {
- 	.count		= REFCOUNT_INIT(1),
-@@ -624,10 +625,12 @@ static int pidfd_getfd(struct pid *pid,
- 	}
- 
- 	ret = get_unused_fd_flags(O_CLOEXEC);
--	if (ret < 0)
-+	if (ret < 0) {
- 		fput(file);
--	else
-+	} else {
-+		__receive_sock(file);
- 		fd_install(ret, file);
++	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
++	ASSERT_EQ(0, ret) {
++		TH_LOG("Kernel does not support PR_SET_NO_NEW_PRIVS!");
 +	}
- 
- 	return ret;
- }
++
+ 	/* these were exclusive */
+ 	flags = SECCOMP_FILTER_FLAG_NEW_LISTENER |
+ 		SECCOMP_FILTER_FLAG_TSYNC;
 
 
