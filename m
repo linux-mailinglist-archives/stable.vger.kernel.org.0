@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3A624B3A1
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0809D24B3EC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729433AbgHTJuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
+        id S1726716AbgHTJyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729708AbgHTJuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:50:06 -0400
+        id S1730089AbgHTJyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:54:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28BE92078D;
-        Thu, 20 Aug 2020 09:50:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9FB22075E;
+        Thu, 20 Aug 2020 09:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917005;
-        bh=T27gso6/Lm9alfb9jO/n3mqv8J0gZ1FyHMfEUwxD0l0=;
+        s=default; t=1597917239;
+        bh=UAdRs/xd3kDB6nNW0CxswZ+v+M6hsKlHKOPy/WeTee4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fc4GWK5T09uFIQ+BVkcpDzRejkQ4A2NJ4HXJrryzQqvIRo2g4cBbj/J1mZpxdHrsu
-         lekLHqygUqoMF+smmpCB4diezcI9EJI6EhDiWBoRChirDzSoavnoSsifOnvP1wyE1u
-         4kQ/t7YOdo1zMZSxRT5jPjn39CgS8KtcmiJOxAAo=
+        b=jehXs8fgJOiZSy/LMADcWvrYCQmBXNsDcCcDYSEg4NVwyGDHSssv6IKiRWKVaEeqR
+         Yc4HJGc9oaunYyUq40OL+49sBgOCL58w6rAKrm8j1uv2JcT6WF6rfOPukRCQaDq7Kg
+         FEaK2mMsOerFp1r91QbzGwAA/fxqvuHEozvTCUK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Krzysztof Sobota <krzysztof.sobota@nokia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/152] watchdog: initialize device before misc_register
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 45/92] module: Correctly truncate sysfs sections output
 Date:   Thu, 20 Aug 2020 11:21:30 +0200
-Message-Id: <20200820091600.090940052@linuxfoundation.org>
+Message-Id: <20200820091539.969826443@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,119 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Sobota <krzysztof.sobota@nokia.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit cb36e29bb0e4b0c33c3d5866a0a4aebace4c99b7 ]
+commit 11990a5bd7e558e9203c1070fc52fb6f0488e75b upstream.
 
-When watchdog device is being registered, it calls misc_register that
-makes watchdog available for systemd to open. This is a data race
-scenario, because when device is open it may still have device struct
-not initialized - this in turn causes a crash. This patch moves
-device initialization before misc_register call and it solves the
-problem printed below.
+The only-root-readable /sys/module/$module/sections/$section files
+did not truncate their output to the available buffer size. While most
+paths into the kernfs read handlers end up using PAGE_SIZE buffers,
+it's possible to get there through other paths (e.g. splice, sendfile).
+Actually limit the output to the "count" passed into the read function,
+and report it back correctly. *sigh*
 
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 1 at lib/kobject.c:612 kobject_get+0x50/0x54
-kobject: '(null)' ((ptrval)): is not initialized, yet kobject_get() is being called.
-Modules linked in: k2_reset_status(O) davinci_wdt(+) sfn_platform_hwbcn(O) fsmddg_sfn(O) clk_misc_mmap(O) clk_sw_bcn(O) fsp_reset(O) cma_mod(O) slave_sup_notif(O) fpga_master(O) latency(O+) evnotify(O) enable_arm_pmu(O) xge(O) rio_mport_cdev br_netfilter bridge stp llc nvrd_checksum(O) ipv6
-CPU: 3 PID: 1 Comm: systemd Tainted: G           O      4.19.113-g2579778-fsm4_k2 #1
-Hardware name: Keystone
-[<c02126c4>] (unwind_backtrace) from [<c020da94>] (show_stack+0x18/0x1c)
-[<c020da94>] (show_stack) from [<c07f87d8>] (dump_stack+0xb4/0xe8)
-[<c07f87d8>] (dump_stack) from [<c0221f70>] (__warn+0xfc/0x114)
-[<c0221f70>] (__warn) from [<c0221fd8>] (warn_slowpath_fmt+0x50/0x74)
-[<c0221fd8>] (warn_slowpath_fmt) from [<c07fd394>] (kobject_get+0x50/0x54)
-[<c07fd394>] (kobject_get) from [<c0602ce8>] (get_device+0x1c/0x24)
-[<c0602ce8>] (get_device) from [<c06961e0>] (watchdog_open+0x90/0xf0)
-[<c06961e0>] (watchdog_open) from [<c06001dc>] (misc_open+0x130/0x17c)
-[<c06001dc>] (misc_open) from [<c0388228>] (chrdev_open+0xec/0x1a8)
-[<c0388228>] (chrdev_open) from [<c037fa98>] (do_dentry_open+0x204/0x3cc)
-[<c037fa98>] (do_dentry_open) from [<c0391e2c>] (path_openat+0x330/0x1148)
-[<c0391e2c>] (path_openat) from [<c0394518>] (do_filp_open+0x78/0xec)
-[<c0394518>] (do_filp_open) from [<c0381100>] (do_sys_open+0x130/0x1f4)
-[<c0381100>] (do_sys_open) from [<c0201000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xd2ceffa8 to 0xd2cefff0)
-ffa0:                   b6f69968 00000000 ffffff9c b6ebd210 000a0001 00000000
-ffc0: b6f69968 00000000 00000000 00000142 fffffffd ffffffff 00b65530 bed7bb78
-ffe0: 00000142 bed7ba70 b6cc2503 b6cc41d6
----[ end trace 7b16eb105513974f ]---
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/20200805002015.GE23458@shao2-debian
+Fixes: ed66f991bb19 ("module: Refactor section attr into bin attribute")
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 1 at lib/refcount.c:153 kobject_get+0x24/0x54
-refcount_t: increment on 0; use-after-free.
-Modules linked in: k2_reset_status(O) davinci_wdt(+) sfn_platform_hwbcn(O) fsmddg_sfn(O) clk_misc_mmap(O) clk_sw_bcn(O) fsp_reset(O) cma_mod(O) slave_sup_notif(O) fpga_master(O) latency(O+) evnotify(O) enable_arm_pmu(O) xge(O) rio_mport_cdev br_netfilter bridge stp llc nvrd_checksum(O) ipv6
-CPU: 3 PID: 1 Comm: systemd Tainted: G        W  O      4.19.113-g2579778-fsm4_k2 #1
-Hardware name: Keystone
-[<c02126c4>] (unwind_backtrace) from [<c020da94>] (show_stack+0x18/0x1c)
-[<c020da94>] (show_stack) from [<c07f87d8>] (dump_stack+0xb4/0xe8)
-[<c07f87d8>] (dump_stack) from [<c0221f70>] (__warn+0xfc/0x114)
-[<c0221f70>] (__warn) from [<c0221fd8>] (warn_slowpath_fmt+0x50/0x74)
-[<c0221fd8>] (warn_slowpath_fmt) from [<c07fd368>] (kobject_get+0x24/0x54)
-[<c07fd368>] (kobject_get) from [<c0602ce8>] (get_device+0x1c/0x24)
-[<c0602ce8>] (get_device) from [<c06961e0>] (watchdog_open+0x90/0xf0)
-[<c06961e0>] (watchdog_open) from [<c06001dc>] (misc_open+0x130/0x17c)
-[<c06001dc>] (misc_open) from [<c0388228>] (chrdev_open+0xec/0x1a8)
-[<c0388228>] (chrdev_open) from [<c037fa98>] (do_dentry_open+0x204/0x3cc)
-[<c037fa98>] (do_dentry_open) from [<c0391e2c>] (path_openat+0x330/0x1148)
-[<c0391e2c>] (path_openat) from [<c0394518>] (do_filp_open+0x78/0xec)
-[<c0394518>] (do_filp_open) from [<c0381100>] (do_sys_open+0x130/0x1f4)
-[<c0381100>] (do_sys_open) from [<c0201000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xd2ceffa8 to 0xd2cefff0)
-ffa0:                   b6f69968 00000000 ffffff9c b6ebd210 000a0001 00000000
-ffc0: b6f69968 00000000 00000000 00000142 fffffffd ffffffff 00b65530 bed7bb78
-ffe0: 00000142 bed7ba70 b6cc2503 b6cc41d6
----[ end trace 7b16eb1055139750 ]---
-
-Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Krzysztof Sobota <krzysztof.sobota@nokia.com>
-Link: https://lore.kernel.org/r/20200717103109.14660-1-krzysztof.sobota@nokia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/watchdog_dev.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/module.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index c4147e93aa7d4..3729f99fd8eca 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -974,6 +974,15 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 	if (IS_ERR_OR_NULL(watchdog_kworker))
- 		return -ENODEV;
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1461,18 +1461,34 @@ struct module_sect_attrs {
+ 	struct module_sect_attr attrs[0];
+ };
  
-+	device_initialize(&wd_data->dev);
-+	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
-+	wd_data->dev.class = &watchdog_class;
-+	wd_data->dev.parent = wdd->parent;
-+	wd_data->dev.groups = wdd->groups;
-+	wd_data->dev.release = watchdog_core_data_release;
-+	dev_set_drvdata(&wd_data->dev, wdd);
-+	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
++#define MODULE_SECT_READ_SIZE (3 /* "0x", "\n" */ + (BITS_PER_LONG / 4))
+ static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
+ 				struct bin_attribute *battr,
+ 				char *buf, loff_t pos, size_t count)
+ {
+ 	struct module_sect_attr *sattr =
+ 		container_of(battr, struct module_sect_attr, battr);
++	char bounce[MODULE_SECT_READ_SIZE + 1];
++	size_t wrote;
+ 
+ 	if (pos != 0)
+ 		return -EINVAL;
+ 
+-	return sprintf(buf, "0x%px\n",
+-		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
++	/*
++	 * Since we're a binary read handler, we must account for the
++	 * trailing NUL byte that sprintf will write: if "buf" is
++	 * too small to hold the NUL, or the NUL is exactly the last
++	 * byte, the read will look like it got truncated by one byte.
++	 * Since there is no way to ask sprintf nicely to not write
++	 * the NUL, we have to use a bounce buffer.
++	 */
++	wrote = scnprintf(bounce, sizeof(bounce), "0x%px\n",
++			 kallsyms_show_value(file->f_cred)
++				? (void *)sattr->address : NULL);
++	count = min(count, wrote);
++	memcpy(buf, bounce, count);
 +
- 	kthread_init_work(&wd_data->work, watchdog_ping_work);
- 	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
- 	wd_data->timer.function = watchdog_timer_expired;
-@@ -994,15 +1003,6 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 		}
++	return count;
+ }
+ 
+ static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
+@@ -1521,7 +1537,7 @@ static void add_sect_attrs(struct module
+ 			goto out;
+ 		sect_attrs->nsections++;
+ 		sattr->battr.read = module_sect_read;
+-		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
++		sattr->battr.size = MODULE_SECT_READ_SIZE;
+ 		sattr->battr.attr.mode = 0400;
+ 		*(gattr++) = &(sattr++)->battr;
  	}
- 
--	device_initialize(&wd_data->dev);
--	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
--	wd_data->dev.class = &watchdog_class;
--	wd_data->dev.parent = wdd->parent;
--	wd_data->dev.groups = wdd->groups;
--	wd_data->dev.release = watchdog_core_data_release;
--	dev_set_drvdata(&wd_data->dev, wdd);
--	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
--
- 	/* Fill in the data structures */
- 	cdev_init(&wd_data->cdev, &watchdog_fops);
- 
--- 
-2.25.1
-
 
 
