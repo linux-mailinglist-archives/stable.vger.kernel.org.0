@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1459F24B280
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEBAE24B330
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726772AbgHTJbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:31:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
+        id S1728516AbgHTJnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728226AbgHTJbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:22 -0400
+        id S1727774AbgHTJmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 035D8207DE;
-        Thu, 20 Aug 2020 09:31:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 398782075E;
+        Thu, 20 Aug 2020 09:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915881;
-        bh=FlEwQBX94KrxCPiD4PuGRd2JWinm9GizSS6oM0z5SQ4=;
+        s=default; t=1597916533;
+        bh=xyDZYkyPG1JpMD3a/x9ITUBO7mLGiopl2omnRGsYpl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYeEZYJ/F4n7/Jr4hs5lo0a29n8YyZk97amED8cUIVvRMQnCWBE0QJWGI38AyKCwT
-         GBRW3FFopKzGEBrAbH5t+uz40Sm0ipvmWe5e12UnVtkKs3LMdx+QgYozLLXWw7Bq6R
-         elIipAwAYyTgFE/tEUOhiIzJg6MAlhlivwBuUhSs=
+        b=NnydXkJ8hCsEyobyebgrrAXKrQNFLB5r7YzE8m2ejtN29rkJEluUmEvUhpW8gZ0u3
+         sBH5/hmY0g8kxjTF6zLWqyW14JqBor4lYmsKo8r0mqyFsy0CA2UDK+QgcDLYY2uIDJ
+         U/vUrdIzvS6GqVDGW68jUkkXyZJmn3eeKkAYS++g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 168/232] sched/uclamp: Fix a deadlock when enabling uclamp static key
+Subject: [PATCH 5.7 122/204] RDMA/counter: Only bind user QPs in auto mode
 Date:   Thu, 20 Aug 2020 11:20:19 +0200
-Message-Id: <20200820091620.954076640@linuxfoundation.org>
+Message-Id: <20200820091612.389345052@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Mark Zhang <markz@mellanox.com>
 
-[ Upstream commit e65855a52b479f98674998cb23b21ef5a8144b04 ]
+[ Upstream commit c9f557421e505f75da4234a6af8eff46bc08614b ]
 
-The following splat was caught when setting uclamp value of a task:
+In auto mode only bind user QPs to a dynamic counter, since this feature
+is mainly used for system statistic and diagnostic purpose, while there's
+no need to counter kernel QPs so far.
 
-  BUG: sleeping function called from invalid context at ./include/linux/percpu-rwsem.h:49
-
-   cpus_read_lock+0x68/0x130
-   static_key_enable+0x1c/0x38
-   __sched_setscheduler+0x900/0xad8
-
-Fix by ensuring we enable the key outside of the critical section in
-__sched_setscheduler()
-
-Fixes: 46609ce22703 ("sched/uclamp: Protect uclamp fast path code with static key")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200716110347.19553-4-qais.yousef@arm.com
+Fixes: 99fa331dc862 ("RDMA/counter: Add "auto" configuration mode support")
+Link: https://lore.kernel.org/r/20200702082933.424537-3-leon@kernel.org
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/counters.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index db1e99756c400..f788cd61df212 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1248,6 +1248,15 @@ static int uclamp_validate(struct task_struct *p,
- 	if (upper_bound > SCHED_CAPACITY_SCALE)
- 		return -EINVAL;
+diff --git a/drivers/infiniband/core/counters.c b/drivers/infiniband/core/counters.c
+index 738d1faf4bba5..6deb1901fbd02 100644
+--- a/drivers/infiniband/core/counters.c
++++ b/drivers/infiniband/core/counters.c
+@@ -288,7 +288,7 @@ int rdma_counter_bind_qp_auto(struct ib_qp *qp, u8 port)
+ 	struct rdma_counter *counter;
+ 	int ret;
  
-+	/*
-+	 * We have valid uclamp attributes; make sure uclamp is enabled.
-+	 *
-+	 * We need to do that here, because enabling static branches is a
-+	 * blocking operation which obviously cannot be done while holding
-+	 * scheduler locks.
-+	 */
-+	static_branch_enable(&sched_uclamp_used);
-+
- 	return 0;
- }
+-	if (!qp->res.valid)
++	if (!qp->res.valid || rdma_is_kernel_res(&qp->res))
+ 		return 0;
  
-@@ -1278,8 +1287,6 @@ static void __setscheduler_uclamp(struct task_struct *p,
- 	if (likely(!(attr->sched_flags & SCHED_FLAG_UTIL_CLAMP)))
- 		return;
- 
--	static_branch_enable(&sched_uclamp_used);
--
- 	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
- 		uclamp_se_set(&p->uclamp_req[UCLAMP_MIN],
- 			      attr->sched_util_min, true);
+ 	if (!rdma_is_port_valid(dev, port))
 -- 
 2.25.1
 
