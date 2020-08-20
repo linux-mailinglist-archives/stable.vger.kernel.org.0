@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F2324BCA2
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C746A24BB99
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbgHTMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:50:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S1730078AbgHTMbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728644AbgHTJpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:45:16 -0400
+        id S1729462AbgHTJug (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:50:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E78C420724;
-        Thu, 20 Aug 2020 09:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B323D2078D;
+        Thu, 20 Aug 2020 09:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916648;
-        bh=EIgqOuqjx6hxxb++cuTMR5Swu+gKbpESkR9jw59FFbg=;
+        s=default; t=1597917036;
+        bh=n7wzPQ3M0ERQ59sffFXEWhQWFOF761BQYOzZAulle1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Da55pZk7YSvcEsGoFl/CDl8LzyXmbr07/0wPspsR/iQrhF/BjkR57MBibII2zDxJt
-         9//UT+BXVXJkwpOENtNde8FfMAL7DZWrn5WUrZVm3THMIsZ7K+TWwlIp4LbLMMSYlX
-         AVIG8gYhBv4oKiKF+jgTS8L6T54ZllJahI09Xn88=
+        b=izt+fIWzVI5SynLDRBpal4gJX4JOGBK3wd7pU6dR8k9d/fFXtNmfYQVCoL6VYQNp6
+         dqlmB79c/kDXAggV41KYN0biGLYmoPjhy2BW4iqfbjUzZ+ICi9WXXDcqac7xqAWuAu
+         aY8Bg6LG0cugml2I1vItWHmSpswb4PlsjbhJX+Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stylon Wang <stylon.wang@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 203/204] drm/amd/display: Fix dmesg warning from setting abm level
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Qiujun Huang <anenbupt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 133/152] fs/minix: fix block limit check for V1 filesystems
 Date:   Thu, 20 Aug 2020 11:21:40 +0200
-Message-Id: <20200820091616.320085317@linuxfoundation.org>
+Message-Id: <20200820091600.624865025@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit c5892a10218214d729699ab61bad6fc109baf0ce upstream.
+[ Upstream commit 0a12c4a8069607247cb8edc3b035a664e636fd9a ]
 
-[Why]
-Setting abm level does not correctly update CRTC state. As a result
-no surface update is added to dc stream state and triggers warning.
+The minix filesystem reads its maximum file size from its on-disk
+superblock.  This value isn't necessarily a multiple of the block size.
+When it's not, the V1 block mapping code doesn't allow mapping the last
+possible block.  Commit 6ed6a722f9ab ("minixfs: fix block limit check")
+fixed this in the V2 mapping code.  Fix it in the V1 mapping code too.
 
-[How]
-Correctly update CRTC state when setting abm level property.
-
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Qiujun Huang <anenbupt@gmail.com>
+Link: http://lkml.kernel.org/r/20200628060846.682158-6-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ fs/minix/itree_v1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -8458,6 +8458,29 @@ static int amdgpu_dm_atomic_check(struct
- 		if (ret)
- 			goto fail;
- 
-+	/* Check connector changes */
-+	for_each_oldnew_connector_in_state(state, connector, old_con_state, new_con_state, i) {
-+		struct dm_connector_state *dm_old_con_state = to_dm_connector_state(old_con_state);
-+		struct dm_connector_state *dm_new_con_state = to_dm_connector_state(new_con_state);
-+
-+		/* Skip connectors that are disabled or part of modeset already. */
-+		if (!old_con_state->crtc && !new_con_state->crtc)
-+			continue;
-+
-+		if (!new_con_state->crtc)
-+			continue;
-+
-+		new_crtc_state = drm_atomic_get_crtc_state(state, new_con_state->crtc);
-+		if (IS_ERR(new_crtc_state)) {
-+			ret = PTR_ERR(new_crtc_state);
-+			goto fail;
-+		}
-+
-+		if (dm_old_con_state->abm_level !=
-+		    dm_new_con_state->abm_level)
-+			new_crtc_state->connectors_changed = true;
-+	}
-+
- #if defined(CONFIG_DRM_AMD_DC_DCN)
- 		if (!compute_mst_dsc_configs_for_state(state, dm_state->context))
- 			goto fail;
+diff --git a/fs/minix/itree_v1.c b/fs/minix/itree_v1.c
+index c0d418209ead1..405573a79aab4 100644
+--- a/fs/minix/itree_v1.c
++++ b/fs/minix/itree_v1.c
+@@ -29,7 +29,7 @@ static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
+ 	if (block < 0) {
+ 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",
+ 			block, inode->i_sb->s_bdev);
+-	} else if (block >= inode->i_sb->s_maxbytes/BLOCK_SIZE) {
++	} else if ((u64)block * BLOCK_SIZE >= inode->i_sb->s_maxbytes) {
+ 		if (printk_ratelimit())
+ 			printk("MINIX-fs: block_to_path: "
+ 			       "block %ld too big on dev %pg\n",
+-- 
+2.25.1
+
 
 
