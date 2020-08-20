@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23BF024BC11
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C505224BD0B
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbgHTMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
+        id S1729005AbgHTM5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729470AbgHTJrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:35 -0400
+        id S1729087AbgHTJlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D866C20724;
-        Thu, 20 Aug 2020 09:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA3472075E;
+        Thu, 20 Aug 2020 09:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916854;
-        bh=kCwqB6Ovaix4fstCjpwfhLC6Ms9iQESqD6AeWDno2wU=;
+        s=default; t=1597916467;
+        bh=KkTpjo3ubxOjKtyVT6Vor4FVC+SUr0Oso39gyEFrEDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOG+2ZaVViPvwwHxRGd9DPfaj6CNl+CkEcJNBn3sO0EzZNqNWnJU/adBOT3BYqdCZ
-         z4JKMvaWiDlwMPCfSfg1cP9Np5t9hNOdoX4UTc1SL2zkHrVtLCwFleWDLfvcnAgM7A
-         0MZs/OM5vX0xncqJnIzTsHZ+YMQeEHoXiCU7BQwk=
+        b=0Ma1zDf4gCrF8XcBZM3IQSh+cZjAqskYo3+qAxWj6eO7HJsQdb4+QXYhMrnOxSW25
+         cecYHO3qUIXkQ3JqC65151VCH9abVwdcJUSiZzkXMVKnUDNwELnd/fcB08tFx1XOvN
+         fTpKHB+p4ohLZSmgPSFJTCNSfOCSOsAfQB09oDlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 069/152] perf intel-pt: Fix FUP packet state
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 139/204] clk: qcom: clk-alpha-pll: remove unused/incorrect PLL_CAL_VAL
 Date:   Thu, 20 Aug 2020 11:20:36 +0200
-Message-Id: <20200820091557.262157715@linuxfoundation.org>
+Message-Id: <20200820091613.196433210@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-commit 401136bb084fd021acd9f8c51b52fe0a25e326b2 upstream.
+[ Upstream commit c8b9002f44e4a1d2771b2f59f6de900864b1f9d7 ]
 
-While walking code towards a FUP ip, the packet state is
-INTEL_PT_STATE_FUP or INTEL_PT_STATE_FUP_NO_TIP. That was mishandled
-resulting in the state becoming INTEL_PT_STATE_IN_SYNC prematurely.  The
-result was an occasional lost EXSTOP event.
+0x44 isn't a register offset, it is the value that goes into CAL_L_VAL.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200710151104.15137-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 548a909597d5 ("clk: qcom: clk-alpha-pll: Add support for Trion PLLs")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20200709135251.643-3-jonathan@marek.ca
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   21 ++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
+ drivers/clk/qcom/clk-alpha-pll.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1164,6 +1164,7 @@ static int intel_pt_walk_fup(struct inte
- 			return 0;
- 		if (err == -EAGAIN ||
- 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
-+			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			if (intel_pt_fup_event(decoder))
- 				return 0;
- 			return -EAGAIN;
-@@ -1942,17 +1943,13 @@ next:
- 			}
- 			if (decoder->set_fup_mwait)
- 				no_tip = true;
-+			if (no_tip)
-+				decoder->pkt_state = INTEL_PT_STATE_FUP_NO_TIP;
-+			else
-+				decoder->pkt_state = INTEL_PT_STATE_FUP;
- 			err = intel_pt_walk_fup(decoder);
--			if (err != -EAGAIN) {
--				if (err)
--					return err;
--				if (no_tip)
--					decoder->pkt_state =
--						INTEL_PT_STATE_FUP_NO_TIP;
--				else
--					decoder->pkt_state = INTEL_PT_STATE_FUP;
--				return 0;
--			}
-+			if (err != -EAGAIN)
-+				return err;
- 			if (no_tip) {
- 				no_tip = false;
- 				break;
-@@ -2599,15 +2596,11 @@ const struct intel_pt_state *intel_pt_de
- 			err = intel_pt_walk_tip(decoder);
- 			break;
- 		case INTEL_PT_STATE_FUP:
--			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			err = intel_pt_walk_fup(decoder);
- 			if (err == -EAGAIN)
- 				err = intel_pt_walk_fup_tip(decoder);
--			else if (!err)
--				decoder->pkt_state = INTEL_PT_STATE_FUP;
- 			break;
- 		case INTEL_PT_STATE_FUP_NO_TIP:
--			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
- 			err = intel_pt_walk_fup(decoder);
- 			if (err == -EAGAIN)
- 				err = intel_pt_walk_trace(decoder);
+diff --git a/drivers/clk/qcom/clk-alpha-pll.c b/drivers/clk/qcom/clk-alpha-pll.c
+index 9b2dfa08acb2a..1325139173c95 100644
+--- a/drivers/clk/qcom/clk-alpha-pll.c
++++ b/drivers/clk/qcom/clk-alpha-pll.c
+@@ -56,7 +56,6 @@
+ #define PLL_STATUS(p)		((p)->offset + (p)->regs[PLL_OFF_STATUS])
+ #define PLL_OPMODE(p)		((p)->offset + (p)->regs[PLL_OFF_OPMODE])
+ #define PLL_FRAC(p)		((p)->offset + (p)->regs[PLL_OFF_FRAC])
+-#define PLL_CAL_VAL(p)		((p)->offset + (p)->regs[PLL_OFF_CAL_VAL])
+ 
+ const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
+ 	[CLK_ALPHA_PLL_TYPE_DEFAULT] =  {
+@@ -115,7 +114,6 @@ const u8 clk_alpha_pll_regs[][PLL_OFF_MAX_REGS] = {
+ 		[PLL_OFF_STATUS] = 0x30,
+ 		[PLL_OFF_OPMODE] = 0x38,
+ 		[PLL_OFF_ALPHA_VAL] = 0x40,
+-		[PLL_OFF_CAL_VAL] = 0x44,
+ 	},
+ 	[CLK_ALPHA_PLL_TYPE_LUCID] =  {
+ 		[PLL_OFF_L_VAL] = 0x04,
+-- 
+2.25.1
+
 
 
