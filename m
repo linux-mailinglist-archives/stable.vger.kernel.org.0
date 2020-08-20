@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D0C24BDA9
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F2B24BDE4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728807AbgHTNKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
+        id S1728572AbgHTNPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:15:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728730AbgHTJhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:37:33 -0400
+        id S1728550AbgHTJgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:36:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC9D021775;
-        Thu, 20 Aug 2020 09:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18C5022B3F;
+        Thu, 20 Aug 2020 09:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916252;
-        bh=YiCWZ5e1HLOx/GrVAEQIblWnR6UfnF5l0qNFx2MaCFE=;
+        s=default; t=1597916169;
+        bh=LJ8JdhQFFI5LiST+V6Hy9d7VwiZ4/z1me0jWe70++zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L9zRe+4U+vAgAuKStv+4K7fgVXq0kpp4hBniwkDLUye5WEHr/BzfIyjYI3FNT3kTP
-         aMOQsxr7HlFjOEPvJ86IxHJEHZ1OvzMD0zdMoRQLgPGGdr6EATd/7yuq5Si9FqysJf
-         JxZO3Z1O1x3GKKtmGzzL0T2uTYK9fcsqGPuu6OKM=
+        b=gjCfZch4wW3tkvDgzWt6G2qfAfgIZ0FpEgnff+c080Tgj/lVCWRf0zVqHORdLE9Tm
+         XV+8TLdarJxBzJLG+EBRPFfMZgyEU0GY4heYkdrG8/XlWqcdML6zdKgcN9yEEu80VC
+         UUEBQ2BsLnSDhvhFUmryg0Y8JyjnQ2ERFqqKvb4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 034/204] btrfs: trim: fix underflow in trim length to prevent access beyond device boundary
-Date:   Thu, 20 Aug 2020 11:18:51 +0200
-Message-Id: <20200820091607.970513537@linuxfoundation.org>
+Subject: [PATCH 5.7 035/204] btrfs: make sure SB_I_VERSION doesnt get unset by remount
+Date:   Thu, 20 Aug 2020 11:18:52 +0200
+Message-Id: <20200820091608.023383346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -44,114 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit c57dd1f2f6a7cd1bb61802344f59ccdc5278c983 upstream.
+commit faa008899a4db21a2df99833cb4ff6fa67009a20 upstream.
 
-[BUG]
-The following script can lead to tons of beyond device boundary access:
+There's some inconsistency around SB_I_VERSION handling with mount and
+remount.  Since we don't really want it to be off ever just work around
+this by making sure we don't get the flag cleared on remount.
 
-  mkfs.btrfs -f $dev -b 10G
-  mount $dev $mnt
-  trimfs $mnt
-  btrfs filesystem resize 1:-1G $mnt
-  trimfs $mnt
+There's a tiny cpu cost of setting the bit, otherwise all changes to
+i_version also change some of the times (ctime/mtime) so the inode needs
+to be synced. We wouldn't save anything by disabling it.
 
-[CAUSE]
-Since commit 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to
-find_first_clear_extent_bit"), we try to avoid trimming ranges that's
-already trimmed.
-
-So we check device->alloc_state by finding the first range which doesn't
-have CHUNK_TRIMMED and CHUNK_ALLOCATED not set.
-
-But if we shrunk the device, that bits are not cleared, thus we could
-easily got a range starts beyond the shrunk device size.
-
-This results the returned @start and @end are all beyond device size,
-then we call "end = min(end, device->total_bytes -1);" making @end
-smaller than device size.
-
-Then finally we goes "len = end - start + 1", totally underflow the
-result, and lead to the beyond-device-boundary access.
-
-[FIX]
-This patch will fix the problem in two ways:
-
-- Clear CHUNK_TRIMMED | CHUNK_ALLOCATED bits when shrinking device
-  This is the root fix
-
-- Add extra safety check when trimming free device extents
-  We check and warn if the returned range is already beyond current
-  device.
-
-Link: https://github.com/kdave/btrfs-progs/issues/282
-Fixes: 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to find_first_clear_extent_bit")
+Reported-by: Eric Sandeen <sandeen@redhat.com>
 CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ add perf impact analysis ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-io-tree.h |    2 ++
- fs/btrfs/extent-tree.c    |   14 ++++++++++++++
- fs/btrfs/volumes.c        |    4 ++++
- 3 files changed, 20 insertions(+)
+ fs/btrfs/super.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/extent-io-tree.h
-+++ b/fs/btrfs/extent-io-tree.h
-@@ -34,6 +34,8 @@ struct io_failure_record;
-  */
- #define CHUNK_ALLOCATED				EXTENT_DIRTY
- #define CHUNK_TRIMMED				EXTENT_DEFRAG
-+#define CHUNK_STATE_MASK			(CHUNK_ALLOCATED |		\
-+						 CHUNK_TRIMMED)
- 
- enum {
- 	IO_TREE_FS_PINNED_EXTENTS,
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -33,6 +33,7 @@
- #include "delalloc-space.h"
- #include "block-group.h"
- #include "discard.h"
-+#include "rcu-string.h"
- 
- #undef SCRAMBLE_DELAYED_REFS
- 
-@@ -5685,6 +5686,19 @@ static int btrfs_trim_free_extents(struc
- 					    &start, &end,
- 					    CHUNK_TRIMMED | CHUNK_ALLOCATED);
- 
-+		/* Check if there are any CHUNK_* bits left */
-+		if (start > device->total_bytes) {
-+			WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
-+			btrfs_warn_in_rcu(fs_info,
-+"ignoring attempt to trim beyond device size: offset %llu length %llu device %s device size %llu",
-+					  start, end - start + 1,
-+					  rcu_str_deref(device->name),
-+					  device->total_bytes);
-+			mutex_unlock(&fs_info->chunk_mutex);
-+			ret = 0;
-+			break;
-+		}
-+
- 		/* Ensure we skip the reserved area in the first 1M */
- 		start = max_t(u64, start, SZ_1M);
- 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4724,6 +4724,10 @@ again:
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1895,6 +1895,12 @@ static int btrfs_remount(struct super_bl
+ 		set_bit(BTRFS_FS_OPEN, &fs_info->flags);
  	}
- 
- 	mutex_lock(&fs_info->chunk_mutex);
-+	/* Clear all state bits beyond the shrunk device size */
-+	clear_extent_bits(&device->alloc_state, new_size, (u64)-1,
-+			  CHUNK_STATE_MASK);
+ out:
++	/*
++	 * We need to set SB_I_VERSION here otherwise it'll get cleared by VFS,
++	 * since the absence of the flag means it can be toggled off by remount.
++	 */
++	*flags |= SB_I_VERSION;
 +
- 	btrfs_device_set_disk_total_bytes(device, new_size);
- 	if (list_empty(&device->post_commit_list))
- 		list_add_tail(&device->post_commit_list,
+ 	wake_up_process(fs_info->transaction_kthread);
+ 	btrfs_remount_cleanup(fs_info, old_opts);
+ 	return 0;
 
 
