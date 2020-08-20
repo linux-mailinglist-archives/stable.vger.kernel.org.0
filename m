@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4914D24B377
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F00124B315
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbgHTJre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S1728664AbgHTJlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbgHTJrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:47:32 -0400
+        id S1727033AbgHTJlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:41:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B587C20724;
-        Thu, 20 Aug 2020 09:47:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D270E207DE;
+        Thu, 20 Aug 2020 09:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916851;
-        bh=PNCLyphAMtbUMpwWPAZS1VpRriUsfSVeorKX42UKzhA=;
+        s=default; t=1597916470;
+        bh=U4KrGCQb7/GOL6p3/wipQV9B3LdWGiw+bPEaYyFKaq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gx/BMzZ2ofHBbaBmpY9i2soSWiAkXmVx3mwsk/zOixgGW+8Zr1Ti3kMGxqtADoa2E
-         mEZxmkcFjCvVFwQEx66muYGsp7xqbnHm+ZOx0ZVKv161PnlnjkzzcW9VXxfmIg0b99
-         NRWJtV8A1iMWhGChzrbxGeB5BqpKDShAISOZf+AA=
+        b=KfwSal5CkFrNqzsxH74HX4yWfs4UYEkljw6mFh43mO8VDw0OgGoBUB9PfXTjUTgoI
+         Qb0izUa26NoXmTEgSYxbu1GHlXX6+uwLRr1UtWWUVgCiE3SmillTNoGNa0LWIrkg4L
+         eKHU7A/01yJYjtFg4e9LCofJy9RTR3ABxbO36TKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 068/152] module: Correctly truncate sysfs sections output
-Date:   Thu, 20 Aug 2020 11:20:35 +0200
-Message-Id: <20200820091557.210709757@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Yi L <yi.l.liu@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 140/204] iommu/vt-d: Enforce PASID devTLB field mask
+Date:   Thu, 20 Aug 2020 11:20:37 +0200
+Message-Id: <20200820091613.248324405@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Liu Yi L <yi.l.liu@intel.com>
 
-commit 11990a5bd7e558e9203c1070fc52fb6f0488e75b upstream.
+[ Upstream commit 5f77d6ca5ca74e4b4a5e2e010f7ff50c45dea326 ]
 
-The only-root-readable /sys/module/$module/sections/$section files
-did not truncate their output to the available buffer size. While most
-paths into the kernfs read handlers end up using PAGE_SIZE buffers,
-it's possible to get there through other paths (e.g. splice, sendfile).
-Actually limit the output to the "count" passed into the read function,
-and report it back correctly. *sigh*
+Set proper masks to avoid invalid input spillover to reserved bits.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/20200805002015.GE23458@shao2-debian
-Fixes: ed66f991bb19 ("module: Refactor section attr into bin attribute")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20200724014925.15523-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ include/linux/intel-iommu.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1517,18 +1517,34 @@ struct module_sect_attrs {
- 	struct module_sect_attr attrs[0];
- };
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 64a5335046b00..bc1abbc041092 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -363,8 +363,8 @@ enum {
  
-+#define MODULE_SECT_READ_SIZE (3 /* "0x", "\n" */ + (BITS_PER_LONG / 4))
- static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
- 				struct bin_attribute *battr,
- 				char *buf, loff_t pos, size_t count)
- {
- 	struct module_sect_attr *sattr =
- 		container_of(battr, struct module_sect_attr, battr);
-+	char bounce[MODULE_SECT_READ_SIZE + 1];
-+	size_t wrote;
- 
- 	if (pos != 0)
- 		return -EINVAL;
- 
--	return sprintf(buf, "0x%px\n",
--		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
-+	/*
-+	 * Since we're a binary read handler, we must account for the
-+	 * trailing NUL byte that sprintf will write: if "buf" is
-+	 * too small to hold the NUL, or the NUL is exactly the last
-+	 * byte, the read will look like it got truncated by one byte.
-+	 * Since there is no way to ask sprintf nicely to not write
-+	 * the NUL, we have to use a bounce buffer.
-+	 */
-+	wrote = scnprintf(bounce, sizeof(bounce), "0x%px\n",
-+			 kallsyms_show_value(file->f_cred)
-+				? (void *)sattr->address : NULL);
-+	count = min(count, wrote);
-+	memcpy(buf, bounce, count);
-+
-+	return count;
- }
- 
- static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
-@@ -1577,7 +1593,7 @@ static void add_sect_attrs(struct module
- 			goto out;
- 		sect_attrs->nsections++;
- 		sattr->battr.read = module_sect_read;
--		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
-+		sattr->battr.size = MODULE_SECT_READ_SIZE;
- 		sattr->battr.attr.mode = 0400;
- 		*(gattr++) = &(sattr++)->battr;
- 	}
+ #define QI_DEV_EIOTLB_ADDR(a)	((u64)(a) & VTD_PAGE_MASK)
+ #define QI_DEV_EIOTLB_SIZE	(((u64)1) << 11)
+-#define QI_DEV_EIOTLB_GLOB(g)	((u64)g)
+-#define QI_DEV_EIOTLB_PASID(p)	(((u64)p) << 32)
++#define QI_DEV_EIOTLB_GLOB(g)	((u64)(g) & 0x1)
++#define QI_DEV_EIOTLB_PASID(p)	((u64)((p) & 0xfffff) << 32)
+ #define QI_DEV_EIOTLB_SID(sid)	((u64)((sid) & 0xffff) << 16)
+ #define QI_DEV_EIOTLB_QDEP(qd)	((u64)((qd) & 0x1f) << 4)
+ #define QI_DEV_EIOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | \
+-- 
+2.25.1
+
 
 
