@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F288024BB2B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98DC024BA2C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:03:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730077AbgHTJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35910 "EHLO mail.kernel.org"
+        id S1730228AbgHTMBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730078AbgHTJxt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:49 -0400
+        id S1729707AbgHTKAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:00:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 295F12067C;
-        Thu, 20 Aug 2020 09:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F3E221775;
+        Thu, 20 Aug 2020 10:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917227;
-        bh=gMAJQySplqK3LODlD+yqkkSZmARBSR3jSggcw7cFqr8=;
+        s=default; t=1597917606;
+        bh=ty18EZHzNNsdgv8w9u5VplsWbIv4nX7VRyU0h2WE+W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRRrb8zr/3sCzTA/5YoqZpiB7zbYb2s6p6WZ4Ko26/gkn26L9yTNqjhEb/0DAG+vQ
-         22/3YhMLUDlye4CTRCAcBszq9N8+xZ8OKCRbuU2fcjoFOpIYWwBKWC0B/JZF5C/kdt
-         asSMhXMqGGvbOoz6U/Ys+7XRgzDk8J0PBL+23lOY=
+        b=odUjY3Cf8QYbjOt4hklg7aJC8s+P4cDXtbcrJzSyxnXHCdyLb05MXJmcmLBO2Pyhe
+         UGakxMnNJ4imTLYqV4MYkb4i6NZcXCZNAAislO9dqC19wCEG+4YM36s/LGfOtzuJCC
+         RwlIdEeXqY44zCOZErBwtK1oI8ZQEIiQyjWS73nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Christian Eggers <ceggers@arri.de>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.19 18/92] dt-bindings: iio: io-channel-mux: Fix compatible string in example code
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 090/212] ARM: socfpga: PM: add missing put_device() call in socfpga_setup_ocram_self_refresh()
 Date:   Thu, 20 Aug 2020 11:21:03 +0200
-Message-Id: <20200820091538.504723836@linuxfoundation.org>
+Message-Id: <20200820091606.896984588@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
-References: <20200820091537.490965042@linuxfoundation.org>
+In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
+References: <20200820091602.251285210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit add48ba425192c6e04ce70549129cacd01e2a09e upstream.
+[ Upstream commit 3ad7b4e8f89d6bcc9887ca701cf2745a6aedb1a0 ]
 
-The correct compatible string is "gpio-mux" (see
-bindings/mux/gpio-mux.txt).
+if of_find_device_by_node() succeed, socfpga_setup_ocram_self_refresh
+doesn't have a corresponding put_device(). Thus add a jump target to
+fix the exception handling for this function implementation.
 
-Cc: stable@vger.kernel.org # v4.13+
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Link: https://lore.kernel.org/r/20200727101605.24384-1-ceggers@arri.de
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 44fd8c7d4005 ("ARM: socfpga: support suspend to ram")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-socfpga/pm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
-+++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
-@@ -21,7 +21,7 @@ controller state. The mux controller sta
+diff --git a/arch/arm/mach-socfpga/pm.c b/arch/arm/mach-socfpga/pm.c
+index c378ab0c24317..93f2245c97750 100644
+--- a/arch/arm/mach-socfpga/pm.c
++++ b/arch/arm/mach-socfpga/pm.c
+@@ -60,14 +60,14 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- Example:
- 	mux: mux-controller {
--		compatible = "mux-gpio";
-+		compatible = "gpio-mux";
- 		#mux-control-cells = <0>;
+ 	ocram_base = gen_pool_alloc(ocram_pool, socfpga_sdram_self_refresh_sz);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -78,7 +78,7 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!suspend_ocram_base) {
+ 		pr_warn("%s: __arm_ioremap_exec failed!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	/* Copy the code that puts DDR in self refresh to ocram */
+@@ -92,6 +92,8 @@ static int socfpga_setup_ocram_self_refresh(void)
+ 	if (!socfpga_sdram_self_refresh_in_ocram)
+ 		ret = -EFAULT;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(np);
+ 
+-- 
+2.25.1
+
 
 
