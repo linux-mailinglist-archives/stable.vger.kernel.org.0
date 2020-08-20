@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FB024BFD6
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C46724BFD4
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730637AbgHTNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:54:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
+        id S1730602AbgHTNyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 09:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727793AbgHTJZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:25:47 -0400
+        id S1727050AbgHTJ0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:26:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85E4E2173E;
-        Thu, 20 Aug 2020 09:25:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B12CD2075E;
+        Thu, 20 Aug 2020 09:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915531;
-        bh=BJZ3khMHnakcxXd+d87ppc6iMeGURSC9HUcleIi3LsA=;
+        s=default; t=1597915577;
+        bh=VNURiwepPfOHCYWSBAiSVCnkHz/Eyq1gIpHIveQMb1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xeiw4zc/LeppE7ITtWlQ1UvCTKd6KxzmZxm91UpH3FekebMrfRzIMKgOJ5F6Jo0Ah
-         OOHq4Yf9Ul5jF+5l7jYM4di/Ke8pnCCAZpP5PPadi41lvISAZikGCfbvp7AKcE050J
-         f6u/vi53Orkj6RrOIaEkNhRfd60WsJoDqmrQbZII=
+        b=HU0SPkfsizh2u0hM1Tm1vAwPdFgWJhieaUtecygOmP4WtFimBVVbwE4aXb5qqdr2L
+         a69lvBU7suEVQT5qdNXhc3GcDyhXvOnwgrep1CwTiAMzxTkEpmeixhUzR21xE6XfJ1
+         6aQxRydM/7m5vqqPrCTKbFdZ1zEfJ/tWU+gEkCzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>,
+        stable@vger.kernel.org, Chris Murphy <chris@colorremedies.com>,
         Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 029/232] btrfs: return EROFS for BTRFS_FS_STATE_ERROR cases
-Date:   Thu, 20 Aug 2020 11:18:00 +0200
-Message-Id: <20200820091614.166494761@linuxfoundation.org>
+Subject: [PATCH 5.8 033/232] btrfs: dont show full path of bind mounts in subvol=
+Date:   Thu, 20 Aug 2020 11:18:04 +0200
+Message-Id: <20200820091614.367868253@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -46,150 +46,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit fbabd4a36faaf74c83142d0b3d950c11ec14fda1 upstream.
+commit 3ef3959b29c4a5bd65526ab310a1a18ae533172a upstream.
 
-Eric reported seeing this message while running generic/475
+Chris Murphy reported a problem where rpm ostree will bind mount a bunch
+of things for whatever voodoo it's doing.  But when it does this
+/proc/mounts shows something like
 
-  BTRFS: error (device dm-3) in btrfs_sync_log:3084: errno=-117 Filesystem corrupted
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo/bar 0 0
 
-Full stack trace:
+Despite subvolid=256 being subvol=/foo.  This is because we're just
+spitting out the dentry of the mount point, which in the case of bind
+mounts is the source path for the mountpoint.  Instead we should spit
+out the path to the actual subvol.  Fix this by looking up the name for
+the subvolid we have mounted.  With this fix the same test looks like
+this
 
-  BTRFS: error (device dm-0) in btrfs_commit_transaction:2323: errno=-5 IO failure (Error while writing out transaction)
-  BTRFS info (device dm-0): forced readonly
-  BTRFS warning (device dm-0): Skipping commit of aborted transaction.
-  ------------[ cut here ]------------
-  BTRFS: error (device dm-0) in cleanup_transaction:1894: errno=-5 IO failure
-  BTRFS: Transaction aborted (error -117)
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6480 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6488 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6490 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c6498 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64a0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64a8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64b0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64b8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3555 rw 0,0 sector 0x1c64c0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3572 rw 0,0 sector 0x1b85e8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3572 rw 0,0 sector 0x1b85f0 len 4096 err no 10
-  WARNING: CPU: 3 PID: 23985 at fs/btrfs/tree-log.c:3084 btrfs_sync_log+0xbc8/0xd60 [btrfs]
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4288 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4290 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d4298 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42a0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42a8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42b0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42b8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42c0 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42c8 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 3548 rw 0,0 sector 0x1d42d0 len 4096 err no 10
-  CPU: 3 PID: 23985 Comm: fsstress Tainted: G        W    L    5.8.0-rc4-default+ #1181
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  RIP: 0010:btrfs_sync_log+0xbc8/0xd60 [btrfs]
-  RSP: 0018:ffff909a44d17bd0 EFLAGS: 00010286
-  RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000001
-  RDX: ffff8f3be41cb940 RSI: ffffffffb0108d2b RDI: ffffffffb0108ff7
-  RBP: ffff909a44d17e70 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000037988 R12: ffff8f3bd20e4000
-  R13: ffff8f3bd20e4428 R14: 00000000ffffff8b R15: ffff909a44d17c70
-  FS:  00007f6a6ed3fb80(0000) GS:ffff8f3c3dc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f6a6ed3e000 CR3: 00000000525c0003 CR4: 0000000000160ee0
-  Call Trace:
-   ? finish_wait+0x90/0x90
-   ? __mutex_unlock_slowpath+0x45/0x2a0
-   ? lock_acquire+0xa3/0x440
-   ? lockref_put_or_lock+0x9/0x30
-   ? dput+0x20/0x4a0
-   ? dput+0x20/0x4a0
-   ? do_raw_spin_unlock+0x4b/0xc0
-   ? _raw_spin_unlock+0x1f/0x30
-   btrfs_sync_file+0x335/0x490 [btrfs]
-   do_fsync+0x38/0x70
-   __x64_sys_fsync+0x10/0x20
-   do_syscall_64+0x50/0xe0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f6a6ef1b6e3
-  Code: Bad RIP value.
-  RSP: 002b:00007ffd01e20038 EFLAGS: 00000246 ORIG_RAX: 000000000000004a
-  RAX: ffffffffffffffda RBX: 000000000007a120 RCX: 00007f6a6ef1b6e3
-  RDX: 00007ffd01e1ffa0 RSI: 00007ffd01e1ffa0 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000001 R09: 00007ffd01e2004c
-  R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000009f
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  irq event stamp: 0
-  hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  hardirqs last disabled at (0): [<ffffffffb007fe0b>] copy_process+0x67b/0x1b00
-  softirqs last  enabled at (0): [<ffffffffb007fe0b>] copy_process+0x67b/0x1b00
-  softirqs last disabled at (0): [<0000000000000000>] 0x0
-  ---[ end trace af146e0e38433456 ]---
-  BTRFS: error (device dm-0) in btrfs_sync_log:3084: errno=-117 Filesystem corrupted
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
 
-This ret came from btrfs_write_marked_extents().  If we get an aborted
-transaction via EIO before, we'll see it in btree_write_cache_pages()
-and return EUCLEAN, which gets printed as "Filesystem corrupted".
-
-Except we shouldn't be returning EUCLEAN here, we need to be returning
-EROFS because EUCLEAN is reserved for actual corruption, not IO errors.
-
-We are inconsistent about our handling of BTRFS_FS_STATE_ERROR
-elsewhere, but we want to use EROFS for this particular case.  The
-original transaction abort has the real error code for why we ended up
-with an aborted transaction, all subsequent actions just need to return
-EROFS because they may not have a trans handle and have no idea about
-the original cause of the abort.
-
-After patch "btrfs: don't WARN if we abort a transaction with EROFS" the
-stacktrace will not be dumped either.
-
-Reported-by: Eric Sandeen <esandeen@redhat.com>
-CC: stable@vger.kernel.org # 5.4+
+Reported-by: Chris Murphy <chris@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
-[ add full test stacktrace ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c   |    2 +-
- fs/btrfs/scrub.c       |    2 +-
- fs/btrfs/transaction.c |    5 ++++-
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ fs/btrfs/super.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4127,7 +4127,7 @@ retry:
- 	if (!test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state)) {
- 		ret = flush_write_bio(&epd);
- 	} else {
--		ret = -EUCLEAN;
-+		ret = -EROFS;
- 		end_write_bio(&epd, ret);
- 	}
- 	return ret;
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -3758,7 +3758,7 @@ static noinline_for_stack int scrub_supe
- 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1312,6 +1312,7 @@ static int btrfs_show_options(struct seq
+ {
+ 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
+ 	const char *compress_type;
++	const char *subvol_name;
  
- 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
--		return -EIO;
-+		return -EROFS;
+ 	if (btrfs_test_opt(info, DEGRADED))
+ 		seq_puts(seq, ",degraded");
+@@ -1398,8 +1399,13 @@ static int btrfs_show_options(struct seq
+ 		seq_puts(seq, ",ref_verify");
+ 	seq_printf(seq, ",subvolid=%llu",
+ 		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
+-	seq_puts(seq, ",subvol=");
+-	seq_dentry(seq, dentry, " \t\n\\");
++	subvol_name = btrfs_get_subvol_name_from_objectid(info,
++			BTRFS_I(d_inode(dentry))->root->root_key.objectid);
++	if (!IS_ERR(subvol_name)) {
++		seq_puts(seq, ",subvol=");
++		seq_escape(seq, subvol_name, " \t\n\\");
++		kfree(subvol_name);
++	}
+ 	return 0;
+ }
  
- 	/* Seed devices of a new filesystem has their own generation. */
- 	if (scrub_dev->fs_devices != fs_info->fs_devices)
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -937,7 +937,10 @@ static int __btrfs_end_transaction(struc
- 	if (TRANS_ABORTED(trans) ||
- 	    test_bit(BTRFS_FS_STATE_ERROR, &info->fs_state)) {
- 		wake_up_process(info->transaction_kthread);
--		err = -EIO;
-+		if (TRANS_ABORTED(trans))
-+			err = trans->aborted;
-+		else
-+			err = -EROFS;
- 	}
- 
- 	kmem_cache_free(btrfs_trans_handle_cachep, trans);
 
 
