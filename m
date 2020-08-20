@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2630024B60E
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1121624B725
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730896AbgHTKbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:31:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45830 "EHLO mail.kernel.org"
+        id S1731729AbgHTKsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731301AbgHTKUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:20:35 -0400
+        id S1731254AbgHTKPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:15:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A15EE2067C;
-        Thu, 20 Aug 2020 10:20:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF8D220658;
+        Thu, 20 Aug 2020 10:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918834;
-        bh=BH4EgUBXqCSKKBSJ4WJk4gUi3wBwFwK4qnMhCc55oyM=;
+        s=default; t=1597918530;
+        bh=JdjgGhnTYPEIjoZ4i+Mqm/1qWRHWnX8DfyPTKsbyvf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvMrzIZ9zxwGYOB1IqlzKsMStkhIK16FfmEnRi2c902tVgHz/IPUuA/WDJ/qFZ/WC
-         N0m14MkVctQVxahdVOcPOUSpFCK7fLMOt9f0VVNvyoSM97tAfl7p/iFvS7wFKvUY3p
-         IjQnHIwRPjqKP0zkDzpeJwnZnVVtYbO4U5aK1Pn0=
+        b=WtYsCcoLCWehg1fQMIeuxqJcaKB0jmx5CperWL6s5qaI4LaXWbZ0B8ACRzb6RV06b
+         9I21LHOymA+zxxZxPppFAPiNCF66W9Kt4mdzllapLvmt91VU9Y+XZAjMUD8ZGk+bkv
+         +lcPACtASrUQLgPsSJoTFthES4o1tkdmg3ZaSpnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 084/149] cxl: Fix kobject memleak
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 186/228] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
 Date:   Thu, 20 Aug 2020 11:22:41 +0200
-Message-Id: <20200820092129.791728489@linuxfoundation.org>
+Message-Id: <20200820091616.871419586@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
+In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
+References: <20200820091607.532711107@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 85c5cbeba8f4fb28e6b9bfb3e467718385f78f76 ]
+commit 0cb2f1372baa60af8456388a574af6133edd7d80 upstream.
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+We found a case of kernel panic on our server. The stack trace is as
+follows(omit some irrelevant information):
 
-Fix it by adding a call to kobject_put() in the error path of
-kobject_init_and_add().
+  BUG: kernel NULL pointer dereference, address: 0000000000000080
+  RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
+  RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
+  RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
+  RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
+  RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+  R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <IRQ>
+   ftrace_ops_assist_func+0x56/0xe0
+   ftrace_call+0x5/0x34
+   tcpa_statistic_send+0x5/0x130 [ttcp_engine]
 
-Fixes: b087e6190ddc ("cxl: Export optional AFU configuration record in sysfs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200602120733.5943-1-wanghai38@huawei.com
+The tcpa_statistic_send is the function being kprobed. After analysis,
+the root cause is that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
+
+  crash> dis tcpa_statistic_send -r
+         <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
+
+The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller.
+So it is reasonable that the fourth parameter regs of kprobe_ftrace_handler
+is NULL. In theory, we should call the ftrace_regs_caller instead of the
+ftrace_caller. After in-depth analysis, we found a reproducible path.
+
+  Writing a simple kernel module which starts a periodic timer. The
+  timer's handler is named 'kprobe_test_timer_handler'. The module
+  name is kprobe_test.ko.
+
+  1) insmod kprobe_test.ko
+  2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+  3) echo 0 > /proc/sys/kernel/ftrace_enabled
+  4) rmmod kprobe_test
+  5) stop step 2) kprobe
+  6) insmod kprobe_test.ko
+  7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
+
+We mark the kprobe as GONE but not disarm the kprobe in the step 4).
+The step 5) also do not disarm the kprobe when unregister kprobe. So
+we do not remove the ip from the filter. In this case, when the module
+loads again in the step 6), we will replace the code to ftrace_caller
+via the ftrace_module_enable(). When we register kprobe again, we will
+not replace ftrace_caller to ftrace_regs_caller because the ftrace is
+disabled in the step 3). So the step 7) will trigger kernel panic. Fix
+this problem by disarming the kprobe when the module is going away.
+
+Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedance.com
+
+Cc: stable@vger.kernel.org
+Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/misc/cxl/sysfs.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/misc/cxl/sysfs.c
-+++ b/drivers/misc/cxl/sysfs.c
-@@ -539,7 +539,7 @@ static struct afu_config_record *cxl_sys
- 	rc = kobject_init_and_add(&cr->kobj, &afu_config_record_type,
- 				  &afu->dev.kobj, "cr%i", cr->cr);
- 	if (rc)
--		goto err;
-+		goto err1;
- 
- 	rc = sysfs_create_bin_file(&cr->kobj, &cr->config_attr);
- 	if (rc)
-@@ -555,9 +555,6 @@ err2:
- err1:
- 	kobject_put(&cr->kobj);
- 	return ERR_PTR(rc);
--err:
--	kfree(cr);
--	return ERR_PTR(rc);
+---
+ kernel/kprobes.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2134,6 +2134,13 @@ static void kill_kprobe(struct kprobe *p
+ 	 * the original probed function (which will be freed soon) any more.
+ 	 */
+ 	arch_remove_kprobe(p);
++
++	/*
++	 * The module is going away. We should disarm the kprobe which
++	 * is using ftrace.
++	 */
++	if (kprobe_ftrace(p))
++		disarm_kprobe_ftrace(p);
  }
  
- void cxl_sysfs_afu_remove(struct cxl_afu *afu)
+ /* Disable one kprobe */
 
 
