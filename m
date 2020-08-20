@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A788B24BB3F
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:26:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9469A24BB3D
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729064AbgHTMZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:25:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34938 "EHLO mail.kernel.org"
+        id S1729955AbgHTJxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729956AbgHTJxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:53:13 -0400
+        id S1729942AbgHTJxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:53:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AF012075E;
-        Thu, 20 Aug 2020 09:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AF2F2067C;
+        Thu, 20 Aug 2020 09:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917192;
-        bh=Rmv470bmgUS7+vIi8DvLOsrP7vf16lYWdL3eGMa12cg=;
+        s=default; t=1597917194;
+        bh=C/84CIoJYHv4E/FABQ0fh8uf1gdQweNA4EgZRAF4Klc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/Sz8vnVWV2H21V61Al9weCRbiH6ZhryBh40U0icNrv0e+Q/bPFcYB6e7Ocv1oCmR
-         HjJjot+TKaAsBRmv/9UBU/AsQJJuS3rl94RQJ8PexhjeV0x8l1eotcwX1pTTtny0v9
-         zpHAIKKmXEx7UZtqikpMHnY78gqImsIQwgjXePdg=
+        b=W3KJ90pMJ48T4uwLaY3IEvaG9NmMWR+kSnMadnw/5PrHmWtZulO2a0U2jge7y8pVV
+         2Bsmt5X0y3kgZIclPmN5RqLcR4+UFmqJV4OoIc6jjydqpwOPrbHD69nxtyjOeAD3Dr
+         RaPyYiRtHr+PWECFAhTL4DeBlVx8CoutPV8HmnZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Michal Hocko <mhocko@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Gang He <ghe@suse.com>, Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>,
-        Jun Piao <piaojun@huawei.com>,
+        Roman Gushchin <guro@fb.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 35/92] ocfs2: change slot number type s16 to u16
-Date:   Thu, 20 Aug 2020 11:21:20 +0200
-Message-Id: <20200820091539.424033180@linuxfoundation.org>
+Subject: [PATCH 4.19 36/92] mm/page_counter.c: fix protection usage propagation
+Date:   Thu, 20 Aug 2020 11:21:21 +0200
+Message-Id: <20200820091539.474561462@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
 References: <20200820091537.490965042@linuxfoundation.org>
@@ -50,87 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Michal Koutný <mkoutny@suse.com>
 
-commit 38d51b2dd171ad973afc1f5faab825ed05a2d5e9 upstream.
+commit a6f23d14ec7d7d02220ad8bb2774be3322b9aeec upstream.
 
-Dan Carpenter reported the following static checker warning.
+When workload runs in cgroups that aren't directly below root cgroup and
+their parent specifies reclaim protection, it may end up ineffective.
 
-	fs/ocfs2/super.c:1269 ocfs2_parse_options() warn: '(-1)' 65535 can't fit into 32767 'mopt->slot'
-	fs/ocfs2/suballoc.c:859 ocfs2_init_inode_steal_slot() warn: '(-1)' 65535 can't fit into 32767 'osb->s_inode_steal_slot'
-	fs/ocfs2/suballoc.c:867 ocfs2_init_meta_steal_slot() warn: '(-1)' 65535 can't fit into 32767 'osb->s_meta_steal_slot'
+The reason is that propagate_protected_usage() is not called in all
+hierarchy up.  All the protected usage is incorrectly accumulated in the
+workload's parent.  This means that siblings_low_usage is overestimated
+and effective protection underestimated.  Even though it is transitional
+phenomenon (uncharge path does correct propagation and fixes the wrong
+children_low_usage), it can undermine the intended protection
+unexpectedly.
 
-That's because OCFS2_INVALID_SLOT is (u16)-1. Slot number in ocfs2 can be
-never negative, so change s16 to u16.
+We have noticed this problem while seeing a swap out in a descendant of a
+protected memcg (intermediate node) while the parent was conveniently
+under its protection limit and the memory pressure was external to that
+hierarchy.  Michal has pinpointed this down to the wrong
+siblings_low_usage which led to the unwanted reclaim.
 
-Fixes: 9277f8334ffc ("ocfs2: fix value of OCFS2_INVALID_SLOT")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+The fix is simply updating children_low_usage in respective ancestors also
+in the charging path.
+
+Fixes: 230671533d64 ("mm: memory.low hierarchical behavior")
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Gang He <ghe@suse.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200627001259.19757-1-junxiao.bi@oracle.com
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.18+]
+Link: http://lkml.kernel.org/r/20200803153231.15477-1-mhocko@kernel.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/ocfs2.h    |    4 ++--
- fs/ocfs2/suballoc.c |    4 ++--
- fs/ocfs2/super.c    |    4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ mm/page_counter.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ocfs2/ocfs2.h
-+++ b/fs/ocfs2/ocfs2.h
-@@ -338,8 +338,8 @@ struct ocfs2_super
- 	spinlock_t osb_lock;
- 	u32 s_next_generation;
- 	unsigned long osb_flags;
--	s16 s_inode_steal_slot;
--	s16 s_meta_steal_slot;
-+	u16 s_inode_steal_slot;
-+	u16 s_meta_steal_slot;
- 	atomic_t s_num_inodes_stolen;
- 	atomic_t s_num_meta_stolen;
+--- a/mm/page_counter.c
++++ b/mm/page_counter.c
+@@ -77,7 +77,7 @@ void page_counter_charge(struct page_cou
+ 		long new;
  
---- a/fs/ocfs2/suballoc.c
-+++ b/fs/ocfs2/suballoc.c
-@@ -893,9 +893,9 @@ static void __ocfs2_set_steal_slot(struc
- {
- 	spin_lock(&osb->osb_lock);
- 	if (type == INODE_ALLOC_SYSTEM_INODE)
--		osb->s_inode_steal_slot = slot;
-+		osb->s_inode_steal_slot = (u16)slot;
- 	else if (type == EXTENT_ALLOC_SYSTEM_INODE)
--		osb->s_meta_steal_slot = slot;
-+		osb->s_meta_steal_slot = (u16)slot;
- 	spin_unlock(&osb->osb_lock);
- }
- 
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -92,7 +92,7 @@ struct mount_options
- 	unsigned long	commit_interval;
- 	unsigned long	mount_opt;
- 	unsigned int	atime_quantum;
--	signed short	slot;
-+	unsigned short	slot;
- 	int		localalloc_opt;
- 	unsigned int	resv_level;
- 	int		dir_resv_level;
-@@ -1384,7 +1384,7 @@ static int ocfs2_parse_options(struct su
- 				goto bail;
- 			}
- 			if (option)
--				mopt->slot = (s16)option;
-+				mopt->slot = (u16)option;
- 			break;
- 		case Opt_commit:
- 			if (match_int(&args[0], &option)) {
+ 		new = atomic_long_add_return(nr_pages, &c->usage);
+-		propagate_protected_usage(counter, new);
++		propagate_protected_usage(c, new);
+ 		/*
+ 		 * This is indeed racy, but we can live with some
+ 		 * inaccuracy in the watermark.
+@@ -121,7 +121,7 @@ bool page_counter_try_charge(struct page
+ 		new = atomic_long_add_return(nr_pages, &c->usage);
+ 		if (new > c->max) {
+ 			atomic_long_sub(nr_pages, &c->usage);
+-			propagate_protected_usage(counter, new);
++			propagate_protected_usage(c, new);
+ 			/*
+ 			 * This is racy, but we can live with some
+ 			 * inaccuracy in the failcnt.
+@@ -130,7 +130,7 @@ bool page_counter_try_charge(struct page
+ 			*fail = c;
+ 			goto failed;
+ 		}
+-		propagate_protected_usage(counter, new);
++		propagate_protected_usage(c, new);
+ 		/*
+ 		 * Just like with failcnt, we can live with some
+ 		 * inaccuracy in the watermark.
 
 
