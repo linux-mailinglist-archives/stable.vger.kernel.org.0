@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8684F24BC22
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29B224BC6F
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbgHTMlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49188 "EHLO mail.kernel.org"
+        id S1729439AbgHTMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729178AbgHTJqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:38 -0400
+        id S1729299AbgHTJph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:45:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FD862078D;
-        Thu, 20 Aug 2020 09:46:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76F7722D73;
+        Thu, 20 Aug 2020 09:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916797;
-        bh=Y+/fqACCDiqZgEf57avF0y8k/EO4Cf6AybA5zysNsOk=;
+        s=default; t=1597916706;
+        bh=+W4wep/89dxOClS7pTd1DcpSVpNYt2UUCIEmDY6R8iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hURErsg+ZUF2wq5d0sX+jJ0FhtYOOZUYIEAR9lNfs6yXr7dFdO7+AXscpRgRzKvl7
-         RJG2EgtVmTwTVkdvDqpWTejZn6qAMvm5pQaiq4M8rgZmnmFBSboA2UpIw/JwvCEIs1
-         j7EunxXjpe5elMJZziY1TtyzYy1zUAxBIX+MqZtI=
+        b=QOPOCu3VJ2aOh4nM+6dULtDGgFcL3DqS1e0Ubhdk2pJOSEbUck7TrFlYgZ7wNfhgU
+         o/sJ2quxIh3gtHnv+W/YfydNSLOQEqFcfVgZ4CFaliK2dcMQHzD/JB4QMqe0FPeUC6
+         GRpBPLPYmVj+1VlD3mdluGvU0aHEDxx410Ett6BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
+        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 009/152] btrfs: allow use of global block reserve for balance item deletion
-Date:   Thu, 20 Aug 2020 11:19:36 +0200
-Message-Id: <20200820091554.117087035@linuxfoundation.org>
+Subject: [PATCH 5.4 010/152] btrfs: free anon block device right after subvolume deletion
+Date:   Thu, 20 Aug 2020 11:19:37 +0200
+Message-Id: <20200820091554.155035948@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
 References: <20200820091553.615456912@linuxfoundation.org>
@@ -44,50 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 3502a8c0dc1bd4b4970b59b06e348f22a1c05581 upstream.
+commit 082b6c970f02fefd278c7833880cda29691a5f34 upstream.
 
-On a filesystem with exhausted metadata, but still enough to start
-balance, it's possible to hit this error:
+[BUG]
+When a lot of subvolumes are created, there is a user report about
+transaction aborted caused by slow anonymous block device reclaim:
 
-[324402.053842] BTRFS info (device loop0): 1 enospc errors during balance
-[324402.060769] BTRFS info (device loop0): balance: ended with status: -28
-[324402.172295] BTRFS: error (device loop0) in reset_balance_state:3321: errno=-28 No space left
+  BTRFS: Transaction aborted (error -24)
+  WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
+  RIP: 0010:create_pending_snapshot+0xbc4/0xd10 [btrfs]
+  Call Trace:
+   create_pending_snapshots+0x82/0xa0 [btrfs]
+   btrfs_commit_transaction+0x275/0x8c0 [btrfs]
+   btrfs_mksubvol+0x4b9/0x500 [btrfs]
+   btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
+   btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
+   btrfs_ioctl+0x11a4/0x2da0 [btrfs]
+   do_vfs_ioctl+0xa9/0x640
+   ksys_ioctl+0x67/0x90
+   __x64_sys_ioctl+0x1a/0x20
+   do_syscall_64+0x5a/0x110
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  ---[ end trace 33f2f83f3d5250e9 ]---
+  BTRFS: error (device sda1) in create_pending_snapshot:1576: errno=-24 unknown
+  BTRFS info (device sda1): forced readonly
+  BTRFS warning (device sda1): Skipping commit of aborted transaction.
+  BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
 
-It fails inside reset_balance_state and turns the filesystem to
-read-only, which is unnecessary and should be fixed too, but the problem
-is caused by lack for space when the balance item is deleted. This is a
-one-time operation and from the same rank as unlink that is allowed to
-use the global block reserve. So do the same for the balance item.
+[CAUSE]
+The anonymous device pool is shared and its size is 1M. It's possible to
+hit that limit if the subvolume deletion is not fast enough and the
+subvolumes to be cleaned keep the ids allocated.
 
-Status of the filesystem (100GiB) just after the balance fails:
+[WORKAROUND]
+We can't avoid the anon device pool exhaustion but we can shorten the
+time the id is attached to the subvolume root once the subvolume becomes
+invisible to the user.
 
-$ btrfs fi df mnt
-Data, single: total=80.01GiB, used=38.58GiB
-System, single: total=4.00MiB, used=16.00KiB
-Metadata, single: total=19.99GiB, used=19.48GiB
-GlobalReserve, single: total=512.00MiB, used=50.11MiB
-
+Reported-by: Greed Rong <greedrong@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -3283,7 +3283,7 @@ static int insert_balance_item(struct bt
- 	if (!path)
- 		return -ENOMEM;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4681,6 +4681,8 @@ int btrfs_delete_subvolume(struct inode
+ 		}
+ 	}
  
--	trans = btrfs_start_transaction(root, 0);
-+	trans = btrfs_start_transaction_fallback_global_rsv(root, 0);
- 	if (IS_ERR(trans)) {
- 		btrfs_free_path(path);
- 		return PTR_ERR(trans);
++	free_anon_bdev(dest->anon_dev);
++	dest->anon_dev = 0;
+ out_end_trans:
+ 	trans->block_rsv = NULL;
+ 	trans->bytes_reserved = 0;
 
 
