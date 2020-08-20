@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E33D24BA22
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DE924BB5C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730426AbgHTJ7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:59:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45868 "EHLO mail.kernel.org"
+        id S1730611AbgHTM1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 08:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728169AbgHTJ7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:59:30 -0400
+        id S1729886AbgHTJwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:52:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60ED42067C;
-        Thu, 20 Aug 2020 09:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17E7B2067C;
+        Thu, 20 Aug 2020 09:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597917570;
-        bh=n+n8NkrHJ2HWvE4B677OiYeKujjie+S6BlRnqfhaS0Q=;
+        s=default; t=1597917130;
+        bh=4Pu5l+a7R0giKXEjk93F4XnVBL48zhHRz7T5g0HZRQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxSkafZEr4a7m1+jn/DO0OtcFWA8qvw5rfC5b5MSSrbMcDGO4+piUsQLmmGJlIzB+
-         5ehoz9OEnYRleg2ON1eYuG6saReUj1EEoQws9onyxJO4vLKmLac12k+AX1rWcA62HV
-         3IjyGiMlYpZckyfTNxhI/cG5yrFclOOzz5Y3lW0Y=
+        b=ISOzYfSNrkFfOc7y/K4v97ZM+k8CV1Et3Zgw4dk1Gwd+KMzJxOuS5ozBHZr6/vIur
+         mfLHN/PgIXQVfpvFwJEFtpcSuAaOgUFF/JFn16mr1lcYQ3V0pX+bQXK/b4Bpjm+/Nv
+         VoZGa0IVIi+51ejT7r0PMupWBhOszhPg6FL3JPY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.9 078/212] Smack: fix use-after-free in smk_write_relabel_self()
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>
+Subject: [PATCH 4.19 06/92] PCI: qcom: Define some PARF params needed for ipq8064 SoC
 Date:   Thu, 20 Aug 2020 11:20:51 +0200
-Message-Id: <20200820091606.305515947@linuxfoundation.org>
+Message-Id: <20200820091537.825524967@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-References: <20200820091602.251285210@linuxfoundation.org>
+In-Reply-To: <20200820091537.490965042@linuxfoundation.org>
+References: <20200820091537.490965042@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-commit beb4ee6770a89646659e6a2178538d2b13e2654e upstream.
+commit 5149901e9e6deca487c01cc434a3ac4125c7b00b upstream.
 
-smk_write_relabel_self() frees memory from the task's credentials with
-no locking, which can easily cause a use-after-free because multiple
-tasks can share the same credentials structure.
+Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
+needed on some ipq8064 based device (Netgear R7800 for example). Without
+this the system locks on kernel load.
 
-Fix this by using prepare_creds() and commit_creds() to correctly modify
-the task's credentials.
-
-Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
-
-	#include <fcntl.h>
-	#include <pthread.h>
-	#include <unistd.h>
-
-	static void *thrproc(void *arg)
-	{
-		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
-		for (;;) write(fd, "foo", 3);
-	}
-
-	int main()
-	{
-		pthread_t t;
-		pthread_create(&t, NULL, thrproc, NULL);
-		thrproc(NULL);
-	}
-
-Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
-Fixes: 38416e53936e ("Smack: limited capability for changing process label")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Link: https://lore.kernel.org/r/20200615210608.21469-8-ansuelsmth@gmail.com
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org # v4.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/smack/smackfs.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -2741,7 +2741,6 @@ static int smk_open_relabel_self(struct
- static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
--	struct task_smack *tsp = current_security();
- 	char *data;
- 	int rc;
- 	LIST_HEAD(list_tmp);
-@@ -2766,11 +2765,21 @@ static ssize_t smk_write_relabel_self(st
- 	kfree(data);
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -76,6 +76,18 @@
+ #define DBI_RO_WR_EN				1
  
- 	if (!rc || (rc == -EINVAL && list_empty(&list_tmp))) {
-+		struct cred *new;
-+		struct task_smack *tsp;
+ #define PERST_DELAY_US				1000
++/* PARF registers */
++#define PCIE20_PARF_PCS_DEEMPH			0x34
++#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
++#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
++#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
 +
-+		new = prepare_creds();
-+		if (!new) {
-+			rc = -ENOMEM;
-+			goto out;
-+		}
-+		tsp = new->security;
- 		smk_destroy_label_list(&tsp->smk_relabel);
- 		list_splice(&list_tmp, &tsp->smk_relabel);
-+		commit_creds(new);
- 		return count;
- 	}
--
-+out:
- 	smk_destroy_label_list(&list_tmp);
- 	return rc;
- }
++#define PCIE20_PARF_PCS_SWING			0x38
++#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
++#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
++
++#define PCIE20_PARF_CONFIG_BITS		0x50
++#define PHY_RX0_EQ(x)				((x) << 24)
+ 
+ #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
+ #define SLV_ADDR_SPACE_SZ			0x10000000
+@@ -275,6 +287,7 @@ static int qcom_pcie_init_2_1_0(struct q
+ 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
++	struct device_node *node = dev->of_node;
+ 	u32 val;
+ 	int ret;
+ 
+@@ -319,6 +332,17 @@ static int qcom_pcie_init_2_1_0(struct q
+ 	val &= ~BIT(0);
+ 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+ 
++	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
++		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
++			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
++			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
++		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
++		writel(PCS_SWING_TX_SWING_FULL(120) |
++			       PCS_SWING_TX_SWING_LOW(120),
++		       pcie->parf + PCIE20_PARF_PCS_SWING);
++		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
++	}
++
+ 	/* enable external reference clock */
+ 	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
+ 	val |= BIT(16);
 
 
