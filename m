@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 509F524B6B8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C6C24B6A8
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:39:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731778AbgHTKjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
+        id S1728475AbgHTKhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:37:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731380AbgHTKS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:18:27 -0400
+        id S1731382AbgHTKSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:18:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B33206DA;
-        Thu, 20 Aug 2020 10:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9A0620738;
+        Thu, 20 Aug 2020 10:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918706;
-        bh=Qh9Gn1/chWCrMEag8LmYI6y/Q9IS7JpKDgajbRxLZGA=;
+        s=default; t=1597918709;
+        bh=dEDmkRG7YeHU1IZmCwE7m7T5vhaWdxv/IdSIN41lr+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkYyh8EetP1v9RSq0gHNJFWWCZvU3++YsrBjMSiNKQ5gOQDVmBZVLqk57MvdgmtVT
-         cZRTUAdGavndYZ1QVT9MjOthBH0j43ulBymbL988XEFi0/1gJdCxEJl+jDzrAaJphp
-         kUWH8ltLUOyAJmqa+mVD6VmpVFYg+ZPTtSsGIWRE=
+        b=gamUFoQ4cbau2JHPRM3ey4CfGY5Ib1jxRKM7YtW1e+UzU1FaxAWo/afj/3tYwIVK3
+         /Xj7m8Oq/oUZmXyeiZ5QRA/1EfvTuO91m1bRTbn/FvFGw6DmmTyb6M107Misl5yubB
+         EuX/AyxkE/yNh/Io1VO4LXzZhjSLLMxoGl6wNlyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <hancockrwd@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.4 007/149] PCI/ASPM: Disable ASPM on ASMedia ASM1083/1085 PCIe-to-PCI bridge
-Date:   Thu, 20 Aug 2020 11:21:24 +0200
-Message-Id: <20200820092126.050143228@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.4 008/149] drm/amdgpu: Prevent kernel-infoleak in amdgpu_info_ioctl()
+Date:   Thu, 20 Aug 2020 11:21:25 +0200
+Message-Id: <20200820092126.097749742@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
 References: <20200820092125.688850368@linuxfoundation.org>
@@ -43,68 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <hancockrwd@gmail.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit b361663c5a40c8bc758b7f7f2239f7a192180e7c upstream.
+commit 543e8669ed9bfb30545fd52bc0e047ca4df7fb31 upstream.
 
-Recently ASPM handling was changed to allow ASPM on PCIe-to-PCI/PCI-X
-bridges.  Unfortunately the ASMedia ASM1083/1085 PCIe to PCI bridge device
-doesn't seem to function properly with ASPM enabled.  On an Asus PRIME
-H270-PRO motherboard, it causes errors like these:
+Compiler leaves a 4-byte hole near the end of `dev_info`, causing
+amdgpu_info_ioctl() to copy uninitialized kernel stack memory to userspace
+when `size` is greater than 356.
 
-  pcieport 0000:00:1c.0: AER: PCIe Bus Error: severity=Corrected, type=Data Link Layer, (Transmitter ID)
-  pcieport 0000:00:1c.0: AER:   device [8086:a292] error status/mask=00003000/00002000
-  pcieport 0000:00:1c.0: AER:    [12] Timeout
-  pcieport 0000:00:1c.0: AER: Corrected error received: 0000:00:1c.0
-  pcieport 0000:00:1c.0: AER: can't find device of ID00e0
+In 2015 we tried to fix this issue by doing `= {};` on `dev_info`, which
+unfortunately does not initialize that 4-byte hole. Fix it by using
+memset() instead.
 
-In addition to flooding the kernel log, this also causes the machine to
-wake up immediately after suspend is initiated.
-
-The device advertises ASPM L0s and L1 support in the Link Capabilities
-register, but the ASMedia web page for ASM1083 [1] claims "No PCIe ASPM
-support".
-
-Windows 10 (build 2004) enables L0s, but it also logs correctable PCIe
-errors.
-
-Add a quirk to disable ASPM for this device.
-
-[1] https://www.asmedia.com.tw/eng/e_show_products.php?cate_index=169&item=114
-
-[bhelgaas: commit log]
-Fixes: 66ff14e59e8a ("PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208667
-Link: https://lore.kernel.org/r/20200722021803.17958-1-hancockrwd@gmail.com
-Signed-off-by: Robert Hancock <hancockrwd@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Fixes: c193fa91b918 ("drm/amdgpu: information leak in amdgpu_info_ioctl()")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -2273,6 +2273,19 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AM
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, 0xa238, quirk_disable_msi);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x5a3f, quirk_disable_msi);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -428,9 +428,10 @@ static int amdgpu_info_ioctl(struct drm_
+ 		return n ? -EFAULT : 0;
+ 	}
+ 	case AMDGPU_INFO_DEV_INFO: {
+-		struct drm_amdgpu_info_device dev_info = {};
++		struct drm_amdgpu_info_device dev_info;
+ 		struct amdgpu_cu_info cu_info;
  
-+static void quirk_disable_aspm_l0s_l1(struct pci_dev *dev)
-+{
-+	dev_info(&dev->dev, "Disabling ASPM L0s/L1\n");
-+	pci_disable_link_state(dev, PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1);
-+}
-+
-+/*
-+ * ASM1083/1085 PCIe-PCI bridge devices cause AER timeout errors on the
-+ * upstream PCIe root port when ASPM is enabled. At least L0s mode is affected;
-+ * disable both L0s and L1 for now to be safe.
-+ */
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x1080, quirk_disable_aspm_l0s_l1);
-+
- /*
-  * The APC bridge device in AMD 780 family northbridges has some random
-  * OEM subsystem ID in its vendor ID register (erratum 18), so instead
++		memset(&dev_info, 0, sizeof(dev_info));
+ 		dev_info.device_id = dev->pdev->device;
+ 		dev_info.chip_rev = adev->rev_id;
+ 		dev_info.external_rev = adev->external_rev_id;
 
 
