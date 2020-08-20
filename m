@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 417F724BE36
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD7324BDFF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728423AbgHTNRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 09:17:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
+        id S1728453AbgHTJfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:35:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728372AbgHTJe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:34:59 -0400
+        id S1726435AbgHTJfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:35:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EB4522BEA;
-        Thu, 20 Aug 2020 09:34:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE8AF207DE;
+        Thu, 20 Aug 2020 09:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916098;
-        bh=EAp/abWkboqXThQiCkWowFzcwKjJqzo67DfZS1SHj+E=;
+        s=default; t=1597916101;
+        bh=Tn6vDkAv5we1OQThZ2W8N0AUlRzzAOOEvYn4OIwwSq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IztK76GQv5RSIQgChLOQphnYAsVA5GQ5uDqAiNFDDDojKp3KdR/RiPaafueph52pi
-         K0wCO+dFUKZFq8pVEnMuxpmsYdHjX8xx/M5Tje0nv+iZkaqatWVx4wzfbtHGn0q6xm
-         cet0WOBudGl4DfdNnMXlqw4E3OdxMNKcf8hcfBqw=
+        b=TOU9KiBhN1vWvrv1SYDDEaRRoi50NG9Bf5VeDBpnZoA1CpUPfvWz9NvEHHBTElxiF
+         e36FPgCNT5wY2HFGHFCA8juf5tOS0ZF5+FlmXxkC1RmQk0+WhvhKWcCR4OWznysPS6
+         bSGKMQfB+Q+r7vIFRoRelANALv7jCBzVZhcLX4vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Greed Rong <greedrong@gmail.com>,
         Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 011/204] btrfs: free anon block device right after subvolume deletion
-Date:   Thu, 20 Aug 2020 11:18:28 +0200
-Message-Id: <20200820091606.779049782@linuxfoundation.org>
+Subject: [PATCH 5.7 012/204] btrfs: dont allocate anonymous block device for user invisible roots
+Date:   Thu, 20 Aug 2020 11:18:29 +0200
+Message-Id: <20200820091606.833861486@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
 References: <20200820091606.194320503@linuxfoundation.org>
@@ -46,11 +46,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-commit 082b6c970f02fefd278c7833880cda29691a5f34 upstream.
+commit 851fd730a743e072badaf67caf39883e32439431 upstream.
 
 [BUG]
 When a lot of subvolumes are created, there is a user report about
-transaction aborted caused by slow anonymous block device reclaim:
+transaction aborted:
 
   BTRFS: Transaction aborted (error -24)
   WARNING: CPU: 17 PID: 17041 at fs/btrfs/transaction.c:1576 create_pending_snapshot+0xbc4/0xd10 [btrfs]
@@ -74,14 +74,25 @@ transaction aborted caused by slow anonymous block device reclaim:
   BTRFS: error (device sda1) in cleanup_transaction:1831: errno=-24 unknown
 
 [CAUSE]
-The anonymous device pool is shared and its size is 1M. It's possible to
-hit that limit if the subvolume deletion is not fast enough and the
-subvolumes to be cleaned keep the ids allocated.
+The error is EMFILE (Too many files open) and comes from the anonymous
+block device allocation. The ids are in a shared pool of size 1<<20.
+
+The ids are assigned to live subvolumes, ie. the root structure exists
+in memory (eg. after creation or after the root appears in some path).
+The pool could be exhausted if the numbers are not reclaimed fast
+enough, after subvolume deletion or if other system component uses the
+anon block devices.
 
 [WORKAROUND]
-We can't avoid the anon device pool exhaustion but we can shorten the
-time the id is attached to the subvolume root once the subvolume becomes
-invisible to the user.
+Since it's not possible to completely solve the problem, we can only
+minimize the time the id is allocated to a subvolume root.
+
+Firstly, we can reduce the use of anon_dev by trees that are not
+subvolume roots, like data reloc tree.
+
+This patch will do extra check on root objectid, to skip roots that
+don't need anon_dev.  Currently it's only data reloc tree and orphan
+roots.
 
 Reported-by: Greed Rong <greedrong@gmail.com>
 Link: https://lore.kernel.org/linux-btrfs/CA+UqX+NTrZ6boGnWHhSeZmEY5J76CTqmYjO2S+=tHJX7nb9DPw@mail.gmail.com/
@@ -93,19 +104,30 @@ Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/disk-io.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4049,6 +4049,8 @@ int btrfs_delete_subvolume(struct inode
- 		}
- 	}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1432,9 +1432,16 @@ static int btrfs_init_fs_root(struct btr
+ 	spin_lock_init(&root->ino_cache_lock);
+ 	init_waitqueue_head(&root->ino_cache_wait);
  
-+	free_anon_bdev(dest->anon_dev);
-+	dest->anon_dev = 0;
- out_end_trans:
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
+-	ret = get_anon_bdev(&root->anon_dev);
+-	if (ret)
+-		goto fail;
++	/*
++	 * Don't assign anonymous block device to roots that are not exposed to
++	 * userspace, the id pool is limited to 1M
++	 */
++	if (is_fstree(root->root_key.objectid) &&
++	    btrfs_root_refs(&root->root_item) > 0) {
++		ret = get_anon_bdev(&root->anon_dev);
++		if (ret)
++			goto fail;
++	}
+ 
+ 	mutex_lock(&root->objectid_mutex);
+ 	ret = btrfs_find_highest_objectid(root,
 
 
