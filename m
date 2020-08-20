@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2CE24B291
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F3B24B333
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728119AbgHTJc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:32:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43924 "EHLO mail.kernel.org"
+        id S1729230AbgHTJnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:43:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728252AbgHTJbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:31:47 -0400
+        id S1729138AbgHTJmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:42:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79DA220724;
-        Thu, 20 Aug 2020 09:31:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C13D207DE;
+        Thu, 20 Aug 2020 09:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915907;
-        bh=GLXQfcRWfRzS75qj46k4hC5dnG429jw21sLIeHx3YyM=;
+        s=default; t=1597916528;
+        bh=H45zlV34uzWv6yFUOSzT/yKhOvpoCRwwr64AGhO37eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwhvQ5DWzRbqvZg3IX5nIYScR3sb5JA+NnAt6gMzS23CNFEQy/nkgA7GsRwfKpHaE
-         fDbh1uTo2i9XDuLLImjHVzGjPtJEli54xIEaYgq2XABrWWs1kTz+pF55LTrcuadF5l
-         LaE1blJCrYUZ+wXkmAO9gI4xvZQdqXuYqzBaDthI=
+        b=0Jnnb5sLx+yIPGzzYLUNFanOxgekbz9EpwxMS2d45DCpCKYjf1rHJayG4YddFSLjl
+         Cc71HLJIpKDAfhJgbENY2umHi0t6G+wsE+gv+1MG6L8Zps3Nh2epmF6tOkPnBcIeZc
+         53PbDfbXsSLVeD5OOvFstRKGritpl++bFJld2zXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 176/232] ubifs: Fix wrong orphan node deletion in ubifs_jnl_update|rename
+Subject: [PATCH 5.7 130/204] dm rq: dont call blk_mq_queue_stopped() in dm_stop_queue()
 Date:   Thu, 20 Aug 2020 11:20:27 +0200
-Message-Id: <20200820091621.342215904@linuxfoundation.org>
+Message-Id: <20200820091612.774929636@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
-References: <20200820091612.692383444@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 094b6d1295474f338201b846a1f15e72eb0b12cf ]
+[ Upstream commit e766668c6cd49d741cfb49eaeb38998ba34d27bc ]
 
-There a wrong orphan node deleting in error handling path in
-ubifs_jnl_update() and ubifs_jnl_rename(), which may cause
-following error msg:
+dm_stop_queue() only uses blk_mq_quiesce_queue() so it doesn't
+formally stop the blk-mq queue; therefore there is no point making the
+blk_mq_queue_stopped() check -- it will never be stopped.
 
-  UBIFS error (ubi0:0 pid 1522): ubifs_delete_orphan [ubifs]:
-  missing orphan ino 65
+In addition, even though dm_stop_queue() actually tries to quiesce hw
+queues via blk_mq_quiesce_queue(), checking with blk_queue_quiesced()
+to avoid unnecessary queue quiesce isn't reliable because: the
+QUEUE_FLAG_QUIESCED flag is set before synchronize_rcu() and
+dm_stop_queue() may be called when synchronize_rcu() from another
+blk_mq_quiesce_queue() is in-progress.
 
-Fix this by checking whether the node has been operated for
-adding to orphan list before being deleted,
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Fixes: 823838a486888cf484e ("ubifs: Add hashes to the tree node cache")
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 7b17c2f7292ba ("dm: Fix a race condition related to stopping and starting queues")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/journal.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/md/dm-rq.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
-index e5ec1afe1c668..2cf05f87565c2 100644
---- a/fs/ubifs/journal.c
-+++ b/fs/ubifs/journal.c
-@@ -539,7 +539,7 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
- 		     const struct fscrypt_name *nm, const struct inode *inode,
- 		     int deletion, int xent)
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 3f8577e2c13be..2bd2444ad99c6 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -70,9 +70,6 @@ void dm_start_queue(struct request_queue *q)
+ 
+ void dm_stop_queue(struct request_queue *q)
  {
--	int err, dlen, ilen, len, lnum, ino_offs, dent_offs;
-+	int err, dlen, ilen, len, lnum, ino_offs, dent_offs, orphan_added = 0;
- 	int aligned_dlen, aligned_ilen, sync = IS_DIRSYNC(dir);
- 	int last_reference = !!(deletion && inode->i_nlink == 0);
- 	struct ubifs_inode *ui = ubifs_inode(inode);
-@@ -630,6 +630,7 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
- 			goto out_finish;
- 		}
- 		ui->del_cmtno = c->cmt_no;
-+		orphan_added = 1;
- 	}
+-	if (blk_mq_queue_stopped(q))
+-		return;
+-
+ 	blk_mq_quiesce_queue(q);
+ }
  
- 	err = write_head(c, BASEHD, dent, len, &lnum, &dent_offs, sync);
-@@ -702,7 +703,7 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
- 	kfree(dent);
- out_ro:
- 	ubifs_ro_mode(c, err);
--	if (last_reference)
-+	if (orphan_added)
- 		ubifs_delete_orphan(c, inode->i_ino);
- 	finish_reservation(c);
- 	return err;
-@@ -1218,7 +1219,7 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 	void *p;
- 	union ubifs_key key;
- 	struct ubifs_dent_node *dent, *dent2;
--	int err, dlen1, dlen2, ilen, lnum, offs, len;
-+	int err, dlen1, dlen2, ilen, lnum, offs, len, orphan_added = 0;
- 	int aligned_dlen1, aligned_dlen2, plen = UBIFS_INO_NODE_SZ;
- 	int last_reference = !!(new_inode && new_inode->i_nlink == 0);
- 	int move = (old_dir != new_dir);
-@@ -1334,6 +1335,7 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 			goto out_finish;
- 		}
- 		new_ui->del_cmtno = c->cmt_no;
-+		orphan_added = 1;
- 	}
- 
- 	err = write_head(c, BASEHD, dent, len, &lnum, &offs, sync);
-@@ -1415,7 +1417,7 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 	release_head(c, BASEHD);
- out_ro:
- 	ubifs_ro_mode(c, err);
--	if (last_reference)
-+	if (orphan_added)
- 		ubifs_delete_orphan(c, new_inode->i_ino);
- out_finish:
- 	finish_reservation(c);
 -- 
 2.25.1
 
