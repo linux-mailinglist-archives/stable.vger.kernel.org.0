@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1B224BD09
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590FC24BC1C
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728679AbgHTM5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:57:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
+        id S1729365AbgHTJqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727033AbgHTJlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:41:16 -0400
+        id S1729359AbgHTJqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:46:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBF242075E;
-        Thu, 20 Aug 2020 09:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFCBF2173E;
+        Thu, 20 Aug 2020 09:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916476;
-        bh=8Nx+WniPGYDtKfMVx4hJjYH84RdLwha1VvyMXy5JftU=;
+        s=default; t=1597916811;
+        bh=C/84CIoJYHv4E/FABQ0fh8uf1gdQweNA4EgZRAF4Klc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scFszwih5LAZuLClvzDPb5aGZY9BMoaP0d6EjPVycu8fHf4yRoG8blH+jQ7sxq1uW
-         HbMujNzzzxSVYU+5hxhoRAq3oxvxCf9SWGiJ4KUurbJxg+0dyIuBbOW6ag3WfC7TKS
-         kzqg9dtCLzYJEr8ayB6E8SOKwCMpcVCDOsUBnjGc=
+        b=iGHEJLUSiQ5r4i+CrewD8B6EWYnDtVJogROozJIWxMZK0J5yj9g0Fd4qm7WuSb54F
+         ApCAq/YiZsTMcmBJSsNJEpYXE6adsLmqFQtY74+yHDmKWsQklroGCHwUJu7Ne4pATa
+         datcEB3NDcO2ukgeBIHgEvanUh0fP6gGP6tpvh5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 124/204] mmc: renesas_sdhi_internal_dmac: clean up the code for dma complete
-Date:   Thu, 20 Aug 2020 11:20:21 +0200
-Message-Id: <20200820091612.485945522@linuxfoundation.org>
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 055/152] mm/page_counter.c: fix protection usage propagation
+Date:   Thu, 20 Aug 2020 11:20:22 +0200
+Message-Id: <20200820091556.543146115@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Michal Koutný <mkoutny@suse.com>
 
-[ Upstream commit 2b26e34e9af3fa24fa1266e9ea2d66a1f7d62dc0 ]
+commit a6f23d14ec7d7d02220ad8bb2774be3322b9aeec upstream.
 
-To add end() operation in the future, clean the code of
-renesas_sdhi_internal_dmac_complete_tasklet_fn(). No behavior change.
+When workload runs in cgroups that aren't directly below root cgroup and
+their parent specifies reclaim protection, it may end up ineffective.
 
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1590044466-28372-3-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The reason is that propagate_protected_usage() is not called in all
+hierarchy up.  All the protected usage is incorrectly accumulated in the
+workload's parent.  This means that siblings_low_usage is overestimated
+and effective protection underestimated.  Even though it is transitional
+phenomenon (uncharge path does correct propagation and fixes the wrong
+children_low_usage), it can undermine the intended protection
+unexpectedly.
+
+We have noticed this problem while seeing a swap out in a descendant of a
+protected memcg (intermediate node) while the parent was conveniently
+under its protection limit and the memory pressure was external to that
+hierarchy.  Michal has pinpointed this down to the wrong
+siblings_low_usage which led to the unwanted reclaim.
+
+The fix is simply updating children_low_usage in respective ancestors also
+in the charging path.
+
+Fixes: 230671533d64 ("mm: memory.low hierarchical behavior")
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.18+]
+Link: http://lkml.kernel.org/r/20200803153231.15477-1-mhocko@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ mm/page_counter.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index 47ac53e912411..201b8ed37f2e0 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -229,15 +229,12 @@ static void renesas_sdhi_internal_dmac_issue_tasklet_fn(unsigned long arg)
- 					    DTRAN_CTRL_DM_START);
- }
+--- a/mm/page_counter.c
++++ b/mm/page_counter.c
+@@ -77,7 +77,7 @@ void page_counter_charge(struct page_cou
+ 		long new;
  
--static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
-+static bool renesas_sdhi_internal_dmac_complete(struct tmio_mmc_host *host)
- {
--	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
- 	enum dma_data_direction dir;
- 
--	spin_lock_irq(&host->lock);
--
- 	if (!host->data)
--		goto out;
-+		return false;
- 
- 	if (host->data->flags & MMC_DATA_READ)
- 		dir = DMA_FROM_DEVICE;
-@@ -250,6 +247,17 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
- 	if (dir == DMA_FROM_DEVICE)
- 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
- 
-+	return true;
-+}
-+
-+static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
-+{
-+	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
-+
-+	spin_lock_irq(&host->lock);
-+	if (!renesas_sdhi_internal_dmac_complete(host))
-+		goto out;
-+
- 	tmio_mmc_do_data_irq(host);
- out:
- 	spin_unlock_irq(&host->lock);
--- 
-2.25.1
-
+ 		new = atomic_long_add_return(nr_pages, &c->usage);
+-		propagate_protected_usage(counter, new);
++		propagate_protected_usage(c, new);
+ 		/*
+ 		 * This is indeed racy, but we can live with some
+ 		 * inaccuracy in the watermark.
+@@ -121,7 +121,7 @@ bool page_counter_try_charge(struct page
+ 		new = atomic_long_add_return(nr_pages, &c->usage);
+ 		if (new > c->max) {
+ 			atomic_long_sub(nr_pages, &c->usage);
+-			propagate_protected_usage(counter, new);
++			propagate_protected_usage(c, new);
+ 			/*
+ 			 * This is racy, but we can live with some
+ 			 * inaccuracy in the failcnt.
+@@ -130,7 +130,7 @@ bool page_counter_try_charge(struct page
+ 			*fail = c;
+ 			goto failed;
+ 		}
+-		propagate_protected_usage(counter, new);
++		propagate_protected_usage(c, new);
+ 		/*
+ 		 * Just like with failcnt, we can live with some
+ 		 * inaccuracy in the watermark.
 
 
