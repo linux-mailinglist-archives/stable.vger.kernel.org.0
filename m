@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F8924B4FB
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 667BB24B542
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731134AbgHTKPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S1731400AbgHTKVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731251AbgHTKPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:15:24 -0400
+        id S1731537AbgHTKVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:21:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC5782078D;
-        Thu, 20 Aug 2020 10:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1A912072D;
+        Thu, 20 Aug 2020 10:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918524;
-        bh=jEodp2XBbycLqhu6saZoTXE2lkh+HwkeWPk6lozDk6k=;
+        s=default; t=1597918884;
+        bh=9KqV8jmINr61uIw3K2FOWhNzj6unPR/oVo85TfpqgeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPtWvkz21DPqMsQGt3pYOAATLiuei3Z7STjuEqC/OZbSw8sfDVFfZ5io4gUcTwleS
-         gV341705pnj9mH4QL4Ab7v3Or5eMFWSpA4T1h+QE1k+Bfa0hTCQ/LrfSDjsBYq/w0k
-         vOq5plWp8WPWRDHrQ0BMnKypaPloiR0QCM08YRgc=
+        b=sztVfzM/7oErr1Bx7W2NnwV/cQv6Vc+Yu7qEf+31gcZcRFOXz9E5qmEUMmTEs3lbQ
+         40Q+H75MdPykFT5I/95JQBqY1NwmZ8uGMG/fWlaG2LAH7U7WnCe/+yyXrIfItTg3GK
+         FGg0xgaUcpSQbmWj73+OledZ+5LmoyP7b0FMOu1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 202/228] iommu/omap: Check for failure of a call to omap_iommu_dump_ctx
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 100/149] wl1251: fix always return 0 error
 Date:   Thu, 20 Aug 2020 11:22:57 +0200
-Message-Id: <20200820091617.641668399@linuxfoundation.org>
+Message-Id: <20200820092130.556503886@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
-References: <20200820091607.532711107@linuxfoundation.org>
+In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
+References: <20200820092125.688850368@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit dee9d154f40c58d02f69acdaa5cfd1eae6ebc28b ]
+[ Upstream commit 20e6421344b5bc2f97b8e2db47b6994368417904 ]
 
-It is possible for the call to omap_iommu_dump_ctx to return
-a negative error number, so check for the failure and return
-the error number rather than pass the negative value to
-simple_read_from_buffer.
+wl1251_event_ps_report() should not always return 0 because
+wl1251_ps_set_mode() may fail. Change it to return 'ret'.
 
-Fixes: 14e0e6796a0d ("OMAP: iommu: add initial debugfs support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200714192211.744776-1-colin.king@canonical.com
-Addresses-Coverity: ("Improper use of negative value")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: f7ad1eed4d4b ("wl1251: retry power save entry")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200730073939.33704-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ti/wl1251/event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index 505548aafeff2..cec33e90e3998 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -101,8 +101,11 @@ static ssize_t debug_read_regs(struct file *file, char __user *userbuf,
- 	mutex_lock(&iommu_debug_lock);
+diff --git a/drivers/net/wireless/ti/wl1251/event.c b/drivers/net/wireless/ti/wl1251/event.c
+index c98630394a1a2..26bf3e2b750d6 100644
+--- a/drivers/net/wireless/ti/wl1251/event.c
++++ b/drivers/net/wireless/ti/wl1251/event.c
+@@ -80,7 +80,7 @@ static int wl1251_event_ps_report(struct wl1251 *wl,
+ 		break;
+ 	}
  
- 	bytes = omap_iommu_dump_ctx(obj, p, count);
-+	if (bytes < 0)
-+		goto err;
- 	bytes = simple_read_from_buffer(userbuf, count, ppos, buf, bytes);
+-	return 0;
++	return ret;
+ }
  
-+err:
- 	mutex_unlock(&iommu_debug_lock);
- 	kfree(buf);
- 
+ static void wl1251_event_mbox_dump(struct event_mailbox *mbox)
 -- 
 2.25.1
 
