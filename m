@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2A124BCDD
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C0E24BBDC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 14:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbgHTMzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 08:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
+        id S1728899AbgHTJs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729089AbgHTJnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:43:17 -0400
+        id S1729497AbgHTJsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:48:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F7CE207DE;
-        Thu, 20 Aug 2020 09:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88D4C2078D;
+        Thu, 20 Aug 2020 09:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916596;
-        bh=NnN6YacW0a2xO0gvCRIxh7ybG+jk2VHafX/DGDFWdoM=;
+        s=default; t=1597916903;
+        bh=XrbbsEwzjw+TUQZLjHjpZRKnnu1QqeUqlC+z7zSuM0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCmmi+7IhafKvwcynK5Jffc9AGuhA9RH4z9vHaRlgKBt8vp4g/vq2s0E/3FoK+ppx
-         gcE2dx5HjUZd/20OySvLUyeWrN8bc6hsZRetp71dARIc+spq0vG80CQ9RdKdw4IxtB
-         56uWBtBdkYM1WikJzqyRaxZyfe16yYNZ/JLk1EBw=
+        b=yhzok+Gl3wZNYnHyjEFi22g3Utbz8yfYuIM2xJbyG2Dyd2JwNP5eU3U1+yojm+jaN
+         Chmpkr7UKiYLxRF19ailGvRYQad6kf68tkl3z/MjuXLz2XRZaaBKhmrKSDsaqivAAN
+         7ibiQoU+haVpImPabSkb8Z43hiDpcevdX63OwP6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 157/204] nfs: nfs_file_write() should check for writeback errors
+Subject: [PATCH 5.4 087/152] selftests/bpf: Test_progs indicate to shell on non-actions
 Date:   Thu, 20 Aug 2020 11:20:54 +0200
-Message-Id: <20200820091614.073906138@linuxfoundation.org>
+Message-Id: <20200820091558.191183968@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
-References: <20200820091606.194320503@linuxfoundation.org>
+In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
+References: <20200820091553.615456912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit ce368536dd614452407dc31e2449eb84681a06af ]
+[ Upstream commit 6c92bd5cd4650c39dd929565ee172984c680fead ]
 
-The NFS_CONTEXT_ERROR_WRITE flag (as well as the check of said flag) was
-removed by commit 6fbda89b257f.  The absence of an error check allows
-writes to be continually queued up for a server that may no longer be
-able to handle them.  Fix it by adding an error check using the generic
-error reporting functions.
+When a user selects a non-existing test the summary is printed with
+indication 0 for all info types, and shell "success" (EXIT_SUCCESS) is
+indicated. This can be understood by a human end-user, but for shell
+scripting is it useful to indicate a shell failure (EXIT_FAILURE).
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/159363984736.930467.17956007131403952343.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/file.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ tools/testing/selftests/bpf/test_progs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index d72496efa17b0..63940a7a70be1 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -590,12 +590,14 @@ static const struct vm_operations_struct nfs_file_vm_ops = {
- 	.page_mkwrite = nfs_vm_page_mkwrite,
- };
+diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
+index 8cb3469dd11f2..a7d06724c18c2 100644
+--- a/tools/testing/selftests/bpf/test_progs.c
++++ b/tools/testing/selftests/bpf/test_progs.c
+@@ -584,5 +584,8 @@ int main(int argc, char **argv)
+ 	free(env.test_selector.num_set);
+ 	free(env.subtest_selector.num_set);
  
--static int nfs_need_check_write(struct file *filp, struct inode *inode)
-+static int nfs_need_check_write(struct file *filp, struct inode *inode,
-+				int error)
- {
- 	struct nfs_open_context *ctx;
- 
- 	ctx = nfs_file_open_context(filp);
--	if (nfs_ctx_key_to_expire(ctx, inode))
-+	if (nfs_error_is_fatal_on_server(error) ||
-+	    nfs_ctx_key_to_expire(ctx, inode))
- 		return 1;
- 	return 0;
++	if (env.succ_cnt + env.fail_cnt + env.skip_cnt == 0)
++		return EXIT_FAILURE;
++
+ 	return env.fail_cnt ? EXIT_FAILURE : EXIT_SUCCESS;
  }
-@@ -606,6 +608,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
- 	struct inode *inode = file_inode(file);
- 	unsigned long written = 0;
- 	ssize_t result;
-+	errseq_t since;
-+	int error;
- 
- 	result = nfs_key_timeout_notify(file, inode);
- 	if (result)
-@@ -630,6 +634,7 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
- 	if (iocb->ki_pos > i_size_read(inode))
- 		nfs_revalidate_mapping(inode, file->f_mapping);
- 
-+	since = filemap_sample_wb_err(file->f_mapping);
- 	nfs_start_io_write(inode);
- 	result = generic_write_checks(iocb, from);
- 	if (result > 0) {
-@@ -648,7 +653,8 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
- 		goto out;
- 
- 	/* Return error values */
--	if (nfs_need_check_write(file, inode)) {
-+	error = filemap_check_wb_err(file->f_mapping, since);
-+	if (nfs_need_check_write(file, inode, error)) {
- 		int err = nfs_wb_all(inode);
- 		if (err < 0)
- 			result = err;
 -- 
 2.25.1
 
