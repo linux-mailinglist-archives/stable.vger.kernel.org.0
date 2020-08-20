@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE4224BEB8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D2524BEBA
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 15:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728901AbgHTNbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728518AbgHTNbU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 Aug 2020 09:31:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45002 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728272AbgHTJce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:32:34 -0400
+        id S1728300AbgHTJci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:32:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06FB822BEF;
-        Thu, 20 Aug 2020 09:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17B41208E4;
+        Thu, 20 Aug 2020 09:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597915954;
-        bh=rOZmfox11fUmQvakmoBgObEEml7gBuYfZpBmV3cPfbM=;
+        s=default; t=1597915957;
+        bh=gVKeEKKY+TbImxEgUxvijJBzrR3by6I8snMip+JEKHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuFN5He1zIBZY4WzSuACAmtTyZjGfLjXGK3nxX4XfH0719iQjm3KnI3Nr20Ol/5Wr
-         xbFw2UkudGAYMiZ5ir2TJJhmv0Jkz9gPMQ3cMo8DI6JVEujHD9wCuY7ei6zHQg5PaT
-         MStcHyHllepw4lFM4l/mv/D1B1g8NXCiRvIk0nxM=
+        b=aq0XPipQV5FFwTljU+cMAi92i7XB+hwI3NuO76UQha5RWUXS23bMtRRSl3FARlzJh
+         mLRYcyi/sHrkC1b4nV1GD9qR99T4F6JwG4ITB+X13LcYM9KUyexozSQuZzxCa2f8sH
+         zA6LjN0Q7oIgZnuVTQU0myOZGNGtlddAv4kxiaaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Wei Hu <weh@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 163/232] f2fs: compress: fix to update isize when overwriting compressed file
-Date:   Thu, 20 Aug 2020 11:20:14 +0200
-Message-Id: <20200820091620.706719697@linuxfoundation.org>
+Subject: [PATCH 5.8 164/232] PCI: hv: Fix a timing issue which causes kdump to fail occasionally
+Date:   Thu, 20 Aug 2020 11:20:15 +0200
+Message-Id: <20200820091620.754492308@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091612.692383444@linuxfoundation.org>
 References: <20200820091612.692383444@linuxfoundation.org>
@@ -44,41 +45,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Wei Hu <weh@microsoft.com>
 
-[ Upstream commit 944dd22ea4475bd11180fd2f431a4a547ca4d8f5 ]
+[ Upstream commit d6af2ed29c7c1c311b96dac989dcb991e90ee195 ]
 
-We missed to update isize of compressed file in write_end() with
-below case:
+Kdump could fail sometime on Hyper-V guest because the retry in
+hv_pci_enter_d0() releases child device structures in hv_pci_bus_exit().
 
-cluster size is 16KB
+Although there is a second asynchronous device relations message sending
+from the host, if this message arrives to the guest after
+hv_send_resource_allocated() is called, the retry would fail.
 
-- write 14KB data from offset 0
-- overwrite 16KB data from offset 0
+Fix the problem by moving retry to hv_pci_probe() and start the retry
+from hv_pci_query_relations() call.  This will cause a device relations
+message to arrive to the guest synchronously; the guest would then be
+able to rebuild the child device structures before calling
+hv_send_resource_allocated().
 
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/20200727071731.18516-1-weh@microsoft.com
+Fixes: c81992e7f4aa ("PCI: hv: Retry PCI bus D0 entry on invalid device state")
+Signed-off-by: Wei Hu <weh@microsoft.com>
+[lorenzo.pieralisi@arm.com: fixed a comment and commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/controller/pci-hyperv.c | 71 +++++++++++++++--------------
+ 1 file changed, 37 insertions(+), 34 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 326c63879ddc8..6e9017e6a8197 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -3432,6 +3432,10 @@ static int f2fs_write_end(struct file *file,
- 	if (f2fs_compressed_file(inode) && fsdata) {
- 		f2fs_compress_write_end(inode, fsdata, page->index, copied);
- 		f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index bf40ff09c99d6..d0033ff6c1437 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -2759,10 +2759,8 @@ static int hv_pci_enter_d0(struct hv_device *hdev)
+ 	struct pci_bus_d0_entry *d0_entry;
+ 	struct hv_pci_compl comp_pkt;
+ 	struct pci_packet *pkt;
+-	bool retry = true;
+ 	int ret;
+ 
+-enter_d0_retry:
+ 	/*
+ 	 * Tell the host that the bus is ready to use, and moved into the
+ 	 * powered-on state.  This includes telling the host which region
+@@ -2789,38 +2787,6 @@ static int hv_pci_enter_d0(struct hv_device *hdev)
+ 	if (ret)
+ 		goto exit;
+ 
+-	/*
+-	 * In certain case (Kdump) the pci device of interest was
+-	 * not cleanly shut down and resource is still held on host
+-	 * side, the host could return invalid device status.
+-	 * We need to explicitly request host to release the resource
+-	 * and try to enter D0 again.
+-	 */
+-	if (comp_pkt.completion_status < 0 && retry) {
+-		retry = false;
+-
+-		dev_err(&hdev->device, "Retrying D0 Entry\n");
+-
+-		/*
+-		 * Hv_pci_bus_exit() calls hv_send_resource_released()
+-		 * to free up resources of its child devices.
+-		 * In the kdump kernel we need to set the
+-		 * wslot_res_allocated to 255 so it scans all child
+-		 * devices to release resources allocated in the
+-		 * normal kernel before panic happened.
+-		 */
+-		hbus->wslot_res_allocated = 255;
+-
+-		ret = hv_pci_bus_exit(hdev, true);
+-
+-		if (ret == 0) {
+-			kfree(pkt);
+-			goto enter_d0_retry;
+-		}
+-		dev_err(&hdev->device,
+-			"Retrying D0 failed with ret %d\n", ret);
+-	}
+-
+ 	if (comp_pkt.completion_status < 0) {
+ 		dev_err(&hdev->device,
+ 			"PCI Pass-through VSP failed D0 Entry with status %x\n",
+@@ -3058,6 +3024,7 @@ static int hv_pci_probe(struct hv_device *hdev,
+ 	struct hv_pcibus_device *hbus;
+ 	u16 dom_req, dom;
+ 	char *name;
++	bool enter_d0_retry = true;
+ 	int ret;
+ 
+ 	/*
+@@ -3178,11 +3145,47 @@ static int hv_pci_probe(struct hv_device *hdev,
+ 	if (ret)
+ 		goto free_fwnode;
+ 
++retry:
+ 	ret = hv_pci_query_relations(hdev);
+ 	if (ret)
+ 		goto free_irq_domain;
+ 
+ 	ret = hv_pci_enter_d0(hdev);
++	/*
++	 * In certain case (Kdump) the pci device of interest was
++	 * not cleanly shut down and resource is still held on host
++	 * side, the host could return invalid device status.
++	 * We need to explicitly request host to release the resource
++	 * and try to enter D0 again.
++	 * Since the hv_pci_bus_exit() call releases structures
++	 * of all its child devices, we need to start the retry from
++	 * hv_pci_query_relations() call, requesting host to send
++	 * the synchronous child device relations message before this
++	 * information is needed in hv_send_resources_allocated()
++	 * call later.
++	 */
++	if (ret == -EPROTO && enter_d0_retry) {
++		enter_d0_retry = false;
 +
-+		if (pos + copied > i_size_read(inode) &&
-+				!f2fs_verity_in_progress(inode))
-+			f2fs_i_size_write(inode, pos + copied);
- 		return copied;
- 	}
- #endif
++		dev_err(&hdev->device, "Retrying D0 Entry\n");
++
++		/*
++		 * Hv_pci_bus_exit() calls hv_send_resources_released()
++		 * to free up resources of its child devices.
++		 * In the kdump kernel we need to set the
++		 * wslot_res_allocated to 255 so it scans all child
++		 * devices to release resources allocated in the
++		 * normal kernel before panic happened.
++		 */
++		hbus->wslot_res_allocated = 255;
++		ret = hv_pci_bus_exit(hdev, true);
++
++		if (ret == 0)
++			goto retry;
++
++		dev_err(&hdev->device,
++			"Retrying D0 failed with ret %d\n", ret);
++	}
+ 	if (ret)
+ 		goto free_irq_domain;
+ 
 -- 
 2.25.1
 
