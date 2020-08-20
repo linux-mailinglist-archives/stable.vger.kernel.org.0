@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D3E24B35B
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B35AA24B2FC
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 11:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729164AbgHTJqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 05:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
+        id S1728847AbgHTJkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 05:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729138AbgHTJqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 05:46:14 -0400
+        id S1728528AbgHTJjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 05:39:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B47942224D;
-        Thu, 20 Aug 2020 09:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1068120724;
+        Thu, 20 Aug 2020 09:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597916774;
-        bh=kyZ4OQTGL/UNsZkgR+TRXjK66fbqkC2ATajEKr+L0Y8=;
+        s=default; t=1597916393;
+        bh=Gg3oWIb0/zP90iPrxCGJb9xOYntD8LGYauQMYinlA4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aL6NjyLV3ieTQ0NpJWyNazHBz6PS/tEgvysbt2ccauUT8+p4x0PgkwkMEE3LfwDIc
-         W7RcX/84pWd7WUNtOXo/UALBrqUzKlre0cCXWzU4hW2ZOLB1iQS0DmOp1CxGufX+pT
-         lmsowCULs+b4ErOUDcEQDnV3Zm132yMDkjCSDCyk=
+        b=xTyjkyCPzsejjALckBdBPCqNQ79pSoN0SNsQ52v2xNiruY/IfsiR81hl8PjDoQqnk
+         0ZCfSYuWHNiEE+j1PmZYDEaEYc1taRU/VJQ6VOJofKr9gCjzbt2Lf02MK/tyeV3b4F
+         C0eBKOZgDs4OOoQDG7S/1miJbIUWxez0AcoDR9TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 040/152] media: vsp1: dl: Fix NULL pointer dereference on unbind
-Date:   Thu, 20 Aug 2020 11:20:07 +0200
-Message-Id: <20200820091555.705584035@linuxfoundation.org>
+        stable@vger.kernel.org, Mel Gorman <mgorman@suse.de>,
+        Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 112/204] sched/uclamp: Protect uclamp fast path code with static key
+Date:   Thu, 20 Aug 2020 11:20:09 +0200
+Message-Id: <20200820091611.909886972@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200820091553.615456912@linuxfoundation.org>
-References: <20200820091553.615456912@linuxfoundation.org>
+In-Reply-To: <20200820091606.194320503@linuxfoundation.org>
+References: <20200820091606.194320503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,102 +46,320 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-commit c92d30e4b78dc331909f8c6056c2792aa14e2166 upstream.
+[ Upstream commit 46609ce227039fd192e0ecc7d940bed587fd2c78 ]
 
-In commit f3b98e3c4d2e16 ("media: vsp1: Provide support for extended
-command pools"), the vsp pointer used for referencing the VSP1 device
-structure from a command pool during vsp1_dl_ext_cmd_pool_destroy() was
-not populated.
+There is a report that when uclamp is enabled, a netperf UDP test
+regresses compared to a kernel compiled without uclamp.
 
-Correctly assign the pointer to prevent the following
-null-pointer-dereference when removing the device:
+https://lore.kernel.org/lkml/20200529100806.GA3070@suse.de/
 
-[*] h3ulcb-kf #>
-echo fea28000.vsp > /sys/bus/platform/devices/fea28000.vsp/driver/unbind
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
- Mem abort info:
-   ESR = 0x96000006
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000006
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=00000007318be000
- [0000000000000028] pgd=00000007333a1003, pud=00000007333a6003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 1 PID: 486 Comm: sh Not tainted 5.7.0-rc6-arm64-renesas-00118-ge644645abf47 #185
- Hardware name: Renesas H3ULCB Kingfisher board based on r8a77951 (DT)
- pstate: 40000005 (nZcv daif -PAN -UAO)
- pc : vsp1_dlm_destroy+0xe4/0x11c
- lr : vsp1_dlm_destroy+0xc8/0x11c
- sp : ffff800012963b60
- x29: ffff800012963b60 x28: ffff0006f83fc440
- x27: 0000000000000000 x26: ffff0006f5e13e80
- x25: ffff0006f5e13ed0 x24: ffff0006f5e13ed0
- x23: ffff0006f5e13ed0 x22: dead000000000122
- x21: ffff0006f5e3a080 x20: ffff0006f5df2938
- x19: ffff0006f5df2980 x18: 0000000000000003
- x17: 0000000000000000 x16: 0000000000000016
- x15: 0000000000000003 x14: 00000000000393c0
- x13: ffff800011a5ec18 x12: ffff800011d8d000
- x11: ffff0006f83fcc68 x10: ffff800011a53d70
- x9 : ffff8000111f3000 x8 : 0000000000000000
- x7 : 0000000000210d00 x6 : 0000000000000000
- x5 : ffff800010872e60 x4 : 0000000000000004
- x3 : 0000000078068000 x2 : ffff800012781000
- x1 : 0000000000002c00 x0 : 0000000000000000
- Call trace:
-  vsp1_dlm_destroy+0xe4/0x11c
-  vsp1_wpf_destroy+0x10/0x20
-  vsp1_entity_destroy+0x24/0x4c
-  vsp1_destroy_entities+0x54/0x130
-  vsp1_remove+0x1c/0x40
-  platform_drv_remove+0x28/0x50
-  __device_release_driver+0x178/0x220
-  device_driver_detach+0x44/0xc0
-  unbind_store+0xe0/0x104
-  drv_attr_store+0x20/0x30
-  sysfs_kf_write+0x48/0x70
-  kernfs_fop_write+0x148/0x230
-  __vfs_write+0x18/0x40
-  vfs_write+0xdc/0x1c4
-  ksys_write+0x68/0xf0
-  __arm64_sys_write+0x18/0x20
-  el0_svc_common.constprop.0+0x70/0x170
-  do_el0_svc+0x20/0x80
-  el0_sync_handler+0x134/0x1b0
-  el0_sync+0x140/0x180
- Code: b40000c2 f9403a60 d2800084 a9400663 (f9401400)
- ---[ end trace 3875369841fb288a ]---
+While investigating the root cause, there were no sign that the uclamp
+code is doing anything particularly expensive but could suffer from bad
+cache behavior under certain circumstances that are yet to be
+understood.
 
-Fixes: f3b98e3c4d2e16 ("media: vsp1: Provide support for extended command pools")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://lore.kernel.org/lkml/20200616110824.dgkkbyapn3io6wik@e107158-lin/
 
+To reduce the pressure on the fast path anyway, add a static key that is
+by default will skip executing uclamp logic in the
+enqueue/dequeue_task() fast path until it's needed.
+
+As soon as the user start using util clamp by:
+
+	1. Changing uclamp value of a task with sched_setattr()
+	2. Modifying the default sysctl_sched_util_clamp_{min, max}
+	3. Modifying the default cpu.uclamp.{min, max} value in cgroup
+
+We flip the static key now that the user has opted to use util clamp.
+Effectively re-introducing uclamp logic in the enqueue/dequeue_task()
+fast path. It stays on from that point forward until the next reboot.
+
+This should help minimize the effect of util clamp on workloads that
+don't need it but still allow distros to ship their kernels with uclamp
+compiled in by default.
+
+SCHED_WARN_ON() in uclamp_rq_dec_id() was removed since now we can end
+up with unbalanced call to uclamp_rq_dec_id() if we flip the key while
+a task is running in the rq. Since we know it is harmless we just
+quietly return if we attempt a uclamp_rq_dec_id() when
+rq->uclamp[].bucket[].tasks is 0.
+
+In schedutil, we introduce a new uclamp_is_enabled() helper which takes
+the static key into account to ensure RT boosting behavior is retained.
+
+The following results demonstrates how this helps on 2 Sockets Xeon E5
+2x10-Cores system.
+
+                                   nouclamp                 uclamp      uclamp-static-key
+Hmean     send-64         162.43 (   0.00%)      157.84 *  -2.82%*      163.39 *   0.59%*
+Hmean     send-128        324.71 (   0.00%)      314.78 *  -3.06%*      326.18 *   0.45%*
+Hmean     send-256        641.55 (   0.00%)      628.67 *  -2.01%*      648.12 *   1.02%*
+Hmean     send-1024      2525.28 (   0.00%)     2448.26 *  -3.05%*     2543.73 *   0.73%*
+Hmean     send-2048      4836.14 (   0.00%)     4712.08 *  -2.57%*     4867.69 *   0.65%*
+Hmean     send-3312      7540.83 (   0.00%)     7425.45 *  -1.53%*     7621.06 *   1.06%*
+Hmean     send-4096      9124.53 (   0.00%)     8948.82 *  -1.93%*     9276.25 *   1.66%*
+Hmean     send-8192     15589.67 (   0.00%)    15486.35 *  -0.66%*    15819.98 *   1.48%*
+Hmean     send-16384    26386.47 (   0.00%)    25752.25 *  -2.40%*    26773.74 *   1.47%*
+
+The perf diff between nouclamp and uclamp-static-key when uclamp is
+disabled in the fast path:
+
+     8.73%     -1.55%  [kernel.kallsyms]        [k] try_to_wake_up
+     0.07%     +0.04%  [kernel.kallsyms]        [k] deactivate_task
+     0.13%     -0.02%  [kernel.kallsyms]        [k] activate_task
+
+The diff between nouclamp and uclamp-static-key when uclamp is enabled
+in the fast path:
+
+     8.73%     -0.72%  [kernel.kallsyms]        [k] try_to_wake_up
+     0.13%     +0.39%  [kernel.kallsyms]        [k] activate_task
+     0.07%     +0.38%  [kernel.kallsyms]        [k] deactivate_task
+
+Fixes: 69842cba9ace ("sched/uclamp: Add CPU's clamp buckets refcounting")
+Reported-by: Mel Gorman <mgorman@suse.de>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Lukasz Luba <lukasz.luba@arm.com>
+Link: https://lkml.kernel.org/r/20200630112123.12076-3-qais.yousef@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vsp1/vsp1_dl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/core.c              | 74 +++++++++++++++++++++++++++++++-
+ kernel/sched/cpufreq_schedutil.c |  2 +-
+ kernel/sched/sched.h             | 47 +++++++++++++++++++-
+ 3 files changed, 119 insertions(+), 4 deletions(-)
 
---- a/drivers/media/platform/vsp1/vsp1_dl.c
-+++ b/drivers/media/platform/vsp1/vsp1_dl.c
-@@ -431,6 +431,8 @@ vsp1_dl_cmd_pool_create(struct vsp1_devi
- 	if (!pool)
- 		return NULL;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 1bae86fc128b2..49b5c5cf9271d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -793,6 +793,26 @@ unsigned int sysctl_sched_uclamp_util_max = SCHED_CAPACITY_SCALE;
+ /* All clamps are required to be less or equal than these values */
+ static struct uclamp_se uclamp_default[UCLAMP_CNT];
  
-+	pool->vsp1 = vsp1;
++/*
++ * This static key is used to reduce the uclamp overhead in the fast path. It
++ * primarily disables the call to uclamp_rq_{inc, dec}() in
++ * enqueue/dequeue_task().
++ *
++ * This allows users to continue to enable uclamp in their kernel config with
++ * minimum uclamp overhead in the fast path.
++ *
++ * As soon as userspace modifies any of the uclamp knobs, the static key is
++ * enabled, since we have an actual users that make use of uclamp
++ * functionality.
++ *
++ * The knobs that would enable this static key are:
++ *
++ *   * A task modifying its uclamp value with sched_setattr().
++ *   * An admin modifying the sysctl_sched_uclamp_{min, max} via procfs.
++ *   * An admin modifying the cgroup cpu.uclamp.{min, max}
++ */
++DEFINE_STATIC_KEY_FALSE(sched_uclamp_used);
 +
- 	spin_lock_init(&pool->lock);
- 	INIT_LIST_HEAD(&pool->free);
+ /* Integer rounded range for each bucket */
+ #define UCLAMP_BUCKET_DELTA DIV_ROUND_CLOSEST(SCHED_CAPACITY_SCALE, UCLAMP_BUCKETS)
  
+@@ -989,10 +1009,38 @@ static inline void uclamp_rq_dec_id(struct rq *rq, struct task_struct *p,
+ 
+ 	lockdep_assert_held(&rq->lock);
+ 
++	/*
++	 * If sched_uclamp_used was enabled after task @p was enqueued,
++	 * we could end up with unbalanced call to uclamp_rq_dec_id().
++	 *
++	 * In this case the uc_se->active flag should be false since no uclamp
++	 * accounting was performed at enqueue time and we can just return
++	 * here.
++	 *
++	 * Need to be careful of the following enqeueue/dequeue ordering
++	 * problem too
++	 *
++	 *	enqueue(taskA)
++	 *	// sched_uclamp_used gets enabled
++	 *	enqueue(taskB)
++	 *	dequeue(taskA)
++	 *	// Must not decrement bukcet->tasks here
++	 *	dequeue(taskB)
++	 *
++	 * where we could end up with stale data in uc_se and
++	 * bucket[uc_se->bucket_id].
++	 *
++	 * The following check here eliminates the possibility of such race.
++	 */
++	if (unlikely(!uc_se->active))
++		return;
++
+ 	bucket = &uc_rq->bucket[uc_se->bucket_id];
++
+ 	SCHED_WARN_ON(!bucket->tasks);
+ 	if (likely(bucket->tasks))
+ 		bucket->tasks--;
++
+ 	uc_se->active = false;
+ 
+ 	/*
+@@ -1020,6 +1068,15 @@ static inline void uclamp_rq_inc(struct rq *rq, struct task_struct *p)
+ {
+ 	enum uclamp_id clamp_id;
+ 
++	/*
++	 * Avoid any overhead until uclamp is actually used by the userspace.
++	 *
++	 * The condition is constructed such that a NOP is generated when
++	 * sched_uclamp_used is disabled.
++	 */
++	if (!static_branch_unlikely(&sched_uclamp_used))
++		return;
++
+ 	if (unlikely(!p->sched_class->uclamp_enabled))
+ 		return;
+ 
+@@ -1035,6 +1092,15 @@ static inline void uclamp_rq_dec(struct rq *rq, struct task_struct *p)
+ {
+ 	enum uclamp_id clamp_id;
+ 
++	/*
++	 * Avoid any overhead until uclamp is actually used by the userspace.
++	 *
++	 * The condition is constructed such that a NOP is generated when
++	 * sched_uclamp_used is disabled.
++	 */
++	if (!static_branch_unlikely(&sched_uclamp_used))
++		return;
++
+ 	if (unlikely(!p->sched_class->uclamp_enabled))
+ 		return;
+ 
+@@ -1144,8 +1210,10 @@ int sysctl_sched_uclamp_handler(struct ctl_table *table, int write,
+ 		update_root_tg = true;
+ 	}
+ 
+-	if (update_root_tg)
++	if (update_root_tg) {
++		static_branch_enable(&sched_uclamp_used);
+ 		uclamp_update_root_tg();
++	}
+ 
+ 	/*
+ 	 * We update all RUNNABLE tasks only when task groups are in use.
+@@ -1210,6 +1278,8 @@ static void __setscheduler_uclamp(struct task_struct *p,
+ 	if (likely(!(attr->sched_flags & SCHED_FLAG_UTIL_CLAMP)))
+ 		return;
+ 
++	static_branch_enable(&sched_uclamp_used);
++
+ 	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
+ 		uclamp_se_set(&p->uclamp_req[UCLAMP_MIN],
+ 			      attr->sched_util_min, true);
+@@ -7306,6 +7376,8 @@ static ssize_t cpu_uclamp_write(struct kernfs_open_file *of, char *buf,
+ 	if (req.ret)
+ 		return req.ret;
+ 
++	static_branch_enable(&sched_uclamp_used);
++
+ 	mutex_lock(&uclamp_mutex);
+ 	rcu_read_lock();
+ 
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 7fbaee24c824f..dc6835bc64907 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -210,7 +210,7 @@ unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
+ 	unsigned long dl_util, util, irq;
+ 	struct rq *rq = cpu_rq(cpu);
+ 
+-	if (!IS_BUILTIN(CONFIG_UCLAMP_TASK) &&
++	if (!uclamp_is_used() &&
+ 	    type == FREQUENCY_UTIL && rt_rq_is_runnable(&rq->rt)) {
+ 		return max;
+ 	}
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 1f58677a8f233..2a52710d2f526 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -863,6 +863,8 @@ struct uclamp_rq {
+ 	unsigned int value;
+ 	struct uclamp_bucket bucket[UCLAMP_BUCKETS];
+ };
++
++DECLARE_STATIC_KEY_FALSE(sched_uclamp_used);
+ #endif /* CONFIG_UCLAMP_TASK */
+ 
+ /*
+@@ -2355,12 +2357,35 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
+ #ifdef CONFIG_UCLAMP_TASK
+ unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
+ 
++/**
++ * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
++ * @rq:		The rq to clamp against. Must not be NULL.
++ * @util:	The util value to clamp.
++ * @p:		The task to clamp against. Can be NULL if you want to clamp
++ *		against @rq only.
++ *
++ * Clamps the passed @util to the max(@rq, @p) effective uclamp values.
++ *
++ * If sched_uclamp_used static key is disabled, then just return the util
++ * without any clamping since uclamp aggregation at the rq level in the fast
++ * path is disabled, rendering this operation a NOP.
++ *
++ * Use uclamp_eff_value() if you don't care about uclamp values at rq level. It
++ * will return the correct effective uclamp value of the task even if the
++ * static key is disabled.
++ */
+ static __always_inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
+ {
+-	unsigned long min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
+-	unsigned long max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
++	unsigned long min_util;
++	unsigned long max_util;
++
++	if (!static_branch_likely(&sched_uclamp_used))
++		return util;
++
++	min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
++	max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
+ 
+ 	if (p) {
+ 		min_util = max(min_util, uclamp_eff_value(p, UCLAMP_MIN));
+@@ -2377,6 +2402,19 @@ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 
+ 	return clamp(util, min_util, max_util);
+ }
++
++/*
++ * When uclamp is compiled in, the aggregation at rq level is 'turned off'
++ * by default in the fast path and only gets turned on once userspace performs
++ * an operation that requires it.
++ *
++ * Returns true if userspace opted-in to use uclamp and aggregation at rq level
++ * hence is active.
++ */
++static inline bool uclamp_is_used(void)
++{
++	return static_branch_likely(&sched_uclamp_used);
++}
+ #else /* CONFIG_UCLAMP_TASK */
+ static inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+@@ -2384,6 +2422,11 @@ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ {
+ 	return util;
+ }
++
++static inline bool uclamp_is_used(void)
++{
++	return false;
++}
+ #endif /* CONFIG_UCLAMP_TASK */
+ 
+ #ifdef arch_scale_freq_capacity
+-- 
+2.25.1
+
 
 
