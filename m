@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C51D724B6C8
-	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C70A624B6CF
+	for <lists+stable@lfdr.de>; Thu, 20 Aug 2020 12:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbgHTKkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 06:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
+        id S1729150AbgHTKlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 06:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728969AbgHTKRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 06:17:05 -0400
+        id S1731288AbgHTKQm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 06:16:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 793BC20658;
-        Thu, 20 Aug 2020 10:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25A0B20658;
+        Thu, 20 Aug 2020 10:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597918624;
-        bh=nMJTkO6cj4TOvD4sJ8BX0pSnppY8qiNUN3ChP8pnEHI=;
+        s=default; t=1597918600;
+        bh=8oiJfUWAGWX/bCFj33VEYHm5fd1QvU3Tdt/J/MpTiwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvFVcSmYJj8nrcP/iCrsGyrOOZBQMX4VB/fLj4GDIPBh5kcsuzmUjaBc0v0JOHxq+
-         lTlaIEc0FTiODxo5AzbuZROV+5AMIZEY5BXyDLjQCOrFxNIfpeph3uZ5OmNlxDN3sc
-         2OLpEtXwmKz6C7D9gl7JUuqN2TAr4EUE3NwN1eXw=
+        b=WhoQnWQ7rrLH67iqRiQVkDai2a776W7m/kUnSt+ILINQYpEmAuOzvL7LJ7Ds47WOX
+         lwlYLPU/cMGg2r9hpVRAWf/EGGzEZ92ZvPf/o6j4Tr2wg/kzOhkYRcBI9Lt5jQMFRy
+         EEfjTIoolN9xXhB1yKuUY6DQlJSELTLrIhHq8zYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, kernel@axis.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 216/228] mfd: dln2: Run event handler loop under spinlock
-Date:   Thu, 20 Aug 2020 11:23:11 +0200
-Message-Id: <20200820091618.308520821@linuxfoundation.org>
+Subject: [PATCH 4.14 218/228] perf bench mem: Always memset source before memcpy
+Date:   Thu, 20 Aug 2020 11:23:13 +0200
+Message-Id: <20200820091618.406713948@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200820091607.532711107@linuxfoundation.org>
 References: <20200820091607.532711107@linuxfoundation.org>
@@ -45,66 +50,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
+[ Upstream commit 1beaef29c34154ccdcb3f1ae557f6883eda18840 ]
 
-The event handler loop must be run with interrupts disabled.
-Otherwise we will have a warning:
+For memcpy, the source pages are memset to zero only when --cycles is
+used.  This leads to wildly different results with or without --cycles,
+since all sources pages are likely to be mapped to the same zero page
+without explicit writes.
 
-[ 1970.785649] irq 31 handler lineevent_irq_handler+0x0/0x20 enabled interrupts
-[ 1970.792739] WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x162/0x170
-[ 1970.860732] RIP: 0010:__handle_irq_event_percpu+0x162/0x170
-...
-[ 1970.946994] Call Trace:
-[ 1970.949446]  <IRQ>
-[ 1970.951471]  handle_irq_event_percpu+0x2c/0x80
-[ 1970.955921]  handle_irq_event+0x23/0x43
-[ 1970.959766]  handle_simple_irq+0x57/0x70
-[ 1970.963695]  generic_handle_irq+0x42/0x50
-[ 1970.967717]  dln2_rx+0xc1/0x210 [dln2]
-[ 1970.971479]  ? usb_hcd_unmap_urb_for_dma+0xa6/0x1c0
-[ 1970.976362]  __usb_hcd_giveback_urb+0x77/0xe0
-[ 1970.980727]  usb_giveback_urb_bh+0x8e/0xe0
-[ 1970.984837]  tasklet_action_common.isra.0+0x4a/0xe0
-...
+Before this fix:
 
-Recently xHCI driver switched to tasklets in the commit 36dc01657b49
-("usb: host: xhci: Support running urb giveback in tasklet context").
+$ export cmd="./perf stat -e LLC-loads -- ./perf bench \
+  mem memcpy -s 1024MB -l 100 -f default"
+$ $cmd
 
-The handle_irq_event_* functions are expected to be called with interrupts
-disabled and they rightfully complain here because we run in tasklet context
-with interrupts enabled.
+         2,935,826      LLC-loads
+       3.821677452 seconds time elapsed
 
-Use a event spinlock to protect event handler from being interrupted.
+$ $cmd --cycles
 
-Note, that there are only two users of this GPIO and ADC drivers and both of
-them are using generic_handle_irq() which makes above happen.
+       217,533,436      LLC-loads
+       8.616725985 seconds time elapsed
 
-Fixes: 338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+After this fix:
+
+$ $cmd
+
+       214,459,686      LLC-loads
+       8.674301124 seconds time elapsed
+
+$ $cmd --cycles
+
+       214,758,651      LLC-loads
+       8.644480006 seconds time elapsed
+
+Fixes: 47b5757bac03c338 ("perf bench mem: Move boilerplate memory allocation to the infrastructure")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: kernel@axis.com
+Link: http://lore.kernel.org/lkml/20200810133404.30829-1-vincent.whitchurch@axis.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/bench/mem-functions.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 672831d5ee32e..97a69cd6f1278 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -294,7 +294,11 @@ static void dln2_rx(struct urb *urb)
- 	len = urb->actual_length - sizeof(struct dln2_header);
+diff --git a/tools/perf/bench/mem-functions.c b/tools/perf/bench/mem-functions.c
+index 0251dd348124a..4864fc67d01b5 100644
+--- a/tools/perf/bench/mem-functions.c
++++ b/tools/perf/bench/mem-functions.c
+@@ -222,12 +222,8 @@ static int bench_mem_common(int argc, const char **argv, struct bench_mem_info *
+ 	return 0;
+ }
  
- 	if (handle == DLN2_HANDLE_EVENT) {
-+		unsigned long flags;
+-static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
++static void memcpy_prefault(memcpy_t fn, size_t size, void *src, void *dst)
+ {
+-	u64 cycle_start = 0ULL, cycle_end = 0ULL;
+-	memcpy_t fn = r->fn.memcpy;
+-	int i;
+-
+ 	/* Make sure to always prefault zero pages even if MMAP_THRESH is crossed: */
+ 	memset(src, 0, size);
+ 
+@@ -236,6 +232,15 @@ static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, vo
+ 	 * to not measure page fault overhead:
+ 	 */
+ 	fn(dst, src, size);
++}
 +
-+		spin_lock_irqsave(&dln2->event_cb_lock, flags);
- 		dln2_run_event_callbacks(dln2, id, echo, data, len);
-+		spin_unlock_irqrestore(&dln2->event_cb_lock, flags);
- 	} else {
- 		/* URB will be re-submitted in _dln2_transfer (free_rx_slot) */
- 		if (dln2_transfer_complete(dln2, urb, handle, echo))
++static u64 do_memcpy_cycles(const struct function *r, size_t size, void *src, void *dst)
++{
++	u64 cycle_start = 0ULL, cycle_end = 0ULL;
++	memcpy_t fn = r->fn.memcpy;
++	int i;
++
++	memcpy_prefault(fn, size, src, dst);
+ 
+ 	cycle_start = get_cycles();
+ 	for (i = 0; i < nr_loops; ++i)
+@@ -251,11 +256,7 @@ static double do_memcpy_gettimeofday(const struct function *r, size_t size, void
+ 	memcpy_t fn = r->fn.memcpy;
+ 	int i;
+ 
+-	/*
+-	 * We prefault the freshly allocated memory range here,
+-	 * to not measure page fault overhead:
+-	 */
+-	fn(dst, src, size);
++	memcpy_prefault(fn, size, src, dst);
+ 
+ 	BUG_ON(gettimeofday(&tv_start, NULL));
+ 	for (i = 0; i < nr_loops; ++i)
 -- 
 2.25.1
 
