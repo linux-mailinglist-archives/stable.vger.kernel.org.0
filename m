@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6792124DD84
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B61C24DD7F
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbgHURTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:19:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
+        id S1728172AbgHURT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728072AbgHUQQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:25 -0400
+        id S1728073AbgHUQQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:16:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5093B22B47;
-        Fri, 21 Aug 2020 16:16:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F143820FC3;
+        Fri, 21 Aug 2020 16:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026585;
-        bh=m+1apagXqrqjpioWi5YRjOeRWYJSsRXYy6sL/f44RPk=;
+        s=default; t=1598026586;
+        bh=Bdpad47Y9xaJkg3DYY8jaH4brrvoaBEGpKqgrVpA5KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6p+94eYrbDv/eceBBWi39sbXG4K3s//0x4om/90U7iPiu12rrMYrQCVAQ0x9I3kr
-         QZ34fhHSgXrIEnlvk03gzA2AVEdxzPvvfiQjBdJ1Ry1tLB8TDfPiZ1c7KKALhac2vg
-         vp35lVBOrKM3dOCQ9IGI5S2VjvR1zgRuzbdnYCFY=
+        b=2bOsaDd1PkYYzXJfEbIQdcUNDWeU5N6kZS/MywxGkxVxemN7a1kV9c3oo0CABBQ5X
+         MSvJ6aAvFuWp26li58gtPCAVE1plBOiGWeZlJ6mQtuIeIhmDiIwj444hUDOmrRIOvD
+         HBqD7/d2K66ERrHC5zBYNoYAuSQtYoKc0UFlDZYs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 32/61] scsi: target: Fix xcopy sess release leak
-Date:   Fri, 21 Aug 2020 12:15:16 -0400
-Message-Id: <20200821161545.347622-32-sashal@kernel.org>
+Cc:     "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 33/61] selftests/powerpc: Purge extra count_pmc() calls of ebb selftests
+Date:   Fri, 21 Aug 2020 12:15:17 -0400
+Message-Id: <20200821161545.347622-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -44,96 +45,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>
 
-[ Upstream commit 3c006c7d23aac928279f7cbe83bbac4361255d53 ]
+[ Upstream commit 3337bf41e0dd70b4064cdf60acdfcdc2d050066c ]
 
-transport_init_session can allocate memory via percpu_ref_init, and
-target_xcopy_release_pt never frees it. This adds a
-transport_uninit_session function to handle cleanup of resources allocated
-in the init function.
+An extra count on ebb_state.stats.pmc_count[PMC_INDEX(pmc)] is being per-
+formed when count_pmc() is used to reset PMCs on a few selftests. This
+extra pmc_count can occasionally invalidate results, such as the ones from
+cycles_test shown hereafter. The ebb_check_count() failed with an above
+the upper limit error due to the extra value on ebb_state.stats.pmc_count.
 
-Link: https://lore.kernel.org/r/1593654203-12442-3-git-send-email-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Furthermore, this extra count is also indicated by extra PMC1 trace_log on
+the output of the cycle test (as well as on pmc56_overflow_test):
+
+==========
+   ...
+   [21]: counter = 8
+   [22]: register SPRN_MMCR0 = 0x0000000080000080
+   [23]: register SPRN_PMC1  = 0x0000000080000004
+   [24]: counter = 9
+   [25]: register SPRN_MMCR0 = 0x0000000080000080
+   [26]: register SPRN_PMC1  = 0x0000000080000004
+   [27]: counter = 10
+   [28]: register SPRN_MMCR0 = 0x0000000080000080
+   [29]: register SPRN_PMC1  = 0x0000000080000004
+>> [30]: register SPRN_PMC1  = 0x000000004000051e
+PMC1 count (0x280000546) above upper limit 0x2800003e8 (+0x15e)
+[FAIL] Test FAILED on line 52
+failure: cycles
+==========
+
+Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200626164737.21943-1-desnesn@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_internal.h  |  1 +
- drivers/target/target_core_transport.c |  7 ++++++-
- drivers/target/target_core_xcopy.c     | 11 +++++++++--
- 3 files changed, 16 insertions(+), 3 deletions(-)
+ .../selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c      | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c    | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/ebb.c              | 2 --
+ .../selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c  | 2 --
+ .../selftests/powerpc/pmu/ebb/lost_exception_test.c        | 1 -
+ .../testing/selftests/powerpc/pmu/ebb/multi_counter_test.c | 7 -------
+ .../selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c       | 2 --
+ .../testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c | 2 --
+ .../selftests/powerpc/pmu/ebb/pmc56_overflow_test.c        | 2 --
+ 11 files changed, 26 deletions(-)
 
-diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
-index 8533444159635..e7b3c6e5d5744 100644
---- a/drivers/target/target_core_internal.h
-+++ b/drivers/target/target_core_internal.h
-@@ -138,6 +138,7 @@ int	init_se_kmem_caches(void);
- void	release_se_kmem_caches(void);
- u32	scsi_get_new_index(scsi_index_t);
- void	transport_subsystem_check_init(void);
-+void	transport_uninit_session(struct se_session *);
- unsigned char *transport_dump_cmd_direction(struct se_cmd *);
- void	transport_dump_dev_state(struct se_device *, char *, int *);
- void	transport_dump_dev_info(struct se_device *, struct se_lun *,
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index 264a822c0bfac..989d5e5924816 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -236,6 +236,11 @@ int transport_init_session(struct se_session *se_sess)
- }
- EXPORT_SYMBOL(transport_init_session);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+index a2d7b0e3dca97..a26ac122c759f 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+@@ -91,8 +91,6 @@ int back_to_back_ebbs(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
-+void transport_uninit_session(struct se_session *se_sess)
-+{
-+	percpu_ref_exit(&se_sess->cmd_count);
-+}
-+
- /**
-  * transport_alloc_session - allocate a session object and initialize it
-  * @sup_prot_ops: bitmask that defines which T10-PI modes are supported.
-@@ -579,7 +584,7 @@ void transport_free_session(struct se_session *se_sess)
- 		sbitmap_queue_free(&se_sess->sess_tag_pool);
- 		kvfree(se_sess->sess_cmd_map);
- 	}
--	percpu_ref_exit(&se_sess->cmd_count);
-+	transport_uninit_session(se_sess);
- 	kmem_cache_free(se_sess_cache, se_sess);
- }
- EXPORT_SYMBOL(transport_free_session);
-diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
-index bd3ed6ce75719..4a01d7c195da7 100644
---- a/drivers/target/target_core_xcopy.c
-+++ b/drivers/target/target_core_xcopy.c
-@@ -474,7 +474,7 @@ int target_xcopy_setup_pt(void)
- 	memset(&xcopy_pt_sess, 0, sizeof(struct se_session));
- 	ret = transport_init_session(&xcopy_pt_sess);
- 	if (ret < 0)
--		return ret;
-+		goto destroy_wq;
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
- 	xcopy_pt_nacl.se_tpg = &xcopy_pt_tpg;
- 	xcopy_pt_nacl.nacl_sess = &xcopy_pt_sess;
-@@ -483,12 +483,19 @@ int target_xcopy_setup_pt(void)
- 	xcopy_pt_sess.se_node_acl = &xcopy_pt_nacl;
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+index bc893813483ee..bb9f587fa76e8 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+@@ -42,8 +42,6 @@ int cycles(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- 	return 0;
-+
-+destroy_wq:
-+	destroy_workqueue(xcopy_wq);
-+	xcopy_wq = NULL;
-+	return ret;
- }
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
- void target_xcopy_release_pt(void)
- {
--	if (xcopy_wq)
-+	if (xcopy_wq) {
- 		destroy_workqueue(xcopy_wq);
-+		transport_uninit_session(&xcopy_pt_sess);
-+	}
- }
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+index dcd351d203289..9ae795ce314e6 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+@@ -99,8 +99,6 @@ int cycles_with_freeze(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- /*
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	printf("EBBs while frozen %d\n", ebbs_while_frozen);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+index 94c99c12c0f23..4b45a2e70f62b 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+@@ -71,8 +71,6 @@ int cycles_with_mmcr2(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+index dfbc5c3ad52d7..21537d6eb6b7d 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+@@ -396,8 +396,6 @@ int ebb_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+index ca2f7d729155b..b208bf6ad58d3 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+@@ -38,8 +38,6 @@ static int victim_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	FAIL_IF(ebb_state.stats.ebb_count == 0);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+index ac3e6e182614a..ba2681a12cc7b 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+@@ -75,7 +75,6 @@ static int test_body(void)
+ 	ebb_freeze_pmcs();
+ 	ebb_global_disable();
+ 
+-	count_pmc(4, sample_period);
+ 	mtspr(SPRN_PMC4, 0xdead);
+ 
+ 	dump_summary_ebb_state();
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+index b8242e9d97d2d..791d37ba327b5 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+@@ -70,13 +70,6 @@ int multi_counter(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-	count_pmc(2, sample_period);
+-	count_pmc(3, sample_period);
+-	count_pmc(4, sample_period);
+-	count_pmc(5, sample_period);
+-	count_pmc(6, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	for (i = 0; i < 6; i++)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+index a05c0e18ded63..9b0f70d597020 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+@@ -61,8 +61,6 @@ static int cycles_child(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_summary_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+index 153ebc92234fd..2904c741e04e5 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+@@ -82,8 +82,6 @@ static int test_body(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	if (mmcr0_mismatch)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+index eadad75ed7e6f..b29f8ba22d1e6 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+@@ -76,8 +76,6 @@ int pmc56_overflow(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(2, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	printf("PMC5/6 overflow %d\n", pmc56_overflowed);
 -- 
 2.25.1
 
