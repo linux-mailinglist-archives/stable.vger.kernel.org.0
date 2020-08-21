@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6532424DBCA
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D580A24DBE4
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728680AbgHUQrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51618 "EHLO mail.kernel.org"
+        id S1728695AbgHUQs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:48:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727792AbgHUQUU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727106AbgHUQUU (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:20:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D2FE22CF7;
-        Fri, 21 Aug 2020 16:19:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA1020FC3;
+        Fri, 21 Aug 2020 16:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026766;
-        bh=Gtz/RmK+vN597YxQslboCRgSw2E0RPm7+U08Qg2SdzE=;
+        s=default; t=1598026768;
+        bh=x7OVgJvlaRrLCQacPk05iX576FtirOsPaf9wehDa5GQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LucAGsD7Re55woyM0BeVXmvE8kDGSrlEMl51T/gnWryMAjba21uDf5g13OlNAAuvL
-         G9kTHpn7Lmo2wtFWChzSIsiuVKpd3baFpocDUsZXaDltjmWEtyGTv15ibMu0bevxTo
-         2Sg25vIcAAlb79p09nSBQJrQfafY7VOa+0aq1NWg=
+        b=LCdMu8OiEeVjm6dslMfZum+s0EZ6096SG8kGXbDlNZ01H4026etZMklUkvryfRIec
+         FXk4c9FWU0yjLBPXw6EFDmxdg9HnWFM6cdnOyj+2dZ0OJFDwBkkQGZFonazwyeg18c
+         SoiEQRsIXouXvv7W0VfENWNT4roztd9suy5kkt6o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 22/30] cec-api: prevent leaking memory through hole in structure
-Date:   Fri, 21 Aug 2020 12:18:49 -0400
-Message-Id: <20200821161857.348955-22-sashal@kernel.org>
+Cc:     Li Guifu <bluce.liguifu@huawei.com>, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 23/30] f2fs: fix use-after-free issue
+Date:   Fri, 21 Aug 2020 12:18:50 -0400
+Message-Id: <20200821161857.348955-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161857.348955-1-sashal@kernel.org>
 References: <20200821161857.348955-1-sashal@kernel.org>
@@ -43,41 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
+[ Upstream commit 99c787cfd2bd04926f1f553b30bd7dcea2caaba1 ]
 
-Fix this smatch warning:
+During umount, f2fs_put_super() unregisters procfs entries after
+f2fs_destroy_segment_manager(), it may cause use-after-free
+issue when umount races with procfs accessing, fix it by relocating
+f2fs_unregister_sysfs().
 
-drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
-'features')
+[Chao Yu: change commit title/message a bit]
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Li Guifu <bluce.liguifu@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-api.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/cec/cec-api.c b/drivers/media/cec/cec-api.c
-index 21a5f45e0259e..66ef06f4670c8 100644
---- a/drivers/media/cec/cec-api.c
-+++ b/drivers/media/cec/cec-api.c
-@@ -159,7 +159,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
- 	struct cec_log_addrs log_addrs;
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 89319c3524061..990339c538b0a 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -782,6 +782,9 @@ static void f2fs_put_super(struct super_block *sb)
+ 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
+ 	int i;
  
- 	mutex_lock(&adap->lock);
--	log_addrs = adap->log_addrs;
-+	/*
-+	 * We use memcpy here instead of assignment since there is a
-+	 * hole at the end of struct cec_log_addrs that an assignment
-+	 * might ignore. So when we do copy_to_user() we could leak
-+	 * one byte of memory.
-+	 */
-+	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
- 	if (!adap->is_configured)
- 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
- 		       sizeof(log_addrs.log_addr));
++	/* unregister procfs/sysfs entries in advance to avoid race case */
++	f2fs_unregister_sysfs(sbi);
++
+ 	f2fs_quota_off_umount(sb);
+ 
+ 	/* prevent remaining shrinker jobs */
+@@ -834,8 +837,6 @@ static void f2fs_put_super(struct super_block *sb)
+ 
+ 	kfree(sbi->ckpt);
+ 
+-	f2fs_unregister_sysfs(sbi);
+-
+ 	sb->s_fs_info = NULL;
+ 	if (sbi->s_chksum_driver)
+ 		crypto_free_shash(sbi->s_chksum_driver);
 -- 
 2.25.1
 
