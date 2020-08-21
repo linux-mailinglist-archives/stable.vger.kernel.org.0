@@ -2,185 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F070A24D6EF
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 16:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8659624D715
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 16:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgHUOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 10:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40766 "EHLO
+        id S1726440AbgHUONr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 10:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727845AbgHUOGS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 10:06:18 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62668C061573;
-        Fri, 21 Aug 2020 07:06:17 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id i129so874965vsi.3;
-        Fri, 21 Aug 2020 07:06:17 -0700 (PDT)
+        with ESMTP id S1725948AbgHUONq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 10:13:46 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35AFC061573;
+        Fri, 21 Aug 2020 07:13:45 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id w25so1983615ljo.12;
+        Fri, 21 Aug 2020 07:13:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc:content-transfer-encoding;
-        bh=tzsAX6Gcfon7AdapRu244uwbgo4S+HdYR+eziW7H+ws=;
-        b=XuJitGHqRnjedHT2nmxGm4CZQDUnUjoFmGGrc3U+11Bafes+c4sdIOojRmOBxc6qqZ
-         cdq4vg2bjiZ/ozgZV1O/OhQvl+mQGwWX8fWw/ku+Y5GTVJEcVNmw77NBpoh6OhDENVLY
-         TOH3m/EzHKnSIEhP+n20Fof6UyGCnkhqNQxTqnLd2QWJbOj5h0zNUzy8MoXP3wblQmS3
-         d+bvDxaAiMFVYYhAWQ0zvKeME4i7xWDIyO5JDyBuKPwJuRwrnEAPjlrsz3TAYrZHKPn/
-         MXalnF/WCeMVYGWZjEn0fzfyFxrDMuDG8OsE/4kB/7+JQxVjv2k8cqTDrMJpmtp0qYMY
-         Mycw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iuOUrhDGs69pCpgj1fMoa06fENK8uW3BqIW8Jq5g85Q=;
+        b=ZGW6gaN2P0cT3qr4LuJjzkzbSgOXn/pUE1LDefJiepgL2ga8abKfz1DuDER/Jy8p6D
+         khQY2g2VODZNBVKWAoT1h38toCQcVnrsjEoyKoR4feb6RUSTzKVDbLK7MgreTm6aDPxQ
+         Pc7ABKq5+QiuS6GHL3umrbQ6Pj4y7jv4nZ13aO7fdaYv7H+P9Va0QWMkZhIT+arC8x12
+         thypehnIhoCed6p/Me7np8GrymkpKQlR7Ri0NBny8hHGUBxsWi6cA+G/reu+L4Gatid+
+         jJ7P20aqDeJ5GSse27pyd9bLhR4xlCuNuOrwmPXka9QgyVYscITZwxBhH2JmDRDZRrzU
+         CHMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc:content-transfer-encoding;
-        bh=tzsAX6Gcfon7AdapRu244uwbgo4S+HdYR+eziW7H+ws=;
-        b=H8U8s8D3jj8aUi4KLLyiRufQsnx6zxaOK9szqkDlkp3O+c3JISJrmIw2DTMOfu8Sun
-         6IaUAfn0IIpV4ryFZkNIr/sforgNyzoMm5vdIT+KWptYyBockyoidcdcLUswGOlbrYQT
-         2KH4Z2XKAG3LEx6lUwZThvo82rXrHV27jtK0iibltUBWtBqc7GWdJmtOAGRe5hNGqwap
-         Cjo2BNgDVvUIVeZPd6STTW8nBFT1fVWSAani945u/rBugE+NZMqlKF9CO2MbEasRdfr0
-         vTRpx6v4+yPw1IyYkq36YB+/GePOCPDdBucjTTaFB7vdYF/N8WuK40sMFZgSBNM+OPRH
-         n/7g==
-X-Gm-Message-State: AOAM532WOjSlRsLlWRL5GOmNjlcXncCOhICaB600Wskps9WMAYGSvubp
-        TKUtbtQt+JnKas4J6G/PVz2rKJblsNdGbWhDUbr+ofWe
-X-Google-Smtp-Source: ABdhPJzebiWJIOZoRKdMlKFMtU/bWwVzAPl6F1o01V42EtcC1JxeFyisWsTg48slbfGzrthLzptQzyi3L7cMx7dmB5g=
-X-Received: by 2002:a67:89ca:: with SMTP id l193mr1906642vsd.206.1598018775379;
- Fri, 21 Aug 2020 07:06:15 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iuOUrhDGs69pCpgj1fMoa06fENK8uW3BqIW8Jq5g85Q=;
+        b=DysJT6OHLKeyvPrVVquckbGIT1E3/V1TgcuZ79u60UXGTpJpJC9iDa7kdBYY20dY+B
+         reRgm+I+3OjuKOCQGXZduyBvoPuU2Goikeph2rYGuXkQG3fjxHzOCBEkmFqAs/xnZh0P
+         oEuvLCc73m7c1CGNrmHmPTdH2oYqg6QTH1ou3ZHfKY2bhlobnoGpzJHw25Yb3shP7Tdy
+         /4Nx1XP/TbFNUiA2v8DjsGdU+0rp0WGUehdLH2huozc5n8xlivN+x1syJU4X0Qa7M9Fk
+         GkFrfaaglRmQghti1Z5jtCrmd/UlMw0h2PrkawIWlsV8L1SCUU5DkNTsE9fOjCZvUYU9
+         AR6g==
+X-Gm-Message-State: AOAM531aUeMTNKsm+IUQp/LYZTgr7/lTHjDDf5a+YLmP0ADxEs4X8j38
+        lmV1cay/nCTowx9idcLjTi0QODAd7SriXkHfmIQ=
+X-Google-Smtp-Source: ABdhPJwMBpVd1ySrrPtiFSM7g7uixqBkVna/EYqmFeqaQr13VAUSfCDpHkv6TU6DJzfemWdYtOMIxjQniuzGL7SPB+4=
+X-Received: by 2002:a2e:8ed4:: with SMTP id e20mr1744788ljl.403.1598019224063;
+ Fri, 21 Aug 2020 07:13:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200821131727.6883-1-marcos@mpdesouza.com>
-In-Reply-To: <20200821131727.6883-1-marcos@mpdesouza.com>
-Reply-To: fdmanana@gmail.com
-From:   Filipe Manana <fdmanana@gmail.com>
-Date:   Fri, 21 Aug 2020 15:06:04 +0100
-Message-ID: <CAL3q7H5CYsRZLT+JAf9pGsrTyXVfyO_KAC6Xhc5X=t4VVtkRog@mail.gmail.com>
-Subject: Re: [PATCH v2] btrfs: block-group: Fix free-space bitmap threshould
-To:     Marcos Paulo de Souza <marcos@mpdesouza.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        David Sterba <dsterba@suse.com>, Qu Wenruo <wqu@suse.com>,
-        linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        stable@vger.kernel.org
+References: <20200820041055.75848-1-cphealy@gmail.com> <1bf1c9664d8c376c87dc55aeb27da6e4@agner.ch>
+In-Reply-To: <1bf1c9664d8c376c87dc55aeb27da6e4@agner.ch>
+From:   Chris Healy <cphealy@gmail.com>
+Date:   Fri, 21 Aug 2020 07:13:32 -0700
+Message-ID: <CAFXsbZp0_hCZ-cz3vBtFySv-q4X8bKjSaPrAMt-aA5aAbtGVGA@mail.gmail.com>
+Subject: Re: [PATCH v2] ARM: dts: vfxxx: Add syscon compatible with ocotp
+To:     Stefan Agner <stefan@agner.ch>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 2:43 PM Marcos Paulo de Souza
-<marcos@mpdesouza.com> wrote:
+On Fri, Aug 21, 2020 at 6:21 AM Stefan Agner <stefan@agner.ch> wrote:
 >
-> From: Marcos Paulo de Souza <mpdesouza@suse.com>
+> On 2020-08-20 06:10, Chris Healy wrote:
+> > From: Chris Healy <cphealy@gmail.com>
+> >
+> > Add syscon compatibility with Vybrid ocotp node. This is required to
+> > access the UID.
 >
-> [BUG]
-> After commit 9afc66498a0b ("btrfs: block-group: refactor how we read one
-> block group item"), cache->length is being assigned after calling
-> btrfs_create_block_group_cache. This causes a problem since
-> set_free_space_tree_thresholds is calculate the free-space threshould to
-> decide is the free-space tree should convert from extents to bitmaps.
+> Hm, it seems today the SoC driver uses the specific compatible. It also
+> should expose the UID as soc_id, see drivers/soc/imx/soc-imx.c.
 >
-> The current code calls set_free_space_tree_thresholds with cache->length
-> being 0, which then makes cache->bitmap_high_thresh being zero. This
-> implies the system will always use bitmap instead of extents, which is
-> not desired if the block group is not fragmented.
->
-> This behavior can be seen by a test that expects to repair systems
-> with FREE_SPACE_EXTENT and FREE_SPACE_BITMAP, but the current code only
-> created FREE_SPACE_BITMAP.
->
-> [FIX]
-> Call set_free_space_tree_thresholds after setting cache->length.
->
-> Link: https://github.com/kdave/btrfs-progs/issues/251
-> Fixes: 9afc66498a0b ("btrfs: block-group: refactor how we read one block =
-group item")
-> CC: stable@vger.kernel.org # 5.8+
-> Reviewed-by: Qu Wenruo <wqu@suse.com>
-> Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-> ---
->
->  Changes from v1:
->  * Add a warning in set_free_space_tree_thresholds when bg->length is zer=
-o (Qu)
->
->  fs/btrfs/block-group.c     | 4 +++-
->  fs/btrfs/free-space-tree.c | 3 +++
->  2 files changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-> index 44fdfa2eeb2e..01e8ba1da1d3 100644
-> --- a/fs/btrfs/block-group.c
-> +++ b/fs/btrfs/block-group.c
-> @@ -1798,7 +1798,6 @@ static struct btrfs_block_group *btrfs_create_block=
-_group_cache(
->
->         cache->fs_info =3D fs_info;
->         cache->full_stripe_len =3D btrfs_full_stripe_len(fs_info, start);
-> -       set_free_space_tree_thresholds(cache);
->
->         cache->discard_index =3D BTRFS_DISCARD_INDEX_UNUSED;
->
-> @@ -1908,6 +1907,8 @@ static int read_one_block_group(struct btrfs_fs_inf=
-o *info,
->
->         read_block_group_item(cache, path, key);
->
-> +       set_free_space_tree_thresholds(cache);
-> +
->         if (need_clear) {
->                 /*
->                  * When we mount with old space cache, we need to
-> @@ -2128,6 +2129,7 @@ int btrfs_make_block_group(struct btrfs_trans_handl=
-e *trans, u64 bytes_used,
->                 return -ENOMEM;
->
->         cache->length =3D size;
-> +       set_free_space_tree_thresholds(cache);
->         cache->used =3D bytes_used;
->         cache->flags =3D type;
->         cache->last_byte_to_unpin =3D (u64)-1;
-> diff --git a/fs/btrfs/free-space-tree.c b/fs/btrfs/free-space-tree.c
-> index 8b1f5c8897b7..1d191fbc754b 100644
-> --- a/fs/btrfs/free-space-tree.c
-> +++ b/fs/btrfs/free-space-tree.c
-> @@ -22,6 +22,9 @@ void set_free_space_tree_thresholds(struct btrfs_block_=
-group *cache)
->         size_t bitmap_size;
->         u64 num_bitmaps, total_bitmap_size;
->
-> +       if (cache->length =3D=3D 0)
-> +               btrfs_warn(cache->fs_info, "block group length is zero");
+Yes, until I added syscon, the soc_id was empty and I would get the
+following line in dmesg:  "failed to find vf610-ocotp regmap!
 
-This alone is not very useful.
-With something like:
+> Maybe it does make sense exposing it as syscon, but then we should
+> probably also adjust
+> Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt.
+>
+Makes sense.  I will update vf610-ocotp.txt in v3.  Tnx
 
-if (WARN_ON(cache->length) =3D=3D 0)
-  .... (and the message including the block group's logical address
-too, the ->start field)
-
-Such a bug is much easier to spot. If a test case from fstests
-triggers it, it will be reported as a test failure.
-
-Why not an ASSERT() instead? Though I don't have a strong preference
-between the two for this case.
-Either option will make it easy to spot with fstests.
-
-As for the rest, the fix itself looks good to me.
-You can later add,
-
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-
-Thanks.
-
-> +
->         /*
->          * We convert to bitmaps when the disk space required for using e=
-xtents
->          * exceeds that required for using bitmaps.
 > --
-> 2.28.0
+> Stefan
 >
-
-
---=20
-Filipe David Manana,
-
-=E2=80=9CWhether you think you can, or you think you can't =E2=80=94 you're=
- right.=E2=80=9D
+> >
+> > Fixes: fa8d20c8dbb77 ("ARM: dts: vfxxx: Add node corresponding to OCOTP")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Chris Healy <cphealy@gmail.com>
+> > ---
+> > Changes in v2:
+> >  - Add Fixes line to commit message
+> >
+> >  arch/arm/boot/dts/vfxxx.dtsi | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
+> > index 0fe03aa0367f..2259d11af721 100644
+> > --- a/arch/arm/boot/dts/vfxxx.dtsi
+> > +++ b/arch/arm/boot/dts/vfxxx.dtsi
+> > @@ -495,7 +495,7 @@ edma1: dma-controller@40098000 {
+> >                       };
+> >
+> >                       ocotp: ocotp@400a5000 {
+> > -                             compatible = "fsl,vf610-ocotp";
+> > +                             compatible = "fsl,vf610-ocotp", "syscon";
+> >                               reg = <0x400a5000 0x1000>;
+> >                               clocks = <&clks VF610_CLK_OCOTP>;
+> >                       };
