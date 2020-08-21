@@ -2,98 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 196C824E410
-	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 02:10:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C38BE24E46A
+	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 03:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726737AbgHVAKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 20:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbgHVAKk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 20:10:40 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72AFEC061573;
-        Fri, 21 Aug 2020 17:10:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:Date:Message-ID:Subject:From:Cc:To:Sender:Reply-To:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=UV45px4ZIhGAV9MDXqTwix33q6Zo13Yicz1hPoFWUV8=; b=H4j8Sbac/tusrMja9EvJ8Pmj2J
-        GyXQKrojjhnrir0AfsUOmtXM3XG1y18L64SNUf7FnHkHoUi+8J+zBF2bi2gQo0SFJttY/GbLr9E9Q
-        MOZq3Sl68aEdz9VNR27FkZo5IArlFbkILTj/QIJ4qQYiCS1c1thpToK0b2+7H6rusiLQDlCXRwsy3
-        spurNzTvQlkFVrwLAFzuA8rHVh9WmY5w87oGGpI7vPjocb+7Qp1oU/QdO5sM0Z9tFHpM3vJ31DC4k
-        z/u43JsThgw7qKJtV27RdawRcZXB6z6Z6WjpqIprycMnD1reUaya6XpkDLC/iUOB/02yI/16lUfpz
-        mG3dJESw==;
-Received: from [2601:1c0:6280:3f0::19c2]
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1k9H79-0004HB-Cm; Sat, 22 Aug 2020 00:10:31 +0000
-To:     LKML <linux-kernel@vger.kernel.org>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Len Brown <lenb@kernel.org>,
-        Jesse Barnes <jsbarnes@google.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Adam Borowski <kilobyte@angband.pl>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH v2] x86/pci: fix intel_mid_pci.c build error when ACPI is not
- enabled
-Message-ID: <ea903917-e51b-4cc9-2680-bc1e36efa026@infradead.org>
-Date:   Fri, 21 Aug 2020 17:10:27 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726826AbgHVBPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 21:15:47 -0400
+Received: from mail.muhas.ac.tz ([41.93.40.76]:41980 "EHLO mail.muhas.ac.tz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726663AbgHVBPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 21:15:46 -0400
+X-Greylist: delayed 126269 seconds by postgrey-1.27 at vger.kernel.org; Fri, 21 Aug 2020 21:15:45 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.muhas.ac.tz (Postfix) with ESMTP id 701D44006498F0;
+        Fri, 21 Aug 2020 19:34:49 +0300 (EAT)
+Received: from mail.muhas.ac.tz ([127.0.0.1])
+        by localhost (mail.muhas.ac.tz [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id t88a36Rr9TGJ; Fri, 21 Aug 2020 19:34:49 +0300 (EAT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.muhas.ac.tz (Postfix) with ESMTP id 875DB4005BBDF9;
+        Fri, 21 Aug 2020 19:18:16 +0300 (EAT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.muhas.ac.tz 875DB4005BBDF9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=muhas.ac.tz;
+        s=07528424-1562-11E9-98FC-90EA231BBC7F; t=1598026696;
+        bh=Lg3fZKcGS/TXxRCufSG/yYqN9DnaOxUQMDKL15n/xfU=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=aeuvztRhwhhJ9jdl/QCTrgxLGMw2SeSjvWbhgS1Eb4HkERmKeO100wWPuxI4PhCw8
+         a7cmyuDSLfurGYlQn4MRmrLbeojd0hxQwzHpUnIr4r3WuDLzA/7KmtM7u7JAg81KYf
+         l1t8Dw1f1wP/cPzAd04of0PxKMXYSq6WZdUO3TpelQd21IgTALpu2DGa/nyPTw6Grb
+         GpoHhBsK6nGLfPnzq/kXQbYudL1fW7rNTNtGj5ZCXlh6yUN2aKyoy6l6Uyas13+mfr
+         nK+yUzadDBhmbT8hy1cir4XdnXyUs1bBZbYllMCqsWTiRdRHdfOHt5ydBQzd8zlz3M
+         tCCL+Gbh/G8fA==
+X-Virus-Scanned: amavisd-new at muhas.ac.tz
+Received: from mail.muhas.ac.tz ([127.0.0.1])
+        by localhost (mail.muhas.ac.tz [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id nhujrVIrDdMZ; Fri, 21 Aug 2020 19:18:16 +0300 (EAT)
+Received: from [192.168.0.162] (unknown [102.165.248.220])
+        by mail.muhas.ac.tz (Postfix) with ESMTPSA id 783464005BCA49;
+        Fri, 21 Aug 2020 19:06:25 +0300 (EAT)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: =?utf-8?q?Oferta_de_empr=C3=A9stimo_pessoal_e_de_investimento?=
+To:     Recipients <furahini.yoram@muhas.ac.tz>
+From:   "Mr. Mike Dean" <furahini.yoram@muhas.ac.tz>
+Date:   Fri, 21 Aug 2020 09:05:58 -0700
+Reply-To: dmfinancialhome1@gmail.com
+X-Antivirus: Avast (VPS 200821-2, 08/21/2020), Outbound message
+X-Antivirus-Status: Clean
+Message-Id: <20200821160626.783464005BCA49@mail.muhas.ac.tz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+Oferta de empr=E9stimo pessoal e de investimento
 
-Fix build error when CONFIG_ACPI is not set/enabled by adding
-the header file <asm/acpi.h> which contains a stub for the function
-in the build error.
+Eu sou um credor de empr=E9stimos privados, posso ajud=E1-lo com o empr=E9s=
+timo de que voc=EA precisa em um
+baixa taxa de juros de 3%. Voc=EA est=E1 planejando come=E7ar um neg=F3cio?=
+ Pagando
+suas d=EDvidas? Compre um carro, compre uma casa, este =E9 o lugar certo pa=
+ra obter o
+ajuda financeira de que necessita. Oferecemos de um m=EDnimo de $30.000,00 =
+a um m=E1ximo de $40.000.000,00.
 
-../arch/x86/pci/intel_mid_pci.c: In function ‘intel_mid_pci_init’:
-../arch/x86/pci/intel_mid_pci.c:303:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
-  acpi_noirq_set();
+Entre em contato para mais informa=E7=F5es.
 
-Fixes: a912a7584ec3 ("x86/platform/intel-mid: Move PCI initialization to arch_init()")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: stable@vger.kernel.org	# v4.16+
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Len Brown <lenb@kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Jesse Barnes <jsbarnes@google.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-pci@vger.kernel.org
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Jesse Barnes <jsbarnes@google.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
----
-Found in linux-next, but applies to/exists in mainline also.
+Sauda=E7=F5es
+Mike Dean
 
-v2:
-- add Reviewed-by: and Acked-by: tags
-- drop alternatives
-
- arch/x86/pci/intel_mid_pci.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-next-20200813.orig/arch/x86/pci/intel_mid_pci.c
-+++ linux-next-20200813/arch/x86/pci/intel_mid_pci.c
-@@ -33,6 +33,7 @@
- #include <asm/hw_irq.h>
- #include <asm/io_apic.h>
- #include <asm/intel-mid.h>
-+#include <asm/acpi.h>
- 
- #define PCIE_CAP_OFFSET	0x100
- 
+-- 
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
 
