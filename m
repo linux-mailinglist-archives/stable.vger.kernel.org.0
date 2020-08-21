@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0970124DBD9
+	by mail.lfdr.de (Postfix) with ESMTP id 7709A24DBDA
 	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbgHUQsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727106AbgHUQsd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Aug 2020 12:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728365AbgHUQUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728361AbgHUQUH (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:20:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BECE22CB3;
-        Fri, 21 Aug 2020 16:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A289022BED;
+        Fri, 21 Aug 2020 16:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026758;
-        bh=DJoz7hEuLH4KSUPlB0Pz1whDMhaU6YO7qiXnioDukxE=;
+        s=default; t=1598026762;
+        bh=aSdNx2qWrmIsmiVue+fhidxS8tAnmctRUSuR3fZdmdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcRrcouCrQPR46iX9swwql/ZLOnA1uiEdeN41Wdx6Hx7Clgv3oulUu/RYjFhlaG9+
-         K3ze6Xc02QxrQgbMQRat6ljkdJv5cDv14k9/R7fLSgdASnGkuUPA2Imj91nqWVz4yK
-         EeYUx6ts488UUTDXruJFKITDXfp61CkHzQ6OUBZ0=
+        b=Uy9BDwAgZrv/px/1b56r49Y28ZznrSDOoh8x9bjb7SDfx2LC+8AB4UoBo0c7D9ryJ
+         bFl72mcOvn4FPhUTj6dy7O2Z8HTkHJijHERXnSiV6tNXjiKHnL9P8jg7Wurg2IUkOl
+         zkQg25iztxGtLXlceS10exJcCDI39F+LzT4uGiLs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 16/30] scsi: lpfc: Fix shost refcount mismatch when deleting vport
-Date:   Fri, 21 Aug 2020 12:18:43 -0400
-Message-Id: <20200821161857.348955-16-sashal@kernel.org>
+Cc:     Aditya Pakki <pakki001@umn.edu>, kjlu@umn.edu, wu000273@umn.edu,
+        Allison Randal <allison@lohutok.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Enrico Weigelt <info@metux.net>,
+        "Andrew F. Davis" <afd@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 18/30] omapfb: fix multiple reference count leaks due to pm_runtime_get_sync
+Date:   Fri, 21 Aug 2020 12:18:45 -0400
+Message-Id: <20200821161857.348955-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161857.348955-1-sashal@kernel.org>
 References: <20200821161857.348955-1-sashal@kernel.org>
@@ -44,84 +52,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dick Kennedy <dick.kennedy@broadcom.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 03dbfe0668e6692917ac278883e0586cd7f7d753 ]
+[ Upstream commit 78c2ce9bde70be5be7e3615a2ae7024ed8173087 ]
 
-When vports are deleted, it is observed that there is memory/kthread
-leakage as the vport isn't fully being released.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-There is a shost reference taken in scsi_add_host_dma that is not released
-during scsi_remove_host. It was noticed that other drivers resolve this by
-doing a scsi_host_put after calling scsi_remove_host.
-
-The vport_delete routine is taking two references one that corresponds to
-an access to the scsi_host in the vport_delete routine and another that is
-released after the adapter mailbox command completes that destroys the VPI
-that corresponds to the vport.
-
-Remove one of the references taken such that the second reference that is
-put will complete the missing scsi_add_host_dma reference and the shost
-will be terminated.
-
-Link: https://lore.kernel.org/r/20200630215001.70793-8-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Cc: kjlu@umn.edu
+Cc: wu000273@umn.edu
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Enrico Weigelt <info@metux.net>
+cc: "Andrew F. Davis" <afd@ti.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Alexios Zavras <alexios.zavras@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200614030528.128064-1-pakki001@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_vport.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/video/fbdev/omap2/omapfb/dss/dispc.c | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/dsi.c   | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/dss.c   | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c | 5 +++--
+ drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c | 5 +++--
+ drivers/video/fbdev/omap2/omapfb/dss/venc.c  | 7 +++++--
+ 6 files changed, 26 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_vport.c b/drivers/scsi/lpfc/lpfc_vport.c
-index c714482bf4c55..9c738e201f462 100644
---- a/drivers/scsi/lpfc/lpfc_vport.c
-+++ b/drivers/scsi/lpfc/lpfc_vport.c
-@@ -644,27 +644,16 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
- 		    vport->port_state < LPFC_VPORT_READY)
- 			return -EAGAIN;
- 	}
-+
- 	/*
--	 * This is a bit of a mess.  We want to ensure the shost doesn't get
--	 * torn down until we're done with the embedded lpfc_vport structure.
--	 *
--	 * Beyond holding a reference for this function, we also need a
--	 * reference for outstanding I/O requests we schedule during delete
--	 * processing.  But once we scsi_remove_host() we can no longer obtain
--	 * a reference through scsi_host_get().
--	 *
--	 * So we take two references here.  We release one reference at the
--	 * bottom of the function -- after delinking the vport.  And we
--	 * release the other at the completion of the unreg_vpi that get's
--	 * initiated after we've disposed of all other resources associated
--	 * with the port.
-+	 * Take early refcount for outstanding I/O requests we schedule during
-+	 * delete processing for unreg_vpi.  Always keep this before
-+	 * scsi_remove_host() as we can no longer obtain a reference through
-+	 * scsi_host_get() after scsi_host_remove as shost is set to SHOST_DEL.
- 	 */
- 	if (!scsi_host_get(shost))
- 		return VPORT_INVAL;
--	if (!scsi_host_get(shost)) {
--		scsi_host_put(shost);
--		return VPORT_INVAL;
--	}
-+
- 	lpfc_free_sysfs_attr(vport);
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dispc.c b/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
+index 7a75dfda98457..00f5a54aaf9b7 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
+@@ -531,8 +531,11 @@ int dispc_runtime_get(void)
+ 	DSSDBG("dispc_runtime_get\n");
  
- 	lpfc_debugfs_terminate(vport);
-@@ -811,8 +800,9 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
- 		if (!(vport->vpi_state & LPFC_VPI_REGISTERED) ||
- 				lpfc_mbx_unreg_vpi(vport))
- 			scsi_host_put(shost);
--	} else
-+	} else {
- 		scsi_host_put(shost);
+ 	r = pm_runtime_get_sync(&dispc.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dispc.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ EXPORT_SYMBOL(dispc_runtime_get);
+ 
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dsi.c b/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
+index 30d49f3800b33..2bfd9063cdfc3 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
+@@ -1148,8 +1148,11 @@ static int dsi_runtime_get(struct platform_device *dsidev)
+ 	DSSDBG("dsi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&dsi->pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dsi->pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void dsi_runtime_put(struct platform_device *dsidev)
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+index 48c6500c24e1f..91879f9d38a7f 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+@@ -778,8 +778,11 @@ int dss_runtime_get(void)
+ 	DSSDBG("dss_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&dss.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dss.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ void dss_runtime_put(void)
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c b/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
+index ec78d61bc5512..e2d571ca8590a 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
+@@ -50,9 +50,10 @@ static int hdmi_runtime_get(void)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi.pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&hdmi.pdev->dev);
+ 		return r;
 +	}
  
- 	lpfc_free_vpi(phba, vport->vpi);
- 	vport->work_port_events = 0;
+ 	return 0;
+ }
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c b/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
+index 2e2fcc3d6d4f7..13f3a5ce55294 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
+@@ -54,9 +54,10 @@ static int hdmi_runtime_get(void)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi.pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&hdmi.pdev->dev);
+ 		return r;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/venc.c b/drivers/video/fbdev/omap2/omapfb/dss/venc.c
+index 392464da12e41..96714b4596d2d 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/venc.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/venc.c
+@@ -402,8 +402,11 @@ static int venc_runtime_get(void)
+ 	DSSDBG("venc_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&venc.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&venc.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void venc_runtime_put(void)
 -- 
 2.25.1
 
