@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E315524C94D
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A0D24C94E
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726938AbgHUAmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 20:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35498 "EHLO mail.kernel.org"
+        id S1727053AbgHUAmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 20:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727013AbgHUAmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 20:42:12 -0400
+        id S1727031AbgHUAmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 20:42:16 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF7522087D;
-        Fri, 21 Aug 2020 00:42:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AD44208E4;
+        Fri, 21 Aug 2020 00:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597970532;
-        bh=OlGxIascbHIUZun41BFql3oNdYaebmCmIUt072WhhrM=;
+        s=default; t=1597970535;
+        bh=VaUhYJWR/1JwUL0k35caQCtTO9zYWbbKFBoWO/AsmfI=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=oxLmkQuvJRdiZDxiY5OHxzBOiaY/Su417hN6czHfJjEPqJEkspjDGBrRcnHPoiBzm
-         wcAPhwKEIQ9McnXR+47hCY2RAKurR4xe5IPp1brYlIdnb1KWhBVK1Zg27lWxezTtop
-         cRyyYi/F0JjlltFPlqMwGiait+F/+miw1GOeFDn4=
-Date:   Thu, 20 Aug 2020 17:42:11 -0700
+        b=eAnPby51eTm033wX5FRWNYvWwPQg5+QdgpvjQ/p8R9wZ1G2d9pUUC/X0pqhdibkVC
+         n1voVaJoNc3kv3ipZXaERkmTlVDiFWA6zqWcN2w9X6+f1ILjZfeWIbQLnnAID287z7
+         jOMs+xpZue+NsXiL+t7ZWdfj3vSSMeC3oLXqykc8=
+Date:   Thu, 20 Aug 2020 17:42:14 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, dhowells@redhat.com,
-        gregkh@linuxfoundation.org, jannh@google.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 06/11] romfs: fix uninitialized memory leak in
- romfs_dev_read()
-Message-ID: <20200821004211.g7aXs16ZQ%akpm@linux-foundation.org>
+To:     akash.goel@intel.com, akpm@linux-foundation.org,
+        chris@chris-wilson.co.uk, dja@axtens.net, hulkci@huawei.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
+        rientjes@google.com, stable@vger.kernel.org, tglx@linutronix.de,
+        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        walken@google.com, weiyongjun1@huawei.com
+Subject:  [patch 07/11] kernel/relay.c: fix memleak on destroy
+ relay channel
+Message-ID: <20200821004214.qRMMcztwG%akpm@linux-foundation.org>
 In-Reply-To: <20200820174132.67fd4a7a9359048f807a533b@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -39,51 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
-Subject: romfs: fix uninitialized memory leak in romfs_dev_read()
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Subject: kernel/relay.c: fix memleak on destroy relay channel
 
-romfs has a superblock field that limits the size of the filesystem; data
-beyond that limit is never accessed.
+kmemleak report memory leak as follows:
 
-romfs_dev_read() fetches a caller-supplied number of bytes from the
-backing device.  It returns 0 on success or an error code on failure;
-therefore, its API can't represent short reads, it's all-or-nothing.
+unreferenced object 0x607ee4e5f948 (size 8):
+comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
+hex dump (first 8 bytes):
+00 00 00 00 00 00 00 00 ........
+backtrace:
+[<00000000ca1de2fa>] relay_open kernel/relay.c:583 [inline]
+[<00000000ca1de2fa>] relay_open+0xb6/0x970 kernel/relay.c:563
+[<0000000038ae5a4b>] do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
+[<00000000d5e778e9>] __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
+[<0000000038fdf803>] blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
+[<00000000ce25a0ca>] blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
+[<00000000579e47e0>] block_ioctl+0xe5/0x120 fs/block_dev.c:1871
+[<00000000b1588c11>] vfs_ioctl fs/ioctl.c:48 [inline]
+[<00000000b1588c11>] __do_sys_ioctl fs/ioctl.c:753 [inline]
+[<00000000b1588c11>] __se_sys_ioctl fs/ioctl.c:739 [inline]
+[<00000000b1588c11>] __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
+[<0000000088fc9942>] do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
+[<000000004f6dd57a>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-However, when romfs_dev_read() detects that the requested operation would
-cross the filesystem size limit, it currently silently truncates the
-requested number of bytes.  This e.g.  means that when the content of a
-file with size 0x1000 starts one byte before the filesystem size limit,
-->readpage() will only fill a single byte of the supplied page while
-leaving the rest uninitialized, leaking that uninitialized memory to
-userspace.
+'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
+while destroy the relay channel. Fix it by adding free_percpu() before
+return from relay_destroy_channel().
 
-Fix it by returning an error code instead of truncating the read when the
-requested read operation would go beyond the end of the filesystem.
-
-Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
-Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Howells <dhowells@redhat.com>
+Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
+Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Daniel Axtens <dja@axtens.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Akash Goel <akash.goel@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/romfs/storage.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ kernel/relay.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/romfs/storage.c~romfs-fix-uninitialized-memory-leak-in-romfs_dev_read
-+++ a/fs/romfs/storage.c
-@@ -217,10 +217,8 @@ int romfs_dev_read(struct super_block *s
- 	size_t limit;
+--- a/kernel/relay.c~kernel-relayc-fix-memleak-on-destroy-relay-channel
++++ a/kernel/relay.c
+@@ -197,6 +197,7 @@ free_buf:
+ static void relay_destroy_channel(struct kref *kref)
+ {
+ 	struct rchan *chan = container_of(kref, struct rchan, kref);
++	free_percpu(chan->buf);
+ 	kfree(chan);
+ }
  
- 	limit = romfs_maxsize(sb);
--	if (pos >= limit)
-+	if (pos >= limit || buflen > limit - pos)
- 		return -EIO;
--	if (buflen > limit - pos)
--		buflen = limit - pos;
- 
- #ifdef CONFIG_ROMFS_ON_MTD
- 	if (sb->s_mtd)
 _
