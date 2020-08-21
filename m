@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 047C724DCBC
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9028F24DCA8
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728862AbgHURHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:07:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
+        id S1728812AbgHURGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:06:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728227AbgHUQSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728230AbgHUQSG (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:18:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 527B022CF6;
-        Fri, 21 Aug 2020 16:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F31C22D03;
+        Fri, 21 Aug 2020 16:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026679;
-        bh=8YzhsoQFl5yvaWZV4/nD9oHMVHqPsV9BJ66lDXAXqq4=;
+        s=default; t=1598026680;
+        bh=NHy1UHvvcpEH4xJoWIdVR/k2ARR+z4EDGVqQNYb3gjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dr2BJguoguszWZgtJAm0Xsgl4MuuRBb5tzdTPRqml4YueAfjFd9GCvYXg4/xMfCvB
-         F9LUu9REOmpPR0jlHq8rl5ULWhS9Ut+IVrQ+b5Q0b2NSk7VXAfLS7ZlB6g6qmPCkdy
-         MpU3YRZWtPDIuQFcpx0xEX8ddsNqZtDldbpk5d8k=
+        b=bKmPjLSYFOOT+0U8BoOs5Qx7Yebh2Rb7W+T4HBtyuZ8mPQ4hwXRVMgA2NnNsEibSY
+         vLenWteoIdV5VHYAG0b7EOOLsZlgcw8DPSi8rbggn/4rXVChkSEE7tOHpg0QXUBmVx
+         Ph7Jk0EUQaXC+NDS5RdHCzWk8hYTjtsOhW+oCUMc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gal Pressman <galpress@amazon.com>,
-        Shadi Ammouri <sammouri@amazon.com>,
-        Yossi Leybovich <sleybo@amazon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 43/48] RDMA/efa: Add EFA 0xefa1 PCI ID
-Date:   Fri, 21 Aug 2020 12:16:59 -0400
-Message-Id: <20200821161704.348164-43-sashal@kernel.org>
+Cc:     Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 44/48] ceph: fix potential mdsc use-after-free crash
+Date:   Fri, 21 Aug 2020 12:17:00 -0400
+Message-Id: <20200821161704.348164-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161704.348164-1-sashal@kernel.org>
 References: <20200821161704.348164-1-sashal@kernel.org>
@@ -45,41 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <galpress@amazon.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit d4f9cb5c5b224dca3ff752c1bb854250bf114944 ]
+[ Upstream commit fa9967734227b44acb1b6918033f9122dc7825b9 ]
 
-Add support for 0xefa1 devices.
+Make sure the delayed work stopped before releasing the resources.
 
-Link: https://lore.kernel.org/r/20200722140312.3651-5-galpress@amazon.com
-Reviewed-by: Shadi Ammouri <sammouri@amazon.com>
-Reviewed-by: Yossi Leybovich <sleybo@amazon.com>
-Signed-off-by: Gal Pressman <galpress@amazon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+cancel_delayed_work_sync() will only guarantee that the work finishes
+executing if the work is already in the ->worklist.  That means after
+the cancel_delayed_work_sync() returns, it will leave the work requeued
+if it was rearmed at the end. That can lead to a use after free once the
+work struct is freed.
+
+Fix it by flushing the delayed work instead of trying to cancel it, and
+ensure that the work doesn't rearm if the mdsc is stopping.
+
+URL: https://tracker.ceph.com/issues/46293
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/efa/efa_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ceph/mds_client.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/efa/efa_main.c b/drivers/infiniband/hw/efa/efa_main.c
-index 83858f7e83d0f..6c2e849f44498 100644
---- a/drivers/infiniband/hw/efa/efa_main.c
-+++ b/drivers/infiniband/hw/efa/efa_main.c
-@@ -10,10 +10,12 @@
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index b79fe6549df6f..b719aa655576a 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4066,6 +4066,9 @@ static void delayed_work(struct work_struct *work)
  
- #include "efa.h"
+ 	dout("mdsc delayed_work\n");
  
--#define PCI_DEV_ID_EFA_VF 0xefa0
-+#define PCI_DEV_ID_EFA0_VF 0xefa0
-+#define PCI_DEV_ID_EFA1_VF 0xefa1
- 
- static const struct pci_device_id efa_pci_tbl[] = {
--	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA_VF) },
-+	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA0_VF) },
-+	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA1_VF) },
- 	{ }
- };
- 
++	if (mdsc->stopping)
++		return;
++
+ 	mutex_lock(&mdsc->mutex);
+ 	renew_interval = mdsc->mdsmap->m_session_timeout >> 2;
+ 	renew_caps = time_after_eq(jiffies, HZ*renew_interval +
+@@ -4430,7 +4433,16 @@ void ceph_mdsc_force_umount(struct ceph_mds_client *mdsc)
+ static void ceph_mdsc_stop(struct ceph_mds_client *mdsc)
+ {
+ 	dout("stop\n");
+-	cancel_delayed_work_sync(&mdsc->delayed_work); /* cancel timer */
++	/*
++	 * Make sure the delayed work stopped before releasing
++	 * the resources.
++	 *
++	 * Because the cancel_delayed_work_sync() will only
++	 * guarantee that the work finishes executing. But the
++	 * delayed work will re-arm itself again after that.
++	 */
++	flush_delayed_work(&mdsc->delayed_work);
++
+ 	if (mdsc->mdsmap)
+ 		ceph_mdsmap_destroy(mdsc->mdsmap);
+ 	kfree(mdsc->sessions);
 -- 
 2.25.1
 
