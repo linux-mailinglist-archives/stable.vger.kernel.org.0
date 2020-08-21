@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC0924D9CB
+	by mail.lfdr.de (Postfix) with ESMTP id 8A26C24D9CC
 	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728029AbgHUQQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48448 "EHLO mail.kernel.org"
+        id S1728036AbgHUQQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:16:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727995AbgHUQPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:53 -0400
+        id S1728008AbgHUQP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A61B2063A;
-        Fri, 21 Aug 2020 16:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D5BB20578;
+        Fri, 21 Aug 2020 16:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026552;
-        bh=iAVDoijhRVMr+7fAJMTi0vz8YjdzK7xutKC2AZ3bmjE=;
+        s=default; t=1598026557;
+        bh=gWohrytgPPCufu0Y0SdUetLBz+Kc3A0G8R2gLyGeer8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bspemOsENRqdLD1Ss7xiofHujMPqeD3myR6z04R2dBcmRrg464CjiWPBG0cfb7t6O
-         DE36FumiwKYj8mCZk8wJbugUs0Uhr+bYaRCOTi37cqRZOY5/zBQcvhilqf7fFvAV+V
-         Zs70W/DVZmm+GtNmsGJqXICjpmjWsqTHncQCus+s=
+        b=pRRYAU0rP57zlFusSyYkjYNvejVWszhbDc0tq+AvohT7G20EqCG3LWjGx+plEosqg
+         BEHRDM4X9VNlb5dCUDjrt9mLov+A/TZb5idjTovby9aQtRtkhKyMG3oyWrpBYHgRua
+         LWdJOoWQtpVQ3z4OZaNP/JTrcDh7Y20XZyfzF8/k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guchun Chen <guchun.chen@amd.com>, Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 05/61] drm/amdgpu: fix RAS memory leak in error case
-Date:   Fri, 21 Aug 2020 12:14:49 -0400
-Message-Id: <20200821161545.347622-5-sashal@kernel.org>
+Cc:     Qiushi Wu <wu000273@umn.edu>, Jon Hunter <jonathanh@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 09/61] ASoC: tegra: Fix reference count leaks.
+Date:   Fri, 21 Aug 2020 12:14:53 -0400
+Message-Id: <20200821161545.347622-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -44,74 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 5e91160ac0b5cfbbaeb62cbff8b069262095f744 ]
+[ Upstream commit deca195383a6085be62cb453079e03e04d618d6e ]
 
-RAS context memory needs to freed in failure case.
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count if pm_runtime_put is not called in
+error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20200613204422.24484-1-wu000273@umn.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ sound/soc/tegra/tegra30_ahub.c | 4 +++-
+ sound/soc/tegra/tegra30_i2s.c  | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index cd18596b47d33..78b378867b97a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1843,9 +1843,8 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	amdgpu_ras_check_supported(adev, &con->hw_supported,
- 			&con->supported);
- 	if (!con->hw_supported) {
--		amdgpu_ras_set_context(adev, NULL);
--		kfree(con);
--		return 0;
-+		r = 0;
-+		goto err_out;
- 	}
+diff --git a/sound/soc/tegra/tegra30_ahub.c b/sound/soc/tegra/tegra30_ahub.c
+index 635eacbd28d47..156e3b9d613c6 100644
+--- a/sound/soc/tegra/tegra30_ahub.c
++++ b/sound/soc/tegra/tegra30_ahub.c
+@@ -643,8 +643,10 @@ static int tegra30_ahub_resume(struct device *dev)
+ 	int ret;
  
- 	con->features = 0;
-@@ -1856,29 +1855,31 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	if (adev->nbio.funcs->init_ras_controller_interrupt) {
- 		r = adev->nbio.funcs->init_ras_controller_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	if (adev->nbio.funcs->init_ras_err_event_athub_interrupt) {
- 		r = adev->nbio.funcs->init_ras_err_event_athub_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	amdgpu_ras_mask &= AMDGPU_RAS_BLOCK_MASK;
- 
--	if (amdgpu_ras_fs_init(adev))
--		goto fs_out;
-+	if (amdgpu_ras_fs_init(adev)) {
-+		r = -EINVAL;
-+		goto err_out;
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
 +	}
+ 	ret = regcache_sync(ahub->regmap_ahub);
+ 	ret |= regcache_sync(ahub->regmap_apbif);
+ 	pm_runtime_put(dev);
+diff --git a/sound/soc/tegra/tegra30_i2s.c b/sound/soc/tegra/tegra30_i2s.c
+index d59882ec48f16..db5a8587bfa4c 100644
+--- a/sound/soc/tegra/tegra30_i2s.c
++++ b/sound/soc/tegra/tegra30_i2s.c
+@@ -567,8 +567,10 @@ static int tegra30_i2s_resume(struct device *dev)
+ 	int ret;
  
- 	DRM_INFO("RAS INFO: ras initialized successfully, "
- 			"hardware ability[%x] ras_mask[%x]\n",
- 			con->hw_supported, con->supported);
- 	return 0;
--fs_out:
-+err_out:
- 	amdgpu_ras_set_context(adev, NULL);
- 	kfree(con);
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 	ret = regcache_sync(i2s->regmap);
+ 	pm_runtime_put(dev);
  
--	return -EINVAL;
-+	return r;
- }
- 
- /* helper function to handle common stuff in ip late init phase */
 -- 
 2.25.1
 
