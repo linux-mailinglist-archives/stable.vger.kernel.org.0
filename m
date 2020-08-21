@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B529024DDE6
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7955D24DDE1
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbgHURX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S1729156AbgHURXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:23:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725958AbgHUQPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:37 -0400
+        id S1726300AbgHUQPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07BE122B47;
-        Fri, 21 Aug 2020 16:15:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 509C922C9F;
+        Fri, 21 Aug 2020 16:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026536;
-        bh=AbE0XSedTcpFD59QYQtmmKbDB5Ti6rq3NKID5k4Vz1w=;
+        s=default; t=1598026538;
+        bh=8Ehh7V2FSQcjIFlLPGKbe+IttvqyB6gO7LC3jyQuRE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyOYVY4JDzuoNptpugWpfK3wUqIhKKKzfffNxmQyqPg286uFdr4gmocv+wM1omDzA
-         FHy5/cYmDopuzXMI6LzrVreYzWPzcunrgAlqHscM6cD/fYkru2ScavjsQUuU5mhhrL
-         FANtJm6TOhG9umppac+DKTyF33om9F8fE7s8Ju/Q=
+        b=CuLdhutp8gMQh9f/keMaD3nWM7sJABFGBTpB6c70LYq8xYNgoKKfVLJnvpvcQLBSM
+         fAoohbW2lp2Q1WW7B0A9uBIixGDUSJpiF3WCit/uokmifdiEL6zfvx4kaDlqcuvDHN
+         v/mX8VRQ2psu9H+scRz2k49+MOdH1We96010thNQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
         Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 57/62] ceph: fix potential mdsc use-after-free crash
-Date:   Fri, 21 Aug 2020 12:14:18 -0400
-Message-Id: <20200821161423.347071-57-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 58/62] ceph: do not access the kiocb after aio requests
+Date:   Fri, 21 Aug 2020 12:14:19 -0400
+Message-Id: <20200821161423.347071-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,60 +45,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit fa9967734227b44acb1b6918033f9122dc7825b9 ]
+[ Upstream commit d1d9655052606fd9078e896668ec90191372d513 ]
 
-Make sure the delayed work stopped before releasing the resources.
+In aio case, if the completion comes very fast just before the
+ceph_read_iter() returns to fs/aio.c, the kiocb will be freed in
+the completion callback, then if ceph_read_iter() access again
+we will potentially hit the use-after-free bug.
 
-cancel_delayed_work_sync() will only guarantee that the work finishes
-executing if the work is already in the ->worklist.  That means after
-the cancel_delayed_work_sync() returns, it will leave the work requeued
-if it was rearmed at the end. That can lead to a use after free once the
-work struct is freed.
+[ jlayton: initialize direct_lock early, and use it everywhere ]
 
-Fix it by flushing the delayed work instead of trying to cancel it, and
-ensure that the work doesn't rearm if the mdsc is stopping.
-
-URL: https://tracker.ceph.com/issues/46293
+URL: https://tracker.ceph.com/issues/45649
 Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/ceph/file.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index a50497142e598..d38399847064f 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -4283,6 +4283,9 @@ static void delayed_work(struct work_struct *work)
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 160644ddaeed7..d51c3f2fdca02 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1538,6 +1538,7 @@ static ssize_t ceph_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	struct inode *inode = file_inode(filp);
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	struct page *pinned_page = NULL;
++	bool direct_lock = iocb->ki_flags & IOCB_DIRECT;
+ 	ssize_t ret;
+ 	int want, got = 0;
+ 	int retry_op = 0, read = 0;
+@@ -1546,7 +1547,7 @@ static ssize_t ceph_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	dout("aio_read %p %llx.%llx %llu~%u trying to get caps on %p\n",
+ 	     inode, ceph_vinop(inode), iocb->ki_pos, (unsigned)len, inode);
  
- 	dout("mdsc delayed_work\n");
+-	if (iocb->ki_flags & IOCB_DIRECT)
++	if (direct_lock)
+ 		ceph_start_io_direct(inode);
+ 	else
+ 		ceph_start_io_read(inode);
+@@ -1603,7 +1604,7 @@ static ssize_t ceph_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	}
+ 	ceph_put_cap_refs(ci, got);
  
-+	if (mdsc->stopping)
-+		return;
-+
- 	mutex_lock(&mdsc->mutex);
- 	renew_interval = mdsc->mdsmap->m_session_timeout >> 2;
- 	renew_caps = time_after_eq(jiffies, HZ*renew_interval +
-@@ -4657,7 +4660,16 @@ void ceph_mdsc_force_umount(struct ceph_mds_client *mdsc)
- static void ceph_mdsc_stop(struct ceph_mds_client *mdsc)
- {
- 	dout("stop\n");
--	cancel_delayed_work_sync(&mdsc->delayed_work); /* cancel timer */
-+	/*
-+	 * Make sure the delayed work stopped before releasing
-+	 * the resources.
-+	 *
-+	 * Because the cancel_delayed_work_sync() will only
-+	 * guarantee that the work finishes executing. But the
-+	 * delayed work will re-arm itself again after that.
-+	 */
-+	flush_delayed_work(&mdsc->delayed_work);
-+
- 	if (mdsc->mdsmap)
- 		ceph_mdsmap_destroy(mdsc->mdsmap);
- 	kfree(mdsc->sessions);
+-	if (iocb->ki_flags & IOCB_DIRECT)
++	if (direct_lock)
+ 		ceph_end_io_direct(inode);
+ 	else
+ 		ceph_end_io_read(inode);
 -- 
 2.25.1
 
