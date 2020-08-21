@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387C324DD7D
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0F024DD60
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727990AbgHURT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:19:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
+        id S1729016AbgHURQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728082AbgHUQQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:28 -0400
+        id S1727831AbgHUQQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:16:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AA3121741;
-        Fri, 21 Aug 2020 16:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC7E220578;
+        Fri, 21 Aug 2020 16:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026588;
-        bh=QszXdQB0Avp1Tr/tdkVd8mVJbGwNpUlPoaFiPsLqGto=;
+        s=default; t=1598026589;
+        bh=CKAnG2XaRPey94snsPZXqAG3CJ16RazBHyauILYnHWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmhHf3Rj7hDidiYHaj4RiCNbGxoeOfLlu+O8Xd0ZEtXUDq1lPOx2gbMNcLK7nqz2c
-         y3JiF8PMUMb51Qo3qRqcz1mhVjWkHNO8nlfz7KrfWWj3+SfP/pPpOiS5LVf+eBETUi
-         CGFNRFp0dFkOq55V7HwMGoFyuZqolsXPBJmxmff8=
+        b=dIw/Cdvmcn2dEQ/DzIv8GBr8cAH9CtaN8kuVXtVyX22W3918SmgvV7B8e8r5fPEN/
+         BrnoqRlFFF0eCtDOjXQtn3WNnAq+Fg5N59z7EtUlbc7V9ZNJ51sOjYvn9E08R2hXI3
+         SUkW8aQ+5IioF7sAF15WoBO/uViZ91XjTSwe+1ZA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dehe Gu <gudehe@huawei.com>,
-        Daiyue Zhang <zhangdaiyue1@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.7 34/61] f2fs: remove write attribute of main_blkaddr sysfs node
-Date:   Fri, 21 Aug 2020 12:15:18 -0400
-Message-Id: <20200821161545.347622-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 35/61] f2fs: fix error path in do_recover_data()
+Date:   Fri, 21 Aug 2020 12:15:19 -0400
+Message-Id: <20200821161545.347622-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -45,59 +43,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dehe Gu <gudehe@huawei.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit ffcde4b29a5f20ddca6fe559b48f345818bf1d91 ]
+[ Upstream commit 9627a7b31f3c4ff8bc8f3be3683983ffe6eaebe6 ]
 
-Fuzzing main_blkaddr sysfs node will corrupt this field's value,
-causing kernel panic, remove its write attribute to avoid potential
-security risk.
+- don't panic kernel if f2fs_get_node_page() fails in
+f2fs_recover_inline_data() or f2fs_recover_inline_xattr();
+- return error number of f2fs_truncate_blocks() to
+f2fs_recover_inline_data()'s caller;
 
-[Chao Yu: add description]
-
-Signed-off-by: Dehe Gu <gudehe@huawei.com>
-Signed-off-by: Daiyue Zhang <zhangdaiyue1@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/f2fs/f2fs.h     |  4 ++--
+ fs/f2fs/inline.c   | 19 ++++++++++++-------
+ fs/f2fs/node.c     |  6 ++++--
+ fs/f2fs/recovery.c | 10 ++++++++--
+ 4 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index e3bbbef9b4f09..66e8b243e48eb 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -222,6 +222,13 @@ static ssize_t avg_vblocks_show(struct f2fs_attr *a,
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 5a0f95dfbac2b..97b178fba1595 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3210,7 +3210,7 @@ bool f2fs_alloc_nid(struct f2fs_sb_info *sbi, nid_t *nid);
+ void f2fs_alloc_nid_done(struct f2fs_sb_info *sbi, nid_t nid);
+ void f2fs_alloc_nid_failed(struct f2fs_sb_info *sbi, nid_t nid);
+ int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink);
+-void f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
++int f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
+ int f2fs_recover_xattr_data(struct inode *inode, struct page *page);
+ int f2fs_recover_inode_page(struct f2fs_sb_info *sbi, struct page *page);
+ int f2fs_restore_node_summary(struct f2fs_sb_info *sbi,
+@@ -3676,7 +3676,7 @@ int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page);
+ int f2fs_convert_inline_inode(struct inode *inode);
+ int f2fs_try_convert_inline_dir(struct inode *dir, struct dentry *dentry);
+ int f2fs_write_inline_data(struct inode *inode, struct page *page);
+-bool f2fs_recover_inline_data(struct inode *inode, struct page *npage);
++int f2fs_recover_inline_data(struct inode *inode, struct page *npage);
+ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
+ 			struct fscrypt_name *fname, struct page **res_page);
+ int f2fs_make_empty_inline_dir(struct inode *inode, struct inode *parent,
+diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
+index 59a4b7ff11e17..bd50a14e632ba 100644
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -252,7 +252,7 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
+ 	return 0;
  }
- #endif
  
-+static ssize_t main_blkaddr_show(struct f2fs_attr *a,
-+				struct f2fs_sb_info *sbi, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)MAIN_BLKADDR(sbi));
-+}
-+
- static ssize_t f2fs_sbi_show(struct f2fs_attr *a,
- 			struct f2fs_sb_info *sbi, char *buf)
+-bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
++int f2fs_recover_inline_data(struct inode *inode, struct page *npage)
  {
-@@ -511,7 +518,6 @@ F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_no_gc_sleep_time, no_gc_sleep_time);
- F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_idle, gc_mode);
- F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_urgent, gc_mode);
- F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, reclaim_segments, rec_prefree_segments);
--F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, main_blkaddr, main_blkaddr);
- F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, max_small_discards, max_discards);
- F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, discard_granularity, discard_granularity);
- F2FS_RW_ATTR(RESERVED_BLOCKS, f2fs_sb_info, reserved_blocks, reserved_blocks);
-@@ -551,6 +557,7 @@ F2FS_GENERAL_RO_ATTR(current_reserved_blocks);
- F2FS_GENERAL_RO_ATTR(unusable);
- F2FS_GENERAL_RO_ATTR(encoding);
- F2FS_GENERAL_RO_ATTR(mounted_time_sec);
-+F2FS_GENERAL_RO_ATTR(main_blkaddr);
- #ifdef CONFIG_F2FS_STAT_FS
- F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_foreground_calls, cp_count);
- F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_background_calls, bg_cp_count);
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct f2fs_inode *ri = NULL;
+@@ -274,7 +274,8 @@ bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
+ 			ri && (ri->i_inline & F2FS_INLINE_DATA)) {
+ process_inline:
+ 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
+-		f2fs_bug_on(sbi, IS_ERR(ipage));
++		if (IS_ERR(ipage))
++			return PTR_ERR(ipage);
+ 
+ 		f2fs_wait_on_page_writeback(ipage, NODE, true, true);
+ 
+@@ -287,21 +288,25 @@ bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
+ 
+ 		set_page_dirty(ipage);
+ 		f2fs_put_page(ipage, 1);
+-		return true;
++		return 1;
+ 	}
+ 
+ 	if (f2fs_has_inline_data(inode)) {
+ 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
+-		f2fs_bug_on(sbi, IS_ERR(ipage));
++		if (IS_ERR(ipage))
++			return PTR_ERR(ipage);
+ 		f2fs_truncate_inline_inode(inode, ipage, 0);
+ 		clear_inode_flag(inode, FI_INLINE_DATA);
+ 		f2fs_put_page(ipage, 1);
+ 	} else if (ri && (ri->i_inline & F2FS_INLINE_DATA)) {
+-		if (f2fs_truncate_blocks(inode, 0, false))
+-			return false;
++		int ret;
++
++		ret = f2fs_truncate_blocks(inode, 0, false);
++		if (ret)
++			return ret;
+ 		goto process_inline;
+ 	}
+-	return false;
++	return 0;
+ }
+ 
+ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index daf531e69b672..8502035dcdaa6 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -2507,7 +2507,7 @@ int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink)
+ 	return nr - nr_shrink;
+ }
+ 
+-void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
++int f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ {
+ 	void *src_addr, *dst_addr;
+ 	size_t inline_size;
+@@ -2515,7 +2515,8 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ 	struct f2fs_inode *ri;
+ 
+ 	ipage = f2fs_get_node_page(F2FS_I_SB(inode), inode->i_ino);
+-	f2fs_bug_on(F2FS_I_SB(inode), IS_ERR(ipage));
++	if (IS_ERR(ipage))
++		return PTR_ERR(ipage);
+ 
+ 	ri = F2FS_INODE(page);
+ 	if (ri->i_inline & F2FS_INLINE_XATTR) {
+@@ -2534,6 +2535,7 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ update_inode:
+ 	f2fs_update_inode(inode, ipage);
+ 	f2fs_put_page(ipage, 1);
++	return 0;
+ }
+ 
+ int f2fs_recover_xattr_data(struct inode *inode, struct page *page)
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index dd804c07eeb05..3a0e8410632bc 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -513,7 +513,9 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
+ 
+ 	/* step 1: recover xattr */
+ 	if (IS_INODE(page)) {
+-		f2fs_recover_inline_xattr(inode, page);
++		err = f2fs_recover_inline_xattr(inode, page);
++		if (err)
++			goto out;
+ 	} else if (f2fs_has_xattr_block(ofs_of_node(page))) {
+ 		err = f2fs_recover_xattr_data(inode, page);
+ 		if (!err)
+@@ -522,8 +524,12 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
+ 	}
+ 
+ 	/* step 2: recover inline data */
+-	if (f2fs_recover_inline_data(inode, page))
++	err = f2fs_recover_inline_data(inode, page);
++	if (err) {
++		if (err == 1)
++			err = 0;
+ 		goto out;
++	}
+ 
+ 	/* step 3: recover data indices */
+ 	start = f2fs_start_bidx_of_node(ofs_of_node(page), inode);
 -- 
 2.25.1
 
