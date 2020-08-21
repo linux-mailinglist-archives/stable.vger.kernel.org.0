@@ -2,110 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9F224D0D0
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 10:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6046924D120
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 11:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728165AbgHUIuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 04:50:25 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:55722 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727868AbgHUIuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 04:50:25 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22195100-1500050 
-        for multiple; Fri, 21 Aug 2020 09:50:15 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org
-Cc:     linux-mm@kvack.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Pavel Machek <pavel@ucw.cz>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 4/4] drm/i915/gem: Replace reloc chain with terminator on error unwind
-Date:   Fri, 21 Aug 2020 09:50:11 +0100
-Message-Id: <20200821085011.28878-4-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200821085011.28878-1-chris@chris-wilson.co.uk>
-References: <20200821085011.28878-1-chris@chris-wilson.co.uk>
+        id S1726840AbgHUJHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 05:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725965AbgHUJHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 05:07:02 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE92C061385;
+        Fri, 21 Aug 2020 02:07:02 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id f5so597987plr.9;
+        Fri, 21 Aug 2020 02:07:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lpRfEAK9hizU8z+MYAdROsy4y7XmRdPj3BG7wTbZLZw=;
+        b=grlxyTPg/iyMdHs7mW+oLR6rh0bk0w5Ls5KRZqaoAaFp0LjCwJ7buqxLZLTlThUDNG
+         tzvM0MKOmcCIT5u6eDZpI3YjhBxLAJ8vLuqN1lHFnNyYkHMqb7SyZT9KvsiHE4grXAQ4
+         I4BdGNwGW6X5UdrbmMBiHkesLOrwhbVcP8BkFH0xUL8JxKPnyaG5aEx8kZRSvo+A12wK
+         +K5r5Nth0voQc8KbJl+6dOlYi4q6/MGuxe4P1dy1fYiaKDpOgvmw1u0VhFzBWJBVmd2k
+         6tjToZKd5NwF/yIeh0ZDhl18GnkHArtdzY9T5df2LnLtFo6u+wV1ffS9b7eeS9vdIjpt
+         V/eQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lpRfEAK9hizU8z+MYAdROsy4y7XmRdPj3BG7wTbZLZw=;
+        b=QZcQaHcIrdn9/FdG5IJOgMnm7BpCjX3J5yGikkZvt/QePBr7EKB4PgufD5LSt6t8Fx
+         803yGgwfb/OHZV8QAsMqB9OkHjwoPCLF2YcpPq0uaJls8CKJWv5GongHpxs7H1VWFJBZ
+         1TssRSSLCeqj15cXyv06Vt49dig/XHts6EySAyMcUOe96dxP209NKDjJtc8jw4r66fR1
+         GVyEVwTtMtd/P+mb89f5DGgLuNnjrbpAZIlddtoQLVo26NYncpA6UFkHy6VP3HP/35T/
+         bEWCGhoy+7/OhaEbiDNegm41WwkIRV36zFZyXqYpOf842NI/+2D+LtAjq0xT35aZ9qat
+         JKCg==
+X-Gm-Message-State: AOAM531SOf2amG1SRxGKLfG5AKKzcxPvp2l5aKk4+IN/3aUE4IEPSkxf
+        7OG8G6YjTLTdRLXLdjnp3UzY5bICldAuNbFhLm8=
+X-Google-Smtp-Source: ABdhPJxcGz7B04L23FgStmA+C5YUh17LayGi0wW4N43S/c8dvT4rWSpO7MdM8lbbuwaa/qzB9+Qc/M9bxRj0WNOq5u0=
+X-Received: by 2002:a17:90a:fa06:: with SMTP id cm6mr1765347pjb.129.1598000821832;
+ Fri, 21 Aug 2020 02:07:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200820091537.490965042@linuxfoundation.org> <20200820091541.964627271@linuxfoundation.org>
+ <20200821072123.GC23823@amd>
+In-Reply-To: <20200821072123.GC23823@amd>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Fri, 21 Aug 2020 12:06:45 +0300
+Message-ID: <CAHp75Vcbmc-PV-gQxuj9i8sAcFCzhJKe_qzEfrkUTZbnf3Vupg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 83/92] mfd: dln2: Run event handler loop under spinlock
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we hit an error during construction of the reloc chain, we need to
-replace the chain into the next batch with the terminator so that upon
-flushing the relocations so far, we do not execute a hanging batch.
+On Fri, Aug 21, 2020 at 10:26 AM Pavel Machek <pavel@denx.de> wrote:
+> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> >
+> > [ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
+> >
+> > The event handler loop must be run with interrupts disabled.
+> > Otherwise we will have a warning:
+> ...
+> > Recently xHCI driver switched to tasklets in the commit 36dc01657b49
+> > ("usb: host: xhci: Support running urb giveback in tasklet
+> > context").
+>
+> AFAICT, 36dc01657b49 is not included in 4.19.141, so this commit
+> should not be needed, either.
 
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Fixes: 964a9b0f611e ("drm/i915/gem: Use chained reloc batches")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: <stable@vger.kernel.org> # v5.8+
----
- .../gpu/drm/i915/gem/i915_gem_execbuffer.c    | 31 ++++++++++---------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+I'm wondering if there are any other USB host controller drivers that
+use URB giveback in interrupt enabled context.
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 24a1486d2dc5..a09f04eee417 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -972,21 +972,6 @@ static int reloc_gpu_chain(struct reloc_cache *cache)
- 	if (err)
- 		goto out_pool;
- 
--	GEM_BUG_ON(cache->rq_size + RELOC_TAIL > PAGE_SIZE  / sizeof(u32));
--	cmd = cache->rq_cmd + cache->rq_size;
--	*cmd++ = MI_ARB_CHECK;
--	if (cache->gen >= 8)
--		*cmd++ = MI_BATCH_BUFFER_START_GEN8;
--	else if (cache->gen >= 6)
--		*cmd++ = MI_BATCH_BUFFER_START;
--	else
--		*cmd++ = MI_BATCH_BUFFER_START | MI_BATCH_GTT;
--	*cmd++ = lower_32_bits(batch->node.start);
--	*cmd++ = upper_32_bits(batch->node.start); /* Always 0 for gen<8 */
--	i915_gem_object_flush_map(cache->rq_vma->obj);
--	i915_gem_object_unpin_map(cache->rq_vma->obj);
--	cache->rq_vma = NULL;
--
- 	err = intel_gt_buffer_pool_mark_active(pool, rq);
- 	if (err == 0) {
- 		i915_vma_lock(batch);
-@@ -999,15 +984,31 @@ static int reloc_gpu_chain(struct reloc_cache *cache)
- 	if (err)
- 		goto out_pool;
- 
-+	GEM_BUG_ON(cache->rq_size + RELOC_TAIL > PAGE_SIZE  / sizeof(u32));
-+	cmd = cache->rq_cmd + cache->rq_size;
-+	*cmd++ = MI_ARB_CHECK;
-+	if (cache->gen >= 8)
-+		*cmd++ = MI_BATCH_BUFFER_START_GEN8;
-+	else if (cache->gen >= 6)
-+		*cmd++ = MI_BATCH_BUFFER_START;
-+	else
-+		*cmd++ = MI_BATCH_BUFFER_START | MI_BATCH_GTT;
-+	*cmd++ = lower_32_bits(batch->node.start);
-+	*cmd++ = upper_32_bits(batch->node.start); /* Always 0 for gen<8 */
-+
- 	cmd = i915_gem_object_pin_map(batch->obj,
- 				      cache->has_llc ?
- 				      I915_MAP_FORCE_WB :
- 				      I915_MAP_FORCE_WC);
- 	if (IS_ERR(cmd)) {
-+		/* We will replace the BBS with BBE upon flushing the rq */
- 		err = PTR_ERR(cmd);
- 		goto out_pool;
- 	}
- 
-+	i915_gem_object_flush_map(cache->rq_vma->obj);
-+	i915_gem_object_unpin_map(cache->rq_vma->obj);
-+
- 	/* Return with batch mapping (cmd) still pinned */
- 	cache->rq_cmd = cmd;
- 	cache->rq_size = 0;
 -- 
-2.20.1
-
+With Best Regards,
+Andy Shevchenko
