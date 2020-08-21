@@ -2,109 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0E224D1CB
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 11:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA1A24D22F
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 12:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728149AbgHUJyc convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 21 Aug 2020 05:54:32 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:57708 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727046AbgHUJya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 05:54:30 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22195973-1500050 
-        for multiple; Fri, 21 Aug 2020 10:54:23 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1728655AbgHUKWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 06:22:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728595AbgHUKWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 06:22:02 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ADF7C061385;
+        Fri, 21 Aug 2020 03:22:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To;
+        bh=9cui8yGpBY2ZOyPniSDNd2mkKvm1A1hT7OP8vChaDSw=; b=s+sG018piBoUSrJYYiI17oi/2i
+        G/KdWVCn5CDUvgQsDatmzXnqfvvD14Uo9gGciSh+LO2Chlf4wx1OueDa1bPw8wEwvbJV/7SEbt1uZ
+        2Kb5G4JvEwSzpVLZty0BEDzNz/hCqssZvnIh8LuvgoWnjqwVwzQttKsiHwriY6fjnpAHMdCcdUeDu
+        I+n3nruu7fqHiqqIKjCTZfx0K/o9WFGCPaG8sLiCnc/JSb/2eJKvFS/j4JQ1K5D7/9EeMSsXbnGOA
+        Kks8sK1el7GnYx6bbHcxwx3y/UY9+8IRHQ9vC0ecmBOvENQhGX+HUzbm9KyGyWkJwuYWs1+4177mp
+        8AJEwyQw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k94Ao-0003GA-26; Fri, 21 Aug 2020 10:21:26 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 66DDC302526;
+        Fri, 21 Aug 2020 12:21:24 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
+        id 5268F2B628998; Fri, 21 Aug 2020 12:21:24 +0200 (CEST)
+Message-ID: <20200821102052.792381982@infradead.org>
+User-Agent: quilt/0.66
+Date:   Fri, 21 Aug 2020 11:39:13 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     x86@kernel.org
+Cc:     linux-kernel@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Robert O'Callahan <rocallahan@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Brian Gerst <brgerst@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
+Subject: [PATCH v2 1/8] x86/debug: Allow a single level of #DB recursion
+References: <20200821093912.815135402@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200821095129.GF3354@suse.de>
-References: <20200821085011.28878-1-chris@chris-wilson.co.uk> <20200821095129.GF3354@suse.de>
-Subject: Re: [PATCH 1/4] mm: Export flush_vm_area() to sync the PTEs upon construction
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-mm@kvack.org, Pavel Machek <pavel@ucw.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Dave Airlie <airlied@redhat.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Vrabel <david.vrabel@citrix.com>, stable@vger.kernel.org
-To:     Joerg Roedel <jroedel@suse.de>
-Date:   Fri, 21 Aug 2020 10:54:22 +0100
-Message-ID: <159800366215.29194.8455636122843151159@build.alporthouse.com>
-User-Agent: alot/0.9
+Content-Type: text/plain; charset=UTF-8
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Joerg Roedel (2020-08-21 10:51:29)
-> On Fri, Aug 21, 2020 at 09:50:08AM +0100, Chris Wilson wrote:
-> > The alloc_vm_area() is another method for drivers to
-> > vmap/map_kernel_range that uses apply_to_page_range() rather than the
-> > direct vmalloc walkers. This is missing the page table modification
-> > tracking, and the ability to synchronize the PTE updates afterwards.
-> > Provide flush_vm_area() for the users of alloc_vm_area() that assumes
-> > the worst and ensures that the page directories are correctly flushed
-> > upon construction.
-> > 
-> > The impact is most pronounced on x86_32 due to the delayed set_pmd().
-> > 
-> > Reported-by: Pavel Machek <pavel@ucw.cz>
-> > References: 2ba3e6947aed ("mm/vmalloc: track which page-table levels were modified")
-> > References: 86cf69f1d893 ("x86/mm/32: implement arch_sync_kernel_mappings()")
-> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > Cc: Joerg Roedel <jroedel@suse.de>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Dave Airlie <airlied@redhat.com>
-> > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > Cc: Pavel Machek <pavel@ucw.cz>
-> > Cc: David Vrabel <david.vrabel@citrix.com>
-> > Cc: <stable@vger.kernel.org> # v5.8+
-> > ---
-> >  include/linux/vmalloc.h |  1 +
-> >  mm/vmalloc.c            | 16 ++++++++++++++++
-> >  2 files changed, 17 insertions(+)
-> > 
-> > diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-> > index 0221f852a7e1..a253b27df0ac 100644
-> > --- a/include/linux/vmalloc.h
-> > +++ b/include/linux/vmalloc.h
-> > @@ -204,6 +204,7 @@ static inline void set_vm_flush_reset_perms(void *addr)
-> >  
-> >  /* Allocate/destroy a 'vmalloc' VM area. */
-> >  extern struct vm_struct *alloc_vm_area(size_t size, pte_t **ptes);
-> > +extern void flush_vm_area(struct vm_struct *area);
-> >  extern void free_vm_area(struct vm_struct *area);
-> >  
-> >  /* for /dev/kmem */
-> > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > index b482d240f9a2..c41934486031 100644
-> > --- a/mm/vmalloc.c
-> > +++ b/mm/vmalloc.c
-> > @@ -3078,6 +3078,22 @@ struct vm_struct *alloc_vm_area(size_t size, pte_t **ptes)
-> >  }
-> >  EXPORT_SYMBOL_GPL(alloc_vm_area);
-> >  
-> > +void flush_vm_area(struct vm_struct *area)
-> > +{
-> > +     unsigned long addr = (unsigned long)area->addr;
-> > +
-> > +     /* apply_to_page_range() doesn't track the damage, assume the worst */
-> > +     if (ARCH_PAGE_TABLE_SYNC_MASK & (PGTBL_PTE_MODIFIED |
-> > +                                      PGTBL_PMD_MODIFIED |
-> > +                                      PGTBL_PUD_MODIFIED |
-> > +                                      PGTBL_P4D_MODIFIED |
-> > +                                      PGTBL_PGD_MODIFIED))
-> > +             arch_sync_kernel_mappings(addr, addr + area->size);
-> 
-> This should happen in __apply_to_page_range() directly and look like
-> this:
+From: Andy Lutomirski <luto@kernel.org>
 
-Ok. I thought it had to be after assigning the *ptep. If we apply the
-sync first, do not have to worry about PGTBL_PTE_MODIFIED from the
-*ptep?
--Chris
+Trying to clear DR7 around a #DB from usermode malfunctions if we
+schedule when delivering SIGTRAP.  Rather than trying to define a
+special no-recursion region, just allow a single level of recursion.
+We do the same thing for NMI, and it hasn't caused any problems yet.
+
+Fixes: 9f58fdde95c9 ("x86/db: Split out dr6/7 handling")
+Reported-by: Kyle Huey <me@kylehuey.com>
+Debugged-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/8b9bd05f187231df008d48cf818a6a311cbd5c98.1597882384.git.luto@kernel.org
+---
+ arch/x86/kernel/traps.c |   65 ++++++++++++++++++++++--------------------------
+ 1 file changed, 31 insertions(+), 34 deletions(-)
+
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -729,20 +729,9 @@ static bool is_sysenter_singlestep(struc
+ #endif
+ }
+ 
+-static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
++static __always_inline unsigned long debug_read_clear_dr6(void)
+ {
+-	/*
+-	 * Disable breakpoints during exception handling; recursive exceptions
+-	 * are exceedingly 'fun'.
+-	 *
+-	 * Since this function is NOKPROBE, and that also applies to
+-	 * HW_BREAKPOINT_X, we can't hit a breakpoint before this (XXX except a
+-	 * HW_BREAKPOINT_W on our stack)
+-	 *
+-	 * Entry text is excluded for HW_BP_X and cpu_entry_area, which
+-	 * includes the entry stack is excluded for everything.
+-	 */
+-	*dr7 = local_db_save();
++	unsigned long dr6;
+ 
+ 	/*
+ 	 * The Intel SDM says:
+@@ -755,15 +744,12 @@ static __always_inline void debug_enter(
+ 	 *
+ 	 * Keep it simple: clear DR6 immediately.
+ 	 */
+-	get_debugreg(*dr6, 6);
++	get_debugreg(dr6, 6);
+ 	set_debugreg(0, 6);
+ 	/* Filter out all the reserved bits which are preset to 1 */
+-	*dr6 &= ~DR6_RESERVED;
+-}
++	dr6 &= ~DR6_RESERVED;
+ 
+-static __always_inline void debug_exit(unsigned long dr7)
+-{
+-	local_db_restore(dr7);
++	return dr6;
+ }
+ 
+ /*
+@@ -863,6 +849,18 @@ static void handle_debug(struct pt_regs
+ static __always_inline void exc_debug_kernel(struct pt_regs *regs,
+ 					     unsigned long dr6)
+ {
++	/*
++	 * Disable breakpoints during exception handling; recursive exceptions
++	 * are exceedingly 'fun'.
++	 *
++	 * Since this function is NOKPROBE, and that also applies to
++	 * HW_BREAKPOINT_X, we can't hit a breakpoint before this (XXX except a
++	 * HW_BREAKPOINT_W on our stack)
++	 *
++	 * Entry text is excluded for HW_BP_X and cpu_entry_area, which
++	 * includes the entry stack is excluded for everything.
++	 */
++	unsigned long dr7 = local_db_save();
+ 	bool irq_state = idtentry_enter_nmi(regs);
+ 	instrumentation_begin();
+ 
+@@ -883,6 +881,8 @@ static __always_inline void exc_debug_ke
+ 
+ 	instrumentation_end();
+ 	idtentry_exit_nmi(regs, irq_state);
++
++	local_db_restore(dr7);
+ }
+ 
+ static __always_inline void exc_debug_user(struct pt_regs *regs,
+@@ -894,6 +894,15 @@ static __always_inline void exc_debug_us
+ 	 */
+ 	WARN_ON_ONCE(!user_mode(regs));
+ 
++	/*
++	 * NB: We can't easily clear DR7 here because
++	 * idtentry_exit_to_usermode() can invoke ptrace, schedule, access
++	 * user memory, etc.  This means that a recursive #DB is possible.  If
++	 * this happens, that #DB will hit exc_debug_kernel() and clear DR7.
++	 * Since we're not on the IST stack right now, everything will be
++	 * fine.
++	 */
++
+ 	irqentry_enter_from_user_mode(regs);
+ 	instrumentation_begin();
+ 
+@@ -907,36 +916,24 @@ static __always_inline void exc_debug_us
+ /* IST stack entry */
+ DEFINE_IDTENTRY_DEBUG(exc_debug)
+ {
+-	unsigned long dr6, dr7;
+-
+-	debug_enter(&dr6, &dr7);
+-	exc_debug_kernel(regs, dr6);
+-	debug_exit(dr7);
++	exc_debug_kernel(regs, debug_read_clear_dr6());
+ }
+ 
+ /* User entry, runs on regular task stack */
+ DEFINE_IDTENTRY_DEBUG_USER(exc_debug)
+ {
+-	unsigned long dr6, dr7;
+-
+-	debug_enter(&dr6, &dr7);
+-	exc_debug_user(regs, dr6);
+-	debug_exit(dr7);
++	exc_debug_user(regs, debug_read_clear_dr6());
+ }
+ #else
+ /* 32 bit does not have separate entry points. */
+ DEFINE_IDTENTRY_RAW(exc_debug)
+ {
+-	unsigned long dr6, dr7;
+-
+-	debug_enter(&dr6, &dr7);
++	unsigned long dr6 = debug_read_clear_dr6();
+ 
+ 	if (user_mode(regs))
+ 		exc_debug_user(regs, dr6);
+ 	else
+ 		exc_debug_kernel(regs, dr6);
+-
+-	debug_exit(dr7);
+ }
+ #endif
+ 
+
+
