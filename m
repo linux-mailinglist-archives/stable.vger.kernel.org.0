@@ -2,162 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB7D924CB14
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 04:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B49824CB20
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 05:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgHUC7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 22:59:16 -0400
-Received: from mga05.intel.com ([192.55.52.43]:15865 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725852AbgHUC7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 22:59:14 -0400
-IronPort-SDR: fRFhhQgm34nxBgQegBM22Mcwm29cCgLJliPh6V13jrBYFaEhhtTTTUUNJ/y3Sy4xApDZ3Fnyep
- sVfkunuU1VDg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9719"; a="240268650"
-X-IronPort-AV: E=Sophos;i="5.76,335,1592895600"; 
-   d="scan'208";a="240268650"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Aug 2020 19:59:13 -0700
-IronPort-SDR: HsHkPk12FpU091H67hyVGHN+fyXnU1tcswRmp+L1e70WC0Lg2cctbfTvjmT+Ak6sDZ/MBN7emc
- G75NVWkkyjmA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,335,1592895600"; 
-   d="scan'208";a="293693132"
-Received: from yhuang-dev.sh.intel.com (HELO yhuang-dev) ([10.239.159.164])
-  by orsmga003.jf.intel.com with ESMTP; 20 Aug 2020 19:59:09 -0700
-From:   "Huang\, Ying" <ying.huang@intel.com>
-To:     Dave Chinner <david@fromorbit.com>
-Cc:     Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by mistake
-References: <20200820045323.7809-1-hsiangkao@redhat.com>
-        <20200820233446.GB7728@dread.disaster.area>
-        <20200821002145.GA28298@xiangao.remote.csb>
-        <20200821010330.GC7728@dread.disaster.area>
-Date:   Fri, 21 Aug 2020 10:59:08 +0800
-In-Reply-To: <20200821010330.GC7728@dread.disaster.area> (Dave Chinner's
-        message of "Fri, 21 Aug 2020 11:03:30 +1000")
-Message-ID: <87mu2ovh4z.fsf@yhuang-dev.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1726975AbgHUDGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 23:06:52 -0400
+Received: from gateway31.websitewelcome.com ([192.185.143.51]:35722 "EHLO
+        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725852AbgHUDGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 23:06:51 -0400
+X-Greylist: delayed 1424 seconds by postgrey-1.27 at vger.kernel.org; Thu, 20 Aug 2020 23:06:51 EDT
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 7A2CF1C215
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 21:43:05 -0500 (CDT)
+Received: from br540.hostgator.com.br ([108.179.252.180])
+        by cmsmtp with SMTP
+        id 8x1FkW3NHOIGp8x1Fk8bqz; Thu, 20 Aug 2020 21:43:05 -0500
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=mpdesouza.com; s=default; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=mqMipfFxAhFP9IXccuiRfTgI9EhL9JTdB+RkoJtnolI=; b=pRlD8xLCWlfRtNoWKbKm+7SWzN
+        iJdeAd1OKKgY4WWHVAqK4rmS9SUIDjWkp6Uaes41S3M20eXWgL+Pqr1jYtaYzJPo+LUNOLYNSBMVK
+        bBnKQqdrjT1Bld3fFZgKz4yiiJpwAkpYwKfy8f430GKSJNeeqop5USxIjIv8UAQXjeBCajHwtby2b
+        STPO7ClblZIYHrhv5U06XYRVu1xcVe2wTEqlpm+EkuzPd0AztPXa4FdpJBoLRJ77jbmZe+jQrIKs5
+        jt/RcsFHAbAmd8Oao/RFRtZ5IAgW6PXH/+YqrTpcCeKueukU0REzAeOhFbhwgm6EhuEpIg132AWHG
+        SpGwJnxw==;
+Received: from [191.248.104.145] (port=44546 helo=hephaestus.suse.de)
+        by br540.hostgator.com.br with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <marcos@mpdesouza.com>)
+        id 1k8x1E-000UJv-Uo; Thu, 20 Aug 2020 23:43:05 -0300
+From:   Marcos Paulo de Souza <marcos@mpdesouza.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     dsterba@suse.com, wqu@suse.com, linux-btrfs@vger.kernel.org,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] btrfs: block-group: Fix free-space bitmap threshould
+Date:   Thu, 20 Aug 2020 23:42:31 -0300
+Message-Id: <20200821024231.16256-1-marcos@mpdesouza.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - br540.hostgator.com.br
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - mpdesouza.com
+X-BWhitelist: no
+X-Source-IP: 191.248.104.145
+X-Source-L: No
+X-Exim-ID: 1k8x1E-000UJv-Uo
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: (hephaestus.suse.de) [191.248.104.145]:44546
+X-Source-Auth: marcos@mpdesouza.com
+X-Email-Count: 1
+X-Source-Cap: bXBkZXNvNTM7bXBkZXNvNTM7YnI1NDAuaG9zdGdhdG9yLmNvbS5icg==
+X-Local-Domain: yes
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dave Chinner <david@fromorbit.com> writes:
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-> On Fri, Aug 21, 2020 at 08:21:45AM +0800, Gao Xiang wrote:
->> Hi Dave,
->> 
->> On Fri, Aug 21, 2020 at 09:34:46AM +1000, Dave Chinner wrote:
->> > On Thu, Aug 20, 2020 at 12:53:23PM +0800, Gao Xiang wrote:
->> > > SWP_FS is used to make swap_{read,write}page() go through
->> > > the filesystem, and it's only used for swap files over
->> > > NFS. So, !SWP_FS means non NFS for now, it could be either
->> > > file backed or device backed. Something similar goes with
->> > > legacy SWP_FILE.
->> > > 
->> > > So in order to achieve the goal of the original patch,
->> > > SWP_BLKDEV should be used instead.
->> > > 
->> > > FS corruption can be observed with SSD device + XFS +
->> > > fragmented swapfile due to CONFIG_THP_SWAP=y.
->> > > 
->> > > I reproduced the issue with the following details:
->> > > 
->> > > Environment:
->> > > QEMU + upstream kernel + buildroot + NVMe (2 GB)
->> > > 
->> > > Kernel config:
->> > > CONFIG_BLK_DEV_NVME=y
->> > > CONFIG_THP_SWAP=y
->> > 
->> > Ok, so at it's core this is a swap file extent versus THP swap
->> > cluster alignment issue?
->> 
->> I think yes.
->> 
->> > 
->> > > diff --git a/mm/swapfile.c b/mm/swapfile.c
->> > > index 6c26916e95fd..2937daf3ca02 100644
->> > > --- a/mm/swapfile.c
->> > > +++ b/mm/swapfile.c
->> > > @@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
->> > >  			goto nextsi;
->> > >  		}
->> > >  		if (size == SWAPFILE_CLUSTER) {
->> > > -			if (!(si->flags & SWP_FS))
->> > > +			if (si->flags & SWP_BLKDEV)
->> > >  				n_ret = swap_alloc_cluster(si, swp_entries);
->> > >  		} else
->> > >  			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
->> > 
->> > IOWs, if you don't make this change, does the corruption problem go
->> > away if you align swap extents in iomap_swapfile_add_extent() to
->> > (SWAPFILE_CLUSTER * PAGE_SIZE) instead of just PAGE_SIZE?
->> > 
->> > I.e. if the swapfile extents are aligned correctly to huge page swap
->> > cluster size and alignment, does the swap clustering optimisations
->> > for swapping THP pages work correctly? And, if so, is there any
->> > performance benefit we get from enabling proper THP swap clustering
->> > on swapfiles?
->> > 
->> 
->> Yeah, I once think about some similiar thing as well. My thought for now is
->> 
->>  - First, SWAP THP doesn't claim to support such swapfile for now.
->>    And the original author tried to explicitly avoid the whole thing in
->> 
->>    f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
->> 
->>    So such thing would be considered as some new feature and need
->>    more testing at least. But for now I think we just need a quick
->>    fix to fix the commit f0eea189e8e9 to avoid regression and for
->>    backport use.
->
-> Sure, a quick fix is fine for the current issue. I'm asking
-> questions about the design/architecture of how THP_SWAP is supposed
-> to work and whether swapfiles are violating some other undocumented
-> assumption about swapping THP files...
+[BUG]
+After commit 9afc66498a0b ("btrfs: block-group: refactor how we read one
+block group item"), cache->length is being assigned after calling
+btrfs_create_block_group_cache. This causes a problem since
+set_free_space_tree_thresholds is calculate the free-space threshould to
+decide is the free-space tree should convert from extents to bitmaps.
 
-The main requirement for THP_SWAP is that the swap cluster need to be
-mapped to the continuous block device space.
+The current code calls set_free_space_tree_thresholds with cache->length
+being 0, which then makes cache->bitmap_high_thresh being zero. This
+implies the system will always use bitmap instead of extents, which is
+not desired if the block group is not fragmented.
 
-So Yes.  In theory, it's possible to support THP_SWAP for swapfile.  But
-I don't know whether people need it or not.
+This behavior can be seen by a test that expects to repair systems
+with FREE_SPACE_EXTENT and FREE_SPACE_BITMAP, but the current code only
+created FREE_SPACE_BITMAP.
 
-Best Regards,
-Huang, Ying
+[FIX]
+Call set_free_space_tree_thresholds after setting cache->length.
 
->>  - It is hard for users to control swapfile in
->>    SWAPFILE_CLUSTER * PAGE_SIZE extents, especially users'
->>    disk are fragmented or have some on-disk metadata limitation or
->>    something. It's very hard for users to utilize this and arrange
->>    their swapfile physical addr alignment and fragments for now.
->
-> This isn't something users control. The swapfile extent mapping code
-> rounds the swap extents inwards so that the parts of the on-disk
-> extents that are not aligned or cannot hold a full page are
-> omitted from the ranges of the file that can be swapped to.
->
-> i.e. a file that extents aligned to 4kB is fine for a 4KB page size
-> machine, but needs additional alignment to allow swapping to work on
-> a 64kB page size machine. Hence the swap code rounds the file
-> extents inwards to PAGE_SIZE to align them correctly. We really
-> should be doing this for THP page size rather than PAGE_SIZE if
-> THP_SWAP is enabled, regardless of whether swap clustering is
-> enabled or not...
->
-> Cheers,
->
-> Dave.
+Link: https://github.com/kdave/btrfs-progs/issues/251
+Fixes: 9afc66498a0b ("btrfs: block-group: refactor how we read one block group item")
+CC: stable@vger.kernel.org # 5.8+
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+---
+ fs/btrfs/block-group.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 44fdfa2eeb2e..01e8ba1da1d3 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1798,7 +1798,6 @@ static struct btrfs_block_group *btrfs_create_block_group_cache(
+ 
+ 	cache->fs_info = fs_info;
+ 	cache->full_stripe_len = btrfs_full_stripe_len(fs_info, start);
+-	set_free_space_tree_thresholds(cache);
+ 
+ 	cache->discard_index = BTRFS_DISCARD_INDEX_UNUSED;
+ 
+@@ -1908,6 +1907,8 @@ static int read_one_block_group(struct btrfs_fs_info *info,
+ 
+ 	read_block_group_item(cache, path, key);
+ 
++	set_free_space_tree_thresholds(cache);
++
+ 	if (need_clear) {
+ 		/*
+ 		 * When we mount with old space cache, we need to
+@@ -2128,6 +2129,7 @@ int btrfs_make_block_group(struct btrfs_trans_handle *trans, u64 bytes_used,
+ 		return -ENOMEM;
+ 
+ 	cache->length = size;
++	set_free_space_tree_thresholds(cache);
+ 	cache->used = bytes_used;
+ 	cache->flags = type;
+ 	cache->last_byte_to_unpin = (u64)-1;
+-- 
+2.28.0
+
