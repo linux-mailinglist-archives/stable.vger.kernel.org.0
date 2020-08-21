@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B806524DE0F
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380AF24DE12
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgHURZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727986AbgHURZw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Aug 2020 13:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727885AbgHUQPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:13 -0400
+        id S1727887AbgHUQPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E66021741;
-        Fri, 21 Aug 2020 16:15:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93F9822B4D;
+        Fri, 21 Aug 2020 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026513;
-        bh=xTayRYR+0/7bfA/ll1+zs0Ae21gKdBtoCwtMXuu8Mts=;
+        s=default; t=1598026514;
+        bh=NZ1zbKrwo5IZCErTAktS1k3LZeAW/QGyONeoRh3BaGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/n9kgGgquyKu31H0Hh6KCxKrR7Nn62AaJc3gCc+zFldX8A0tHxPbBKIVpblSgxdc
-         pY25Goj0je4oi1fztHVxTYt+zZ3L/kp0CKsfWwra6R//Vl470ff4XLKcnK3MjsMl4i
-         q9xblGX7Nk1+FL6/Op2edEcajle2TmWxla3F45kY=
+        b=pWsxVYvgtfDQCZ1RsgEi6HcWZ5rAMXETEJybafuTsoo0p21+LdEAQVtrD4k87pr5+
+         7gOFdTIasF4miQbpoLl+fACDY8TbCFIYC3+0Pwmk+J2OyjFt7JPQmUZ44tZUCPBatp
+         0QRszFyDNdmt512pCMFBkuAmGXx2AuJW/9izdKag=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 38/62] PCI: Fix pci_create_slot() reference count leak
-Date:   Fri, 21 Aug 2020 12:13:59 -0400
-Message-Id: <20200821161423.347071-38-sashal@kernel.org>
+Cc:     Yangbo Lu <yangbo.lu@nxp.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 39/62] ARM: dts: ls1021a: output PPS signal on FIPER2
+Date:   Fri, 21 Aug 2020 12:14:00 -0400
+Message-Id: <20200821161423.347071-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -42,57 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Yangbo Lu <yangbo.lu@nxp.com>
 
-[ Upstream commit 8a94644b440eef5a7b9c104ac8aa7a7f413e35e5 ]
+[ Upstream commit 5656bb3857c4904d1dec6e1b8f876c1c0337274e ]
 
-kobject_init_and_add() takes a reference even when it fails.  If it returns
-an error, kobject_put() must be called to clean up the memory associated
-with the object.
+The timer fixed interval period pulse generator register
+is used to generate periodic pulses. The down count
+register loads the value programmed in the fixed period
+interval (FIPER). At every tick of the timer accumulator
+overflow, the counter decrements by the value of
+TMR_CTRL[TCLK_PERIOD]. It generates a pulse when the down
+counter value reaches zero. It reloads the down counter
+in the cycle following a pulse.
 
-When kobject_init_and_add() fails, call kobject_put() instead of kfree().
+To use the TMR_FIPER register to generate desired periodic
+pulses. The value should programmed is,
+desired_period - tclk_period
 
-b8eb718348b8 ("net-sysfs: Fix reference count leak in
-rx|netdev_queue_add_kobject") fixed a similar problem.
+Current tmr-fiper2 value is to generate 100us periodic pulses.
+(But the value should have been 99995, not 99990. The tclk_period is 5.)
+This patch is to generate 1 second periodic pulses with value
+999999995 programmed which is more desired by user.
 
-Link: https://lore.kernel.org/r/20200528021322.1984-1-wu000273@umn.edu
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/slot.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/ls1021a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-index cc386ef2fa122..3861505741e6d 100644
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -268,13 +268,16 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
- 	slot_name = make_slot_name(name);
- 	if (!slot_name) {
- 		err = -ENOMEM;
-+		kfree(slot);
- 		goto err;
- 	}
- 
- 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
- 				   "%s", slot_name);
--	if (err)
-+	if (err) {
-+		kobject_put(&slot->kobj);
- 		goto err;
-+	}
- 
- 	INIT_LIST_HEAD(&slot->list);
- 	list_add(&slot->list, &parent->slots);
-@@ -293,7 +296,6 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
- 	mutex_unlock(&pci_slot_mutex);
- 	return slot;
- err:
--	kfree(slot);
- 	slot = ERR_PTR(err);
- 	goto out;
- }
+diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
+index 760a68c163c83..b2ff27af090ec 100644
+--- a/arch/arm/boot/dts/ls1021a.dtsi
++++ b/arch/arm/boot/dts/ls1021a.dtsi
+@@ -772,7 +772,7 @@ ptp_clock@2d10e00 {
+ 			fsl,tmr-prsc    = <2>;
+ 			fsl,tmr-add     = <0xaaaaaaab>;
+ 			fsl,tmr-fiper1  = <999999995>;
+-			fsl,tmr-fiper2  = <99990>;
++			fsl,tmr-fiper2  = <999999995>;
+ 			fsl,max-adj     = <499999999>;
+ 			fsl,extts-fifo;
+ 		};
 -- 
 2.25.1
 
