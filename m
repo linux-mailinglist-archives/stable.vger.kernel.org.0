@@ -2,120 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9876224E092
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 21:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B39824E098
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 21:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726531AbgHUTSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 15:18:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60908 "EHLO
+        id S1726243AbgHUTTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 15:19:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725801AbgHUTSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 15:18:13 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DC2C061573
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:18:12 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id v15so1440733pgh.6
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:18:12 -0700 (PDT)
+        with ESMTP id S1725804AbgHUTS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 15:18:59 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80987C061573
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:18:59 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id x64so498860lff.0
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:18:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=iH/eGhwplhANu5ngguYajhAAOM68U/Ap6x/YYMCKQeM=;
-        b=c9nTXlQNMxlTkjUEBmI7ZJXRVD9/w0VzmwP7XYcrlwJNqIvD9e/4Bg7nhro9mqIRHX
-         W7TkfsuoDy1IphU7AxA4ZmZuKL9yG5AjEURR9d4qU8313miQfcRhOmwz9VC758r41oVz
-         RNirK13ZYv7MZlL30hWsJsl0GdCKhM2nFuYk0=
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DLc84kj5PHVUSiFGEP5mfzNqVCypKwLtWPaDrgaberY=;
+        b=SofWc/w6t4rEsc85RaLfw4+1oCNKhS2jGDmsKj708JnMxQaUL81Q5yOWX5EhAMzU+x
+         Cb3KyXSNMzLbsgJPGamhAP2iMjt3UL8rroxFzqL7p6C5UBNeY6HNa3Jd1zJI2GavW46Q
+         WhVw+1qcn3yzbaRWJ0lfgO2uTu43gklL+LpRw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=iH/eGhwplhANu5ngguYajhAAOM68U/Ap6x/YYMCKQeM=;
-        b=f3XrVOu+5OAaa88m3sX4xS3EpygEw65O6W5+Zg+X3a075Zfgy2u4UXuBdw4O+lSzqQ
-         W59W6poAqy/+rVZ0koexgWw3vBtjc8BOnMmrBnPPvwI1w/3eN3UnMIBYIj9cDrZEVNI+
-         cZKOvHwb6ZeFUICXMGy747Ja6nUF93/kfwfBi6db1ctRkKLCwyhMHzDjue9cfsFAfEFA
-         qkdd18TqmpIbojYT8LqCDHa7z3lpT/8EQfQzqdcOSIvN+VTNEMWun/Z0bGA+ni6eCDUU
-         KBEqWoleNpTpC1w58WNFdJKuCgm39MXoHMW9HUj76BumRSnWVEj00Zm1QqQ0VU+NPcIT
-         PoIg==
-X-Gm-Message-State: AOAM530uinFz5vDDD/wJOts07Im4yzPRemT25+HpKIfJVWXwJY0Ew7Zt
-        X4eFuTRSkHJbg2z2j10//yOi4w==
-X-Google-Smtp-Source: ABdhPJw5LmRHZmwZ/AvZZhq0vdAI/mHYL/NERH3jKS/lDJIqSghu3bjCZwheNmuG7UoQaGfupCNrTw==
-X-Received: by 2002:a05:6a00:22c9:: with SMTP id f9mr3657627pfj.212.1598037492193;
-        Fri, 21 Aug 2020 12:18:12 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id z6sm3413592pfg.68.2020.08.21.12.18.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2020 12:18:11 -0700 (PDT)
-Date:   Fri, 21 Aug 2020 12:18:10 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Arvind Sankar <nivedita@alum.mit.edu>
-Cc:     Andi Kleen <ak@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jian Cai <jiancai@google.com>,
-        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Manoj Gupta <manojgupta@google.com>, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Peter Collingbourne <pcc@google.com>,
-        James Morse <james.morse@arm.com>,
-        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@redhat.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
-        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Michal Marek <michal.lkml@markovi.net>
-Subject: Re: [PATCH v5 13/36] vmlinux.lds.h: add PGO and AutoFDO input
- sections
-Message-ID: <202008211216.3812BBA0C8@keescook>
-References: <20200731230820.1742553-1-keescook@chromium.org>
- <20200731230820.1742553-14-keescook@chromium.org>
- <20200801035128.GB2800311@rani.riverdale.lan>
- <20200803190506.GE1299820@tassilo.jf.intel.com>
- <20200803201525.GA1351390@rani.riverdale.lan>
- <20200804044532.GC1321588@tassilo.jf.intel.com>
- <20200804160649.GA2409491@rani.riverdale.lan>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DLc84kj5PHVUSiFGEP5mfzNqVCypKwLtWPaDrgaberY=;
+        b=ANaorccEt+9fbadBRxuJkhxDiZqDiaoVXNkavI/jsEzCnGHv7lExIUiV/N5mrbA87c
+         IitKBgYYVZgjvW2TlLE7cudTL/D5wOoVo779gYLa6BIK7xXj702ilWac6m5iv3AjdgKv
+         8D2E728LzQgBLrWIrsjONISK0qPabz8YT+y49iBwDxpmgFLSkhNKfxr1oZZi5vsPg1xj
+         EOOQo3U9NEk4YvvqE72A3ldSyw43y9po837rKrhQSqehwrqaDtezW5T5/b8LZvCriRY0
+         hv6+cAJ5hZTt/MzPTqsQrnW0kTZ2gxWkAI8NEx9ASjq4kK95fLBY5Ky9EzA1nzUEgo9R
+         K0gQ==
+X-Gm-Message-State: AOAM533Moa+TZOSDGTQ5X/rId6agoxHk5+KKsfc4Oalp/jrglsl04GCK
+        smNdLjZ3BmlpnvBg1NnbarDqkdFuGenkfg==
+X-Google-Smtp-Source: ABdhPJyr+za7bibgWXjF3d4RCLp9drWwIQU9OOB7DbWy1uyKQQ2OWJPzjYCZ5htY5JIi4wYNvmwD8w==
+X-Received: by 2002:ac2:494c:: with SMTP id o12mr1981578lfi.181.1598037537997;
+        Fri, 21 Aug 2020 12:18:57 -0700 (PDT)
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
+        by smtp.gmail.com with ESMTPSA id d6sm566575ljg.25.2020.08.21.12.18.57
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Aug 2020 12:18:57 -0700 (PDT)
+Received: by mail-lf1-f41.google.com with SMTP id v12so1235363lfo.13
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:18:57 -0700 (PDT)
+X-Received: by 2002:a05:6512:3b7:: with SMTP id v23mr2073008lfp.10.1598037536954;
+ Fri, 21 Aug 2020 12:18:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200804160649.GA2409491@rani.riverdale.lan>
+References: <20200821123746.16904-1-joro@8bytes.org>
+In-Reply-To: <20200821123746.16904-1-joro@8bytes.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 21 Aug 2020 12:18:41 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgNEsVwVMwQdHL4O1tDWQa-HcmOv-EmqLTQH+SoC2CkWA@mail.gmail.com>
+Message-ID: <CAHk-=wgNEsVwVMwQdHL4O1tDWQa-HcmOv-EmqLTQH+SoC2CkWA@mail.gmail.com>
+Subject: Re: [PATCH v2] mm: Track page table modifications in __apply_to_page_range()
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        Pavel Machek <pavel@ucw.cz>, Dave Airlie <airlied@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Vrabel <david.vrabel@citrix.com>,
+        Joerg Roedel <jroedel@suse.de>, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 04, 2020 at 12:06:49PM -0400, Arvind Sankar wrote:
-> On Mon, Aug 03, 2020 at 09:45:32PM -0700, Andi Kleen wrote:
-> > > Why is that? Both .text and .text.hot have alignment of 2^4 (default
-> > > function alignment on x86) by default, so it doesn't seem like it should
-> > > matter for packing density.  Avoiding interspersing cold text among
-> > 
-> > You may lose part of a cache line on each unit boundary. Linux has 
-> > a lot of units, some of them small. All these bytes add up.
-> 
-> Separating out .text.unlikely, which isn't aligned, slightly _reduces_
-> this loss, but not by much -- just over 1K on a defconfig. More
-> importantly, it moves cold code out of line (~320k on a defconfig),
-> giving better code density for the hot code.
-> 
-> For .text and .text.hot, you lose the alignment padding on every
-> function boundary, not unit boundary, because of the 16-byte alignment.
-> Whether .text.hot and .text are arranged by translation unit or not
-> makes no difference.
-> 
-> With *(.text.hot) *(.text) you get HHTT, with *(.text.hot .text) you get
-> HTHT, but in both cases the individual chunks are already aligned to 16
-> bytes. If .text.hot _had_ different alignment requirements to .text, the
-> HHTT should actually give better packing in general, I think.
+On Fri, Aug 21, 2020 at 5:38 AM Joerg Roedel <joro@8bytes.org> wrote:
+>
+> From: Joerg Roedel <jroedel@suse.de>
+>
+> The __apply_to_page_range() function is also used to change and/or
+> allocate page-table pages in the vmalloc area of the address space.
+> Make sure these changes get synchronized to other page-tables in the
+> system by calling arch_sync_kernel_mappings() when necessary.
 
-Okay, so at the end of the conversation, I think it looks like this
-patch is correct: it collects the hot, unlikely, etc into their own
-areas (e.g. HHTTUU is more correct than HTUHTU), so this patch stands
-as-is.
+I get the strong feeling that these functions should be using a
+"struct apply_details *" or something like that (the way the
+zap_page_range() code has that "zap_details" thing).
 
--- 
-Kees Cook
+Because adding more and more arguments gets pretty painful after a
+while. But maybe the compiler inlining it all makes it a non-issue.
+
+It also strikes me that I think the only architecture that uses the
+whole arch_sync_kernel_mappings() thing is now just x86-32.
+
+[ Well, x86-64 still has it, but that's because we undid the 64-bit
+removal, but it's on the verge of going away and x86-64 shouldn't
+actually _need_ it any more ]
+
+So all of this seems to be purely for 32-bit x86. Which kind of makes
+this all fail the smell test.
+
+But the patch does seem to be the minimal fix for a real issue - I'm
+just pointing out ugly details, not actual problems with the patch.
+
+IOW, a somewhat reluctant Ack, hoping that this will be cleaned up
+some day. Possibly/hopefully because arch_sync_kernel_mappings() just
+goes away entirely.
+
+                 Linus
