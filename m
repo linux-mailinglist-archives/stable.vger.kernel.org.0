@@ -2,97 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D840024C8EE
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7505124C917
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbgHUAAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 20:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726803AbgHTX7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 19:59:52 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E061C061350
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 16:51:17 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id u63so103238oie.5
-        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 16:51:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=bWH45KSsjMDtcB36FJCwfAf8uMmznGsZVuQtNo0KJIE=;
-        b=FJhaosUCodFEAJRj3zyKrxXgw2KLeOB71sGFq8MfhnXDSf8Bqgv5tiOEVsVRbdaWtm
-         sBtxKlzlUFEfaXZ2k4E8RqXrG4xu21TF6H5bOjCVZKU08xOy07giksduSxkQ9wNaOoEN
-         g27quDxW1zmdIxE5kcnTuOinwv1GutFAb+Lfs=
+        id S1725885AbgHUAWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 20:22:03 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:24473 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725834AbgHUAWB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 20:22:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597969319;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3aBHsIrR7D1rmQusl3vZJUEll0MhNbsTlUTcbOAur3g=;
+        b=K/iwexCse09iSj0Ii0nnBpPgYOsmb+c14NbJ6D986HBd3hdPFYQ9Xm27cqc9my1OBBE5WZ
+        6Bi1rnoy570BT1fQIIx5lwdA+ZfHrsQykzgWFHniQ79fqMaKEaxyxoOabzffAxWlpJIn4Z
+        NcRwBlHh3b6+bKa7nw1vwzJWFshYHyg=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-466-nymifFrpMRWDyg6fouGL4w-1; Thu, 20 Aug 2020 20:21:58 -0400
+X-MC-Unique: nymifFrpMRWDyg6fouGL4w-1
+Received: by mail-pl1-f198.google.com with SMTP id k1so5075plk.17
+        for <stable@vger.kernel.org>; Thu, 20 Aug 2020 17:21:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=bWH45KSsjMDtcB36FJCwfAf8uMmznGsZVuQtNo0KJIE=;
-        b=nsdvIZWfGIuUGOMdicVb2ViLelBxSK/KVx4/Lra6d/vtbv/euIL1pvKa5wmVLlDRX1
-         UXTaoNFu890sbcyt1XsLPWxgKSlibolEvI2zLgV//YLv5w5oJgfe3YjcdCXyWha8YpuK
-         1VTt9N4twBoBs8otX/xFdmYJI2rTdkbDzLMdt4L9qC3j6Fft1feS45fFgUo8gTPjd6PO
-         56cfUCCSxX95oWZ9a+HTGU0ZrovOMsesOsgQxRYGVcleGl0xNA/p2tbn8mkKJLtChMYu
-         Dtah4y0j42d70t/0sMsHf98+21IZclQbhAsoJ2/45y3gweWaHaWYI/MZOXBvdilKSawJ
-         FIZA==
-X-Gm-Message-State: AOAM532qvrgOaQ/FXL0pTQsyARj5HnTqRwHl3jmJM0L7XyanVxZKi1fN
-        TYrNUI7ZYBwju2sEz6JqFUFw5Q==
-X-Google-Smtp-Source: ABdhPJwGsqbYR42hZnuQpFyt9MFGKV1Ti4RcBLS4mOzHG5sgOkbEdSNJY/JGxUJ0lAVPZLAEyJJSXw==
-X-Received: by 2002:a05:6808:8e5:: with SMTP id d5mr265149oic.64.1597967476593;
-        Thu, 20 Aug 2020 16:51:16 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id o22sm31838ota.49.2020.08.20.16.51.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Aug 2020 16:51:15 -0700 (PDT)
-Subject: Re: [PATCH 4.4 000/149] 4.4.233-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20200820092125.688850368@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <70ff8ddf-810c-6636-2ab8-fd15027f7140@linuxfoundation.org>
-Date:   Thu, 20 Aug 2020 17:51:14 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=3aBHsIrR7D1rmQusl3vZJUEll0MhNbsTlUTcbOAur3g=;
+        b=CunAUr4uax3TsYqSySgkKQxnIbe2LnMZNkawTNCKPxVE4jr+npiA6cY2WqTCn7zbvF
+         WWnC2tuziZWaiWrEuSbOAFLzoCkXcJ9yINT4PyM6URZbc3UK4zOW7UPw5G1a+USPH6Xj
+         642vhofvdTjafuzNFP2zaNshLMopQB/kvlb1tEBnDkToAkAh6oyKLW2evt6vXiyGqTar
+         Hm1IATRuANwhxXuRb5GJasEpAYkCuZOz6NglBRj3oID7GKw9Vt1gED+K44qkbW8IIZON
+         83ZZ1/c+yAOD49T9OBhp9duzOMBwa3OMYsLT70OAaK5A29cREmjDgncsiHR1LdiRx3kK
+         at5Q==
+X-Gm-Message-State: AOAM531rYith3SOAIfuOlwnx692E7Xg36o58ZUwPhieQpL59pONjJNfl
+        RCo9Kp5I7kSaaqUIhDbfrj6mVslPr7P0fHaCr7vFPQNxUplZgejCzC9btnBeYUnmqYtJMEHbt+s
+        gDJEuC+POAUM+kWQA
+X-Received: by 2002:a62:20e:: with SMTP id 14mr305549pfc.207.1597969316732;
+        Thu, 20 Aug 2020 17:21:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwKnJ5d5JB7dEtC9MO6PnJWSvjC7EM//ku1FdHc84FzCEHPg33i7BQaa39t+IuifAAfBOurJg==
+X-Received: by 2002:a62:20e:: with SMTP id 14mr305520pfc.207.1597969316393;
+        Thu, 20 Aug 2020 17:21:56 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id y135sm248586pfg.148.2020.08.20.17.21.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2020 17:21:55 -0700 (PDT)
+Date:   Fri, 21 Aug 2020 08:21:45 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     Dave Chinner <david@fromorbit.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by
+ mistake
+Message-ID: <20200821002145.GA28298@xiangao.remote.csb>
+References: <20200820045323.7809-1-hsiangkao@redhat.com>
+ <20200820233446.GB7728@dread.disaster.area>
 MIME-Version: 1.0
-In-Reply-To: <20200820092125.688850368@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200820233446.GB7728@dread.disaster.area>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/20/20 3:21 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.233 release.
-> There are 149 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 22 Aug 2020 09:21:01 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.233-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
->
+Hi Dave,
 
-Compiled and booted on my test system. No dmesg regressions.
+On Fri, Aug 21, 2020 at 09:34:46AM +1000, Dave Chinner wrote:
+> On Thu, Aug 20, 2020 at 12:53:23PM +0800, Gao Xiang wrote:
+> > SWP_FS is used to make swap_{read,write}page() go through
+> > the filesystem, and it's only used for swap files over
+> > NFS. So, !SWP_FS means non NFS for now, it could be either
+> > file backed or device backed. Something similar goes with
+> > legacy SWP_FILE.
+> > 
+> > So in order to achieve the goal of the original patch,
+> > SWP_BLKDEV should be used instead.
+> > 
+> > FS corruption can be observed with SSD device + XFS +
+> > fragmented swapfile due to CONFIG_THP_SWAP=y.
+> > 
+> > I reproduced the issue with the following details:
+> > 
+> > Environment:
+> > QEMU + upstream kernel + buildroot + NVMe (2 GB)
+> > 
+> > Kernel config:
+> > CONFIG_BLK_DEV_NVME=y
+> > CONFIG_THP_SWAP=y
+> 
+> Ok, so at it's core this is a swap file extent versus THP swap
+> cluster alignment issue?
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+I think yes.
 
-thanks,
--- Shuah
+> 
+> > diff --git a/mm/swapfile.c b/mm/swapfile.c
+> > index 6c26916e95fd..2937daf3ca02 100644
+> > --- a/mm/swapfile.c
+> > +++ b/mm/swapfile.c
+> > @@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
+> >  			goto nextsi;
+> >  		}
+> >  		if (size == SWAPFILE_CLUSTER) {
+> > -			if (!(si->flags & SWP_FS))
+> > +			if (si->flags & SWP_BLKDEV)
+> >  				n_ret = swap_alloc_cluster(si, swp_entries);
+> >  		} else
+> >  			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
+> 
+> IOWs, if you don't make this change, does the corruption problem go
+> away if you align swap extents in iomap_swapfile_add_extent() to
+> (SWAPFILE_CLUSTER * PAGE_SIZE) instead of just PAGE_SIZE?
+> 
+> I.e. if the swapfile extents are aligned correctly to huge page swap
+> cluster size and alignment, does the swap clustering optimisations
+> for swapping THP pages work correctly? And, if so, is there any
+> performance benefit we get from enabling proper THP swap clustering
+> on swapfiles?
+> 
+
+Yeah, I once think about some similiar thing as well. My thought for now is
+
+ - First, SWAP THP doesn't claim to support such swapfile for now.
+   And the original author tried to explicitly avoid the whole thing in
+
+   f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+
+   So such thing would be considered as some new feature and need
+   more testing at least. But for now I think we just need a quick
+   fix to fix the commit f0eea189e8e9 to avoid regression and for
+   backport use.
+
+ - It is hard for users to control swapfile in
+   SWAPFILE_CLUSTER * PAGE_SIZE extents, especially users'
+   disk are fragmented or have some on-disk metadata limitation or
+   something. It's very hard for users to utilize this and arrange
+   their swapfile physical addr alignment and fragments for now.
+
+So my point is, if it's considered in the future (supporting SWAP
+THP swapfile), it needs more carefully consideration and decision
+(e.g. stability, performance, simplicity, etc). For now, it's just
+a exist regression which fixes the original fix, and finish
+the original author claim.
+
+Thanks,
+Gao Xiang
+
+> Cheers,
+> 
+> Dave.
+> -- 
+> Dave Chinner
+> david@fromorbit.com
+> 
 
