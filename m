@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C70224DE33
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8982F24DE3A
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729083AbgHUR1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46556 "EHLO mail.kernel.org"
+        id S1729126AbgHUR1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:27:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727047AbgHUQOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:14:49 -0400
+        id S1727061AbgHUQOs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:14:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B41EA20FC3;
-        Fri, 21 Aug 2020 16:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E503C22B49;
+        Fri, 21 Aug 2020 16:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026487;
-        bh=hFA+ejo3MW88ZO4xFBQQQLDRxo0rFnG78sbE4dwsNds=;
+        s=default; t=1598026488;
+        bh=K7rQBmF2o/HDSQ0ZPX0Bc+/MKqPqW6lr/a49UeaCeTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgJWzexRD3iYaXuZ1LcccMryCrJg+wxQK8WRNJmrdv6lMUcVVtfpsBBf4u0aaw9K8
-         Izx5QeM2NBbiYBc7SabIOK3xXXD59TFRKpMjtdB6jXla9O/1YR2Tfxw7wpyhmW7111
-         phD77EteYRnwR7kxPHpoowQIzC3+ojkcvgKA9RL8=
+        b=cqzEhMbTLZGQJvOkDu6lMpPq+qpJjNp5pGwMqMmi0xuvg/SSeAmKqFerWzZfN9HhJ
+         +vxnTHkiEh41sOqHVXOsUFcduTu9jmBSzd3YTKIsIyHaQsVEXjTkUfsGBM6xYGQTGF
+         kyfogkP04K9rUSho6RSVu+8LZ6LV1dIxn2nuPyQ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Prakash Gupta <guptap@codeaurora.org>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.8 19/62] iommu/iova: Don't BUG on invalid PFNs
-Date:   Fri, 21 Aug 2020 12:13:40 -0400
-Message-Id: <20200821161423.347071-19-sashal@kernel.org>
+Cc:     Gwendal Grignou <gwendal@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 20/62] platform/chrome: cros_ec_sensorhub: Fix EC timestamp overflow
+Date:   Fri, 21 Aug 2020 12:13:41 -0400
+Message-Id: <20200821161423.347071-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,48 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-[ Upstream commit d3e3d2be688b4b5864538de61e750721a311e4fc ]
+[ Upstream commit e48bc01ed5adec203676c735365373b31c3c7600 ]
 
-Unlike the other instances which represent a complete loss of
-consistency within the rcache mechanism itself, or a fundamental
-and obvious misconfiguration by an IOMMU driver, the BUG_ON() in
-iova_magazine_free_pfns() can be provoked at more or less any time
-in a "spooky action-at-a-distance" manner by any old device driver
-passing nonsense to dma_unmap_*() which then propagates through to
-queue_iova().
+EC is using 32 bit timestamps (us), and before converting it to 64bit
+they were not casted, so it would overflow every 4s.
+Regular overflow every ~70 minutes was not taken into account either.
 
-Not only is this well outside the IOVA layer's control, it's also
-nowhere near fatal enough to justify panicking anyway - all that
-really achieves is to make debugging the offending driver more
-difficult. Let's simply WARN and otherwise ignore bogus PFNs.
-
-Reported-by: Prakash Gupta <guptap@codeaurora.org>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Prakash Gupta <guptap@codeaurora.org>
-Link: https://lore.kernel.org/r/acbd2d092b42738a03a21b417ce64e27f8c91c86.1591103298.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iova.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/chrome/cros_ec_sensorhub_ring.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index 49fc01f2a28d4..45a251da54537 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -811,7 +811,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag, struct iova_domain *iovad)
- 	for (i = 0 ; i < mag->size; ++i) {
- 		struct iova *iova = private_find_iova(iovad, mag->pfns[i]);
- 
--		BUG_ON(!iova);
-+		if (WARN_ON(!iova))
-+			continue;
-+
- 		private_free_iova(iovad, iova);
- 	}
- 
+diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+index 24e48d96ed766..b1c641c72f515 100644
+--- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
++++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+@@ -419,9 +419,7 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 			 * Disable filtering since we might add more jitter
+ 			 * if b is in a random point in time.
+ 			 */
+-			new_timestamp = fifo_timestamp -
+-					fifo_info->timestamp  * 1000 +
+-					in->timestamp * 1000;
++			new_timestamp = c - b * 1000 + a * 1000;
+ 			/*
+ 			 * The timestamp can be stale if we had to use the fifo
+ 			 * info timestamp.
 -- 
 2.25.1
 
