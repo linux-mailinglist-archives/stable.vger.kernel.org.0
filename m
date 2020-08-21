@@ -2,113 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F052F24CF96
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 09:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F20724CFE5
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 09:49:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgHUHka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 03:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728138AbgHUHkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 03:40:09 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959B2C06138B
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 00:40:08 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id y8so377261vsq.8
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 00:40:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bAU9iZW9yGALOB30mTlHDeoRf5CRh/Snlg+xCwRu8JU=;
-        b=kOxOuxMxSQ+ksSLjKg3Ni5aIYiY5w0RxKooi0DNSCKve7b14PccYxmywLlnGxld6mc
-         WqavXtK7TC9i0AqdD3XPTGzIoa5x8gqELOCV/+vAlvOIAyKSZztrQsMbO4Rg2Sd1UFPg
-         SiEMKltZUmr8lz2zr42CVDG7YdRtLuErHINARiW/rqVexyezip3RnwlVXtlEpgakssZH
-         NiFgJ9BjbUnADlw9BpI2N/RodkTY07zEH8wagrgldLZZX2bBReCzCGOX1V/M9Lb+z/Vk
-         +T51a1HYvojPzfuH4UOvwvYnJe1ukLKul84xO8Z6/4GZPuwyMPAeamxXv+di9soZ/b3m
-         KOmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bAU9iZW9yGALOB30mTlHDeoRf5CRh/Snlg+xCwRu8JU=;
-        b=BRyw2pjV+JE8Q45Y9aRAJ/VlX5VkyU/B/xv0ndsswumcM1lug9kR7kMq4ndZdBgKvx
-         /qDgLDP9cAU+dEWu49IN0wVfM1aDy6+L3DPHisLg5rG6iUYA8mBgSCyG2s7/7HVLHgKR
-         62LEBvtniUeEx+jxO2CBtfCaiLyZ/D3v9Go07ql1cfTWxWo1MKe+Ubph5J5N6snuHHbA
-         iBsHFsmdOq14k2iNol7kmb1i9tWk8XO1iVkaddL+oiiL4ACYbYbC3Cr9eDWPZmh19bRu
-         NjDeCJNRRIW9jBWVvr/ZanvxlsAzzWpzyDQeBoFrSsMRPWQr85S6JO4OYCT7xW5HdWIp
-         uDew==
-X-Gm-Message-State: AOAM533JdWu9pu2vfrKIw5YbPVayWgJk3bgPn2XzwnLiHxn1VQsN6Hrl
-        MfzQyYqNIziskzpmrhivsuO+qwn8bjGmb1bNNpgypw==
-X-Google-Smtp-Source: ABdhPJwcZWnwUZBTqM0sxN5IRp11B+ol/YTZpoa5qsJpj61ysTHH9tG19j4VKQcti7QxF7eU+rcXtzQeNyrlpU0p/zI=
-X-Received: by 2002:a67:e9d8:: with SMTP id q24mr887206vso.165.1597995607373;
- Fri, 21 Aug 2020 00:40:07 -0700 (PDT)
-MIME-Version: 1.0
-References: <1596673949-1571-1-git-send-email-skomatineni@nvidia.com>
-In-Reply-To: <1596673949-1571-1-git-send-email-skomatineni@nvidia.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Fri, 21 Aug 2020 09:39:31 +0200
-Message-ID: <CAPDyKFre3Rpfd-XW=kMzuKJAfUcr4v-vEj9KVkPyAvkbTdRuGg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/6] Fix timeout clock used by hardware data timeout
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-tegra <linux-tegra@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
+        id S1728147AbgHUHtA convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 21 Aug 2020 03:49:00 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:52045 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726806AbgHUHs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 03:48:59 -0400
+Received: from [2001:67c:670:100:3ad5:47ff:feaf:1a17] (helo=lupine)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1k91nD-000287-Le; Fri, 21 Aug 2020 09:48:55 +0200
+Received: from pza by lupine with local (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1k91nC-0006r7-JA; Fri, 21 Aug 2020 09:48:54 +0200
+Message-ID: <ce211ce5b10024aec1ff03e4a2abe1b46a71e8ff.camel@pengutronix.de>
+Subject: Re: [PATCH 4.9 196/212] gpu: ipu-v3: image-convert: Combine
+ rotate/no-rotate irq handlers
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Date:   Fri, 21 Aug 2020 09:48:54 +0200
+In-Reply-To: <20200821073440.GB1681156@kroah.com>
+References: <20200820091602.251285210@linuxfoundation.org>
+         <20200820091612.258939813@linuxfoundation.org> <20200821070216.GB23823@amd>
+         <e586d38120241447df58818c1f9e3c04e5068972.camel@pengutronix.de>
+         <20200821073440.GB1681156@kroah.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.30.5-1.1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Aug 2020 at 02:32, Sowjanya Komatineni <skomatineni@nvidia.com> wrote:
->
-> Tegra210/Tegra186/Tegra194 has incorrectly enabled
-> SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK from the beginning of their support.
->
-> Tegra210 and later SDMMC hardware default uses sdmmc_legacy_tm (TMCLK)
-> all the time for hardware data timeout instead of SDCLK and this TMCLK
-> need to be kept enabled by Tegra sdmmc driver.
->
-> This series includes patches to fix this for Tegra210/Tegra186/Tegra194.
->
-> These patches need to be manually backported for 4.9, 4.14 and 4.19.
->
-> Will send patches to backport separately once these patches are ack'd.
->
-> Delta between patch versions:
-> [v3]:   Same as v2 with fixes tag
->
-> [v2]:   Includes minor fix
->         - Patch-0006: parentheses around operand of '!'
->
-> Sowjanya Komatineni (6):
->   sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra210
->   sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra186
->   arm64: tegra: Add missing timeout clock to Tegra210 SDMMC
->   arm64: tegra: Add missing timeout clock to Tegra186 SDMMC nodes
->   arm64: tegra: Add missing timeout clock to Tegra194 SDMMC nodes
->   sdhci: tegra: Add missing TMCLK for data timeout
->
->  arch/arm64/boot/dts/nvidia/tegra186.dtsi | 20 +++++++++------
->  arch/arm64/boot/dts/nvidia/tegra194.dtsi | 15 ++++++-----
->  arch/arm64/boot/dts/nvidia/tegra210.dtsi | 20 +++++++++------
->  drivers/mmc/host/sdhci-tegra.c           | 43 ++++++++++++++++++++++++++++++--
->  4 files changed, 74 insertions(+), 24 deletions(-)
->
-> --
-> 2.7.4
->
+On Fri, 2020-08-21 at 09:34 +0200, Greg Kroah-Hartman wrote:
+> On Fri, Aug 21, 2020 at 09:10:30AM +0200, Philipp Zabel wrote:
+> > Hi,
+> > 
+> > On Fri, 2020-08-21 at 09:02 +0200, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > From: Steve Longerbeam <slongerbeam@gmail.com>
+> > > > 
+> > > > [ Upstream commit 0f6245f42ce9b7e4d20f2cda8d5f12b55a44d7d1 ]
+> > > > 
+> > > > Combine the rotate_irq() and norotate_irq() handlers into a single
+> > > > eof_irq() handler.
+> > > 
+> > > AFAICT this is preparation for next patch, not a backfix. And actual
+> > > fix patch is not there for 4.19, so this can be dropped, too.
+                                ^^^^^^ 4.9
+> > 
+> > You are right, this patch is preparation for commit 0f6245f42ce9 ("gpu:
+> > ipu-v3: image-convert: Wait for all EOFs before completing a tile").
+> 
+> Which is included in this patch series...
 
-This looks good to me.
+It didn't hit my inbox for the v4.9 series, I can't see it on lore
+either:
 
-If it helps, I can also pick the arm64 patches for my fixes branch,
-but I need an ack from Thierry/Jon to do that.
+https://lore.kernel.org/stable/20200820091602.251285210@linuxfoundation.org/
 
-Kind regards
-Uffe
+regards
+Philipp
