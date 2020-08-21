@@ -2,116 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EACD924D951
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C079624D988
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:14:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726883AbgHUQD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
+        id S1727001AbgHUQOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:14:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726867AbgHUQD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:03:27 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726976AbgHUQO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:14:26 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925FE207BB;
-        Fri, 21 Aug 2020 16:03:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52F5120855;
+        Fri, 21 Aug 2020 16:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598025802;
-        bh=s7k7WVoMuW3YOq62B9s+ZiSRUJCQ9bWnTQTRHx+L47U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rUqMkCwqrjDQLVFDCML+UPPcErgSGgrMWu/c98cem9NQGN6T+mOGaXb0ioOHagXdG
-         5y0iD5+V2N72brnN7NCXB43WQZhiDtmc9Me9xJT3z6dHpaKZXFDH8Y0r3F3qw/daXe
-         xtT46gOoAtOT09c9Q1JHr9geLPFmMtNd8KKu0lt0=
-Date:   Fri, 21 Aug 2020 17:03:16 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
-        <kvmarm@lists.cs.columbia.edu>
-Subject: Re: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence
- following an ERET instruction
-Message-ID: <20200821160316.GE21517@willie-the-truck>
-References: <20200709195034.15185-1-f.fainelli@gmail.com>
- <20200720130411.GB494210@kroah.com>
- <df1de420-ac59-3647-3b81-a0c163783225@gmail.com>
- <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
- <20200807131429.GB664450@kroah.com>
+        s=default; t=1598026466;
+        bh=bpqFFIuJIaqnBbKwzmWCfJM+VGZuHc3Yu7TUhucPvko=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hET2W7+L+AyCGbfHrGxcLq9cfB3lH/scu7BOfsVK+iAzwOXu6TnIIthd18n5NeeGT
+         1qSlXR86jltCXky4HHoHmHTXIVo+ajXFCKrSX+NunP1QzPf8XRIvTPAvFo4IQ+MZgi
+         HTzPLNVG5Rz90eOFjsOQUIY2NATqnY5HAehjAoz8=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.8 01/62] ALSA: hda/hdmi: Add quirk to force connectivity
+Date:   Fri, 21 Aug 2020 12:13:22 -0400
+Message-Id: <20200821161423.347071-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200807131429.GB664450@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 07, 2020 at 03:14:29PM +0200, Greg KH wrote:
-> On Thu, Aug 06, 2020 at 01:00:54PM -0700, Florian Fainelli wrote:
-> > 
-> > 
-> > On 7/20/2020 11:26 AM, Florian Fainelli wrote:
-> > > On 7/20/20 6:04 AM, Greg KH wrote:
-> > >> On Thu, Jul 09, 2020 at 12:50:23PM -0700, Florian Fainelli wrote:
-> > >>> From: Will Deacon <will.deacon@arm.com>
-> > >>>
-> > >>> commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
-> > >>>
-> > >>> Some CPUs can speculate past an ERET instruction and potentially perform
-> > >>> speculative accesses to memory before processing the exception return.
-> > >>> Since the register state is often controlled by a lower privilege level
-> > >>> at the point of an ERET, this could potentially be used as part of a
-> > >>> side-channel attack.
-> > >>>
-> > >>> This patch emits an SB sequence after each ERET so that speculation is
-> > >>> held up on exception return.
-> > >>>
-> > >>> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> > >>> [florian: Adjust hyp-entry.S to account for the label
-> > >>>  added change to hyp/entry.S]
-> > >>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> > >>> ---
-> > >>> Changes in v2:
-> > >>>
-> > >>> - added missing hunk in hyp/entry.S per Will's feedback
-> > >>
-> > >> What about 4.19.y and 4.14.y trees?  I can't take something for 4.9.y
-> > >> and then have a regression if someone moves to a newer release, right?
-> > > 
-> > > Sure, send you candidates for 4.14 and 4.19.
-> > 
-> > Greg, did you have a chance to queue those changes for 4.9, 4.14 and 4.19?
-> > 
-> > https://lore.kernel.org/linux-arm-kernel/20200720182538.13304-1-f.fainelli@gmail.com/
-> > https://lore.kernel.org/linux-arm-kernel/20200720182937.14099-1-f.fainelli@gmail.com/
-> > https://lore.kernel.org/linux-arm-kernel/20200709195034.15185-1-f.fainelli@gmail.com/
-> 
-> Nope, I was waiting for Will's "ack" for these.
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-This patch doesn't even build for me (the 'sb' macro is not defined in 4.9),
-and I really wonder why we bother backporting it at all. Nobody's ever shown
-it to be a problem in practice, and it's clear that this is just being
-submitted to tick a box rather than anything else (otherwise it would build,
-right?).
+[ Upstream commit cd72c317a0a11f64225b9a3f1fe503bb8c7327b5 ]
 
-So I'm not going to Ack any of them. As with a lot of this side-channel
-stuff the cure is far worse than the disease.
+HDMI on some platforms doesn't enable audio support because its Port
+Connectivity [31:30] is set to AC_JACK_PORT_NONE:
+Node 0x05 [Pin Complex] wcaps 0x40778d: 8-Channels Digital Amp-Out CP
+  Amp-Out caps: ofs=0x00, nsteps=0x00, stepsize=0x00, mute=1
+  Amp-Out vals:  [0x00 0x00]
+  Pincap 0x0b000094: OUT Detect HBR HDMI DP
+  Pin Default 0x58560010: [N/A] Digital Out at Int HDMI
+    Conn = Digital, Color = Unknown
+    DefAssociation = 0x1, Sequence = 0x0
+  Pin-ctls: 0x40: OUT
+  Unsolicited: tag=00, enabled=0
+  Power states:  D0 D3 EPSS
+  Power: setting=D0, actual=D0
+  Devices: 0
+  Connection: 3
+     0x02 0x03* 0x04
 
-Will
+For now, use a quirk to force connectivity based on SSID. If there are
+more platforms affected by the same issue, we can eye for a more generic
+solution.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200804155836.16252-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/pci/hda/patch_hdmi.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index cd46247988e4d..b62cd3abb8273 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -160,6 +160,7 @@ struct hdmi_spec {
+ 
+ 	bool use_acomp_notifier; /* use eld_notify callback for hotplug */
+ 	bool acomp_registered; /* audio component registered in this driver */
++	bool force_connect; /* force connectivity */
+ 	struct drm_audio_component_audio_ops drm_audio_ops;
+ 	int (*port2pin)(struct hda_codec *, int); /* reverse port/pin mapping */
+ 
+@@ -1701,7 +1702,8 @@ static int hdmi_add_pin(struct hda_codec *codec, hda_nid_t pin_nid)
+ 	 * all device entries on the same pin
+ 	 */
+ 	config = snd_hda_codec_get_pincfg(codec, pin_nid);
+-	if (get_defcfg_connect(config) == AC_JACK_PORT_NONE)
++	if (get_defcfg_connect(config) == AC_JACK_PORT_NONE &&
++	    !spec->force_connect)
+ 		return 0;
+ 
+ 	/*
+@@ -1803,11 +1805,18 @@ static int hdmi_add_cvt(struct hda_codec *codec, hda_nid_t cvt_nid)
+ 	return 0;
+ }
+ 
++static const struct snd_pci_quirk force_connect_list[] = {
++	SND_PCI_QUIRK(0x103c, 0x871a, "HP", 1),
++	{}
++};
++
+ static int hdmi_parse_codec(struct hda_codec *codec)
+ {
++	struct hdmi_spec *spec = codec->spec;
+ 	hda_nid_t start_nid;
+ 	unsigned int caps;
+ 	int i, nodes;
++	const struct snd_pci_quirk *q;
+ 
+ 	nodes = snd_hda_get_sub_nodes(codec, codec->core.afg, &start_nid);
+ 	if (!start_nid || nodes < 0) {
+@@ -1815,6 +1824,11 @@ static int hdmi_parse_codec(struct hda_codec *codec)
+ 		return -EINVAL;
+ 	}
+ 
++	q = snd_pci_quirk_lookup(codec->bus->pci, force_connect_list);
++
++	if (q && q->value)
++		spec->force_connect = true;
++
+ 	/*
+ 	 * hdmi_add_pin() assumes total amount of converters to
+ 	 * be known, so first discover all converters
+-- 
+2.25.1
+
