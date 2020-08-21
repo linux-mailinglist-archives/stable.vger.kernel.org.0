@@ -2,87 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAF324E220
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 22:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0F224E227
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 22:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbgHUUeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 16:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42452 "EHLO mail.kernel.org"
+        id S1725948AbgHUUfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 16:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725831AbgHUUeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 16:34:23 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1725938AbgHUUft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 16:35:49 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6E8720724;
-        Fri, 21 Aug 2020 20:34:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1298420724;
+        Fri, 21 Aug 2020 20:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598042063;
-        bh=jVmjVOTyttMGsCdhDF71uRaysTPYuV3BR9/r/IXdypY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d4yPjzxXUhE3ZopSszNnSMNTK0B+xJ3arVVqyAf8/jWaAFU774bd2WYi7AkhYCtAP
-         AfAQFZ5ZoK14w9mQFKnSJgJpEcTGRaSiPnskHRFY6x/xakc9833MPOSilfy7X8oqO9
-         7t657fq8PpCdTvhvpAEOLwQ5GgzFp56kuo/QnKvg=
-Date:   Fri, 21 Aug 2020 16:34:21 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Gal Pressman <galpress@amazon.com>,
-        Shadi Ammouri <sammouri@amazon.com>,
-        Yossi Leybovich <sleybo@amazon.com>, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.8 55/62] RDMA/efa: Add EFA 0xefa1 PCI ID
-Message-ID: <20200821203421.GD8670@sasha-vm>
-References: <20200821161423.347071-1-sashal@kernel.org>
- <20200821161423.347071-55-sashal@kernel.org>
- <20200821194036.GB2811093@nvidia.com>
- <20200821195322.GC8670@sasha-vm>
- <20200821201952.GB2811871@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200821201952.GB2811871@nvidia.com>
+        s=default; t=1598042149;
+        bh=iPJvCED2WCBB6L3Yu9e5XQUakMAYNcGoa6MXkWUrumA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=dbaA4CUK3S7ylOEHuTbLGNOwHFvx8fACqtTK81nq1Pfs6mklJI2pVOyllUZIBwgkA
+         2gP2mGv6TFJUrJrpJs3Y5YUwJe4jzcPSu8xJJ7m7w/1L+3XPF6jJI66onZTm3lhCCT
+         10TD6KyGhdLdFgTyXgMiVJZigkVH74U4HKn1XHl4=
+Date:   Fri, 21 Aug 2020 13:35:48 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org, Pavel Machek <pavel@ucw.cz>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Dave Airlie <airlied@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Vrabel <david.vrabel@citrix.com>,
+        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm: Track page table modifications in
+ __apply_to_page_range()
+Message-Id: <20200821133548.be58a3b0881b41a32759fa04@linux-foundation.org>
+In-Reply-To: <20200821123746.16904-1-joro@8bytes.org>
+References: <20200821123746.16904-1-joro@8bytes.org>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 05:19:52PM -0300, Jason Gunthorpe wrote:
->On Fri, Aug 21, 2020 at 03:53:22PM -0400, Sasha Levin wrote:
->> On Fri, Aug 21, 2020 at 04:40:36PM -0300, Jason Gunthorpe wrote:
->> > On Fri, Aug 21, 2020 at 12:14:16PM -0400, Sasha Levin wrote:
->> > > From: Gal Pressman <galpress@amazon.com>
->> > >
->> > > [ Upstream commit d4f9cb5c5b224dca3ff752c1bb854250bf114944 ]
->> > >
->> > > Add support for 0xefa1 devices.
->> > >
->> > > Link: https://lore.kernel.org/r/20200722140312.3651-5-galpress@amazon.com
->> > > Reviewed-by: Shadi Ammouri <sammouri@amazon.com>
->> > > Reviewed-by: Yossi Leybovich <sleybo@amazon.com>
->> > > Signed-off-by: Gal Pressman <galpress@amazon.com>
->> > > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
->> > >  drivers/infiniband/hw/efa/efa_main.c | 6 ++++--
->> > >  1 file changed, 4 insertions(+), 2 deletions(-)
->> >
->> > Wait, what? Why is this being autosel'd?
->>
->> Stable trees try to pick up device enablement patches (such as patches
->> that add PCI IDs). I suppose that AUTOSEL get pretty eager to grab
->> those.
->
->Is it so common that old drivers will work with new HW with just a
->PCI_ID update?
->
->I would have guessed that is the minority situation
+On Fri, 21 Aug 2020 14:37:46 +0200 Joerg Roedel <joro@8bytes.org> wrote:
 
-So keep in mind that a lot of it is not brand new HW, but rather same
-HW repackaged by a different vendor, or HW that received minor tweaks
-but where the old driver still works.
+> The __apply_to_page_range() function is also used to change and/or
+> allocate page-table pages in the vmalloc area of the address space.
+> Make sure these changes get synchronized to other page-tables in the
+> system by calling arch_sync_kernel_mappings() when necessary.
 
-I suppose it's more common in the USB ID world these days, so I guess
-I'll give PCI IDs a closer look next time.
+There's no description here of the user-visible effects of the bug. 
+Please always provide this, especially when proposing a -stable
+backport.  Take pity upon all the downstream kernel maintainers who are
+staring at this wondering whether they should risk adding it to their
+kernels.
 
--- 
-Thanks,
-Sasha
+
