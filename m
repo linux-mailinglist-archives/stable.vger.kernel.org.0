@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DAD24DE0E
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C29F624DE0D
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729190AbgHURZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729049AbgHURZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Aug 2020 13:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47910 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727892AbgHUQPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:21 -0400
+        id S1726749AbgHUQPW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7347522B40;
-        Fri, 21 Aug 2020 16:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADBE622B43;
+        Fri, 21 Aug 2020 16:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026519;
-        bh=RirBJnGWSx+8SfHSLXWiXEKeGrvmh1KYf16yHJ8Ti0g=;
+        s=default; t=1598026520;
+        bh=Oq7KjuIEGAsnarIYTg82Iav+HRMBExE8AuCjNT05MZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywQ7HHt3Dm0WNTKlGHDwBVODV2IdaQ5sWE4y5wbrHhPsX05S+L6/6e+3UNaNXxXjC
-         XSodAHXxVu6wQz00O+BjXlUi/tV77bDG/NPYnVXVUHgW0heqqOLJQWXlVcDe4+7FZY
-         zRhdvTPFJlhUYcHvfgtmEZdFyzrB35TyTBlYW8EM=
+        b=rVSHuL6Kjgpv+y5tN7wmfq052r5B/ql3ZOXlYpr9w08m7JBAPWcTnPvDLfLQ6wKWH
+         SJKa8fyhoWW9cuTYhMs9fgjUrbRvQN5Oat3LBh+vr8n562eQ8FDgNZ1zxF0n4OYhxm
+         8zNEtnGDy/ohogCnJjAhGAkldyDP6ldAA7RqY0ko=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 43/62] gpu: host1x: Put gather's BO on pinning error
-Date:   Fri, 21 Aug 2020 12:14:04 -0400
-Message-Id: <20200821161423.347071-43-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 44/62] cec-api: prevent leaking memory through hole in structure
+Date:   Fri, 21 Aug 2020 12:14:05 -0400
+Message-Id: <20200821161423.347071-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -44,93 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit fd323e9ef0a19112c0c85b85afc4848c0518174b ]
+[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
 
-This patch fixes gather's BO refcounting on a pinning error. Gather's BO
-won't be leaked now if something goes wrong.
+Fix this smatch warning:
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
+'features')
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/job.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/media/cec/core/cec-api.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/host1x/job.c b/drivers/gpu/host1x/job.c
-index a10643aa89aa5..2ac5a99406d98 100644
---- a/drivers/gpu/host1x/job.c
-+++ b/drivers/gpu/host1x/job.c
-@@ -102,6 +102,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- {
- 	struct host1x_client *client = job->client;
- 	struct device *dev = client->dev;
-+	struct host1x_job_gather *g;
- 	struct iommu_domain *domain;
- 	unsigned int i;
- 	int err;
-@@ -184,7 +185,6 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 	}
+diff --git a/drivers/media/cec/core/cec-api.c b/drivers/media/cec/core/cec-api.c
+index 17d1cb2e5f976..f922a2196b2b7 100644
+--- a/drivers/media/cec/core/cec-api.c
++++ b/drivers/media/cec/core/cec-api.c
+@@ -147,7 +147,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
+ 	struct cec_log_addrs log_addrs;
  
- 	for (i = 0; i < job->num_gathers; i++) {
--		struct host1x_job_gather *g = &job->gathers[i];
- 		size_t gather_size = 0;
- 		struct scatterlist *sg;
- 		struct sg_table *sgt;
-@@ -194,6 +194,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 		dma_addr_t *phys;
- 		unsigned int j;
- 
-+		g = &job->gathers[i];
- 		g->bo = host1x_bo_get(g->bo);
- 		if (!g->bo) {
- 			err = -EINVAL;
-@@ -213,7 +214,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 		sgt = host1x_bo_pin(host->dev, g->bo, phys);
- 		if (IS_ERR(sgt)) {
- 			err = PTR_ERR(sgt);
--			goto unpin;
-+			goto put;
- 		}
- 
- 		if (!IS_ENABLED(CONFIG_TEGRA_HOST1X_FIREWALL) && host->domain) {
-@@ -226,7 +227,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 					   host->iova_end >> shift, true);
- 			if (!alloc) {
- 				err = -ENOMEM;
--				goto unpin;
-+				goto put;
- 			}
- 
- 			err = iommu_map_sg(host->domain,
-@@ -235,7 +236,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 			if (err == 0) {
- 				__free_iova(&host->iova, alloc);
- 				err = -EINVAL;
--				goto unpin;
-+				goto put;
- 			}
- 
- 			job->unpins[job->num_unpins].size = gather_size;
-@@ -245,7 +246,7 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 					 DMA_TO_DEVICE);
- 			if (!err) {
- 				err = -ENOMEM;
--				goto unpin;
-+				goto put;
- 			}
- 
- 			job->unpins[job->num_unpins].dir = DMA_TO_DEVICE;
-@@ -263,6 +264,8 @@ static unsigned int pin_job(struct host1x *host, struct host1x_job *job)
- 
- 	return 0;
- 
-+put:
-+	host1x_bo_put(g->bo);
- unpin:
- 	host1x_job_unpin(job);
- 	return err;
+ 	mutex_lock(&adap->lock);
+-	log_addrs = adap->log_addrs;
++	/*
++	 * We use memcpy here instead of assignment since there is a
++	 * hole at the end of struct cec_log_addrs that an assignment
++	 * might ignore. So when we do copy_to_user() we could leak
++	 * one byte of memory.
++	 */
++	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
+ 	if (!adap->is_configured)
+ 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
+ 		       sizeof(log_addrs.log_addr));
 -- 
 2.25.1
 
