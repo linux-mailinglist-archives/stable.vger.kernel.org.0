@@ -2,122 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F8724C953
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8374624C94C
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbgHUAnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 20:43:50 -0400
-Received: from mga17.intel.com ([192.55.52.151]:13401 "EHLO mga17.intel.com"
+        id S1727016AbgHUAmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 20:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726347AbgHUAnu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Aug 2020 20:43:50 -0400
-IronPort-SDR: l+Krjx3gmGtJiaxkYnhcPXnpXlHBjwSL09kTcKT2EdWcGI3xx/Jb2ZHhMLIdPwj5nl2BACj5kh
- 9Y2x3ATlvYHg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9719"; a="135493947"
-X-IronPort-AV: E=Sophos;i="5.76,335,1592895600"; 
-   d="scan'208";a="135493947"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Aug 2020 17:43:49 -0700
-IronPort-SDR: FTiIDdAQKsD8qKcl2BYlQooZIX2YO/UqdWEEXsHMIDutfU7Y41+Gch3BzFZ/SVmQv4FfIoK9PY
- 5DZ+ASAiTz3A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,335,1592895600"; 
-   d="scan'208";a="321082648"
-Received: from otc-nc-03.jf.intel.com ([10.54.39.36])
-  by fmsmga004.fm.intel.com with ESMTP; 20 Aug 2020 17:43:49 -0700
-From:   Ashok Raj <ashok.raj@intel.com>
-To:     linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Cc:     Ashok Raj <ashok.raj@intel.com>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
-        Evan Green <evgreen@chromium.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
-Subject: [PATCH v2] x86/hotplug: Silence APIC only after all irq's are migrated
-Date:   Thu, 20 Aug 2020 17:42:03 -0700
-Message-Id: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1726938AbgHUAmG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 20:42:06 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA70207BB;
+        Fri, 21 Aug 2020 00:42:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597970526;
+        bh=VNwKEvb37hsvn1VTMYx2hDqpxy7g2QUUmUb4/3hoNVA=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=U0cwWhjxeL5oYwkOro+OZgJixZmkY5yldxoffTCTmZ8vuyDqJgZPpW/Y2RLTq7IqX
+         iel6GQ4PDd/BhBnHzBGaF8DhtJ0N1vHUxc4cm4AApCOmxqcXFighHnkrTEWPXWUq2G
+         XZ6neg0SBLMLkTLc7VQhRtOYZk/QZD0+uDpraFdY=
+Date:   Thu, 20 Aug 2020 17:42:05 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
+        harish@linux.ibm.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 04/11] mm/vunmap: add cond_resched() in
+ vunmap_pmd_range
+Message-ID: <20200821004205.P4PRreiY4%akpm@linux-foundation.org>
+In-Reply-To: <20200820174132.67fd4a7a9359048f807a533b@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When offlining CPUs, fixup_irqs() migrates all interrupts away from the
-outgoing CPU to an online CPU. It's always possible the device sent an
-interrupt to the previous CPU destination. Pending interrupt bit in IRR in
-LAPIC identifies such interrupts. apic_soft_disable() will not capture any
-new interrupts in IRR. This causes interrupts from device to be lost during
-CPU offline. The issue was found when explicitly setting MSI affinity to a
-CPU and immediately offlining it. It was simple to recreate with a USB
-ethernet device and doing I/O to it while the CPU is offlined. Lost
-interrupts happen even when Interrupt Remapping is enabled.
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Subject: mm/vunmap: add cond_resched() in vunmap_pmd_range
 
-Current code does apic_soft_disable() before migrating interrupts.
+Like zap_pte_range add cond_resched so that we can avoid softlockups as
+reported below.  On non-preemptible kernel with large I/O map region (like
+the one we get when using persistent memory with sector mode), an unmap of
+the namespace can report below softlockups.
 
-native_cpu_disable()
-{
-	...
-	apic_soft_disable();
-	cpu_disable_common();
-	  --> fixup_irqs(); // Too late to capture anything in IRR.
-}
+22724.027334] watchdog: BUG: soft lockup - CPU#49 stuck for 23s! [ndctl:50777]
+ NIP [c0000000000dc224] plpar_hcall+0x38/0x58
+ LR [c0000000000d8898] pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+ [c0000004e87a7780] [c0000004fb197c00] 0xc0000004fb197c00 (unreliable)
+ [c0000004e87a7810] [c00000000007f4e4] flush_hash_page+0x114/0x200
+ [c0000004e87a7890] [c0000000000833cc] hpte_need_flush+0x2dc/0x540
+ [c0000004e87a7950] [c0000000003f5798] vunmap_page_range+0x538/0x6f0
+ [c0000004e87a7a70] [c0000000003f76d0] free_unmap_vmap_area+0x30/0x70
+ [c0000004e87a7aa0] [c0000000003f7a6c] remove_vm_area+0xfc/0x140
+ [c0000004e87a7ad0] [c0000000003f7dd8] __vunmap+0x68/0x270
+ [c0000004e87a7b50] [c000000000079de4] __iounmap.part.0+0x34/0x60
+ [c0000004e87a7bb0] [c000000000376394] memunmap+0x54/0x70
+ [c0000004e87a7bd0] [c000000000881d7c] release_nodes+0x28c/0x300
+ [c0000004e87a7c40] [c00000000087a65c] device_release_driver_internal+0x16c/0x280
+ [c0000004e87a7c80] [c000000000876fc4] unbind_store+0x124/0x170
+ [c0000004e87a7cd0] [c000000000875be4] drv_attr_store+0x44/0x60
+ [c0000004e87a7cf0] [c00000000057c734] sysfs_kf_write+0x64/0x90
+ [c0000004e87a7d10] [c00000000057bc10] kernfs_fop_write+0x1b0/0x290
+ [c0000004e87a7d60] [c000000000488e6c] __vfs_write+0x3c/0x70
+ [c0000004e87a7d80] [c00000000048c868] vfs_write+0xd8/0x260
+ [c0000004e87a7dd0] [c00000000048ccac] ksys_write+0xdc/0x130
+ [c0000004e87a7e20] [c00000000000b588] system_call+0x5c/0x70
 
-Just flipping the above call sequence seems to hit the IRR checks
-and the lost interrupt is fixed for both legacy MSI and when
-interrupt remapping is enabled.
-
-Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
-Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
-Reported-by: Evan Green <evgreen@chromium.org>
-Tested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Evan Green <evgreen@chromium.org>
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Link: http://lkml.kernel.org/r/20200807075933.310240-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-v2:
-- Typos and fixes suggested by Randy Dunlap
 
-To: linux-kernel@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Cc: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
-Cc: Evan Green <evgreen@chromium.org>
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
----
- arch/x86/kernel/smpboot.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mm/vmalloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 27aa04a95702..3016c3b627ce 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1594,13 +1594,20 @@ int native_cpu_disable(void)
- 	if (ret)
- 		return ret;
- 
-+	cpu_disable_common();
- 	/*
- 	 * Disable the local APIC. Otherwise IPI broadcasts will reach
- 	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
--	 * messages.
-+	 * messages. It's important to do apic_soft_disable() after
-+	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
-+	 * depends on IRR being set. After apic_soft_disable() CPU preserves
-+	 * currently set IRR/ISR but new interrupts will not set IRR.
-+	 * This causes interrupts sent to outgoing CPU before completion
-+	 * of IRQ migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
-+	 * APIC State after It Has been Software Disabled" section for more
-+	 * details.
- 	 */
- 	apic_soft_disable();
--	cpu_disable_common();
- 
- 	return 0;
+--- a/mm/vmalloc.c~mm-vunmap-add-cond_resched-in-vunmap_pmd_range
++++ a/mm/vmalloc.c
+@@ -104,6 +104,8 @@ static void vunmap_pmd_range(pud_t *pud,
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+ 		vunmap_pte_range(pmd, addr, next, mask);
++
++		cond_resched();
+ 	} while (pmd++, addr = next, addr != end);
  }
--- 
-2.7.4
-
+ 
+_
