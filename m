@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E9524DE25
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6027224DE0A
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725820AbgHUR0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:26:33 -0400
+        id S1726858AbgHUQPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:15:10 -0400
 Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727770AbgHUQPD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:03 -0400
+        id S1727797AbgHUQPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 964E222B47;
-        Fri, 21 Aug 2020 16:15:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4086214F1;
+        Fri, 21 Aug 2020 16:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026502;
-        bh=NsleeLpoFr9zVOwZF4Ju7apv/4G47aEv8g0z9TG7r0s=;
+        s=default; t=1598026505;
+        bh=Bdpad47Y9xaJkg3DYY8jaH4brrvoaBEGpKqgrVpA5KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0yL2fi6i8yuh9cmw1UZ/blWmQQplNJOFk2US124c2+SnXoiNVgPQ6EQjyAHnOduL
-         Ipn3aFBgi/iP/n5ffnD7f2Z5EXaZAdMT7eiDwkoUusC7QEgpMg57F9vjCMyFix4ejt
-         MjArcM+JjHoqGBcq/gcj0STFR+Bfu/UXzVsQXGeI=
+        b=OVyiWpqLR+xhEimNspfVvV1JVpsq7dme02Vmn/A7aeJTj2Y9S0ZHII62nq6GcJHO4
+         OrNjlI1+zQXWdS6zaw19bX9T+4Vie3PSt6yTZQscDkrcLlovRMIRZ9qf9+BW0chkoo
+         6WoNhk1pd2P3IRAOQstS7hsoYp0NLAtGhKet+lbA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Chinner <dchinner@redhat.com>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 31/62] xfs: Don't allow logging of XFS_ISTALE inodes
-Date:   Fri, 21 Aug 2020 12:13:52 -0400
-Message-Id: <20200821161423.347071-31-sashal@kernel.org>
+Cc:     "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 33/62] selftests/powerpc: Purge extra count_pmc() calls of ebb selftests
+Date:   Fri, 21 Aug 2020 12:13:54 -0400
+Message-Id: <20200821161423.347071-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -44,164 +45,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>
 
-[ Upstream commit 96355d5a1f0ee6dcc182c37db4894ec0c29f1692 ]
+[ Upstream commit 3337bf41e0dd70b4064cdf60acdfcdc2d050066c ]
 
-In tracking down a problem in this patchset, I discovered we are
-reclaiming dirty stale inodes. This wasn't discovered until inodes
-were always attached to the cluster buffer and then the rcu callback
-that freed inodes was assert failing because the inode still had an
-active pointer to the cluster buffer after it had been reclaimed.
+An extra count on ebb_state.stats.pmc_count[PMC_INDEX(pmc)] is being per-
+formed when count_pmc() is used to reset PMCs on a few selftests. This
+extra pmc_count can occasionally invalidate results, such as the ones from
+cycles_test shown hereafter. The ebb_check_count() failed with an above
+the upper limit error due to the extra value on ebb_state.stats.pmc_count.
 
-Debugging the issue indicated that this was a pre-existing issue
-resulting from the way the inodes are handled in xfs_inactive_ifree.
-When we free a cluster buffer from xfs_ifree_cluster, all the inodes
-in cache are marked XFS_ISTALE. Those that are clean have nothing
-else done to them and so eventually get cleaned up by background
-reclaim. i.e. it is assumed we'll never dirty/relog an inode marked
-XFS_ISTALE.
+Furthermore, this extra count is also indicated by extra PMC1 trace_log on
+the output of the cycle test (as well as on pmc56_overflow_test):
 
-On journal commit dirty stale inodes as are handled by both
-buffer and inode log items to run though xfs_istale_done() and
-removed from the AIL (buffer log item commit) or the log item will
-simply unpin it because the buffer log item will clean it. What happens
-to any specific inode is entirely dependent on which log item wins
-the commit race, but the result is the same - stale inodes are
-clean, not attached to the cluster buffer, and not in the AIL. Hence
-inode reclaim can just free these inodes without further care.
+==========
+   ...
+   [21]: counter = 8
+   [22]: register SPRN_MMCR0 = 0x0000000080000080
+   [23]: register SPRN_PMC1  = 0x0000000080000004
+   [24]: counter = 9
+   [25]: register SPRN_MMCR0 = 0x0000000080000080
+   [26]: register SPRN_PMC1  = 0x0000000080000004
+   [27]: counter = 10
+   [28]: register SPRN_MMCR0 = 0x0000000080000080
+   [29]: register SPRN_PMC1  = 0x0000000080000004
+>> [30]: register SPRN_PMC1  = 0x000000004000051e
+PMC1 count (0x280000546) above upper limit 0x2800003e8 (+0x15e)
+[FAIL] Test FAILED on line 52
+failure: cycles
+==========
 
-However, if the stale inode is relogged, it gets dirtied again and
-relogged into the CIL. Most of the time this isn't an issue, because
-relogging simply changes the inode's location in the current
-checkpoint. Problems arise, however, when the CIL checkpoints
-between two transactions in the xfs_inactive_ifree() deferops
-processing. This results in the XFS_ISTALE inode being redirtied
-and inserted into the CIL without any of the other stale cluster
-buffer infrastructure being in place.
-
-Hence on journal commit, it simply gets unpinned, so it remains
-dirty in memory. Everything in inode writeback avoids XFS_ISTALE
-inodes so it can't be written back, and it is not tracked in the AIL
-so there's not even a trigger to attempt to clean the inode. Hence
-the inode just sits dirty in memory until inode reclaim comes along,
-sees that it is XFS_ISTALE, and goes to reclaim it. This reclaiming
-of a dirty inode caused use after free, list corruptions and other
-nasty issues later in this patchset.
-
-Hence this patch addresses a violation of the "never log XFS_ISTALE
-inodes" caused by the deferops processing rolling a transaction
-and relogging a stale inode in xfs_inactive_free. It also adds a
-bunch of asserts to catch this problem in debug kernels so that
-we don't reintroduce this problem in future.
-
-Reproducer for this issue was generic/558 on a v4 filesystem.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200626164737.21943-1-desnesn@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_trans_inode.c |  2 ++
- fs/xfs/xfs_icache.c             |  3 ++-
- fs/xfs/xfs_inode.c              | 25 ++++++++++++++++++++++---
- 3 files changed, 26 insertions(+), 4 deletions(-)
+ .../selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c      | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c    | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/ebb.c              | 2 --
+ .../selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c  | 2 --
+ .../selftests/powerpc/pmu/ebb/lost_exception_test.c        | 1 -
+ .../testing/selftests/powerpc/pmu/ebb/multi_counter_test.c | 7 -------
+ .../selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c       | 2 --
+ .../testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c | 2 --
+ .../selftests/powerpc/pmu/ebb/pmc56_overflow_test.c        | 2 --
+ 11 files changed, 26 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_trans_inode.c b/fs/xfs/libxfs/xfs_trans_inode.c
-index b5dfb66548422..4504d215cd590 100644
---- a/fs/xfs/libxfs/xfs_trans_inode.c
-+++ b/fs/xfs/libxfs/xfs_trans_inode.c
-@@ -36,6 +36,7 @@ xfs_trans_ijoin(
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+index a2d7b0e3dca97..a26ac122c759f 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+@@ -91,8 +91,6 @@ int back_to_back_ebbs(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- 	ASSERT(iip->ili_lock_flags == 0);
- 	iip->ili_lock_flags = lock_flags;
-+	ASSERT(!xfs_iflags_test(ip, XFS_ISTALE));
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
- 	/*
- 	 * Get a log_item_desc to point at the new item.
-@@ -89,6 +90,7 @@ xfs_trans_log_inode(
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+index bc893813483ee..bb9f587fa76e8 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+@@ -42,8 +42,6 @@ int cycles(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- 	ASSERT(ip->i_itemp != NULL);
- 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
-+	ASSERT(!xfs_iflags_test(ip, XFS_ISTALE));
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
- 	/*
- 	 * Don't bother with i_lock for the I_DIRTY_TIME check here, as races
-diff --git a/fs/xfs/xfs_icache.c b/fs/xfs/xfs_icache.c
-index 5daef654956cb..59dea8178ae3c 100644
---- a/fs/xfs/xfs_icache.c
-+++ b/fs/xfs/xfs_icache.c
-@@ -1141,7 +1141,7 @@ xfs_reclaim_inode(
- 			goto out_ifunlock;
- 		xfs_iunpin_wait(ip);
- 	}
--	if (xfs_iflags_test(ip, XFS_ISTALE) || xfs_inode_clean(ip)) {
-+	if (xfs_inode_clean(ip)) {
- 		xfs_ifunlock(ip);
- 		goto reclaim;
- 	}
-@@ -1228,6 +1228,7 @@ xfs_reclaim_inode(
- 	xfs_ilock(ip, XFS_ILOCK_EXCL);
- 	xfs_qm_dqdetach(ip);
- 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
-+	ASSERT(xfs_inode_clean(ip));
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+index dcd351d203289..9ae795ce314e6 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+@@ -99,8 +99,6 @@ int cycles_with_freeze(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- 	__xfs_inode_free(ip);
- 	return error;
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index 9aea7d68d8ab9..6d70daf1c92a7 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -1740,10 +1740,31 @@ xfs_inactive_ifree(
- 		return error;
- 	}
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
-+	/*
-+	 * We do not hold the inode locked across the entire rolling transaction
-+	 * here. We only need to hold it for the first transaction that
-+	 * xfs_ifree() builds, which may mark the inode XFS_ISTALE if the
-+	 * underlying cluster buffer is freed. Relogging an XFS_ISTALE inode
-+	 * here breaks the relationship between cluster buffer invalidation and
-+	 * stale inode invalidation on cluster buffer item journal commit
-+	 * completion, and can result in leaving dirty stale inodes hanging
-+	 * around in memory.
-+	 *
-+	 * We have no need for serialising this inode operation against other
-+	 * operations - we freed the inode and hence reallocation is required
-+	 * and that will serialise on reallocating the space the deferops need
-+	 * to free. Hence we can unlock the inode on the first commit of
-+	 * the transaction rather than roll it right through the deferops. This
-+	 * avoids relogging the XFS_ISTALE inode.
-+	 *
-+	 * We check that xfs_ifree() hasn't grown an internal transaction roll
-+	 * by asserting that the inode is still locked when it returns.
-+	 */
- 	xfs_ilock(ip, XFS_ILOCK_EXCL);
--	xfs_trans_ijoin(tp, ip, 0);
-+	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
+ 	printf("EBBs while frozen %d\n", ebbs_while_frozen);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+index 94c99c12c0f23..4b45a2e70f62b 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+@@ -71,8 +71,6 @@ int cycles_with_mmcr2(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
- 	error = xfs_ifree(tp, ip);
-+	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
- 	if (error) {
- 		/*
- 		 * If we fail to free the inode, shut down.  The cancel
-@@ -1756,7 +1777,6 @@ xfs_inactive_ifree(
- 			xfs_force_shutdown(mp, SHUTDOWN_META_IO_ERROR);
- 		}
- 		xfs_trans_cancel(tp);
--		xfs_iunlock(ip, XFS_ILOCK_EXCL);
- 		return error;
- 	}
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
-@@ -1774,7 +1794,6 @@ xfs_inactive_ifree(
- 		xfs_notice(mp, "%s: xfs_trans_commit returned error %d",
- 			__func__, error);
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+index dfbc5c3ad52d7..21537d6eb6b7d 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+@@ -396,8 +396,6 @@ int ebb_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
--	xfs_iunlock(ip, XFS_ILOCK_EXCL);
- 	return 0;
- }
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
  
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+index ca2f7d729155b..b208bf6ad58d3 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+@@ -38,8 +38,6 @@ static int victim_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	FAIL_IF(ebb_state.stats.ebb_count == 0);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+index ac3e6e182614a..ba2681a12cc7b 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+@@ -75,7 +75,6 @@ static int test_body(void)
+ 	ebb_freeze_pmcs();
+ 	ebb_global_disable();
+ 
+-	count_pmc(4, sample_period);
+ 	mtspr(SPRN_PMC4, 0xdead);
+ 
+ 	dump_summary_ebb_state();
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+index b8242e9d97d2d..791d37ba327b5 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+@@ -70,13 +70,6 @@ int multi_counter(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-	count_pmc(2, sample_period);
+-	count_pmc(3, sample_period);
+-	count_pmc(4, sample_period);
+-	count_pmc(5, sample_period);
+-	count_pmc(6, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	for (i = 0; i < 6; i++)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+index a05c0e18ded63..9b0f70d597020 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+@@ -61,8 +61,6 @@ static int cycles_child(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_summary_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+index 153ebc92234fd..2904c741e04e5 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+@@ -82,8 +82,6 @@ static int test_body(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	if (mmcr0_mismatch)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+index eadad75ed7e6f..b29f8ba22d1e6 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+@@ -76,8 +76,6 @@ int pmc56_overflow(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(2, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	printf("PMC5/6 overflow %d\n", pmc56_overflowed);
 -- 
 2.25.1
 
