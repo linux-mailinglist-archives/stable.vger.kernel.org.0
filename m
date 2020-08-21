@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DCC24DD3F
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9036024DD30
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728230AbgHUROY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:14:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
+        id S1728152AbgHURLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:11:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728138AbgHUQQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:59 -0400
+        id S1727786AbgHUQRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:17:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE13522CE3;
-        Fri, 21 Aug 2020 16:16:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C69122CBB;
+        Fri, 21 Aug 2020 16:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026613;
-        bh=5XHqE6DFtAh6OapriJxLqvStdpITZDKypw5cTMMY5UM=;
+        s=default; t=1598026614;
+        bh=SHQsGLhTINATRUXZjr9wWKY8XwhSvsPPfJfThLF74Sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfRyqrPSlnMisgR6VEEAlS7a/g8raU6efe/HxYIFtZOdiwOaaju+RosT7nfMbl7z0
-         E1RAG07baW4ZGGCbbbI0wG8BWMCxzxhtA3u1/ApVyhgQtfpysuREqgx47W2E1o0vF/
-         KT+B27etZIAYiksDqpKBiCn3ajshRN0ELhKDY7hk=
+        b=mh8pUq8vbejcqj9i3DxPouzohjRUAwrp7iokH1S9fRxaeKqoFZIL7NTOBIAclVvbC
+         NXTXe5HYggDYUEEI6SHLgfR/qm6Qn4lWx6amG1FK70sXsy37x6aE8+86vctGL97ONm
+         gh3oCOeu9GnEX7+1RvXSAYqTSTgxwC23eNPIurdQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gal Pressman <galpress@amazon.com>,
-        Shadi Ammouri <sammouri@amazon.com>,
-        Yossi Leybovich <sleybo@amazon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 54/61] RDMA/efa: Add EFA 0xefa1 PCI ID
-Date:   Fri, 21 Aug 2020 12:15:38 -0400
-Message-Id: <20200821161545.347622-54-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 55/61] netfilter: nf_tables: report EEXIST on overlaps
+Date:   Fri, 21 Aug 2020 12:15:39 -0400
+Message-Id: <20200821161545.347622-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -45,41 +44,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <galpress@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit d4f9cb5c5b224dca3ff752c1bb854250bf114944 ]
+[ Upstream commit 77a92189ecfd061616ad531d386639aab7baaad9 ]
 
-Add support for 0xefa1 devices.
+Replace EBUSY by EEXIST in the following cases:
 
-Link: https://lore.kernel.org/r/20200722140312.3651-5-galpress@amazon.com
-Reviewed-by: Shadi Ammouri <sammouri@amazon.com>
-Reviewed-by: Yossi Leybovich <sleybo@amazon.com>
-Signed-off-by: Gal Pressman <galpress@amazon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+- If the user adds a chain with a different configuration such as different
+  type, hook and priority.
+
+- If the user adds a non-base chain that clashes with an existing basechain.
+
+- If the user adds a { key : value } mapping element and the key exists
+  but the value differs.
+
+- If the device already belongs to an existing flowtable.
+
+User describe that this error reporting is confusing:
+
+- https://bugzilla.netfilter.org/show_bug.cgi?id=1176
+- https://bugzilla.netfilter.org/show_bug.cgi?id=1413
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/efa/efa_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/hw/efa/efa_main.c b/drivers/infiniband/hw/efa/efa_main.c
-index faf3ff1bca2ac..19d43084414b9 100644
---- a/drivers/infiniband/hw/efa/efa_main.c
-+++ b/drivers/infiniband/hw/efa/efa_main.c
-@@ -10,10 +10,12 @@
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index e1d678af8749b..4d6ed763e5dd4 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2035,7 +2035,7 @@ static int nf_tables_updchain(struct nft_ctx *ctx, u8 genmask, u8 policy,
  
- #include "efa.h"
+ 	if (nla[NFTA_CHAIN_HOOK]) {
+ 		if (!nft_is_base_chain(chain))
+-			return -EBUSY;
++			return -EEXIST;
  
--#define PCI_DEV_ID_EFA_VF 0xefa0
-+#define PCI_DEV_ID_EFA0_VF 0xefa0
-+#define PCI_DEV_ID_EFA1_VF 0xefa1
+ 		err = nft_chain_parse_hook(ctx->net, nla, &hook, ctx->family,
+ 					   false);
+@@ -2045,21 +2045,21 @@ static int nf_tables_updchain(struct nft_ctx *ctx, u8 genmask, u8 policy,
+ 		basechain = nft_base_chain(chain);
+ 		if (basechain->type != hook.type) {
+ 			nft_chain_release_hook(&hook);
+-			return -EBUSY;
++			return -EEXIST;
+ 		}
  
- static const struct pci_device_id efa_pci_tbl[] = {
--	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA_VF) },
-+	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA0_VF) },
-+	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA1_VF) },
- 	{ }
- };
- 
+ 		if (ctx->family == NFPROTO_NETDEV) {
+ 			if (!nft_hook_list_equal(&basechain->hook_list,
+ 						 &hook.list)) {
+ 				nft_chain_release_hook(&hook);
+-				return -EBUSY;
++				return -EEXIST;
+ 			}
+ 		} else {
+ 			ops = &basechain->ops;
+ 			if (ops->hooknum != hook.num ||
+ 			    ops->priority != hook.priority) {
+ 				nft_chain_release_hook(&hook);
+-				return -EBUSY;
++				return -EEXIST;
+ 			}
+ 		}
+ 		nft_chain_release_hook(&hook);
+@@ -5144,10 +5144,8 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 			if (nft_set_ext_exists(ext, NFT_SET_EXT_DATA) ^
+ 			    nft_set_ext_exists(ext2, NFT_SET_EXT_DATA) ||
+ 			    nft_set_ext_exists(ext, NFT_SET_EXT_OBJREF) ^
+-			    nft_set_ext_exists(ext2, NFT_SET_EXT_OBJREF)) {
+-				err = -EBUSY;
++			    nft_set_ext_exists(ext2, NFT_SET_EXT_OBJREF))
+ 				goto err_element_clash;
+-			}
+ 			if ((nft_set_ext_exists(ext, NFT_SET_EXT_DATA) &&
+ 			     nft_set_ext_exists(ext2, NFT_SET_EXT_DATA) &&
+ 			     memcmp(nft_set_ext_data(ext),
+@@ -5155,7 +5153,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 			    (nft_set_ext_exists(ext, NFT_SET_EXT_OBJREF) &&
+ 			     nft_set_ext_exists(ext2, NFT_SET_EXT_OBJREF) &&
+ 			     *nft_set_ext_obj(ext) != *nft_set_ext_obj(ext2)))
+-				err = -EBUSY;
++				goto err_element_clash;
+ 			else if (!(nlmsg_flags & NLM_F_EXCL))
+ 				err = 0;
+ 		} else if (err == -ENOTEMPTY) {
+@@ -6264,7 +6262,7 @@ static int nft_register_flowtable_net_hooks(struct net *net,
+ 			list_for_each_entry(hook2, &ft->hook_list, list) {
+ 				if (hook->ops.dev == hook2->ops.dev &&
+ 				    hook->ops.pf == hook2->ops.pf) {
+-					err = -EBUSY;
++					err = -EEXIST;
+ 					goto err_unregister_net_hooks;
+ 				}
+ 			}
 -- 
 2.25.1
 
