@@ -2,124 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A0024C927
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB3124C949
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 02:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727062AbgHUA21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Aug 2020 20:28:27 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45015 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727033AbgHUA20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Aug 2020 20:28:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597969704;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=L3JIlPvsMRwkM1mgCcR4mBSnOH7ubXhXyleqb1KzD8U=;
-        b=hzi2czJb/h7wsN3T9CCJrMYXiByc1oVK7P3bAU5mcwCCi0D1C1gQUc5vYN1zb0qYJuAGLJ
-        p2cZ35p2jTLsMRi4ph309hgKcQKiK4jpNRLLZsnEa7CpIg1U2qP7pBOHFOFCPQMgv1iVEI
-        EPSF3EHG9OwS6kEBG6HJ36fFZ61oaTs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-563-e07Wxl8qNreqFdkVdHJf3g-1; Thu, 20 Aug 2020 20:28:23 -0400
-X-MC-Unique: e07Wxl8qNreqFdkVdHJf3g-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726959AbgHUAmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Aug 2020 20:42:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35258 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726918AbgHUAmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Aug 2020 20:42:03 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C95BA1074649;
-        Fri, 21 Aug 2020 00:28:21 +0000 (UTC)
-Received: from optiplex-lnx (unknown [10.3.128.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4ED4A10098A7;
-        Fri, 21 Aug 2020 00:28:12 +0000 (UTC)
-Date:   Thu, 20 Aug 2020 20:28:10 -0400
-From:   Rafael Aquini <aquini@redhat.com>
-To:     Dave Chinner <david@fromorbit.com>
-Cc:     Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] mm, THP, swap: fix allocating cluster for swapfile by
- mistake
-Message-ID: <20200821002810.GA3096383@optiplex-lnx>
-References: <20200820045323.7809-1-hsiangkao@redhat.com>
- <20200820233446.GB7728@dread.disaster.area>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200820233446.GB7728@dread.disaster.area>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F296207DF;
+        Fri, 21 Aug 2020 00:42:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597970523;
+        bh=+WvEgrYIHkkeUnjluxstf/SQ+TuZELLSwpag0oqeBFw=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=nalZHLdnZOpXk7HvdakXtnze4hoQHp4fETpt6OUptZ6lvumiyccmbVnlDXNemqxuQ
+         GvwpfQaBLEL9SdRAiwa/nziUkElcDJSiGrVleDKdSJ59m6/nC6Uw79nW2kPs/FTztD
+         icKdUuIT4p032cgkDIjWPvrrrAO2y9jxZPFRWhPk=
+Date:   Thu, 20 Aug 2020 17:42:02 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     aarcange@redhat.com, akpm@linux-foundation.org,
+        edumazet@google.com, hughd@google.com,
+        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        shy828301@gmail.com, songliubraving@fb.com, stable@vger.kernel.org,
+        syzkaller@googlegroups.com, torvalds@linux-foundation.org
+Subject:  [patch 03/11] khugepaged: adjust VM_BUG_ON_MM() in
+ __khugepaged_enter()
+Message-ID: <20200821004202.AP6gJKDLE%akpm@linux-foundation.org>
+In-Reply-To: <20200820174132.67fd4a7a9359048f807a533b@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 09:34:46AM +1000, Dave Chinner wrote:
-> On Thu, Aug 20, 2020 at 12:53:23PM +0800, Gao Xiang wrote:
-> > SWP_FS is used to make swap_{read,write}page() go through
-> > the filesystem, and it's only used for swap files over
-> > NFS. So, !SWP_FS means non NFS for now, it could be either
-> > file backed or device backed. Something similar goes with
-> > legacy SWP_FILE.
-> > 
-> > So in order to achieve the goal of the original patch,
-> > SWP_BLKDEV should be used instead.
-> > 
-> > FS corruption can be observed with SSD device + XFS +
-> > fragmented swapfile due to CONFIG_THP_SWAP=y.
-> > 
-> > I reproduced the issue with the following details:
-> > 
-> > Environment:
-> > QEMU + upstream kernel + buildroot + NVMe (2 GB)
-> > 
-> > Kernel config:
-> > CONFIG_BLK_DEV_NVME=y
-> > CONFIG_THP_SWAP=y
-> 
-> Ok, so at it's core this is a swap file extent versus THP swap
-> cluster alignment issue?
-> 
-> > diff --git a/mm/swapfile.c b/mm/swapfile.c
-> > index 6c26916e95fd..2937daf3ca02 100644
-> > --- a/mm/swapfile.c
-> > +++ b/mm/swapfile.c
-> > @@ -1074,7 +1074,7 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
-> >  			goto nextsi;
-> >  		}
-> >  		if (size == SWAPFILE_CLUSTER) {
-> > -			if (!(si->flags & SWP_FS))
-> > +			if (si->flags & SWP_BLKDEV)
-> >  				n_ret = swap_alloc_cluster(si, swp_entries);
-> >  		} else
-> >  			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
-> 
-> IOWs, if you don't make this change, does the corruption problem go
-> away if you align swap extents in iomap_swapfile_add_extent() to
-> (SWAPFILE_CLUSTER * PAGE_SIZE) instead of just PAGE_SIZE?
-> 
+From: Hugh Dickins <hughd@google.com>
+Subject: khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
 
-I suspect that will have to come with the 3rd, and final, part of the THP_SWAP
-work Intel is doing. Right now, basically, all that's accomplished is deferring 
-the THP split step when swapping out, so this change is what we need to
-avoid stomping outside the file extent boundaries.
+syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
+__khugepaged_enter(): yes, when one thread is about to dump core, has set
+core_state, and is waiting for others, another might do something calling
+__khugepaged_enter(), which now crashes because I lumped the core_state
+test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
+think it's best to lump them together, so just in this exceptional case,
+check mm->mm_users directly instead of khugepaged_test_exit().
 
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
+Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Yang Shi <shy828301@gmail.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-> I.e. if the swapfile extents are aligned correctly to huge page swap
-> cluster size and alignment, does the swap clustering optimisations
-> for swapping THP pages work correctly? And, if so, is there any
-> performance benefit we get from enabling proper THP swap clustering
-> on swapfiles?
->
-> Cheers,
-> 
-> Dave.
-> -- 
-> Dave Chinner
-> david@fromorbit.com
-> 
+ mm/khugepaged.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+--- a/mm/khugepaged.c~khugepaged-adjust-vm_bug_on_mm-in-__khugepaged_enter
++++ a/mm/khugepaged.c
+@@ -466,7 +466,7 @@ int __khugepaged_enter(struct mm_struct
+ 		return -ENOMEM;
+ 
+ 	/* __khugepaged_exit() must not run from under us */
+-	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
++	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
+ 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
+ 		free_mm_slot(mm_slot);
+ 		return 0;
+_
