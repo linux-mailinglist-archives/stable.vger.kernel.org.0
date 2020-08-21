@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7683C24DA3C
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:19:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF1B24DA4B
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgHUQTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:19:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
+        id S1728328AbgHUQTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727859AbgHUQSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:18:03 -0400
+        id S1728029AbgHUQTQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:19:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E2B122B43;
-        Fri, 21 Aug 2020 16:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEFDA22B4E;
+        Fri, 21 Aug 2020 16:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026667;
-        bh=12JOAH0VTUXZinnu0n+/Whfv4+taCzf0ytk9XsIi58c=;
+        s=default; t=1598026701;
+        bh=7E3ARa3gGjKsJ3XyQWjqb1t8KY5M1C2PdcSqkYpDFG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGFEnU8+U65K5LKR4nvA4pMBvQNSa1AjSN/Ca1z1CU4E8H2ALhO1kFFKLpYxzD2fS
-         muU+8s9EWFR+KLewtrp5eW9qT3uziSfFBgYGSG8gYRonRR6VuTkDrmIlhqIt3Vn6/M
-         o9Ijobq1tvghIKd7rJu+wuL3X93FZIBM9pZDfHdA=
+        b=dcnYdR+5w3YSy/D3PcGWrrPmk1med6fCZJGirB860MVh3X5CZhL7RtnLPjbVzaZ3D
+         MLrNlRryI2paqWnGNqGbA9+G7W4ReMcVbZX4rNSZrjCMLNXnFC23t0p/br88dzpkMt
+         QJMvaOLa0c6jpq4GC8/zbqxszPjY2755AlH3usqY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 33/48] cec-api: prevent leaking memory through hole in structure
-Date:   Fri, 21 Aug 2020 12:16:49 -0400
-Message-Id: <20200821161704.348164-33-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Prakash Gupta <guptap@codeaurora.org>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 11/38] iommu/iova: Don't BUG on invalid PFNs
+Date:   Fri, 21 Aug 2020 12:17:40 -0400
+Message-Id: <20200821161807.348600-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200821161704.348164-1-sashal@kernel.org>
-References: <20200821161704.348164-1-sashal@kernel.org>
+In-Reply-To: <20200821161807.348600-1-sashal@kernel.org>
+References: <20200821161807.348600-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,41 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
+[ Upstream commit d3e3d2be688b4b5864538de61e750721a311e4fc ]
 
-Fix this smatch warning:
+Unlike the other instances which represent a complete loss of
+consistency within the rcache mechanism itself, or a fundamental
+and obvious misconfiguration by an IOMMU driver, the BUG_ON() in
+iova_magazine_free_pfns() can be provoked at more or less any time
+in a "spooky action-at-a-distance" manner by any old device driver
+passing nonsense to dma_unmap_*() which then propagates through to
+queue_iova().
 
-drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
-'features')
+Not only is this well outside the IOVA layer's control, it's also
+nowhere near fatal enough to justify panicking anyway - all that
+really achieves is to make debugging the offending driver more
+difficult. Let's simply WARN and otherwise ignore bogus PFNs.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: Prakash Gupta <guptap@codeaurora.org>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Prakash Gupta <guptap@codeaurora.org>
+Link: https://lore.kernel.org/r/acbd2d092b42738a03a21b417ce64e27f8c91c86.1591103298.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-api.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iommu/iova.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/cec/cec-api.c b/drivers/media/cec/cec-api.c
-index 12d6764844724..ed75636a6fb34 100644
---- a/drivers/media/cec/cec-api.c
-+++ b/drivers/media/cec/cec-api.c
-@@ -147,7 +147,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
- 	struct cec_log_addrs log_addrs;
+diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+index 34c058c24b9d2..ce5cd05253db9 100644
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -814,7 +814,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag, struct iova_domain *iovad)
+ 	for (i = 0 ; i < mag->size; ++i) {
+ 		struct iova *iova = private_find_iova(iovad, mag->pfns[i]);
  
- 	mutex_lock(&adap->lock);
--	log_addrs = adap->log_addrs;
-+	/*
-+	 * We use memcpy here instead of assignment since there is a
-+	 * hole at the end of struct cec_log_addrs that an assignment
-+	 * might ignore. So when we do copy_to_user() we could leak
-+	 * one byte of memory.
-+	 */
-+	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
- 	if (!adap->is_configured)
- 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
- 		       sizeof(log_addrs.log_addr));
+-		BUG_ON(!iova);
++		if (WARN_ON(!iova))
++			continue;
++
+ 		private_free_iova(iovad, iova);
+ 	}
+ 
 -- 
 2.25.1
 
