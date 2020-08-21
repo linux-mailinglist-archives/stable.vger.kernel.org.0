@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4A124DC06
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AB824DC08
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728696AbgHUQwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728738AbgHUQwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Aug 2020 12:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727095AbgHUQTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727769AbgHUQTy (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:19:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E43A22B43;
-        Fri, 21 Aug 2020 16:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7718722BEB;
+        Fri, 21 Aug 2020 16:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026742;
-        bh=OuV+Yg7SQ/XFYNzYVYiDcm9gkcEHndIfyGdnu1mh8bI=;
+        s=default; t=1598026743;
+        bh=qcmUxhb8wbPzUc04il8NAjtvIzc/l6G5x7Bioq7PlBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otBbazev4lwa2IIqDX4JBwjmIeqFFArYKB0NTOw2yfiqw6z0avOSQ6MOz0NvYl3uQ
-         7p6UrpN5fJ3G1Lec30+Q4yocbNq8JEh+uxDoeNwBZ7UFibYPSZ76k7kYRiEHm0QpYU
-         QXfYFNhiI2UQHr0U4mtfACGGo4yM03AzG8H7O2bY=
+        b=ia+omy2D4Z/N1kZ5mzNoC4LED1v0ByVO1WmyjhI0LwpOFy7bIoe06aXMf9FYrNxzX
+         lIQ/iNEOyBXuzXfiAY6qkAAiugFcIbtdQ+iqHpl4AgB9lhaVmvv5qZsSk0+r7JOilB
+         AxIeR88dpftE5SukAuqtndyy9pIM108z1uJ3bO0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 03/30] mfd: intel-lpss: Add Intel Emmitsburg PCH PCI IDs
-Date:   Fri, 21 Aug 2020 12:18:30 -0400
-Message-Id: <20200821161857.348955-3-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/30] arm64: dts: qcom: msm8916: Pull down PDM GPIOs during sleep
+Date:   Fri, 21 Aug 2020 12:18:31 -0400
+Message-Id: <20200821161857.348955-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161857.348955-1-sashal@kernel.org>
 References: <20200821161857.348955-1-sashal@kernel.org>
@@ -43,34 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 3ea2e4eab64cefa06055bb0541fcdedad4b48565 ]
+[ Upstream commit e2ee9edc282961783d519c760bbaa20fed4dec38 ]
 
-Intel Emmitsburg PCH has the same LPSS than Intel Ice Lake.
-Add the new IDs to the list of supported devices.
+The original qcom kernel changed the PDM GPIOs to be pull-down
+during sleep at some point. Reportedly this was done because
+there was some "leakage at PDM outputs during sleep":
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+  https://source.codeaurora.org/quic/la/kernel/msm-3.10/commit/?id=0f87e08c1cd3e6484a6f7fb3e74e37340bdcdee0
+
+I cannot say how effective this is, but everything seems to work
+fine with this change so let's apply the same to mainline just
+to be sure.
+
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200605185916.318494-3-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8916-pins.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index 0504761516f7b..a12bb8ed20405 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -176,6 +176,9 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x1ac4), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
-+	/* EBG */
-+	{ PCI_VDEVICE(INTEL, 0x1bad), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x1bae), (kernel_ulong_t)&bxt_uart_info },
- 	/* GLK */
- 	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+index 4cb0b58341432..0264b6769746c 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+@@ -555,7 +555,7 @@ pinconf {
+ 				pins = "gpio63", "gpio64", "gpio65", "gpio66",
+ 				       "gpio67", "gpio68";
+ 				drive-strength = <2>;
+-				bias-disable;
++				bias-pull-down;
+ 			};
+ 		};
+ 	};
 -- 
 2.25.1
 
