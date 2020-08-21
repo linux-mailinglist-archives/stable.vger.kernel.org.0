@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC2F24DB43
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:37:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E62DA24DB36
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbgHUQgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:36:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
+        id S1728420AbgHUQgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728432AbgHUQVJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:21:09 -0400
+        id S1728433AbgHUQVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:21:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6868022D6E;
-        Fri, 21 Aug 2020 16:20:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B125922B40;
+        Fri, 21 Aug 2020 16:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026813;
-        bh=jsOvBr9rJdDGyGjXO4I8vMC3R8xRGofJQuE2DofuJ0Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL4AnpiLciHDq49eEl5t7sJKJK9af+0jG9zreZBGroYY1Rp4qQlzvKYiPWeN0EaTY
-         NUv+NN94lBcX0z8CoPe/6uFYDGXAcVd4BGf4DAiMAKWXxZIYn9d0ub4BWVNDfi4qsA
-         VuI4nMOOBIA6Btims+AOse2uiTmAVJcfVJpWywQ0=
+        s=default; t=1598026816;
+        bh=4RWpZvOoJA/5UINqIY4RDIvOA2ssL54rfpG3Hg+9Hsk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GAys6x+PK8KwLDVTKbANrGXfHsMp9uHpnRZkp7vSTe1Llt9kHMm+tHSeruhHzKYTZ
+         MutNerPmg4NuPwLxYbNaCCgXZipXa05BYAEXhTRa7+t/M3TB0hsAMSfeDtnuP80QdT
+         Si01ohWVh+zF08OC/PjIvLYgt4KFBwAGS+Lv6CvM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Baron <jbaron@akamai.com>, Borislav Petkov <bp@suse.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 26/26] EDAC/ie31200: Fallback if host bridge device is already initialized
-Date:   Fri, 21 Aug 2020 12:19:37 -0400
-Message-Id: <20200821161938.349246-26-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.4 01/22] ALSA: pci: delete repeated words in comments
+Date:   Fri, 21 Aug 2020 12:19:53 -0400
+Message-Id: <20200821162014.349506-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200821161938.349246-1-sashal@kernel.org>
-References: <20200821161938.349246-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,125 +40,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Baron <jbaron@akamai.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 709ed1bcef12398ac1a35c149f3e582db04456c2 ]
+[ Upstream commit c7fabbc51352f50cc58242a6dc3b9c1a3599849b ]
 
-The Intel uncore driver may claim some of the pci ids from ie31200 which
-means that the ie31200 edac driver will not initialize them as part of
-pci_register_driver().
+Drop duplicated words in sound/pci/.
+{and, the, at}
 
-Let's add a fallback for this case to 'pci_get_device()' to get a
-reference on the device such that it can still be configured. This is
-similar in approach to other edac drivers.
-
-Signed-off-by: Jason Baron <jbaron@akamai.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/1594923911-10885-1-git-send-email-jbaron@akamai.com
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20200806021926.32418-1-rdunlap@infradead.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ie31200_edac.c | 50 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 3 deletions(-)
+ sound/pci/cs46xx/cs46xx_lib.c       | 2 +-
+ sound/pci/cs46xx/dsp_spos_scb_lib.c | 2 +-
+ sound/pci/hda/hda_codec.c           | 2 +-
+ sound/pci/hda/hda_generic.c         | 2 +-
+ sound/pci/hda/patch_sigmatel.c      | 2 +-
+ sound/pci/ice1712/prodigy192.c      | 2 +-
+ sound/pci/oxygen/xonar_dg.c         | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/edac/ie31200_edac.c b/drivers/edac/ie31200_edac.c
-index 1c88d97074951..3438b98e60948 100644
---- a/drivers/edac/ie31200_edac.c
-+++ b/drivers/edac/ie31200_edac.c
-@@ -145,6 +145,8 @@
- 	(n << (28 + (2 * skl) - PAGE_SHIFT))
+diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
+index 2706f271a83b0..8a174c170e0aa 100644
+--- a/sound/pci/cs46xx/cs46xx_lib.c
++++ b/sound/pci/cs46xx/cs46xx_lib.c
+@@ -780,7 +780,7 @@ static void snd_cs46xx_set_capture_sample_rate(struct snd_cs46xx *chip, unsigned
+ 		rate = 48000 / 9;
  
- static int nr_channels;
-+static struct pci_dev *mci_pdev;
-+static int ie31200_registered = 1;
+ 	/*
+-	 *  We can not capture at at rate greater than the Input Rate (48000).
++	 *  We can not capture at a rate greater than the Input Rate (48000).
+ 	 *  Return an error if an attempt is made to stray outside that limit.
+ 	 */
+ 	if (rate > 48000)
+diff --git a/sound/pci/cs46xx/dsp_spos_scb_lib.c b/sound/pci/cs46xx/dsp_spos_scb_lib.c
+index 7488e1b7a7707..4e726d39b05d1 100644
+--- a/sound/pci/cs46xx/dsp_spos_scb_lib.c
++++ b/sound/pci/cs46xx/dsp_spos_scb_lib.c
+@@ -1742,7 +1742,7 @@ int cs46xx_iec958_pre_open (struct snd_cs46xx *chip)
+ 	struct dsp_spos_instance * ins = chip->dsp_spos_instance;
  
- struct ie31200_priv {
- 	void __iomem *window;
-@@ -512,12 +514,16 @@ static int ie31200_probe1(struct pci_dev *pdev, int dev_idx)
- static int ie31200_init_one(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
--	edac_dbg(0, "MC:\n");
-+	int rc;
+ 	if ( ins->spdif_status_out & DSP_SPDIF_STATUS_OUTPUT_ENABLED ) {
+-		/* remove AsynchFGTxSCB and and PCMSerialInput_II */
++		/* remove AsynchFGTxSCB and PCMSerialInput_II */
+ 		cs46xx_dsp_disable_spdif_out (chip);
  
-+	edac_dbg(0, "MC:\n");
- 	if (pci_enable_device(pdev) < 0)
- 		return -EIO;
-+	rc = ie31200_probe1(pdev, ent->driver_data);
-+	if (rc == 0 && !mci_pdev)
-+		mci_pdev = pci_dev_get(pdev);
- 
--	return ie31200_probe1(pdev, ent->driver_data);
-+	return rc;
+ 		/* save state */
+diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
+index 825d9b27dbe12..4962a9d8a572b 100644
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -3496,7 +3496,7 @@ EXPORT_SYMBOL_GPL(snd_hda_set_power_save);
+  * @nid: NID to check / update
+  *
+  * Check whether the given NID is in the amp list.  If it's in the list,
+- * check the current AMP status, and update the the power-status according
++ * check the current AMP status, and update the power-status according
+  * to the mute status.
+  *
+  * This function is supposed to be set or called from the check_power_status
+diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
+index 869c322ddae31..7cd1047a4edf3 100644
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -837,7 +837,7 @@ static void activate_amp_in(struct hda_codec *codec, struct nid_path *path,
+ 	}
  }
  
- static void ie31200_remove_one(struct pci_dev *pdev)
-@@ -526,6 +532,8 @@ static void ie31200_remove_one(struct pci_dev *pdev)
- 	struct ie31200_priv *priv;
+-/* sync power of each widget in the the given path */
++/* sync power of each widget in the given path */
+ static hda_nid_t path_power_update(struct hda_codec *codec,
+ 				   struct nid_path *path,
+ 				   bool allow_powerdown)
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index d1a6d20ace0da..80b72d0702c5e 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -862,7 +862,7 @@ static int stac_auto_create_beep_ctls(struct hda_codec *codec,
+ 	static struct snd_kcontrol_new beep_vol_ctl =
+ 		HDA_CODEC_VOLUME(NULL, 0, 0, 0);
  
- 	edac_dbg(0, "\n");
-+	pci_dev_put(mci_pdev);
-+	mci_pdev = NULL;
- 	mci = edac_mc_del_mc(&pdev->dev);
- 	if (!mci)
- 		return;
-@@ -574,17 +582,53 @@ static struct pci_driver ie31200_driver = {
- 
- static int __init ie31200_init(void)
- {
-+	int pci_rc, i;
-+
- 	edac_dbg(3, "MC:\n");
- 	/* Ensure that the OPSTATE is set correctly for POLL or NMI */
- 	opstate_init();
- 
--	return pci_register_driver(&ie31200_driver);
-+	pci_rc = pci_register_driver(&ie31200_driver);
-+	if (pci_rc < 0)
-+		goto fail0;
-+
-+	if (!mci_pdev) {
-+		ie31200_registered = 0;
-+		for (i = 0; ie31200_pci_tbl[i].vendor != 0; i++) {
-+			mci_pdev = pci_get_device(ie31200_pci_tbl[i].vendor,
-+						  ie31200_pci_tbl[i].device,
-+						  NULL);
-+			if (mci_pdev)
-+				break;
-+		}
-+		if (!mci_pdev) {
-+			edac_dbg(0, "ie31200 pci_get_device fail\n");
-+			pci_rc = -ENODEV;
-+			goto fail1;
-+		}
-+		pci_rc = ie31200_init_one(mci_pdev, &ie31200_pci_tbl[i]);
-+		if (pci_rc < 0) {
-+			edac_dbg(0, "ie31200 init fail\n");
-+			pci_rc = -ENODEV;
-+			goto fail1;
-+		}
-+	}
-+	return 0;
-+
-+fail1:
-+	pci_unregister_driver(&ie31200_driver);
-+fail0:
-+	pci_dev_put(mci_pdev);
-+
-+	return pci_rc;
- }
- 
- static void __exit ie31200_exit(void)
- {
- 	edac_dbg(3, "MC:\n");
- 	pci_unregister_driver(&ie31200_driver);
-+	if (!ie31200_registered)
-+		ie31200_remove_one(mci_pdev);
- }
- 
- module_init(ie31200_init);
+-	/* check for mute support for the the amp */
++	/* check for mute support for the amp */
+ 	if ((caps & AC_AMPCAP_MUTE) >> AC_AMPCAP_MUTE_SHIFT) {
+ 		const struct snd_kcontrol_new *temp;
+ 		if (spec->anabeep_nid == nid)
+diff --git a/sound/pci/ice1712/prodigy192.c b/sound/pci/ice1712/prodigy192.c
+index 3919aed39ca03..5e52086d7b986 100644
+--- a/sound/pci/ice1712/prodigy192.c
++++ b/sound/pci/ice1712/prodigy192.c
+@@ -31,7 +31,7 @@
+  *		  Experimentally I found out that only a combination of
+  *		  OCKS0=1, OCKS1=1 (128fs, 64fs output) and ice1724 -
+  *		  VT1724_MT_I2S_MCLK_128X=0 (256fs input) yields correct
+- *		  sampling rate. That means the the FPGA doubles the
++ *		  sampling rate. That means that the FPGA doubles the
+  *		  MCK01 rate.
+  *
+  *	Copyright (c) 2003 Takashi Iwai <tiwai@suse.de>
+diff --git a/sound/pci/oxygen/xonar_dg.c b/sound/pci/oxygen/xonar_dg.c
+index 4cf3200e988b0..df44135e1b0c9 100644
+--- a/sound/pci/oxygen/xonar_dg.c
++++ b/sound/pci/oxygen/xonar_dg.c
+@@ -39,7 +39,7 @@
+  *   GPIO 4 <- headphone detect
+  *   GPIO 5 -> enable ADC analog circuit for the left channel
+  *   GPIO 6 -> enable ADC analog circuit for the right channel
+- *   GPIO 7 -> switch green rear output jack between CS4245 and and the first
++ *   GPIO 7 -> switch green rear output jack between CS4245 and the first
+  *             channel of CS4361 (mechanical relay)
+  *   GPIO 8 -> enable output to speakers
+  *
 -- 
 2.25.1
 
