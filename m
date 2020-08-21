@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB40B24DC86
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:04:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050A724DC8F
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728676AbgHUREX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50022 "EHLO mail.kernel.org"
+        id S1728798AbgHURFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727087AbgHUQSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727782AbgHUQSy (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:18:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18D0C22CA0;
-        Fri, 21 Aug 2020 16:18:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6093B22CBB;
+        Fri, 21 Aug 2020 16:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026693;
-        bh=ySY7r+XvByWG/h02YkSpizvqYnRnOEsqEYmyDA8cBmk=;
+        s=default; t=1598026694;
+        bh=d29t0xIX3Wuf1ezlJqMis22yC4srR/5mCFQQAfPtXsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fn38HLXnmjse0s8SeiKmcQBQ/sZAKUQeZqkztCPAtbQkI4F3G4bdPpVbxiQI0n3eK
-         D6+8u39kL4t1p8T3dvuLornndIKYPrAjPRV+S26/BoSHKsIgW0e3Ix1pLgMO00wUma
-         sO9pmsLS3w4yZHQeTNmJQXDohV6zuYMOh7B1rlpA=
+        b=kYnjbXmFlBZEXuGyI11Py84BHWL2JC+wpWJ5CFfCkufLcKPNc6JbuxtyFf4JR+rMP
+         Jwte7bIFSFlPe99feEoWUgH/OikhIr3KhOQWRa+6Se9BvedWr4DTpxFJlBtFMGBX1M
+         5TeJAVa+60i6eQwWC4D4H0+bDKkVYjq5ZnNFnbFI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/38] ASoC: tegra: Fix reference count leaks.
-Date:   Fri, 21 Aug 2020 12:17:33 -0400
-Message-Id: <20200821161807.348600-4-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/38] mfd: intel-lpss: Add Intel Emmitsburg PCH PCI IDs
+Date:   Fri, 21 Aug 2020 12:17:34 -0400
+Message-Id: <20200821161807.348600-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161807.348600-1-sashal@kernel.org>
 References: <20200821161807.348600-1-sashal@kernel.org>
@@ -44,56 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit deca195383a6085be62cb453079e03e04d618d6e ]
+[ Upstream commit 3ea2e4eab64cefa06055bb0541fcdedad4b48565 ]
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count if pm_runtime_put is not called in
-error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
+Intel Emmitsburg PCH has the same LPSS than Intel Ice Lake.
+Add the new IDs to the list of supported devices.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20200613204422.24484-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/tegra/tegra30_ahub.c | 4 +++-
- sound/soc/tegra/tegra30_i2s.c  | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/mfd/intel-lpss-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/tegra/tegra30_ahub.c b/sound/soc/tegra/tegra30_ahub.c
-index 43679aeeb12be..88e838ac937dc 100644
---- a/sound/soc/tegra/tegra30_ahub.c
-+++ b/sound/soc/tegra/tegra30_ahub.c
-@@ -655,8 +655,10 @@ static int tegra30_ahub_resume(struct device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
- 	ret = regcache_sync(ahub->regmap_ahub);
- 	ret |= regcache_sync(ahub->regmap_apbif);
- 	pm_runtime_put(dev);
-diff --git a/sound/soc/tegra/tegra30_i2s.c b/sound/soc/tegra/tegra30_i2s.c
-index 0b176ea24914b..bf155c5092f06 100644
---- a/sound/soc/tegra/tegra30_i2s.c
-+++ b/sound/soc/tegra/tegra30_i2s.c
-@@ -551,8 +551,10 @@ static int tegra30_i2s_resume(struct device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
- 	ret = regcache_sync(i2s->regmap);
- 	pm_runtime_put(dev);
- 
+diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+index 742d6c1973f4f..adea7ff63132f 100644
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -176,6 +176,9 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x1ac4), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
++	/* EBG */
++	{ PCI_VDEVICE(INTEL, 0x1bad), (kernel_ulong_t)&bxt_uart_info },
++	{ PCI_VDEVICE(INTEL, 0x1bae), (kernel_ulong_t)&bxt_uart_info },
+ 	/* GLK */
+ 	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
 -- 
 2.25.1
 
