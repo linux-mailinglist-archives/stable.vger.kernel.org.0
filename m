@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFCD24DE0B
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D96C624DE1A
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbgHUQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46614 "EHLO mail.kernel.org"
+        id S1728219AbgHUR0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727836AbgHUQPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:07 -0400
+        id S1727849AbgHUQPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F231320FC3;
-        Fri, 21 Aug 2020 16:15:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEB9622B43;
+        Fri, 21 Aug 2020 16:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026506;
-        bh=0Bpcya60q0A12JUTmhkO1fZ82j89VNCVsocOmSZltpM=;
+        s=default; t=1598026509;
+        bh=Z5woOFrn9WcoiLa0uM8U8LX6zAA+NteviTzChyljI7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jykAIrvyTIDIEtMSBurqgfCGeQGuMDXsxoa1w5h+VdSaJbmDTTev9BkdpYnl7cl4G
-         2HRiCeE4kJnimO2HZsKIMCba/wXNJ3LNnMrTqOup4dAl5peBOFWqYOkDRW5zjkooXN
-         386pT2VvWEdxRKJzbytMHgBQdQQABBtx8cenmkzA=
+        b=DY9IhwL2JyK5t7WJYWvDGfb1y1WQqQ3PkiLFtp+j7436GEDxbzHxxDz2g/kaNYEwb
+         DWi5qofgnt9zMIENyRMFaYLrcbejLNeGydtbCMTDcnbFqPTLLVG5mFuhxBEm0JFAuh
+         MvE92CY5H8ocaVI7sEMZjbKln+dkCrROQNnCKSDI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dehe Gu <gudehe@huawei.com>,
-        Daiyue Zhang <zhangdaiyue1@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.8 34/62] f2fs: remove write attribute of main_blkaddr sysfs node
-Date:   Fri, 21 Aug 2020 12:13:55 -0400
-Message-Id: <20200821161423.347071-34-sashal@kernel.org>
+Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 36/62] MIPS: KVM: Limit Trap-and-Emulate to MIPS32R2 only
+Date:   Fri, 21 Aug 2020 12:13:57 -0400
+Message-Id: <20200821161423.347071-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,59 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dehe Gu <gudehe@huawei.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-[ Upstream commit ffcde4b29a5f20ddca6fe559b48f345818bf1d91 ]
+[ Upstream commit 01edc5e76ecfecf9a79eec2658f6146ef47bc816 ]
 
-Fuzzing main_blkaddr sysfs node will corrupt this field's value,
-causing kernel panic, remove its write attribute to avoid potential
-security risk.
+After tons of fixes to get Trap-and-Emulate build on Loongson64,
+I've got panic on host machine when trying to run a VM.
 
-[Chao Yu: add description]
+I found that it can never work on 64bit systems. Revewing the
+code, it looks like R6 can't supportrd by TE as well.
 
-Signed-off-by: Dehe Gu <gudehe@huawei.com>
-Signed-off-by: Daiyue Zhang <zhangdaiyue1@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-Id: <20200710063047.154611-3-jiaxun.yang@flygoat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/mips/Kconfig     | 1 +
+ arch/mips/kvm/Kconfig | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index e877c59b9fdb4..c5e32ceb94827 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -223,6 +223,13 @@ static ssize_t avg_vblocks_show(struct f2fs_attr *a,
- }
- #endif
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 6fee1a133e9d6..2efc34ed94ebe 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2202,6 +2202,7 @@ endchoice
  
-+static ssize_t main_blkaddr_show(struct f2fs_attr *a,
-+				struct f2fs_sb_info *sbi, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)MAIN_BLKADDR(sbi));
-+}
-+
- static ssize_t f2fs_sbi_show(struct f2fs_attr *a,
- 			struct f2fs_sb_info *sbi, char *buf)
- {
-@@ -522,7 +529,6 @@ F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_no_gc_sleep_time, no_gc_sleep_time);
- F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_idle, gc_mode);
- F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_urgent, gc_mode);
- F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, reclaim_segments, rec_prefree_segments);
--F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, main_blkaddr, main_blkaddr);
- F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, max_small_discards, max_discards);
- F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, discard_granularity, discard_granularity);
- F2FS_RW_ATTR(RESERVED_BLOCKS, f2fs_sb_info, reserved_blocks, reserved_blocks);
-@@ -565,6 +571,7 @@ F2FS_GENERAL_RO_ATTR(current_reserved_blocks);
- F2FS_GENERAL_RO_ATTR(unusable);
- F2FS_GENERAL_RO_ATTR(encoding);
- F2FS_GENERAL_RO_ATTR(mounted_time_sec);
-+F2FS_GENERAL_RO_ATTR(main_blkaddr);
- #ifdef CONFIG_F2FS_STAT_FS
- F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_foreground_calls, cp_count);
- F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_background_calls, bg_cp_count);
+ config KVM_GUEST
+ 	bool "KVM Guest Kernel"
++	depends on CPU_MIPS32_R2
+ 	depends on BROKEN_ON_SMP
+ 	help
+ 	  Select this option if building a guest kernel for KVM (Trap & Emulate)
+diff --git a/arch/mips/kvm/Kconfig b/arch/mips/kvm/Kconfig
+index 2bf02d849a3a8..032b3fca6cbba 100644
+--- a/arch/mips/kvm/Kconfig
++++ b/arch/mips/kvm/Kconfig
+@@ -37,10 +37,11 @@ choice
+ 
+ config KVM_MIPS_TE
+ 	bool "Trap & Emulate"
++	depends on CPU_MIPS32_R2
+ 	help
+ 	  Use trap and emulate to virtualize 32-bit guests in user mode. This
+ 	  does not require any special hardware Virtualization support beyond
+-	  standard MIPS32/64 r2 or later, but it does require the guest kernel
++	  standard MIPS32 r2 or later, but it does require the guest kernel
+ 	  to be configured with CONFIG_KVM_GUEST=y so that it resides in the
+ 	  user address segment.
+ 
 -- 
 2.25.1
 
