@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 380AF24DE12
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DFDD24DE01
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727986AbgHURZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
+        id S1729085AbgHURZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727887AbgHUQPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:15 -0400
+        id S1727888AbgHUQPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93F9822B4D;
-        Fri, 21 Aug 2020 16:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ECF42224D;
+        Fri, 21 Aug 2020 16:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026514;
-        bh=NZ1zbKrwo5IZCErTAktS1k3LZeAW/QGyONeoRh3BaGs=;
+        s=default; t=1598026516;
+        bh=duA5OZY/skQ/JAo3h/E2BEJCdypBbG0QAcMV7CMJLRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWsxVYvgtfDQCZ1RsgEi6HcWZ5rAMXETEJybafuTsoo0p21+LdEAQVtrD4k87pr5+
-         7gOFdTIasF4miQbpoLl+fACDY8TbCFIYC3+0Pwmk+J2OyjFt7JPQmUZ44tZUCPBatp
-         0QRszFyDNdmt512pCMFBkuAmGXx2AuJW/9izdKag=
+        b=GkYnQM5Bik6RrP3fVB/84sqNQBPd8bRMrGRWiPlXTY2m2Nf3UsyO6GYbZsAWM9kO9
+         Qbj9w5NBGYnKrWzaB11HS3qHnIEmDoPGPQynGeQKw2wzRLI/fgy1+WQKINSclSDjAk
+         eBPsQAEo0Q+jhjnkra7CrAkanNUtCtYDMsewvk+M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yangbo Lu <yangbo.lu@nxp.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 39/62] ARM: dts: ls1021a: output PPS signal on FIPER2
-Date:   Fri, 21 Aug 2020 12:14:00 -0400
-Message-Id: <20200821161423.347071-39-sashal@kernel.org>
+Cc:     Peng Fan <fanpeng@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 41/62] mips/vdso: Fix resource leaks in genvdso.c
+Date:   Fri, 21 Aug 2020 12:14:02 -0400
+Message-Id: <20200821161423.347071-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,49 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangbo Lu <yangbo.lu@nxp.com>
+From: Peng Fan <fanpeng@loongson.cn>
 
-[ Upstream commit 5656bb3857c4904d1dec6e1b8f876c1c0337274e ]
+[ Upstream commit a859647b4e6bfeb192284d27d24b6a0c914cae1d ]
 
-The timer fixed interval period pulse generator register
-is used to generate periodic pulses. The down count
-register loads the value programmed in the fixed period
-interval (FIPER). At every tick of the timer accumulator
-overflow, the counter decrements by the value of
-TMR_CTRL[TCLK_PERIOD]. It generates a pulse when the down
-counter value reaches zero. It reloads the down counter
-in the cycle following a pulse.
+Close "fd" before the return of map_vdso() and close "out_file"
+in main().
 
-To use the TMR_FIPER register to generate desired periodic
-pulses. The value should programmed is,
-desired_period - tclk_period
-
-Current tmr-fiper2 value is to generate 100us periodic pulses.
-(But the value should have been 99995, not 99990. The tclk_period is 5.)
-This patch is to generate 1 second periodic pulses with value
-999999995 programmed which is more desired by user.
-
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Peng Fan <fanpeng@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ls1021a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/vdso/genvdso.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
-index 760a68c163c83..b2ff27af090ec 100644
---- a/arch/arm/boot/dts/ls1021a.dtsi
-+++ b/arch/arm/boot/dts/ls1021a.dtsi
-@@ -772,7 +772,7 @@ ptp_clock@2d10e00 {
- 			fsl,tmr-prsc    = <2>;
- 			fsl,tmr-add     = <0xaaaaaaab>;
- 			fsl,tmr-fiper1  = <999999995>;
--			fsl,tmr-fiper2  = <99990>;
-+			fsl,tmr-fiper2  = <999999995>;
- 			fsl,max-adj     = <499999999>;
- 			fsl,extts-fifo;
- 		};
+diff --git a/arch/mips/vdso/genvdso.c b/arch/mips/vdso/genvdso.c
+index be57b832bbe0a..ccba50ec8a40e 100644
+--- a/arch/mips/vdso/genvdso.c
++++ b/arch/mips/vdso/genvdso.c
+@@ -122,6 +122,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (fstat(fd, &stat) != 0) {
+ 		fprintf(stderr, "%s: Failed to stat '%s': %s\n", program_name,
+ 			path, strerror(errno));
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -130,6 +131,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (addr == MAP_FAILED) {
+ 		fprintf(stderr, "%s: Failed to map '%s': %s\n", program_name,
+ 			path, strerror(errno));
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -139,6 +141,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
+ 		fprintf(stderr, "%s: '%s' is not an ELF file\n", program_name,
+ 			path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -150,6 +153,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	default:
+ 		fprintf(stderr, "%s: '%s' has invalid ELF class\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -161,6 +165,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	default:
+ 		fprintf(stderr, "%s: '%s' has invalid ELF data order\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -168,15 +173,18 @@ static void *map_vdso(const char *path, size_t *_size)
+ 		fprintf(stderr,
+ 			"%s: '%s' has invalid ELF machine (expected EM_MIPS)\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	} else if (swap_uint16(ehdr->e_type) != ET_DYN) {
+ 		fprintf(stderr,
+ 			"%s: '%s' has invalid ELF type (expected ET_DYN)\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+ 	*_size = stat.st_size;
++	close(fd);
+ 	return addr;
+ }
+ 
+@@ -293,10 +301,12 @@ int main(int argc, char **argv)
+ 	/* Calculate and write symbol offsets to <output file> */
+ 	if (!get_symbols(dbg_vdso_path, dbg_vdso)) {
+ 		unlink(out_path);
++		fclose(out_file);
+ 		return EXIT_FAILURE;
+ 	}
+ 
+ 	fprintf(out_file, "};\n");
++	fclose(out_file);
+ 
+ 	return EXIT_SUCCESS;
+ }
 -- 
 2.25.1
 
