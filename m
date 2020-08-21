@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AFD24DDEB
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4730624DDC2
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbgHURX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
+        id S1727972AbgHUQPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727944AbgHUQPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:15:33 -0400
+        id S1727954AbgHUQPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:15:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFF8D22BED;
-        Fri, 21 Aug 2020 16:15:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E1DD22B43;
+        Fri, 21 Aug 2020 16:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026532;
-        bh=I24xA+xdUYKV5J6GVNJn/ZBPTE2W97W1L7NFtlcKG18=;
+        s=default; t=1598026534;
+        bh=7UJgrp8oLpFznfczBNjW/hayYKMwBDlwUKiE1REJQXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqjqBUj3E91G4KCeMWzT621AZ4E8LVQyMOWBDjVO/nm9BWdKqkGEvzSinW8Hgz1hy
-         enPb+O6mpEcdr6glbZeUL0VtHGdwZpxYpEoOWuYjMIzSs4XYowFt1f9adpixdK63Xt
-         m5v/ILefK2pPkrSuv0YdK/m6cOPg+wp2eN4xJ608=
+        b=wN5tzABLBp5NqAkdwiJmP6Mm4xBLmE52VuH54vPSTf0IeXLqlyV+/4dJ/JKCt5bZ5
+         K8N4c86gkKAe+cidaFbkpB4GulvSSuomi7ncZs+7oTa3EgBEwCHvV4jpLTcSqtWtAw
+         GGV1cN+U9UEtvA9EeEE3Lvl66Hj4VFrJ+T1acVrs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 54/62] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
-Date:   Fri, 21 Aug 2020 12:14:15 -0400
-Message-Id: <20200821161423.347071-54-sashal@kernel.org>
+Cc:     Gal Pressman <galpress@amazon.com>,
+        Shadi Ammouri <sammouri@amazon.com>,
+        Yossi Leybovich <sleybo@amazon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 55/62] RDMA/efa: Add EFA 0xefa1 PCI ID
+Date:   Fri, 21 Aug 2020 12:14:16 -0400
+Message-Id: <20200821161423.347071-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,35 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
+[ Upstream commit d4f9cb5c5b224dca3ff752c1bb854250bf114944 ]
 
-If scsi_host_lookup() fails we will jump to put_host which may cause a
-panic. Jump to exit_set_fnode instead.
+Add support for 0xefa1 devices.
 
-Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20200722140312.3651-5-galpress@amazon.com
+Reviewed-by: Shadi Ammouri <sammouri@amazon.com>
+Reviewed-by: Yossi Leybovich <sleybo@amazon.com>
+Signed-off-by: Gal Pressman <galpress@amazon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/efa/efa_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 7ae5024e78243..df07ecd94793a 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -3291,7 +3291,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
- 		pr_err("%s could not find host no %u\n",
- 		       __func__, ev->u.set_flashnode.host_no);
- 		err = -ENODEV;
--		goto put_host;
-+		goto exit_set_fnode;
- 	}
+diff --git a/drivers/infiniband/hw/efa/efa_main.c b/drivers/infiniband/hw/efa/efa_main.c
+index 82145574c9286..92d7011463203 100644
+--- a/drivers/infiniband/hw/efa/efa_main.c
++++ b/drivers/infiniband/hw/efa/efa_main.c
+@@ -12,10 +12,12 @@
  
- 	idx = ev->u.set_flashnode.flashnode_idx;
+ #include "efa.h"
+ 
+-#define PCI_DEV_ID_EFA_VF 0xefa0
++#define PCI_DEV_ID_EFA0_VF 0xefa0
++#define PCI_DEV_ID_EFA1_VF 0xefa1
+ 
+ static const struct pci_device_id efa_pci_tbl[] = {
+-	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA_VF) },
++	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA0_VF) },
++	{ PCI_VDEVICE(AMAZON, PCI_DEV_ID_EFA1_VF) },
+ 	{ }
+ };
+ 
 -- 
 2.25.1
 
