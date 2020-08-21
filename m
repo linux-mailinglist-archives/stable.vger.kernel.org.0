@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6479424DB5F
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C036924DB4C
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbgHUQis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
+        id S1728606AbgHUQhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbgHUQVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:21:00 -0400
+        id S1728423AbgHUQVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:21:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ED2A2086A;
-        Fri, 21 Aug 2020 16:20:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51AAD22CB1;
+        Fri, 21 Aug 2020 16:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026807;
-        bh=y7+3mb3F1IV1P7eyHp4J62UIqOIDN8ka/C+d2ylHIHE=;
+        s=default; t=1598026809;
+        bh=wixgLls1W+QFGB7zm8+td2/LTyhetrTglGsHbXEsXIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWguHvjjNnGSyEOxNzedVirYkaAhMse1M2Bz1GlRJGg/0RGa7m08fWyvABQ7TclnV
-         ZYF/A6ovMS7wCF36lxjzp0GmbyD/1jBT8ogIfbqmq+j7nkFmln26S8SjJSKdv0uuRb
-         zFNnPpXwrqAuj55NLQSN0RiKqb3QEyizLvLXYfRU=
+        b=p0eGstn2mbbqb0kPy8DFx6T6PELYoIY8WP4gaIloZ2pavFm8gYzwrw6oue1Y4yh+f
+         PKSlN/4YdQRJKckZUS5jWoPCx0u02kx2qO0djpP8BBHGiTvAK2HZ0b21Qm11gjnUda
+         gE9koYzfn4s7ma4JCJiolaCaJbfgxv8O0QJCnTw8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 22/26] locking/lockdep: Fix overflow in presentation of average lock-time
-Date:   Fri, 21 Aug 2020 12:19:33 -0400
-Message-Id: <20200821161938.349246-22-sashal@kernel.org>
+Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 23/26] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
+Date:   Fri, 21 Aug 2020 12:19:34 -0400
+Message-Id: <20200821161938.349246-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161938.349246-1-sashal@kernel.org>
 References: <20200821161938.349246-1-sashal@kernel.org>
@@ -44,40 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit a7ef9b28aa8d72a1656fa6f0a01bbd1493886317 ]
+[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
 
-Though the number of lock-acquisitions is tracked as unsigned long, this
-is passed as the divisor to div_s64() which interprets it as a s32,
-giving nonsense values with more than 2 billion acquisitons. E.g.
+If scsi_host_lookup() fails we will jump to put_host which may cause a
+panic. Jump to exit_set_fnode instead.
 
-  acquisitions   holdtime-min   holdtime-max holdtime-total   holdtime-avg
-  -------------------------------------------------------------------------
-    2350439395           0.07         353.38   649647067.36          0.-32
-
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20200725185110.11588-1-chris@chris-wilson.co.uk
+Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep_proc.c | 2 +-
+ drivers/scsi/scsi_transport_iscsi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index 75d80809c48c9..09bad6cbb95cf 100644
---- a/kernel/locking/lockdep_proc.c
-+++ b/kernel/locking/lockdep_proc.c
-@@ -425,7 +425,7 @@ static void seq_lock_time(struct seq_file *m, struct lock_time *lt)
- 	seq_time(m, lt->min);
- 	seq_time(m, lt->max);
- 	seq_time(m, lt->total);
--	seq_time(m, lt->nr ? div_s64(lt->total, lt->nr) : 0);
-+	seq_time(m, lt->nr ? div64_u64(lt->total, lt->nr) : 0);
- }
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 42b97f1196232..c2bce3f6eaace 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -3191,7 +3191,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
+ 		pr_err("%s could not find host no %u\n",
+ 		       __func__, ev->u.set_flashnode.host_no);
+ 		err = -ENODEV;
+-		goto put_host;
++		goto exit_set_fnode;
+ 	}
  
- static void seq_stats(struct seq_file *m, struct lock_stat_data *data)
+ 	idx = ev->u.set_flashnode.flashnode_idx;
 -- 
 2.25.1
 
