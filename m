@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1D624D98B
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:14:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E35024D998
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbgHUQOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:14:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
+        id S1727787AbgHUQPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:15:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726792AbgHUQOi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:14:38 -0400
+        id S1727113AbgHUQO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:14:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 234642173E;
-        Fri, 21 Aug 2020 16:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F07A20FC3;
+        Fri, 21 Aug 2020 16:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026471;
-        bh=qRCS/QLC3FWuoJNnuz3TG5j7m7cgkYxFjClqQS7j5IU=;
+        s=default; t=1598026497;
+        bh=M+Bk+/4lU9mMcnvrN2jpBXG1aWpPW0uTtcT+LKxuSn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToCi5voofNHv6tf+aRSmMfVdH7yF+he1SUcLp0FKiI5ZAhE/XRnvEbEDS8iag+cSA
-         gxpfywx/VNZpgOh6xfou+cl0nqlLlfxur7G7Jle79RLu0NXOYSEmCucQK87iS9Fsgt
-         tEo2iyhxidaX8BrFPuOVYEzgGXIe/Q9mLFRpHeRE=
+        b=BBy8XEx3ZsxtQfnh6nrsIZn8Uq1dGKskbbFuYak26ylhITsN2jgV5QW3vcD8SGwK8
+         uQ0UwHOtV8HQFUnsabDfxhBAVvXtHqYyeyLjjI9K0gB8zDl721Xhu/RFsMBOfcXWZE
+         nmkq+hC20JD8gTw2ogfLlkscXnlKt5cOGqCuAfAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guchun Chen <guchun.chen@amd.com>, Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 05/62] drm/amdgpu: fix RAS memory leak in error case
-Date:   Fri, 21 Aug 2020 12:13:26 -0400
-Message-Id: <20200821161423.347071-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 27/62] drm/amdgpu/fence: fix ref count leak when pm_runtime_get_sync fails
+Date:   Fri, 21 Aug 2020 12:13:48 -0400
+Message-Id: <20200821161423.347071-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -44,74 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 5e91160ac0b5cfbbaeb62cbff8b069262095f744 ]
+[ Upstream commit e520d3e0d2818aafcdf9d8b60916754d8fedc366 ]
 
-RAS context memory needs to freed in failure case.
+The call to pm_runtime_get_sync increments the counter even in case of
+failure, leading to incorrect ref count.
+In case of failure, decrement the ref count before returning.
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index 50fe08bf2f727..20a7d75b2eb88 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1914,9 +1914,8 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	amdgpu_ras_check_supported(adev, &con->hw_supported,
- 			&con->supported);
- 	if (!con->hw_supported) {
--		amdgpu_ras_set_context(adev, NULL);
--		kfree(con);
--		return 0;
-+		r = 0;
-+		goto err_out;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 3414e119f0cbf..f5a6ee7c2eaa3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -754,8 +754,10 @@ static int amdgpu_debugfs_gpu_recover(struct seq_file *m, void *data)
+ 	int r;
  
- 	con->features = 0;
-@@ -1927,29 +1926,31 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	if (adev->nbio.funcs->init_ras_controller_interrupt) {
- 		r = adev->nbio.funcs->init_ras_controller_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	if (adev->nbio.funcs->init_ras_err_event_athub_interrupt) {
- 		r = adev->nbio.funcs->init_ras_err_event_athub_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	amdgpu_ras_mask &= AMDGPU_RAS_BLOCK_MASK;
- 
--	if (amdgpu_ras_fs_init(adev))
--		goto fs_out;
-+	if (amdgpu_ras_fs_init(adev)) {
-+		r = -EINVAL;
-+		goto err_out;
+ 	r = pm_runtime_get_sync(dev->dev);
+-	if (r < 0)
++	if (r < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return 0;
 +	}
  
- 	dev_info(adev->dev, "RAS INFO: ras initialized successfully, "
- 			"hardware ability[%x] ras_mask[%x]\n",
- 			con->hw_supported, con->supported);
- 	return 0;
--fs_out:
-+err_out:
- 	amdgpu_ras_set_context(adev, NULL);
- 	kfree(con);
- 
--	return -EINVAL;
-+	return r;
- }
- 
- /* helper function to handle common stuff in ip late init phase */
+ 	seq_printf(m, "gpu recover\n");
+ 	amdgpu_device_gpu_recover(adev, NULL);
 -- 
 2.25.1
 
