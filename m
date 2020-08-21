@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EF024DA78
+	by mail.lfdr.de (Postfix) with ESMTP id A57A424DA7A
 	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728392AbgHUQUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:20:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
+        id S1728401AbgHUQUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728352AbgHUQUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:20:05 -0400
+        id S1728356AbgHUQUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:20:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2134122CB2;
-        Fri, 21 Aug 2020 16:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A7022E03;
+        Fri, 21 Aug 2020 16:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026747;
-        bh=l58UeMdt58IB+x76B7v0N/wZQsYhLLAl8Lj5oZQQp3c=;
+        s=default; t=1598026760;
+        bh=yKqhpIt2E7otdBYwhnTyQ4kLewxec0P6sMq8BMGFrfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fz3U/iPFEe5tePf5EQ/dIbJMzQVsnU47eMgPPkVHV+er5wjv3uKz85Z1cX4SiSaX+
-         dElbn3CoexQ97iUIztQq8pj3LSF/dzKVgS4Sx9TjY26LVVWpOjmaGHp+7OFXT51pT1
-         EHFpVy9JQ8t/4U5qGBHBd5tqwlFEp7ooJmFIqrGQ=
+        b=2Wr50MoJZjs7rxRdcanhI7oiPNhKIw8m3838ij528kwN8x2U+IoSKWsbYRMm1sscp
+         +qcLiOM7FlPWC7ueXRabZ4ricjuWq3S74fxezSfytR3s8pgVydmkzpCsaTf0K+x2Wl
+         bHHoNRXJf3y0NjlaXaJMR4KH0plW0Wk/6ybgLGN8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/30] blktrace: ensure our debugfs dir exists
-Date:   Fri, 21 Aug 2020 12:18:34 -0400
-Message-Id: <20200821161857.348955-7-sashal@kernel.org>
+Cc:     "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 17/30] selftests/powerpc: Purge extra count_pmc() calls of ebb selftests
+Date:   Fri, 21 Aug 2020 12:18:44 -0400
+Message-Id: <20200821161857.348955-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161857.348955-1-sashal@kernel.org>
 References: <20200821161857.348955-1-sashal@kernel.org>
@@ -45,64 +45,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>
 
-[ Upstream commit b431ef837e3374da0db8ff6683170359aaa0859c ]
+[ Upstream commit 3337bf41e0dd70b4064cdf60acdfcdc2d050066c ]
 
-We make an assumption that a debugfs directory exists, but since
-this can fail ensure it exists before allowing blktrace setup to
-complete. Otherwise we end up stuffing blktrace files on the debugfs
-root directory. In the worst case scenario this *in theory* can create
-an eventual panic *iff* in the future a similarly named file is created
-prior on the debugfs root directory. This theoretical crash can happen
-due to a recursive removal followed by a specific dentry removal.
+An extra count on ebb_state.stats.pmc_count[PMC_INDEX(pmc)] is being per-
+formed when count_pmc() is used to reset PMCs on a few selftests. This
+extra pmc_count can occasionally invalidate results, such as the ones from
+cycles_test shown hereafter. The ebb_check_count() failed with an above
+the upper limit error due to the extra value on ebb_state.stats.pmc_count.
 
-This doesn't fix any known crash, however I have seen the files
-go into the main debugfs root directory in cases where the debugfs
-directory was not created due to other internal bugs with blktrace
-now fixed.
+Furthermore, this extra count is also indicated by extra PMC1 trace_log on
+the output of the cycle test (as well as on pmc56_overflow_test):
 
-blktrace is also completely useless without this directory, so
-this ensures to userspace we only setup blktrace if the kernel
-can stuff files where they are supposed to go into.
+==========
+   ...
+   [21]: counter = 8
+   [22]: register SPRN_MMCR0 = 0x0000000080000080
+   [23]: register SPRN_PMC1  = 0x0000000080000004
+   [24]: counter = 9
+   [25]: register SPRN_MMCR0 = 0x0000000080000080
+   [26]: register SPRN_PMC1  = 0x0000000080000004
+   [27]: counter = 10
+   [28]: register SPRN_MMCR0 = 0x0000000080000080
+   [29]: register SPRN_PMC1  = 0x0000000080000004
+>> [30]: register SPRN_PMC1  = 0x000000004000051e
+PMC1 count (0x280000546) above upper limit 0x2800003e8 (+0x15e)
+[FAIL] Test FAILED on line 52
+failure: cycles
+==========
 
-debugfs directory creations typically aren't checked for, and we have
-maintainers doing sweep removals of these checks, but since we need this
-check to ensure proper userspace blktrace functionality we make sure
-to annotate the justification for the check.
-
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200626164737.21943-1-desnesn@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ .../selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c      | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c    | 2 --
+ .../selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c     | 2 --
+ tools/testing/selftests/powerpc/pmu/ebb/ebb.c              | 2 --
+ .../selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c  | 2 --
+ .../selftests/powerpc/pmu/ebb/lost_exception_test.c        | 1 -
+ .../testing/selftests/powerpc/pmu/ebb/multi_counter_test.c | 7 -------
+ .../selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c       | 2 --
+ .../testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c | 2 --
+ .../selftests/powerpc/pmu/ebb/pmc56_overflow_test.c        | 2 --
+ 11 files changed, 26 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 9a55c5bc52434..987daf9cc6e54 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -541,6 +541,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
- 	if (!dir)
- 		goto err;
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+index 94110b1dcd3d8..031baa43646fb 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
+@@ -91,8 +91,6 @@ int back_to_back_ebbs(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
  
-+	/*
-+	 * As blktrace relies on debugfs for its interface the debugfs directory
-+	 * is required, contrary to the usual mantra of not checking for debugfs
-+	 * files or directories.
-+	 */
-+	if (IS_ERR_OR_NULL(dir)) {
-+		pr_warn("debugfs_dir not present for %s so skipping\n",
-+			buts->name);
-+		ret = -ENOENT;
-+		goto err;
-+	}
-+
- 	bt->dev = dev;
- 	atomic_set(&bt->dropped, 0);
- 	INIT_LIST_HEAD(&bt->running_list);
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+index 7c57a8d79535d..361e0be9df9ae 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
+@@ -42,8 +42,6 @@ int cycles(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+index ecf5ee3283a3e..fe7d0dc2a1a26 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
+@@ -99,8 +99,6 @@ int cycles_with_freeze(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	printf("EBBs while frozen %d\n", ebbs_while_frozen);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+index c0faba520b35c..b9b30f974b5ea 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
+@@ -71,8 +71,6 @@ int cycles_with_mmcr2(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+index 46681fec549b8..2694ae161a84a 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
+@@ -396,8 +396,6 @@ int ebb_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+index a991d2ea8d0a1..174e4f4dae6c0 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
+@@ -38,8 +38,6 @@ static int victim_child(union pipe read_pipe, union pipe write_pipe)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	FAIL_IF(ebb_state.stats.ebb_count == 0);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+index eb8acb78bc6c1..531083accfcad 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
+@@ -75,7 +75,6 @@ static int test_body(void)
+ 	ebb_freeze_pmcs();
+ 	ebb_global_disable();
+ 
+-	count_pmc(4, sample_period);
+ 	mtspr(SPRN_PMC4, 0xdead);
+ 
+ 	dump_summary_ebb_state();
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+index 6ff8c8ff27d66..035c02273cd49 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
+@@ -70,13 +70,6 @@ int multi_counter(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-	count_pmc(2, sample_period);
+-	count_pmc(3, sample_period);
+-	count_pmc(4, sample_period);
+-	count_pmc(5, sample_period);
+-	count_pmc(6, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	for (i = 0; i < 6; i++)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+index 037cb6154f360..3e9d4ac965c85 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
+@@ -61,8 +61,6 @@ static int cycles_child(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_summary_ebb_state();
+ 
+ 	event_close(&event);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+index c5fa64790c22e..d90891fe96a32 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
+@@ -82,8 +82,6 @@ static int test_body(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(1, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	if (mmcr0_mismatch)
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+index 30e1ac62e8cb4..8ca92b9ee5b01 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
+@@ -76,8 +76,6 @@ int pmc56_overflow(void)
+ 	ebb_global_disable();
+ 	ebb_freeze_pmcs();
+ 
+-	count_pmc(2, sample_period);
+-
+ 	dump_ebb_state();
+ 
+ 	printf("PMC5/6 overflow %d\n", pmc56_overflowed);
 -- 
 2.25.1
 
