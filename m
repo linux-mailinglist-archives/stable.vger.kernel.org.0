@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8091C24DDAA
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C676F24DDA9
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728676AbgHURVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
+        id S1728861AbgHURVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728020AbgHUQQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:01 -0400
+        id S1728023AbgHUQQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:16:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6EA1208DB;
-        Fri, 21 Aug 2020 16:15:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1317A21741;
+        Fri, 21 Aug 2020 16:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026560;
-        bh=WZ5FxAxc/F6InEa4KrbQ2YxY+BEauxKmlWwg4Iwz29o=;
+        s=default; t=1598026561;
+        bh=SF7cbSp+8aJt7HKiEK1+h754VI5LCsyUECgtetCo9QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ru/fsOhMb1K6RC59i8jdcT6P7+Kqqhaq/lRjUhL98sVeTLlDiqclc9ujx4V3OTeAy
-         UAM+Ynlet1H7m7CAQzkkBId8CxPbLLt5cFxRciX4SrRZPBlgBrDZXLNgMMRo6kWSBB
-         ZtHXKJj/6cBEJuIOId4sWP4qUZWP1fOWDrfcHk08=
+        b=O8Psq1iZ2OvyUlFiZBIhYbGURShiyJu/Fmkl9iECSoAlRY3FV3T6Ml1BMrwZnNdxk
+         JdVtjf3cCfuSKID2UGY00JZPtIdxd0DxE9iXW1s3IeEtjYdmlmQ5zvGSq0CnUnNIvQ
+         ZBAK8Rvi/sNEjNx/xnsoS8ddT1a6bKR5LChG1Hs0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 12/61] powerpc/xive: Ignore kmemleak false positives
-Date:   Fri, 21 Aug 2020 12:14:56 -0400
-Message-Id: <20200821161545.347622-12-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju@tsinghua.edu.cn>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 13/61] media: pci: ttpci: av7110: fix possible buffer overflow caused by bad DMA value in debiirq()
+Date:   Fri, 21 Aug 2020 12:14:57 -0400
+Message-Id: <20200821161545.347622-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -43,61 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
 
-[ Upstream commit f0993c839e95dd6c7f054a1015e693c87e33e4fb ]
+[ Upstream commit 6499a0db9b0f1e903d52f8244eacc1d4be00eea2 ]
 
-xive_native_provision_pages() allocates memory and passes the pointer to
-OPAL so kmemleak cannot find the pointer usage in the kernel memory and
-produces a false positive report (below) (even if the kernel did scan
-OPAL memory, it is unable to deal with __pa() addresses anyway).
+The value av7110->debi_virt is stored in DMA memory, and it is assigned
+to data, and thus data[0] can be modified at any time by malicious
+hardware. In this case, "if (data[0] < 2)" can be passed, but then
+data[0] can be changed into a large number, which may cause buffer
+overflow when the code "av7110->ci_slot[data[0]]" is used.
 
-This silences the warning.
+To fix this possible bug, data[0] is assigned to a local variable, which
+replaces the use of data[0].
 
-unreferenced object 0xc000200350c40000 (size 65536):
-  comm "qemu-system-ppc", pid 2725, jiffies 4294946414 (age 70776.530s)
-  hex dump (first 32 bytes):
-    02 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00  ....P...........
-    01 00 08 07 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000081ff046c>] xive_native_alloc_vp_block+0x120/0x250
-    [<00000000d555d524>] kvmppc_xive_compute_vp_id+0x248/0x350 [kvm]
-    [<00000000d69b9c9f>] kvmppc_xive_connect_vcpu+0xc0/0x520 [kvm]
-    [<000000006acbc81c>] kvm_arch_vcpu_ioctl+0x308/0x580 [kvm]
-    [<0000000089c69580>] kvm_vcpu_ioctl+0x19c/0xae0 [kvm]
-    [<00000000902ae91e>] ksys_ioctl+0x184/0x1b0
-    [<00000000f3e68bd7>] sys_ioctl+0x48/0xb0
-    [<0000000001b2c127>] system_call_exception+0x124/0x1f0
-    [<00000000d2b2ee40>] system_call_common+0xe8/0x214
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200612043303.84894-1-aik@ozlabs.ru
+Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/native.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/pci/ttpci/av7110.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
-index 5218fdc4b29a9..82860c7b58353 100644
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/cpumask.h>
- #include <linux/mm.h>
-+#include <linux/kmemleak.h>
+diff --git a/drivers/media/pci/ttpci/av7110.c b/drivers/media/pci/ttpci/av7110.c
+index d0cdee1c6eb0b..bf36b1e22b635 100644
+--- a/drivers/media/pci/ttpci/av7110.c
++++ b/drivers/media/pci/ttpci/av7110.c
+@@ -406,14 +406,15 @@ static void debiirq(unsigned long cookie)
+ 	case DATA_CI_GET:
+ 	{
+ 		u8 *data = av7110->debi_virt;
++		u8 data_0 = data[0];
  
- #include <asm/machdep.h>
- #include <asm/prom.h>
-@@ -647,6 +648,7 @@ static bool xive_native_provision_pages(void)
- 			pr_err("Failed to allocate provisioning page\n");
- 			return false;
- 		}
-+		kmemleak_ignore(p);
- 		opal_xive_donate_page(chip, __pa(p));
- 	}
- 	return true;
+-		if ((data[0] < 2) && data[2] == 0xff) {
++		if (data_0 < 2 && data[2] == 0xff) {
+ 			int flags = 0;
+ 			if (data[5] > 0)
+ 				flags |= CA_CI_MODULE_PRESENT;
+ 			if (data[5] > 5)
+ 				flags |= CA_CI_MODULE_READY;
+-			av7110->ci_slot[data[0]].flags = flags;
++			av7110->ci_slot[data_0].flags = flags;
+ 		} else
+ 			ci_get_data(&av7110->ci_rbuffer,
+ 				    av7110->debi_virt,
 -- 
 2.25.1
 
