@@ -2,105 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B735024E2A0
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 23:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D9124E2B1
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 23:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726630AbgHUVWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 17:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726364AbgHUVWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 17:22:04 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82D4C061573;
-        Fri, 21 Aug 2020 14:22:04 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id t11so1447725plr.5;
-        Fri, 21 Aug 2020 14:22:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=QimYEzUuomzeKu0NnkOLnMzXVUForH/gC/W/tgKlANk=;
-        b=eUPfuHlYHn4QUpOqHvIkTvx4flkuFY5SNfF23C0Mzp2BgnP32eQQlaPlWuwmcYdY4j
-         J3FTH7/IN3FtAa+S43XPyXJ/zj1i/4//eVGfTMufluAE8M8ZiiC+qsWUTWzULHAR6kM/
-         2eCsh2m2yAdVJO0ulJgtnw4VxhtlUyFg9Yh0+L/SHNlZKxRp8Uxkj5nnuDLo+Dhcryyj
-         PLB8TnG7WORO0n+kcRWOeVt3S4+yeX+TbmEpH8AMGACTupVHqqbzo1G9QWGfLgipRqAA
-         CPkTaoU8kCNtTDO2QL3CpR+ctQuonf8GduPletTvLC14IZyYk9HfH/ZMS5kbnpBum5Q7
-         5ZeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=QimYEzUuomzeKu0NnkOLnMzXVUForH/gC/W/tgKlANk=;
-        b=XJSI+VJSanmBpBZmr0qsZR2ytWC8ilEgMMxsLe1fP4BsjidNd2JkJXlaMesnkd6ZbN
-         vSylSuwYxjWUtZpV1XCJJ2DQH7VBzwNDpZdmIRmJQpal2kzdqwzxNr2dIMEz0a08CAaH
-         2qUnQsf6xzzGEbqBImT4xF7dzewS3v9LLEi2uBx6kAj0k46bZEs3OOqqnoXKRcaUueFc
-         TpjPWFs/UhMnzYCKIT5CHbLmvtIjXfGr9wddQXBRmxUZbNzlaZbUzusZLAu2PTQ2t6kF
-         puyUMYa2gjew3EuENBtyu3LGKeVDfz58AxIh3GVhUkYp1xF/chNt9L8mvx2Dfr2Dx8xs
-         1zvQ==
-X-Gm-Message-State: AOAM532kVG0QnK9VHB4hyUEqWUMDpamO4hPImjUzHN+h/wLdpzjvTtPA
-        leO57oTHck6Vi63DhiZ+Vjg=
-X-Google-Smtp-Source: ABdhPJwin3w2mHVeJsBaU2ANWx4MczQvrGtxU+UpJumLeadqEZd9WWXaz7Wvn/1uCifDCZ0uW6071g==
-X-Received: by 2002:a17:902:b205:: with SMTP id t5mr3932345plr.7.1598044924289;
-        Fri, 21 Aug 2020 14:22:04 -0700 (PDT)
-Received: from localhost.localdomain.com ([2605:e000:160b:911f:722f:a74:437d:fd3c])
-        by smtp.gmail.com with ESMTPSA id d81sm3488611pfd.174.2020.08.21.14.22.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2020 14:22:03 -0700 (PDT)
-From:   Chris Healy <cphealy@gmail.com>
-X-Google-Original-From: Chris Healy <cphealy@gmail.com
-To:     srinivas.kandagatla@linaro.org, robh+dt@kernel.org,
-        shawnguo@kernel.org, andrew.smirnov@gmail.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        s.hauer@pengutronix.de, kernel@pengutronix.de, stefan@agner.ch,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        festevam@gmail.com
-Cc:     Chris Healy <cphealy@gmail.com>
-Subject: [PATCH v3 2/2] ARM: dts: vfxxx: Add syscon compatible with OCOTP
-Date:   Fri, 21 Aug 2020 14:21:02 -0700
-Message-Id: <20200821212102.137991-2-cphealy@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200821212102.137991-1-cphealy@gmail.com>
-References: <20200821212102.137991-1-cphealy@gmail.com>
+        id S1726391AbgHUV3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 17:29:43 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47324 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726187AbgHUV3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 17:29:43 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E5BBD1C0BB0; Fri, 21 Aug 2020 23:29:41 +0200 (CEST)
+Date:   Fri, 21 Aug 2020 23:29:41 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Joerg Roedel <joro@8bytes.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Dave Airlie <airlied@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Vrabel <david.vrabel@citrix.com>,
+        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm: Track page table modifications in
+ __apply_to_page_range()
+Message-ID: <20200821212941.GA5408@amd>
+References: <20200821123746.16904-1-joro@8bytes.org>
+ <20200821133548.be58a3b0881b41a32759fa04@linux-foundation.org>
+ <159804301810.32652.14249776487575415877@build.alporthouse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+In-Reply-To: <159804301810.32652.14249776487575415877@build.alporthouse.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Healy <cphealy@gmail.com>
 
-Add syscon compatibility with Vybrid OCOTP node. This is required to
-access the UID.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: fa8d20c8dbb77 ("ARM: dts: vfxxx: Add node corresponding to OCOTP")
-Cc: stable@vger.kernel.org
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Chris Healy <cphealy@gmail.com>
----
-Changes in v2:
- - Add Fixes line to commit message
-Changes in v3:
- - Add Reviewed-by tags
----
- arch/arm/boot/dts/vfxxx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi!
 
-diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
-index 0fe03aa0367f..2259d11af721 100644
---- a/arch/arm/boot/dts/vfxxx.dtsi
-+++ b/arch/arm/boot/dts/vfxxx.dtsi
-@@ -495,7 +495,7 @@ edma1: dma-controller@40098000 {
- 			};
- 
- 			ocotp: ocotp@400a5000 {
--				compatible = "fsl,vf610-ocotp";
-+				compatible = "fsl,vf610-ocotp", "syscon";
- 				reg = <0x400a5000 0x1000>;
- 				clocks = <&clks VF610_CLK_OCOTP>;
- 			};
--- 
-2.26.2
+> > > The __apply_to_page_range() function is also used to change and/or
+> > > allocate page-table pages in the vmalloc area of the address space.
+> > > Make sure these changes get synchronized to other page-tables in the
+> > > system by calling arch_sync_kernel_mappings() when necessary.
+> >=20
+> > There's no description here of the user-visible effects of the bug.=20
+> > Please always provide this, especially when proposing a -stable
+> > backport.  Take pity upon all the downstream kernel maintainers who are
+> > staring at this wondering whether they should risk adding it to their
+> > kernels.
+>=20
+> The impact appears limited to x86-32, where apply_to_page_range may miss
+> updating the PMD. That leads to explosions in drivers like
+>=20
+> [   24.227844] BUG: unable to handle page fault for address: fe036000
+> [   24.228076] #PF: supervisor write access in kernel mode
+> [   24.228294] #PF: error_code(0x0002) - not-present page
+> [   24.228494] *pde =3D 00000000
+> [   24.228640] Oops: 0002 [#1] SMP
+> [   24.228788] CPU: 3 PID: 1300 Comm: gem_concurrent_ Not tainted 5.9.0-r=
+c1+ #16
+> [   24.228957] Hardware name:  /NUC6i3SYB, BIOS SYSKLi35.86A.0024.2015.10=
+27.2142 10/27/2015
+> [   24.229297] EIP: __execlists_context_alloc+0x132/0x2d0 [i915]
+> [   24.229462] Code: 31 d2 89 f0 e8 2f 55 02 00 89 45 e8 3d 00 f0 ff ff 0=
+f 87 11 01 00 00 8b 4d e8 03 4b 30 b8 5a 5a 5a 5a ba 01 00 00 00 8d 79 04 <=
+c7> 01 5a 5a 5a 5a c7 81 fc 0f 00 00 5a 5a 5a 5a 83 e7 fc 29 f9 81
+> [   24.229759] EAX: 5a5a5a5a EBX: f60ca000 ECX: fe036000 EDX: 00000001
+> [   24.229915] ESI: f43b7340 EDI: fe036004 EBP: f6389cb8 ESP: f6389c9c
+> [   24.230072] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010=
+286
+> [   24.230229] CR0: 80050033 CR2: fe036000 CR3: 2d361000 CR4: 001506d0
+> [   24.230385] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+> [   24.230539] DR6: fffe0ff0 DR7: 00000400
+> [   24.230675] Call Trace:
+> [   24.230957]  execlists_context_alloc+0x10/0x20 [i915]
+> [   24.231266]  intel_context_alloc_state+0x3f/0x70 [i915]
+> [   24.231547]  __intel_context_do_pin+0x117/0x170 [i915]
+> [   24.231850]  i915_gem_do_execbuffer+0xcc7/0x2500 [i915]
+> [   24.232024]  ? __kmalloc_track_caller+0x54/0x230
+> [   24.232181]  ? ktime_get+0x3e/0x120
+> [   24.232333]  ? dma_fence_signal+0x34/0x50
+> [   24.232617]  i915_gem_execbuffer2_ioctl+0xcd/0x1f0 [i915]
+> [   24.232912]  ? i915_gem_execbuffer_ioctl+0x2e0/0x2e0 [i915]
+> [   24.233084]  drm_ioctl_kernel+0x8f/0xd0
+> [   24.233236]  drm_ioctl+0x223/0x3d0
+> [   24.233505]  ? i915_gem_execbuffer_ioctl+0x2e0/0x2e0 [i915]
+> [   24.233684]  ? pick_next_task_fair+0x1b5/0x3d0
+> [   24.233873]  ? __switch_to_asm+0x36/0x50
+> [   24.234021]  ? drm_ioctl_kernel+0xd0/0xd0
+> [   24.234167]  __ia32_sys_ioctl+0x1ab/0x760
+> [   24.234313]  ? exit_to_user_mode_prepare+0xe5/0x110
+> [   24.234453]  ? syscall_exit_to_user_mode+0x23/0x130
+> [   24.234601]  __do_fast_syscall_32+0x3f/0x70
+> [   24.234744]  do_fast_syscall_32+0x29/0x60
+> [   24.234885]  do_SYSENTER_32+0x15/0x20
+> [   24.235021]  entry_SYSENTER_32+0x9f/0xf2
+> [   24.235157] EIP: 0xb7f28559
+> [   24.235288] Code: 03 74 c0 01 10 05 03 74 b8 01 10 06 03 74 b4 01 10 0=
+7 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <=
+5d> 5a 59 c3 90 90 90 90 8d 76 00 58 b8 77 00 00 00 cd 80 90 8d 76
+> [   24.235576] EAX: ffffffda EBX: 00000005 ECX: c0406469 EDX: bf95556c
+> [   24.235722] ESI: b7e68000 EDI: c0406469 EBP: 00000005 ESP: bf9554d8
+> [   24.235869] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b EFLAGS: 00000=
+296
+> [   24.236018] Modules linked in: i915 x86_pkg_temp_thermal intel_powercl=
+amp crc32_pclmul crc32c_intel intel_cstate intel_uncore intel_gtt drm_kms_h=
+elper intel_pch_thermal video button autofs4 i2c_i801 i2c_smbus fan
+> [   24.236336] CR2: 00000000fe036000
+>=20
+> It looks like kasan, xen and i915 are vulnerable.
 
+And actual impact is "on thinkpad X60 in 5.9-rc1, screen starts
+blinking after 30-or-so minutes, and macine is unusable"... that is
+assuming we are taking same bug.
+
+Best regards,
+								Pavel
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl9APMUACgkQMOfwapXb+vIqlQCgm7zxsEBdfcvxbL1Na0G7WDPX
++KUAn2d/s1U+J6N41YFcV66zr9KtN9+q
+=89db
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--
