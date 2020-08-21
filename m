@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 121BD24DC2F
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0F924DC36
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 18:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728576AbgHUQ45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 12:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
+        id S1728433AbgHUQ4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 12:56:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728284AbgHUQT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:19:29 -0400
+        id S1728286AbgHUQTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:19:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2AB92086A;
-        Fri, 21 Aug 2020 16:18:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FAC421741;
+        Fri, 21 Aug 2020 16:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026721;
-        bh=hHlrvVv6ZvQQkb3Q7+JMMIw0qSxNayamM1etArGofpc=;
+        s=default; t=1598026722;
+        bh=CuavRm0CKBzQlhflULSq+Uof+b5mUZFbdVDsHUwhgfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arJEW8bRdLOxC01WNLaKem3KC8jLD+5U7k55C2xMHVRtEdbqMvcC8qReIJQZmms05
-         Y2tSq9/6QoAWftyEbbOFDAOjX55THr71FCSNKvzrBNM5s1b9JsRIY91+HrIeCBAAOz
-         rssk1GzkTankvZlML3mfUalK7isheuyLeZGCwVrQ=
+        b=YOY/r5pqQ7VRx/Km6e/pqZKqCes4HvMT1tOJBnkAhf6pysE/CTcBIlB2bk/4aJYJm
+         PsZmsp7dYqc98fRoO17PArGUftFLiUAgP0KFN1tXFkTcHnp2q8OEmRA+Rd1YjQJ7l3
+         KVmhjSuaJ5mqT1CGN/mMcu436bT8aLQr0jnl7ldk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <fanpeng@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 26/38] mips/vdso: Fix resource leaks in genvdso.c
-Date:   Fri, 21 Aug 2020 12:17:55 -0400
-Message-Id: <20200821161807.348600-26-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 27/38] cec-api: prevent leaking memory through hole in structure
+Date:   Fri, 21 Aug 2020 12:17:56 -0400
+Message-Id: <20200821161807.348600-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161807.348600-1-sashal@kernel.org>
 References: <20200821161807.348600-1-sashal@kernel.org>
@@ -43,96 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <fanpeng@loongson.cn>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit a859647b4e6bfeb192284d27d24b6a0c914cae1d ]
+[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
 
-Close "fd" before the return of map_vdso() and close "out_file"
-in main().
+Fix this smatch warning:
 
-Signed-off-by: Peng Fan <fanpeng@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
+'features')
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/genvdso.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/media/cec/cec-api.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/vdso/genvdso.c b/arch/mips/vdso/genvdso.c
-index 530a36f465ced..afcc86726448e 100644
---- a/arch/mips/vdso/genvdso.c
-+++ b/arch/mips/vdso/genvdso.c
-@@ -126,6 +126,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (fstat(fd, &stat) != 0) {
- 		fprintf(stderr, "%s: Failed to stat '%s': %s\n", program_name,
- 			path, strerror(errno));
-+		close(fd);
- 		return NULL;
- 	}
+diff --git a/drivers/media/cec/cec-api.c b/drivers/media/cec/cec-api.c
+index 4961573850d54..b2b3f779592fd 100644
+--- a/drivers/media/cec/cec-api.c
++++ b/drivers/media/cec/cec-api.c
+@@ -147,7 +147,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
+ 	struct cec_log_addrs log_addrs;
  
-@@ -134,6 +135,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (addr == MAP_FAILED) {
- 		fprintf(stderr, "%s: Failed to map '%s': %s\n", program_name,
- 			path, strerror(errno));
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -143,6 +145,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
- 		fprintf(stderr, "%s: '%s' is not an ELF file\n", program_name,
- 			path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -154,6 +157,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	default:
- 		fprintf(stderr, "%s: '%s' has invalid ELF class\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -165,6 +169,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	default:
- 		fprintf(stderr, "%s: '%s' has invalid ELF data order\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -172,15 +177,18 @@ static void *map_vdso(const char *path, size_t *_size)
- 		fprintf(stderr,
- 			"%s: '%s' has invalid ELF machine (expected EM_MIPS)\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	} else if (swap_uint16(ehdr->e_type) != ET_DYN) {
- 		fprintf(stderr,
- 			"%s: '%s' has invalid ELF type (expected ET_DYN)\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
- 	*_size = stat.st_size;
-+	close(fd);
- 	return addr;
- }
- 
-@@ -284,10 +292,12 @@ int main(int argc, char **argv)
- 	/* Calculate and write symbol offsets to <output file> */
- 	if (!get_symbols(dbg_vdso_path, dbg_vdso)) {
- 		unlink(out_path);
-+		fclose(out_file);
- 		return EXIT_FAILURE;
- 	}
- 
- 	fprintf(out_file, "};\n");
-+	fclose(out_file);
- 
- 	return EXIT_SUCCESS;
- }
+ 	mutex_lock(&adap->lock);
+-	log_addrs = adap->log_addrs;
++	/*
++	 * We use memcpy here instead of assignment since there is a
++	 * hole at the end of struct cec_log_addrs that an assignment
++	 * might ignore. So when we do copy_to_user() we could leak
++	 * one byte of memory.
++	 */
++	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
+ 	if (!adap->is_configured)
+ 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
+ 		       sizeof(log_addrs.log_addr));
 -- 
 2.25.1
 
