@@ -2,77 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BED7C24E12B
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 21:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833B824E17E
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 21:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726433AbgHUTxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 15:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49934 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725831AbgHUTxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 15:53:24 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573AF20724;
-        Fri, 21 Aug 2020 19:53:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598039603;
-        bh=2QiDitSdOfxDO/VB+exgpZpgxuRzBDeUzezQJr8QVrg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Jl35uN05Ru3fv0hxS6qF5hY3560r8yv6moIt7DFzB1WDYYMzngZsF0C+LI+g+jrV/
-         u35bhBpz3hWNyr6b3FZaixD870XZRc4DmbqQr6cBK98ovKM/BsFoD3dn+7YmI/PTVP
-         Jys7Z7xSwBSJjJbbGx8g0HAd++wUsvtjBWRa1rYE=
-Date:   Fri, 21 Aug 2020 15:53:22 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Gal Pressman <galpress@amazon.com>,
-        Shadi Ammouri <sammouri@amazon.com>,
-        Yossi Leybovich <sleybo@amazon.com>, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.8 55/62] RDMA/efa: Add EFA 0xefa1 PCI ID
-Message-ID: <20200821195322.GC8670@sasha-vm>
-References: <20200821161423.347071-1-sashal@kernel.org>
- <20200821161423.347071-55-sashal@kernel.org>
- <20200821194036.GB2811093@nvidia.com>
+        id S1726664AbgHUT6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 15:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727872AbgHUT6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 15:58:02 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D781C061574
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:58:02 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id o5so1493359pgb.2
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 12:58:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cEwWM2Q7bEsnNBgVhRNuLtpLgTHUuU6BnMds7XNjHns=;
+        b=BYM6uNGRr8wFdWSwso6Af3g6XwgxBhnZT4bdZdFGFJW4jTUCwIp2u5izbbZv2Rdt/c
+         ywBoGRTTryVOQQMFIRBsBv+kaR/HKP8eCE1JwkEOiSN+YKeSahcjsEfWxx+VqN0qRDsk
+         8sGYNQvAvwhiERqAmOTNpKigVYsfR7kY3UP0/yZbMdS+Hlke0PzaUFFDMDU5MtvamPQh
+         5/jv2PXS6XY8DsZczGQnRhrLM5Ch3Q/YSr6QhbbAxXZhEeEsSYi+uPMTKyjcY62UUtWG
+         fo43v48WFdcbj0AGJiJX7vvJDKVhjnFfMZ+OFhH8kL/pIzO69u3Q5SApNfXxxWvmI1Ua
+         NaeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cEwWM2Q7bEsnNBgVhRNuLtpLgTHUuU6BnMds7XNjHns=;
+        b=pamkJGClU30w4+kb6bTx9C2K3XVUz9F6rr48fTeoXj6Z9JspzhUTpEqZrq0xBbeEVq
+         5Pri3Db9RdrghgsgvEczZ7aowayrtZUNww66U03nvJ2U+ZDxYkud30ztaId4HjkYB8z9
+         4JiolMAb971ZBCd8sm4w6NY/rupPB50ibQlORIuSrsRPMjejILzuZpfsc6Nt9hQv0JW9
+         ie4CiTC+PfgPipiB4n59ukNmFAPstYF74AUQfy2NgG1dcjLU8gQxH8rs2YXxyLdLjAub
+         6dim/3jnS688E5oLWMU4GacJNwC9WwV2DxsWDrgTA/zBcAH9xD/HxkT3S8AB8Az9Hh6e
+         /CLg==
+X-Gm-Message-State: AOAM5336tGLAiMciS0+FtIlB8/GGKqCa/i0I3Fe+udrTDmGnN95dzqST
+        PYgKB6kRMPx6alM0+8eGZQagLoVHyblI0g==
+X-Google-Smtp-Source: ABdhPJyGzuaT/IiZQmylG8/N8YlnOBtSqZo8F8ZDQWhHv0Xr6Zd2MLJVBXkhO1rWZU+yujaN8wgMCQ==
+X-Received: by 2002:aa7:9386:: with SMTP id t6mr3895581pfe.220.1598039879444;
+        Fri, 21 Aug 2020 12:57:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t25sm3345433pfe.51.2020.08.21.12.57.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Aug 2020 12:57:58 -0700 (PDT)
+Message-ID: <5f402746.1c69fb81.99d0.9321@mx.google.com>
+Date:   Fri, 21 Aug 2020 12:57:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200821194036.GB2811093@nvidia.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.194
+Subject: stable-rc/linux-4.14.y baseline: 153 runs, 2 regressions (v4.14.194)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 04:40:36PM -0300, Jason Gunthorpe wrote:
->On Fri, Aug 21, 2020 at 12:14:16PM -0400, Sasha Levin wrote:
->> From: Gal Pressman <galpress@amazon.com>
->>
->> [ Upstream commit d4f9cb5c5b224dca3ff752c1bb854250bf114944 ]
->>
->> Add support for 0xefa1 devices.
->>
->> Link: https://lore.kernel.org/r/20200722140312.3651-5-galpress@amazon.com
->> Reviewed-by: Shadi Ammouri <sammouri@amazon.com>
->> Reviewed-by: Yossi Leybovich <sleybo@amazon.com>
->> Signed-off-by: Gal Pressman <galpress@amazon.com>
->> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/infiniband/hw/efa/efa_main.c | 6 ++++--
->>  1 file changed, 4 insertions(+), 2 deletions(-)
->
->Wait, what? Why is this being autosel'd?
+stable-rc/linux-4.14.y baseline: 153 runs, 2 regressions (v4.14.194)
 
-Stable trees try to pick up device enablement patches (such as patches
-that add PCI IDs). I suppose that AUTOSEL get pretty eager to grab
-those.
+Regressions Summary
+-------------------
 
->This needs to be the last patch in a series enabling support for this
->chip, it will badly break this driver to pick it out of sequence!!
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-I'll drop it, thanks for letting me know!
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
 
--- 
-Thanks,
-Sasha
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.194/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.194
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6a24ca2506d64598eac5d5219e99acca9bde4ca5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f3ffdd3a610bee0d99fb467
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+94/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+94/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f3ffdd3a610bee0d99fb=
+468
+      failing since 28 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
+fail: v4.14.189)  =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f3ff14caf2e4e47609fb441
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+94/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+94/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f3ff14caf2e4e47609fb=
+442
+      failing since 143 days (last pass: v4.14.172-114-g734382e2d26e, first=
+ fail: v4.14.174-131-g234ce78cac23)  =20
