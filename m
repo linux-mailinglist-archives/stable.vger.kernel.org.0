@@ -2,226 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D28F824E1C1
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 22:02:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F6424E1F5
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 22:14:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbgHUUCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 16:02:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726747AbgHUUCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 16:02:21 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D04C061573
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 13:02:21 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id 17so1581399pfw.9
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 13:02:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2Ww8xh4vjzI7T2JePZ4OGb9dJA8VDxg6HHuBdhs+SwA=;
-        b=Y8t1TWcmgYnCks/KA/nSeJzEA2A1CDN87I5BtVrsPBOjy5MLYt2+gdHZXRbbxXuGKT
-         rRHheApldfX2o62pz5kd+V07W4uWO00XNnXcM2f0/UwC4KIKmtYmtx0b6t5a7zMyA/xX
-         uPFR4RKzQ8y1eRUKsc59yzk9de5To3FHWr2Sp1dhOIt3U39pLkPg6PiAdojv5LLfdTk1
-         7t4bI4dW3QEnMIAx2XlptP0KNo9CwM/xH0FAyp/CaeFlylLhn8t2NEpZ1fsvqSCd2vd8
-         ILQMRslenPoLOSoOP5Ex5vdm6nIA4Kb+ZqoS26BpG9sJu5FrXHfFc/Q9utN5Rboc8Woj
-         jt/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2Ww8xh4vjzI7T2JePZ4OGb9dJA8VDxg6HHuBdhs+SwA=;
-        b=ukR7Da/dAKi2ZM0Bmo8FRegRjKke9xoTxFJqNYlcpHfB9glAT4z/0br60ZPfRcVWpt
-         /v3kNAnWCG40AeSK9CxIMZrilAkr2jyJ6mImgDI1nDuhjr1gR+YVsdnjRzA9YCcPmYYg
-         syVN6wjQ6zdw6M9SnnYdeX5iWf8lNdydEUJa1cRHVFaOQ6+ED5/DXtevOsprAY8eHojq
-         RxQ9+SbTgW8tJNXXBVXAUJoJT1RjQFPm7P1ohXqWUIeTBesHbtkQsp9rBpMDdvZtV60P
-         mx3uV87lAP90zDnDSmVdNUxTsNvLVbNSRR04w8bdZ5CwxJrnTOW1ldAC31cQv/Tn3AF6
-         fa1A==
-X-Gm-Message-State: AOAM531eLH9ba7gQ03Zfs9KWE1yQQCDOdL55Z6D16eu199y9pDtnmHai
-        h0VD+lxJ9HQgGiCICSp+g/of0Q7jWf/1Nw==
-X-Google-Smtp-Source: ABdhPJxUHOQf/u9fyV5z4Odu9tOPa9/AFNeHQl7oBTQ7NA2A87TT8qljogIqxqkoy+zIP/Ag+pmmow==
-X-Received: by 2002:a62:86ca:: with SMTP id x193mr3705645pfd.152.1598040140203;
-        Fri, 21 Aug 2020 13:02:20 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 12sm3311647pfn.173.2020.08.21.13.02.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2020 13:02:19 -0700 (PDT)
-Message-ID: <5f40284b.1c69fb81.13d6c.a2a1@mx.google.com>
-Date:   Fri, 21 Aug 2020 13:02:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.60
-Subject: stable-rc/linux-5.4.y baseline: 182 runs, 3 regressions (v5.4.60)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726818AbgHUUOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 16:14:51 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60666 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725938AbgHUUOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 16:14:50 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07LK3H1P132003;
+        Fri, 21 Aug 2020 16:14:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=OEL2qiQPMhRIm7Kf1rmkn8qZo5qwji4nRxuZSZ+sKUc=;
+ b=rvkncGg+heFsofqSqD8cscXSzXxVYKzgeH/Icc7sfVL0xKNqLeOgd0nwqFFEzch86iwE
+ VZulPcvulKDfulzwX906quMaHfHuZEKEYymfp9Ii3r33S8mr695jmEVksqs3tPjtd45u
+ NWyD/vb+rv+4mvNqRAA0DMLYqrX3VXxbdOhueO7yzumIMoKu9UkJsqAKyCGh/2ijzFII
+ QIPP342d+8f4V/EQShyut2odxaC/2jnl7YIYszYFx0C9lu0o07le7sBYwIMh4nY/gRxN
+ LnImjSLAt9/p68Kb/xC+k8VliAQF8vvvkVdZtFVTbD8QV/AeSg8MDf0mZtnjikd9fkPc Ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3327xueyev-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Aug 2020 16:14:43 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07LK3PAG132989;
+        Fri, 21 Aug 2020 16:14:43 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3327xueyee-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Aug 2020 16:14:43 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07LK52fH015848;
+        Fri, 21 Aug 2020 20:14:41 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3304cc4qka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Aug 2020 20:14:41 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07LKEdlB24314184
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Aug 2020 20:14:39 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29160A4053;
+        Fri, 21 Aug 2020 20:14:39 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7ED45A4040;
+        Fri, 21 Aug 2020 20:14:37 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.65.240])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 21 Aug 2020 20:14:37 +0000 (GMT)
+Message-ID: <caedd49bc2080a2fb8b16b9ecacab67d11e68fd7.camel@linux.ibm.com>
+Subject: Re: [PATCH 03/11] evm: Refuse EVM_ALLOW_METADATA_WRITES only if the
+ HMAC key is loaded
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Fri, 21 Aug 2020 16:14:36 -0400
+In-Reply-To: <20200618160133.937-3-roberto.sassu@huawei.com>
+References: <20200618160133.937-1-roberto.sassu@huawei.com>
+         <20200618160133.937-3-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-21_09:2020-08-21,2020-08-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 mlxscore=0 phishscore=0 adultscore=0 suspectscore=0
+ spamscore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
+ bulkscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2008210183
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 182 runs, 3 regressions (v5.4.60)
+Hi Roberto,
 
-Regressions Summary
--------------------
+On Thu, 2020-06-18 at 18:01 +0200, Roberto Sassu wrote:
+> Granting metadata write is safe if the HMAC key is not loaded, as it won't
+> let an attacker obtain a valid HMAC from corrupted xattrs. evm_write_key()
+> however does not allow it if any key is loaded, including a public key,
+> which should not be a problem.
+> 
 
-platform              | arch  | lab          | compiler | defconfig        =
- | results
-----------------------+-------+--------------+----------+------------------=
--+--------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
- | 0/1    =
+Why is the existing hebavior a problem?  What is the problem being
+solved?
 
-bcm2837-rpi-3-b       | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig=
- | 3/4    =
+> This patch allows setting EVM_ALLOW_METADATA_WRITES if the EVM_INIT_HMAC
+> flag is not set.
+> 
+> Cc: stable@vger.kernel.org # 4.16.x
+> Fixes: ae1ba1676b88e ("EVM: Allow userland to permit modification of EVM-protected metadata")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>  security/integrity/evm/evm_secfs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+> index cfc3075769bb..92fe26ace797 100644
+> --- a/security/integrity/evm/evm_secfs.c
+> +++ b/security/integrity/evm/evm_secfs.c
+> @@ -84,7 +84,7 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+>  	 * keys are loaded.
+>  	 */
+>  	if ((i & EVM_ALLOW_METADATA_WRITES) &&
+> -	    ((evm_initialized & EVM_KEY_MASK) != 0) &&
+> +	    ((evm_initialized & EVM_INIT_HMAC) != 0) &&
+>  	    !(evm_initialized & EVM_ALLOW_METADATA_WRITES))
+>  		return -EPERM;
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
- | 3/4    =
+>  
 
+Documentation/ABI/testing/evm needs to be updated as well.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.60/plan/baseline/
+thanks,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.60
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      77fcb48939fc863d9ba9d808fac9000959e937d3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
- | results
-----------------------+-------+--------------+----------+------------------=
--+--------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
- | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f3ffc993abcc447df9fb433
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f3ffc993abcc447df9fb=
-434
-      failing since 131 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
-il: v5.4.30-81-gf163418797b9)  =
+Mimi
 
 
 
-platform              | arch  | lab          | compiler | defconfig        =
- | results
-----------------------+-------+--------------+----------+------------------=
--+--------
-bcm2837-rpi-3-b       | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig=
- | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f3fefc2c733e03c4c9fb42c
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f3fefc2c733e03=
-c4c9fb432
-      new failure (last pass: v5.4.59-153-g6793ee834d88)
-      84 lines
-
-    2020-08-21 16:00:54.021000  kern  :emerg : Stack: (0xeaeabdf8 to 0xeaea=
-c000)
-    2020-08-21 16:00:54.022000  kern  :emerg : bde0:                       =
-                                eaeabea8 eae8fcc0
-    2020-08-21 16:00:54.022000  kern  :emerg : be00: eaeabf58 00000001 ffff=
-ff9c eaeaa000 eaeabea4 eaeabe20 c024b494 c0249be8
-    2020-08-21 16:00:54.023000  kern  :emerg : be20: 00000001 c0d586fc c0d0=
-e880 c057d164 00000000 c0d0e418 00000000 c0902bc0
-    2020-08-21 16:00:54.063000  kern  :emerg : be40: eaeabe74 00000041 c014=
-6cc0 c057d170 eaeabf58 c057d170 ec4f9fb0 c013b970
-    2020-08-21 16:00:54.064000  kern  :emerg : be60: ffffffff 00000000 eaea=
-be9c eaeabe78 c013b970 33b60051 ec50e018 0000000c
-    2020-08-21 16:00:54.065000  kern  :emerg : be80: c0d04248 eaeabf58 0000=
-0001 ffffff9c eaeaa000 00000142 eaeabf54 eaeabea8
-    2020-08-21 16:00:54.066000  kern  :emerg : bea0: c024bec0 c024b2e4 0000=
-0000 00000000 00000cc0 c022f80c eaeabedc eaeabec8
-    2020-08-21 16:00:54.066000  kern  :emerg : bec0: 00000000 c0258b58 0000=
-0000 00001051 eaeabf14 0000004c 00000001 00000000
-    2020-08-21 16:00:54.107000  kern  :emerg : bee0: 00000000 eaeabee8 eaea=
-bf0c eaeabef8 c0257e68 c0257d9c 0000000c eae9c0d4
-    ... (72 line(s) more)
-      =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
- | results
-----------------------+-------+--------------+----------+------------------=
--+--------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
- | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f3fed41b13b7aa5729fb447
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.60/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f3fed41b13b7aa5=
-729fb44b
-      failing since 1 day (last pass: v5.4.59-75-gbdc7345fed30, first fail:=
- v5.4.59-153-g6793ee834d88)
-      1 lines
-
-    2020-08-21 15:48:25.471000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-08-21 15:48:25.471000  (user:khilman) is already connected
-    2020-08-21 15:48:41.115000  =00
-    2020-08-21 15:48:41.136000  =
-
-    2020-08-21 15:48:41.136000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-08-21 15:48:41.137000  =
-
-    2020-08-21 15:48:41.137000  DRAM:  948 MiB
-    2020-08-21 15:48:41.152000  RPI 3 Model B (0xa02082)
-    2020-08-21 15:48:41.239000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-08-21 15:48:41.271000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (375 line(s) more)
-      =20
