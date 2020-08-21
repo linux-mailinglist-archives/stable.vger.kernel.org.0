@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E55F24DC9A
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB40B24DC86
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728254AbgHURFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:05:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51668 "EHLO mail.kernel.org"
+        id S1728676AbgHUREX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:04:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728250AbgHUQSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:18:47 -0400
+        id S1727087AbgHUQSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:18:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E563D22CAD;
-        Fri, 21 Aug 2020 16:18:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18D0C22CA0;
+        Fri, 21 Aug 2020 16:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026691;
-        bh=RA20fT0TwJ5xJ395cUD+YGIQN+UL6HpyNW/jNAwOTuo=;
+        s=default; t=1598026693;
+        bh=ySY7r+XvByWG/h02YkSpizvqYnRnOEsqEYmyDA8cBmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CGF92dNTMTWqsaJTnJ6Do7t038/VmMrVSpVRioIC7f28CLKMLr2nBHBufNfbBGcg
-         dSBiL2tBqk3QXsr2hdywsxOp4LL87l78mLGVPGlFLSl29mzh3e76jd6oFoX95OESyh
-         epbrGthuWlRPaYrYqMNmWGQvkxcqXJ/zzGxkzoiE=
+        b=Fn38HLXnmjse0s8SeiKmcQBQ/sZAKUQeZqkztCPAtbQkI4F3G4bdPpVbxiQI0n3eK
+         D6+8u39kL4t1p8T3dvuLornndIKYPrAjPRV+S26/BoSHKsIgW0e3Ix1pLgMO00wUma
+         sO9pmsLS3w4yZHQeTNmJQXDohV6zuYMOh7B1rlpA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 03/38] ASoC: img-parallel-out: Fix a reference count leak
-Date:   Fri, 21 Aug 2020 12:17:32 -0400
-Message-Id: <20200821161807.348600-3-sashal@kernel.org>
+Cc:     Qiushi Wu <wu000273@umn.edu>, Jon Hunter <jonathanh@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 04/38] ASoC: tegra: Fix reference count leaks.
+Date:   Fri, 21 Aug 2020 12:17:33 -0400
+Message-Id: <20200821161807.348600-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161807.348600-1-sashal@kernel.org>
 References: <20200821161807.348600-1-sashal@kernel.org>
@@ -44,37 +46,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 6b9fbb073636906eee9fe4d4c05a4f445b9e2a23 ]
+[ Upstream commit deca195383a6085be62cb453079e03e04d618d6e ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code, causing incorrect ref count if
-pm_runtime_put_noidle() is not called in error handling paths.
-Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count if pm_runtime_put is not called in
+error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
 
 Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Link: https://lore.kernel.org/r/20200614033344.1814-1-wu000273@umn.edu
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20200613204422.24484-1-wu000273@umn.edu
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/img/img-parallel-out.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/tegra/tegra30_ahub.c | 4 +++-
+ sound/soc/tegra/tegra30_i2s.c  | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/img/img-parallel-out.c b/sound/soc/img/img-parallel-out.c
-index acc005217be06..f56752662b199 100644
---- a/sound/soc/img/img-parallel-out.c
-+++ b/sound/soc/img/img-parallel-out.c
-@@ -166,8 +166,10 @@ static int img_prl_out_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 	}
+diff --git a/sound/soc/tegra/tegra30_ahub.c b/sound/soc/tegra/tegra30_ahub.c
+index 43679aeeb12be..88e838ac937dc 100644
+--- a/sound/soc/tegra/tegra30_ahub.c
++++ b/sound/soc/tegra/tegra30_ahub.c
+@@ -655,8 +655,10 @@ static int tegra30_ahub_resume(struct device *dev)
+ 	int ret;
  
- 	ret = pm_runtime_get_sync(prl->dev);
+ 	ret = pm_runtime_get_sync(dev);
 -	if (ret < 0)
 +	if (ret < 0) {
-+		pm_runtime_put_noidle(prl->dev);
++		pm_runtime_put(dev);
  		return ret;
 +	}
+ 	ret = regcache_sync(ahub->regmap_ahub);
+ 	ret |= regcache_sync(ahub->regmap_apbif);
+ 	pm_runtime_put(dev);
+diff --git a/sound/soc/tegra/tegra30_i2s.c b/sound/soc/tegra/tegra30_i2s.c
+index 0b176ea24914b..bf155c5092f06 100644
+--- a/sound/soc/tegra/tegra30_i2s.c
++++ b/sound/soc/tegra/tegra30_i2s.c
+@@ -551,8 +551,10 @@ static int tegra30_i2s_resume(struct device *dev)
+ 	int ret;
  
- 	reg = img_prl_out_readl(prl, IMG_PRL_OUT_CTL);
- 	reg = (reg & ~IMG_PRL_OUT_CTL_EDGE_MASK) | control_set;
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 	ret = regcache_sync(i2s->regmap);
+ 	pm_runtime_put(dev);
+ 
 -- 
 2.25.1
 
