@@ -2,178 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9633A24D1A1
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 11:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0875424D1B9
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 11:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728183AbgHUJkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 05:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725965AbgHUJkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 05:40:19 -0400
-Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC06BC061385
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 02:40:17 -0700 (PDT)
-Received: by mail-vk1-xa44.google.com with SMTP id x142so287041vke.0
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 02:40:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1dXsLAdD/HVr0aypwMgxgpVJbDNFXP6FiKC2otHgH1Y=;
-        b=E7dmo+MN5nYduaGj/JAiyY5OSzfBzBS2w/cF9WHN8nsuR54F0LS0QdQHVF9yssq2qZ
-         /DB+Dl+YzEo/MNxIMaKd4A13ztlbPA45EDHE7ugicIdczck4cC5MH13zMs2tBT0EzqhD
-         Fw0vEiTH40gIl89gCj6mi8aWi94kQW0xOwxFQgL4UyiYJnrapPBQiqzO9la4NjfLf3E7
-         ULyRjtZqES8XGsDq37/lF1nliX/LaDrSW1gUBM92dBo+YT+MpW6WcUC3o5U7FKc7H46f
-         siLME/fwmxiRwdIjZ+YAAkr+nLkLKPsgSCWgibNtGifOMCFXvdip0Hk21tvSCnvfkWQQ
-         afGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1dXsLAdD/HVr0aypwMgxgpVJbDNFXP6FiKC2otHgH1Y=;
-        b=bMR430w6qc3sIOTszOsH4M9m6aZ17U7sUIglfxGyoLmMEGtyi0fcenD0kqL33G+v73
-         5zqtlMSAwhXbEkoNWn6oFbFXFMphmg/h7s25e7KEZuqxw11lfGZBa+hO+uO29FOQQssf
-         bCbjF0Nu+ipm1Ydev1dwq9ARyIf6ZpPkUohxOvTsESzkRHmn5zNMxlh3KekjCoPrS/zh
-         F1844CfLY89qV3q0AUZLSSy3dbe5U0ohU4oKy3J1U6Q9Y2bN4Xk8tWFwZbzkIiT2eIT3
-         DcO9brHrEve8i7RiqojRweWgicWHswXWbxeRlB4hVcIRbIWf+x/sYGEsY5b/B1LewQMJ
-         vVPg==
-X-Gm-Message-State: AOAM533+ByhnjY52Pw1pxDGtKGp4rrdLJo3tn5WQghf+FKDqrCTwSoe+
-        VJk9fsB9ZfPqvEPohHn6yiRWr3+DTTfy/KnsbhN1gA==
-X-Google-Smtp-Source: ABdhPJzObFpOXs7+mNxh+vLL1/3RWAib08n7aBJ/mRdsRanKFNbQie33YlcYxXmCaGw0mbiF5GPKXIRaKFrlVrhhbJ8=
-X-Received: by 2002:a1f:eecb:: with SMTP id m194mr991597vkh.40.1598002814707;
- Fri, 21 Aug 2020 02:40:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200820091602.251285210@linuxfoundation.org>
-In-Reply-To: <20200820091602.251285210@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 21 Aug 2020 15:10:03 +0530
-Message-ID: <CA+G9fYvDcnBcnUJQWGutPj13C9HQ53E9bsGtJKmm48OrzuWZTA@mail.gmail.com>
-Subject: Re: [PATCH 4.9 000/212] 4.9.233-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
+        id S1727093AbgHUJve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 05:51:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34666 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725855AbgHUJvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 05:51:33 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A0C2CAB9F;
+        Fri, 21 Aug 2020 09:51:59 +0000 (UTC)
+Date:   Fri, 21 Aug 2020 11:51:29 +0200
+From:   Joerg Roedel <jroedel@suse.de>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mm@kvack.org, Pavel Machek <pavel@ucw.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Dave Airlie <airlied@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Vrabel <david.vrabel@citrix.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/4] mm: Export flush_vm_area() to sync the PTEs upon
+ construction
+Message-ID: <20200821095129.GF3354@suse.de>
+References: <20200821085011.28878-1-chris@chris-wilson.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200821085011.28878-1-chris@chris-wilson.co.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 20 Aug 2020 at 15:28, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.233 release.
-> There are 212 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 22 Aug 2020 09:15:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.233-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Fri, Aug 21, 2020 at 09:50:08AM +0100, Chris Wilson wrote:
+> The alloc_vm_area() is another method for drivers to
+> vmap/map_kernel_range that uses apply_to_page_range() rather than the
+> direct vmalloc walkers. This is missing the page table modification
+> tracking, and the ability to synchronize the PTE updates afterwards.
+> Provide flush_vm_area() for the users of alloc_vm_area() that assumes
+> the worst and ensures that the page directories are correctly flushed
+> upon construction.
+> 
+> The impact is most pronounced on x86_32 due to the delayed set_pmd().
+> 
+> Reported-by: Pavel Machek <pavel@ucw.cz>
+> References: 2ba3e6947aed ("mm/vmalloc: track which page-table levels were modified")
+> References: 86cf69f1d893 ("x86/mm/32: implement arch_sync_kernel_mappings()")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Joerg Roedel <jroedel@suse.de>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: David Vrabel <david.vrabel@citrix.com>
+> Cc: <stable@vger.kernel.org> # v5.8+
+> ---
+>  include/linux/vmalloc.h |  1 +
+>  mm/vmalloc.c            | 16 ++++++++++++++++
+>  2 files changed, 17 insertions(+)
+> 
+> diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+> index 0221f852a7e1..a253b27df0ac 100644
+> --- a/include/linux/vmalloc.h
+> +++ b/include/linux/vmalloc.h
+> @@ -204,6 +204,7 @@ static inline void set_vm_flush_reset_perms(void *addr)
+>  
+>  /* Allocate/destroy a 'vmalloc' VM area. */
+>  extern struct vm_struct *alloc_vm_area(size_t size, pte_t **ptes);
+> +extern void flush_vm_area(struct vm_struct *area);
+>  extern void free_vm_area(struct vm_struct *area);
+>  
+>  /* for /dev/kmem */
+> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> index b482d240f9a2..c41934486031 100644
+> --- a/mm/vmalloc.c
+> +++ b/mm/vmalloc.c
+> @@ -3078,6 +3078,22 @@ struct vm_struct *alloc_vm_area(size_t size, pte_t **ptes)
+>  }
+>  EXPORT_SYMBOL_GPL(alloc_vm_area);
+>  
+> +void flush_vm_area(struct vm_struct *area)
+> +{
+> +	unsigned long addr = (unsigned long)area->addr;
+> +
+> +	/* apply_to_page_range() doesn't track the damage, assume the worst */
+> +	if (ARCH_PAGE_TABLE_SYNC_MASK & (PGTBL_PTE_MODIFIED |
+> +					 PGTBL_PMD_MODIFIED |
+> +					 PGTBL_PUD_MODIFIED |
+> +					 PGTBL_P4D_MODIFIED |
+> +					 PGTBL_PGD_MODIFIED))
+> +		arch_sync_kernel_mappings(addr, addr + area->size);
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This should happen in __apply_to_page_range() directly and look like
+this:
 
-Summary
-------------------------------------------------------------------------
+	if (ARCH_PAGE_TABLE_SYNC_MASK && create)
+		arch_sync_kernel_mappings(addr, addr + size);
 
-kernel: 4.9.233-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 1a1baeef1d3674ffce6cf9dfa5b5778c60555587
-git describe: v4.9.232-213-g1a1baeef1d36
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.232-213-g1a1baeef1d36
+Or even better, track whether something had to be allocated in the
+__apply_to_page_range() path and check for:
 
-No regressions (compared to build v4.9.232)
+	if (ARCH_PAGE_TABLE_SYNC_MASK & mask)
 
-No fixes (compared to build v4.9.232)
-
-
-Ran 34241 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* network-basic-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
