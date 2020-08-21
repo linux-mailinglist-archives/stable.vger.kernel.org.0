@@ -2,86 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF38E24D3DE
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 13:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675C624D422
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 13:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbgHULZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 07:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727982AbgHULVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 07:21:38 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 378C82054F;
-        Fri, 21 Aug 2020 11:21:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598008870;
-        bh=wIHnziovTq/GuaiND/z2I5281pOd4DVCK+dCOSRCHIw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PcSliOZS3tcBKMbeSR3XaPv/ZGWUPKX9YSogRdLwuTDjMmwiNY1SM9y9mjy2LbVWM
-         wKT4WDDJ2FNx3Q+MP+JARGf1KkeqXgSrn7eg/Jy+KF+jND2xTGLw8aIgdeT9yMGj1J
-         bYzBg/iQgpr4e5t9XIW2GjR+m2AG0ELB7MEXiOvM=
-Date:   Fri, 21 Aug 2020 13:21:29 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 83/92] mfd: dln2: Run event handler loop under
- spinlock
-Message-ID: <20200821112129.GA2284907@kroah.com>
-References: <20200820091537.490965042@linuxfoundation.org>
- <20200820091541.964627271@linuxfoundation.org>
- <20200821072123.GC23823@amd>
- <CAHp75Vcbmc-PV-gQxuj9i8sAcFCzhJKe_qzEfrkUTZbnf3Vupg@mail.gmail.com>
- <20200821091416.GA1894114@kroah.com>
- <20200821091510.GA1894407@kroah.com>
- <20200821105449.GN1891694@smile.fi.intel.com>
+        id S1728377AbgHULiS convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 21 Aug 2020 07:38:18 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:60194 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728298AbgHULiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 07:38:11 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22197337-1500050 
+        for multiple; Fri, 21 Aug 2020 12:38:05 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200821105449.GN1891694@smile.fi.intel.com>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <159800635942.29194.13489565974587679781@build.alporthouse.com>
+References: <20200821085011.28878-1-chris@chris-wilson.co.uk> <20200821100902.GG3354@suse.de> <159800481672.29194.17217138842959831589@build.alporthouse.com> <20200821102343.GI3354@suse.de> <159800635942.29194.13489565974587679781@build.alporthouse.com>
+Subject: Re: [PATCH] mm: Track page table modifications in __apply_to_page_range() construction
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mm@kvack.org, Pavel Machek <pavel@ucw.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Dave Airlie <airlied@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Vrabel <david.vrabel@citrix.com>, stable@vger.kernel.org
+To:     Joerg Roedel <jroedel@suse.de>
+Date:   Fri, 21 Aug 2020 12:38:03 +0100
+Message-ID: <159800988352.29194.8498025838223804532@build.alporthouse.com>
+User-Agent: alot/0.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 01:54:49PM +0300, Andy Shevchenko wrote:
-> On Fri, Aug 21, 2020 at 11:15:10AM +0200, Greg Kroah-Hartman wrote:
-> > On Fri, Aug 21, 2020 at 11:14:16AM +0200, Greg Kroah-Hartman wrote:
-> > > On Fri, Aug 21, 2020 at 12:06:45PM +0300, Andy Shevchenko wrote:
-> > > > On Fri, Aug 21, 2020 at 10:26 AM Pavel Machek <pavel@denx.de> wrote:
-> > > > > > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > > > >
-> > > > > > [ Upstream commit 3d858942250820b9adc35f963a257481d6d4c81d ]
-> > > > > >
-> > > > > > The event handler loop must be run with interrupts disabled.
-> > > > > > Otherwise we will have a warning:
-> > > > > ...
-> > > > > > Recently xHCI driver switched to tasklets in the commit 36dc01657b49
-> > > > > > ("usb: host: xhci: Support running urb giveback in tasklet
-> > > > > > context").
-> > > > >
-> > > > > AFAICT, 36dc01657b49 is not included in 4.19.141, so this commit
-> > > > > should not be needed, either.
-> > > > 
-> > > > I'm wondering if there are any other USB host controller drivers that
-> > > > use URB giveback in interrupt enabled context.
-> > > 
-> > > Almost all do.
+Quoting Chris Wilson (2020-08-21 11:39:19)
+> Quoting Joerg Roedel (2020-08-21 11:23:43)
+> > On Fri, Aug 21, 2020 at 11:13:36AM +0100, Chris Wilson wrote:
+> > > We need to store the initial addr, as here addr == end [or earlier on
+> > > earlier], so range is (start, addr).
 > > 
-> > Sorry, read that the wrong way, most have interrupts disabled, so this
-> > change should be fine.
+> > Right, I missed that, thanks for pointing it out.
 > 
-> The change is harmless in these cases. I was wondering if it actually *helps*
-> in some cases besides xHCI.
+> And with that (start, addr)
+> 
+> Tested-by: Chris Wilson <chris@chris-wilson.co.uk> #x86-32
 
-It might, I forgot about usbip, which probably runs in this mode.
+In the version I tested, I also had
 
-thanks,
+@@ -2216,7 +2216,7 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
 
-greg k-h
+        if (create) {
+                pte = (mm == &init_mm) ?
+-                       pte_alloc_kernel(pmd, addr) :
++                       pte_alloc_kernel_track(pmd, addr, mask) :
+                        pte_alloc_map_lock(mm, pmd, addr, &ptl);
+                if (!pte)
+                        return -ENOMEM;
+
+And that PGTBL_PMD_MODIFIED makes a difference.
+-Chris
