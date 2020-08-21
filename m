@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E0724DE40
+	by mail.lfdr.de (Postfix) with ESMTP id AD64324DE41
 	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbgHUR2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728208AbgHUR2N (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Aug 2020 13:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727017AbgHUQOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727024AbgHUQOr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 21 Aug 2020 12:14:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D907622B4E;
-        Fri, 21 Aug 2020 16:14:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 297DD20855;
+        Fri, 21 Aug 2020 16:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026482;
-        bh=su/76TCn6qViBS0aWPpZVwiMsbp5KTmEEehwTuWj/IU=;
+        s=default; t=1598026483;
+        bh=6AiJeu8UD5jdIPklU0UJ85alxQ5UPRtJBuOG4bUtfxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhAJ+h1pzHdT2CPaiuJfuOaC8O563nLfJXBFwtDt2up38ZuQaa01U9B6RcbzP7+zh
-         dQz9H0KtCL+qwX6mzQ+RPy5e7YJBBjvcXtNXEAO192GJHyyzNzq4KRUZB0/TAsuWLy
-         LKbQUC+Ef2ktam3NMH363b0jZNdS2atG4qYD3HlU=
+        b=aunaR5FBdgQt5wL42NKzGamqwzNXUyi6DEPTvvWE1Dy9It7NKiCigUYdVlX7FmQ7S
+         LCg/cylpYLQ4Hwdu9QblneSmZ9OyNQ2WOECr3Qu6pp4N0jJv184wHz233y/sNsgEMV
+         VSszcKZYfstI0+vuTXEGxSMDgn6CKaQZgUVlk940=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 15/62] blktrace: ensure our debugfs dir exists
-Date:   Fri, 21 Aug 2020 12:13:36 -0400
-Message-Id: <20200821161423.347071-15-sashal@kernel.org>
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.8 16/62] staging: rts5208: fix memleaks on error handling paths in probe
+Date:   Fri, 21 Aug 2020 12:13:37 -0400
+Message-Id: <20200821161423.347071-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161423.347071-1-sashal@kernel.org>
 References: <20200821161423.347071-1-sashal@kernel.org>
@@ -45,64 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit b431ef837e3374da0db8ff6683170359aaa0859c ]
+[ Upstream commit 11507bf9a8832741db69efd32bf09a2ab26426bf ]
 
-We make an assumption that a debugfs directory exists, but since
-this can fail ensure it exists before allowing blktrace setup to
-complete. Otherwise we end up stuffing blktrace files on the debugfs
-root directory. In the worst case scenario this *in theory* can create
-an eventual panic *iff* in the future a similarly named file is created
-prior on the debugfs root directory. This theoretical crash can happen
-due to a recursive removal followed by a specific dentry removal.
+rtsx_probe() allocates host, but does not free it on error handling
+paths. The patch adds missed scsi_host_put().
 
-This doesn't fix any known crash, however I have seen the files
-go into the main debugfs root directory in cases where the debugfs
-directory was not created due to other internal bugs with blktrace
-now fixed.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-blktrace is also completely useless without this directory, so
-this ensures to userspace we only setup blktrace if the kernel
-can stuff files where they are supposed to go into.
-
-debugfs directory creations typically aren't checked for, and we have
-maintainers doing sweep removals of these checks, but since we need this
-check to ensure proper userspace blktrace functionality we make sure
-to annotate the justification for the check.
-
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Link: https://lore.kernel.org/r/20200623141230.7258-1-novikov@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/staging/rts5208/rtsx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 588e8e3960197..1bd6563939e59 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -536,6 +536,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
- #endif
- 		bt->dir = dir = debugfs_create_dir(buts->name, blk_debugfs_root);
- 
-+	/*
-+	 * As blktrace relies on debugfs for its interface the debugfs directory
-+	 * is required, contrary to the usual mantra of not checking for debugfs
-+	 * files or directories.
-+	 */
-+	if (IS_ERR_OR_NULL(dir)) {
-+		pr_warn("debugfs_dir not present for %s so skipping\n",
-+			buts->name);
-+		ret = -ENOENT;
-+		goto err;
-+	}
-+
- 	bt->dev = dev;
- 	atomic_set(&bt->dropped, 0);
- 	INIT_LIST_HEAD(&bt->running_list);
+diff --git a/drivers/staging/rts5208/rtsx.c b/drivers/staging/rts5208/rtsx.c
+index be0053c795b7a..937f4e732a75c 100644
+--- a/drivers/staging/rts5208/rtsx.c
++++ b/drivers/staging/rts5208/rtsx.c
+@@ -972,6 +972,7 @@ static int rtsx_probe(struct pci_dev *pci,
+ 	kfree(dev->chip);
+ chip_alloc_fail:
+ 	dev_err(&pci->dev, "%s failed\n", __func__);
++	scsi_host_put(host);
+ scsi_host_alloc_fail:
+ 	pci_release_regions(pci);
+ 	return err;
 -- 
 2.25.1
 
