@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F66824DD4A
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4AD24DD49
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbgHURPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50170 "EHLO mail.kernel.org"
+        id S1728172AbgHURPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:15:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbgHUQQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:42 -0400
+        id S1728116AbgHUQQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:16:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A90122BEF;
-        Fri, 21 Aug 2020 16:16:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED43922B43;
+        Fri, 21 Aug 2020 16:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026601;
-        bh=GWXXzB5dOe5LzjCmmQyVZuCFOLpd7KoXrQkTgZPh64Q=;
+        s=default; t=1598026602;
+        bh=x7Vx8g3c9JAZeAAUAs7GP+bh0aZadk+LACNHmWaGmxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucZlJ+N8x0LMUZADAdk6ZCQAVRe4Ak95nnAfMBkY9cG8t8RCF1T+Dhbp+JM4nuonm
-         xnED7VJUxGCTf5jUnZ7xerZLJffdgZBh5uIQ49EH42HcbBoE+8f0gx9llSd2dQiI6l
-         7c/FvH5R7PhDNWKx//leHe8rEwCJZKhv0br4kv7w=
+        b=jOf2PAqJ1794jhsWQ8clonFdKmYVCPmYC9O6oZX0W+OCcMhc5PSnKpKEpabaJsm4Z
+         6wy9xnFh9Oiu620RHDsWuVMbjTqlCvP69HBrDXgHos40w38AuzeHTbfDxMKQboxK0p
+         EAwTiQv9FMrjRCtb3OXzd7HNKaj+eJJ7wELJIvJk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.7 44/61] ASoC: Intel: sof_sdw_rt711: remove properties in card remove
-Date:   Fri, 21 Aug 2020 12:15:28 -0400
-Message-Id: <20200821161545.347622-44-sashal@kernel.org>
+Cc:     Ikjoon Jang <ikjn@chromium.org>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 45/61] HID: quirks: add NOGET quirk for Logitech GROUP
+Date:   Fri, 21 Aug 2020 12:15:29 -0400
+Message-Id: <20200821161545.347622-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -45,87 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Ikjoon Jang <ikjn@chromium.org>
 
-[ Upstream commit cf0418cd06ce42fcf35beb33e315b5a77e596926 ]
+[ Upstream commit 68f775ddd2a6f513e225f9a565b054ab48fef142 ]
 
-The rt711 jack detection properties are set from the machine drivers
-during the card probe, as done in other ASoC examples.
+Add HID_QUIRK_NOGET for Logitech GROUP device.
 
-KASAN reports a use-after-free error when unbinding drivers due to a
-confusing sequence between the ACPI core, the device core and the
-SoundWire device cleanups.
+Logitech GROUP is a compound with camera and audio.
+When the HID interface in an audio device is requested to get
+specific report id, all following control transfers are stalled
+and never be restored back.
 
-Rather than fixing this sequence, follow the recommendation to have
-the same caller add and remove properties, add an explicit
-device_remove_properties() in the card .remove() callback.
-
-In future patches the use of device_add/remove_properties will be
-replaced by a direct handling of a swnode, but the sequence will
-remain the same.
-
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200717211337.31956-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203419
+Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c        |  1 +
- sound/soc/intel/boards/sof_sdw_common.h |  1 +
- sound/soc/intel/boards/sof_sdw_rt711.c  | 15 +++++++++++++++
- 3 files changed, 17 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 61b5bced29b7e..9f01eb224d615 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -184,6 +184,7 @@ static struct sof_sdw_codec_info codec_info_list[] = {
- 		.direction = {true, true},
- 		.dai_name = "rt711-aif1",
- 		.init = sof_sdw_rt711_init,
-+		.exit = sof_sdw_rt711_exit,
- 	},
- 	{
- 		.id = 0x1308,
-diff --git a/sound/soc/intel/boards/sof_sdw_common.h b/sound/soc/intel/boards/sof_sdw_common.h
-index dd593ff3575b5..b9c9c974b6142 100644
---- a/sound/soc/intel/boards/sof_sdw_common.h
-+++ b/sound/soc/intel/boards/sof_sdw_common.h
-@@ -84,6 +84,7 @@ int sof_sdw_rt711_init(const struct snd_soc_acpi_link_adr *link,
- 		       struct snd_soc_dai_link *dai_links,
- 		       struct sof_sdw_codec_info *info,
- 		       bool playback);
-+int sof_sdw_rt711_exit(struct device *dev, struct snd_soc_dai_link *dai_link);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 047abf731cf09..1543d153fb3ad 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -780,6 +780,7 @@
+ #define USB_DEVICE_ID_LOGITECH_G27_WHEEL	0xc29b
+ #define USB_DEVICE_ID_LOGITECH_WII_WHEEL	0xc29c
+ #define USB_DEVICE_ID_LOGITECH_ELITE_KBD	0xc30a
++#define USB_DEVICE_ID_LOGITECH_GROUP_AUDIO	0x0882
+ #define USB_DEVICE_ID_S510_RECEIVER	0xc50c
+ #define USB_DEVICE_ID_S510_RECEIVER_2	0xc517
+ #define USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500	0xc512
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 934fc0a798d4d..c242150d35a3a 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -179,6 +179,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_GROUP_AUDIO), HID_QUIRK_NOGET },
  
- /* RT700 support */
- int sof_sdw_rt700_init(const struct snd_soc_acpi_link_adr *link,
-diff --git a/sound/soc/intel/boards/sof_sdw_rt711.c b/sound/soc/intel/boards/sof_sdw_rt711.c
-index 2a4917e3d5614..35be804479caf 100644
---- a/sound/soc/intel/boards/sof_sdw_rt711.c
-+++ b/sound/soc/intel/boards/sof_sdw_rt711.c
-@@ -132,6 +132,21 @@ static int rt711_rtd_init(struct snd_soc_pcm_runtime *rtd)
- 	return ret;
- }
- 
-+int sof_sdw_rt711_exit(struct device *dev, struct snd_soc_dai_link *dai_link)
-+{
-+	struct device *sdw_dev;
-+
-+	sdw_dev = bus_find_device_by_name(&sdw_bus_type, NULL,
-+					  dai_link->codecs[0].name);
-+	if (!sdw_dev)
-+		return -EINVAL;
-+
-+	device_remove_properties(sdw_dev);
-+	put_device(sdw_dev);
-+
-+	return 0;
-+}
-+
- int sof_sdw_rt711_init(const struct snd_soc_acpi_link_adr *link,
- 		       struct snd_soc_dai_link *dai_links,
- 		       struct sof_sdw_codec_info *info,
+ 	{ 0 }
+ };
 -- 
 2.25.1
 
