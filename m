@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED8624DDA5
-	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC6F24DD96
+	for <lists+stable@lfdr.de>; Fri, 21 Aug 2020 19:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgHURUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 13:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
+        id S1729066AbgHURUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 13:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726731AbgHUQQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:16:07 -0400
+        id S1728051AbgHUQQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:16:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2549022B47;
-        Fri, 21 Aug 2020 16:16:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6891C22BF5;
+        Fri, 21 Aug 2020 16:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026567;
-        bh=2OAJ5YHfsTu0dldNG7k6sH8sKavCRlSjzLzOGbFkT4A=;
+        s=default; t=1598026570;
+        bh=K7rQBmF2o/HDSQ0ZPX0Bc+/MKqPqW6lr/a49UeaCeTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HU9xUMojrZZm7ZR8IU16W0jXkQeH5jt8tEdzOD0Adc7O9ZpYDn0nPWCcQd9jlxHXN
-         3jFk+t4UKteKCktTC0UetB/pg0X+ms7zf7YOdtidlpPBxbOR8cAU/PbOhI0JbmEbUE
-         Wb8iQgdo2G/b94m1DUdQuSlOWbHXIy9tzHnORE8Q=
+        b=oHpY3aFDaWDy1sbclSa6Klf5IBITPQ/e0fPv+I4rabfBQHZXXQKBBINjtbXCeDYIi
+         6M1QfIuoV22lscq+sBicMltYjkfeQeOt6YFWXWA2CVUlNWd/1w6iyH5dB/OtuCNUTk
+         sWHWBEAK/G5eJ+AlhBb7RKUI2EU4xaMQ8GORP0G8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
+Cc:     Gwendal Grignou <gwendal@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 18/61] mfd: intel-lpss: Add Intel Tiger Lake PCH-H PCI IDs
-Date:   Fri, 21 Aug 2020 12:15:02 -0400
-Message-Id: <20200821161545.347622-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 20/61] platform/chrome: cros_ec_sensorhub: Fix EC timestamp overflow
+Date:   Fri, 21 Aug 2020 12:15:04 -0400
+Message-Id: <20200821161545.347622-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200821161545.347622-1-sashal@kernel.org>
 References: <20200821161545.347622-1-sashal@kernel.org>
@@ -43,47 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-[ Upstream commit bb7fcad48d3804d814b97c785514e2d1657e157f ]
+[ Upstream commit e48bc01ed5adec203676c735365373b31c3c7600 ]
 
-Intel Tiger Lake PCH-H has the same LPSS than Intel Broxton.
-Add the new IDs to the list of supported devices.
+EC is using 32 bit timestamps (us), and before converting it to 64bit
+they were not casted, so it would overflow every 4s.
+Regular overflow every ~70 minutes was not taken into account either.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/platform/chrome/cros_ec_sensorhub_ring.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index c96e98a3614df..1bd003c86da5e 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -233,6 +233,22 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
-+	/* TGL-H */
-+	{ PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43a9), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43aa), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ab), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ad), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ae), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43d8), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43da), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43e8), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43e9), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ea), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43eb), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43fb), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43fd), (kernel_ulong_t)&bxt_info },
- 	/* EHL */
- 	{ PCI_VDEVICE(INTEL, 0x4b28), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x4b29), (kernel_ulong_t)&bxt_uart_info },
+diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+index 24e48d96ed766..b1c641c72f515 100644
+--- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
++++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+@@ -419,9 +419,7 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 			 * Disable filtering since we might add more jitter
+ 			 * if b is in a random point in time.
+ 			 */
+-			new_timestamp = fifo_timestamp -
+-					fifo_info->timestamp  * 1000 +
+-					in->timestamp * 1000;
++			new_timestamp = c - b * 1000 + a * 1000;
+ 			/*
+ 			 * The timestamp can be stale if we had to use the fifo
+ 			 * info timestamp.
 -- 
 2.25.1
 
