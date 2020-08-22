@@ -2,96 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D17FD24E757
-	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 14:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B5824E769
+	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 14:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbgHVMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Aug 2020 08:17:29 -0400
-Received: from sonic301-2.consmr.mail.bf2.yahoo.com ([74.6.129.41]:45996 "EHLO
-        sonic301-2.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727975AbgHVMR0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Aug 2020 08:17:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598098644; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=df5O1wYp5zwe9M6b8MDkN/zW0g9pjJD65+beiSaYAkKZ6bVnO9s740fPCvxjRpoSQYuzmd3QE6dPOcajugE0pzrwcv3hPg+zb4tgOwDxaKsTp1/jbhyF0Ghn1WfnLxhXH0aokiod6ohwb8ghP3vOqAJw/uYB2MJixIKrsgNm7VsQ8chbu+Iz7OYxbnXGmPXqvqsWe09yueIt02+tUZqP/FJqtpVauXDni6CHHuymEoW5isP5pV7iqlk3I+POrXv9Zygma+QJkyaB7O0a8OoXgPmZR3/i3moGcqUVKkiWFHn8Qd1IGAuauZfQ4i0Po3um8y4FVengG4zG/PUoTVScBQ==
-X-YMail-OSG: oJJfDB4VM1lmAvWrfaXsKHeJGiTN8aKc1dShS0MWitdWu.cyVdo6He1XtkZgWLA
- kZflFKRK9TJLQbhwFyhSL5Qs311LI5139VOsvou04VgIeFEqFfUQJCaOGOcsoecaB_QazK9W7v9g
- JNOda3zuS8EYe79sUsLhrh3ZVLS99zQLEtmxv8CQ7XMAcQeYG6MIfEOT60bYksJnAso4sfYQ_XBr
- P3Jmg3CEfRpi8ej.TAzu3aJWjJrRTYg.2s2NQMqrmPuaaDKflb1vaY_oDyHn65TCHsP8dUfzbXWY
- IMiBY79izLTbmswUkVANTb8FvBCo96HRKT2XoZEkJaRsJgA.pGtVd_tVrmLgV7oTcG.LAkU6lyLQ
- aYYhOyXIu9.TLNHrG69vVppf5A1CavQFN52Txr6O5ozuk5Cg4rLlQK72iYXcJFCDNhV.AYuwQqL_
- u5Zc.lx35gglLr49F57rO19TQhBV01ImYrv4V7nukpyaFtfTguA901jv8wCVAnUuwpsz_IxU3uTg
- vQtMzFBcdCMF216Zd_QxuZhpti_0mfOdFl0b_7Z0Z2IgfZwCrt5WF9IN3kDIYjhtrTk63ofFWKGN
- ntFcmBL0NtMcTiG0p44MkiWvmbOhv0Vce9Tsp9BfvLK1gVPeDyyF5SpQ8jjAbfd1fcHjKuewn7i6
- 7y3heU99x9c3h2ApDaG495ZJKSXWUwOkUEWy3O9bignyPnr8KKiYDyk1flj275X7.aojbfKndVuJ
- Hep1PqOKenJQL2RRetce96Z2Oj2p7SP3ldhcAvg3bo97D7vLfbqLhWHIx9KWxYemjsN6ZNNbaz0L
- mK0kahiXIHehP2CzYNtKzSLkdObzcaoFCbb3rFl6eeSK7j9LYOEqmavm610y9dXDiO8IJhqsNvLQ
- VieCHKoVkdfMGLK_2V7GV0kvodB58pMxc8W7uA43VwvLCPmTeyAO6.u9l7zhBc77GDHiutVmW9I8
- IMarwYbVfud2qfxqUUvpS92r958htkQ5NWF0Jc4er5mRtZhgsTWre4.nIoEoviOTrV91XTWMDlWj
- HOS_akTbnCi55mIqb9NDw3XDvKx4_LF3TeA22EBVbSUzPFf3YguUG9NTJj8Mp4Ysp4beyFBQsV.N
- xoJ.uwo3S0BjpkJH350N_W2mO42Qpok6RUNkzzhYx78AOJtyaNHVgxJ9gCcQaLk66RIDw0GSNdo8
- HdiJx9684Z5_BTicYLV4fy.G03vywDla_cue.Wh_ME.m1IxE9bdHLkrAZjrfr6498sBODqZg0.dS
- o9ynuyAs0b558L3T.VqDs.Nq4_JGM7DGhDdxYyrd1ga12ucO54NOVU9b01Z3Dsc7v9tau7HSL6JS
- vsn5ULt0yu2IXsF.hzZEVHpbV01RCq3sLHSnbp4Pp1AyiTEC7FdPBrJ46e69iyL6gU9CcP0w_gPM
- zISt6ET4QvjSE52w6.8nSV7Vh2GtHFvhF5owcYWlM
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.bf2.yahoo.com with HTTP; Sat, 22 Aug 2020 12:17:24 +0000
-Date:   Sat, 22 Aug 2020 12:17:20 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <mrsminaabrunel21@gmail.com>
-Reply-To: mrsminaabrunel373@gmail.com
-Message-ID: <503334856.4416742.1598098640736@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1728019AbgHVMee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Aug 2020 08:34:34 -0400
+Received: from sonic313-13.consmr.mail.bf2.yahoo.com ([74.6.133.123]:39198
+        "EHLO sonic313-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727975AbgHVMed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Aug 2020 08:34:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598099672; bh=dsIiYcLX9+LjVvHnRlLd8/GRc857N8PErPyJu+2yOn4=; h=Date:From:Reply-To:Subject:References:From:Subject; b=aEZserRIuGNPx95sxtuTjODVXi+KacfdL16o+FIGUcMEEAloHMUJZd4gyiuqhOBk4pWGzigbcaN7eAEYFZpTzbfyIFwjigjL9C44VagjOxP0iKp+twdINCG+TuLBFbTuozzGtfRBtkbaAvxJ+O7TrrkHbwFJ6laDV23nHFTC981rmLEtX3OfeawU1tl4HQiIm8V6U0Cu8Cyo2BwG3/fID0xzyVeH1DYvJ/zPsS97eGVU50X22zbfLnoXSiMmwl0WovwWK2WR1WQ40OOqPOYkfRhtkR2FkACXy0Mzs+/7ysWXVn2MqUGFZFku+YWFZGgI7PvDuCtR4IOuAlSwgyalFg==
+X-YMail-OSG: elfSOV8VM1mlrWx40hNXjhrVkF77t4nZNZrxp97TZnLtirvaTJCZb82zm3C3UHK
+ c9S4iKh1keELe4AY4qMkN9ea4PTVMvIJvq4vF4u95UzExuneQ.ZsvyrLoE1ixKRytog9yQroCzoy
+ l2T6CO22ajIDswjr2df4KM6IED9gpkYz2d7xW23dunTh.ZUZ.SqHcqKHnfrER4HciEAnEmHT4vHV
+ fNYQhOFS.uCqWWZH4_ZvizhjZYzIdNGADit_tz8C_EqJLsjM_a1yZSpiZ7yarDOQwILOomAMHQ00
+ 3HD_B0zGwh.arjfb58KKzoLbA3u8.FcL73r1nm9_EN033uAnZ49KPXxioJ8MRBLkufhEPZZwJ8bG
+ xPXdXxYTzp6I41Ar6pltR7nd.xUxRtBCzp0wNkizX6Rqej6JntNAuDVU0b0wu4Ygaoln2d4WefwY
+ TmOOVGmz0piAthMI7jmLgSp_AlQgIB2HagUHIcu4PQ_52iLHSq6OVxEzdsapkbVrc3GE6mjPyoyW
+ MB0JB.RampOYW0wIOzYWx6rdXvN3oYO8FtLWi2Yqdn3IfY6QMda2f2SdCsoLeY5wA6198i_PRuAj
+ bLnioSW9AkCCjBNNBxuxtzYxAH6bHtVnAYsGpejHC_I6eA87ulq1U15OHuJ2_iepEzYS5HUC29Mi
+ Zw3iSP4eeaocD.do6Iyh1q4uikrnW_WdZZW_JujUhSv7diKAL1mi_Z1qhmWZ_392iHZGu4pTehAK
+ XdFnAaG9VEYDNJAMK5Qq8Y_VLW8iTR1sQEwCjWQwmORN16O8Scx5m.gGsyAbxo1.FkJwuD0tNZF0
+ AeNr7Tz7_.AXSjBkO3Xm1L7j_RN2MiyRiNyCz922H8GznvogCJkWlMFblXCgGaglvoMCg3OctBRo
+ JjRatkaZ6AvdFSy0UxzISPu7mOSJaYb4LrwFZGC9YnL9ym81XWlXkcS6B3l4unrKxkuGxIkUyhrP
+ dddTHkvFygK9yuqK7tll2zYwDYE.kUDoYDgspk_g7vqHV2cwcVMNvMX8aIuk_WzsNx7VoVjcmKYw
+ Y5OV4Tg1TXK_DEX1hg0chGJ9XgX65HQZYRqHLINI29LIXWjo2jMcDNUl4xRjjcKhiQrmoiGzhJu8
+ rKJorb7y25sSrxLwtVEs1qlrPPY8GibqFTWVwPwGPMqzGVM42UVIDLawoVddEnGpaoJoKyh6PswJ
+ euWW4KmaLQJjSte4Hc_FciUUy5Fr4WqxVtYsgTWoZNc7GwX8CIE_HLcvyPtswln_0RZX2S7dxOkG
+ T86Rirpc5KOewnHjwWY4j.93z1CE9eRQ.MHv9ojFL0bd35EXBqt5IFdUt6QPcIMBXO.Gfvnf4vZJ
+ pogsrsQB4zvTwJgegunTTfR0JsHleh4aNgPRz4N48NYoJr6smOn9NRwn0KdFiGV.58NNhzKJVbye
+ aJVDFek0EC_mEdczOClVlLW49_a6MBmNVOGsg279RWk7EXCmzwNWRS050
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.bf2.yahoo.com with HTTP; Sat, 22 Aug 2020 12:34:32 +0000
+Date:   Sat, 22 Aug 2020 12:34:29 +0000 (UTC)
+From:   Elisabeth John <elisabethj451@gmail.com>
+Reply-To: elisabethj451@gmail.com
+Message-ID: <101417592.4416107.1598099669163@mail.yahoo.com>
+Subject: Greetings My Dear,
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-References: <503334856.4416742.1598098640736.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16455 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0
+References: <101417592.4416107.1598099669163.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16455 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36
 To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greetings=C2=A0My=C2=A0Dear,
 
+I=C2=A0sent=C2=A0this=C2=A0mail=C2=A0praying=C2=A0it=C2=A0will=C2=A0found=
+=C2=A0you=C2=A0in=C2=A0a=C2=A0good=C2=A0condition=C2=A0of=C2=A0health,=C2=
+=A0since=C2=A0I=C2=A0myself=C2=A0are=C2=A0in=C2=A0a=C2=A0very=C2=A0critical=
+=C2=A0health=C2=A0condition=C2=A0in=C2=A0which=C2=A0I=C2=A0sleep=C2=A0every=
+=C2=A0night=C2=A0without=C2=A0knowing=C2=A0if=C2=A0I=C2=A0may=C2=A0be=C2=A0=
+alive=C2=A0to=C2=A0see=C2=A0the=C2=A0next=C2=A0day.=C2=A0I=C2=A0am=C2=A0Mrs=
+.Elisabeth=C2=A0John=C2=A0a=C2=A0widow=C2=A0suffering=C2=A0from=C2=A0long=
+=C2=A0time=C2=A0illness.=C2=A0I=C2=A0have=C2=A0some=C2=A0funds=C2=A0I=C2=A0=
+inherited=C2=A0from=C2=A0my=C2=A0late=C2=A0husband,=C2=A0the=C2=A0sum=C2=A0=
+of=C2=A0($11,000,000.00,=C2=A0Eleven=C2=A0Million=C2=A0Dollars)=C2=A0my=C2=
+=A0Doctor=C2=A0told=C2=A0me=C2=A0recently=C2=A0that=C2=A0I=C2=A0have=C2=A0s=
+erious=C2=A0sickness=C2=A0which=C2=A0is=C2=A0cancer=C2=A0problem.=C2=A0What=
+=C2=A0disturbs=C2=A0me=C2=A0most=C2=A0is=C2=A0my=C2=A0stroke=C2=A0sickness.=
+=C2=A0Having=C2=A0known=C2=A0my=C2=A0condition,=C2=A0I=C2=A0decided=C2=A0to=
+=C2=A0donate=C2=A0this=C2=A0fund=C2=A0to=C2=A0a=C2=A0good=C2=A0person=C2=A0=
+that=C2=A0will=C2=A0utilize=C2=A0it=C2=A0the=C2=A0way=C2=A0i=C2=A0am=C2=A0g=
+oing=C2=A0to=C2=A0instruct=C2=A0herein.=C2=A0I=C2=A0need=C2=A0a=C2=A0very=
+=C2=A0honest=C2=A0and=C2=A0God.
 
-My Dear in the lord
+fearing=C2=A0person=C2=A0who=C2=A0can=C2=A0claim=C2=A0this=C2=A0money=C2=A0=
+and=C2=A0use=C2=A0it=C2=A0for=C2=A0Charity=C2=A0works,=C2=A0for=C2=A0orphan=
+ages,=C2=A0widows=C2=A0and=C2=A0also=C2=A0build=C2=A0schools=C2=A0for=C2=A0=
+less=C2=A0privileges=C2=A0that=C2=A0will=C2=A0be=C2=A0named=C2=A0after=C2=
+=A0my=C2=A0late=C2=A0husband=C2=A0if=C2=A0possible=C2=A0and=C2=A0to=C2=A0pr=
+omote=C2=A0the=C2=A0word=C2=A0of=C2=A0God=C2=A0and=C2=A0the=C2=A0effort=C2=
+=A0that=C2=A0the=C2=A0house=C2=A0of=C2=A0God=C2=A0is=C2=A0maintained.=C2=A0=
+I=C2=A0do=C2=A0not=C2=A0want=C2=A0a=C2=A0situation=C2=A0where=C2=A0this=C2=
+=A0money=C2=A0will=C2=A0be=C2=A0used=C2=A0in=C2=A0an=C2=A0ungodly=C2=A0mann=
+er.=C2=A0That's=C2=A0why=C2=A0I'm=C2=A0taking=C2=A0this=C2=A0decision.=C2=
+=A0I'm=C2=A0not=C2=A0afraid=C2=A0of=C2=A0death=C2=A0so=C2=A0I=C2=A0know=C2=
+=A0where=C2=A0I'm=C2=A0going.=C2=A0I=C2=A0accept=C2=A0this=C2=A0decision=C2=
+=A0because=C2=A0I=C2=A0do=C2=A0not=C2=A0have=C2=A0any=C2=A0child=C2=A0who=
+=C2=A0will=C2=A0inherit=C2=A0this=C2=A0money=C2=A0after=C2=A0I=C2=A0die.=C2=
+=A0Please=C2=A0I=C2=A0want=C2=A0your=C2=A0sincerely=C2=A0and=C2=A0urgent=C2=
+=A0answer=C2=A0to=C2=A0know=C2=A0if=C2=A0you=C2=A0will=C2=A0be=C2=A0able=C2=
+=A0to=C2=A0execute=C2=A0this=C2=A0project,=C2=A0and=C2=A0I=C2=A0will=C2=A0g=
+ive=C2=A0you=C2=A0more=C2=A0information=C2=A0on=C2=A0how=C2=A0the=C2=A0fund=
+=C2=A0will=C2=A0be=C2=A0transferred=C2=A0to=C2=A0your=C2=A0bank=C2=A0accoun=
+t.=C2=A0I=C2=A0am=C2=A0waiting=C2=A0for=C2=A0your=C2=A0reply.
 
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
-ugou the capital city of Burkina Faso in West Africa. The money was from th=
-e sale of his company and death benefits payment and entitlements of my dec=
-eased husband by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
+May=C2=A0God=C2=A0Bless=C2=A0you,
+Mrs.Elisabeth=C2=A0John.
