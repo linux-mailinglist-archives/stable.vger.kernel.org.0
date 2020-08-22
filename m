@@ -2,119 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5FF24E475
-	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 03:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552A124E49F
+	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 04:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbgHVB0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Aug 2020 21:26:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        id S1725965AbgHVCHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Aug 2020 22:07:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726817AbgHVB0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 21:26:32 -0400
-Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A523C061574
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 18:26:31 -0700 (PDT)
-Received: by mail-oo1-xc44.google.com with SMTP id j16so745982ooc.7
-        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 18:26:30 -0700 (PDT)
+        with ESMTP id S1725935AbgHVCHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Aug 2020 22:07:09 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C7CC061573
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 19:07:08 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id ba10so3140568edb.3
+        for <stable@vger.kernel.org>; Fri, 21 Aug 2020 19:07:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=bbVqRO+5zIdkL7CNpFPOnICuenpTd17InbzqAFFRRA0=;
-        b=f+1piX8Bq9Q/zt8Y/G1gS5gK8iCQEchGAd6a5mJIePqraUcLN2/JfO9SK8B1EP5mYw
-         N36TxejSs//TXB1Bam4cek47pHuTiyL3cX3wlS2a9XBIoMgwugAPR6/prx6fmSinzYOq
-         hZE+0vOYPWaQ6hiFDNm+lL603lOGgVL2tRBweyORdn3EKvHFP4fTO1QKWWhhAKYYu60Q
-         kkqx7ETofwaP1q2yequrxLegWYAoaUUQMWql9DqEm5vMq7rDkq9JeBFkVcf0xj5aq7qP
-         15o2MxFNHopCkHf+o+FfFp6kcfT0NmfLNiRGZBWgoEpwRIbhxCqAPJq2u8qA6kYvbx5k
-         JA1w==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=9MtZB7nqjfAHESW5tFeiAB1xAbU+W2GujtEKUKnWGoE=;
+        b=f29SACeeE/MDDMnat+b+8icocDiIpwsuRLhYBReShHB4P9x2zJaM9fV1CJZvAsrkqV
+         g+ergRYW/Dbf1mCvLrYce+WWERqh6LXuiKbuCdUoQ5vBuhM1L17ZDsdKqd2PpH4/TWTM
+         B6w5oPKet1yM15KjOzAZJsS65dSgGiW0mWS8RsamCRfe3lQPhXm6gpHaImKgfOfx+WIQ
+         Mj9UuH5ATdKiozpBYpkS8ztBE436qRNz0kddlzr5OXKovf9dQAiTzJbrqR9nfGZgkmSF
+         Jb+AK41CGnhh/I0wFQwZLEidKKi4y+AlkBbP6qcWJeDmHhA/vco0kUDRhESY/CnKsSEV
+         uYqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=bbVqRO+5zIdkL7CNpFPOnICuenpTd17InbzqAFFRRA0=;
-        b=a5Y+49VJ4sN4+YoVd4cGrl5aT7l8edsCFUjgYXoOCOKI8Bns7W9d3gesgYZe1f/+u+
-         UIrUTn7EkjSY9o2Ug8nk5jW6gPp14iKfMXACCH+giF4sbBSvvdytfjHGbVFvaeZmAxA6
-         0UG7rFKXt6Trg5B3dU9K8RnMBloj822lqqn75fbaXltiEt3Pv2+vP7X6gApZXaKDQq6U
-         NMEcwsxnx22iwPq9N+QzNxHMXCyxZYuliuWPAf16ZijFjV94YqKQ7Me7GIvp22E1PIAt
-         +N+Is0l+Bvz73Y3OxW9IQr2DdjLtnJmccF5TsAIxeoC3rw8nX+59GAxTUXitBmJegLZi
-         3dFw==
-X-Gm-Message-State: AOAM530fY/lU/oSZqzs4y3WoAfzvVXCbk2GiH+vzvSoFl/3UJM7dB894
-        CNdo++EYU/S5F+ETCkW09LkiGg==
-X-Google-Smtp-Source: ABdhPJy/urFZywzMZNV99yKsoqOGopFvoyzL9VsiLvg65Ic8yZ687MExuEZwLN/DVrR1PufQz4QPEQ==
-X-Received: by 2002:a4a:52c2:: with SMTP id d185mr4417946oob.8.1598059590127;
-        Fri, 21 Aug 2020 18:26:30 -0700 (PDT)
-Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id z10sm711726otk.6.2020.08.21.18.26.28
-        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
-        Fri, 21 Aug 2020 18:26:28 -0700 (PDT)
-Date:   Fri, 21 Aug 2020 18:26:15 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@eggly.anvils
-To:     Greg KH <gregkh@linuxfoundation.org>
-cc:     Hugh Dickins <hughd@google.com>, aarcange@redhat.com,
-        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
-        mike.kravetz@oracle.com, songliubraving@fb.com,
-        torvalds@linux-foundation.org, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: Patch "khugepaged: khugepaged_test_exit() check mmget_still_valid()"
- has been added to the 5.8-stable tree
-In-Reply-To: <20200819135306.GA3311904@kroah.com>
-Message-ID: <alpine.LSU.2.11.2008211739460.9564@eggly.anvils>
-References: <1597841669128213@kroah.com> <alpine.LSU.2.11.2008190625060.24442@eggly.anvils> <20200819135306.GA3311904@kroah.com>
-User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=9MtZB7nqjfAHESW5tFeiAB1xAbU+W2GujtEKUKnWGoE=;
+        b=MyRGheUj9iNvNzBX8w9kF7cI0lAMV25WdUFts2oUAEGw5RF7zgQpWR0grIJA6hWER7
+         4k+bqVaWdWm/mol9nzMwdgaWseXugaek1oNs8ZSnzWMsK85tf5G+GlmXQD9YqQ3xXM91
+         G0Ogb3aWJyASjTb9Tbvq5O2ZML6/JgAxn8vhVWWV7NYmON379ppY2wrm1KIugy47+SIJ
+         xoPjlBxLexy+NP1I4gd61m4096D1ew30Lv3BADNx/aEL3aEFvFqmLPPtCnRiCL1dvRTS
+         MBlHuQgUDrxmHILPEbKpf6lKNBL8hPhnhtF2NEH58bXBk+7DZN3PQ85Q7qfUSMGwnRZV
+         UfGg==
+X-Gm-Message-State: AOAM533GAyYQX2t0iw4XQ5QjN3uwSV3sbWRrN+pixO4So2F850HQzW9h
+        COYbVPkx3YxdcFxds/v0dID70UWIL8Fy/Mi83q8=
+X-Google-Smtp-Source: ABdhPJy044PLwtth7SKHi4bmn6xGdJGylKBAhav96VXl831ihcd3wo8KQQykeyPHbp4GiVQo79rxhXn/OuEidy8XBdk=
+X-Received: by 2002:aa7:c45a:: with SMTP id n26mr5636346edr.45.1598062027548;
+ Fri, 21 Aug 2020 19:07:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Reply-To: pauline_nicole4@zoho.com
+Received: by 2002:a50:3bca:0:0:0:0:0 with HTTP; Fri, 21 Aug 2020 19:07:07
+ -0700 (PDT)
+From:   "MRS. Paulen Paulen " <pnpnpbpnpnpb1@gmail.com>
+Date:   Sat, 22 Aug 2020 03:07:07 +0100
+X-Google-Sender-Auth: 3lzh6vSPyegv1ijjlytyMgqiJr8
+Message-ID: <CAFushg4EC9ChkAutyVruRs7rxMz=EtU02Pn3=b0u+BA27FBXhg@mail.gmail.com>
+Subject: My Dear friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 Aug 2020, Greg KH wrote:
-> On Wed, Aug 19, 2020 at 06:32:26AM -0700, Hugh Dickins wrote:
-> > On Wed, 19 Aug 2020, gregkh@linuxfoundation.org wrote:
-> > > 
-> > > This is a note to let you know that I've just added the patch titled
-> > > 
-> > >     khugepaged: khugepaged_test_exit() check mmget_still_valid()
-> > > 
-> > > to the 5.8-stable tree which can be found at:
-> > >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > > 
-> > > The filename of the patch is:
-> > >      khugepaged-khugepaged_test_exit-check-mmget_still_valid.patch
-> > > and it can be found in the queue-5.8 subdirectory.
-> > > 
-> > > If you, or anyone else, feels it should not be added to the stable tree,
-> > > please let <stable@vger.kernel.org> know about it.
-> > 
-> > Please hold this one back for the moment: we shall want it, but syzbot
-> > detected one place where it can lead to a VM_BUG_ON_MM().  The fix to
-> > that is currently in Andrew's tree, but not yet in Linus's - when it
-> > gets there, I'll send you its git commit id in reply to this mail.
-> > 
-> > This patch failed to apply to earlier releases: I'll send the fixup for
-> > those at that time.  (Fixups for another patch to follow later today.)
-> 
-> Now dropped, thanks!
+My Dear friend,
 
-f3f99d63a815 khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
-has now reached Linus's tree, so will reach your tree when you next pull.
+Sorry to invade your privacy through this media. I have a poor health
+condition and I am only looking for someone whom I can trust to carry
+out a charitable work for me. If you are interested, get back to me as
+soon as possible for more explanations.
 
-When that one is ready, please reinstate this commit that we held back:
-bbe98f9cadff khugepaged: khugepaged_test_exit() check mmget_still_valid()
-
-The mmap_sem->mmap_lock change means I must then send you a backport of
-bbe98f9cadff for 5.7, 5.4, 4.19, 4.14, 4.9: one backport will do for all
-of those, and f3f99d63a815 should cherry-pick cleanly into them all.
-
-But you also marked bbe98f9cadff for 4.4: I had not expected that,
-but I think you're right - for whatever reason (probably inertia,
-it was tiresome because khugepaged.c got split from huge_memory.c),
-4.4 lacks a backport of 59ea6d06cfa9 (though it does have the commit
-that depended on), and backports of these two will serve just as well
-to fix what it was required to fix: I'll send them too.
-
-Thanks: I'm sorry that this is all so confusing,
-kudos to syzbot for catching my error as quickly as it did.
-
-Hugh
+Thanks for your cooperation,
+Mrs.  Paulen Boint
