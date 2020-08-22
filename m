@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8407B24E903
-	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 19:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D7F24E904
+	for <lists+stable@lfdr.de>; Sat, 22 Aug 2020 19:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728120AbgHVR36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Aug 2020 13:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
+        id S1728420AbgHVRaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Aug 2020 13:30:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728381AbgHVR34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Aug 2020 13:29:56 -0400
+        id S1728398AbgHVR37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Aug 2020 13:29:59 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3B992078D;
-        Sat, 22 Aug 2020 17:29:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83A8E20855;
+        Sat, 22 Aug 2020 17:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598117396;
-        bh=60v78CIy00Qia4qK0No+pa1ah8qWL5AlZa39rgo+Sck=;
+        s=default; t=1598117398;
+        bh=PuwJFGOp0Z6+jKaH7y+KSaatXk1WPC6+5BsiK+o2fRg=;
         h=Date:From:To:Subject:From;
-        b=blEGsDZzfan/6CDJOmm1re+k50JUxNKrhU42+HEi5MAIlBw2EJDL7VBN2dvswIUxm
-         vxfBwybK4g68W0AUTRDvPwQjm8l4j0Gz8wUG1I+VYVdJcvf0Q0JxZgfYmarb/JZe+/
-         8fmPyb3mtPSTJYm5kLHzEpzUa/SJ767GM2xC3DHQ=
-Date:   Sat, 22 Aug 2020 10:29:55 -0700
+        b=dxaLaeAVZ1Cw0EqZBa+ir5L5gvu48mf8bt6rQvF0k+jgclWOsAsffIcxXr4ouvfNL
+         Kzql7YmWgZ5eJAFkeMB95lNiGpSuGm0H5e2Svs8FqIgAgCYl0HQPllMjWq1Qy/hb9W
+         GHPQqVJdkMrQqU7uXiM3147qWjt7xr3TleaAZghc=
+Date:   Sat, 22 Aug 2020 10:29:58 -0700
 From:   akpm@linux-foundation.org
-To:     akash.goel@intel.com, chris@chris-wilson.co.uk, dja@axtens.net,
-        hulkci@huawei.com, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
-        rientjes@google.com, stable@vger.kernel.org, tglx@linutronix.de,
-        viro@zeniv.linux.org.uk, walken@google.com, weiyongjun1@huawei.com
+To:     hughd@google.com, kirill.shutemov@linux.intel.com,
+        mm-commits@vger.kernel.org, oleg@redhat.com, songliubraving@fb.com,
+        srikar@linux.vnet.ibm.com, stable@vger.kernel.org,
+        syzkaller@googlegroups.com
 Subject:  [merged]
- kernel-relayc-fix-memleak-on-destroy-relay-channel.patch removed from -mm
+ uprobes-__replace_page-avoid-bug-in-munlock_vma_page.patch removed from -mm
  tree
-Message-ID: <20200822172955.kJFfKHqDV%akpm@linux-foundation.org>
+Message-ID: <20200822172958.EVLlkZ26D%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,72 +41,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: kernel/relay.c: fix memleak on destroy relay channel
+     Subject: uprobes: __replace_page() avoid BUG in munlock_vma_page()
 has been removed from the -mm tree.  Its filename was
-     kernel-relayc-fix-memleak-on-destroy-relay-channel.patch
+     uprobes-__replace_page-avoid-bug-in-munlock_vma_page.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Wei Yongjun <weiyongjun1@huawei.com>
-Subject: kernel/relay.c: fix memleak on destroy relay channel
+From: Hugh Dickins <hughd@google.com>
+Subject: uprobes: __replace_page() avoid BUG in munlock_vma_page()
 
-kmemleak report memory leak as follows:
+syzbot crashed on the VM_BUG_ON_PAGE(PageTail) in munlock_vma_page(), when
+called from uprobes __replace_page().  Which of many ways to fix it? 
+Settled on not calling when PageCompound (since Head and Tail are equals
+in this context, PageCompound the usual check in uprobes.c, and the prior
+use of FOLL_SPLIT_PMD will have cleared PageMlocked already).
 
-unreferenced object 0x607ee4e5f948 (size 8):
-comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
-hex dump (first 8 bytes):
-00 00 00 00 00 00 00 00 ........
-backtrace:
-[<00000000ca1de2fa>] relay_open kernel/relay.c:583 [inline]
-[<00000000ca1de2fa>] relay_open+0xb6/0x970 kernel/relay.c:563
-[<0000000038ae5a4b>] do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
-[<00000000d5e778e9>] __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
-[<0000000038fdf803>] blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
-[<00000000ce25a0ca>] blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
-[<00000000579e47e0>] block_ioctl+0xe5/0x120 fs/block_dev.c:1871
-[<00000000b1588c11>] vfs_ioctl fs/ioctl.c:48 [inline]
-[<00000000b1588c11>] __do_sys_ioctl fs/ioctl.c:753 [inline]
-[<00000000b1588c11>] __se_sys_ioctl fs/ioctl.c:739 [inline]
-[<00000000b1588c11>] __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
-[<0000000088fc9942>] do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
-[<000000004f6dd57a>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
-while destroy the relay channel. Fix it by adding free_percpu() before
-return from relay_destroy_channel().
-
-Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Akash Goel <akash.goel@intel.com>
-Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008161338360.20413@eggly.anvils
+Fixes: 5a52c9df62b4 ("uprobe: use FOLL_SPLIT_PMD instead of FOLL_SPLIT")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/relay.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/uprobes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/relay.c~kernel-relayc-fix-memleak-on-destroy-relay-channel
-+++ a/kernel/relay.c
-@@ -197,6 +197,7 @@ free_buf:
- static void relay_destroy_channel(struct kref *kref)
- {
- 	struct rchan *chan = container_of(kref, struct rchan, kref);
-+	free_percpu(chan->buf);
- 	kfree(chan);
- }
+--- a/kernel/events/uprobes.c~uprobes-__replace_page-avoid-bug-in-munlock_vma_page
++++ a/kernel/events/uprobes.c
+@@ -205,7 +205,7 @@ static int __replace_page(struct vm_area
+ 		try_to_free_swap(old_page);
+ 	page_vma_mapped_walk_done(&pvmw);
+ 
+-	if (vma->vm_flags & VM_LOCKED)
++	if ((vma->vm_flags & VM_LOCKED) && !PageCompound(old_page))
+ 		munlock_vma_page(old_page);
+ 	put_page(old_page);
  
 _
 
-Patches currently in -mm which might be from weiyongjun1@huawei.com are
+Patches currently in -mm which might be from hughd@google.com are
 
 
