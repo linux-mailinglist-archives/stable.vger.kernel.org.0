@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1ABA24ED2B
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB5424ED2C
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbgHWM0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 08:26:18 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:46367 "EHLO
+        id S1727836AbgHWM0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 08:26:48 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40437 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727822AbgHWM0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:26:16 -0400
+        by vger.kernel.org with ESMTP id S1727822AbgHWM0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:26:47 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 13CB019405B5;
-        Sun, 23 Aug 2020 08:26:14 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2E8521940ED7;
+        Sun, 23 Aug 2020 08:26:45 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:26:14 -0400
+  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:26:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WJ0o/9
-        a6/PJuIe6ycvtfJ19C7JrN4KLttXehM/Z3OAI=; b=VWfH60w4smESTXjpm9dCaH
-        kqVqr01T5Pnao0P7Igzhk6hs3xKQdXLktS0sCAIGpblhWdFU0HYwpS1D3grB9azc
-        HmrUVie8Dh4EPr3mlOs3B4ltjZYwBZ0lf7Qfk+kZ7exrtT1HGBNtLcLNerALIS+W
-        6HPT7ICvkyKCXeBh0mBrzr+RkmM4/V+T2NiPtF164W3G38GR4wLyuzdR2G85B/bf
-        TEot4HyfgEEqxJaNpBoQCVEKn7vdXtlecqMbLC0KJhtR5/gnuHcFBCkCLE+tGHwP
-        51s6wx2fVYF+kdQhbPqchyOEhRg7xHq7QzQY27mdFywUKtueFb+EyHLes8xzPjEg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DUfCsa
+        ThzBDfQdsLbQDfN1PwzJ/e+ubYayGeUnYiWzE=; b=QVG5sm2BIecV211jgnxU4R
+        /9WFBS3fGWP5kD4orta2/K4u3VJApdvU7uPvRrqyubiz4oEX/c91ogXi+93o615X
+        9+dofn4rz55aYYjVknq7zCs03GobNvKZbFhiWs53WztkAF9NpbnUzzqCz45MPkJF
+        qiwc6rxdTSub9Uz/hnUU6d3btqcxgpLW7NiYdSU7iHvfhlxSatxjvgcH3P3InK1Q
+        Q5172R4oX91n12fPBUfkiGhQOgZdg+H/h87RYBuhq8TTF/AFt+0cTE9syCILyO9+
+        GyArS4Ciw5ORn57kHKbLEoC8APUSLUXGX3lzU6o8eNN6ezXhH54kh95VFUYkSyCQ
         ==
-X-ME-Sender: <xms:ZWBCX_BuldxGVCjHXyD2uyc1IloihT6KA69YBEz65P2eNYc6GY2OPg>
+X-ME-Sender: <xms:hWBCXzCyf7QMXW620OcV2b-YUJwP_Zy_OQAiAJdkt-X4rmmPbcJaYQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedgheduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:ZWBCX1j4gdruM3VsbsoaUoGx4Vb22fsDnJKSoHoDctbQlqn81EVcIg>
-    <xmx:ZWBCX6kl9gbx2BtL5dX2EuaF7PNlBi1sBox9HQIkhRq6E0YsFMBh9Q>
-    <xmx:ZWBCXxxLU6fALg4esCiYTpn09NYZ2MrzC-LziZDFy9LAMQWSs3qiYg>
-    <xmx:ZmBCX_cYBaeOz5Shv4q6_uG-MCWBiz38ZPYj9laB3YBnuFZLW57g1g>
+X-ME-Proxy: <xmx:hWBCX5garMAPyixLOkW67eFX6_SAr0azGtMkZzVMzqUE5QJp47UcGQ>
+    <xmx:hWBCX-k6rPQn3uiqyFb-DuLKT7fTVFlAF3XtTNtpZhy_KzQZPDzwXQ>
+    <xmx:hWBCX1zX8YtK0jYE8IGOF4nTRJwG1ZU171ybVu28jX6q6hwPHmXDPw>
+    <xmx:hWBCXzf4fwfrngNNuMPNEluIUoUsZzTVIklTexGqNMKxOnRwFgRxUA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A67173280059;
-        Sun, 23 Aug 2020 08:26:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BDE2C328005D;
+        Sun, 23 Aug 2020 08:26:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm64: Only reschedule if MMU_NOTIFIER_RANGE_BLOCKABLE" failed to apply to 5.8-stable tree
 To:     will@kernel.org, james.morse@arm.com, maz@kernel.org,
         pbonzini@redhat.com, stable@vger.kernel.org, suzuki.poulose@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Aug 2020 14:26:26 +0200
-Message-ID: <159818558652190@kroah.com>
+Date:   Sun, 23 Aug 2020 14:27:05 +0200
+Message-ID: <1598185625713@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,164 +70,103 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fdfe7cbd58806522e799e2a50a15aee7f2cbb7b6 Mon Sep 17 00:00:00 2001
+From b5331379bc62611d1026173a09c73573384201d9 Mon Sep 17 00:00:00 2001
 From: Will Deacon <will@kernel.org>
-Date: Tue, 11 Aug 2020 11:27:24 +0100
-Subject: [PATCH] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
+Date: Tue, 11 Aug 2020 11:27:25 +0100
+Subject: [PATCH] KVM: arm64: Only reschedule if MMU_NOTIFIER_RANGE_BLOCKABLE
+ is not set
 
-The 'flags' field of 'struct mmu_notifier_range' is used to indicate
-whether invalidate_range_{start,end}() are permitted to block. In the
-case of kvm_mmu_notifier_invalidate_range_start(), this field is not
-forwarded on to the architecture-specific implementation of
-kvm_unmap_hva_range() and therefore the backend cannot sensibly decide
-whether or not to block.
+When an MMU notifier call results in unmapping a range that spans multiple
+PGDs, we end up calling into cond_resched_lock() when crossing a PGD boundary,
+since this avoids running into RCU stalls during VM teardown. Unfortunately,
+if the VM is destroyed as a result of OOM, then blocking is not permitted
+and the call to the scheduler triggers the following BUG():
 
-Add an extra 'flags' parameter to kvm_unmap_hva_range() so that
-architectures are aware as to whether or not they are permitted to block.
+ | BUG: sleeping function called from invalid context at arch/arm64/kvm/mmu.c:394
+ | in_atomic(): 1, irqs_disabled(): 0, non_block: 1, pid: 36, name: oom_reaper
+ | INFO: lockdep is turned off.
+ | CPU: 3 PID: 36 Comm: oom_reaper Not tainted 5.8.0 #1
+ | Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
+ | Call trace:
+ |  dump_backtrace+0x0/0x284
+ |  show_stack+0x1c/0x28
+ |  dump_stack+0xf0/0x1a4
+ |  ___might_sleep+0x2bc/0x2cc
+ |  unmap_stage2_range+0x160/0x1ac
+ |  kvm_unmap_hva_range+0x1a0/0x1c8
+ |  kvm_mmu_notifier_invalidate_range_start+0x8c/0xf8
+ |  __mmu_notifier_invalidate_range_start+0x218/0x31c
+ |  mmu_notifier_invalidate_range_start_nonblock+0x78/0xb0
+ |  __oom_reap_task_mm+0x128/0x268
+ |  oom_reap_task+0xac/0x298
+ |  oom_reaper+0x178/0x17c
+ |  kthread+0x1e4/0x1fc
+ |  ret_from_fork+0x10/0x30
+
+Use the new 'flags' argument to kvm_unmap_hva_range() to ensure that we
+only reschedule if MMU_NOTIFIER_RANGE_BLOCKABLE is set in the notifier
+flags.
 
 Cc: <stable@vger.kernel.org>
+Fixes: 8b3405e345b5 ("kvm: arm/arm64: Fix locking for kvm_free_stage2_pgd")
 Cc: Marc Zyngier <maz@kernel.org>
 Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
 Cc: James Morse <james.morse@arm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
-Message-Id: <20200811102725.7121-2-will@kernel.org>
+Message-Id: <20200811102725.7121-3-will@kernel.org>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 65568b23868a..e52c927aade5 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -473,7 +473,7 @@ int __kvm_arm_vcpu_set_events(struct kvm_vcpu *vcpu,
- 
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end);
-+			unsigned long start, unsigned long end, unsigned flags);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
 diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-index 0121ef2c7c8d..dc351802ff18 100644
+index dc351802ff18..ba00bcc0c884 100644
 --- a/arch/arm64/kvm/mmu.c
 +++ b/arch/arm64/kvm/mmu.c
-@@ -2213,7 +2213,7 @@ static int kvm_unmap_hva_handler(struct kvm *kvm, gpa_t gpa, u64 size, void *dat
- }
- 
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end)
-+			unsigned long start, unsigned long end, unsigned flags)
+@@ -343,7 +343,8 @@ static void unmap_stage2_p4ds(struct kvm_s2_mmu *mmu, pgd_t *pgd,
+  * destroying the VM), otherwise another faulting VCPU may come in and mess
+  * with things behind our backs.
+  */
+-static void unmap_stage2_range(struct kvm_s2_mmu *mmu, phys_addr_t start, u64 size)
++static void __unmap_stage2_range(struct kvm_s2_mmu *mmu, phys_addr_t start, u64 size,
++				 bool may_block)
  {
- 	if (!kvm->arch.mmu.pgd)
- 		return 0;
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index d35eaed1668f..825d337a505a 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -969,7 +969,7 @@ enum kvm_mips_fault_result kvm_trap_emul_gva_fault(struct kvm_vcpu *vcpu,
- 
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end);
-+			unsigned long start, unsigned long end, unsigned flags);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
-diff --git a/arch/mips/kvm/mmu.c b/arch/mips/kvm/mmu.c
-index 87fa8d8a1031..28c366d307e7 100644
---- a/arch/mips/kvm/mmu.c
-+++ b/arch/mips/kvm/mmu.c
-@@ -486,7 +486,8 @@ static int kvm_unmap_hva_handler(struct kvm *kvm, gfn_t gfn, gfn_t gfn_end,
- 	return 1;
+ 	struct kvm *kvm = mmu->kvm;
+ 	pgd_t *pgd;
+@@ -369,11 +370,16 @@ static void unmap_stage2_range(struct kvm_s2_mmu *mmu, phys_addr_t start, u64 si
+ 		 * If the range is too large, release the kvm->mmu_lock
+ 		 * to prevent starvation and lockup detector warnings.
+ 		 */
+-		if (next != end)
++		if (may_block && next != end)
+ 			cond_resched_lock(&kvm->mmu_lock);
+ 	} while (pgd++, addr = next, addr != end);
  }
  
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
++static void unmap_stage2_range(struct kvm_s2_mmu *mmu, phys_addr_t start, u64 size)
++{
++	__unmap_stage2_range(mmu, start, size, true);
++}
++
+ static void stage2_flush_ptes(struct kvm_s2_mmu *mmu, pmd_t *pmd,
+ 			      phys_addr_t addr, phys_addr_t end)
  {
- 	handle_hva_to_gpa(kvm, start, end, &kvm_unmap_hva_handler, NULL);
+@@ -2208,7 +2214,10 @@ static int handle_hva_to_gpa(struct kvm *kvm,
  
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index e020d269416d..10ded83414de 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -58,7 +58,8 @@
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- 
- extern int kvm_unmap_hva_range(struct kvm *kvm,
--			       unsigned long start, unsigned long end);
-+			       unsigned long start, unsigned long end,
-+			       unsigned flags);
- extern int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- extern int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
- extern int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
-diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
-index 41fedec69ac3..49db50d1db04 100644
---- a/arch/powerpc/kvm/book3s.c
-+++ b/arch/powerpc/kvm/book3s.c
-@@ -834,7 +834,8 @@ void kvmppc_core_commit_memory_region(struct kvm *kvm,
- 	kvm->arch.kvm_ops->commit_memory_region(kvm, mem, old, new, change);
- }
- 
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
+ static int kvm_unmap_hva_handler(struct kvm *kvm, gpa_t gpa, u64 size, void *data)
  {
- 	return kvm->arch.kvm_ops->unmap_hva_range(kvm, start, end);
- }
-diff --git a/arch/powerpc/kvm/e500_mmu_host.c b/arch/powerpc/kvm/e500_mmu_host.c
-index d6c1069e9954..ed0c9c43d0cf 100644
---- a/arch/powerpc/kvm/e500_mmu_host.c
-+++ b/arch/powerpc/kvm/e500_mmu_host.c
-@@ -734,7 +734,8 @@ static int kvm_unmap_hva(struct kvm *kvm, unsigned long hva)
+-	unmap_stage2_range(&kvm->arch.mmu, gpa, size);
++	unsigned flags = *(unsigned *)data;
++	bool may_block = flags & MMU_NOTIFIER_RANGE_BLOCKABLE;
++
++	__unmap_stage2_range(&kvm->arch.mmu, gpa, size, may_block);
  	return 0;
  }
  
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	/* kvm_unmap_hva flushes everything anyways */
- 	kvm_unmap_hva(kvm, start);
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 5ab3af7275d8..5303dbc5c9bc 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1596,7 +1596,8 @@ asmlinkage void kvm_spurious_fault(void);
- 	_ASM_EXTABLE(666b, 667b)
+@@ -2219,7 +2228,7 @@ int kvm_unmap_hva_range(struct kvm *kvm,
+ 		return 0;
  
- #define KVM_ARCH_WANT_MMU_NOTIFIER
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end);
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 4e03841f053d..a5d0207e7189 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1916,7 +1916,8 @@ static int kvm_handle_hva(struct kvm *kvm, unsigned long hva,
- 	return kvm_handle_hva_range(kvm, hva, hva + 1, data, handler);
+ 	trace_kvm_unmap_hva_range(start, end);
+-	handle_hva_to_gpa(kvm, start, end, &kvm_unmap_hva_handler, NULL);
++	handle_hva_to_gpa(kvm, start, end, &kvm_unmap_hva_handler, &flags);
+ 	return 0;
  }
  
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	return kvm_handle_hva_range(kvm, start, end, 0, kvm_unmap_rmapp);
- }
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 2c2c0254c2d8..4eaa4e46c7d0 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -482,7 +482,8 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
- 	 * count is also read inside the mmu_lock critical section.
- 	 */
- 	kvm->mmu_notifier_count++;
--	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end);
-+	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end,
-+					     range->flags);
- 	need_tlb_flush |= kvm->tlbs_dirty;
- 	/* we've to flush the tlb before the pages can be freed */
- 	if (need_tlb_flush)
 
