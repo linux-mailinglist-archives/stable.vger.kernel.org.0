@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0279D24EC10
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 10:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6950D24EC11
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 10:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728210AbgHWIBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 04:01:36 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59254 "EHLO mx2.suse.de"
+        id S1728334AbgHWIBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 04:01:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59318 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726429AbgHWIBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Aug 2020 04:01:36 -0400
+        id S1726429AbgHWIBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 Aug 2020 04:01:50 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B64E2ABF4;
-        Sun, 23 Aug 2020 08:02:03 +0000 (UTC)
-Date:   Sun, 23 Aug 2020 10:01:34 +0200
-Message-ID: <s5h1rjxbxk1.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 65002ABF4;
+        Sun, 23 Aug 2020 08:02:17 +0000 (UTC)
+Date:   Sun, 23 Aug 2020 10:01:48 +0200
+Message-ID: <s5hzh6laiz7.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Takashi Sakamoto <o-takashi@sakamocchi.jp>
 Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
-In-Reply-To: <20200823075537.56255-1-o-takashi@sakamocchi.jp>
-References: <20200823075537.56255-1-o-takashi@sakamocchi.jp>
+        Simon Wood <simon@mungewell.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] ALSA: firewire-digi00x: exclude Avid Adrenaline from detection
+In-Reply-To: <20200823075545.56305-1-o-takashi@sakamocchi.jp>
+References: <20200823075545.56305-1-o-takashi@sakamocchi.jp>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -34,22 +34,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 23 Aug 2020 09:55:37 +0200,
+On Sun, 23 Aug 2020 09:55:45 +0200,
 Takashi Sakamoto wrote:
 > 
-> Tascam FE-8 is known to support communication by asynchronous transaction
-> only. The support can be implemented in userspace application and
-> snd-firewire-ctl-services project has the support. However, ALSA
-> firewire-tascam driver is bound to the model.
+> Avid Adrenaline is reported that ALSA firewire-digi00x driver is bound to.
+> However, as long as he investigated, the design of this model is hardly
+> similar to the one of Digi 00x family. It's better to exclude the model
+> from modalias of ALSA firewire-digi00x driver.
 > 
-> This commit changes device entries so that the model is excluded. In a
-> commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
-> processing"), I addressed to the concern that version field in
-> configuration differs depending on installed firmware. However, as long
-> as I checked, the version number is fixed. It's safe to return version
-> number back to modalias.
+> This commit changes device entries so that the model is excluded.
 > 
-> Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
+> $ python3 crpp < ~/git/am-config-rom/misc/avid-adrenaline.img
+>                ROM header and bus information block
+>                -----------------------------------------------------------------
+> 400  04203a9c  bus_info_length 4, crc_length 32, crc 15004
+> 404  31333934  bus_name "1394"
+> 408  e064a002  irmc 1, cmc 1, isc 1, bmc 0, cyc_clk_acc 100, max_rec 10 (2048)
+> 40c  00a07e01  company_id 00a07e     |
+> 410  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+> 
+>                root directory
+>                -----------------------------------------------------------------
+> 414  0005d08c  directory_length 5, crc 53388
+> 418  0300a07e  vendor
+> 41c  8100000c  --> descriptor leaf at 44c
+> 420  0c008380  node capabilities
+> 424  8d000002  --> eui-64 leaf at 42c
+> 428  d1000004  --> unit directory at 438
+> 
+>                eui-64 leaf at 42c
+>                -----------------------------------------------------------------
+> 42c  0002410f  leaf_length 2, crc 16655
+> 430  00a07e01  company_id 00a07e     |
+> 434  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+> 
+>                unit directory at 438
+>                -----------------------------------------------------------------
+> 438  0004d6c9  directory_length 4, crc 54985
+> 43c  1200a02d  specifier id: 1394 TA
+> 440  13014001  version: Vender Unique and AV/C
+> 444  17000001  model
+> 448  81000009  --> descriptor leaf at 46c
+> 
+>                descriptor leaf at 44c
+>                -----------------------------------------------------------------
+> 44c  00077205  leaf_length 7, crc 29189
+> 450  00000000  textual descriptor
+> 454  00000000  minimal ASCII
+> 458  41766964  "Avid"
+> 45c  20546563  " Tec"
+> 460  686e6f6c  "hnol"
+> 464  6f677900  "ogy"
+> 468  00000000
+> 
+>                descriptor leaf at 46c
+>                -----------------------------------------------------------------
+> 46c  000599a5  leaf_length 5, crc 39333
+> 470  00000000  textual descriptor
+> 474  00000000  minimal ASCII
+> 478  41647265  "Adre"
+> 47c  6e616c69  "nali"
+> 480  6e650000  "ne"
+> 
+> Reported-by: Simon Wood <simon@mungewell.org>
+> Fixes: 9edf723fd858 ("ALSA: firewire-digi00x: add skeleton for Digi 002/003 family")
 > Cc: <stable@vger.kernel.org> # 4.4+
 > Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
