@@ -2,121 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC6C24ED39
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0656724ED5C
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 15:48:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbgHWMdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 08:33:47 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:59483 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727843AbgHWMdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:33:46 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 50EDD1940F2E;
-        Sun, 23 Aug 2020 08:33:45 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:33:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=vm7hKQ
-        RHfrNIAXGGZhhMj8F1yKs8UY2A5l0yjwYCFr4=; b=RN6JG5qrsQdsLGAVaRM25q
-        n/OrudkDy8dOdt4/1li2aiS1bxRJ+l6OadX+Iu/dBTO4Or87suEjnJtpFZhOlWah
-        laG3HOKKUGHQS1s39Me43l5lENm7cgl2GF+fu5N4LNv2y2bmicVQP6xK3Bmlsvb3
-        V7g9MBrSMNZTiIUF5mSGPNw1PDAqgzE2btQ0AtgCUnCpOzy5TM3whVHueYfGbrD/
-        JpYWbhX2zS6EcuU2k8x9ZAnzVCWNbK94L6pc2F48pXzkKRddybajezcwUzMqISkA
-        01FBAkU91nGp1eXvfjbS0k0hvS/tEL0/qsq9plTijZ28wyC6GBPs4Djryowa5z+g
-        ==
-X-ME-Sender: <xms:KWJCX1I4jgQbryllTfWpjCthjxCPI2p8CEiZLUsCY3ob9zaAxqeYUg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedgheefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:KWJCXxLDtQY-vCY1X7nBSANP4_Ay8QnyGMj76o3uEhV4xRKm0VE2RQ>
-    <xmx:KWJCX9uSnpBngzA6o2fEb1HlX2NeBkdpmyKVXlKzy0eQFfw8yRDUlQ>
-    <xmx:KWJCX2a1PJxiR3bmdGLj33gTsANb4WsI6BSXn9ahuhUYvphfW0FaZw>
-    <xmx:KWJCX0GCnYnx07omBwJsEeQbveU1UZZvlcZC5pj5eP4jQDpHa4yx6g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D4B6A30600A9;
-        Sun, 23 Aug 2020 08:33:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] opp: Enable resources again if they were disabled earlier" failed to apply to 5.4-stable tree
-To:     rnayak@codeaurora.org, mka@chromium.org, sbhanu@codeaurora.org,
-        sboyd@kernel.org, sibis@codeaurora.org, stable@vger.kernel.org,
-        viresh.kumar@linaro.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Aug 2020 14:34:05 +0200
-Message-ID: <15981860458624@kroah.com>
+        id S1726000AbgHWNsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 09:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58482 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725884AbgHWNsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 09:48:40 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06305C061573
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 06:48:39 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id ds1so2847317pjb.1
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 06:48:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8xEbn7rrg3huAV8Jxd2sZXnscQ8mfN0Ik3M9JFlCpso=;
+        b=UBJ/T5IUxkCmaUF2/aUMxaHu/iy+nBW6c7ZzBVtCqElQEAclodPYpX2bO1p4D96CcI
+         5FspBSIrxYSLoDac1bcBqP350EO2DNCGDs0blXYwZYbiCPmznNooO12gvPXhr7HX1RGd
+         vBRuyZhKn4Qoq72N1h7yKmUaWSg2wvzsLQQpQh+f/UCtRH8RLtNpedBGKGAh/MxG6X90
+         CM2BSxHEKQqoTTHpFQDU2XoYwrCxo+BvI1PYxzCmByYD0SPweDhx5/MmUwYvu2pQ8Y/V
+         566njMGFdTwDnTFlCs4OL7rn54TIpcaWtFo7q7PyMyoC0YyDB3QorBfRa+gOvhjDVWLY
+         UsGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8xEbn7rrg3huAV8Jxd2sZXnscQ8mfN0Ik3M9JFlCpso=;
+        b=oNMowCTWyfCS4J0X84qe8ZQK8juLH1RyN314ItADKRIrJhxJPSDEvfbFFqomoHWCvk
+         +QvfCelj56XqNsLeUEER2Jlk08xNtPLrB4+xbQ2SmSazIar7BlL7mY6Y4UPpJoxcQoXL
+         th+ywace+COagbxCSHILn7g5V/PzMXQar+zzdyu4uGK+6DbJ3jDhcPCPuyPhj00XzMhJ
+         Tg/S4PDFTft1j1P5XrbaXTONQ9iORHl3kuvkdPbZTKNSb+aI8UOx+fZkSRIlJP5Yogjt
+         PhUS7L++luDGdM4kGLECVHa1zDymflxHdD7krIOlnr8FDrMpZ+9HlRJRe2Z6IblXCAKv
+         a02A==
+X-Gm-Message-State: AOAM530SS8ejsjAtBbuwLjBvnZrn/wa5zmGFi93DyLgcALVoCuVQcde8
+        NdbM16CDJ7C3qHoa2kaXkXuQXOVNtkysJ6qx
+X-Google-Smtp-Source: ABdhPJwMei0WSzxk2T+kcuUDW/qeiIkMtjHdAuAmiEYoBsjsURzDc2zcyoJSLoHDBlDMevhfr1T7Hw==
+X-Received: by 2002:a17:902:a503:: with SMTP id s3mr932361plq.190.1598190512932;
+        Sun, 23 Aug 2020 06:48:32 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id a6sm487510pgt.70.2020.08.23.06.48.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 23 Aug 2020 06:48:32 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: find and cancel head link async
+ work on files exit" failed to apply to 5.7-stable tree
+To:     gregkh@linuxfoundation.org, asml.silence@gmail.com
+Cc:     stable@vger.kernel.org
+References: <159818496684216@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <5e0d43b1-f2ed-3faa-cb30-8cacd5f16faa@kernel.dk>
+Date:   Sun, 23 Aug 2020 07:48:30 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <159818496684216@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 8/23/20 6:16 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.7-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This needs this one backported:
 
-thanks,
+commit 4f26bda1522c35d2701fc219368c7101c17005c1
+Author: Pavel Begunkov <asml.silence@gmail.com>
+Date:   Mon Jun 15 10:24:03 2020 +0300
 
-greg k-h
+    io-wq: add an option to cancel all matched reqs
 
------------------- original commit in Linus's tree ------------------
+I'll take a look later today, unless Pavel beats me to it.
 
-From a4501bac0e553bed117b7e1b166d49731caf7260 Mon Sep 17 00:00:00 2001
-From: Rajendra Nayak <rnayak@codeaurora.org>
-Date: Mon, 10 Aug 2020 12:36:19 +0530
-Subject: [PATCH] opp: Enable resources again if they were disabled earlier
-
-dev_pm_opp_set_rate() can now be called with freq = 0 in order
-to either drop performance or bandwidth votes or to disable
-regulators on platforms which support them.
-
-In such cases, a subsequent call to dev_pm_opp_set_rate() with
-the same frequency ends up returning early because 'old_freq == freq'
-
-Instead make it fall through and put back the dropped performance
-and bandwidth votes and/or enable back the regulators.
-
-Cc: v5.3+ <stable@vger.kernel.org> # v5.3+
-Fixes: cd7ea582866f ("opp: Make dev_pm_opp_set_rate() handle freq = 0 to drop performance votes")
-Reported-by: Sajida Bhanu <sbhanu@codeaurora.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Reported-by: Matthias Kaehlcke <mka@chromium.org>
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-[ Viresh: Don't skip clk_set_rate() and massaged changelog ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index bdb028c7793d..9668ea04cc80 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -934,10 +934,13 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
- 
- 	/* Return early if nothing to do */
- 	if (old_freq == freq) {
--		dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
--			__func__, freq);
--		ret = 0;
--		goto put_opp_table;
-+		if (!opp_table->required_opp_tables && !opp_table->regulators &&
-+		    !opp_table->paths) {
-+			dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
-+				__func__, freq);
-+			ret = 0;
-+			goto put_opp_table;
-+		}
- 	}
- 
- 	/*
+-- 
+Jens Axboe
 
