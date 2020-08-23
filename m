@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA5224ED1E
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B826A24ED23
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726345AbgHWMCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 08:02:37 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:46569 "EHLO
+        id S1726090AbgHWMPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 08:15:50 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:32913 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726090AbgHWMCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:02:35 -0400
+        by vger.kernel.org with ESMTP id S1727096AbgHWMPr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:15:47 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 79D7419401EB;
-        Sun, 23 Aug 2020 08:02:34 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 964F419411C3;
+        Sun, 23 Aug 2020 08:15:46 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:02:34 -0400
+  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:15:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=615fsN
-        IH9f5GM6cgvxcjz6IkeaWgd+7okYWCXIU8CdE=; b=XrFe4FXxWTR4GqztqDVqDm
-        wKN+qi6o5WomMbTSlqGvFJFPCYSM9cQyP3ArNZDN43ci8jGS3frLA/ORp4h2zdNS
-        4uwvzYqpTub1gVFzXNl4Bzx8at0Ep+rz24JRe1gP4PR9eh00eDHrPx8TJ+UDOH7P
-        OCuf6qxLG98j7oJYUXZGQwAzH2kbywuhKD/atjlar/VBHCEL5DuW3uxHPC60PS6h
-        s+blETXk5YTg8VQlxBxmOxrdiyk/P/uR4ZMv6DcVTh/X9S3ug1CDE8Jzbht84BhO
-        PxohPcUDzrzHFVmJ2/nEUtmW/sP6TmWpXn4q1v1hbF/jUqM2ywGK5uw7dg/KrBjg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1n/6SQ
+        EmRA/nPLEtIJdC3ZaWAhHZ0OCTRvY0kDi59nE=; b=VZQduFKtYOi268wRQvkfZ6
+        dgZwgC7QV6DyNFRTfgwUeFS3YRK/zimDNYu0POYU0u7jTwVVgyCXHK19FL6EtTbl
+        19SUmohbig/9cudt9aMZtTXOf1tHVGzSlOP4UQJhFkbXR1+8oy5C3ORwyC7Zz50L
+        mJLZxjAYrek9DYUDQzKHWAdiheKIUFRx81kK6gbakm2r/Dt9Dmi6V6R/SWBHhnE5
+        Yit3xnlosbmv/oAGOS/vsVUtuu64bQZ0yEELv21uGWvZuZm79KtwGEOmtFwbELd3
+        2xVMc49lamopHMIGF38LJ9b5OPHFs7hVj4liFe5YC/a9KhZWhWT8pu9XxzipLm+A
         ==
-X-ME-Sender: <xms:2VpCX94gz085fhegmiEJlLE3ExsHXcdLBXGAQz3pqIelDn5UwlFUog>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedggeejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:8l1CXwQdWpROOnto-Eyc__SdZma0VeAZDEDzBm0EroGOnhjrrlpoKg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedggeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:2VpCX66OVisE7XgxyVV5wVVA_-09AHsNOwofllT_p_YaGVw25U0Pyg>
-    <xmx:2VpCX0ds05ttK7jCzmI5eTvLCMo4Ko7xl10G-zai-vmQKpIwU0j0oA>
-    <xmx:2VpCX2JQpPQOdB272eht_irIUJL4dB9xNwRrC1Hc1o8zfW0E5kkdZQ>
-    <xmx:2lpCX4WHsZGrxg0KiVCqFHmIXqjCDGotXcUKADRkY_0lr6_BVNU0mw>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:8l1CX9wOFqAohHcFji7B7f4QcnmVDLphnPpWGr3MYAQgBhD60K5IIA>
+    <xmx:8l1CX91T7myDRHtY_gTVqNIVf1CvkHN7PCv4SsZ_r09STziXns2ybw>
+    <xmx:8l1CX0CvcbteSm6N0Agoue3cFuQ-OrCfKLrBbxJBURTPi4Hj1fq3jg>
+    <xmx:8l1CXzfBoo-gL-oL4W4FvMw0iE4SspWlMsiOnETd59Ks8A7YKJfeEA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 407A5328005A;
-        Sun, 23 Aug 2020 08:02:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: Prevent adding devices below an unregistering controller" failed to apply to 4.19-stable tree
-To:     lukas@wunner.de, broonie@kernel.org, geert+renesas@glider.be,
-        octavian.purdila@intel.com, pantelis.antoniou@konsulko.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E61F33280059;
+        Sun, 23 Aug 2020 08:15:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: find and cancel head link async work on files exit" failed to apply to 5.7-stable tree
+To:     axboe@kernel.dk, asml.silence@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Aug 2020 14:02:53 +0200
-Message-ID: <1598184173156139@kroah.com>
+Date:   Sun, 23 Aug 2020 14:16:06 +0200
+Message-ID: <159818496684216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,107 +69,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ddf75be47ca748f8b12d28ac64d624354fddf189 Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 3 Aug 2020 13:09:01 +0200
-Subject: [PATCH] spi: Prevent adding devices below an unregistering controller
+From b711d4eaf0c408a811311ee3e94d6e9e5a230a9a Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sun, 16 Aug 2020 08:23:05 -0700
+Subject: [PATCH] io_uring: find and cancel head link async work on files exit
 
-CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
-using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
-same via sysfs.
+Commit f254ac04c874 ("io_uring: enable lookup of links holding inflight files")
+only handled 2 out of the three head link cases we have, we also need to
+lookup and cancel work that is blocked in io-wq if that work has a link
+that's holding a reference to the files structure.
 
-But there are no precautions to prevent adding a device below a
-controller that's being removed.  Such a device is unusable and may not
-even be able to unbind cleanly as it becomes inaccessible once the
-controller has been torn down.  E.g. it is then impossible to quiesce
-the device's interrupt.
+Put the "cancel head links that hold this request pending" logic into
+io_attempt_cancel(), which will to through the motions of finding and
+canceling head links that hold the current inflight files stable request
+pending.
 
-of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
-but otherwise run lockless against spi_unregister_controller().
+Cc: stable@vger.kernel.org
+Reported-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Fix by holding the spi_add_lock in spi_unregister_controller() and
-bailing out of spi_add_device() if the controller has been unregistered
-concurrently.
-
-Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.19+
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index c3008e423f59..c6ea760ea5f0 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -1017,4 +1017,7 @@ config SPI_SLAVE_SYSTEM_CONTROL
- 
- endif # SPI_SLAVE
- 
-+config SPI_DYNAMIC
-+	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
-+
- endif # SPI
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 0b260484b4f5..92b8fb416dca 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -475,6 +475,12 @@ static LIST_HEAD(spi_controller_list);
-  */
- static DEFINE_MUTEX(board_lock);
- 
-+/*
-+ * Prevents addition of devices with same chip select and
-+ * addition of devices below an unregistering controller.
-+ */
-+static DEFINE_MUTEX(spi_add_lock);
-+
- /**
-  * spi_alloc_device - Allocate a new SPI device
-  * @ctlr: Controller to which device is connected
-@@ -554,7 +560,6 @@ static int spi_dev_check(struct device *dev, void *data)
-  */
- int spi_add_device(struct spi_device *spi)
- {
--	static DEFINE_MUTEX(spi_add_lock);
- 	struct spi_controller *ctlr = spi->controller;
- 	struct device *dev = ctlr->dev.parent;
- 	int status;
-@@ -582,6 +587,13 @@ int spi_add_device(struct spi_device *spi)
- 		goto done;
- 	}
- 
-+	/* Controller may unregister concurrently */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
-+	    !device_is_registered(&ctlr->dev)) {
-+		status = -ENODEV;
-+		goto done;
-+	}
-+
- 	/* Descriptors take precedence */
- 	if (ctlr->cs_gpiods)
- 		spi->cs_gpiod = ctlr->cs_gpiods[spi->chip_select];
-@@ -2797,6 +2809,10 @@ void spi_unregister_controller(struct spi_controller *ctlr)
- 	struct spi_controller *found;
- 	int id = ctlr->bus_num;
- 
-+	/* Prevent addition of new devices, unregister existing ones */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_lock(&spi_add_lock);
-+
- 	device_for_each_child(&ctlr->dev, NULL, __unregister);
- 
- 	/* First make sure that this controller was ever added */
-@@ -2817,6 +2833,9 @@ void spi_unregister_controller(struct spi_controller *ctlr)
- 	if (found == ctlr)
- 		idr_remove(&spi_master_idr, id);
- 	mutex_unlock(&board_lock);
-+
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_unlock(&spi_add_lock);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dc506b75659c..346a3eb84785 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8063,6 +8063,33 @@ static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
+ 	return found;
  }
- EXPORT_SYMBOL_GPL(spi_unregister_controller);
+ 
++static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
++{
++	return io_match_link(container_of(work, struct io_kiocb, work), data);
++}
++
++static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
++{
++	enum io_wq_cancel cret;
++
++	/* cancel this particular work, if it's running */
++	cret = io_wq_cancel_work(ctx->io_wq, &req->work);
++	if (cret != IO_WQ_CANCEL_NOTFOUND)
++		return;
++
++	/* find links that hold this pending, cancel those */
++	cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_link_cb, req, true);
++	if (cret != IO_WQ_CANCEL_NOTFOUND)
++		return;
++
++	/* if we have a poll link holding this pending, cancel that */
++	if (io_poll_remove_link(ctx, req))
++		return;
++
++	/* final option, timeout link is holding this req pending */
++	io_timeout_remove_link(ctx, req);
++}
++
+ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
+ {
+@@ -8116,10 +8143,8 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				continue;
+ 			}
+ 		} else {
+-			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
+-			/* could be a link, check and remove if it is */
+-			if (!io_poll_remove_link(ctx, cancel_req))
+-				io_timeout_remove_link(ctx, cancel_req);
++			/* cancel this request, or head link requests */
++			io_attempt_cancel(ctx, cancel_req);
+ 			io_put_req(cancel_req);
+ 		}
  
 
