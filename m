@@ -2,150 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05FA824EED6
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 18:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D48024EF0E
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 19:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbgHWQsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 12:48:52 -0400
-Received: from mga06.intel.com ([134.134.136.31]:36920 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726569AbgHWQsv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Aug 2020 12:48:51 -0400
-IronPort-SDR: gYaEtC4C09WN3eSdGPnej3YUbl2S2k6lhKdUifcVsspTIutIu5umFI9ee6LVQWuUaQGlSQ+Qln
- 0SnPt++mG3xA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9722"; a="217337468"
-X-IronPort-AV: E=Sophos;i="5.76,345,1592895600"; 
-   d="scan'208";a="217337468"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2020 09:48:50 -0700
-IronPort-SDR: 0ht87XvZ53q/3W2CoVydxUjAnlEpxuU+TAcCwqoqni40dcjfonSCDKdy7wWC+ddzFuUDbBTaL1
- PIsc2/OfE0yg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,345,1592895600"; 
-   d="scan'208";a="321858908"
-Received: from araj-mobl1.jf.intel.com ([10.254.85.84])
-  by fmsmga004.fm.intel.com with ESMTP; 23 Aug 2020 09:48:49 -0700
-Date:   Sun, 23 Aug 2020 09:48:49 -0700
-From:   "Raj, Ashok" <ashok.raj@intel.com>
-To:     linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Cc:     Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
-        Evan Green <evgreen@chromium.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        x86@kernel.org, Ashok Raj <ashok.raj@intel.com>
-Subject: Re: [PATCH v2] x86/hotplug: Silence APIC only after all irq's are
- migrated
-Message-ID: <20200823164848.GA29858@araj-mobl1.jf.intel.com>
-References: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
+        id S1727961AbgHWRfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 13:35:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726792AbgHWRfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 13:35:38 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17845C061573;
+        Sun, 23 Aug 2020 10:35:38 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id c8so2650081edn.8;
+        Sun, 23 Aug 2020 10:35:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yhZn5iplZfVv2iHxZYHx5EH11yZHLF/xgxbFt5zcxMI=;
+        b=czjVz3Qpf9F2LM3ydzqJAaOb6tQSum6uy2cnKW1j9Da2zRoKaBiThKyltRNi46GFUO
+         9RZWw1FBl0ScBM1myJmWdjjJpz500DBF13lJkqO9gKFMGz6zi1krW3WWcHWTRzTw30rN
+         kEhMDDAdG4Ozi5L0Ki5ziNUo30VuyiatQaVOWnSeSuM/bdiBzJ1fFuaJr8WzTrlXUbWX
+         5R+kE9WuqzO4kbtw9wW3M97Vkj0G66li0aKbPkxaA1UCr1s/blqos4kNwJmGauyWyhrU
+         kjWz8X9TPTg1HdM5XYhtECxfF2D0RgLB0dwd1GTS5RJByLuStWcr9VkHdPxrAUf0ChTB
+         R3bQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yhZn5iplZfVv2iHxZYHx5EH11yZHLF/xgxbFt5zcxMI=;
+        b=I0ohBwX7H+WV0G0m6DNuLFsW9GTqUYvThx4bkhj2Ad12odaHifzSYAXFosldC74pa/
+         8KQNY2eP4mrPB1KlZmjSwjf2scwcgxEzpPUAmfpFv5dN4bWeG7HvFoNe5LRVf1ds5oCK
+         bICZivGGS6ngooP5+xYPh5Pr+ZViHgIYjkbslCvFsiTKKDwGHy0vK0OPcmZGF5z//EAx
+         893RONUg/6n9NBFiQYP+PGZz2A/JoEQlvFhmXOmHPqdxFoZEvARzouwnziTIpBT6EoHG
+         0c+K+dBOhIDxzxgBR5u2EMsZbSoTd0Nlhg7ci+nOtz8g46K8OWqY9F4nq0hOG7adkD4d
+         WogA==
+X-Gm-Message-State: AOAM531D3zx2dD/zbih2h3GPBH8IA3/h7viD12shLRWWAXzL1tYrwjca
+        NuSOnToUNNgtYu0lmDWWlCw=
+X-Google-Smtp-Source: ABdhPJy34JwBoWwr4MdQaUs03XiTpdmjQAqKazkDmarJFZlEVtw7P8myNj3zZ8+PvyPvSFbxzrB7GQ==
+X-Received: by 2002:aa7:d293:: with SMTP id w19mr2077998edq.119.1598204136794;
+        Sun, 23 Aug 2020 10:35:36 -0700 (PDT)
+Received: from localhost.localdomain ([5.100.200.56])
+        by smtp.gmail.com with ESMTPSA id s4sm7004086ejx.94.2020.08.23.10.35.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Aug 2020 10:35:36 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org, Dmitry Shulyak <yashulyak@gmail.com>
+Subject: [PATCH] io-wq: fix hang after cancelling pending work
+Date:   Sun, 23 Aug 2020 20:33:10 +0300
+Message-Id: <c62b225cc7019d0a8ef686d0f87dd1612d9768ab.1598203901.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Thomas,
+Don't forget to update wqe->hash_tail after cancelling a pending work.
 
-I was wondering if you got a chance to take a look at this fix?
+Cc: stable@vger.kernel.org # 5.7+
+Reported-by: Dmitry Shulyak <yashulyak@gmail.com>
+Fixes: 86f3cd1b589a1 ("io-wq: handle hashed writes in chains")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io-wq.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-I had some mail issues recently and they showed up at lore after 2
-days. I wasn't sure if you got the original mail, or maybe it didn't
-make it. 
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index e92c4724480c..414beb543883 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -925,6 +925,24 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ 	return match->nr_running && !match->cancel_all;
+ }
+ 
++static inline void io_wqe_remove_pending(struct io_wqe *wqe,
++					 struct io_wq_work *work,
++					 struct io_wq_work_node *prev)
++{
++	unsigned int hash = io_get_work_hash(work);
++	struct io_wq_work *prev_work = NULL;
++
++	if (io_wq_is_hashed(work) && work == wqe->hash_tail[hash]) {
++		if (prev)
++			prev_work = container_of(prev, struct io_wq_work, list);
++		if (prev_work && io_get_work_hash(prev_work) == hash)
++			wqe->hash_tail[hash] = prev_work;
++		else
++			wqe->hash_tail[hash] = NULL;
++	}
++	wq_list_del(&wqe->work_list, &work->list, prev);
++}
++
+ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+ 				       struct io_cb_cancel_data *match)
+ {
+@@ -938,8 +956,7 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+ 		work = container_of(node, struct io_wq_work, list);
+ 		if (!match->fn(work, match->data))
+ 			continue;
+-
+-		wq_list_del(&wqe->work_list, node, prev);
++		io_wqe_remove_pending(wqe, work, prev);
+ 		spin_unlock_irqrestore(&wqe->lock, flags);
+ 		io_run_cancel(work, wqe);
+ 		match->nr_pending++;
+-- 
+2.24.0
 
-If you had a different way to fix it, we can try those out. 
-
-
-On Thu, Aug 20, 2020 at 05:42:03PM -0700, Ashok Raj wrote:
-> When offlining CPUs, fixup_irqs() migrates all interrupts away from the
-> outgoing CPU to an online CPU. It's always possible the device sent an
-> interrupt to the previous CPU destination. Pending interrupt bit in IRR in
-> LAPIC identifies such interrupts. apic_soft_disable() will not capture any
-> new interrupts in IRR. This causes interrupts from device to be lost during
-> CPU offline. The issue was found when explicitly setting MSI affinity to a
-> CPU and immediately offlining it. It was simple to recreate with a USB
-> ethernet device and doing I/O to it while the CPU is offlined. Lost
-> interrupts happen even when Interrupt Remapping is enabled.
-> 
-> Current code does apic_soft_disable() before migrating interrupts.
-> 
-> native_cpu_disable()
-> {
-> 	...
-> 	apic_soft_disable();
-> 	cpu_disable_common();
-> 	  --> fixup_irqs(); // Too late to capture anything in IRR.
-> }
-> 
-> Just flipping the above call sequence seems to hit the IRR checks
-> and the lost interrupt is fixed for both legacy MSI and when
-> interrupt remapping is enabled.
-
-On another note, we have tested both with and without the read
-after write when programming MSI addr/data on the device. It didn't
-seem to change the results. But I think its a useful one to add
-for correctness.
-
-https://lore.kernel.org/lkml/878si6rx7f.fsf@nanos.tec.linutronix.de/
-
-This bug been eluding for a while. Looking for your feedback.
-
-> 
-> Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
-> Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
-> Reported-by: Evan Green <evgreen@chromium.org>
-> Tested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-> Tested-by: Evan Green <evgreen@chromium.org>
-> Reviewed-by: Evan Green <evgreen@chromium.org>
-> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-> ---
-> v2:
-> - Typos and fixes suggested by Randy Dunlap
-> 
-> To: linux-kernel@vger.kernel.org
-> To: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Sukumar Ghorai <sukumar.ghorai@intel.com>
-> Cc: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
-> Cc: Evan Green <evgreen@chromium.org>
-> Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: stable@vger.kernel.org
-> ---
->  arch/x86/kernel/smpboot.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index 27aa04a95702..3016c3b627ce 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1594,13 +1594,20 @@ int native_cpu_disable(void)
->  	if (ret)
->  		return ret;
->  
-> +	cpu_disable_common();
->  	/*
->  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
->  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
-> -	 * messages.
-> +	 * messages. It's important to do apic_soft_disable() after
-> +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
-> +	 * depends on IRR being set. After apic_soft_disable() CPU preserves
-> +	 * currently set IRR/ISR but new interrupts will not set IRR.
-> +	 * This causes interrupts sent to outgoing CPU before completion
-> +	 * of IRQ migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
-> +	 * APIC State after It Has been Software Disabled" section for more
-> +	 * details.
->  	 */
->  	apic_soft_disable();
-> -	cpu_disable_common();
->  
->  	return 0;
->  }
-> -- 
-> 2.7.4
-> 
