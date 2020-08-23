@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B826A24ED23
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEFF24ED25
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 14:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgHWMPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 08:15:50 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:32913 "EHLO
+        id S1727787AbgHWMYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 08:24:01 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:55463 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727096AbgHWMPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:15:47 -0400
+        by vger.kernel.org with ESMTP id S1727786AbgHWMYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 08:24:00 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 964F419411C3;
-        Sun, 23 Aug 2020 08:15:46 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id A571B1940429;
+        Sun, 23 Aug 2020 08:23:59 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:15:46 -0400
+  by compute1.internal (MEProxy); Sun, 23 Aug 2020 08:23:59 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1n/6SQ
-        EmRA/nPLEtIJdC3ZaWAhHZ0OCTRvY0kDi59nE=; b=VZQduFKtYOi268wRQvkfZ6
-        dgZwgC7QV6DyNFRTfgwUeFS3YRK/zimDNYu0POYU0u7jTwVVgyCXHK19FL6EtTbl
-        19SUmohbig/9cudt9aMZtTXOf1tHVGzSlOP4UQJhFkbXR1+8oy5C3ORwyC7Zz50L
-        mJLZxjAYrek9DYUDQzKHWAdiheKIUFRx81kK6gbakm2r/Dt9Dmi6V6R/SWBHhnE5
-        Yit3xnlosbmv/oAGOS/vsVUtuu64bQZ0yEELv21uGWvZuZm79KtwGEOmtFwbELd3
-        2xVMc49lamopHMIGF38LJ9b5OPHFs7hVj4liFe5YC/a9KhZWhWT8pu9XxzipLm+A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7MADrH
+        lpbG7kbNQfcvwcoswdKrFtjXjKld1ucquLU8s=; b=uPUWbDO9BHYlynACCBPleM
+        EICXAIqqJE6+cW5kkT5uH5Mai7IdtQzT7tvjKpwUn7hdBbJwTCNCjACw5UXLyE0X
+        d6ioaMcwjcE/3jdXdqnlQhxBnz+8VgBhzIniJ25GvIPMc7lXxF0CNHWfx6LbDV7V
+        N3VxJ02ZcWZP5NwYXcVOhIGj3ne+46Rn19oXHfTgVcxH9sdZ//d6ahliwlXocL9U
+        qG4Ww4d60UINqeBYn50jAiccpDEpibR6K9gfe8V6R/eIK9ghFNquRc6DKQljq4RM
+        1YsrZJYdbLuwFfpcbuVua4WKSkIfAQA7urtv7cQG40l8adsDytEF7oYWKbyFqT9g
         ==
-X-ME-Sender: <xms:8l1CXwQdWpROOnto-Eyc__SdZma0VeAZDEDzBm0EroGOnhjrrlpoKg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedggeelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:319CX2TgskEkfZjIqk18SC3wKYS_2IgrGc_6eH82M_dGO9V26ykD4Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedgheduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -36,19 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudduiedggeelucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:8l1CX9wOFqAohHcFji7B7f4QcnmVDLphnPpWGr3MYAQgBhD60K5IIA>
-    <xmx:8l1CX91T7myDRHtY_gTVqNIVf1CvkHN7PCv4SsZ_r09STziXns2ybw>
-    <xmx:8l1CX0CvcbteSm6N0Agoue3cFuQ-OrCfKLrBbxJBURTPi4Hj1fq3jg>
-    <xmx:8l1CXzfBoo-gL-oL4W4FvMw0iE4SspWlMsiOnETd59Ks8A7YKJfeEA>
+X-ME-Proxy: <xmx:319CX7x-6Yq2kLAu1tZDHObBVK5m3aOF6fj8jjPfbnKxVDtKW3e_cg>
+    <xmx:319CXz02-MGq_KWfoPj-4pHU5s3C4yhG-paYrySz6ykKng15B044hA>
+    <xmx:319CXyBSicIyFKfJuiR0R54PTNsCQdlM89b8FRQDN0IYawCLMa7DQg>
+    <xmx:319CX_L9zAxafxCAm8D7Rj6uDZBwRJjgSH_YRRJ_CyuQrVevdnbfEw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E61F33280059;
-        Sun, 23 Aug 2020 08:15:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: find and cancel head link async work on files exit" failed to apply to 5.7-stable tree
-To:     axboe@kernel.dk, asml.silence@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 021B53280059;
+        Sun, 23 Aug 2020 08:23:58 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] opp: Put opp table in dev_pm_opp_set_rate() for empty tables" failed to apply to 5.7-stable tree
+To:     swboyd@chromium.org, rnayak@codeaurora.org, stable@vger.kernel.org,
+        viresh.kumar@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Aug 2020 14:16:06 +0200
-Message-ID: <159818496684216@kroah.com>
+Date:   Sun, 23 Aug 2020 14:24:19 +0200
+Message-ID: <15981854598296@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,74 +70,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b711d4eaf0c408a811311ee3e94d6e9e5a230a9a Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sun, 16 Aug 2020 08:23:05 -0700
-Subject: [PATCH] io_uring: find and cancel head link async work on files exit
+From 8979ef70850eb469e1094279259d1ef393ffe85f Mon Sep 17 00:00:00 2001
+From: Stephen Boyd <swboyd@chromium.org>
+Date: Tue, 11 Aug 2020 14:28:36 -0700
+Subject: [PATCH] opp: Put opp table in dev_pm_opp_set_rate() for empty tables
 
-Commit f254ac04c874 ("io_uring: enable lookup of links holding inflight files")
-only handled 2 out of the three head link cases we have, we also need to
-lookup and cancel work that is blocked in io-wq if that work has a link
-that's holding a reference to the files structure.
+We get the opp_table pointer at the top of the function and so we should
+put the pointer at the end of the function like all other exit paths
+from this function do.
 
-Put the "cancel head links that hold this request pending" logic into
-io_attempt_cancel(), which will to through the motions of finding and
-canceling head links that hold the current inflight files stable request
-pending.
+Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
+Fixes: aca48b61f963 ("opp: Manage empty OPP tables with clk handle")
+Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+[ Viresh: Split the patch into two ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-Cc: stable@vger.kernel.org
-Reported-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index dc506b75659c..346a3eb84785 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8063,6 +8063,33 @@ static bool io_timeout_remove_link(struct io_ring_ctx *ctx,
- 	return found;
- }
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index 9d7fb45b1786..f2f32786ee45 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -893,8 +893,10 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 		 * have OPP table for the device, while others don't and
+ 		 * opp_set_rate() just needs to behave like clk_set_rate().
+ 		 */
+-		if (!_get_opp_count(opp_table))
+-			return 0;
++		if (!_get_opp_count(opp_table)) {
++			ret = 0;
++			goto put_opp_table;
++		}
  
-+static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
-+{
-+	return io_match_link(container_of(work, struct io_kiocb, work), data);
-+}
-+
-+static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
-+{
-+	enum io_wq_cancel cret;
-+
-+	/* cancel this particular work, if it's running */
-+	cret = io_wq_cancel_work(ctx->io_wq, &req->work);
-+	if (cret != IO_WQ_CANCEL_NOTFOUND)
-+		return;
-+
-+	/* find links that hold this pending, cancel those */
-+	cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_link_cb, req, true);
-+	if (cret != IO_WQ_CANCEL_NOTFOUND)
-+		return;
-+
-+	/* if we have a poll link holding this pending, cancel that */
-+	if (io_poll_remove_link(ctx, req))
-+		return;
-+
-+	/* final option, timeout link is holding this req pending */
-+	io_timeout_remove_link(ctx, req);
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
-@@ -8116,10 +8143,8 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				continue;
- 			}
- 		} else {
--			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
--			/* could be a link, check and remove if it is */
--			if (!io_poll_remove_link(ctx, cancel_req))
--				io_timeout_remove_link(ctx, cancel_req);
-+			/* cancel this request, or head link requests */
-+			io_attempt_cancel(ctx, cancel_req);
- 			io_put_req(cancel_req);
- 		}
- 
+ 		if (!opp_table->required_opp_tables && !opp_table->regulators &&
+ 		    !opp_table->paths) {
 
