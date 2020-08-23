@@ -2,114 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D48024EF0E
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 19:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2E124EF10
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 19:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbgHWRfj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 13:35:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
+        id S1727970AbgHWRjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 13:39:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726792AbgHWRfi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 13:35:38 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17845C061573;
-        Sun, 23 Aug 2020 10:35:38 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id c8so2650081edn.8;
-        Sun, 23 Aug 2020 10:35:38 -0700 (PDT)
+        with ESMTP id S1726792AbgHWRjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 13:39:31 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22014C061573
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 10:39:30 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id v15so3421976pgh.6
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 10:39:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=yhZn5iplZfVv2iHxZYHx5EH11yZHLF/xgxbFt5zcxMI=;
-        b=czjVz3Qpf9F2LM3ydzqJAaOb6tQSum6uy2cnKW1j9Da2zRoKaBiThKyltRNi46GFUO
-         9RZWw1FBl0ScBM1myJmWdjjJpz500DBF13lJkqO9gKFMGz6zi1krW3WWcHWTRzTw30rN
-         kEhMDDAdG4Ozi5L0Ki5ziNUo30VuyiatQaVOWnSeSuM/bdiBzJ1fFuaJr8WzTrlXUbWX
-         5R+kE9WuqzO4kbtw9wW3M97Vkj0G66li0aKbPkxaA1UCr1s/blqos4kNwJmGauyWyhrU
-         kjWz8X9TPTg1HdM5XYhtECxfF2D0RgLB0dwd1GTS5RJByLuStWcr9VkHdPxrAUf0ChTB
-         R3bQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=mY96LIkN1h9fUPTsChLJqQ4p1857Mmj7eT3GfCFBt0g=;
+        b=MvQeZqU/w0RFMTCRx0FxIpQXO/zA+XNIHtyvjxmJRPH3BOpcpHjoG1gP5Kta+Hp1Zu
+         VYACb6bgUApYQVn2NfTvfjzM/0ig/gOL0lfYKwpMNnmaIgOMaBUUvUvly1zNBYhQiSlQ
+         FYKMF8Suxm2h4FBJG4RGPQquflKuOanTTg6P1zmScXQc/f6pINUh40zkxGZWXZ3QnjVZ
+         OL0pagb1lGjoQa0uYoqwt/fhLS4Vim65KqwOcQrNdM6u0j8Yr3nezY3x/6CpNxjfJiy0
+         /YbFGiiAwfd9UzCDaIRa5JI0VQ9HMB92Jys0SHPlpK9eSBUAOuG3ly63DJDGnSA3O4mz
+         iA/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=yhZn5iplZfVv2iHxZYHx5EH11yZHLF/xgxbFt5zcxMI=;
-        b=I0ohBwX7H+WV0G0m6DNuLFsW9GTqUYvThx4bkhj2Ad12odaHifzSYAXFosldC74pa/
-         8KQNY2eP4mrPB1KlZmjSwjf2scwcgxEzpPUAmfpFv5dN4bWeG7HvFoNe5LRVf1ds5oCK
-         bICZivGGS6ngooP5+xYPh5Pr+ZViHgIYjkbslCvFsiTKKDwGHy0vK0OPcmZGF5z//EAx
-         893RONUg/6n9NBFiQYP+PGZz2A/JoEQlvFhmXOmHPqdxFoZEvARzouwnziTIpBT6EoHG
-         0c+K+dBOhIDxzxgBR5u2EMsZbSoTd0Nlhg7ci+nOtz8g46K8OWqY9F4nq0hOG7adkD4d
-         WogA==
-X-Gm-Message-State: AOAM531D3zx2dD/zbih2h3GPBH8IA3/h7viD12shLRWWAXzL1tYrwjca
-        NuSOnToUNNgtYu0lmDWWlCw=
-X-Google-Smtp-Source: ABdhPJy34JwBoWwr4MdQaUs03XiTpdmjQAqKazkDmarJFZlEVtw7P8myNj3zZ8+PvyPvSFbxzrB7GQ==
-X-Received: by 2002:aa7:d293:: with SMTP id w19mr2077998edq.119.1598204136794;
-        Sun, 23 Aug 2020 10:35:36 -0700 (PDT)
-Received: from localhost.localdomain ([5.100.200.56])
-        by smtp.gmail.com with ESMTPSA id s4sm7004086ejx.94.2020.08.23.10.35.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2020 10:35:36 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+        bh=mY96LIkN1h9fUPTsChLJqQ4p1857Mmj7eT3GfCFBt0g=;
+        b=ZNDHJEMjU5HEDPfYwEPuO26tL5YlkFVVqZQF69C7t3ci3tjzVSzPvDg6Jsv+AdOv7x
+         KqS8FAyrfMlEP81SHilqh1aT8cMxfTpsChf4WCkr1F09SCzxglgNWodi6ykU2DklBL1t
+         hCI3fMmqY4KH/r8FFUzOSpzjv3J1uGS0zAGVepYUdGredPjv5idDBACaIr+pyJSfXJRG
+         A38Kp/fH1x2npPLpjQQbpk5wCeVv2bzkIhqYWo4hFpawdRL5ieR+WZT5KJ3BkoRd4Uj3
+         cSDeDWjQEPFbNHQYGyKjvISrH+U4c8ALglNqO8/eYyZz+SD7CCSIQgmWO9VPLYpHD2Sl
+         +xqg==
+X-Gm-Message-State: AOAM5330sPWBt+iWlcjQa6C3kXyXRylM56f8Bdu38oNrPd745uH9Kwj3
+        ogOStLnas4qbEyTGHokxHOL5lQ==
+X-Google-Smtp-Source: ABdhPJxwJAmu+XSPeKf7LDKpimGHmBL7tinYSBo63P3vJDPbu5NlkgL4gcoUMVVAayI+sxKkvZcEUw==
+X-Received: by 2002:a62:7d0b:: with SMTP id y11mr1399116pfc.262.1598204370006;
+        Sun, 23 Aug 2020 10:39:30 -0700 (PDT)
+Received: from [192.168.1.182] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y4sm8833195pff.44.2020.08.23.10.39.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 23 Aug 2020 10:39:29 -0700 (PDT)
+Subject: Re: [PATCH] io-wq: fix hang after cancelling pending work
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 Cc:     stable@vger.kernel.org, Dmitry Shulyak <yashulyak@gmail.com>
-Subject: [PATCH] io-wq: fix hang after cancelling pending work
-Date:   Sun, 23 Aug 2020 20:33:10 +0300
-Message-Id: <c62b225cc7019d0a8ef686d0f87dd1612d9768ab.1598203901.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+References: <c62b225cc7019d0a8ef686d0f87dd1612d9768ab.1598203901.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <05a99d44-8310-c8b1-b863-5333c94347f4@kernel.dk>
+Date:   Sun, 23 Aug 2020 11:39:28 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <c62b225cc7019d0a8ef686d0f87dd1612d9768ab.1598203901.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Don't forget to update wqe->hash_tail after cancelling a pending work.
+On 8/23/20 11:33 AM, Pavel Begunkov wrote:
+> Don't forget to update wqe->hash_tail after cancelling a pending work.
 
-Cc: stable@vger.kernel.org # 5.7+
-Reported-by: Dmitry Shulyak <yashulyak@gmail.com>
-Fixes: 86f3cd1b589a1 ("io-wq: handle hashed writes in chains")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io-wq.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+Yep that fixes it, figured it was something related to hash work
+cancelations. Applied!
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index e92c4724480c..414beb543883 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -925,6 +925,24 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
- 	return match->nr_running && !match->cancel_all;
- }
- 
-+static inline void io_wqe_remove_pending(struct io_wqe *wqe,
-+					 struct io_wq_work *work,
-+					 struct io_wq_work_node *prev)
-+{
-+	unsigned int hash = io_get_work_hash(work);
-+	struct io_wq_work *prev_work = NULL;
-+
-+	if (io_wq_is_hashed(work) && work == wqe->hash_tail[hash]) {
-+		if (prev)
-+			prev_work = container_of(prev, struct io_wq_work, list);
-+		if (prev_work && io_get_work_hash(prev_work) == hash)
-+			wqe->hash_tail[hash] = prev_work;
-+		else
-+			wqe->hash_tail[hash] = NULL;
-+	}
-+	wq_list_del(&wqe->work_list, &work->list, prev);
-+}
-+
- static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
- 				       struct io_cb_cancel_data *match)
- {
-@@ -938,8 +956,7 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
- 		work = container_of(node, struct io_wq_work, list);
- 		if (!match->fn(work, match->data))
- 			continue;
--
--		wq_list_del(&wqe->work_list, node, prev);
-+		io_wqe_remove_pending(wqe, work, prev);
- 		spin_unlock_irqrestore(&wqe->lock, flags);
- 		io_run_cancel(work, wqe);
- 		match->nr_pending++;
 -- 
-2.24.0
+Jens Axboe
 
