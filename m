@@ -2,210 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB2B24EF64
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 21:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB5224EF68
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 21:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbgHWTNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 15:13:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52010 "EHLO
+        id S1725958AbgHWTUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 15:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725867AbgHWTND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 15:13:03 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2032C061573
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 12:13:01 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id v16so3175899plo.1
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 12:13:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BTzbxZ7FgSIaAV6SngXweY/9pKsxv9vftUR98NlLq2I=;
-        b=JC2DW4TEYOJWZwCa4Lndwzpzj0PVhlaXbJ/qsVBi8uWjpeksnxz95jKGmWAqk8rb3h
-         FblpgMfWxi2bjd6XWoIwQSqf3AQz5MiODH5C/7kC8taplOZrs+2VsMLKCcgCe+P/KgIh
-         eh3O5Y3pQGEtWhC2pdhiAG7Gwlx5aOwOV4gcz5Ty2WGyny2TzqKKuI+9GOYywMQ6ceuL
-         E5WidUVtdblWguwxgmvw2PPqVAuAdGr3Kflpwse0YaL0UBnbH5vUD7Zwqo+QtrdYFAZd
-         DuscSpBtgnA3MKtvbY/H42N4Td/91UB4GQ98VpEd9s8Km/Zr0of7eloBeyzoUu5LA5bJ
-         N7bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BTzbxZ7FgSIaAV6SngXweY/9pKsxv9vftUR98NlLq2I=;
-        b=HvB9IBNmP+ORyraz8Z2pWCmbwalst+qyLElj3Vzdf7WOyNZIiW3wDxSZc2Jaxm2y+r
-         ltnVK+C8t+9YFtv82h2g913SIjIxepUqOiVjSi3kOKl65usDOf1WAdRf+fGFxfkG0eAd
-         JTLBF7j/RGL61jloj4MdrvGtd2p3Bemhn6TJuvsmOhmp6byj704U0hlgFXHm+mS/4bGq
-         ygA8L/QBKBJKRHqXPKXo3WqN9A126VfLRnGu+xMaGZYlQDvyypjKWfOlxI7iF4+WT9Js
-         NX+bN9xwY0PjsbAvLu2AX7lu4mDhEo2Rt2jCXabGhQOsKbr7Qp88OFjzGZjOG3UgybKM
-         4v6w==
-X-Gm-Message-State: AOAM530539blJgztA7CRiuNkQwrx27wpj8cu1j74YizACLIbTKcayVUS
-        rFqN8/1dDGjzmSWIKdOvX32msxf2MG5W4Q==
-X-Google-Smtp-Source: ABdhPJyMPHwLS+lFOAp06MFrVECBMz1fuzWbk7Kofr/Jnf2GokCEPsyI9g0D1EKvBzh+FtB5Ext0sg==
-X-Received: by 2002:a17:902:246:: with SMTP id 64mr1543078plc.70.1598209980800;
-        Sun, 23 Aug 2020 12:13:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b78sm9078598pfb.144.2020.08.23.12.12.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2020 12:13:00 -0700 (PDT)
-Message-ID: <5f42bfbc.1c69fb81.3f089.d3f5@mx.google.com>
-Date:   Sun, 23 Aug 2020 12:13:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1725887AbgHWTUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 15:20:16 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C0AC061573;
+        Sun, 23 Aug 2020 12:20:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=3fF6Mlmm3gJtBShPFzFPOko81F6k4KIOq/kf7RgYAgk=; b=0TVRAPIR7uXCAc1Rvleb8CExp
+        6EOFYFzsKPefQYiWDW0gFT18KJKHzSEKuQtXsjgW2UKJA9Lrc4PVra81Trj3FeIW8KRGun/YPGJnu
+        0acBokLq142gUB6Enk9zCY+EAjmS1QxB+iwn+opfq417cuDm0jU0mmVx997mlGHuOtJmLjexgN37D
+        ib4ZTVIeunOKZxchqfEJ7vy8Y8ycxFQKE5HHou3sXvwTpl+7HsOf5dL98oOaC5eV8ruKeaMw54iaV
+        lNQbE8H3YZD2R2lavdrygu7NxgW/fMTb1r8nl63W34NIWsyNt44dVwazEWX3F6QU3hO3/LI9vS4W/
+        uQADyHsNA==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:56250)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1k9vX6-0007Rq-2x; Sun, 23 Aug 2020 20:20:00 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1k9vX2-0006eC-G2; Sun, 23 Aug 2020 20:19:56 +0100
+Date:   Sun, 23 Aug 2020 20:19:56 +0100
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc:     "Ing. Josua Mayer" <josua.mayer@jm0.eu>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Lucas Stach <l.stach@pengutronix.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        The etnaviv authors <etnaviv@lists.freedesktop.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>
+Subject: Re: [PATCH] drm/etnaviv: fix external abort seen on GC600 rev 0x19
+Message-ID: <20200823191956.GH1551@shell.armlinux.org.uk>
+References: <20200821181731.94852-1-christian.gmeiner@gmail.com>
+ <4dbee9c7-8a59-9250-ab13-394cbab689a8@jm0.eu>
+ <CAH9NwWdLnwb0BiR6qAHKFexFm2NJkpHv7Z7YAdQ7fJBVxjGH4w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.7.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.7.17-28-gafe48ff97f9b
-Subject: stable-rc/linux-5.7.y baseline: 173 runs,
- 3 regressions (v5.7.17-28-gafe48ff97f9b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWdLnwb0BiR6qAHKFexFm2NJkpHv7Z7YAdQ7fJBVxjGH4w@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 173 runs, 3 regressions (v5.7.17-28-gafe48f=
-f97f9b)
+On Sun, Aug 23, 2020 at 09:10:25PM +0200, Christian Gmeiner wrote:
+> Hi
+> 
+> > I have formally tested the patch with 5.7.10 - and it doesn't resolve
+> > the issue - sadly :(
+> >
+> > From my testing, the reads on
+> > VIVS_HI_CHIP_PRODUCT_ID
+> > VIVS_HI_CHIP_ECO_ID
+> > need to be conditional - while
+> > VIVS_HI_CHIP_CUSTOMER_ID
+> > seems to be okay.
+> >
+> 
+> Uhh.. okay.. just send a V2 - thanks for testing :)
 
-Regressions Summary
--------------------
+There is also something else going on with the GC600 - 5.4 worked fine,
+5.8 doesn't - my 2D Xorg driver gets stuck waiting on a BO after just
+a couple of minutes.  Looking in debugfs, there's a whole load of BOs
+that are listed as "active", yet the GPU is idle:
 
-platform              | arch  | lab           | compiler | defconfig       =
- | results
-----------------------+-------+---------------+----------+-----------------=
--+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
- | 0/1    =
+   00020000: A  0 ( 7) 00000000 00000000 8294400
+   00010000: I  0 ( 1) 00000000 00000000 4096
+   00010000: I  0 ( 1) 00000000 00000000 4096
+   00010000: I  0 ( 1) 00000000 00000000 327680
+   00010000: A  0 ( 7) 00000000 00000000 8388608
+   00010000: I  0 ( 1) 00000000 00000000 8388608
+   00010000: I  0 ( 1) 00000000 00000000 8388608
+   00010000: A  0 ( 7) 00000000 00000000 8388608
+   00010000: A  0 ( 3) 00000000 00000000 8388608
+   00010000: A  0 ( 4) 00000000 00000000 8388608
+   00010000: A  0 ( 3) 00000000 00000000 8388608
+   00010000: A  0 ( 3) 00000000 00000000 8388608
+   00010000: A  0 ( 3) 00000000 00000000 8388608
+....
+   00010000: A  0 ( 3) 00000000 00000000 8388608
+Total 38 objects, 293842944 bytes
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
- | 3/4    =
+My guess is there's something up with the way a job completes that's
+causing the BOs not to be marked inactive.  I haven't yet been able
+to debug any further.
 
-exynos5422-odroidxu3  | arm   | lab-collabora | gcc-8    | exynos_defconfig=
- | 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.17-28-gafe48ff97f9b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.17-28-gafe48ff97f9b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      afe48ff97f9bc86e17c4c8ee887eceba61d0620d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
- | results
-----------------------+-------+---------------+----------+-----------------=
--+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
- | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f42891e2ae87ef87f9fb435
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
-d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f42891e2ae87ef87f9fb=
-436
-      failing since 38 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
-l: v5.7.9)  =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
- | results
-----------------------+-------+---------------+----------+-----------------=
--+--------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
- | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f4284339a583013a99fb444
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f4284339a583013=
-a99fb448
-      new failure (last pass: v5.7.17)
-      2 lines
-
-    2020-08-23 14:56:35.591000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-08-23 14:56:35.591000  (user:khilman) is already connected
-    2020-08-23 14:56:51.155000  =00
-    2020-08-23 14:56:51.155000  =
-
-    2020-08-23 14:56:51.155000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-08-23 14:56:51.156000  =
-
-    2020-08-23 14:56:51.156000  DRAM:  948 MiB
-    2020-08-23 14:56:51.171000  RPI 3 Model B (0xa02082)
-    2020-08-23 14:56:51.259000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-08-23 14:56:51.290000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (385 line(s) more)
-      =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
- | results
-----------------------+-------+---------------+----------+-----------------=
--+--------
-exynos5422-odroidxu3  | arm   | lab-collabora | gcc-8    | exynos_defconfig=
- | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f4293e0612319fe999fb43b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
-22-odroidxu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-28-gafe48ff97f9b/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
-22-odroidxu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f4293e0612319fe999fb=
-43c
-      failing since 3 days (last pass: v5.7.16-99-gc5aad81e7f2d, first fail=
-: v5.7.16-205-g7366707e7e99)  =20
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
