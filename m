@@ -2,159 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA0B24EF57
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 21:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D21424EF5A
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 21:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725885AbgHWTG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 15:06:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50998 "EHLO
+        id S1726548AbgHWTJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 15:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725867AbgHWTG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 15:06:26 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 516C9C061573
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 12:06:26 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id s14so3167803plp.4
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 12:06:26 -0700 (PDT)
+        with ESMTP id S1725867AbgHWTJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 15:09:30 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B14C061573;
+        Sun, 23 Aug 2020 12:09:30 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id y8so841024wma.0;
+        Sun, 23 Aug 2020 12:09:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hq50LGK0YMlpG+wNloF+s3qJtho2zyFuI38Y9rEV0ao=;
-        b=SOd1CxOYWBHGSiO1ltmp9xxiBIGonDjN1I3gFyiiAIqNywzn7RKY07rNVgmydyfohu
-         FPUEZexgzVcfqcTYkTiIhu8lOK0N1Wgmgy4TQFOF91ztGXbe5FQ7KpVLHutlQxcQzy8V
-         DRKbTgbSFQlKrjmBTwa3OTam7qJfLxPfUj8s8UZEJ6J4iz44Dmayh744s1gA3XAo0LbT
-         iNgLSRtck17XTU+9w5emHeUPMRoFK3OfjX3SA9X8HpaWyU2aBdcNonmz1cLwGoNWS4u+
-         r3CpzQnJjAlDWywZcWXMmK1/y5nXakN7RdiLHoQC+Ro59jmjvk7xCOO+epE0o4Dw85SS
-         f+4A==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wQ+CnNuzNhRBq+zv3kVwnG0+uKFYAUvodng53ugnSig=;
+        b=nPSPj5TthHlE1mdhBzN6g1SzM+oRRF26ni2J2rkJQMZ6QzTYEhvGMmGWUD1MxBRV6Y
+         dlyNq6ZCRCLGJUUy8qulogWP7BzPRLleiAqk5VX536rSz7BXeiSrJclnAaQSiokBRJuX
+         NMRU1CemThazOyZdpzyMR2VtktIyR6fQNtDLQkzG2c1+d1gPY508Rnc10Eok1HiLhd/e
+         8ENkMYsldu89AvtyVCn3xGeHVQdYZOng5BvO/mDpyRSR1AQri8PT0jyILfWD0fJ4DNm+
+         m4nyu5JdrLjFEGt6d7oL6qSE4uejuQ7hdRzO7lw74C0m4ySI+P98P0WfFwcRDZE1ZZMH
+         uShw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hq50LGK0YMlpG+wNloF+s3qJtho2zyFuI38Y9rEV0ao=;
-        b=eDPT/VpaUfWKyytl6sjtlepafsC+URt6KPek/BB1u9bNCRrXglSjtJenBs59GxTurU
-         TerD5QSBfhTLunsAnZg+fugQj1Mhvtb5t2QZca1UQtOMeuNqdrjuyggA272L85hF4DZH
-         HxoZR6TPyabZrvidOpzZOSJ1J3k3gLKT0RH56WEyfWghZTLyQeIjW7VRmrfUQbPUYiZI
-         wAZUnWmqM3hnh+pG4Wy46cMT0wP4Pv9gbjd4jthflK0dVjN2K3+9rVCcC3/y0T0ECV9q
-         iP1+Hrwa65sgO9VRXfswoZ/Docd08as9nZ88ZCpbPOQso9r+wAbwuicXfQHKOo2VJGAS
-         9OOA==
-X-Gm-Message-State: AOAM530nzyXOxk5jrzj9g13BwQDWUcQ9yWxtSHIokbhfaJ1gm4XkgdN+
-        u3uRwYERSGvLtukL1y+hRcV5w4Amph0mPw==
-X-Google-Smtp-Source: ABdhPJxcB6dGBmZVEu3wGu9Itt8DoWy0bfVAtEyrxdO2lJqYSJK1ipdfK2B6mZ+HCOakyfo9B0VZLg==
-X-Received: by 2002:a17:90b:1116:: with SMTP id gi22mr1894987pjb.8.1598209583458;
-        Sun, 23 Aug 2020 12:06:23 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g10sm9076581pfb.82.2020.08.23.12.06.22
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wQ+CnNuzNhRBq+zv3kVwnG0+uKFYAUvodng53ugnSig=;
+        b=q9Ox5oKR4rZaXhCiUboMcLZeRorSvKD2Jg9pvyaWrFEqjnylttvyRLfk3UVCVmzZuD
+         /QCCPyu4cdCEheqWL9b0l0o9x9Gc4YcCTZb4M3j8W9bgtQOezhTpJ3fs9y2hh+LqYH9d
+         Yhv8+nh+4orGMH//m1/i02mwJWRNm48UMiwtSx6zREX/POI/SHUwGYMngsF+vk68AGVC
+         gyEOBjolpMKF3Nu4sSFSj3Q32ZH3AntsPT2S671XdK6xELKdbdSngBY2X2HhTl2GITOD
+         /JE4QZM+Zgrq/XdtZWjBtZJaOhuY/krOFRp8ByDslR1oCJY9vMk6O4TpzuYQAvpMCpng
+         NJgA==
+X-Gm-Message-State: AOAM532bFgbLva56uxE5F4aNF9mdKUGxBMFhXzWqEmO4i6w/bcEZOho8
+        bxUdihHRPN0hfdSz8rOEIXtsSrFRhLCfdNch
+X-Google-Smtp-Source: ABdhPJyMY0WTUtxfY5wI/V78Ldqxp3MbuqiBh5rA0eDmJ7njyqdnN7HZh47DPCP/z7RSpVjuRPEeMw==
+X-Received: by 2002:a1c:544f:: with SMTP id p15mr2464254wmi.147.1598209768349;
+        Sun, 23 Aug 2020 12:09:28 -0700 (PDT)
+Received: from localhost.localdomain (62-178-82-229.cable.dynamic.surfer.at. [62.178.82.229])
+        by smtp.gmail.com with ESMTPSA id z66sm19704128wme.16.2020.08.23.12.09.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2020 12:06:22 -0700 (PDT)
-Message-ID: <5f42be2e.1c69fb81.68f76.c433@mx.google.com>
-Date:   Sun, 23 Aug 2020 12:06:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Sun, 23 Aug 2020 12:09:27 -0700 (PDT)
+From:   Christian Gmeiner <christian.gmeiner@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     josua.mayer@jm0.eu,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, etnaviv@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH v2] drm/etnaviv: fix external abort seen on GC600 rev 0x19
+Date:   Sun, 23 Aug 2020 21:09:22 +0200
+Message-Id: <20200823190924.6437-1-christian.gmeiner@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.194-19-g53665ee380b9
-Subject: stable-rc/linux-4.14.y baseline: 150 runs,
- 2 regressions (v4.14.194-19-g53665ee380b9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 150 runs, 2 regressions (v4.14.194-19-g536=
-65ee380b9)
+It looks like that this GPU core triggers an abort when
+reading VIVS_HI_CHIP_PRODUCT_ID and/or VIVS_HI_CHIP_ECO_ID.
 
-Regressions Summary
--------------------
+I looked at different versions of Vivante's kernel driver and did
+not found anything about this issue or what feature flag can be
+used. So go the simplest route and do not read these two registers
+on the affected GPU core.
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Reported-by: Josua Mayer <josua.mayer@jm0.eu>
+Fixes: 815e45bbd4d3 ("drm/etnaviv: determine product, customer and eco id")
+Cc: stable@vger.kernel.org
+---
+Changelog:
 
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
+V2:
+ - use correct register for conditional reads.
 
+---
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.194-19-g53665ee380b9/plan/baseline/
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index d5a4cd85a0f6..c6404b8d067f 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -337,9 +337,16 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 
+ 		gpu->identity.model = gpu_read(gpu, VIVS_HI_CHIP_MODEL);
+ 		gpu->identity.revision = gpu_read(gpu, VIVS_HI_CHIP_REV);
+-		gpu->identity.product_id = gpu_read(gpu, VIVS_HI_CHIP_PRODUCT_ID);
+ 		gpu->identity.customer_id = gpu_read(gpu, VIVS_HI_CHIP_CUSTOMER_ID);
+-		gpu->identity.eco_id = gpu_read(gpu, VIVS_HI_CHIP_ECO_ID);
++
++		/*
++		 * Reading these two registers on GC600 rev 0x19 result in a
++		 * unhandled fault: external abort on non-linefetch
++		 */
++		if (!etnaviv_is_model_rev(gpu, GC600, 0x19)) {
++			gpu->identity.product_id = gpu_read(gpu, VIVS_HI_CHIP_PRODUCT_ID);
++			gpu->identity.eco_id = gpu_read(gpu, VIVS_HI_CHIP_ECO_ID);
++		}
+ 
+ 		/*
+ 		 * !!!! HACK ALERT !!!!
+-- 
+2.26.2
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.194-19-g53665ee380b9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      53665ee380b9c328c9960fd4bbee7a05e1fea6b4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f42879344121432fe9fb441
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-94-19-g53665ee380b9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-94-19-g53665ee380b9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f42879344121432fe9fb=
-442
-      failing since 30 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
-fail: v4.14.189)  =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f4283ad43d6ad50b19fb432
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-94-19-g53665ee380b9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-94-19-g53665ee380b9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f4283ad43d6ad50b19fb=
-433
-      failing since 145 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23)  =20
