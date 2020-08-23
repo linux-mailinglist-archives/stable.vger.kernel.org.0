@@ -2,69 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A9D24EDDB
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 17:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F85324EDDD
+	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 17:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727889AbgHWPMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 11:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36034 "EHLO mail.kernel.org"
+        id S1727892AbgHWPMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 11:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726818AbgHWPMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Aug 2020 11:12:32 -0400
+        id S1726818AbgHWPMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 Aug 2020 11:12:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2A02067C;
-        Sun, 23 Aug 2020 15:12:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C4422067C;
+        Sun, 23 Aug 2020 15:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598195551;
-        bh=FGoaCSIX4ECmGEmLd7xZKV4f1E5QyxkP1d/xsP/BO4o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=omjzM7yvmI4MH3adpW0r5YOaQcSlwjqHqXypFT2fUjyBYvNfr+kbhDapxDV2hr9gX
-         oTt3fs827o+xXASeuBzHMdVi/iG1fzkBS8ar6JRAM2dV2wKR41C6tyWBTulwiQDoGP
-         1YKeeEWVsjt7Gr6br+PEx1HDkWGe0NYX2QhuG7BE=
-Date:   Sun, 23 Aug 2020 17:12:51 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc:     linux-usb@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 3/3] xhci: Always restore EP_SOFT_CLEAR_TOGGLE even if ep
- reset failed
-Message-ID: <20200823151251.GA2914810@kroah.com>
-References: <20200821091549.20556-1-mathias.nyman@linux.intel.com>
- <20200821091549.20556-4-mathias.nyman@linux.intel.com>
+        s=default; t=1598195566;
+        bh=QCw5m9b2ospnghQSs1uijHo3LfgpJ9/FmPdO3245UnA=;
+        h=Subject:To:From:Date:From;
+        b=Dg5PJcdIyt47T3gvgSJe8ed1mS6LpWvVjtnywB57OZYEVpPkNl0TL/DyMxLBTSroS
+         d3fkHUNPyaugwSL7OGyfbTA1Cn+N/WtDt2UAzNE1aeAJu2FLyLME93wfLFvnATo+W3
+         OSczwbn8s8TmicXFDjpcx0WjzHZftU++SKwZ9oH0=
+Subject: patch "usb: host: xhci: fix ep context print mismatch in debugfs" added to usb-linus
+To:     jun.li@nxp.com, gregkh@linuxfoundation.org,
+        mathias.nyman@linux.intel.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 23 Aug 2020 17:13:05 +0200
+Message-ID: <15981955859539@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200821091549.20556-4-mathias.nyman@linux.intel.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 12:15:49PM +0300, Mathias Nyman wrote:
-> From: Ding Hui <dinghui@sangfor.com.cn>
-> 
-> Some device drivers call libusb_clear_halt when target ep queue
-> is not empty. (eg. spice client connected to qemu for usb redir)
-> 
-> Before commit f5249461b504 ("xhci: Clear the host side toggle
-> manually when endpoint is soft reset"), that works well.
-> But now, we got the error log:
-> 
->     EP not empty, refuse reset
-> 
-> xhci_endpoint_reset failed and left ep_state's EP_SOFT_CLEAR_TOGGLE
-> bit still set
-> 
-> So all the subsequent urb sumbits to the ep will fail with the
-> warn log:
-> 
->     Can't enqueue URB while manually clearing toggle
-> 
-> We need to clear ep_state EP_SOFT_CLEAR_TOGGLE bit after
-> xhci_endpoint_reset, even if it failed.
-> 
-> Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset"
 
-Nit, you forgot the trailing ')' here...
+This is a note to let you know that I've just added the patch titled
+
+    usb: host: xhci: fix ep context print mismatch in debugfs
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 0077b1b2c8d9ad5f7a08b62fb8524cdb9938388f Mon Sep 17 00:00:00 2001
+From: Li Jun <jun.li@nxp.com>
+Date: Fri, 21 Aug 2020 12:15:47 +0300
+Subject: usb: host: xhci: fix ep context print mismatch in debugfs
+
+dci is 0 based and xhci_get_ep_ctx() will do ep index increment to get
+the ep context.
+
+[rename dci to ep_index -Mathias]
+Cc: stable <stable@vger.kernel.org> # v4.15+
+Fixes: 02b6fdc2a153 ("usb: xhci: Add debugfs interface for xHCI driver")
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200821091549.20556-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/xhci-debugfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-debugfs.c b/drivers/usb/host/xhci-debugfs.c
+index 92e25a62fdb5..c88bffd68742 100644
+--- a/drivers/usb/host/xhci-debugfs.c
++++ b/drivers/usb/host/xhci-debugfs.c
+@@ -274,7 +274,7 @@ static int xhci_slot_context_show(struct seq_file *s, void *unused)
+ 
+ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
+ {
+-	int			dci;
++	int			ep_index;
+ 	dma_addr_t		dma;
+ 	struct xhci_hcd		*xhci;
+ 	struct xhci_ep_ctx	*ep_ctx;
+@@ -283,9 +283,9 @@ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
+ 
+ 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
+ 
+-	for (dci = 1; dci < 32; dci++) {
+-		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, dci);
+-		dma = dev->out_ctx->dma + dci * CTX_SIZE(xhci->hcc_params);
++	for (ep_index = 0; ep_index < 31; ep_index++) {
++		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
++		dma = dev->out_ctx->dma + (ep_index + 1) * CTX_SIZE(xhci->hcc_params);
+ 		seq_printf(s, "%pad: %s\n", &dma,
+ 			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
+ 						  le32_to_cpu(ep_ctx->ep_info2),
+-- 
+2.28.0
+
+
