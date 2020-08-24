@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A4924F4A1
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5164724F54B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728558AbgHXIig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:38:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
+        id S1728558AbgHXIrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728555AbgHXIif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:35 -0400
+        id S1729405AbgHXIrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:47:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 039F42177B;
-        Mon, 24 Aug 2020 08:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80E5204FD;
+        Mon, 24 Aug 2020 08:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258315;
-        bh=QNFI7UwkzHpeEeP4WV7EBOwHIbcHMhRpqohCeXwFHBs=;
+        s=default; t=1598258820;
+        bh=iXmAtY7BG2mwDIC/wHHpkcNbC6q/kDidRTK1GVKOgL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wBuxz3HGhUy90yqWg0YnwqPCGtxMp2LTNmoxDEncKQShoJ+4fwVef4uUxw35PrILV
-         9zWIFI/p4UVKkR0GLxTS2D8ROVCBryBMCGGfBaouZLnFbqWPzGhlwrPLa8+yCAJ2aj
-         yuvED2jFZcxcln29+opnVkIFW0N7bBZY6lhBfFbY=
+        b=WZ9GFX7wLtKbFyXkcw4zJ8spDR7E87dTws1F6JVBYSqYnXr1l18FSEZS42qB2hC3G
+         X+aKkC7mo5MiveTTwwp246s/I63La/0zqjEFudvWco43LbR7UA/A0xazuIXs2nTXFc
+         A4mQTxXoejV7mgGqD1uVW2iZqEtaJak98pNGHxS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Botsch <botsch@cnf.cornell.edu>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 124/148] afs: Fix key ref leak in afs_put_operation()
-Date:   Mon, 24 Aug 2020 10:30:22 +0200
-Message-Id: <20200824082419.953664165@linuxfoundation.org>
+Subject: [PATCH 5.4 057/107] virtio_ring: Avoid loop when vq is broken in virtqueue_poll
+Date:   Mon, 24 Aug 2020 10:30:23 +0200
+Message-Id: <20200824082407.939994837@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Mao Wenan <wenan.mao@linux.alibaba.com>
 
-[ Upstream commit ba8e42077bbe046a09bdb965dbfbf8c27594fe8f ]
+[ Upstream commit 481a0d7422db26fb63e2d64f0652667a5c6d0f3e ]
 
-The afs_put_operation() function needs to put the reference to the key
-that's authenticating the operation.
+The loop may exist if vq->broken is true,
+virtqueue_get_buf_ctx_packed or virtqueue_get_buf_ctx_split
+will return NULL, so virtnet_poll will reschedule napi to
+receive packet, it will lead cpu usage(si) to 100%.
 
-Fixes: e49c7b2f6de7 ("afs: Build an abstraction around an "operation" concept")
-Reported-by: Dave Botsch <botsch@cnf.cornell.edu>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+call trace as below:
+virtnet_poll
+	virtnet_receive
+		virtqueue_get_buf_ctx
+			virtqueue_get_buf_ctx_packed
+			virtqueue_get_buf_ctx_split
+	virtqueue_napi_complete
+		virtqueue_poll           //return true
+		virtqueue_napi_schedule //it will reschedule napi
+
+to fix this, return false if vq is broken in virtqueue_poll.
+
+Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/1596354249-96204-1-git-send-email-wenan.mao@linux.alibaba.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/fs_operation.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_ring.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/afs/fs_operation.c b/fs/afs/fs_operation.c
-index 24fd163c6323e..97cab12b0a6c2 100644
---- a/fs/afs/fs_operation.c
-+++ b/fs/afs/fs_operation.c
-@@ -235,6 +235,7 @@ int afs_put_operation(struct afs_operation *op)
- 	afs_end_cursor(&op->ac);
- 	afs_put_serverlist(op->net, op->server_list);
- 	afs_put_volume(op->net, op->volume, afs_volume_trace_put_put_op);
-+	key_put(op->key);
- 	kfree(op);
- 	return ret;
- }
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 58b96baa8d488..4f7c73e6052f6 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1960,6 +1960,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
++	if (unlikely(vq->broken))
++		return false;
++
+ 	virtio_mb(vq->weak_barriers);
+ 	return vq->packed_ring ? virtqueue_poll_packed(_vq, last_used_idx) :
+ 				 virtqueue_poll_split(_vq, last_used_idx);
 -- 
 2.25.1
 
