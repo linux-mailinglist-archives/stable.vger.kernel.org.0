@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B69124F7EE
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264E424F7D7
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730222AbgHXJX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
+        id S1729832AbgHXJWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730309AbgHXIyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:18 -0400
+        id S1730387AbgHXIzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87895207DF;
-        Mon, 24 Aug 2020 08:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D7C5207D3;
+        Mon, 24 Aug 2020 08:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259258;
-        bh=Gl4jNOH4OH/fe6YEFEorvVIhkVY8kwj2SMw84rehO6c=;
+        s=default; t=1598259304;
+        bh=2KbnWelSdyZWoAXXJ01/0tkfE7UHjkHKDWxQXJR79Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Z6z9cmS7MR8TYiioz68QuzK3XHAZjntrQwijkNJzAZLDh7Zn50XuXUKJW3uu1XpY
-         /q4Wjhx56W3u9vy/c1OLcHAA+8pkGpaYCfPmioo2wvRFmvKz/pD7etBI+IGSQZ+ing
-         Tz/WPG7CcU+Cn5qZhYoS+oJl/bdvEQwh6YjSY1Vo=
+        b=TRGTr6PZ7zQhslpDqp0DetjO6lG8lZW08AV0cbe6kYJ9Lb7NwuZZdnekYxgJU2zok
+         LtXBFjed+HeKNlwJ8fJYysgDP2m4piiiqeOaz1GvtSu+9/n5VkUmCJEHhA07u65T+H
+         1hRaLSaESxayLyBnZdUFWDcxsVbcXHQ889SL3ujs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/50] ASoC: msm8916-wcd-analog: fix register Interrupt offset
-Date:   Mon, 24 Aug 2020 10:31:40 +0200
-Message-Id: <20200824082354.029293409@linuxfoundation.org>
+Subject: [PATCH 4.14 40/50] ASoC: intel: Fix memleak in sst_media_open
+Date:   Mon, 24 Aug 2020 10:31:41 +0200
+Message-Id: <20200824082354.083733004@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
 References: <20200824082351.823243923@linuxfoundation.org>
@@ -46,40 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit ff69c97ef84c9f7795adb49e9f07c9adcdd0c288 ]
+[ Upstream commit 062fa09f44f4fb3776a23184d5d296b0c8872eb9 ]
 
-For some reason interrupt set and clear register offsets are
-not set correctly.
-This patch corrects them!
+When power_up_sst() fails, stream needs to be freed
+just like when try_module_get() fails. However, current
+code is returning directly and ends up leaking memory.
 
-Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200811103452.20448-1-srinivas.kandagatla@linaro.org
+Fixes: 0121327c1a68b ("ASoC: Intel: mfld-pcm: add control for powering up/down dsp")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200813084112.26205-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-analog.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
-index 3633eb30dd135..4f949ad50d6a7 100644
---- a/sound/soc/codecs/msm8916-wcd-analog.c
-+++ b/sound/soc/codecs/msm8916-wcd-analog.c
-@@ -16,8 +16,8 @@
+diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+index 4558c8b930363..3a645fc425cd4 100644
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -339,7 +339,7 @@ static int sst_media_open(struct snd_pcm_substream *substream,
  
- #define CDC_D_REVISION1			(0xf000)
- #define CDC_D_PERPH_SUBTYPE		(0xf005)
--#define CDC_D_INT_EN_SET		(0x015)
--#define CDC_D_INT_EN_CLR		(0x016)
-+#define CDC_D_INT_EN_SET		(0xf015)
-+#define CDC_D_INT_EN_CLR		(0xf016)
- #define MBHC_SWITCH_INT			BIT(7)
- #define MBHC_MIC_ELECTRICAL_INS_REM_DET	BIT(6)
- #define MBHC_BUTTON_PRESS_DET		BIT(5)
+ 	ret_val = power_up_sst(stream);
+ 	if (ret_val < 0)
+-		return ret_val;
++		goto out_power_up;
+ 
+ 	/* Make sure, that the period size is always even */
+ 	snd_pcm_hw_constraint_step(substream->runtime, 0,
+@@ -348,8 +348,9 @@ static int sst_media_open(struct snd_pcm_substream *substream,
+ 	return snd_pcm_hw_constraint_integer(runtime,
+ 			 SNDRV_PCM_HW_PARAM_PERIODS);
+ out_ops:
+-	kfree(stream);
+ 	mutex_unlock(&sst_lock);
++out_power_up:
++	kfree(stream);
+ 	return ret_val;
+ }
+ 
 -- 
 2.25.1
 
