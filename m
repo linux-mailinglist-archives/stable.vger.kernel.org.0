@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2590724F749
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB68624F85D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727986AbgHXJLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40652 "EHLO mail.kernel.org"
+        id S1729697AbgHXIuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:50:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730511AbgHXI4R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:56:17 -0400
+        id S1729487AbgHXIuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39EEC22D07;
-        Mon, 24 Aug 2020 08:56:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B95F20FC3;
+        Mon, 24 Aug 2020 08:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259376;
-        bh=ObB8scPObpqBxHgYAz3uByh5AW7ZXQnLWcvr0snphRw=;
+        s=default; t=1598259039;
+        bh=WU9Cp9/8P3kOMFHd/RIax9t7lnpfab+jVUzqXoxeiAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cs12CjfLnqJ8hVtGNC3xfWxFHtJIkJmwM+kcRsagr8V04Xv/oaI707lmLPmt6F1Xj
-         FrMKH36qw3BjsOgrBUg/GJbI4i6pzfv0Bpsnn/OHvwuArb3IoXK69uU/vqDmzqow6T
-         LCP69gIgxkwRSwy2fEm04u/DLeFvg3/IFen7vWNg=
+        b=HIpnfNAkR6o3TO0mu54GXHbVoCK7uvxpZquLKo0WvxB7Kz85sj9FaEjHVo7e1sjxh
+         VOhwzRv9tcm3ect4kHfRbxaOWj7M5wijDfHJHTEZVs1a6jSMS3kIwMMQPaJCyfL1xS
+         HzwqGuH7ks7rudMYWLRBBjtrD4zB3FEoVzkMA3Pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/71] xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 31/33] mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
 Date:   Mon, 24 Aug 2020 10:31:27 +0200
-Message-Id: <20200824082357.690791630@linuxfoundation.org>
+Message-Id: <20200824082348.096619666@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +47,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit 96cf2a2c75567ff56195fe3126d497a2e7e4379f ]
+commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream.
 
-If xfs_sysfs_init is called with parent_kobj == NULL, UBSAN
-shows the following warning:
+This is found by code observation only.
 
-  UBSAN: null-ptr-deref in ./fs/xfs/xfs_sysfs.h:37:23
-  member access within null pointer of type 'struct xfs_kobj'
-  Call Trace:
-   dump_stack+0x10e/0x195
-   ubsan_type_mismatch_common+0x241/0x280
-   __ubsan_handle_type_mismatch_v1+0x32/0x40
-   init_xfs_fs+0x12b/0x28f
-   do_one_initcall+0xdd/0x1d0
-   do_initcall_level+0x151/0x1b6
-   do_initcalls+0x50/0x8f
-   do_basic_setup+0x29/0x2b
-   kernel_init_freeable+0x19f/0x20b
-   kernel_init+0x11/0x1e0
-   ret_from_fork+0x22/0x30
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
 
-Fix it by checking parent_kobj before the code accesses its member.
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
 
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-[darrick: minor whitespace edits]
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+:
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+:
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+:
+: 1) for a single page
+: 2) for range == entire vma
+:
+: In those cases, the current code should produce the correct results.
+:
+: To be safe, let's just cc stable.
+
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_sysfs.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/hugetlb.c |   25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/fs/xfs/xfs_sysfs.h b/fs/xfs/xfs_sysfs.h
-index e9f810fc67317..43585850f1546 100644
---- a/fs/xfs/xfs_sysfs.h
-+++ b/fs/xfs/xfs_sysfs.h
-@@ -32,9 +32,11 @@ xfs_sysfs_init(
- 	struct xfs_kobj		*parent_kobj,
- 	const char		*name)
- {
-+	struct kobject		*parent;
-+
-+	parent = parent_kobj ? &parent_kobj->kobject : NULL;
- 	init_completion(&kobj->complete);
--	return kobject_init_and_add(&kobj->kobject, ktype,
--				    &parent_kobj->kobject, "%s", name);
-+	return kobject_init_and_add(&kobj->kobject, ktype, parent, "%s", name);
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4257,6 +4257,7 @@ static bool vma_shareable(struct vm_area
+ 	return false;
  }
  
- static inline void
--- 
-2.25.1
-
++#define ALIGN_DOWN(x, a)	__ALIGN_KERNEL((x) - ((a) - 1), (a))
+ /*
+  * Determine if start,end range within vma could be mapped by shared pmd.
+  * If yes, adjust start and end to cover range associated with possible
+@@ -4265,25 +4266,21 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr = *start;
++	unsigned long a_start, a_end;
+ 
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
 
 
