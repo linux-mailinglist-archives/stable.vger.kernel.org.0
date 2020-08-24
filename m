@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB05324F512
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4E724F568
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgHXIoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
+        id S1729582AbgHXIsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729121AbgHXIoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:16 -0400
+        id S1729574AbgHXIsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 073292074D;
-        Mon, 24 Aug 2020 08:44:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 968EF204FD;
+        Mon, 24 Aug 2020 08:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258655;
-        bh=z9X8XAf5pNu5xFYsewaUK9xluow/ICaWKL8M9zLZUyo=;
+        s=default; t=1598258917;
+        bh=zPyi0lwUhPMnBc/9pj7LVqMKNRCt13Zbze66ujo7f6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uH7+wHZKGgk2+76z6yO/ApNzBBq9+die6sfZxl6isAdNMFiU3Cvi+lrGqlY/6Odq8
-         gwNWYjNAlkvVsikx9NhzIbWUwwLovB0dJ4cl/NK/HQnk/CY4mYzBa6Ma2HhC7/ZqJe
-         jxfzevcEAwXJwn70B1j0b41EcN9naAHRx+IMDJFQ=
+        b=bCWThFmGevj4VzaUzHtQEWngJsbHYhk4n1xUFLEW4r30DWuoDYMm8Iww9Unh61fvD
+         Ie6oRRKbxOW1QFegDrNEjFgU6GOaLhtsTkalxlLVSmvh3/SgIiqR9GtzEebKWOHilc
+         CyEVXvWLEMWdxPnQXBTOraGEPQKq9/iBsN6unPmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.7 123/124] do_epoll_ctl(): clean the failure exits up a bit
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 091/107] kconfig: qconf: fix signal connection to invalid slots
 Date:   Mon, 24 Aug 2020 10:30:57 +0200
-Message-Id: <20200824082415.455961148@linuxfoundation.org>
+Message-Id: <20200824082409.611267844@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 52c479697c9b73f628140dcdfcd39ea302d05482 upstream.
+[ Upstream commit d85de3399f97467baa2026fbbbe587850d01ba8a ]
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If you right-click in the ConfigList window, you will see the following
+messages in the console:
 
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:888
+QObject::connect:  (sender name:   'config')
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:897
+QObject::connect:  (sender name:   'config')
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:906
+QObject::connect:  (sender name:   'config')
+
+Right, there is no such slot in QAction. I think this is a typo of
+setChecked.
+
+Due to this bug, when you toggled the menu "Option->Show Name/Range/Data"
+the state of the context menu was not previously updated. Fix this.
+
+Fixes: d5d973c3f8a9 ("Port xconfig to Qt5 - Put back some of the old implementation(part 2)")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |   19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ scripts/kconfig/qconf.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -2203,29 +2203,22 @@ int do_epoll_ctl(int epfd, int op, int f
- 			full_check = 1;
- 			if (is_file_epoll(tf.file)) {
- 				error = -ELOOP;
--				if (ep_loop_check(ep, tf.file) != 0) {
--					clear_tfile_check_list();
-+				if (ep_loop_check(ep, tf.file) != 0)
- 					goto error_tgt_fput;
--				}
- 			} else {
- 				get_file(tf.file);
- 				list_add(&tf.file->f_tfile_llink,
- 							&tfile_check_list);
- 			}
- 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
--			if (error) {
--out_del:
--				list_del(&tf.file->f_tfile_llink);
--				if (!is_file_epoll(tf.file))
--					fput(tf.file);
-+			if (error)
- 				goto error_tgt_fput;
--			}
- 			if (is_file_epoll(tf.file)) {
- 				tep = tf.file->private_data;
- 				error = epoll_mutex_lock(&tep->mtx, 1, nonblock);
- 				if (error) {
- 					mutex_unlock(&ep->mtx);
--					goto out_del;
-+					goto error_tgt_fput;
- 				}
- 			}
- 		}
-@@ -2246,8 +2239,6 @@ out_del:
- 			error = ep_insert(ep, epds, tf.file, fd, full_check);
- 		} else
- 			error = -EEXIST;
--		if (full_check)
--			clear_tfile_check_list();
- 		break;
- 	case EPOLL_CTL_DEL:
- 		if (epi)
-@@ -2270,8 +2261,10 @@ out_del:
- 	mutex_unlock(&ep->mtx);
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index 3e7fbfae798c2..a94909ad9a53a 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -878,7 +878,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowName(bool)));
+ 		connect(parent(), SIGNAL(showNameChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showName);
+ 		headerPopup->addAction(action);
  
- error_tgt_fput:
--	if (full_check)
-+	if (full_check) {
-+		clear_tfile_check_list();
- 		mutex_unlock(&epmutex);
-+	}
+@@ -887,7 +887,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowRange(bool)));
+ 		connect(parent(), SIGNAL(showRangeChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showRange);
+ 		headerPopup->addAction(action);
  
- 	fdput(tf);
- error_fput:
+@@ -896,7 +896,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowData(bool)));
+ 		connect(parent(), SIGNAL(showDataChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showData);
+ 		headerPopup->addAction(action);
+ 	}
+@@ -1228,7 +1228,7 @@ QMenu* ConfigInfoView::createStandardContextMenu(const QPoint & pos)
+ 
+ 	action->setCheckable(true);
+ 	connect(action, SIGNAL(toggled(bool)), SLOT(setShowDebug(bool)));
+-	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setOn(bool)));
++	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setChecked(bool)));
+ 	action->setChecked(showDebug());
+ 	popup->addSeparator();
+ 	popup->addAction(action);
+-- 
+2.25.1
+
 
 
