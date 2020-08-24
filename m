@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B53724FA13
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC6724F978
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729568AbgHXJwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:52:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53214 "EHLO mail.kernel.org"
+        id S1726823AbgHXJpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:45:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728548AbgHXIid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:33 -0400
+        id S1728615AbgHXImj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E4D20FC3;
-        Mon, 24 Aug 2020 08:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27D262074D;
+        Mon, 24 Aug 2020 08:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258312;
-        bh=Th2zgGwWzxKAiUqBsJBnqsq9toC4rscuuCvlMxfUxuk=;
+        s=default; t=1598258558;
+        bh=8F8FTkw1me5mQVKEojIkOg3nYF6zXiP47ek1mH2mp4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVLrYnNZ0WUkROvqR49bwvTUmwra/CdePyeU4621Ei7uJmpZPHsAmPORBmervZARD
-         AOMWV1etGyiPFOeSlURvfGwJJXajA3LbE0WxKu4pHTx99zfVjfTVRi4/ucPzQftM0t
-         yveCzXqiMtR2rrT65nsOz5dqu24TRHPC1XPRnZho=
+        b=D1Q4AMz/J+t+HXR7rASFne3M+xJoxHnEuZ5xBxsDJfFmKIJO0nJawHoVzRngHqHU/
+         aPltXRsvAgXaKw0kzThvdmrXIf5Sm3wUT+A1pmQ/j8UrzedD96HxPqeA08QBD+PHoF
+         xMXVgPXXG0cF8weliylL2QK7cgeXAMPWr7uNfFbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Zhiyi Guo <zhguo@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 123/148] Revert "RDMA/hns: Reserve one sge in order to avoid local length error"
-Date:   Mon, 24 Aug 2020 10:30:21 +0200
-Message-Id: <20200824082419.905659752@linuxfoundation.org>
+Subject: [PATCH 5.7 088/124] vfio/type1: Add proper error unwind for vfio_iommu_replay()
+Date:   Mon, 24 Aug 2020 10:30:22 +0200
+Message-Id: <20200824082413.745072744@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,134 +45,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@huawei.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 6da06c6291f38be4df6df2efb76ba925096d2691 ]
+[ Upstream commit aae7a75a821a793ed6b8ad502a5890fb8e8f172d ]
 
-This patch caused some issues on SEND operation, and it should be reverted
-to make the drivers work correctly. There will be a better solution that
-has been tested carefully to solve the original problem.
+The vfio_iommu_replay() function does not currently unwind on error,
+yet it does pin pages, perform IOMMU mapping, and modify the vfio_dma
+structure to indicate IOMMU mapping.  The IOMMU mappings are torn down
+when the domain is destroyed, but the other actions go on to cause
+trouble later.  For example, the iommu->domain_list can be empty if we
+only have a non-IOMMU backed mdev attached.  We don't currently check
+if the list is empty before getting the first entry in the list, which
+leads to a bogus domain pointer.  If a vfio_dma entry is erroneously
+marked as iommu_mapped, we'll attempt to use that bogus pointer to
+retrieve the existing physical page addresses.
 
-This reverts commit 711195e57d341e58133d92cf8aaab1db24e4768d.
+This is the scenario that uncovered this issue, attempting to hot-add
+a vfio-pci device to a container with an existing mdev device and DMA
+mappings, one of which could not be pinned, causing a failure adding
+the new group to the existing container and setting the conditions
+for a subsequent attempt to explode.
 
-Fixes: 711195e57d34 ("RDMA/hns: Reserve one sge in order to avoid local length error")
-Link: https://lore.kernel.org/r/1597829984-20223-1-git-send-email-liweihang@huawei.com
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+To resolve this, we can first check if the domain_list is empty so
+that we can reject replay of a bogus domain, should we ever encounter
+this inconsistent state again in the future.  The real fix though is
+to add the necessary unwind support, which means cleaning up the
+current pinning if an IOMMU mapping fails, then walking back through
+the r-b tree of DMA entries, reading from the IOMMU which ranges are
+mapped, and unmapping and unpinning those ranges.  To be able to do
+this, we also defer marking the DMA entry as IOMMU mapped until all
+entries are processed, in order to allow the unwind to know the
+disposition of each entry.
+
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Reported-by: Zhiyi Guo <zhguo@redhat.com>
+Tested-by: Zhiyi Guo <zhguo@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_device.h | 2 --
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  | 9 ++++-----
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h  | 4 +---
- drivers/infiniband/hw/hns/hns_roce_qp.c     | 5 ++---
- drivers/infiniband/hw/hns/hns_roce_srq.c    | 2 +-
- 5 files changed, 8 insertions(+), 14 deletions(-)
+ drivers/vfio/vfio_iommu_type1.c | 71 ++++++++++++++++++++++++++++++---
+ 1 file changed, 66 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
-index 479fa557993e7..c69453a62767c 100644
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -66,8 +66,6 @@
- #define HNS_ROCE_CQE_WCMD_EMPTY_BIT		0x2
- #define HNS_ROCE_MIN_CQE_CNT			16
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index cc1d64765ce79..c244e0ecf9f42 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -1149,13 +1149,16 @@ static int vfio_bus_type(struct device *dev, void *data)
+ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 			     struct vfio_domain *domain)
+ {
+-	struct vfio_domain *d;
++	struct vfio_domain *d = NULL;
+ 	struct rb_node *n;
+ 	unsigned long limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+ 	int ret;
  
--#define HNS_ROCE_RESERVED_SGE			1
--
- #define HNS_ROCE_MAX_IRQ_NUM			128
+ 	/* Arbitrarily pick the first domain in the list for lookups */
+-	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
++	if (!list_empty(&iommu->domain_list))
++		d = list_first_entry(&iommu->domain_list,
++				     struct vfio_domain, next);
++
+ 	n = rb_first(&iommu->dma_list);
  
- #define HNS_ROCE_SGE_IN_WQE			2
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index eb71b941d21b7..38a48ab3e1d02 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -629,7 +629,7 @@ static int hns_roce_v2_post_recv(struct ib_qp *ibqp,
+ 	for (; n; n = rb_next(n)) {
+@@ -1173,6 +1176,11 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 				phys_addr_t p;
+ 				dma_addr_t i;
  
- 		wqe_idx = (hr_qp->rq.head + nreq) & (hr_qp->rq.wqe_cnt - 1);
++				if (WARN_ON(!d)) { /* mapped w/o a domain?! */
++					ret = -EINVAL;
++					goto unwind;
++				}
++
+ 				phys = iommu_iova_to_phys(d->domain, iova);
  
--		if (unlikely(wr->num_sge >= hr_qp->rq.max_gs)) {
-+		if (unlikely(wr->num_sge > hr_qp->rq.max_gs)) {
- 			ibdev_err(ibdev, "rq:num_sge=%d >= qp->sq.max_gs=%d\n",
- 				  wr->num_sge, hr_qp->rq.max_gs);
- 			ret = -EINVAL;
-@@ -649,7 +649,6 @@ static int hns_roce_v2_post_recv(struct ib_qp *ibqp,
- 		if (wr->num_sge < hr_qp->rq.max_gs) {
- 			dseg->lkey = cpu_to_le32(HNS_ROCE_INVALID_LKEY);
- 			dseg->addr = 0;
--			dseg->len = cpu_to_le32(HNS_ROCE_INVALID_SGE_LENGTH);
+ 				if (WARN_ON(!phys)) {
+@@ -1202,7 +1210,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 				if (npage <= 0) {
+ 					WARN_ON(!npage);
+ 					ret = (int)npage;
+-					return ret;
++					goto unwind;
+ 				}
+ 
+ 				phys = pfn << PAGE_SHIFT;
+@@ -1211,14 +1219,67 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 
+ 			ret = iommu_map(domain->domain, iova, phys,
+ 					size, dma->prot | domain->prot);
+-			if (ret)
+-				return ret;
++			if (ret) {
++				if (!dma->iommu_mapped)
++					vfio_unpin_pages_remote(dma, iova,
++							phys >> PAGE_SHIFT,
++							size >> PAGE_SHIFT,
++							true);
++				goto unwind;
++			}
+ 
+ 			iova += size;
  		}
- 
- 		/* rq support inline data */
-@@ -783,8 +782,8 @@ static int hns_roce_v2_post_srq_recv(struct ib_srq *ibsrq,
- 		}
- 
- 		if (wr->num_sge < srq->max_gs) {
--			dseg[i].len = cpu_to_le32(HNS_ROCE_INVALID_SGE_LENGTH);
--			dseg[i].lkey = cpu_to_le32(HNS_ROCE_INVALID_LKEY);
-+			dseg[i].len = 0;
-+			dseg[i].lkey = cpu_to_le32(0x100);
- 			dseg[i].addr = 0;
- 		}
- 
-@@ -5098,7 +5097,7 @@ static int hns_roce_v2_query_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr)
- 
- 	attr->srq_limit = limit_wl;
- 	attr->max_wr = srq->wqe_cnt - 1;
--	attr->max_sge = srq->max_gs - HNS_ROCE_RESERVED_SGE;
-+	attr->max_sge = srq->max_gs;
- 
- out:
- 	hns_roce_free_cmd_mailbox(hr_dev, mailbox);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-index e6c385ced1872..4f840997c6c73 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -92,9 +92,7 @@
- #define HNS_ROCE_V2_CQC_TIMER_ENTRY_SZ		PAGE_SIZE
- #define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFFF000
- #define HNS_ROCE_V2_MAX_INNER_MTPT_NUM		2
--#define HNS_ROCE_INVALID_LKEY			0x0
--#define HNS_ROCE_INVALID_SGE_LENGTH		0x80000000
--
-+#define HNS_ROCE_INVALID_LKEY			0x100
- #define HNS_ROCE_CMQ_TX_TIMEOUT			30000
- #define HNS_ROCE_V2_UC_RC_SGE_NUM_IN_WQE	2
- #define HNS_ROCE_V2_RSV_QPS			8
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index a0a47bd669759..4edea397b6b80 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -386,8 +386,7 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
- 		return -EINVAL;
++	}
++
++	/* All dmas are now mapped, defer to second tree walk for unwind */
++	for (n = rb_first(&iommu->dma_list); n; n = rb_next(n)) {
++		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
++
+ 		dma->iommu_mapped = true;
  	}
- 
--	hr_qp->rq.max_gs = roundup_pow_of_two(max(1U, cap->max_recv_sge) +
--					      HNS_ROCE_RESERVED_SGE);
-+	hr_qp->rq.max_gs = roundup_pow_of_two(max(1U, cap->max_recv_sge));
- 
- 	if (hr_dev->caps.max_rq_sg <= HNS_ROCE_SGE_IN_WQE)
- 		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz);
-@@ -402,7 +401,7 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
- 		hr_qp->rq_inl_buf.wqe_cnt = 0;
- 
- 	cap->max_recv_wr = cnt;
--	cap->max_recv_sge = hr_qp->rq.max_gs - HNS_ROCE_RESERVED_SGE;
-+	cap->max_recv_sge = hr_qp->rq.max_gs;
- 
++
  	return 0;
++
++unwind:
++	for (; n; n = rb_prev(n)) {
++		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
++		dma_addr_t iova;
++
++		if (dma->iommu_mapped) {
++			iommu_unmap(domain->domain, dma->iova, dma->size);
++			continue;
++		}
++
++		iova = dma->iova;
++		while (iova < dma->iova + dma->size) {
++			phys_addr_t phys, p;
++			size_t size;
++			dma_addr_t i;
++
++			phys = iommu_iova_to_phys(domain->domain, iova);
++			if (!phys) {
++				iova += PAGE_SIZE;
++				continue;
++			}
++
++			size = PAGE_SIZE;
++			p = phys + size;
++			i = iova + size;
++			while (i < dma->iova + dma->size &&
++			       p == iommu_iova_to_phys(domain->domain, i)) {
++				size += PAGE_SIZE;
++				p += PAGE_SIZE;
++				i += PAGE_SIZE;
++			}
++
++			iommu_unmap(domain->domain, iova, size);
++			vfio_unpin_pages_remote(dma, iova, phys >> PAGE_SHIFT,
++						size >> PAGE_SHIFT, true);
++		}
++	}
++
++	return ret;
  }
-diff --git a/drivers/infiniband/hw/hns/hns_roce_srq.c b/drivers/infiniband/hw/hns/hns_roce_srq.c
-index f40a000e94ee7..b9e2dbd372b66 100644
---- a/drivers/infiniband/hw/hns/hns_roce_srq.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_srq.c
-@@ -297,7 +297,7 @@ int hns_roce_create_srq(struct ib_srq *ib_srq,
- 	spin_lock_init(&srq->lock);
  
- 	srq->wqe_cnt = roundup_pow_of_two(init_attr->attr.max_wr + 1);
--	srq->max_gs = init_attr->attr.max_sge + HNS_ROCE_RESERVED_SGE;
-+	srq->max_gs = init_attr->attr.max_sge;
- 
- 	if (udata) {
- 		ret = ib_copy_from_udata(&ucmd, udata, sizeof(ucmd));
+ /*
 -- 
 2.25.1
 
