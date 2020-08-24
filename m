@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC57F24F56B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8775924F5EC
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729595AbgHXIso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50200 "EHLO mail.kernel.org"
+        id S1730400AbgHXIzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729589AbgHXIsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:48:43 -0400
+        id S1730211AbgHXIzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CEB721741;
-        Mon, 24 Aug 2020 08:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F2FD2087D;
+        Mon, 24 Aug 2020 08:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258922;
-        bh=jRgIWyY0b4yL1+iU+rEN7X0YTkrV7SA7WEWwegKb4Wo=;
+        s=default; t=1598259312;
+        bh=MdqGIJpCx/+wgQQjrkGUNZbwGiGXF25VfSr3JxxELIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C2CVBvgK8EgKPjWqphrXn5t1r25wMAM4aX4wG+87SkIZmwFRFP1zlWIk2Z2hbIcGH
-         r/29mpG0vAVTE3AD8wewpRjXkykWqV8gJAJqGpotsw7+U1aNThuZZnJhUm9MYH5XDa
-         HczkWczVH/pAE++bYJXZZnfGzOzYkwBqN/4Pwqns=
+        b=AOQQvdBvv8wej/kPWzY0DRs8oCeNtU1GG+m/ANDEt6ofZnYQheiO5R8mRRcnQiiFI
+         GzI0p8710D1Nf4ckDXeQ9ISyVdmymlQytSkl5AU8oi1KLjPrtc39OTq3PwH9MsCn/t
+         0UGmga/6YkV4j0sP8gIWNAIsISgx0LS4GEx3Wk0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Juergen Gross <jgross@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        xen-devel@lists.xenproject.org, linux-pci@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/107] Fix build error when CONFIG_ACPI is not set/enabled:
-Date:   Mon, 24 Aug 2020 10:30:59 +0200
-Message-Id: <20200824082409.704889057@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        David Rientjes <rientjes@google.com>,
+        Michel Lespinasse <walken@google.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Akash Goel <akash.goel@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 11/71] kernel/relay.c: fix memleak on destroy relay channel
+Date:   Mon, 24 Aug 2020 10:31:02 +0200
+Message-Id: <20200824082356.454106164@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit ee87e1557c42dc9c2da11c38e11b87c311569853 ]
+commit 71e843295c680898959b22dc877ae3839cc22470 upstream.
 
-../arch/x86/pci/xen.c: In function ‘pci_xen_init’:
-../arch/x86/pci/xen.c:410:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
-  acpi_noirq_set();
+kmemleak report memory leak as follows:
 
-Fixes: 88e9ca161c13 ("xen/pci: Use acpi_noirq_set() helper to avoid #ifdef")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xenproject.org
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  unreferenced object 0x607ee4e5f948 (size 8):
+  comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
+  hex dump (first 8 bytes):
+  00 00 00 00 00 00 00 00 ........
+  backtrace:
+     relay_open kernel/relay.c:583 [inline]
+     relay_open+0xb6/0x970 kernel/relay.c:563
+     do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
+     __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
+     blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
+     blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
+     block_ioctl+0xe5/0x120 fs/block_dev.c:1871
+     vfs_ioctl fs/ioctl.c:48 [inline]
+     __do_sys_ioctl fs/ioctl.c:753 [inline]
+     __se_sys_ioctl fs/ioctl.c:739 [inline]
+     __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
+     do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
+     entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
+while destroy the relay channel.  Fix it by adding free_percpu() before
+return from relay_destroy_channel().
+
+Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Daniel Axtens <dja@axtens.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Akash Goel <akash.goel@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/pci/xen.c | 1 +
+ kernel/relay.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
-index 91220cc258547..5c11ae66b5d8e 100644
---- a/arch/x86/pci/xen.c
-+++ b/arch/x86/pci/xen.c
-@@ -26,6 +26,7 @@
- #include <asm/xen/pci.h>
- #include <asm/xen/cpuid.h>
- #include <asm/apic.h>
-+#include <asm/acpi.h>
- #include <asm/i8259.h>
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -197,6 +197,7 @@ free_buf:
+ static void relay_destroy_channel(struct kref *kref)
+ {
+ 	struct rchan *chan = container_of(kref, struct rchan, kref);
++	free_percpu(chan->buf);
+ 	kfree(chan);
+ }
  
- static int xen_pcifront_enable_irq(struct pci_dev *dev)
--- 
-2.25.1
-
 
 
