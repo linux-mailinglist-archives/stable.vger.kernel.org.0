@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CCE024F413
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BF624F416
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726661AbgHXIcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:32:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39038 "EHLO mail.kernel.org"
+        id S1726646AbgHXIc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726646AbgHXIcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:32:19 -0400
+        id S1726682AbgHXIcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:32:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 722302075B;
-        Mon, 24 Aug 2020 08:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 201A5207D3;
+        Mon, 24 Aug 2020 08:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257938;
-        bh=MdqGIJpCx/+wgQQjrkGUNZbwGiGXF25VfSr3JxxELIo=;
+        s=default; t=1598257943;
+        bh=aRx+YliMIlfhHADwgY6F1wy2b/b10bc5vVPUkcz9jwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pu128YIQMKPa8/7gkvSj0TqEzARdTsZgf7uZLjvNtOuzteA69ZRt/AUS7hND6pxs+
-         AA6yvAgtdmuaDBuFJipir6bs65XqDATRCQSgcgUyz4GENahfYpJNyXycvO0/K4COQ1
-         r/p59h64vXvFEEn1jgud1LkxBO04FoduZzm/9DmA=
+        b=DMjlXSHGOjMP5wDgzvM6nVWtFmBCznS2q2R7wV3nd8fPZNFhEaq/w+i1knW2cZQ4P
+         hdvR/k35pL4FnMSIqljAL17nOS+XJOE7NduymfPQpU/n/hCbqWtqH3aM/BIlHSJnFQ
+         ocVUagGwlpCdziVtBJj7gXsJKIBV31XLdqw9IVgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org,
+        Nicolas Prochazka <nicolas.prochazka@gmail.com>,
+        Tomoatsu Shimada <shimada@walbrix.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        David Rientjes <rientjes@google.com>,
-        Michel Lespinasse <walken@google.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Akash Goel <akash.goel@intel.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Philippe Liard <pliard@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Adrien Schildknecht <adrien+dev@schischi.me>,
+        Daniel Rosenberg <drosen@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 015/148] kernel/relay.c: fix memleak on destroy relay channel
-Date:   Mon, 24 Aug 2020 10:28:33 +0200
-Message-Id: <20200824082414.696953831@linuxfoundation.org>
+Subject: [PATCH 5.8 017/148] squashfs: avoid bio_alloc() failure with 1Mbyte blocks
+Date:   Mon, 24 Aug 2020 10:28:35 +0200
+Message-Id: <20200824082414.791473408@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -53,65 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-commit 71e843295c680898959b22dc877ae3839cc22470 upstream.
+commit f26044c83e6e473a61917f5db411d1417327d425 upstream.
 
-kmemleak report memory leak as follows:
+This is a regression introduced by the patch "migrate from ll_rw_block
+usage to BIO".
 
-  unreferenced object 0x607ee4e5f948 (size 8):
-  comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
-  hex dump (first 8 bytes):
-  00 00 00 00 00 00 00 00 ........
-  backtrace:
-     relay_open kernel/relay.c:583 [inline]
-     relay_open+0xb6/0x970 kernel/relay.c:563
-     do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
-     __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
-     blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
-     blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
-     block_ioctl+0xe5/0x120 fs/block_dev.c:1871
-     vfs_ioctl fs/ioctl.c:48 [inline]
-     __do_sys_ioctl fs/ioctl.c:753 [inline]
-     __se_sys_ioctl fs/ioctl.c:739 [inline]
-     __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
-     do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Bio_alloc() is limited to 256 pages (1 Mbyte).  This can cause a failure
+when reading 1 Mbyte block filesystems.  The problem is a datablock can be
+fully (or almost uncompressed), requiring 256 pages, but, because blocks
+are not aligned to page boundaries, it may require 257 pages to read.
 
-'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
-while destroy the relay channel.  Fix it by adding free_percpu() before
-return from relay_destroy_channel().
+Bio_kmalloc() can handle 1024 pages, and so use this for the edge
+condition.
 
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Fixes: 93e72b3c612a ("squashfs: migrate from ll_rw_block usage to BIO")
+Reported-by: Nicolas Prochazka <nicolas.prochazka@gmail.com>
+Reported-by: Tomoatsu Shimada <shimada@walbrix.com>
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Akash Goel <akash.goel@intel.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Cc: Philippe Liard <pliard@google.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Adrien Schildknecht <adrien+dev@schischi.me>
+Cc: Daniel Rosenberg <drosen@google.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
+Link: http://lkml.kernel.org/r/20200815035637.15319-1-phillip@squashfs.org.uk
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/relay.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/squashfs/block.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -197,6 +197,7 @@ free_buf:
- static void relay_destroy_channel(struct kref *kref)
- {
- 	struct rchan *chan = container_of(kref, struct rchan, kref);
-+	free_percpu(chan->buf);
- 	kfree(chan);
- }
+--- a/fs/squashfs/block.c
++++ b/fs/squashfs/block.c
+@@ -87,7 +87,11 @@ static int squashfs_bio_read(struct supe
+ 	int error, i;
+ 	struct bio *bio;
+ 
+-	bio = bio_alloc(GFP_NOIO, page_count);
++	if (page_count <= BIO_MAX_PAGES)
++		bio = bio_alloc(GFP_NOIO, page_count);
++	else
++		bio = bio_kmalloc(GFP_NOIO, page_count);
++
+ 	if (!bio)
+ 		return -ENOMEM;
  
 
 
