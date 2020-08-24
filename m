@@ -2,92 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB2524F85F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F58624FA90
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgHXJav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54480 "EHLO mail.kernel.org"
+        id S1728292AbgHXJ5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:57:30 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:53387 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729345AbgHXIuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:37 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728022AbgHXIe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:56 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B612A2075B;
-        Mon, 24 Aug 2020 08:50:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259037;
-        bh=6CWT5yFJGbIhKo0odsI5tP10yt8cR+KoeyWEK6OjVoc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGBsNAsQsNoZHA27Zj50RSev44yX+5B+4JEVx8XEfI0nDK341tWveSkYU2gcFKxn7
-         NL4FsAQ17rZoP58OmPEusDKys9Hs5noByZ8cg0bVQuT76E0MkenwaWfAP/CF62uCG9
-         FeuhIStSBptY3GGrbDfVWwnF0ILDk4htPKR/qc5Q=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.4 30/33] do_epoll_ctl(): clean the failure exits up a bit
-Date:   Mon, 24 Aug 2020 10:31:26 +0200
-Message-Id: <20200824082348.042955499@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
-References: <20200824082346.498653578@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BZlmX32Kmz9sPB;
+        Mon, 24 Aug 2020 18:34:52 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=popple.id.au;
+        s=202006; t=1598258093;
+        bh=B7PNZnSY6ZfbLv7chxp4iihY52HWlmjN0VC92TU+vSU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=C3rzlWdckFpUv3mCwBnbKR3eu8hr/yMHqefUWdAsdba4EFZYwEqsUkQGgyXogOSGf
+         JFGbpHuV/lcVDquhEERC1Zc91krNoTEXixwPTJ6wmttuWNII/Fyvhj2TU/uRuuvEjz
+         ZMzS9nM5+jsrcEsL6zBvLF/aX7kRvMgtTLFKpB8bjImxgZ1RPDKsbgX2tai6ufkAyN
+         vcRzd2+Ps5Yj6zESTMZBZQ9dNPPcwXMw6hJaV1nZ81s6kvnFtVSCU7+R7E9qJMehyE
+         dLWJ1tvKCJyi7u/2ILTsI9DVTXuaVAAfVYF748ZljFgKv/dht3zTe8uapeiZgkI+7J
+         vpBzH2MM7rXNg==
+From:   Alistair Popple <alistair@popple.id.au>
+To:     linux-mm@kvack.org
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Alistair Popple <alistair@popple.id.au>, stable@vger.kernel.org
+Subject: [PATCH 1/2] mm/migrate: Fixup setting UFFD_WP flag
+Date:   Mon, 24 Aug 2020 18:31:27 +1000
+Message-Id: <20200824083128.12684-1-alistair@popple.id.au>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+Commit f45ec5ff16a75 ("userfaultfd: wp: support swap and page
+migration") introduced support for tracking the uffd wp bit during page
+migration. However the non-swap PTE variant was used to set the flag for
+zone device private pages which are a type of swap page.
 
-commit 52c479697c9b73f628140dcdfcd39ea302d05482 upstream.
+This leads to corruption of the swap offset if the original PTE has the
+uffd_wp flag set.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f45ec5ff16a75 ("userfaultfd: wp: support swap and page migration")
+Signed-off-by: Alistair Popple <alistair@popple.id.au>
+Cc: stable@vger.kernel.org
 ---
- fs/eventpoll.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ mm/migrate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1905,10 +1905,8 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
- 			mutex_lock(&epmutex);
- 			if (is_file_epoll(tf.file)) {
- 				error = -ELOOP;
--				if (ep_loop_check(ep, tf.file) != 0) {
--					clear_tfile_check_list();
-+				if (ep_loop_check(ep, tf.file) != 0)
- 					goto error_tgt_fput;
--				}
- 			} else {
- 				get_file(tf.file);
- 				list_add(&tf.file->f_tfile_llink,
-@@ -1937,8 +1935,6 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
- 			error = ep_insert(ep, &epds, tf.file, fd, full_check);
- 		} else
- 			error = -EEXIST;
--		if (full_check)
--			clear_tfile_check_list();
- 		break;
- 	case EPOLL_CTL_DEL:
- 		if (epi)
-@@ -1959,8 +1955,10 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
- 	mutex_unlock(&ep->mtx);
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 34a842a8eb6a..ddb64253fe3e 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -251,7 +251,7 @@ static bool remove_migration_pte(struct page *page, struct vm_area_struct *vma,
+ 				entry = make_device_private_entry(new, pte_write(pte));
+ 				pte = swp_entry_to_pte(entry);
+ 				if (pte_swp_uffd_wp(*pvmw.pte))
+-					pte = pte_mkuffd_wp(pte);
++					pte = pte_swp_mkuffd_wp(pte);
+ 			}
+ 		}
  
- error_tgt_fput:
--	if (full_check)
-+	if (full_check) {
-+		clear_tfile_check_list();
- 		mutex_unlock(&epmutex);
-+	}
- 
- 	fdput(tf);
- error_fput:
-
+-- 
+2.20.1
 
