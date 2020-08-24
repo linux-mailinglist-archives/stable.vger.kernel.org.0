@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E514524F8E9
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2AD424F95D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbgHXJiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46266 "EHLO mail.kernel.org"
+        id S1726727AbgHXJop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729203AbgHXIrD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:03 -0400
+        id S1728748AbgHXInO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:43:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70377206F0;
-        Mon, 24 Aug 2020 08:47:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D24702075B;
+        Mon, 24 Aug 2020 08:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258823;
-        bh=dUx0qD/z7/HwADZR3jb0ffXxjN6iWVAbQsmZ3q0AI9A=;
+        s=default; t=1598258594;
+        bh=I2rc69Oc47pz8Ily187amhLgZCDrNoxj7kJnj5evJDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2GvOj3zNihDrdMBrrASmsPVDtS2IP23jOOMd044DX9GV7S6qV8LF2nVyQ+wfKGc6
-         s7bMynwyUv6PqR3REJa2/8y5dIIeY3Hachbq3Sj0+76MptHXz7E2OUipkOwd0zdY3Q
-         TRIXGoyKU+rySkFyiMLh02diEKVPG9i0srGSFfZc=
+        b=yCVk4FzQmZt4yhRK78gXWQ4kyuBH5g8WpadEN3FpTAXCojRlcepRitco7reBp4phK
+         CX5Uo9tvBoO1jogZ7TFB3d4K2QGK67T7J67q6yKK1MqgoW85prWZ/IdDRILtZ44ghT
+         P06ayo9nLLJZIrDlq/kWGCylePdfyD0fYkdLbLVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sajida Bhanu <sbhanu@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Henrique Figueira <henrislip@gmail.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/107] opp: Enable resources again if they were disabled earlier
+Subject: [PATCH 5.7 072/124] can: j1939: transport: add j1939_session_skb_find_by_offset() function
 Date:   Mon, 24 Aug 2020 10:30:06 +0200
-Message-Id: <20200824082407.113561188@linuxfoundation.org>
+Message-Id: <20200824082412.956507491@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,56 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@codeaurora.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit a4501bac0e553bed117b7e1b166d49731caf7260 ]
+[ Upstream commit 840835c9281215341d84966a8855f267a971e6a3 ]
 
-dev_pm_opp_set_rate() can now be called with freq = 0 in order
-to either drop performance or bandwidth votes or to disable
-regulators on platforms which support them.
+Sometimes it makes no sense to search the skb by pkt.dpo, since we need
+next the skb within the transaction block. This may happen if we have an
+ETP session with CTS set to less than 255 packets.
 
-In such cases, a subsequent call to dev_pm_opp_set_rate() with
-the same frequency ends up returning early because 'old_freq == freq'
+After this patch, we will be able to work with ETP sessions where the
+block size (ETP.CM_CTS byte 2) is less than 255 packets.
 
-Instead make it fall through and put back the dropped performance
-and bandwidth votes and/or enable back the regulators.
-
-Cc: v5.3+ <stable@vger.kernel.org> # v5.3+
-Fixes: cd7ea582866f ("opp: Make dev_pm_opp_set_rate() handle freq = 0 to drop performance votes")
-Reported-by: Sajida Bhanu <sbhanu@codeaurora.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Reported-by: Matthias Kaehlcke <mka@chromium.org>
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-[ Viresh: Don't skip clk_set_rate() and massaged changelog ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reported-by: Henrique Figueira <henrislip@gmail.com>
+Reported-by: https://github.com/linux-can/can-utils/issues/228
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20200807105200.26441-5-o.rempel@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/can/j1939/transport.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index 9ff0538ee83a0..7b057c32e11b1 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -843,10 +843,12 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index 30957c9a8eb7a..90a2baac8a4aa 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -352,17 +352,16 @@ void j1939_session_skb_queue(struct j1939_session *session,
+ 	skb_queue_tail(&session->skb_queue, skb);
+ }
  
- 	/* Return early if nothing to do */
- 	if (old_freq == freq) {
--		dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
--			__func__, freq);
--		ret = 0;
--		goto put_opp_table;
-+		if (!opp_table->required_opp_tables && !opp_table->regulators) {
-+			dev_dbg(dev, "%s: old/new frequencies (%lu Hz) are same, nothing to do\n",
-+				__func__, freq);
-+			ret = 0;
-+			goto put_opp_table;
-+		}
+-static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
++static struct
++sk_buff *j1939_session_skb_find_by_offset(struct j1939_session *session,
++					  unsigned int offset_start)
+ {
+ 	struct j1939_priv *priv = session->priv;
++	struct j1939_sk_buff_cb *do_skcb;
+ 	struct sk_buff *skb = NULL;
+ 	struct sk_buff *do_skb;
+-	struct j1939_sk_buff_cb *do_skcb;
+-	unsigned int offset_start;
+ 	unsigned long flags;
+ 
+-	offset_start = session->pkt.dpo * 7;
+-
+ 	spin_lock_irqsave(&session->skb_queue.lock, flags);
+ 	skb_queue_walk(&session->skb_queue, do_skb) {
+ 		do_skcb = j1939_skb_to_cb(do_skb);
+@@ -382,6 +381,14 @@ static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
+ 	return skb;
+ }
+ 
++static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
++{
++	unsigned int offset_start;
++
++	offset_start = session->pkt.dpo * 7;
++	return j1939_session_skb_find_by_offset(session, offset_start);
++}
++
+ /* see if we are receiver
+  * returns 0 for broadcasts, although we will receive them
+  */
+@@ -766,7 +773,7 @@ static int j1939_session_tx_dat(struct j1939_session *session)
+ 	int ret = 0;
+ 	u8 dat[8];
+ 
+-	se_skb = j1939_session_skb_find(session);
++	se_skb = j1939_session_skb_find_by_offset(session, session->pkt.tx * 7);
+ 	if (!se_skb)
+ 		return -ENOBUFS;
+ 
+@@ -1765,7 +1772,8 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
+ 			    __func__, session);
+ 		goto out_session_cancel;
  	}
- 
- 	temp_freq = old_freq;
+-	se_skb = j1939_session_skb_find(session);
++
++	se_skb = j1939_session_skb_find_by_offset(session, packet * 7);
+ 	if (!se_skb) {
+ 		netdev_warn(priv->ndev, "%s: 0x%p: no skb found\n", __func__,
+ 			    session);
 -- 
 2.25.1
 
