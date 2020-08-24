@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A29224F5E1
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81FC24F63D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730359AbgHXIyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:54:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35698 "EHLO mail.kernel.org"
+        id S1730716AbgHXI5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730355AbgHXIyp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:45 -0400
+        id S1730208AbgHXI5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:57:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 962052072D;
-        Mon, 24 Aug 2020 08:54:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81EBD20FC3;
+        Mon, 24 Aug 2020 08:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259284;
-        bh=eJmoOkOwIKJr1fsns/ZDCxgBG69hF1jWCUYyZljgpgE=;
+        s=default; t=1598259468;
+        bh=eHzawvg6Qqnr+ywSc/BhwWvuuYh7k/ZcjcKLX3gMZtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPDCZu7VDlipoLV7dZdsWLQ3jJAqvhvS+SGishZW1qw06yIvnwRvlRHPjQlQr2HMQ
-         mb19aUqrROHWFIv1EsYYMx4psXxhEhzR9Nhy9rd6sxe+tW46BIbf/v4TF/qF9HLGwb
-         PgEMyd732m3ctHEE38mEatTiKHNqrKKe8KpYezfQ=
+        b=tTrXLUsU8RUq5kReYrLVhGqsb3OCkQ1WE0P3j6S4JwSeeeUsuAgUS/USptrIOhN31
+         ORsGeIrmETuQHaU1/dT20j97EcYYuWErSGwK1/JbkH7nXTyRosGd87rV9ZA9CfGZ4S
+         GebQLx+ZOL0EjOJQeaH+Oa9/Hk6RTI8/4lvy1Cbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Xiao Guangrong <guangrong.xiao@linux.intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/50] bonding: fix active-backup failover for current ARP slave
+Subject: [PATCH 4.19 52/71] kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode
 Date:   Mon, 24 Aug 2020 10:31:43 +0200
-Message-Id: <20200824082354.176090532@linuxfoundation.org>
+Message-Id: <20200824082358.503737106@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Wiesner <jwiesner@suse.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 0410d07190961ac526f05085765a8d04d926545b ]
+[ Upstream commit 427890aff8558eb4326e723835e0eae0e6fe3102 ]
 
-When the ARP monitor is used for link detection, ARP replies are
-validated for all slaves (arp_validate=3) and fail_over_mac is set to
-active, two slaves of an active-backup bond may get stuck in a state
-where both of them are active and pass packets that they receive to
-the bond. This state makes IPv6 duplicate address detection fail. The
-state is reached thus:
-1. The current active slave goes down because the ARP target
-   is not reachable.
-2. The current ARP slave is chosen and made active.
-3. A new slave is enslaved. This new slave becomes the current active
-   slave and can reach the ARP target.
-As a result, the current ARP slave stays active after the enslave
-action has finished and the log is littered with "PROBE BAD" messages:
-> bond0: PROBE: c_arp ens10 && cas ens11 BAD
-The workaround is to remove the slave with "going back" status from
-the bond and re-enslave it. This issue was encountered when DPDK PMD
-interfaces were being enslaved to an active-backup bond.
+See the SDM, volume 3, section 4.4.1:
 
-I would be possible to fix the issue in bond_enslave() or
-bond_change_active_slave() but the ARP monitor was fixed instead to
-keep most of the actions changing the current ARP slave in the ARP
-monitor code. The current ARP slave is set as inactive and backup
-during the commit phase. A new state, BOND_LINK_FAIL, has been
-introduced for slaves in the context of the ARP monitor. This allows
-administrators to see how slaves are rotated for sending ARP requests
-and attempts are made to find a new active slave.
+If PAE paging would be in use following an execution of MOV to CR0 or
+MOV to CR4 (see Section 4.1.1) and the instruction is modifying any of
+CR0.CD, CR0.NW, CR0.PG, CR4.PAE, CR4.PGE, CR4.PSE, or CR4.SMEP; then
+the PDPTEs are loaded from the address in CR3.
 
-Fixes: b2220cad583c9 ("bonding: refactor ARP active-backup monitor")
-Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0be0226f07d14 ("KVM: MMU: fix SMAP virtualization")
+Cc: Xiao Guangrong <guangrong.xiao@linux.intel.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Message-Id: <20200817181655.3716509-2-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index a6d8d3b3c903d..861d2c0a521a4 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2753,6 +2753,9 @@ static int bond_ab_arp_inspect(struct bonding *bond)
- 			if (bond_time_in_interval(bond, last_rx, 1)) {
- 				bond_propose_link_state(slave, BOND_LINK_UP);
- 				commit++;
-+			} else if (slave->link == BOND_LINK_BACK) {
-+				bond_propose_link_state(slave, BOND_LINK_FAIL);
-+				commit++;
- 			}
- 			continue;
- 		}
-@@ -2863,6 +2866,19 @@ static void bond_ab_arp_commit(struct bonding *bond)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 5b2440e591fc1..ff1f764c4709a 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -857,7 +857,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ {
+ 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
+ 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
+-				   X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE;
++				   X86_CR4_SMEP | X86_CR4_PKE;
  
- 			continue;
- 
-+		case BOND_LINK_FAIL:
-+			bond_set_slave_link_state(slave, BOND_LINK_FAIL,
-+						  BOND_SLAVE_NOTIFY_NOW);
-+			bond_set_slave_inactive_flags(slave,
-+						      BOND_SLAVE_NOTIFY_NOW);
-+
-+			/* A slave has just been enslaved and has become
-+			 * the current active slave.
-+			 */
-+			if (rtnl_dereference(bond->curr_active_slave))
-+				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
-+			continue;
-+
- 		default:
- 			netdev_err(bond->dev, "impossible: new_link %d on slave %s\n",
- 				   slave->link_new_state, slave->dev->name);
-@@ -2912,8 +2928,6 @@ static bool bond_ab_arp_probe(struct bonding *bond)
- 			return should_notify_rtnl;
- 	}
- 
--	bond_set_slave_inactive_flags(curr_arp_slave, BOND_SLAVE_NOTIFY_LATER);
--
- 	bond_for_each_slave_rcu(bond, slave, iter) {
- 		if (!found && !before && bond_slave_is_up(slave))
- 			before = slave;
+ 	if (kvm_valid_cr4(vcpu, cr4))
+ 		return 1;
 -- 
 2.25.1
 
