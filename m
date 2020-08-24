@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2378B24FA66
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDE124F907
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbgHXJ4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
+        id S1729284AbgHXIqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728246AbgHXIgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:36:12 -0400
+        id S1728882AbgHXIqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:46:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F9D6208E4;
-        Mon, 24 Aug 2020 08:36:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9549206F0;
+        Mon, 24 Aug 2020 08:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258171;
-        bh=I1h3UZs3n7sc8Sn7+l5lYEgxuLjycEX+cCEnYirlE5E=;
+        s=default; t=1598258759;
+        bh=BQr3AAGuOtYV9cRjIpLGZZUtRYtYPgNSJDTBceGmfJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoOFBgBAhpEBjd3CsKbxuYTksUcqj6yLADgvPofXZ+lOWdYQZqrQpFspFOAooU1/Z
-         a/fqJ9FjAZf+21tNJEZ9tuqyZT2c3YwMCIQL/UsEAkDhhHhKFforwvRELYff7G7bUz
-         nvyCJhyF7P3yAnJg57gIhJ4++GNu9hx+5ssDXQ34=
+        b=nVm5AEPG+ZaDXcl+Q058W92v/7OeCaX/Rn7PD/aJgNv3NZ6Hdn57iI1JmUEfhkSTw
+         7ZuK0zkISe8YNUM6xBR/Wahh8X44Q2r+HHlUTwlq4f8D9OmrRFr0KDtqRfmr/R2xWD
+         Qth9CxFMaEny8RSdvIRhreQXRRvbsIYFuK3uRA2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 101/148] ASoC: intel: Fix memleak in sst_media_open
-Date:   Mon, 24 Aug 2020 10:29:59 +0200
-Message-Id: <20200824082418.868974178@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 034/107] scsi: zfcp: Fix use-after-free in request timeout handlers
+Date:   Mon, 24 Aug 2020 10:30:00 +0200
+Message-Id: <20200824082406.804746907@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Steffen Maier <maier@linux.ibm.com>
 
-[ Upstream commit 062fa09f44f4fb3776a23184d5d296b0c8872eb9 ]
+commit 2d9a2c5f581be3991ba67fa9e7497c711220ea8e upstream.
 
-When power_up_sst() fails, stream needs to be freed
-just like when try_module_get() fails. However, current
-code is returning directly and ends up leaking memory.
+Before v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
+timer_setup()"), we intentionally only passed zfcp_adapter as context
+argument to zfcp_fsf_request_timeout_handler(). Since we only trigger
+adapter recovery, it was unnecessary to sync against races between timeout
+and (late) completion.  Likewise, we only passed zfcp_erp_action as context
+argument to zfcp_erp_timeout_handler(). Since we only wakeup an ERP action,
+it was unnecessary to sync against races between timeout and (late)
+completion.
 
-Fixes: 0121327c1a68b ("ASoC: Intel: mfld-pcm: add control for powering up/down dsp")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200813084112.26205-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Meanwhile the timeout handlers get timer_list as context argument and do a
+timer-specific container-of to zfcp_fsf_req which can have been freed.
+
+Fix it by making sure that any request timeout handlers, that might just
+have started before del_timer(), are completed by using del_timer_sync()
+instead. This ensures the request free happens afterwards.
+
+Space time diagram of potential use-after-free:
+
+Basic idea is to have 2 or more pending requests whose timeouts run out at
+almost the same time.
+
+req 1 timeout     ERP thread        req 2 timeout
+----------------  ----------------  ---------------------------------------
+zfcp_fsf_request_timeout_handler
+fsf_req = from_timer(fsf_req, t, timer)
+adapter = fsf_req->adapter
+zfcp_qdio_siosl(adapter)
+zfcp_erp_adapter_reopen(adapter,...)
+                  zfcp_erp_strategy
+                  ...
+                  zfcp_fsf_req_dismiss_all
+                  list_for_each_entry_safe
+                    zfcp_fsf_req_complete 1
+                    del_timer 1
+                    zfcp_fsf_req_free 1
+                    zfcp_fsf_req_complete 2
+                                    zfcp_fsf_request_timeout_handler
+                    del_timer 2
+                                    fsf_req = from_timer(fsf_req, t, timer)
+                    zfcp_fsf_req_free 2
+                                    adapter = fsf_req->adapter
+                                              ^^^^^^^ already freed
+
+Link: https://lore.kernel.org/r/20200813152856.50088-1-maier@linux.ibm.com
+Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+Cc: <stable@vger.kernel.org> #4.15+
+Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/intel/atom/sst-mfld-platform-pcm.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-index 8817eaae6bb7a..b520e3aeaf3de 100644
---- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-+++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-@@ -331,7 +331,7 @@ static int sst_media_open(struct snd_pcm_substream *substream,
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -409,7 +409,7 @@ static void zfcp_fsf_req_complete(struct
+ 		return;
+ 	}
  
- 	ret_val = power_up_sst(stream);
- 	if (ret_val < 0)
--		return ret_val;
-+		goto out_power_up;
- 
- 	/* Make sure, that the period size is always even */
- 	snd_pcm_hw_constraint_step(substream->runtime, 0,
-@@ -340,8 +340,9 @@ static int sst_media_open(struct snd_pcm_substream *substream,
- 	return snd_pcm_hw_constraint_integer(runtime,
- 			 SNDRV_PCM_HW_PARAM_PERIODS);
- out_ops:
--	kfree(stream);
- 	mutex_unlock(&sst_lock);
-+out_power_up:
-+	kfree(stream);
- 	return ret_val;
- }
- 
--- 
-2.25.1
-
+-	del_timer(&req->timer);
++	del_timer_sync(&req->timer);
+ 	zfcp_fsf_protstatus_eval(req);
+ 	zfcp_fsf_fsfstatus_eval(req);
+ 	req->handler(req);
+@@ -762,7 +762,7 @@ static int zfcp_fsf_req_send(struct zfcp
+ 	req->qdio_req.qdio_outb_usage = atomic_read(&qdio->req_q_free);
+ 	req->issued = get_tod_clock();
+ 	if (zfcp_qdio_send(qdio, &req->qdio_req)) {
+-		del_timer(&req->timer);
++		del_timer_sync(&req->timer);
+ 		/* lookup request again, list might have changed */
+ 		zfcp_reqlist_find_rm(adapter->req_list, req_id);
+ 		zfcp_erp_adapter_reopen(adapter, 0, "fsrs__1");
 
 
