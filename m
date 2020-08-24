@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84705250449
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EE9250315
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbgHXRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
+        id S1728529AbgHXQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728498AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728497AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:38:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABA4022D07;
-        Mon, 24 Aug 2020 16:38:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7CA022DA9;
+        Mon, 24 Aug 2020 16:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287118;
-        bh=48KcJnFUretPa9m4eu33BwX5UY/CjfVBLnIuqyBnw9Y=;
+        s=default; t=1598287121;
+        bh=qIzc2g0EcLYoSanPApIcHyJK6rhR/iYiqcR/MpPeHDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ch8e5SgEdAZhEi0f5tnU80AXTThlfC5s7Pz7Ht1HvEudL8pdWasKvCrRU0mBTwBp
-         PsQAePW0i7CIj8i2aXbVcVBbRPgJUz9jT+s4FsdbntEpd9VG8kLOzyiwnHocRzncpr
-         lN+pDOE1CFeZMgotdDwf8qIWdrwmt7i4fwJquQM0=
+        b=qCQctKHod8bFA57p3srylicCIK26q18tcESed8X/tseCayVEAI0oXp/GJg3OGj3i5
+         +nSwXkgyGm+XdGCFuB4wCggEr0RYtTVvhXgVPVuXgOLT/5eR/oaEr2Y0c534DJzANw
+         AK083Jbtf85aqdARPXzf1MdtaA+QXdqdjFOxEwjk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiansong Chen <Jiansong.Chen@amd.com>,
-        Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 34/38] drm/amdgpu: disable gfxoff for navy_flounder
-Date:   Mon, 24 Aug 2020 12:37:46 -0400
-Message-Id: <20200824163751.606577-34-sashal@kernel.org>
+Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 36/38] powerpc/perf: Fix soft lockups due to missed interrupt accounting
+Date:   Mon, 24 Aug 2020 12:37:48 -0400
+Message-Id: <20200824163751.606577-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -45,36 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 9c9b17a7d19a8e21db2e378784fff1128b46c9d3 ]
+[ Upstream commit 17899eaf88d689529b866371344c8f269ba79b5f ]
 
-gfxoff is temporarily disabled for navy_flounder,
-since at present the feature has broken some basic
-amdgpu test.
+Performance monitor interrupt handler checks if any counter has
+overflown and calls record_and_restart() in core-book3s which invokes
+perf_event_overflow() to record the sample information. Apart from
+creating sample, perf_event_overflow() also does the interrupt and
+period checks via perf_event_account_interrupt().
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Currently we record information only if the SIAR (Sampled Instruction
+Address Register) valid bit is set (using siar_valid() check) and
+hence the interrupt check.
+
+But it is possible that we do sampling for some events that are not
+generating valid SIAR, and hence there is no chance to disable the
+event if interrupts are more than max_samples_per_tick. This leads to
+soft lockup.
+
+Fix this by adding perf_event_account_interrupt() in the invalid SIAR
+code path for a sampling event. ie if SIAR is invalid, just do
+interrupt check and don't record the sample information.
+
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1596717992-7321-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/perf/core-book3s.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-index 64d96eb0a2337..3a5b4efa7a5e6 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -617,6 +617,9 @@ static void gfx_v10_0_check_gfxoff_flag(struct amdgpu_device *adev)
- 	case CHIP_NAVI10:
- 		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
- 		break;
-+	case CHIP_NAVY_FLOUNDER:
-+		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
-+		break;
- 	default:
- 		break;
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index ca92e01d0bd1b..e32f7700303bc 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2106,6 +2106,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+ 
+ 		if (perf_event_overflow(event, &data, regs))
+ 			power_pmu_stop(event, 0);
++	} else if (period) {
++		/* Account for interrupt in case of invalid SIAR */
++		if (perf_event_account_interrupt(event))
++			power_pmu_stop(event, 0);
  	}
+ }
+ 
 -- 
 2.25.1
 
