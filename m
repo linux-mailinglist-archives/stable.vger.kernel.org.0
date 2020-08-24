@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 297D324FA1A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3272A24F970
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgHXIid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53150 "EHLO mail.kernel.org"
+        id S1728936AbgHXImf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728543AbgHXIia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:30 -0400
+        id S1728974AbgHXIme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C7012177B;
-        Mon, 24 Aug 2020 08:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BDBE2074D;
+        Mon, 24 Aug 2020 08:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258309;
-        bh=leVTurjUD+8+YlGK6i8qakCakA8BGvB6rJ0efjYly1g=;
+        s=default; t=1598258553;
+        bh=CiB2JlYzRRv4NoLy9qj+dbZcYvJL+2KWQ7TFKK68R+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkQULNtBGCK2Dd6aUEn4QDjHQetrfuWVnbYkYmu13YXijDMkYD3HatQ/EWpWys5wj
-         f4vrLOCJhzDVbCdXg8Tk8zjrbIgC5KuN4EgAO9YbmjodvuaUbZdzfGrpzl3Enx3Woy
-         nIJL4T+9GHTdBj80jjgE6/QHYYpULtPi2MvDwRfM=
+        b=kF+ixayF+GuQIiEE75rLfBrBOyurkQx8A/p9g4SN236o08CGMvJxkvZf/jVf3dCkY
+         ru0gxs3iXGLi55UtDwR5Zo+ENWw4zeRl50EaldYqY/3aJfAdLDuZwnE00QAu/EwRu/
+         GuP7UxUb91J94h5OikCYNYZGPRYuUCdZoeREhyi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 122/148] RDMA/bnxt_re: Do not add user qps to flushlist
+Subject: [PATCH 5.7 086/124] ASoC: msm8916-wcd-analog: fix register Interrupt offset
 Date:   Mon, 24 Aug 2020 10:30:20 +0200
-Message-Id: <20200824082419.857207032@linuxfoundation.org>
+Message-Id: <20200824082413.643295308@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit a812f2d60a9fb7818f9c81f967180317b52545c0 ]
+[ Upstream commit ff69c97ef84c9f7795adb49e9f07c9adcdd0c288 ]
 
-Driver shall add only the kernel qps to the flush list for clean up.
-During async error events from the HW, driver is adding qps to this list
-without checking if the qp is kernel qp or not.
+For some reason interrupt set and clear register offsets are
+not set correctly.
+This patch corrects them!
 
-Add a check to avoid user qp addition to the flush list.
-
-Fixes: 942c9b6ca8de ("RDMA/bnxt_re: Avoid Hard lockup during error CQE processing")
-Fixes: c50866e2853a ("bnxt_re: fix the regression due to changes in alloc_pbl")
-Link: https://lore.kernel.org/r/1596689148-4023-1-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200811103452.20448-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/msm8916-wcd-analog.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index b12fbc857f942..5c41e13496a02 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -811,7 +811,8 @@ static int bnxt_re_handle_qp_async_event(struct creq_qp_event *qp_event,
- 	struct ib_event event;
- 	unsigned int flags;
+diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
+index 85bc7ae4d2671..26cf372ccda6f 100644
+--- a/sound/soc/codecs/msm8916-wcd-analog.c
++++ b/sound/soc/codecs/msm8916-wcd-analog.c
+@@ -19,8 +19,8 @@
  
--	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR) {
-+	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR &&
-+	    rdma_is_kernel_res(&qp->ib_qp.res)) {
- 		flags = bnxt_re_lock_cqs(qp);
- 		bnxt_qplib_add_flush_qp(&qp->qplib_qp);
- 		bnxt_re_unlock_cqs(qp, flags);
+ #define CDC_D_REVISION1			(0xf000)
+ #define CDC_D_PERPH_SUBTYPE		(0xf005)
+-#define CDC_D_INT_EN_SET		(0x015)
+-#define CDC_D_INT_EN_CLR		(0x016)
++#define CDC_D_INT_EN_SET		(0xf015)
++#define CDC_D_INT_EN_CLR		(0xf016)
+ #define MBHC_SWITCH_INT			BIT(7)
+ #define MBHC_MIC_ELECTRICAL_INS_REM_DET	BIT(6)
+ #define MBHC_BUTTON_PRESS_DET		BIT(5)
 -- 
 2.25.1
 
