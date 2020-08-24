@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EADAA24FA7B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267DC24FA77
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727909AbgHXJ4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46382 "EHLO mail.kernel.org"
+        id S1726861AbgHXIfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728089AbgHXIfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:32 -0400
+        id S1728123AbgHXIff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:35:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD0A206F0;
-        Mon, 24 Aug 2020 08:35:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF3FA204FD;
+        Mon, 24 Aug 2020 08:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258132;
-        bh=aGAVE7dUlLLoJZfcZXaEkseQizeF/7cuRvfQAW6y5Xw=;
+        s=default; t=1598258134;
+        bh=ASNGJWgtwtS9VpHWrz2J5lsF5hX9JWswGiuJzWsIJqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TrfDvVozbPDU2bEuF8/z7MlCaIX/GUoYdDJwByvQbjyKcVmlGU3R5gnYOJ5qYP9Rk
-         tgMXh3QNhbrIAWqjsPuqGAph22iIYokOdMq98+qT2lTtnqTajNZbEPSVnD6F9nsbIS
-         85f8meGdiYxxgFTFklGPTszIKA255twnb/HR4c54=
+        b=ahtxM8xrC1qqws7h5aaMtBa1RvKQxs3l76Fi1x0osmAj6IlWfkBb/IPeJpUW+Bx47
+         mC7/3Xz5jgiD0UyQ79ADEwWxWHhwR37SyAOxBpg3RXJh1p0zT3RXxtKV9zDaTzUxyd
+         l6SVyJKgeZTU4f8Ie9wS/p3byhx9QXgCzUh/vzT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Allison Collins <allison.henderson@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 057/148] xfs: fix inode quota reservation checks
-Date:   Mon, 24 Aug 2020 10:29:15 +0200
-Message-Id: <20200824082416.799697353@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Laurent Morichetti <laurent.morichetti@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 058/148] drm/ttm: fix offset in VMAs with a pg_offs in ttm_bo_vm_access
+Date:   Mon, 24 Aug 2020 10:29:16 +0200
+Message-Id: <20200824082416.848529113@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -46,54 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit f959b5d037e71a4d69b5bf71faffa065d9269b4a ]
+[ Upstream commit c0001213d195d1bac83e0744c06ff06dd5a8ba53 ]
 
-xfs_trans_dqresv is the function that we use to make reservations
-against resource quotas.  Each resource contains two counters: the
-q_core counter, which tracks resources allocated on disk; and the dquot
-reservation counter, which tracks how much of that resource has either
-been allocated or reserved by threads that are working on metadata
-updates.
+VMAs with a pg_offs that's offset from the start of the vma_node need
+to adjust the offset within the BO accordingly. This matches the
+offset calculation in ttm_bo_vm_fault_reserved.
 
-For disk blocks, we compare the proposed reservation counter against the
-hard and soft limits to decide if we're going to fail the operation.
-However, for inodes we inexplicably compare against the q_core counter,
-not the incore reservation count.
-
-Since the q_core counter is always lower than the reservation count and
-we unlock the dquot between reservation and transaction commit, this
-means that multiple threads can reserve the last inode count before we
-hit the hard limit, and when they commit, we'll be well over the hard
-limit.
-
-Fix this by checking against the incore inode reservation counter, since
-we would appear to maintain that correctly (and that's what we report in
-GETQUOTA).
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Tested-by: Laurent Morichetti <laurent.morichetti@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/381169/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_trans_dquot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo_vm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_trans_dquot.c b/fs/xfs/xfs_trans_dquot.c
-index c0f73b82c0551..ed0ce8b301b40 100644
---- a/fs/xfs/xfs_trans_dquot.c
-+++ b/fs/xfs/xfs_trans_dquot.c
-@@ -647,7 +647,7 @@ xfs_trans_dqresv(
- 			}
- 		}
- 		if (ninos > 0) {
--			total_count = be64_to_cpu(dqp->q_core.d_icount) + ninos;
-+			total_count = dqp->q_res_icount + ninos;
- 			timer = be32_to_cpu(dqp->q_core.d_itimer);
- 			warns = be16_to_cpu(dqp->q_core.d_iwarns);
- 			warnlimit = defq->iwarnlimit;
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+index fa03fab02076d..33526c5df0e8c 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+@@ -505,8 +505,10 @@ static int ttm_bo_vm_access_kmap(struct ttm_buffer_object *bo,
+ int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
+ 		     void *buf, int len, int write)
+ {
+-	unsigned long offset = (addr) - vma->vm_start;
+ 	struct ttm_buffer_object *bo = vma->vm_private_data;
++	unsigned long offset = (addr) - vma->vm_start +
++		((vma->vm_pgoff - drm_vma_node_start(&bo->base.vma_node))
++		 << PAGE_SHIFT);
+ 	int ret;
+ 
+ 	if (len < 1 || (offset + len) >> PAGE_SHIFT > bo->num_pages)
 -- 
 2.25.1
 
