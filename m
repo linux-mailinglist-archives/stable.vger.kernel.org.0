@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB8124F965
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD60B24F8DF
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728625AbgHXJow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:44:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
+        id S1729459AbgHXIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:47:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729002AbgHXIm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:42:58 -0400
+        id S1729451AbgHXIrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:47:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 721F32074D;
-        Mon, 24 Aug 2020 08:42:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE892206F0;
+        Mon, 24 Aug 2020 08:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258578;
-        bh=+qRo7EazDkIauatNccwvEEaYm1kUYDmMfILi5Oc7xuw=;
+        s=default; t=1598258840;
+        bh=I+DwZD56sM3C9rG0X7y50N5FiUYdZB+t0XR4CbQVVzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aH2g/mQaHm76oRtEkwb9tC620SBz0mjgJEFZvlu7YENeyCKrMBm3ONsHqzq3C+1T8
-         Ilcx+mVXdUfki7onsw1QM6zdrzFJdsRf5ZeTxsx4ZiS9oPyQbUBH9/KZGNKmIDk8bC
-         zz4w4yhaAkFxphOnTCo5Oj7/ZkZs5r0WqC5eUsXI=
+        b=cCeDtFN/xW/h8wFBVuabo1g0RqIFLd/uWSqichYKo0q8NSVfEtkjzeoTU9BYb6PTp
+         OhSCTlFQr689Bm3zvQwu55XxaqLhMhQNvqxWhhBd04gjUE1G1iXWZF82ewupNSxc6d
+         vA7O3rY2ILtuPvNMbvsrQvmUO24xdKsizNrfojpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Seungwon Jeon <essuuj@gmail.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 094/124] scsi: ufs: Add quirk to disallow reset of interrupt aggregation
-Date:   Mon, 24 Aug 2020 10:30:28 +0200
-Message-Id: <20200824082414.030173227@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/107] ext4: fix potential negative array index in do_split()
+Date:   Mon, 24 Aug 2020 10:30:29 +0200
+Message-Id: <20200824082408.247538124@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-[ Upstream commit b638b5eb624bd5d0766683b6181d578f414585e9 ]
+[ Upstream commit 5872331b3d91820e14716632ebb56b1399b34fe1 ]
 
-Some host controllers support interrupt aggregation but don't allow
-resetting counter and timer in software.
+If for any reason a directory passed to do_split() does not have enough
+active entries to exceed half the size of the block, we can end up
+iterating over all "count" entries without finding a split point.
 
-Link: https://lore.kernel.org/r/20200528011658.71590-3-alim.akhtar@samsung.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Seungwon Jeon <essuuj@gmail.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+In this case, count == move, and split will be zero, and we will
+attempt a negative index into map[].
+
+Guard against this by detecting this case, and falling back to
+split-to-half-of-count instead; in this case we will still have
+plenty of space (> half blocksize) in each split block.
+
+Fixes: ef2b02d3e617 ("ext34: ensure do_split leaves enough free space in both blocks")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/f53e246b-647c-64bb-16ec-135383c70ad7@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 ++-
- drivers/scsi/ufs/ufshcd.h | 6 ++++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ fs/ext4/namei.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 9e31f9569bf78..acd8fb4981142 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4889,7 +4889,8 @@ static irqreturn_t ufshcd_transfer_req_compl(struct ufs_hba *hba)
- 	 * false interrupt if device completes another request after resetting
- 	 * aggregation and before reading the DB.
- 	 */
--	if (ufshcd_is_intr_aggr_allowed(hba))
-+	if (ufshcd_is_intr_aggr_allowed(hba) &&
-+	    !(hba->quirks & UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR))
- 		ufshcd_reset_intr_aggr(hba);
- 
- 	tr_doorbell = ufshcd_readl(hba, REG_UTP_TRANSFER_REQ_DOOR_BELL);
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index ceadbd548e06d..5b1acdd83d5c1 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -523,6 +523,12 @@ enum ufshcd_quirks {
- 	 * Clear handling for transfer/task request list is just opposite.
- 	 */
- 	UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR		= 1 << 6,
-+
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 0218b1407abbb..36a81b57012a5 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1852,7 +1852,7 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 			     blocksize, hinfo, map);
+ 	map -= count;
+ 	dx_sort_map(map, count);
+-	/* Split the existing block in the middle, size-wise */
++	/* Ensure that neither split block is over half full */
+ 	size = 0;
+ 	move = 0;
+ 	for (i = count-1; i >= 0; i--) {
+@@ -1862,8 +1862,18 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 		size += map[i].size;
+ 		move++;
+ 	}
+-	/* map index at which we will split */
+-	split = count - move;
 +	/*
-+	 * This quirk needs to be enabled if host controller doesn't allow
-+	 * that the interrupt aggregation timer and counter are reset by s/w.
++	 * map index at which we will split
++	 *
++	 * If the sum of active entries didn't exceed half the block size, just
++	 * split it in half by count; each resulting block will have at least
++	 * half the space free.
 +	 */
-+	UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR		= 1 << 7,
- };
- 
- enum ufshcd_caps {
++	if (i > 0)
++		split = count - move;
++	else
++		split = count/2;
++
+ 	hash2 = map[split].hash;
+ 	continued = hash2 == map[split - 1].hash;
+ 	dxtrace(printk(KERN_INFO "Split block %lu at %x, %i/%i\n",
 -- 
 2.25.1
 
