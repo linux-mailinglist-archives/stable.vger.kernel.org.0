@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 987E824F637
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E1C24F65B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbgHXI5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
+        id S1730700AbgHXI5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:57:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730691AbgHXI5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:57:36 -0400
+        id S1730263AbgHXI5j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:57:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE81E207D3;
-        Mon, 24 Aug 2020 08:57:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69073204FD;
+        Mon, 24 Aug 2020 08:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259456;
-        bh=ImpPFBJmwyJzt8S4M4/A8Dv82hlFhhtkULjLLR2O+Yw=;
+        s=default; t=1598259458;
+        bh=CCOg6YcDob3vQqntrLoC6A5RQVbfcFciQ4LH6jL9ox8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gkpNZSLa9hzjiHEoPh+z5PZyGc0kUdNwn9R/tJx8UXlklP8QP/Msr03HeD2lN5po
-         SgiXP7ReIMjMhm8gpK43O8uVID67dzOhCOWmcb2sl2RyTekw7EHz86Cj7/BGRNEAao
-         4/jkW9j4IHMfQhXRSvyTV9nYMblJdauMhQUofEGs=
+        b=HMw4IdQXPrtaNX0MP3IqgmCcx+DA2IRdA1H0LccH6LlQTMH59Va80Hb8pAXF8x2gY
+         +MUZ0lk5zBjm8jhlDTsAiXjrISsdJSzdDc2+PM7e74ensNE6z3pEysrI0GPTRqjnCO
+         YgPDaqbQIqqh1L4qcROhskwzkDjj5CHYYWXp7/hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Li Heng <liheng40@huawei.com>, Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.19 66/71] efi: add missed destroy_workqueue when efisubsys_init fails
-Date:   Mon, 24 Aug 2020 10:31:57 +0200
-Message-Id: <20200824082359.257365792@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 67/71] epoll: Keep a reference on files added to the check list
+Date:   Mon, 24 Aug 2020 10:31:58 +0200
+Message-Id: <20200824082359.318904388@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
 References: <20200824082355.848475917@linuxfoundation.org>
@@ -43,41 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Heng <liheng40@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 98086df8b70c06234a8f4290c46064e44dafa0ed upstream.
+commit a9ed4a6560b8562b7e2e2bed9527e88001f7b682 upstream.
 
-destroy_workqueue() should be called to destroy efi_rts_wq
-when efisubsys_init() init resources fails.
+When adding a new fd to an epoll, and that this new fd is an
+epoll fd itself, we recursively scan the fds attached to it
+to detect cycles, and add non-epool files to a "check list"
+that gets subsequently parsed.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Li Heng <liheng40@huawei.com>
-Link: https://lore.kernel.org/r/1595229738-10087-1-git-send-email-liheng40@huawei.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+However, this check list isn't completely safe when deletions
+can happen concurrently. To sidestep the issue, make sure that
+a struct file placed on the check list sees its f_count increased,
+ensuring that a concurrent deletion won't result in the file
+disapearing from under our feet.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/eventpoll.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -359,6 +359,7 @@ static int __init efisubsys_init(void)
- 	efi_kobj = kobject_create_and_add("efi", firmware_kobj);
- 	if (!efi_kobj) {
- 		pr_err("efi: Firmware registration failed.\n");
-+		destroy_workqueue(efi_rts_wq);
- 		return -ENOMEM;
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1890,9 +1890,11 @@ static int ep_loop_check_proc(void *priv
+ 			 * not already there, and calling reverse_path_check()
+ 			 * during ep_insert().
+ 			 */
+-			if (list_empty(&epi->ffd.file->f_tfile_llink))
++			if (list_empty(&epi->ffd.file->f_tfile_llink)) {
++				get_file(epi->ffd.file);
+ 				list_add(&epi->ffd.file->f_tfile_llink,
+ 					 &tfile_check_list);
++			}
+ 		}
  	}
- 
-@@ -395,6 +396,7 @@ err_unregister:
- 	generic_ops_unregister();
- err_put:
- 	kobject_put(efi_kobj);
-+	destroy_workqueue(efi_rts_wq);
- 	return error;
+ 	mutex_unlock(&ep->mtx);
+@@ -1936,6 +1938,7 @@ static void clear_tfile_check_list(void)
+ 		file = list_first_entry(&tfile_check_list, struct file,
+ 					f_tfile_llink);
+ 		list_del_init(&file->f_tfile_llink);
++		fput(file);
+ 	}
+ 	INIT_LIST_HEAD(&tfile_check_list);
  }
- 
+@@ -2095,9 +2098,11 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
+ 					clear_tfile_check_list();
+ 					goto error_tgt_fput;
+ 				}
+-			} else
++			} else {
++				get_file(tf.file);
+ 				list_add(&tf.file->f_tfile_llink,
+ 							&tfile_check_list);
++			}
+ 			mutex_lock_nested(&ep->mtx, 0);
+ 			if (is_file_epoll(tf.file)) {
+ 				tep = tf.file->private_data;
 
 
