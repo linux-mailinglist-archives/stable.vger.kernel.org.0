@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F213524F821
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6560B24F7FA
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730110AbgHXIwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:52:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59416 "EHLO mail.kernel.org"
+        id S1730035AbgHXJX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730102AbgHXIwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:47 -0400
+        id S1730261AbgHXIx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:53:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1B182075B;
-        Mon, 24 Aug 2020 08:52:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEA8A207D3;
+        Mon, 24 Aug 2020 08:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259167;
-        bh=k4RwoxkCN8nskMAMp2RfPf26Rb+qQSGzvcCGXFVAIdI=;
+        s=default; t=1598259237;
+        bh=sKzyCTVQt3yNjcURrQLuKLdMEI//B2JxQ9HvMAck5Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hakRlGnQrDRfX7ZlAtUzJX/farWgKns4ZDH4A87kYuk9Tw2I32KPt39JVcBiU+q3D
-         xMIkhfcsr+S1Ux5LkOYmH/zYrc47WfW5fcmzZBk6kYG5LXDshsHhXsFD3X+Z9ZnThG
-         F0sX75TMd7k1MOyJjf+y4x3PTYCvJ1iNxBWRMbms=
+        b=DvRR03Okbq8ILESWgoP1fmQjBMvI5K4qFhHR+z/GovmP0CbX5W9Dlhpc0FJXXEjD4
+         dasnD0vPsivwOMkEZsdPx/aCMdQ2wpyjCTQ88B1dr/0M957mOndeCFSeBx21RIm5OV
+         uTwyBohwV5v0+EIM3ZW7KZ1/hs69sSj5l6xo1KPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 34/39] powerpc/pseries: Do not initiate shutdown when system is running on UPS
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 32/50] alpha: fix annotation of io{read,write}{16,32}be()
 Date:   Mon, 24 Aug 2020 10:31:33 +0200
-Message-Id: <20200824082350.272665157@linuxfoundation.org>
+Message-Id: <20200824082353.666647767@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-commit 90a9b102eddf6a3f987d15f4454e26a2532c1c98 upstream.
+[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
 
-As per PAPR we have to look for both EPOW sensor value and event
-modifier to identify the type of event and take appropriate action.
+These accessors must be used to read/write a big-endian bus.  The value
+returned or written is native-endian.
 
-In LoPAPR v1.1 section 10.2.2 includes table 136 "EPOW Action Codes":
+However, these accessors are defined using be{16,32}_to_cpu() or
+cpu_to_be{16,32}() to make the endian conversion but these expect a
+__be{16,32} when none is present.  Keeping them would need a force cast
+that would solve nothing at all.
 
-  SYSTEM_SHUTDOWN 3
+So, do the conversion using swab{16,32}, like done in asm-generic for
+similar situations.
 
-  The system must be shut down. An EPOW-aware OS logs the EPOW error
-  log information, then schedules the system to be shut down to begin
-  after an OS defined delay internal (default is 10 minutes.)
-
-Then in section 10.3.2.2.8 there is table 146 "Platform Event Log
-Format, Version 6, EPOW Section", which includes the "EPOW Event
-Modifier":
-
-  For EPOW sensor value = 3
-  0x01 = Normal system shutdown with no additional delay
-  0x02 = Loss of utility power, system is running on UPS/Battery
-  0x03 = Loss of system critical functions, system should be shutdown
-  0x04 = Ambient temperature too high
-  All other values = reserved
-
-We have a user space tool (rtas_errd) on LPAR to monitor for
-EPOW_SHUTDOWN_ON_UPS. Once it gets an event it initiates shutdown
-after predefined time. It also starts monitoring for any new EPOW
-events. If it receives "Power restored" event before predefined time
-it will cancel the shutdown. Otherwise after predefined time it will
-shutdown the system.
-
-Commit 79872e35469b ("powerpc/pseries: All events of
-EPOW_SYSTEM_SHUTDOWN must initiate shutdown") changed our handling of
-the "on UPS/Battery" case, to immediately shutdown the system. This
-breaks existing setups that rely on the userspace tool to delay
-shutdown and let the system run on the UPS.
-
-Fixes: 79872e35469b ("powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must initiate shutdown")
-Cc: stable@vger.kernel.org # v4.0+
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-[mpe: Massage change log and add PAPR references]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/alpha/include/asm/io.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -101,7 +101,6 @@ static void handle_system_shutdown(char
- 	case EPOW_SHUTDOWN_ON_UPS:
- 		pr_emerg("Loss of system power detected. System is running on"
- 			 " UPS/battery. Check RTAS error log for details\n");
--		orderly_poweroff(true);
- 		break;
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index d123ff90f7a83..9995bed6e92e2 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -493,10 +493,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
+ }
+ #endif
  
- 	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
+-#define ioread16be(p) be16_to_cpu(ioread16(p))
+-#define ioread32be(p) be32_to_cpu(ioread32(p))
+-#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
+-#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
++#define ioread16be(p) swab16(ioread16(p))
++#define ioread32be(p) swab32(ioread32(p))
++#define iowrite16be(v,p) iowrite16(swab16(v), (p))
++#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+ 
+ #define inb_p		inb
+ #define inw_p		inw
+-- 
+2.25.1
+
 
 
