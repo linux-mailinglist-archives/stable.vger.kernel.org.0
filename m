@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4348724F92D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD7C24F99C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbgHXJmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:42:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
+        id S1728855AbgHXJrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:47:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728945AbgHXIoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:55 -0400
+        id S1728483AbgHXIlf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:41:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E57382075B;
-        Mon, 24 Aug 2020 08:44:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66A982075B;
+        Mon, 24 Aug 2020 08:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258694;
-        bh=Z9lKzba1BAVgIqYEc7h0WsfNDzOkK9y1hwS3TfHMqKE=;
+        s=default; t=1598258495;
+        bh=sXZ8Yu1jQFz3zs2GX8AIx26bfdTxIQt72kwnooGnfdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJ000ManXxChTzQZgytvbOjs5PSqftfxAmmSThN0I7Ce5alHJNPaIl+dLzmzt8sKr
-         TrtdVfX58/sBL2074y+0xm+vgIqHZeTmm13vSry5t32nR8yJn60FTuWN1aYBT29m68
-         i4yBRSUzcIW9nHRhm/NSg3ZxQmeSRLz9wh3fdTis=
+        b=Qgi9xOcYp+Nms8ziA1sM9dAQbhXxveohbiL2oxPdZI0StEKI9+Ia1hg4WPZtXYqY8
+         uo0F4UCYSB404VcyAgjBmikVEG6+S2iW0DQ9Av5k64OXABvBhXwENhC76DFIwNc5m9
+         MwHEl6t83pAKh+Q39ZWR3kW/xTupxzfjVwKi2dMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.4 005/107] x86/boot: kbuild: allow readelf executable to be specified
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 037/124] media: budget-core: Improve exception handling in budget_register()
 Date:   Mon, 24 Aug 2020 10:29:31 +0200
-Message-Id: <20200824082405.298221904@linuxfoundation.org>
+Message-Id: <20200824082411.241780205@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Golovin <dima@golovin.in>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit eefb8c124fd969e9a174ff2bedff86aa305a7438 upstream.
+[ Upstream commit fc0456458df8b3421dba2a5508cd817fbc20ea71 ]
 
-Introduce a new READELF variable to top-level Makefile, so the name of
-readelf binary can be specified.
+budget_register() has no error handling after its failure.
+Add the missed undo functions for error handling to fix it.
 
-Before this change the name of the binary was hardcoded to
-"$(CROSS_COMPILE)readelf" which might not be present for every
-toolchain.
-
-This allows to build with LLVM Object Reader by using make parameter
-READELF=llvm-readelf.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/771
-Signed-off-by: Dmitry Golovin <dima@golovin.in>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile                          |    3 ++-
- arch/x86/boot/compressed/Makefile |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/pci/ttpci/budget-core.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -414,6 +414,7 @@ STRIP		= $(CROSS_COMPILE)strip
- OBJCOPY		= $(CROSS_COMPILE)objcopy
- OBJDUMP		= $(CROSS_COMPILE)objdump
- OBJSIZE		= $(CROSS_COMPILE)size
-+READELF		= $(CROSS_COMPILE)readelf
- PAHOLE		= pahole
- LEX		= flex
- YACC		= bison
-@@ -472,7 +473,7 @@ GCC_PLUGINS_CFLAGS :=
- CLANG_FLAGS :=
+diff --git a/drivers/media/pci/ttpci/budget-core.c b/drivers/media/pci/ttpci/budget-core.c
+index fadbdeeb44955..293867b9e7961 100644
+--- a/drivers/media/pci/ttpci/budget-core.c
++++ b/drivers/media/pci/ttpci/budget-core.c
+@@ -369,20 +369,25 @@ static int budget_register(struct budget *budget)
+ 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->hw_frontend);
  
- export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
--export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE PAHOLE LEX YACC AWK INSTALLKERNEL
-+export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF PAHOLE LEX YACC AWK INSTALLKERNEL
- export PERL PYTHON PYTHON2 PYTHON3 CHECK CHECKFLAGS MAKE UTS_MACHINE HOSTCXX
- export KBUILD_HOSTCXXFLAGS KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS LDFLAGS_MODULE
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
  
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -102,7 +102,7 @@ vmlinux-objs-$(CONFIG_EFI_MIXED) += $(ob
- quiet_cmd_check_data_rel = DATAREL $@
- define cmd_check_data_rel
- 	for obj in $(filter %.o,$^); do \
--		${CROSS_COMPILE}readelf -S $$obj | grep -qF .rel.local && { \
-+		$(READELF) -S $$obj | grep -qF .rel.local && { \
- 			echo "error: $$obj has data relocations!" >&2; \
- 			exit 1; \
- 		} || true; \
+ 	budget->mem_frontend.source = DMX_MEMORY_FE;
+ 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->mem_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
+ 
+ 	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &budget->hw_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
+ 
+ 	dvb_net_init(&budget->dvb_adapter, &budget->dvb_net, &dvbdemux->dmx);
+ 
+ 	return 0;
++
++err_release_dmx:
++	dvb_dmxdev_release(&budget->dmxdev);
++	dvb_dmx_release(&budget->demux);
++	return ret;
+ }
+ 
+ static void budget_unregister(struct budget *budget)
+-- 
+2.25.1
+
 
 
