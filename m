@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BFE24FA84
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BB824FA7C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgHXJ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
+        id S1728104AbgHXIf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:35:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728084AbgHXIfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:19 -0400
+        id S1728098AbgHXIf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:35:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2571E206F0;
-        Mon, 24 Aug 2020 08:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB6982177B;
+        Mon, 24 Aug 2020 08:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258118;
-        bh=P4hYlXuCrt4vYT4MbhM81oT38igvQ0iujDFHaqGZrHk=;
+        s=default; t=1598258126;
+        bh=cBWRrPXAZq+OpXD8QP6SeV0mkgjHFxpB8eaf/FyXlsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+Vj6uxnJFqJajXEc2ZeQcz1VjUeuicoSkLpOKW4f1crnX64ePNtFUET6xuo3brB1
-         mgJSChfeTyd5gnIYZt3S/4KzWtiNfKPT5mHy0K4YT8A1snEGWg5DGwxVbDOh4cYrk3
-         3qDNegzIqvvwClr7N7X4OKF/Qap+ZmRyHIPxdutY=
+        b=WJFSsMCFh/iBFMfexXySvZ68oE02IrFOOB+Rx7nMphu+UI30IRsB+/B9hxalbXmtN
+         a1p+s5PIy6K2vOnP2IBJmlKzenUrpG86/yWXRAyCnfkVJ0y5fDv/tOWGyqeM+omHhW
+         TKscMGEgYC5brmC9b3/V1G3XITgjTKWkZyZOZ5j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinyang He <hejinyang@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 054/148] MIPS: Fix unable to reserve memory for Crash kernel
-Date:   Mon, 24 Aug 2020 10:29:12 +0200
-Message-Id: <20200824082416.655262914@linuxfoundation.org>
+Subject: [PATCH 5.8 055/148] m68knommu: fix overwriting of bits in ColdFire V3 cache control
+Date:   Mon, 24 Aug 2020 10:29:13 +0200
+Message-Id: <20200824082416.702919367@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -45,77 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinyang He <hejinyang@loongson.cn>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit b1ce9716f3b5ed3b49badf1f003b9e34b7ead0f9 ]
+[ Upstream commit bdee0e793cea10c516ff48bf3ebb4ef1820a116b ]
 
-Use 0 as the align parameter in memblock_find_in_range() is
-incorrect when we reserve memory for Crash kernel.
+The Cache Control Register (CACR) of the ColdFire V3 has bits that
+control high level caching functions, and also enable/disable the use
+of the alternate stack pointer register (the EUSP bit) to provide
+separate supervisor and user stack pointer registers. The code as
+it is today will blindly clear the EUSP bit on cache actions like
+invalidation. So it is broken for this case - and that will result
+in failed booting (interrupt entry and exit processing will be
+completely hosed).
 
-The environment as follows:
-[    0.000000] MIPS: machine is loongson,loongson64c-4core-rs780e
-...
-[    1.951016]     crashkernel=64M@128M
+This only affects ColdFire V3 parts that support the alternate stack
+register (like the 5329 for example) - generally speaking new parts do,
+older parts don't. It has no impact on ColdFire V3 parts with the single
+stack pointer, like the 5307 for example.
 
-The warning as follows:
-[    0.000000] Invalid memory region reserved for crash kernel
+Fix the cache bit defines used, so they maintain the EUSP bit when
+carrying out cache actions through the CACR register.
 
-And the iomem as follows:
-00200000-0effffff : System RAM
-  04000000-0484009f : Kernel code
-  048400a0-04ad7fff : Kernel data
-  04b40000-05c4c6bf : Kernel bss
-1a000000-1bffffff : pci@1a000000
-...
-
-The align parameter may be finally used by round_down() or round_up().
-Like the following call tree:
-
-mips-next: mm/memblock.c
-
-memblock_find_in_range
-└── memblock_find_in_range_node
-    ├── __memblock_find_range_bottom_up
-    │   └── round_up
-    └── __memblock_find_range_top_down
-        └── round_down
-\#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
-\#define round_down(x, y) ((x) & ~__round_mask(x, y))
-\#define __round_mask(x, y) ((__typeof__(x))((y)-1))
-
-The round_down(or round_up)'s second parameter must be a power of 2.
-If the second parameter is 0, it both will return 0.
-
-Use 1 as the parameter to fix the bug and the iomem as follows:
-00200000-0effffff : System RAM
-  04000000-0484009f : Kernel code
-  048400a0-04ad7fff : Kernel data
-  04b40000-05c4c6bf : Kernel bss
-  08000000-0bffffff : Crash kernel
-1a000000-1bffffff : pci@1a000000
-...
-
-Signed-off-by: Jinyang He <hejinyang@loongson.cn>
-Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/setup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/include/asm/m53xxacr.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-index 7b537fa2035df..588b21245e00b 100644
---- a/arch/mips/kernel/setup.c
-+++ b/arch/mips/kernel/setup.c
-@@ -497,7 +497,7 @@ static void __init mips_parse_crashkernel(void)
- 	if (ret != 0 || crash_size <= 0)
- 		return;
+diff --git a/arch/m68k/include/asm/m53xxacr.h b/arch/m68k/include/asm/m53xxacr.h
+index 9138a624c5c81..692f90e7fecc1 100644
+--- a/arch/m68k/include/asm/m53xxacr.h
++++ b/arch/m68k/include/asm/m53xxacr.h
+@@ -89,9 +89,9 @@
+  * coherency though in all cases. And for copyback caches we will need
+  * to push cached data as well.
+  */
+-#define CACHE_INIT	  CACR_CINVA
+-#define CACHE_INVALIDATE  CACR_CINVA
+-#define CACHE_INVALIDATED CACR_CINVA
++#define CACHE_INIT        (CACHE_MODE + CACR_CINVA - CACR_EC)
++#define CACHE_INVALIDATE  (CACHE_MODE + CACR_CINVA)
++#define CACHE_INVALIDATED (CACHE_MODE + CACR_CINVA)
  
--	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 0)) {
-+	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 1)) {
- 		pr_warn("Invalid memory region reserved for crash kernel\n");
- 		return;
- 	}
+ #define ACR0_MODE	((CONFIG_RAMBASE & 0xff000000) + \
+ 			 (0x000f0000) + \
 -- 
 2.25.1
 
