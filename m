@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FDD24F595
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813D824F5D1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729384AbgHXIuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55170 "EHLO mail.kernel.org"
+        id S1730241AbgHXIxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729607AbgHXIuy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:54 -0400
+        id S1730223AbgHXIxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:53:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE89B204FD;
-        Mon, 24 Aug 2020 08:50:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12A5F204FD;
+        Mon, 24 Aug 2020 08:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259053;
-        bh=23jSKgFE8nzqENMj08L9XbILRzX98G4LYfw6qUC1X/I=;
+        s=default; t=1598259224;
+        bh=PVuC6BtgTWICLEcYnPY67lwjkJ9k87Xnc1OnA04daI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quk6XDVgY0z1kaBQ02j9MUPOErmxkztWbRMiM7m3Tc+D7kbi5clccPEBwgIxSPRqp
-         kE7KeBxAjO0gFcaTXioLptOYxt8NRBH6scvmXvjXe59dmirkUaCpbf3sGNT7JaKEBF
-         UwoLJTMh3JiejL1SntO56G9mXFaAWjQnjgrqLo5Q=
+        b=b2nrw24yospkOP2m/Duj3vkvhyQl046bezBRycMzWDaNETKRSlEBTHLM4t06gTVaa
+         zcMQmbvrmv7mEPhei4j6/bqag4iuoT8Qouq9qMJNnRMVHGW5SfitUY+21ln9cyNt9r
+         VXP5Bgn3F/GJkbFo7hDrrgJhEPkuwhu8aKbnuEWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Vinayak Menon <vinmenon@codeaurora.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 13/33] mm, page_alloc: fix core hung in free_pcppages_bulk()
-Date:   Mon, 24 Aug 2020 10:31:09 +0200
-Message-Id: <20200824082347.190133065@linuxfoundation.org>
+        stable@vger.kernel.org, Luciano Chavez <chavez@us.ibm.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/50] btrfs: inode: fix NULL pointer dereference if inode doesnt need compression
+Date:   Mon, 24 Aug 2020 10:31:11 +0200
+Message-Id: <20200824082352.421975113@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
-References: <20200824082346.498653578@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,100 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 88e8ac11d2ea3acc003cf01bb5a38c8aa76c3cfd upstream.
+[ Upstream commit 1e6e238c3002ea3611465ce5f32777ddd6a40126 ]
 
-The following race is observed with the repeated online, offline and a
-delay between two successive online of memory blocks of movable zone.
+[BUG]
+There is a bug report of NULL pointer dereference caused in
+compress_file_extent():
 
-P1						P2
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Workqueue: btrfs-delalloc btrfs_delalloc_helper [btrfs]
+  NIP [c008000006dd4d34] compress_file_range.constprop.41+0x75c/0x8a0 [btrfs]
+  LR [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs]
+  Call Trace:
+  [c000000c69093b00] [c008000006dd4d1c] compress_file_range.constprop.41+0x744/0x8a0 [btrfs] (unreliable)
+  [c000000c69093bd0] [c008000006dd4ebc] async_cow_start+0x44/0xa0 [btrfs]
+  [c000000c69093c10] [c008000006e14824] normal_work_helper+0xdc/0x598 [btrfs]
+  [c000000c69093c80] [c0000000001608c0] process_one_work+0x2c0/0x5b0
+  [c000000c69093d10] [c000000000160c38] worker_thread+0x88/0x660
+  [c000000c69093db0] [c00000000016b55c] kthread+0x1ac/0x1c0
+  [c000000c69093e20] [c00000000000b660] ret_from_kernel_thread+0x5c/0x7c
+  ---[ end trace f16954aa20d822f6 ]---
 
-Online the first memory block in
-the movable zone. The pcp struct
-values are initialized to default
-values,i.e., pcp->high = 0 &
-pcp->batch = 1.
+[CAUSE]
+For the following execution route of compress_file_range(), it's
+possible to hit NULL pointer dereference:
 
-					Allocate the pages from the
-					movable zone.
+ compress_file_extent()
+ |- pages = NULL;
+ |- start = async_chunk->start = 0;
+ |- end = async_chunk = 4095;
+ |- nr_pages = 1;
+ |- inode_need_compress() == false; <<< Possible, see later explanation
+ |  Now, we have nr_pages = 1, pages = NULL
+ |- cont:
+ |- 		ret = cow_file_range_inline();
+ |- 		if (ret <= 0) {
+ |-		for (i = 0; i < nr_pages; i++) {
+ |-			WARN_ON(pages[i]->mapping);	<<< Crash
 
-Try to Online the second memory
-block in the movable zone thus it
-entered the online_pages() but yet
-to call zone_pcp_update().
-					This process is entered into
-					the exit path thus it tries
-					to release the order-0 pages
-					to pcp lists through
-					free_unref_page_commit().
-					As pcp->high = 0, pcp->count = 1
-					proceed to call the function
-					free_pcppages_bulk().
-Update the pcp values thus the
-new pcp values are like, say,
-pcp->high = 378, pcp->batch = 63.
-					Read the pcp's batch value using
-					READ_ONCE() and pass the same to
-					free_pcppages_bulk(), pcp values
-					passed here are, batch = 63,
-					count = 1.
+To enter above call execution branch, we need the following race:
 
-					Since num of pages in the pcp
-					lists are less than ->batch,
-					then it will stuck in
-					while(list_empty(list)) loop
-					with interrupts disabled thus
-					a core hung.
+    Thread 1 (chattr)     |            Thread 2 (writeback)
+--------------------------+------------------------------
+                          | btrfs_run_delalloc_range
+                          | |- inode_need_compress = true
+                          | |- cow_file_range_async()
+btrfs_ioctl_set_flag()    |
+|- binode_flags |=        |
+   BTRFS_INODE_NOCOMPRESS |
+                          | compress_file_range()
+                          | |- inode_need_compress = false
+                          | |- nr_page = 1 while pages = NULL
+                          | |  Then hit the crash
 
-Avoid this by ensuring free_pcppages_bulk() is called with proper count of
-pcp list pages.
+[FIX]
+This patch will fix it by checking @pages before doing accessing it.
+This patch is only designed as a hot fix and easy to backport.
 
-The mentioned race is some what easily reproducible without [1] because
-pcp's are not updated for the first memory block online and thus there is
-a enough race window for P2 between alloc+free and pcp struct values
-update through onlining of second memory block.
+More elegant fix may make btrfs only check inode_need_compress() once to
+avoid such race, but that would be another story.
 
-With [1], the race still exists but it is very narrow as we update the pcp
-struct values for the first memory block online itself.
-
-This is not limited to the movable zone, it could also happen in cases
-with the normal zone (e.g., hotplug to a node that only has DMA memory, or
-no other memory yet).
-
-[1]: https://patchwork.kernel.org/patch/11696389/
-
-Fixes: 5f8dcc21211a ("page-allocator: split per-cpu list into one-list-per-migrate-type")
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Vinayak Menon <vinmenon@codeaurora.org>
-Cc: <stable@vger.kernel.org> [2.6+]
-Link: http://lkml.kernel.org/r/1597150703-19003-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Luciano Chavez <chavez@us.ibm.com>
+Fixes: 4d3a800ebb12 ("btrfs: merge nr_pages input and output parameter in compress_pages")
+CC: stable@vger.kernel.org # 4.14.x: cecc8d9038d16: btrfs: Move free_pages_out label in inline extent handling branch in compress_file_range
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/inode.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -843,6 +843,11 @@ static void free_pcppages_bulk(struct zo
- 	if (nr_scanned)
- 		__mod_zone_page_state(zone, NR_PAGES_SCANNED, -nr_scanned);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index dc520749f51db..17856e92b93d1 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -630,11 +630,18 @@ cont:
+ 							       start,
+ 							       end - start + 1);
  
-+	/*
-+	 * Ensure proper count is passed which otherwise would stuck in the
-+	 * below while (list_empty(list)) loop.
-+	 */
-+	count = min(pcp->count, count);
- 	while (to_free) {
- 		struct page *page;
- 		struct list_head *list;
+-			for (i = 0; i < nr_pages; i++) {
+-				WARN_ON(pages[i]->mapping);
+-				put_page(pages[i]);
++			/*
++			 * Ensure we only free the compressed pages if we have
++			 * them allocated, as we can still reach here with
++			 * inode_need_compress() == false.
++			 */
++			if (pages) {
++				for (i = 0; i < nr_pages; i++) {
++					WARN_ON(pages[i]->mapping);
++					put_page(pages[i]);
++				}
++				kfree(pages);
+ 			}
+-			kfree(pages);
+ 
+ 			return;
+ 		}
+-- 
+2.25.1
+
 
 
