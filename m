@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7645F24F92E
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E88624FA96
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729191AbgHXIou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:44:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
+        id S1727875AbgHXJ5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729188AbgHXIot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:49 -0400
+        id S1726698AbgHXIev (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC12A2075B;
-        Mon, 24 Aug 2020 08:44:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ECD8207D3;
+        Mon, 24 Aug 2020 08:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258689;
-        bh=0X30z4DisFwYl98Ju+BD1ok+cOtQCvoLeVdz63zHFcc=;
+        s=default; t=1598258090;
+        bh=TEnAfCRFKqzWR8b/LmW6mBYUZ01Boo0wZb54NQoT21g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nixB199saqFE7ViAhRDWlhbp0E6+FRMMWygLWYNws2goqp+askXE+tkmGw078HOdO
-         9seAlF+TY5ei50Q/Byd73ZVnOyBZRsVDiUbUwr2G0cP1nUoKC9k3q/EpmgcGKhJHUj
-         eZDEDl/yndYNpf1gmj7XKkNNamCYB72txLOo3C5c=
+        b=FPwgfWA4h4XBgqZ4mNNIPJvJtX/NloZ5uSkqx9l0b/0t4HDMJ9KoKLfv03JIAa+Ag
+         Z4VjcGnOjEPgXCwCByLHdlbsqCtV18SAd8VTYroX/tUEtQj0OxubVFE+uI579sGkWv
+         ohSv32cuH6lEzTUeusc7YAJOAB1CmSsa1dLhM+Gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.4 003/107] net: wan: wanxl: use allow to pass CROSS_COMPILE_M68k for rebuilding firmware
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Laurent Vivier <laurent@vivier.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 071/148] fs/signalfd.c: fix inconsistent return codes for signalfd4
 Date:   Mon, 24 Aug 2020 10:29:29 +0200
-Message-Id: <20200824082405.197958066@linuxfoundation.org>
+Message-Id: <20200824082417.477038233@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 63b903dfebdea92aa92ad337d8451a6fbfeabf9d upstream.
+[ Upstream commit a089e3fd5a82aea20f3d9ec4caa5f4c65cc2cfcc ]
 
-As far as I understood from the Kconfig help text, this build rule is
-used to rebuild the driver firmware, which runs on an old m68k-based
-chip. So, you need m68k tools for the firmware rebuild.
+The kernel signalfd4() syscall returns different error codes when called
+either in compat or native mode.  This behaviour makes correct emulation
+in qemu and testing programs like LTP more complicated.
 
-wanxl.c is a PCI driver, but CONFIG_M68K does not select CONFIG_HAVE_PCI.
-So, you cannot enable CONFIG_WANXL_BUILD_FIRMWARE for ARCH=m68k. In other
-words, ifeq ($(ARCH),m68k) is false here.
+Fix the code to always return -in both modes- EFAULT for unaccessible user
+memory, and EINVAL when called with an invalid signal mask.
 
-I am keeping the dead code for now, but rebuilding the firmware requires
-'as68k' and 'ld68k', which I do not have in hand.
-
-Instead, the kernel.org m68k GCC [1] successfully built it.
-
-Allowing a user to pass in CROSS_COMPILE_M68K= is handier.
-
-[1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/9.2.0/x86_64-gcc-9.2.0-nolibc-m68k-linux.tar.xz
-
-Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Laurent Vivier <laurent@vivier.eu>
+Link: http://lkml.kernel.org/r/20200530100707.GA10159@ls3530.fritz.box
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/Kconfig  |    2 +-
- drivers/net/wan/Makefile |   12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ fs/signalfd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wan/Kconfig
-+++ b/drivers/net/wan/Kconfig
-@@ -200,7 +200,7 @@ config WANXL_BUILD_FIRMWARE
- 	depends on WANXL && !PREVENT_FIRMWARE_BUILD
- 	help
- 	  Allows you to rebuild firmware run by the QUICC processor.
--	  It requires as68k, ld68k and hexdump programs.
-+	  It requires m68k toolchains and hexdump programs.
+diff --git a/fs/signalfd.c b/fs/signalfd.c
+index 44b6845b071c3..5b78719be4455 100644
+--- a/fs/signalfd.c
++++ b/fs/signalfd.c
+@@ -314,9 +314,10 @@ SYSCALL_DEFINE4(signalfd4, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
  
- 	  You should never need this option, say N.
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, flags);
+ }
  
---- a/drivers/net/wan/Makefile
-+++ b/drivers/net/wan/Makefile
-@@ -40,17 +40,17 @@ $(obj)/wanxl.o:	$(obj)/wanxlfw.inc
+@@ -325,9 +326,10 @@ SYSCALL_DEFINE3(signalfd, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
  
- ifeq ($(CONFIG_WANXL_BUILD_FIRMWARE),y)
- ifeq ($(ARCH),m68k)
--  AS68K = $(AS)
--  LD68K = $(LD)
-+  M68KAS = $(AS)
-+  M68KLD = $(LD)
- else
--  AS68K = as68k
--  LD68K = ld68k
-+  M68KAS = $(CROSS_COMPILE_M68K)as
-+  M68KLD = $(CROSS_COMPILE_M68K)ld
- endif
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, 0);
+ }
  
- quiet_cmd_build_wanxlfw = BLD FW  $@
-       cmd_build_wanxlfw = \
--	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(AS68K) -m68360 -o $(obj)/wanxlfw.o; \
--	$(LD68K) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
-+	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(M68KAS) -m68360 -o $(obj)/wanxlfw.o; \
-+	$(M68KLD) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
- 	hexdump -ve '"\n" 16/1 "0x%02X,"' $(obj)/wanxlfw.bin | sed 's/0x  ,//g;1s/^/static const u8 firmware[]={/;$$s/,$$/\n};\n/' >$(obj)/wanxlfw.inc; \
- 	rm -f $(obj)/wanxlfw.bin $(obj)/wanxlfw.o
- 
+-- 
+2.25.1
+
 
 
