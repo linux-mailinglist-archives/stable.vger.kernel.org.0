@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E823424F835
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5505824F85A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729113AbgHXIwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:52:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57566 "EHLO mail.kernel.org"
+        id S1728037AbgHXIuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:50:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730019AbgHXIwA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:00 -0400
+        id S1728307AbgHXIus (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62955207D3;
-        Mon, 24 Aug 2020 08:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D837204FD;
+        Mon, 24 Aug 2020 08:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259118;
-        bh=W0iroQE4sgg+hF4wt0GaVuoyaIql3NeH0s7367c1cMA=;
+        s=default; t=1598259047;
+        bh=nstCH6mn71s6+t+b0/T4hwQQsqc+bqiv7+SPeqwEVLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hW4Ag+Z1cwECXJu/qmDVORit2wdpMpxmVGkZELyx295R9Q9pW28v22dG5/VATrLW1
-         GNkMwRSn69JsYvldBjyshNtzXxL3YGjxg71LY9n11OboYI/mh5P9VD64Fi7Qpcac6w
-         2mxI8RwDBrJPQ0jQTNlZ7V5MVVdf8XZmEpXfSwEo=
+        b=IbAmazxZEmM2z3oDSQb2bvTeaiUdqTa+Wzghv+rNN4uSE6KmRY3zPZBM3FneR0pbO
+         rUtQRWO62hduv4jvBePQJuoR/axGwGICSLGvXUo4+wFQE6i1wjFNpcrrVpu+BcoAyN
+         hfek/5rHZ1ZqGkzUiTkH47nfYy31HLgBwKMp+LSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/39] khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 11/33] romfs: fix uninitialized memory leak in romfs_dev_read()
 Date:   Mon, 24 Aug 2020 10:31:07 +0200
-Message-Id: <20200824082348.899095881@linuxfoundation.org>
+Message-Id: <20200824082347.084399389@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit f3f99d63a8156c7a4a6b20aac22b53c5579c7dc1 ]
+commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
 
-syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
-__khugepaged_enter(): yes, when one thread is about to dump core, has set
-core_state, and is waiting for others, another might do something calling
-__khugepaged_enter(), which now crashes because I lumped the core_state
-test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
-think it's best to lump them together, so just in this exceptional case,
-check mm->mm_users directly instead of khugepaged_test_exit().
+romfs has a superblock field that limits the size of the filesystem; data
+beyond that limit is never accessed.
 
-Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
+romfs_dev_read() fetches a caller-supplied number of bytes from the
+backing device.  It returns 0 on success or an error code on failure;
+therefore, its API can't represent short reads, it's all-or-nothing.
+
+However, when romfs_dev_read() detects that the requested operation would
+cross the filesystem size limit, it currently silently truncates the
+requested number of bytes.  This e.g.  means that when the content of a
+file with size 0x1000 starts one byte before the filesystem size limit,
+->readpage() will only fill a single byte of the supplied page while
+leaving the rest uninitialized, leaking that uninitialized memory to
+userspace.
+
+Fix it by returning an error code instead of truncating the read when the
+requested read operation would go beyond the end of the filesystem.
+
+Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/khugepaged.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/romfs/storage.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index f4ed056d9f863..1538e5e5c628a 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -404,7 +404,7 @@ int __khugepaged_enter(struct mm_struct *mm)
- 		return -ENOMEM;
+--- a/fs/romfs/storage.c
++++ b/fs/romfs/storage.c
+@@ -221,10 +221,8 @@ int romfs_dev_read(struct super_block *s
+ 	size_t limit;
  
- 	/* __khugepaged_exit() must not run from under us */
--	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
-+	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
- 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
- 		free_mm_slot(mm_slot);
- 		return 0;
--- 
-2.25.1
-
+ 	limit = romfs_maxsize(sb);
+-	if (pos >= limit)
++	if (pos >= limit || buflen > limit - pos)
+ 		return -EIO;
+-	if (buflen > limit - pos)
+-		buflen = limit - pos;
+ 
+ #ifdef CONFIG_ROMFS_ON_MTD
+ 	if (sb->s_mtd)
 
 
