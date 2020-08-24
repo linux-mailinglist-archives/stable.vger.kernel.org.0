@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D0624F5E9
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB5D24F644
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730386AbgHXIzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S1730757AbgHXI6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:58:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729505AbgHXIzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:55:00 -0400
+        id S1730320AbgHXI6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:58:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 405D7204FD;
-        Mon, 24 Aug 2020 08:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72CE2208E4;
+        Mon, 24 Aug 2020 08:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259299;
-        bh=9fAn6yvTNYRybXEOoUFrVTBvErh/xKIBcFay/eU4W7w=;
+        s=default; t=1598259491;
+        bh=EDnv/XnL0MJacWiTODYRVvo+m/BqQm2xWEw0QsSVgk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCVTJoJg1CCxzXhIrMosXTbpS4Q2QmcOSM2R9HJJABjOhe254xY3pTFLb4e7QBcDH
-         qRZtDUCIx/zCbv4rqcUt1Mjy85QFLPtSatHZ9L1Bf9jiJUWelX+ZmbWbXTC0Rh6Wt4
-         a3UeN8jO0K+qaiIZKQcKyqeTgXTVFpoZDK+5rf1g=
+        b=CgRJPzuvaM98Nag9sQhW6rEAxEBn1CzF2vw4G/Q/wfPi6lABV6guoB+SbinSjW2FR
+         LUIqPjTMQ9qsR02s7AYNGqvqhCBle79yaOnWzi+hIs5JZ3wXbb+q95qWmUfYQJGRay
+         9OHmd/oc8JDDL28zhGch4pZZoCSKlqdwChi0n7Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 48/50] mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/71] RDMA/bnxt_re: Do not add user qps to flushlist
 Date:   Mon, 24 Aug 2020 10:31:49 +0200
-Message-Id: <20200824082354.469722286@linuxfoundation.org>
+Message-Id: <20200824082358.815977982@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream.
+[ Upstream commit a812f2d60a9fb7818f9c81f967180317b52545c0 ]
 
-This is found by code observation only.
+Driver shall add only the kernel qps to the flush list for clean up.
+During async error events from the HW, driver is adding qps to this list
+without checking if the qp is kernel qp or not.
 
-Firstly, the worst case scenario should assume the whole range was covered
-by pmd sharing.  The old algorithm might not work as expected for ranges
-like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
-expected range should be (0, 2g).
+Add a check to avoid user qp addition to the flush list.
 
-Since at it, remove the loop since it should not be required.  With that,
-the new code should be faster too when the invalidating range is huge.
-
-Mike said:
-
-: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
-: adjust to (0, 1g+2m) which is incorrect.
-:
-: We should cc stable.  The original reason for adjusting the range was to
-: prevent data corruption (getting wrong page).  Since the range is not
-: always adjusted correctly, the potential for corruption still exists.
-:
-: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
-: is only gong to be called in two cases:
-:
-: 1) for a single page
-: 2) for range == entire vma
-:
-: In those cases, the current code should produce the correct results.
-:
-: To be safe, let's just cc stable.
-
-Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 942c9b6ca8de ("RDMA/bnxt_re: Avoid Hard lockup during error CQE processing")
+Fixes: c50866e2853a ("bnxt_re: fix the regression due to changes in alloc_pbl")
+Link: https://lore.kernel.org/r/1596689148-4023-1-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/bnxt_re/main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4575,25 +4575,21 @@ static bool vma_shareable(struct vm_area
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
- {
--	unsigned long check_addr = *start;
-+	unsigned long a_start, a_end;
+diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
+index 589b0d4677d52..f1b666c80f368 100644
+--- a/drivers/infiniband/hw/bnxt_re/main.c
++++ b/drivers/infiniband/hw/bnxt_re/main.c
+@@ -753,7 +753,8 @@ static int bnxt_re_handle_qp_async_event(struct creq_qp_event *qp_event,
+ 	struct ib_event event;
+ 	unsigned int flags;
  
- 	if (!(vma->vm_flags & VM_MAYSHARE))
- 		return;
- 
--	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
--		unsigned long a_start = check_addr & PUD_MASK;
--		unsigned long a_end = a_start + PUD_SIZE;
-+	/* Extend the range to be PUD aligned for a worst case scenario */
-+	a_start = ALIGN_DOWN(*start, PUD_SIZE);
-+	a_end = ALIGN(*end, PUD_SIZE);
- 
--		/*
--		 * If sharing is possible, adjust start/end if necessary.
--		 */
--		if (range_in_vma(vma, a_start, a_end)) {
--			if (a_start < *start)
--				*start = a_start;
--			if (a_end > *end)
--				*end = a_end;
--		}
--	}
-+	/*
-+	 * Intersect the range with the vma range, since pmd sharing won't be
-+	 * across vma after all
-+	 */
-+	*start = max(vma->vm_start, a_start);
-+	*end = min(vma->vm_end, a_end);
- }
- 
- /*
+-	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR) {
++	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR &&
++	    rdma_is_kernel_res(&qp->ib_qp.res)) {
+ 		flags = bnxt_re_lock_cqs(qp);
+ 		bnxt_qplib_add_flush_qp(&qp->qplib_qp);
+ 		bnxt_re_unlock_cqs(qp, flags);
+-- 
+2.25.1
+
 
 
