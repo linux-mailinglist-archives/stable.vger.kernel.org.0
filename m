@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B51A24F655
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35DA224F5E7
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgHXI67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:58:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45850 "EHLO mail.kernel.org"
+        id S1730355AbgHXIyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730372AbgHXI6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:58:03 -0400
+        id S1730374AbgHXIyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:54:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6078B204FD;
-        Mon, 24 Aug 2020 08:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 309FD204FD;
+        Mon, 24 Aug 2020 08:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259482;
-        bh=l+IlGmVgTkHi1c1y8iGMegmvpD5qjDYAPHHILkNqBvA=;
+        s=default; t=1598259291;
+        bh=DFuCPXtEEz1xu3aZpmT9lVN3B+6ux1rs+YD9CTBmBa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsnT7VFhV2Lh4Rzr2890oBrGI0ewQYEalp8un2ina9ZewFjUf16dDFNthvBybaSPA
-         kJ0wAKEX3j7hNUceXAXkFd0rAQoh5BJQu/9J+NQeBURWsmS4VOuS88PUokbh5UpSRz
-         g1CfCeyzZmIjHWYVDFM/xAEL6ZqQckwURWMXz03k=
+        b=gZ2lQGcnx4KxbjanQLJFkw5yfCHKZupJjei+FS3Z+A1oYI5fJnLlUE8LzXJU6kZlM
+         PZ+2qivZvDIe9mUVQHmptS7KCQ/Z50tn9uTFu4XQQ+0gMc00fswfy5SWJPurnCy5mh
+         XVxxfLN8MseSkiTa4pjZCEn7LZqWg/8yu4UhxnQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/71] kconfig: qconf: fix signal connection to invalid slots
+        stable@vger.kernel.org,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 45/50] powerpc/pseries: Do not initiate shutdown when system is running on UPS
 Date:   Mon, 24 Aug 2020 10:31:46 +0200
-Message-Id: <20200824082358.650771922@linuxfoundation.org>
+Message-Id: <20200824082354.320936419@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
 
-[ Upstream commit d85de3399f97467baa2026fbbbe587850d01ba8a ]
+commit 90a9b102eddf6a3f987d15f4454e26a2532c1c98 upstream.
 
-If you right-click in the ConfigList window, you will see the following
-messages in the console:
+As per PAPR we have to look for both EPOW sensor value and event
+modifier to identify the type of event and take appropriate action.
 
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:888
-QObject::connect:  (sender name:   'config')
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:897
-QObject::connect:  (sender name:   'config')
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:906
-QObject::connect:  (sender name:   'config')
+In LoPAPR v1.1 section 10.2.2 includes table 136 "EPOW Action Codes":
 
-Right, there is no such slot in QAction. I think this is a typo of
-setChecked.
+  SYSTEM_SHUTDOWN 3
 
-Due to this bug, when you toggled the menu "Option->Show Name/Range/Data"
-the state of the context menu was not previously updated. Fix this.
+  The system must be shut down. An EPOW-aware OS logs the EPOW error
+  log information, then schedules the system to be shut down to begin
+  after an OS defined delay internal (default is 10 minutes.)
 
-Fixes: d5d973c3f8a9 ("Port xconfig to Qt5 - Put back some of the old implementation(part 2)")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Then in section 10.3.2.2.8 there is table 146 "Platform Event Log
+Format, Version 6, EPOW Section", which includes the "EPOW Event
+Modifier":
+
+  For EPOW sensor value = 3
+  0x01 = Normal system shutdown with no additional delay
+  0x02 = Loss of utility power, system is running on UPS/Battery
+  0x03 = Loss of system critical functions, system should be shutdown
+  0x04 = Ambient temperature too high
+  All other values = reserved
+
+We have a user space tool (rtas_errd) on LPAR to monitor for
+EPOW_SHUTDOWN_ON_UPS. Once it gets an event it initiates shutdown
+after predefined time. It also starts monitoring for any new EPOW
+events. If it receives "Power restored" event before predefined time
+it will cancel the shutdown. Otherwise after predefined time it will
+shutdown the system.
+
+Commit 79872e35469b ("powerpc/pseries: All events of
+EPOW_SYSTEM_SHUTDOWN must initiate shutdown") changed our handling of
+the "on UPS/Battery" case, to immediately shutdown the system. This
+breaks existing setups that rely on the userspace tool to delay
+shutdown and let the system run on the UPS.
+
+Fixes: 79872e35469b ("powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must initiate shutdown")
+Cc: stable@vger.kernel.org # v4.0+
+Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+[mpe: Massage change log and add PAPR references]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- scripts/kconfig/qconf.cc | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/platforms/pseries/ras.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
-index 294d4329f4810..1ee33d2e15bf8 100644
---- a/scripts/kconfig/qconf.cc
-+++ b/scripts/kconfig/qconf.cc
-@@ -878,7 +878,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowName(bool)));
- 		connect(parent(), SIGNAL(showNameChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showName);
- 		headerPopup->addAction(action);
+--- a/arch/powerpc/platforms/pseries/ras.c
++++ b/arch/powerpc/platforms/pseries/ras.c
+@@ -115,7 +115,6 @@ static void handle_system_shutdown(char
+ 	case EPOW_SHUTDOWN_ON_UPS:
+ 		pr_emerg("Loss of system power detected. System is running on"
+ 			 " UPS/battery. Check RTAS error log for details\n");
+-		orderly_poweroff(true);
+ 		break;
  
-@@ -887,7 +887,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowRange(bool)));
- 		connect(parent(), SIGNAL(showRangeChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showRange);
- 		headerPopup->addAction(action);
- 
-@@ -896,7 +896,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowData(bool)));
- 		connect(parent(), SIGNAL(showDataChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showData);
- 		headerPopup->addAction(action);
- 	}
-@@ -1228,7 +1228,7 @@ QMenu* ConfigInfoView::createStandardContextMenu(const QPoint & pos)
- 
- 	action->setCheckable(true);
- 	connect(action, SIGNAL(toggled(bool)), SLOT(setShowDebug(bool)));
--	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setOn(bool)));
-+	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setChecked(bool)));
- 	action->setChecked(showDebug());
- 	popup->addSeparator();
- 	popup->addAction(action);
--- 
-2.25.1
-
+ 	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
 
 
