@@ -2,105 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4654724FE71
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 15:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C43324FE89
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 15:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgHXNCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 09:02:42 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57318 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726189AbgHXNCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 09:02:42 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07OCYq1w141833;
-        Mon, 24 Aug 2020 09:02:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=fIp8RUpwJMp0o6RgRzKqxD/GxlQSQy5lvqbrxwtLA8w=;
- b=WY+72C9l25B0HRlffPVL3R0LB8VlovEYorcNtb9R/Pnhb5+95jLsn2TGv29Uq5F8Pp+u
- TfLfYT88+GS9wWL/ElHZ4+E5n/3cJnWsF+319YBe4GX4iBqWKldPpryASzqtNsEMFYtB
- 71IUZQXXiGQHeAL5S/Bw57m7q/DQqqyNHAUgxiI++EbKioARAIjHa6z8ep8nsJCRYmyd
- +Ea7wHIP83DjZhdJ2lf9ak7KdnmAYlrd4qwlJtOTY9ZLePveKAsxGaS7cA7RbcOHEPUs
- xLLVyyZ8vjhzQyT33Q7PwBdQYub3sAeSAB+HG4Ag7tKVWNc6o7yhvyig7iRIFZY94fNr 2g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3349q90h4f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 09:02:35 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07OCap6U152042;
-        Mon, 24 Aug 2020 09:02:30 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3349q90h2j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 09:02:30 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07OCwKCs008721;
-        Mon, 24 Aug 2020 13:02:27 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 332uk6acgs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 13:02:27 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07OD2P3b32702740
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Aug 2020 13:02:25 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2503D4C058;
-        Mon, 24 Aug 2020 13:02:25 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 924614C050;
-        Mon, 24 Aug 2020 13:02:23 +0000 (GMT)
-Received: from sig-9-65-254-31.ibm.com (unknown [9.65.254.31])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Aug 2020 13:02:23 +0000 (GMT)
-Message-ID: <ccf18096bf715d0eb8f68899c324452a4b044124.camel@linux.ibm.com>
-Subject: Re: [PATCH 10/11] ima: Don't ignore errors from
- crypto_shash_update()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Mon, 24 Aug 2020 09:02:22 -0400
-In-Reply-To: <20200618160458.1579-10-roberto.sassu@huawei.com>
-References: <20200618160329.1263-2-roberto.sassu@huawei.com>
-         <20200618160458.1579-10-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-24_11:2020-08-24,2020-08-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
- adultscore=0 bulkscore=0 mlxscore=0 impostorscore=0 suspectscore=3
- phishscore=0 mlxlogscore=909 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2006250000 definitions=main-2008240099
+        id S1726008AbgHXNHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 09:07:17 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:43639 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbgHXNHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 09:07:17 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id A30383C0579;
+        Mon, 24 Aug 2020 15:07:13 +0200 (CEST)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id rS9E865DscdH; Mon, 24 Aug 2020 15:07:08 +0200 (CEST)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 920423C0016;
+        Mon, 24 Aug 2020 15:07:08 +0200 (CEST)
+Received: from lxhi-065.adit-jv.com (10.72.94.3) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 24 Aug
+ 2020 15:07:08 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Dongli Zhang <dongli.zhang@oracle.com>
+CC:     Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, <linux-mm@kvack.org>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH v2] mm: slub: fix conversion of freelist_corrupted()
+Date:   Mon, 24 Aug 2020 15:06:43 +0200
+Message-ID: <20200824130643.10291-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.28.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.94.3]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2020-06-18 at 18:04 +0200, Roberto Sassu wrote:
-> Errors returned by crypto_shash_update() are not checked in
-> ima_calc_boot_aggregate_tfm() and thus can be overwritten at the next
-> iteration of the loop. This patch adds a check after calling
-> crypto_shash_update() and returns immediately if the result is not zero.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 3323eec921efd ("integrity: IMA as an integrity service provider")
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Commit 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in
+deactivate_slab()") suffered an update when picked up from LKML [1].
 
-Verification of the boot_aggregate will fail, but yes this should be
-fixed.  This patch  and the next should be moved up front to the
-beginning of the patch set.
+Specifically, relocating 'freelist = NULL' into 'freelist_corrupted()'
+created a no-op statement. Fix it by sticking to the behavior intended
+in the original patch [1]. In addition, make freelist_corrupted()
+immune to passing NULL instead of &freelist.
 
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+The issue has been spotted via static analysis and code review.
 
-thanks,
+[1] https://lore.kernel.org/linux-mm/20200331031450.12182-1-dongli.zhang@oracle.com/
 
-Mimi
+Fixes: 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in deactivate_slab()")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+---
+
+v2:
+ - Address the review finding from Dongli Zhang in:
+   https://lore.kernel.org/linux-mm/f93a9f06-8608-6f28-27c0-b17f86dca55b@oracle.com/
+
+   -------8<-------
+   This is good to me.
+   However, this would confuse people when CONFIG_SLUB_DEBUG is not defined.
+   While reading the source code, people may be curious why to reset freelist when
+   CONFIG_SLUB_DEBUG is even not defined.
+   -------8<-------
+
+v1:
+ - https://lore.kernel.org/linux-mm/20200811124656.10308-1-erosca@de.adit-jv.com/
+
+ mm/slub.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/mm/slub.c b/mm/slub.c
+index 68c02b2eecd9..d4177aecedf6 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -672,12 +672,12 @@ static void slab_fix(struct kmem_cache *s, char *fmt, ...)
+ }
+ 
+ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
+-			       void *freelist, void *nextfree)
++			       void **freelist, void *nextfree)
+ {
+ 	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
+-	    !check_valid_pointer(s, page, nextfree)) {
+-		object_err(s, page, freelist, "Freechain corrupt");
+-		freelist = NULL;
++	    !check_valid_pointer(s, page, nextfree) && freelist) {
++		object_err(s, page, *freelist, "Freechain corrupt");
++		*freelist = NULL;
+ 		slab_fix(s, "Isolate corrupted freechain");
+ 		return true;
+ 	}
+@@ -1494,7 +1494,7 @@ static inline void dec_slabs_node(struct kmem_cache *s, int node,
+ 							int objects) {}
+ 
+ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
+-			       void *freelist, void *nextfree)
++			       void **freelist, void *nextfree)
+ {
+ 	return false;
+ }
+@@ -2184,7 +2184,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+ 		 * 'freelist' is already corrupted.  So isolate all objects
+ 		 * starting at 'freelist'.
+ 		 */
+-		if (freelist_corrupted(s, page, freelist, nextfree))
++		if (freelist_corrupted(s, page, &freelist, nextfree))
+ 			break;
+ 
+ 		do {
+-- 
+2.28.0
 
