@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C13F924F5C3
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF7324F5EE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730138AbgHXIxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:53:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
+        id S1730034AbgHXIzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729855AbgHXIxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:04 -0400
+        id S1730408AbgHXIzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3532E204FD;
-        Mon, 24 Aug 2020 08:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CACA82072D;
+        Mon, 24 Aug 2020 08:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259183;
-        bh=VyrxVLT2B6bAeYKclJpDgYcMOjJOkTXF9Q4q0rVyOAc=;
+        s=default; t=1598259319;
+        bh=YmMkGDCzuMOp8TtDnyNzcwbeuxefZcMKSq0PW3kxMDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yX8kjW86cFZM46qRn8pYhRHM/KFp/L28eeqpIaSIOLAPxN5z3K6rbLr7ammMTI4gs
-         II9kqGBV5faP+BPKbriKdjktCeVjIhNNuecAFs2mtcv6IWoFi0MUTmbMsImfOyvnEI
-         /lep17Z8jAh/uy5AYLq0z2shUnaGPdbBXvDGFvRk=
+        b=S+rYZVewReyMWJXXAnMGgAOoUnOHXxCaROG2kSvCvEWULsgOFNSWrS+tDkk8egU37
+         unEA+1+DDwTa+lPODl5YdRfkw9MZyqqF9I77RUvCedDwKrQDa9tc+Eb1Sqcr9uUFon
+         jiihtRw6XVlpjPktPxowfdZhCNznhmzQ4FRQo2D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/50] khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 14/71] ext4: fix checking of directory entry validity for inline directories
 Date:   Mon, 24 Aug 2020 10:31:05 +0200
-Message-Id: <20200824082352.096703729@linuxfoundation.org>
+Message-Id: <20200824082356.611465553@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit f3f99d63a8156c7a4a6b20aac22b53c5579c7dc1 ]
+commit 7303cb5bfe845f7d43cd9b2dbd37dbb266efda9b upstream.
 
-syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
-__khugepaged_enter(): yes, when one thread is about to dump core, has set
-core_state, and is waiting for others, another might do something calling
-__khugepaged_enter(), which now crashes because I lumped the core_state
-test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
-think it's best to lump them together, so just in this exceptional case,
-check mm->mm_users directly instead of khugepaged_test_exit().
+ext4_search_dir() and ext4_generic_delete_entry() can be called both for
+standard director blocks and for inline directories stored inside inode
+or inline xattr space. For the second case we didn't call
+ext4_check_dir_entry() with proper constraints that could result in
+accepting corrupted directory entry as well as false positive filesystem
+errors like:
 
-Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+EXT4-fs error (device dm-0): ext4_search_dir:1395: inode #28320400:
+block 113246792: comm dockerd: bad entry in directory: directory entry too
+close to block end - offset=0, inode=28320403, rec_len=32, name_len=8,
+size=4096
+
+Fix the arguments passed to ext4_check_dir_entry().
+
+Fixes: 109ba779d6cc ("ext4: check for directory entries too close to block end")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200731162135.8080-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/khugepaged.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index a1b7475c05d04..9dfe364d4c0d1 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -407,7 +407,7 @@ int __khugepaged_enter(struct mm_struct *mm)
- 		return -ENOMEM;
- 
- 	/* __khugepaged_exit() must not run from under us */
--	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
-+	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
- 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
- 		free_mm_slot(mm_slot);
- 		return 0;
--- 
-2.25.1
-
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1309,8 +1309,8 @@ int ext4_search_dir(struct buffer_head *
+ 		    ext4_match(fname, de)) {
+ 			/* found a match - just to be sure, do
+ 			 * a full check */
+-			if (ext4_check_dir_entry(dir, NULL, de, bh, bh->b_data,
+-						 bh->b_size, offset))
++			if (ext4_check_dir_entry(dir, NULL, de, bh, search_buf,
++						 buf_size, offset))
+ 				return -1;
+ 			*res_dir = de;
+ 			return 1;
+@@ -2344,7 +2344,7 @@ int ext4_generic_delete_entry(handle_t *
+ 	de = (struct ext4_dir_entry_2 *)entry_buf;
+ 	while (i < buf_size - csum_size) {
+ 		if (ext4_check_dir_entry(dir, NULL, de, bh,
+-					 bh->b_data, bh->b_size, i))
++					 entry_buf, buf_size, i))
+ 			return -EFSCORRUPTED;
+ 		if (de == de_del)  {
+ 			if (pde)
 
 
