@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E442504B3
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8DEE2504AD
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbgHXRG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S1727014AbgHXRGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbgHXQia (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728428AbgHXQia (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:38:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD17922D6F;
-        Mon, 24 Aug 2020 16:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21CEA22DCC;
+        Mon, 24 Aug 2020 16:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287080;
-        bh=pDSFRSTQwnciu5Fe9o6G+gZ7lzOqtlB0ZrjDnXzhTZM=;
+        s=default; t=1598287081;
+        bh=yPaioRTnmqK2dwTb0FtvPCcfUxc6Z2ND0GZZr19QrpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGBYzxhvKE6YyY4gRKBUDPbdBgRwong+SZXY1XdqFTNQlp/Y3aoPsmCjnCIXjuc55
-         fNAcL2o133vX56+WeQZOF+XtLALU3A7Em8Im2lJ1wOpv5SymnpQ9Dk1JYRVdFDkbcJ
-         WyDBbipBUlqQefmAkPIosVmOog0W1k19bnob/1Ss=
+        b=Ki/S+Ra/RFIu2klP5VM4joWLlO+W6G1pltBgbmV4Y/RQj/R0DTlQFDK1Zx01SM1U5
+         5rN0+jWiV3ot46RqiuFbJ3y52G69WaJPZplB3i8Z/+il8OMu90PkJFASe8LRXOQocj
+         45U5v0KwjvTBUpjKC+J/P4+qdTzEqgNixY8895Wk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
         Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
         linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/38] ext4: handle error of ext4_setup_system_zone() on remount
-Date:   Mon, 24 Aug 2020 12:37:19 -0400
-Message-Id: <20200824163751.606577-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/38] ext4: correctly restore system zone info when remount fails
+Date:   Mon, 24 Aug 2020 12:37:20 -0400
+Message-Id: <20200824163751.606577-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -45,35 +45,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit d176b1f62f242ab259ff665a26fbac69db1aecba ]
+[ Upstream commit 0f5bde1db174f6c471f0bd27198575719dabe3e5 ]
 
-ext4_setup_system_zone() can fail. Handle the failure in ext4_remount().
+When remounting filesystem fails late during remount handling and
+block_validity mount option is also changed during the remount, we fail
+to restore system zone information to a state matching the mount option.
+This is mostly harmless, just the block validity checking will not match
+the situation described by the mount option. Make sure these two are always
+consistent.
 
+Reported-by: Lukas Czerner <lczerner@redhat.com>
 Reviewed-by: Lukas Czerner <lczerner@redhat.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-2-jack@suse.cz
+Link: https://lore.kernel.org/r/20200728130437.7804-7-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ext4/block_validity.c |  8 --------
+ fs/ext4/super.c          | 29 +++++++++++++++++++++--------
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
+diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
+index ff8e1205127ee..bbe7773394c4e 100644
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -260,14 +260,6 @@ int ext4_setup_system_zone(struct super_block *sb)
+ 	int flex_size = ext4_flex_bg_size(sbi);
+ 	int ret;
+ 
+-	if (!test_opt(sb, BLOCK_VALIDITY)) {
+-		if (sbi->system_blks)
+-			ext4_release_system_zone(sb);
+-		return 0;
+-	}
+-	if (sbi->system_blks)
+-		return 0;
+-
+ 	system_blks = kzalloc(sizeof(*system_blks), GFP_KERNEL);
+ 	if (!system_blks)
+ 		return -ENOMEM;
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 92a6741c4bdd9..e8923013accc0 100644
+index e8923013accc0..184f2d737efc9 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -5563,7 +5563,10 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+@@ -4563,11 +4563,13 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	ext4_set_resv_clusters(sb);
+ 
+-	err = ext4_setup_system_zone(sb);
+-	if (err) {
+-		ext4_msg(sb, KERN_ERR, "failed to initialize system "
+-			 "zone (%d)", err);
+-		goto failed_mount4a;
++	if (test_opt(sb, BLOCK_VALIDITY)) {
++		err = ext4_setup_system_zone(sb);
++		if (err) {
++			ext4_msg(sb, KERN_ERR, "failed to initialize system "
++				 "zone (%d)", err);
++			goto failed_mount4a;
++		}
+ 	}
+ 
+ 	ext4_ext_init(sb);
+@@ -5563,9 +5565,16 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
  		ext4_register_li_request(sb, first_not_zeroed);
  	}
  
--	ext4_setup_system_zone(sb);
-+	err = ext4_setup_system_zone(sb);
-+	if (err)
-+		goto restore_opts;
-+
+-	err = ext4_setup_system_zone(sb);
+-	if (err)
+-		goto restore_opts;
++	/*
++	 * Handle creation of system zone data early because it can fail.
++	 * Releasing of existing data is done when we are sure remount will
++	 * succeed.
++	 */
++	if (test_opt(sb, BLOCK_VALIDITY) && !sbi->system_blks) {
++		err = ext4_setup_system_zone(sb);
++		if (err)
++			goto restore_opts;
++	}
+ 
  	if (sbi->s_journal == NULL && !(old_sb_flags & SB_RDONLY)) {
  		err = ext4_commit_super(sb, 1);
- 		if (err)
+@@ -5587,6 +5596,8 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		}
+ 	}
+ #endif
++	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
++		ext4_release_system_zone(sb);
+ 
+ 	/*
+ 	 * Some options can be enabled by ext4 and/or by VFS mount flag
+@@ -5608,6 +5619,8 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 	sbi->s_commit_interval = old_opts.s_commit_interval;
+ 	sbi->s_min_batch_time = old_opts.s_min_batch_time;
+ 	sbi->s_max_batch_time = old_opts.s_max_batch_time;
++	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
++		ext4_release_system_zone(sb);
+ #ifdef CONFIG_QUOTA
+ 	sbi->s_jquota_fmt = old_opts.s_jquota_fmt;
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++) {
 -- 
 2.25.1
 
