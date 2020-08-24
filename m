@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DE724F80B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC0C24F836
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730156AbgHXIxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60984 "EHLO mail.kernel.org"
+        id S1729503AbgHXIv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:51:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728534AbgHXIx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:28 -0400
+        id S1730018AbgHXIv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:51:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3D5E207D3;
-        Mon, 24 Aug 2020 08:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C7E22072D;
+        Mon, 24 Aug 2020 08:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259208;
-        bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
+        s=default; t=1598259116;
+        bh=5nk3NJXNopBSzjnj7Lpg8MhVeJiX9H+Pd26H61xczsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xxi4EQf/Hqnu//gHsW4VwgwMHDgu83D4EYu8iTyusifzVwzv6mF7/Klec4Yc4Ukht
-         YsF5/HF2U6zRwUd4hFj9o8K2dZnSPuHLj7Ha0Y4SVsW2KmuDKstX4KQKZ6ZUqB2XFQ
-         xlvv6qPm1sPkWdhq/WBg5+M+oTbzLyqtg1HyrM3Y=
+        b=f6QjgZ6MsLrvuI14TG3qh/hL2qiOpOp9FETNgsy6ZkEV9Mm2WsJbmrIqMFfwZuDuL
+         UOJtzGxKhPnydpE9u/B66sU57GNX9x/3aCLfiOdglj6Wq3KXLRD69HCfxu9lVamPPP
+         pQBxH6vJVTDBGuaj+MZpeAI4WRwN5TuKfSOaYj5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Girish Basrur <gbasrur@marvell.com>,
+        Santosh Vernekar <svernekar@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/50] rtc: goldfish: Enable interrupt in set_alarm() when necessary
-Date:   Mon, 24 Aug 2020 10:31:23 +0200
-Message-Id: <20200824082353.148146093@linuxfoundation.org>
+Subject: [PATCH 4.9 25/39] scsi: libfc: Free skb in fc_disc_gpn_id_resp() for valid cases
+Date:   Mon, 24 Aug 2020 10:31:24 +0200
+Message-Id: <20200824082349.828559262@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
+References: <20200824082348.445866152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
+[ Upstream commit ec007ef40abb6a164d148b0dc19789a7a2de2cc8 ]
 
-When use goldfish rtc, the "hwclock" command fails with "select() to
-/dev/rtc to wait for clock tick timed out". This is because "hwclock"
-need the set_alarm() hook to enable interrupt when alrm->enabled is
-true. This operation is missing in goldfish rtc (but other rtc drivers,
-such as cmos rtc, enable interrupt here), so add it.
+In fc_disc_gpn_id_resp(), skb is supposed to get freed in all cases except
+for PTR_ERR. However, in some cases it didn't.
 
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
+This fix is to call fc_frame_free(fp) before function returns.
+
+Link: https://lore.kernel.org/r/20200729081824.30996-2-jhasan@marvell.com
+Reviewed-by: Girish Basrur <gbasrur@marvell.com>
+Reviewed-by: Santosh Vernekar <svernekar@marvell.com>
+Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-goldfish.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/libfc/fc_disc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
-index a1c44d0c85578..30cbe22c57a8e 100644
---- a/drivers/rtc/rtc-goldfish.c
-+++ b/drivers/rtc/rtc-goldfish.c
-@@ -87,6 +87,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
- 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
- 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
- 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
-+		writel(1, base + TIMER_IRQ_ENABLED);
- 	} else {
- 		/*
- 		 * if this function was called with enabled=0
+diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
+index 880a9068ca126..ef06af4e3611d 100644
+--- a/drivers/scsi/libfc/fc_disc.c
++++ b/drivers/scsi/libfc/fc_disc.c
+@@ -595,8 +595,12 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 	mutex_lock(&disc->disc_mutex);
+ 	if (PTR_ERR(fp) == -FC_EX_CLOSED)
+ 		goto out;
+-	if (IS_ERR(fp))
+-		goto redisc;
++	if (IS_ERR(fp)) {
++		mutex_lock(&disc->disc_mutex);
++		fc_disc_restart(disc);
++		mutex_unlock(&disc->disc_mutex);
++		goto out;
++	}
+ 
+ 	cp = fc_frame_payload_get(fp, sizeof(*cp));
+ 	if (!cp)
+@@ -621,7 +625,7 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 				new_rdata->disc_id = disc->disc_id;
+ 				lport->tt.rport_login(new_rdata);
+ 			}
+-			goto out;
++			goto free_fp;
+ 		}
+ 		rdata->disc_id = disc->disc_id;
+ 		lport->tt.rport_login(rdata);
+@@ -635,6 +639,8 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ redisc:
+ 		fc_disc_restart(disc);
+ 	}
++free_fp:
++	fc_frame_free(fp);
+ out:
+ 	mutex_unlock(&disc->disc_mutex);
+ 	kref_put(&rdata->kref, lport->tt.rport_destroy);
 -- 
 2.25.1
 
