@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1901725058E
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E051250599
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgHXRRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S1727091AbgHXRRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728295AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728298AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:36:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1DF622D08;
-        Mon, 24 Aug 2020 16:35:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8D9722D04;
+        Mon, 24 Aug 2020 16:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286960;
-        bh=jowReR2z/GQ4K4l2WEKj6s2SfpcIYYFpwlZYy/NPzWY=;
+        s=default; t=1598286961;
+        bh=r9HBhZi5uRfTCPjOUZlAFzjcdKyoVIqdk98dp7qcDAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTTkUXVDp+QjkcmjbLWurIK7RdfHAV1q6DfNUHV0UznXqfFkks0/A03ZGyI/wA5fS
-         0MHiPIOXhYiYLeLI/AHrFgLqj/EvlqEr9FmU6iTL/SS55tajvuTleOoQjN2hPb1x4N
-         wZ10+AO2Sk9KR0Tj0o1lst5Ldt30pe5WksSN0j5Y=
+        b=hgBcG/7KD9bulRRhKzF5njETlnlqZvZr8oORAZMQ3eJAQu/lmXi54JMcnhvKFLdBO
+         VwqptH+aebpv8Xrq5NPfFNqyJnTfzOSBnHHO+vEmhsO2lawgX/Ic0kUoT/9+J/uYQl
+         1lZjSNF0B8uJj+9LYkw6rSmEakfQQiWQjCVDXzf0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
+Cc:     Douglas Gilbert <dgilbert@interlog.com>,
+        John Garry <john.garry@huawei.com>,
+        Lee Duncan <lduncan@suse.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 41/63] scsi: ufs: Clean up completed request without interrupt notification
-Date:   Mon, 24 Aug 2020 12:34:41 -0400
-Message-Id: <20200824163504.605538-41-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 42/63] scsi: scsi_debug: Fix scp is NULL errors
+Date:   Mon, 24 Aug 2020 12:34:42 -0400
+Message-Id: <20200824163504.605538-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -48,54 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Douglas Gilbert <dgilbert@interlog.com>
 
-[ Upstream commit b10178ee7fa88b68a9e8adc06534d2605cb0ec23 ]
+[ Upstream commit 223f91b48079227f914657f07d2d686f7b60aa26 ]
 
-If somehow no interrupt notification is raised for a completed request and
-its doorbell bit is cleared by host, UFS driver needs to cleanup its
-outstanding bit in ufshcd_abort(). Otherwise, system may behave abnormally
-in the following scenario:
+John Garry reported 'sdebug_q_cmd_complete: scp is NULL' failures that were
+mainly seen on aarch64 machines (e.g. RPi 4 with four A72 CPUs). The
+problem was tracked down to a missing critical section on a "short circuit"
+path. Namely, the time to process the current command so far has already
+exceeded the requested command duration (i.e. the number of nanoseconds in
+the ndelay parameter).
 
-After ufshcd_abort() returns, this request will be requeued by SCSI layer
-with its outstanding bit set. Any future completed request will trigger
-ufshcd_transfer_req_compl() to handle all "completed outstanding bits". At
-this time the "abnormal outstanding bit" will be detected and the "requeued
-request" will be chosen to execute request post-processing flow. This is
-wrong because this request is still "alive".
+The random=1 parameter setting was pivotal in finding this error.  The
+failure scenario involved first taking that "short circuit" path (due to a
+very short command duration) and then taking the more likely
+hrtimer_start() path (due to a longer command duration). With random=1 each
+command's duration is taken from the uniformly distributed [0..ndelay)
+interval.  The fio utility also helped by reliably generating the error
+scenario at about once per minute on a RPi 4 (64 bit OS).
 
-Link: https://lore.kernel.org/r/20200811141859.27399-2-huobean@gmail.com
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
+Link: https://lore.kernel.org/r/20200813155738.109298-1-dgilbert@interlog.com
+Reported-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 2b449057deb83..796c05e1b0091 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6437,7 +6437,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 			/* command completed already */
- 			dev_err(hba->dev, "%s: cmd at tag %d successfully cleared from DB.\n",
- 				__func__, tag);
--			goto out;
-+			goto cleanup;
- 		} else {
- 			dev_err(hba->dev,
- 				"%s: no response from device. tag = %d, err %d\n",
-@@ -6471,6 +6471,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 		goto out;
- 	}
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index b0d93bf79978f..25faad7f8e617 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -5486,9 +5486,11 @@ static int schedule_resp(struct scsi_cmnd *cmnd, struct sdebug_dev_info *devip,
+ 				u64 d = ktime_get_boottime_ns() - ns_from_boot;
  
-+cleanup:
- 	scsi_dma_unmap(cmd);
- 
- 	spin_lock_irqsave(host->host_lock, flags);
+ 				if (kt <= d) {	/* elapsed duration >= kt */
++					spin_lock_irqsave(&sqp->qc_lock, iflags);
+ 					sqcp->a_cmnd = NULL;
+ 					atomic_dec(&devip->num_in_q);
+ 					clear_bit(k, sqp->in_use_bm);
++					spin_unlock_irqrestore(&sqp->qc_lock, iflags);
+ 					if (new_sd_dp)
+ 						kfree(sd_dp);
+ 					/* call scsi_done() from this thread */
 -- 
 2.25.1
 
