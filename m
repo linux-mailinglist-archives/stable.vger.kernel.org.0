@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C756224F423
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F5A24F424
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbgHXIdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:33:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
+        id S1726959AbgHXIdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726912AbgHXIdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:33:09 -0400
+        id S1726952AbgHXIdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:33:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9DAB2075B;
-        Mon, 24 Aug 2020 08:33:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB24E2075B;
+        Mon, 24 Aug 2020 08:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257988;
-        bh=QJLhiFmJ71vUErRmLcFAlu87A3wqfJJDi4vY+KMfxTw=;
+        s=default; t=1598257991;
+        bh=3zyVuaLG4n6LYqY9mo4GXGzX3bDo1979MFzeLU8gLmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMMpJEtwAy1kG5h7sqH6fF9OHrzV7VxV1DpbsiNF6iRXnp+Cvw4Ki3Qn02rocxqHq
-         YrSfyLMuWBbejGMmOpBn0iDPbVmBP77vt6I5ivfZ5r8CH8YmFufPmgH2eJb5cBaWyb
-         FlIX1RXM9/dtvrgdiVIMD95n51pRyKhdvQaEAh8o=
+        b=iWkbVR7gzQVgLmV0EGG2clRk7e4iqFkQaUjoL29CaDP3XiJ2odJkAeaoAmYg5WQTD
+         QQXpPcNVljF1Isgw/o1ArZ+/ml07nB4nzTqvkyHqReCiYHQLY1ziUqgfF/1aMBVVm2
+         0m2oxQng35GD/uufW8LEwNALortRR8QcQ0hpWdO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Shalini Chellathurai Saroja <shalini@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.8 033/148] s390/pci: fix PF/VF linking on hot plug
-Date:   Mon, 24 Aug 2020 10:28:51 +0200
-Message-Id: <20200824082415.591014237@linuxfoundation.org>
+Subject: [PATCH 5.8 034/148] s390/pci: ignore stale configuration request event
+Date:   Mon, 24 Aug 2020 10:28:52 +0200
+Message-Id: <20200824082415.678255398@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -46,127 +48,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-commit b97bf44f99155e57088e16974afb1f2d7b5287aa upstream.
+commit b76fee1bc56c31a9d2a49592810eba30cc06d61a upstream.
 
-Currently there are four places in which a PCI function is scanned
-and made available to drivers:
- 1. In pci_scan_root_bus() as part of the initial zbus
-    creation.
- 2. In zpci_bus_add_devices() when registering
-    a device in configured state on a zbus that has already been
-    scanned.
- 3. When a function is already known to zPCI (in reserved/standby state)
-    and configuration is triggered through firmware by PEC 0x301.
- 4. When a device is already known to zPCI (in standby/reserved state)
-    and configuration is triggered from within Linux using
-    enable_slot().
+A configuration request event may be stale, that is the event
+may reference a zdev which was already configured.
+This can happen when a hotplug happens during boot such that
+the device is discovered and configured in the initial clp_list_pci(),
+then after initialization we enable events and process
+the original configuration request which additionally still contains
+the old disabled function handle leading to a failure during device
+enablement and subsequent I/O lockout.
 
-The PF/VF linking step and setting of pdev->is_virtfn introduced with
-commit e5794cf1a270 ("s390/pci: create links between PFs and VFs") was
-only triggered for the second case, which is where VFs created through
-sriov_numvfs usually land. However unlike some other platforms but like
-POWER VFs can be individually enabled/disabled through
-/sys/bus/pci/slots.
+Fix this by restoring the check that the device to be configured is in
+standby which was removed in commit f606b3ef47c9 ("s390/pci: adapt events
+for zbus").
 
-Fix this by doing VF setup as part of pcibios_bus_add_device() which is
-called in all of the above cases.
+This check does not need serialization as we only enable the events after
+zPCI has fully initialized, which includes the initial clp_list_pci(),
+rescan only does updates and events are serialized with respect to each
+other.
 
-Finally to remove the PF/VF links call the common code
-pci_iov_remove_virtfn() function to remove linked VFs.
-This takes care of the necessary sysfs cleanup.
-
-Fixes: e5794cf1a270 ("s390/pci: create links between PFs and VFs")
-Cc: <stable@vger.kernel.org> # 5.8: 2f0230b2f2d5: s390/pci: re-introduce zpci_remove_device()
+Fixes: f606b3ef47c9 ("s390/pci: adapt events for zbus")
 Cc: <stable@vger.kernel.org> # 5.8
+Reported-by: Shalini Chellathurai Saroja <shalini@linux.ibm.com>
+Tested-by: Shalini Chellathurai Saroja <shalini@linux.ibm.com>
 Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/pci/pci.c     |    5 ++++-
- arch/s390/pci/pci_bus.c |   27 +++++++++++++++------------
- arch/s390/pci/pci_bus.h |   13 +++++++++++++
- 3 files changed, 32 insertions(+), 13 deletions(-)
+ arch/s390/pci/pci_event.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -678,8 +678,11 @@ void zpci_remove_device(struct zpci_dev
- 	struct pci_dev *pdev;
- 
- 	pdev = pci_get_slot(zbus->bus, zdev->devfn);
--	if (pdev)
-+	if (pdev) {
-+		if (pdev->is_virtfn)
-+			return zpci_remove_virtfn(pdev, zdev->vfn);
- 		pci_stop_and_remove_bus_device_locked(pdev);
-+	}
- }
- 
- int zpci_create_device(struct zpci_dev *zdev)
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -189,6 +189,19 @@ static inline int zpci_bus_setup_virtfn(
- }
- #endif
- 
-+void pcibios_bus_add_device(struct pci_dev *pdev)
-+{
-+	struct zpci_dev *zdev = to_zpci(pdev);
-+
-+	/*
-+	 * With pdev->no_vf_scan the common PCI probing code does not
-+	 * perform PF/VF linking.
-+	 */
-+	if (zdev->vfn)
-+		zpci_bus_setup_virtfn(zdev->zbus, pdev, zdev->vfn);
-+
-+}
-+
- static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- {
- 	struct pci_bus *bus;
-@@ -219,20 +232,10 @@ static int zpci_bus_add_device(struct zp
- 	}
- 
- 	pdev = pci_scan_single_device(bus, zdev->devfn);
--	if (pdev) {
--		if (!zdev->is_physfn) {
--			rc = zpci_bus_setup_virtfn(zbus, pdev, zdev->vfn);
--			if (rc)
--				goto failed_with_pdev;
--		}
-+	if (pdev)
- 		pci_bus_add_device(pdev);
--	}
--	return 0;
- 
--failed_with_pdev:
--	pci_stop_and_remove_bus_device(pdev);
--	pci_dev_put(pdev);
--	return rc;
-+	return 0;
- }
- 
- static void zpci_bus_add_devices(struct zpci_bus *zbus)
---- a/arch/s390/pci/pci_bus.h
-+++ b/arch/s390/pci/pci_bus.h
-@@ -29,3 +29,16 @@ static inline struct zpci_dev *get_zdev_
- 
- 	return (devfn >= ZPCI_FUNCTIONS_PER_BUS) ? NULL : zbus->function[devfn];
- }
-+
-+#ifdef CONFIG_PCI_IOV
-+static inline void zpci_remove_virtfn(struct pci_dev *pdev, int vfn)
-+{
-+
-+	pci_lock_rescan_remove();
-+	/* Linux' vfid's start at 0 vfn at 1 */
-+	pci_iov_remove_virtfn(pdev->physfn, vfn - 1);
-+	pci_unlock_rescan_remove();
-+}
-+#else /* CONFIG_PCI_IOV */
-+static inline void zpci_remove_virtfn(struct pci_dev *pdev, int vfn) {}
-+#endif /* CONFIG_PCI_IOV */
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -92,6 +92,9 @@ static void __zpci_event_availability(st
+ 			ret = clp_add_pci_device(ccdf->fid, ccdf->fh, 1);
+ 			break;
+ 		}
++		/* the configuration request may be stale */
++		if (zdev->state != ZPCI_FN_STATE_STANDBY)
++			break;
+ 		zdev->fh = ccdf->fh;
+ 		zdev->state = ZPCI_FN_STATE_CONFIGURED;
+ 		ret = zpci_enable_device(zdev);
 
 
