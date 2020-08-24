@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E4D924FA6A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C507424F909
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728222AbgHXIgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48206 "EHLO mail.kernel.org"
+        id S1729042AbgHXIpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:45:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728213AbgHXIgG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:36:06 -0400
+        id S1729271AbgHXIpx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:45:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 978C4206F0;
-        Mon, 24 Aug 2020 08:36:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D73C4204FD;
+        Mon, 24 Aug 2020 08:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258166;
-        bh=an6+2DqmminxtMIu4A/ZhdmOYJXJxJgM44v0lI1h1gg=;
+        s=default; t=1598258753;
+        bh=qn5W67PU3paic9mHAi8TpCInYMNn/Zm6XTZxfd0s29c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oG+HE6g7MHTVnqkCbs6v3OsuEpW6z1kvo7Gk+sAiRzz+M7IoJm/hbtlXp31Ns3vhU
-         EWH4QezB6Xswppt+JDAXBa3ZJ+wDfqEi75//wRj9wfUXWs33JodBlf/kJmmWS2Ey8B
-         ukrc8KGLToqJ5ayCkrQNNj2woO9sy+p9rHTR1vcY=
+        b=xy9kcibd7o2bap22Og030He/yEBOj9aaNGb/vOPble6U6aspqOB629DxiFQdOpDnf
+         FOLGVIhZ/mWeUtfDhBOX+oXqEPxqLejO44pDvyRt4qeGgl2NHsxngrQBmS8x8rxiVq
+         QwbEgXslhJwjdjFdUy5AcM18QxR3C83x26lpOqNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 099/148] s390/ptrace: fix storage key handling
-Date:   Mon, 24 Aug 2020 10:29:57 +0200
-Message-Id: <20200824082418.780992297@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 032/107] ext4: fix checking of directory entry validity for inline directories
+Date:   Mon, 24 Aug 2020 10:29:58 +0200
+Message-Id: <20200824082406.706962669@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit fd78c59446b8d050ecf3e0897c5a486c7de7c595 ]
+commit 7303cb5bfe845f7d43cd9b2dbd37dbb266efda9b upstream.
 
-The key member of the runtime instrumentation control block contains
-only the access key, not the complete storage key. Therefore the value
-must be shifted by four bits. Since existing user space does not
-necessarily query and set the access key correctly, just ignore the
-user space provided key and use the correct one.
-Note: this is only relevant for debugging purposes in case somebody
-compiles a kernel with a default storage access key set to a value not
-equal to zero.
+ext4_search_dir() and ext4_generic_delete_entry() can be called both for
+standard director blocks and for inline directories stored inside inode
+or inline xattr space. For the second case we didn't call
+ext4_check_dir_entry() with proper constraints that could result in
+accepting corrupted directory entry as well as false positive filesystem
+errors like:
 
-Fixes: 262832bc5acd ("s390/ptrace: add runtime instrumention register get/set")
-Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+EXT4-fs error (device dm-0): ext4_search_dir:1395: inode #28320400:
+block 113246792: comm dockerd: bad entry in directory: directory entry too
+close to block end - offset=0, inode=28320403, rec_len=32, name_len=8,
+size=4096
+
+Fix the arguments passed to ext4_check_dir_entry().
+
+Fixes: 109ba779d6cc ("ext4: check for directory entries too close to block end")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200731162135.8080-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/kernel/ptrace.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 3cc15c0662983..2924f236d89c6 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -1310,7 +1310,6 @@ static bool is_ri_cb_valid(struct runtime_instr_cb *cb)
- 		cb->pc == 1 &&
- 		cb->qc == 0 &&
- 		cb->reserved2 == 0 &&
--		cb->key == PAGE_DEFAULT_KEY &&
- 		cb->reserved3 == 0 &&
- 		cb->reserved4 == 0 &&
- 		cb->reserved5 == 0 &&
-@@ -1374,7 +1373,11 @@ static int s390_runtime_instr_set(struct task_struct *target,
- 		kfree(data);
- 		return -EINVAL;
- 	}
--
-+	/*
-+	 * Override access key in any case, since user space should
-+	 * not be able to set it, nor should it care about it.
-+	 */
-+	ri_cb.key = PAGE_DEFAULT_KEY >> 4;
- 	preempt_disable();
- 	if (!target->thread.ri_cb)
- 		target->thread.ri_cb = data;
--- 
-2.25.1
-
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1392,8 +1392,8 @@ int ext4_search_dir(struct buffer_head *
+ 		    ext4_match(dir, fname, de)) {
+ 			/* found a match - just to be sure, do
+ 			 * a full check */
+-			if (ext4_check_dir_entry(dir, NULL, de, bh, bh->b_data,
+-						 bh->b_size, offset))
++			if (ext4_check_dir_entry(dir, NULL, de, bh, search_buf,
++						 buf_size, offset))
+ 				return -1;
+ 			*res_dir = de;
+ 			return 1;
+@@ -2462,7 +2462,7 @@ int ext4_generic_delete_entry(handle_t *
+ 	de = (struct ext4_dir_entry_2 *)entry_buf;
+ 	while (i < buf_size - csum_size) {
+ 		if (ext4_check_dir_entry(dir, NULL, de, bh,
+-					 bh->b_data, bh->b_size, i))
++					 entry_buf, buf_size, i))
+ 			return -EFSCORRUPTED;
+ 		if (de == de_del)  {
+ 			if (pde)
 
 
