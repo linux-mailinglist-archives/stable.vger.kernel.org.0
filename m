@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5025624FA68
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A5124F90F
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728210AbgHXIgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47896 "EHLO mail.kernel.org"
+        id S1728019AbgHXJki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:40:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728198AbgHXIgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:36:01 -0400
+        id S1729252AbgHXIpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:45:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8F89206F0;
-        Mon, 24 Aug 2020 08:35:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B22D2072D;
+        Mon, 24 Aug 2020 08:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258160;
-        bh=vFo0tFMRonMA5xJot5VRchBFMbiRh0keaJPlkskQS/M=;
+        s=default; t=1598258744;
+        bh=Oh3umyAlURcds4JmNFmbVOeFnE76pIx3mR/Qxh/CU5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmViKZy/zWHd6b3xkva19FN/frQ8NJ9IqMmeO86FQnPLlbzTovOIS8aMUdbgk+j8P
-         vmwN+C5jlp633OYcEQew8oeRsDVGwTSSRvqsz/dMrqiqA13mIyJiIFUskShI1XJmJX
-         g880vt0pHA0d8yPTqM8Ff9mD1elE3bipesFGcK74=
+        b=h0MI49HxUbLLa8fwnR7zN3f4c3EYnWoZ65C7aitesudSLL5lXW5yl+AMWSQIPkdn/
+         SRNHsS9yzNtBaaGwLAqil9gQfIySbfyynlyXpbK9uWGsPBeKR4skqgCZ1Oo96fGQhj
+         bTn+PUPngTCILjk24+39jYqMHeT5DECAtDRMMH3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 097/148] ipvlan: fix device features
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Jason Baron <jbaron@akamai.com>,
+        David Rientjes <rientjes@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 029/107] mm: include CMA pages in lowmem_reserve at boot
 Date:   Mon, 24 Aug 2020 10:29:55 +0200
-Message-Id: <20200824082418.684820974@linuxfoundation.org>
+Message-Id: <20200824082406.557063413@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,113 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Bandewar <maheshb@google.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit d0f5c7076e01fef6fcb86988d9508bf3ce258bd4 ]
+commit e08d3fdfe2dafa0331843f70ce1ff6c1c4900bf4 upstream.
 
-Processing NETDEV_FEAT_CHANGE causes IPvlan links to lose
-NETIF_F_LLTX feature because of the incorrect handling of
-features in ipvlan_fix_features().
+The lowmem_reserve arrays provide a means of applying pressure against
+allocations from lower zones that were targeted at higher zones.  Its
+values are a function of the number of pages managed by higher zones and
+are assigned by a call to the setup_per_zone_lowmem_reserve() function.
 
---before--
-lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
-tx-lockless: on [fixed]
-lpaa10:~# ethtool -K ipvl0 tso off
-Cannot change tcp-segmentation-offload
-Actual changes:
-vlan-challenged: off [fixed]
-tx-lockless: off [fixed]
-lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
-tx-lockless: off [fixed]
-lpaa10:~#
+The function is initially called at boot time by the function
+init_per_zone_wmark_min() and may be called later by accesses of the
+/proc/sys/vm/lowmem_reserve_ratio sysctl file.
 
---after--
-lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
-tx-lockless: on [fixed]
-lpaa10:~# ethtool -K ipvl0 tso off
-Cannot change tcp-segmentation-offload
-Could not change any device features
-lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
-tx-lockless: on [fixed]
-lpaa10:~#
+The function init_per_zone_wmark_min() was moved up from a module_init to
+a core_initcall to resolve a sequencing issue with khugepaged.
+Unfortunately this created a sequencing issue with CMA page accounting.
 
-Fixes: 2ad7bf363841 ("ipvlan: Initial check-in of the IPVLAN driver.")
-Signed-off-by: Mahesh Bandewar <maheshb@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The CMA pages are added to the managed page count of a zone when
+cma_init_reserved_areas() is called at boot also as a core_initcall.  This
+makes it uncertain whether the CMA pages will be added to the managed page
+counts of their zones before or after the call to
+init_per_zone_wmark_min() as it becomes dependent on link order.  With the
+current link order the pages are added to the managed count after the
+lowmem_reserve arrays are initialized at boot.
+
+This means the lowmem_reserve values at boot may be lower than the values
+used later if /proc/sys/vm/lowmem_reserve_ratio is accessed even if the
+ratio values are unchanged.
+
+In many cases the difference is not significant, but for example
+an ARM platform with 1GB of memory and the following memory layout
+
+  cma: Reserved 256 MiB at 0x0000000030000000
+  Zone ranges:
+    DMA      [mem 0x0000000000000000-0x000000002fffffff]
+    Normal   empty
+    HighMem  [mem 0x0000000030000000-0x000000003fffffff]
+
+would result in 0 lowmem_reserve for the DMA zone.  This would allow
+userspace to deplete the DMA zone easily.
+
+Funnily enough
+
+  $ cat /proc/sys/vm/lowmem_reserve_ratio
+
+would fix up the situation because as a side effect it forces
+setup_per_zone_lowmem_reserve.
+
+This commit breaks the link order dependency by invoking
+init_per_zone_wmark_min() as a postcore_initcall so that the CMA pages
+have the chance to be properly accounted in their zone(s) and allowing
+the lowmem_reserve arrays to receive consistent values.
+
+Fixes: bc22af74f271 ("mm: update min_free_kbytes from khugepaged after core initialization")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Jason Baron <jbaron@akamai.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/1597423766-27849-1-git-send-email-opendmb@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ipvlan/ipvlan_main.c | 27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ mm/page_alloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ipvlan/ipvlan_main.c b/drivers/net/ipvlan/ipvlan_main.c
-index 15e87c097b0b3..5bca94c990061 100644
---- a/drivers/net/ipvlan/ipvlan_main.c
-+++ b/drivers/net/ipvlan/ipvlan_main.c
-@@ -106,12 +106,21 @@ static void ipvlan_port_destroy(struct net_device *dev)
- 	kfree(port);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7867,7 +7867,7 @@ int __meminit init_per_zone_wmark_min(vo
+ 
+ 	return 0;
  }
+-core_initcall(init_per_zone_wmark_min)
++postcore_initcall(init_per_zone_wmark_min)
  
-+#define IPVLAN_ALWAYS_ON_OFLOADS \
-+	(NETIF_F_SG | NETIF_F_HW_CSUM | \
-+	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_SOFTWARE | NETIF_F_GSO_ENCAP_ALL)
-+
-+#define IPVLAN_ALWAYS_ON \
-+	(IPVLAN_ALWAYS_ON_OFLOADS | NETIF_F_LLTX | NETIF_F_VLAN_CHALLENGED)
-+
- #define IPVLAN_FEATURES \
--	(NETIF_F_SG | NETIF_F_CSUM_MASK | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
-+	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
- 	 NETIF_F_GSO | NETIF_F_ALL_TSO | NETIF_F_GSO_ROBUST | \
- 	 NETIF_F_GRO | NETIF_F_RXCSUM | \
- 	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
- 
-+	/* NETIF_F_GSO_ENCAP_ALL NETIF_F_GSO_SOFTWARE Newly added */
-+
- #define IPVLAN_STATE_MASK \
- 	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
- 
-@@ -125,7 +134,9 @@ static int ipvlan_init(struct net_device *dev)
- 	dev->state = (dev->state & ~IPVLAN_STATE_MASK) |
- 		     (phy_dev->state & IPVLAN_STATE_MASK);
- 	dev->features = phy_dev->features & IPVLAN_FEATURES;
--	dev->features |= NETIF_F_LLTX | NETIF_F_VLAN_CHALLENGED;
-+	dev->features |= IPVLAN_ALWAYS_ON;
-+	dev->vlan_features = phy_dev->vlan_features & IPVLAN_FEATURES;
-+	dev->vlan_features |= IPVLAN_ALWAYS_ON_OFLOADS;
- 	dev->hw_enc_features |= dev->features;
- 	dev->gso_max_size = phy_dev->gso_max_size;
- 	dev->gso_max_segs = phy_dev->gso_max_segs;
-@@ -227,7 +238,14 @@ static netdev_features_t ipvlan_fix_features(struct net_device *dev,
- {
- 	struct ipvl_dev *ipvlan = netdev_priv(dev);
- 
--	return features & (ipvlan->sfeatures | ~IPVLAN_FEATURES);
-+	features |= NETIF_F_ALL_FOR_ALL;
-+	features &= (ipvlan->sfeatures | ~IPVLAN_FEATURES);
-+	features = netdev_increment_features(ipvlan->phy_dev->features,
-+					     features, features);
-+	features |= IPVLAN_ALWAYS_ON;
-+	features &= (IPVLAN_FEATURES | IPVLAN_ALWAYS_ON);
-+
-+	return features;
- }
- 
- static void ipvlan_change_rx_flags(struct net_device *dev, int change)
-@@ -734,10 +752,9 @@ static int ipvlan_device_event(struct notifier_block *unused,
- 
- 	case NETDEV_FEAT_CHANGE:
- 		list_for_each_entry(ipvlan, &port->ipvlans, pnode) {
--			ipvlan->dev->features = dev->features & IPVLAN_FEATURES;
- 			ipvlan->dev->gso_max_size = dev->gso_max_size;
- 			ipvlan->dev->gso_max_segs = dev->gso_max_segs;
--			netdev_features_change(ipvlan->dev);
-+			netdev_update_features(ipvlan->dev);
- 		}
- 		break;
- 
--- 
-2.25.1
-
+ /*
+  * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so
 
 
