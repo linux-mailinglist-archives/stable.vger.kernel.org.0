@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C67D24F826
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F1824F731
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbgHXJ1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:27:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59070 "EHLO mail.kernel.org"
+        id S1728106AbgHXJIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:08:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730104AbgHXIwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:39 -0400
+        id S1730528AbgHXI4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:56:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EA46204FD;
-        Mon, 24 Aug 2020 08:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1CAE20FC3;
+        Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259157;
-        bh=gEjT2/xRAoGmMOBGGt1w/ksGCRHgmey8ffvZL5rKwag=;
+        s=default; t=1598259384;
+        bh=xAbJ9aQ6MAPazak0G1KJ0FiE6uz5m2Kr0/xkdHt9jSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFqSS3RUv8ErXZpDFERYOyri9Nhpo4Hw2NMg+NRzj6+i8lIDKRI7tvTTnMYZPmeQC
-         Dn7fhfNNTf6docaovjo9ksWjBVJE3tE2lZeRYRbV/S3s4DhGQxI1WMSiZHbAoS8R43
-         MeThVp2f8/XjwxuURCAcEb8lk3Gof62GeKbmtEB8=
+        b=hd2cA/WlxPZz80NLny6OjrJKa0wtdoZhrygEpX9CtPbTC/xO+UWvTRVjMzU59K8kO
+         Ed4fVZH7rlT4fEryPfjAIBoYu6dM8MZ6P9aUrk5M3Q0LqYc4gbRpf5y0uD191aYalY
+         XMVdTwssY+XdAIxbomMFJuAzWq0Mj+PvO2sH590I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Laurent Vivier <laurent@vivier.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 30/39] i40e: Set RX_ONLY mode for unicast promiscuous on VLAN
+Subject: [PATCH 4.19 38/71] fs/signalfd.c: fix inconsistent return codes for signalfd4
 Date:   Mon, 24 Aug 2020 10:31:29 +0200
-Message-Id: <20200824082350.072482970@linuxfoundation.org>
+Message-Id: <20200824082357.793815342@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,111 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 4bd5e02a2ed1575c2f65bd3c557a077dd399f0e8 ]
+[ Upstream commit a089e3fd5a82aea20f3d9ec4caa5f4c65cc2cfcc ]
 
-Trusted VF with unicast promiscuous mode set, could listen to TX
-traffic of other VFs.
-Set unicast promiscuous mode to RX traffic, if VSI has port VLAN
-configured. Rename misleading I40E_AQC_SET_VSI_PROMISC_TX bit to
-I40E_AQC_SET_VSI_PROMISC_RX_ONLY. Aligned unicast promiscuous with
-VLAN to the one without VLAN.
+The kernel signalfd4() syscall returns different error codes when called
+either in compat or native mode.  This behaviour makes correct emulation
+in qemu and testing programs like LTP more complicated.
 
-Fixes: 6c41a7606967 ("i40e: Add promiscuous on VLAN support")
-Fixes: 3b1200891b7f ("i40e: When in promisc mode apply promisc mode to Tx Traffic as well")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fix the code to always return -in both modes- EFAULT for unaccessible user
+memory, and EINVAL when called with an invalid signal mask.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Laurent Vivier <laurent@vivier.eu>
+Link: http://lkml.kernel.org/r/20200530100707.GA10159@ls3530.fritz.box
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_adminq_cmd.h |  2 +-
- drivers/net/ethernet/intel/i40e/i40e_common.c | 35 ++++++++++++++-----
- 2 files changed, 28 insertions(+), 9 deletions(-)
+ fs/signalfd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_adminq_cmd.h b/drivers/net/ethernet/intel/i40e/i40e_adminq_cmd.h
-index 67e396b2b3472..0e75c3a34fe7c 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_adminq_cmd.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_adminq_cmd.h
-@@ -1107,7 +1107,7 @@ struct i40e_aqc_set_vsi_promiscuous_modes {
- #define I40E_AQC_SET_VSI_PROMISC_BROADCAST	0x04
- #define I40E_AQC_SET_VSI_DEFAULT		0x08
- #define I40E_AQC_SET_VSI_PROMISC_VLAN		0x10
--#define I40E_AQC_SET_VSI_PROMISC_TX		0x8000
-+#define I40E_AQC_SET_VSI_PROMISC_RX_ONLY	0x8000
- 	__le16	seid;
- #define I40E_AQC_VSI_PROM_CMD_SEID_MASK		0x3FF
- 	__le16	vlan_tag;
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_common.c b/drivers/net/ethernet/intel/i40e/i40e_common.c
-index 2154a34c1dd80..09b47088dcc2b 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_common.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_common.c
-@@ -1922,6 +1922,21 @@ i40e_status i40e_aq_set_phy_debug(struct i40e_hw *hw, u8 cmd_flags,
- 	return status;
+diff --git a/fs/signalfd.c b/fs/signalfd.c
+index 4fcd1498acf52..3c40a3bf772ce 100644
+--- a/fs/signalfd.c
++++ b/fs/signalfd.c
+@@ -313,9 +313,10 @@ SYSCALL_DEFINE4(signalfd4, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
+ 
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, flags);
  }
  
-+/**
-+ * i40e_is_aq_api_ver_ge
-+ * @aq: pointer to AdminQ info containing HW API version to compare
-+ * @maj: API major value
-+ * @min: API minor value
-+ *
-+ * Assert whether current HW API version is greater/equal than provided.
-+ **/
-+static bool i40e_is_aq_api_ver_ge(struct i40e_adminq_info *aq, u16 maj,
-+				  u16 min)
-+{
-+	return (aq->api_maj_ver > maj ||
-+		(aq->api_maj_ver == maj && aq->api_min_ver >= min));
-+}
-+
- /**
-  * i40e_aq_add_vsi
-  * @hw: pointer to the hw struct
-@@ -2047,18 +2062,16 @@ i40e_status i40e_aq_set_vsi_unicast_promiscuous(struct i40e_hw *hw,
+@@ -324,9 +325,10 @@ SYSCALL_DEFINE3(signalfd, int, ufd, sigset_t __user *, user_mask,
+ {
+ 	sigset_t mask;
  
- 	if (set) {
- 		flags |= I40E_AQC_SET_VSI_PROMISC_UNICAST;
--		if (rx_only_promisc &&
--		    (((hw->aq.api_maj_ver == 1) && (hw->aq.api_min_ver >= 5)) ||
--		     (hw->aq.api_maj_ver > 1)))
--			flags |= I40E_AQC_SET_VSI_PROMISC_TX;
-+		if (rx_only_promisc && i40e_is_aq_api_ver_ge(&hw->aq, 1, 5))
-+			flags |= I40E_AQC_SET_VSI_PROMISC_RX_ONLY;
- 	}
- 
- 	cmd->promiscuous_flags = cpu_to_le16(flags);
- 
- 	cmd->valid_flags = cpu_to_le16(I40E_AQC_SET_VSI_PROMISC_UNICAST);
--	if (((hw->aq.api_maj_ver >= 1) && (hw->aq.api_min_ver >= 5)) ||
--	    (hw->aq.api_maj_ver > 1))
--		cmd->valid_flags |= cpu_to_le16(I40E_AQC_SET_VSI_PROMISC_TX);
-+	if (i40e_is_aq_api_ver_ge(&hw->aq, 1, 5))
-+		cmd->valid_flags |=
-+			cpu_to_le16(I40E_AQC_SET_VSI_PROMISC_RX_ONLY);
- 
- 	cmd->seid = cpu_to_le16(seid);
- 	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
-@@ -2155,11 +2168,17 @@ enum i40e_status_code i40e_aq_set_vsi_uc_promisc_on_vlan(struct i40e_hw *hw,
- 	i40e_fill_default_direct_cmd_desc(&desc,
- 					  i40e_aqc_opc_set_vsi_promiscuous_modes);
- 
--	if (enable)
-+	if (enable) {
- 		flags |= I40E_AQC_SET_VSI_PROMISC_UNICAST;
-+		if (i40e_is_aq_api_ver_ge(&hw->aq, 1, 5))
-+			flags |= I40E_AQC_SET_VSI_PROMISC_RX_ONLY;
-+	}
- 
- 	cmd->promiscuous_flags = cpu_to_le16(flags);
- 	cmd->valid_flags = cpu_to_le16(I40E_AQC_SET_VSI_PROMISC_UNICAST);
-+	if (i40e_is_aq_api_ver_ge(&hw->aq, 1, 5))
-+		cmd->valid_flags |=
-+			cpu_to_le16(I40E_AQC_SET_VSI_PROMISC_RX_ONLY);
- 	cmd->seid = cpu_to_le16(seid);
- 	cmd->vlan_tag = cpu_to_le16(vid | I40E_AQC_SET_VSI_VLAN_VALID);
+-	if (sizemask != sizeof(sigset_t) ||
+-	    copy_from_user(&mask, user_mask, sizeof(mask)))
++	if (sizemask != sizeof(sigset_t))
+ 		return -EINVAL;
++	if (copy_from_user(&mask, user_mask, sizeof(mask)))
++		return -EFAULT;
+ 	return do_signalfd4(ufd, &mask, 0);
+ }
  
 -- 
 2.25.1
