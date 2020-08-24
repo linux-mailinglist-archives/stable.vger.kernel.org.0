@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC1D24F40F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC93F24F411
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726041AbgHXIcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:32:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38534 "EHLO mail.kernel.org"
+        id S1726513AbgHXIcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:32:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725601AbgHXIcD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:32:03 -0400
+        id S1726037AbgHXIcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:32:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10B732074D;
-        Mon, 24 Aug 2020 08:32:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48F592074D;
+        Mon, 24 Aug 2020 08:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257923;
-        bh=gYZjOG+RhGYnfjsq3qWn7jd/mSGHDgkxsezz2+QisPo=;
+        s=default; t=1598257928;
+        bh=2FKLRsp/q4hCpwXTaY8+6NDt7k4ARIDqnPQJhxEo6BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsLe6uMag6GuhI4wmCYMHNury97XIVrYIpB8CgsgERfDXNRjJfDJFRxX9/gmZYQVE
-         Ej7t3PxBC7H0wXy/du/vLP6VA+GUQlbuTLGeqSRvSyPNKCkaRrbSUWB915gP+MGDx6
-         N2L4LmvtHwCZgSawhhqBXSrP7nOSiRcbhqrFHGYY=
+        b=o1T7CkykaxA0ieOGgtps0HycJ9sVwcKeUAh1hc/q/RPG5jHTgrkyEnaSImBkjKwxJ
+         y/5WLOi7ENqGLqt5vxigla+7hnCiqTEoXPEix2PMRzl1f1o6uEx3dOof2N33h+I/IG
+         jySxa8IId3oLNijzxcxhsZq2KylHK7+oHP72zO9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.8 010/148] can: j1939: socket: j1939_sk_bind(): make sure ml_priv is allocated
-Date:   Mon, 24 Aug 2020 10:28:28 +0200
-Message-Id: <20200824082414.446554593@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.8 012/148] io_uring: find and cancel head link async work on files exit
+Date:   Mon, 24 Aug 2020 10:28:30 +0200
+Message-Id: <20200824082414.547922920@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -45,46 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit af804b7826350d5af728dca4715e473338fbd7e5 upstream.
+commit b711d4eaf0c408a811311ee3e94d6e9e5a230a9a upstream.
 
-This patch adds check to ensure that the struct net_device::ml_priv is
-allocated, as it is used later by the j1939 stack.
+Commit f254ac04c874 ("io_uring: enable lookup of links holding inflight files")
+only handled 2 out of the three head link cases we have, we also need to
+lookup and cancel work that is blocked in io-wq if that work has a link
+that's holding a reference to the files structure.
 
-The allocation is done by all mainline CAN network drivers, but when using
-bond or team devices this is not the case.
+Put the "cancel head links that hold this request pending" logic into
+io_attempt_cancel(), which will to through the motions of finding and
+canceling head links that hold the current inflight files stable request
+pending.
 
-Bail out if no ml_priv is allocated.
-
-Reported-by: syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20200807105200.26441-4-o.rempel@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: stable@vger.kernel.org
+Reported-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/j1939/socket.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/io_uring.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -466,6 +466,14 @@ static int j1939_sk_bind(struct socket *
- 			goto out_release_sock;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7609,6 +7609,33 @@ static bool io_timeout_remove_link(struc
+ 	return found;
+ }
+ 
++static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
++{
++	return io_match_link(container_of(work, struct io_kiocb, work), data);
++}
++
++static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
++{
++	enum io_wq_cancel cret;
++
++	/* cancel this particular work, if it's running */
++	cret = io_wq_cancel_work(ctx->io_wq, &req->work);
++	if (cret != IO_WQ_CANCEL_NOTFOUND)
++		return;
++
++	/* find links that hold this pending, cancel those */
++	cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_link_cb, req, true);
++	if (cret != IO_WQ_CANCEL_NOTFOUND)
++		return;
++
++	/* if we have a poll link holding this pending, cancel that */
++	if (io_poll_remove_link(ctx, req))
++		return;
++
++	/* final option, timeout link is holding this req pending */
++	io_timeout_remove_link(ctx, req);
++}
++
+ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
+ {
+@@ -7665,10 +7692,8 @@ static void io_uring_cancel_files(struct
+ 				continue;
+ 			}
+ 		} else {
+-			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
+-			/* could be a link, check and remove if it is */
+-			if (!io_poll_remove_link(ctx, cancel_req))
+-				io_timeout_remove_link(ctx, cancel_req);
++			/* cancel this request, or head link requests */
++			io_attempt_cancel(ctx, cancel_req);
+ 			io_put_req(cancel_req);
  		}
  
-+		if (!ndev->ml_priv) {
-+			netdev_warn_once(ndev,
-+					 "No CAN mid layer private allocated, please fix your driver and use alloc_candev()!\n");
-+			dev_put(ndev);
-+			ret = -ENODEV;
-+			goto out_release_sock;
-+		}
-+
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
- 		if (IS_ERR(priv)) {
 
 
