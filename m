@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 810D324F941
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD1424FA34
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728039AbgHXIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:43:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38856 "EHLO mail.kernel.org"
+        id S1728071AbgHXJyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:54:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729044AbgHXInx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:43:53 -0400
+        id S1728424AbgHXIhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5DEC2075B;
-        Mon, 24 Aug 2020 08:43:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF6452177B;
+        Mon, 24 Aug 2020 08:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258633;
-        bh=4Htyo/JK+OITXDYfLI/o2rmNeTy/SVpcIjbMD3leOVg=;
+        s=default; t=1598258260;
+        bh=1w+ZeW5Eq4Fc9nQKvS9ZWp0Qrvgwjaw+QflNsi9usso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVOmmuAyCwjez5/kczUxARQtdPJpfS+qlSUTCArxw16txbp+bK+k3JoJ3atCe8kix
-         NfrBZGCDoPixbc+F+sFg9oqzfpeTO7yFhG1DvTwaRjJleC1sR5P/v4OhBF17+qe1mo
-         nKBONTRXHLRmcuPynMY7MYQn5Yj9bbjyqyELTbiM=
+        b=uL9YntxfhFTAZJtWkyeh6q4lywCE/ugEgOwRWNvNVZF/P2UdL+3sy/YpaTnFfjyMC
+         y2XVr8jhgfdV02lLSNNttNQbgM/uMEwG/ffoIjOE3T3zHO/WG/Cy4A+p3NREiWL42a
+         AD5Jk5+NwccVZbMu098JpYhYxGwGQOSq2wfR4Ls0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 098/124] scsi: ufs-pci: Add quirk for broken auto-hibernate for Intel EHL
+Subject: [PATCH 5.8 134/148] net: ena: Change WARN_ON expression in ena_del_napi_in_range()
 Date:   Mon, 24 Aug 2020 10:30:32 +0200
-Message-Id: <20200824082414.239885527@linuxfoundation.org>
+Message-Id: <20200824082420.437260941@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit 8da76f71fef7d8a1a72af09d48899573feb60065 ]
+[ Upstream commit 8b147f6f3e7de4e51113e3e9ec44aa2debc02c58 ]
 
-Intel EHL UFS host controller advertises auto-hibernate capability but it
-does not work correctly. Add a quirk for that.
+The ena_del_napi_in_range() function unregisters the napi handler for
+rings in a given range.
+This function had the following WARN_ON macro:
 
-[mkp: checkpatch fix]
+    WARN_ON(ENA_IS_XDP_INDEX(adapter, i) &&
+	    adapter->ena_napi[i].xdp_ring);
 
-Link: https://lore.kernel.org/r/20200810141024.28859-1-adrian.hunter@intel.com
-Fixes: 8c09d7527697 ("scsi: ufshdc-pci: Add Intel PCI IDs for EHL")
-Acked-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This macro prints the call stack if the expression inside of it is
+true [1], but the expression inside of it is the wanted situation.
+The expression checks whether the ring has an XDP queue and its index
+corresponds to a XDP one.
+
+This patch changes the expression to
+    !ENA_IS_XDP_INDEX(adapter, i) && adapter->ena_napi[i].xdp_ring
+which indicates an unwanted situation.
+
+Also, change the structure of the function. The napi handler is
+unregistered for all rings, and so there's no need to check whether the
+index is an XDP index or not. By removing this check the code becomes
+much more readable.
+
+Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd-pci.c | 16 ++++++++++++++--
- drivers/scsi/ufs/ufshcd.h     |  9 ++++++++-
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
-index 8f78a81514991..b220666774ce8 100644
---- a/drivers/scsi/ufs/ufshcd-pci.c
-+++ b/drivers/scsi/ufs/ufshcd-pci.c
-@@ -67,11 +67,23 @@ static int ufs_intel_link_startup_notify(struct ufs_hba *hba,
- 	return err;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 1a2a464fb2f5f..000f57198352d 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -2177,13 +2177,10 @@ static void ena_del_napi_in_range(struct ena_adapter *adapter,
+ 	int i;
+ 
+ 	for (i = first_index; i < first_index + count; i++) {
+-		/* Check if napi was initialized before */
+-		if (!ENA_IS_XDP_INDEX(adapter, i) ||
+-		    adapter->ena_napi[i].xdp_ring)
+-			netif_napi_del(&adapter->ena_napi[i].napi);
+-		else
+-			WARN_ON(ENA_IS_XDP_INDEX(adapter, i) &&
+-				adapter->ena_napi[i].xdp_ring);
++		netif_napi_del(&adapter->ena_napi[i].napi);
++
++		WARN_ON(!ENA_IS_XDP_INDEX(adapter, i) &&
++			adapter->ena_napi[i].xdp_ring);
+ 	}
  }
  
-+static int ufs_intel_ehl_init(struct ufs_hba *hba)
-+{
-+	hba->quirks |= UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8;
-+	return 0;
-+}
-+
- static struct ufs_hba_variant_ops ufs_intel_cnl_hba_vops = {
- 	.name                   = "intel-pci",
- 	.link_startup_notify	= ufs_intel_link_startup_notify,
- };
- 
-+static struct ufs_hba_variant_ops ufs_intel_ehl_hba_vops = {
-+	.name                   = "intel-pci",
-+	.init			= ufs_intel_ehl_init,
-+	.link_startup_notify	= ufs_intel_link_startup_notify,
-+};
-+
- #ifdef CONFIG_PM_SLEEP
- /**
-  * ufshcd_pci_suspend - suspend power management function
-@@ -200,8 +212,8 @@ static const struct dev_pm_ops ufshcd_pci_pm_ops = {
- static const struct pci_device_id ufshcd_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_SAMSUNG, 0xC00C, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ PCI_VDEVICE(INTEL, 0x9DFA), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
--	{ PCI_VDEVICE(INTEL, 0x4B41), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
--	{ PCI_VDEVICE(INTEL, 0x4B43), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
-+	{ PCI_VDEVICE(INTEL, 0x4B41), (kernel_ulong_t)&ufs_intel_ehl_hba_vops },
-+	{ PCI_VDEVICE(INTEL, 0x4B43), (kernel_ulong_t)&ufs_intel_ehl_hba_vops },
- 	{ }	/* terminate list */
- };
- 
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 59ca93b64bb08..ccbeae4f8325d 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -547,6 +547,12 @@ enum ufshcd_quirks {
- 	 * OCS FATAL ERROR with device error through sense data
- 	 */
- 	UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR		= 1 << 10,
-+
-+	/*
-+	 * This quirk needs to be enabled if the host controller has
-+	 * auto-hibernate capability but it doesn't work.
-+	 */
-+	UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8		= 1 << 11,
- };
- 
- enum ufshcd_caps {
-@@ -796,7 +802,8 @@ return true;
- 
- static inline bool ufshcd_is_auto_hibern8_supported(struct ufs_hba *hba)
- {
--	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT);
-+	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT) &&
-+		!(hba->quirks & UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8);
- }
- 
- static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
 -- 
 2.25.1
 
