@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1993925053C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6D8250534
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726956AbgHXRNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:13:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
+        id S1727106AbgHXRMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728380AbgHXQhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:37:43 -0400
+        id S1728382AbgHXQhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:37:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BF7622C9F;
-        Mon, 24 Aug 2020 16:36:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2D3B22D3E;
+        Mon, 24 Aug 2020 16:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287020;
-        bh=S7ECAN+qn/s+wnh0kJhI7SdCw/kXvFwD8mdYQzpRZbk=;
+        s=default; t=1598287021;
+        bh=TYTTdCegp15oLYrWq/F7PP5Ab8BnxcWk62tjoSVlprc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgtUfMt3PnTYGw20EiVSz0yF1a0leKujTyIgz05XAagFXp9vVWNQsgWhHZrVX3Yt7
-         y7iJIJsFvUvpjDhc1rbXSJJG5mNqNrGaxhPYv3qDZksE/1MQD/BJYz/COn0gouPwTT
-         d/oGO8YXv0OMaDxmvHf2v3MEuHmEYxCfVcUc42ME=
+        b=eMsL5rRmqDybtENNNmFKjsGU7HxASjVgAG0+owzOqM96SJmLfkUTAzCTOWiigS+be
+         iZI5x0IN91FTDRxqpzog3Z8gl0fhwE58JXO0ev52TWAeOa0fTj8WRY03ZtV3zP10E1
+         fvX+PDkQvMen7aE1Oiu+7g8Osk7FJ2+Ux7MgeVko=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Koo <Anthony.Koo@amd.com>,
-        Ashley Thomas <Ashley.Thomas2@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 19/54] drm/amd/display: Switch to immediate mode for updating infopackets
-Date:   Mon, 24 Aug 2020 12:35:58 -0400
-Message-Id: <20200824163634.606093-19-sashal@kernel.org>
+Cc:     Jianlin Lv <Jianlin.Lv@arm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 20/54] selftests/bpf: Fix segmentation fault in test_progs
+Date:   Mon, 24 Aug 2020 12:35:59 -0400
+Message-Id: <20200824163634.606093-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163634.606093-1-sashal@kernel.org>
 References: <20200824163634.606093-1-sashal@kernel.org>
@@ -46,112 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Jianlin Lv <Jianlin.Lv@arm.com>
 
-[ Upstream commit abba907c7a20032c2d504fd5afe3af7d440a09d0 ]
+[ Upstream commit 0390c429dbed4068bd2cd8dded937d9a5ec24cd2 ]
 
-[Why]
-Using FRAME_UPDATE will result in infopacket to be potentially updated
-one frame late.
-In commit stream scenarios for previously active stream, some stale
-infopacket data from previous config might be erroneously sent out on
-initial frame after stream is re-enabled.
+test_progs reports the segmentation fault as below:
 
-[How]
-Switch to using IMMEDIATE_UPDATE mode
+  $ sudo ./test_progs -t mmap --verbose
+  test_mmap:PASS:skel_open_and_load 0 nsec
+  [...]
+  test_mmap:PASS:adv_mmap1 0 nsec
+  test_mmap:PASS:adv_mmap2 0 nsec
+  test_mmap:PASS:adv_mmap3 0 nsec
+  test_mmap:PASS:adv_mmap4 0 nsec
+  Segmentation fault
 
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Ashley Thomas <Ashley.Thomas2@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This issue was triggered because mmap() and munmap() used inconsistent
+length parameters; mmap() creates a new mapping of 3 * page_size, but the
+length parameter set in the subsequent re-map and munmap() functions is
+4 * page_size; this leads to the destruction of the process space.
+
+To fix this issue, first create 4 pages of anonymous mapping, then do all
+the mmap() with MAP_FIXED.
+
+Another issue is that when unmap the second page fails, the length
+parameter to delete tmp1 mappings should be 4 * page_size.
+
+Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200810153940.125508-1-Jianlin.Lv@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/dcn10/dcn10_stream_encoder.c  | 16 ++++++++--------
- .../amd/display/dc/dcn10/dcn10_stream_encoder.h  | 14 ++++++++++++++
- 2 files changed, 22 insertions(+), 8 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/mmap.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-index 7eba9333c3285..66ce9092e9950 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-@@ -121,35 +121,35 @@ void enc1_update_generic_info_packet(
- 	switch (packet_index) {
- 	case 0:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC0_FRAME_UPDATE, 1);
-+				AFMT_GENERIC0_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 1:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC1_FRAME_UPDATE, 1);
-+				AFMT_GENERIC1_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 2:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC2_FRAME_UPDATE, 1);
-+				AFMT_GENERIC2_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 3:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC3_FRAME_UPDATE, 1);
-+				AFMT_GENERIC3_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 4:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC4_FRAME_UPDATE, 1);
-+				AFMT_GENERIC4_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 5:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC5_FRAME_UPDATE, 1);
-+				AFMT_GENERIC5_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 6:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC6_FRAME_UPDATE, 1);
-+				AFMT_GENERIC6_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 7:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC7_FRAME_UPDATE, 1);
-+				AFMT_GENERIC7_IMMEDIATE_UPDATE, 1);
- 		break;
- 	default:
- 		break;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-index f9b9e221c698b..7507000a99ac4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-@@ -273,7 +273,14 @@ struct dcn10_stream_enc_registers {
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC2_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC3_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC4_FRAME_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC0_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC1_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC2_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC3_IMMEDIATE_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC4_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC5_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC6_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC7_IMMEDIATE_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC5_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC6_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC7_FRAME_UPDATE, mask_sh),\
-@@ -337,7 +344,14 @@ struct dcn10_stream_enc_registers {
- 	type AFMT_GENERIC2_FRAME_UPDATE;\
- 	type AFMT_GENERIC3_FRAME_UPDATE;\
- 	type AFMT_GENERIC4_FRAME_UPDATE;\
-+	type AFMT_GENERIC0_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC1_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC2_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC3_IMMEDIATE_UPDATE;\
- 	type AFMT_GENERIC4_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC5_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC6_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC7_IMMEDIATE_UPDATE;\
- 	type AFMT_GENERIC5_FRAME_UPDATE;\
- 	type AFMT_GENERIC6_FRAME_UPDATE;\
- 	type AFMT_GENERIC7_FRAME_UPDATE;\
+diff --git a/tools/testing/selftests/bpf/prog_tests/mmap.c b/tools/testing/selftests/bpf/prog_tests/mmap.c
+index 43d0b5578f461..9c3c5c0f068fb 100644
+--- a/tools/testing/selftests/bpf/prog_tests/mmap.c
++++ b/tools/testing/selftests/bpf/prog_tests/mmap.c
+@@ -21,7 +21,7 @@ void test_mmap(void)
+ 	const long page_size = sysconf(_SC_PAGE_SIZE);
+ 	int err, duration = 0, i, data_map_fd, data_map_id, tmp_fd, rdmap_fd;
+ 	struct bpf_map *data_map, *bss_map;
+-	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp1, *tmp2;
++	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp0, *tmp1, *tmp2;
+ 	struct test_mmap__bss *bss_data;
+ 	struct bpf_map_info map_info;
+ 	__u32 map_info_sz = sizeof(map_info);
+@@ -183,16 +183,23 @@ void test_mmap(void)
+ 
+ 	/* check some more advanced mmap() manipulations */
+ 
++	tmp0 = mmap(NULL, 4 * page_size, PROT_READ, MAP_SHARED | MAP_ANONYMOUS,
++			  -1, 0);
++	if (CHECK(tmp0 == MAP_FAILED, "adv_mmap0", "errno %d\n", errno))
++		goto cleanup;
++
+ 	/* map all but last page: pages 1-3 mapped */
+-	tmp1 = mmap(NULL, 3 * page_size, PROT_READ, MAP_SHARED,
++	tmp1 = mmap(tmp0, 3 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 			  data_map_fd, 0);
+-	if (CHECK(tmp1 == MAP_FAILED, "adv_mmap1", "errno %d\n", errno))
++	if (CHECK(tmp0 != tmp1, "adv_mmap1", "tmp0: %p, tmp1: %p\n", tmp0, tmp1)) {
++		munmap(tmp0, 4 * page_size);
+ 		goto cleanup;
++	}
+ 
+ 	/* unmap second page: pages 1, 3 mapped */
+ 	err = munmap(tmp1 + page_size, page_size);
+ 	if (CHECK(err, "adv_mmap2", "errno %d\n", errno)) {
+-		munmap(tmp1, map_sz);
++		munmap(tmp1, 4 * page_size);
+ 		goto cleanup;
+ 	}
+ 
+@@ -201,7 +208,7 @@ void test_mmap(void)
+ 		    MAP_SHARED | MAP_FIXED, data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap3", "errno %d\n", errno)) {
+ 		munmap(tmp1, page_size);
+-		munmap(tmp1 + 2*page_size, page_size);
++		munmap(tmp1 + 2*page_size, 2 * page_size);
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 + page_size != tmp2, "adv_mmap4",
+@@ -211,7 +218,7 @@ void test_mmap(void)
+ 	tmp2 = mmap(tmp1, 4 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 		    data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap5", "errno %d\n", errno)) {
+-		munmap(tmp1, 3 * page_size); /* unmap page 1 */
++		munmap(tmp1, 4 * page_size); /* unmap page 1 */
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 != tmp2, "adv_mmap6", "tmp1: %p, tmp2: %p\n", tmp1, tmp2);
 -- 
 2.25.1
 
