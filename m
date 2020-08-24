@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD0624F5AE
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE1624F5F1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730035AbgHXIwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57682 "EHLO mail.kernel.org"
+        id S1729913AbgHXIza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729782AbgHXIwC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:02 -0400
+        id S1730417AbgHXIz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D54152072D;
-        Mon, 24 Aug 2020 08:52:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCAD3204FD;
+        Mon, 24 Aug 2020 08:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259121;
-        bh=sUOG9rffSGekvZ1pjLm7i1hfi3HowdlJF8EY5e/9Qjc=;
+        s=default; t=1598259327;
+        bh=LehtCaV42rdQFo3R1F6wlwdqE9D0Rqqwrku+qzm3Gnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fr9lcEfMhIonoEosTvjk4df2TKeGkW6NwFfWJmnhyu1vBqvmOfcDRVDIaWQuXA0Ba
-         e3C2AprCw4SbnV3cDKE/JV3GMt610mOYVbFMt/TXwSxpvzE+03KS/TP2903OJHHhZp
-         +pcJp/kTn1J30T7wWtK3Ql1epPT284raTQuDadH4=
+        b=EgLFu0qlzv/2bbLhlK98J54rISIAPYcbdSzXK7sg9hopUJt+0+tL0hU+AuzJeHF4/
+         LoHMlK+f9awrnzDlAc75TtwgDQ7PmNvkr7mbwwDY15IsRobCVaF7j35CSmsi+FUG5o
+         SSpF9gUzuvYtSEVPNq1jELk4+f6GkJF/K9nDkxEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/39] btrfs: export helpers for subvolume name/id resolution
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Xu Yu <xuyu@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Yang Shi <shy828301@gmail.com>
+Subject: [PATCH 4.19 17/71] mm/memory.c: skip spurious TLB flush for retried page fault
 Date:   Mon, 24 Aug 2020 10:31:08 +0200
-Message-Id: <20200824082348.945938078@linuxfoundation.org>
+Message-Id: <20200824082356.758044582@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit c0c907a47dccf2cf26251a8fb4a8e7a3bf79ce84 ]
+commit b7333b58f358f38d90d78e00c1ee5dec82df10ad upstream.
 
-The functions will be used outside of export.c and super.c to allow
-resolving subvolume name from a given id, eg. for subvolume deletion by
-id ioctl.
+Recently we found regression when running will_it_scale/page_fault3 test
+on ARM64.  Over 70% down for the multi processes cases and over 20% down
+for the multi threads cases.  It turns out the regression is caused by
+commit 89b15332af7c ("mm: drop mmap_sem before calling
+balance_dirty_pages() in write fault").
 
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ split from the next patch ]
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The test mmaps a memory size file then write to the mapping, this would
+make all memory dirty and trigger dirty pages throttle, that upstream
+commit would release mmap_sem then retry the page fault.  The retried
+page fault would see correct PTEs installed then just fall through to
+spurious TLB flush.  The regression is caused by the excessive spurious
+TLB flush.  It is fine on x86 since x86's spurious TLB flush is no-op.
+
+We could just skip the spurious TLB flush to mitigate the regression.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Xu Yu <xuyu@linux.alibaba.com>
+Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
+Tested-by: Xu Yu <xuyu@linux.alibaba.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/ctree.h  | 2 ++
- fs/btrfs/export.c | 8 ++++----
- fs/btrfs/export.h | 5 +++++
- fs/btrfs/super.c  | 8 ++++----
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ mm/memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 2bc37d03d4075..abfc090510480 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3261,6 +3261,8 @@ ssize_t btrfs_listxattr(struct dentry *dentry, char *buffer, size_t size);
- int btrfs_parse_options(struct btrfs_root *root, char *options,
- 			unsigned long new_flags);
- int btrfs_sync_fs(struct super_block *sb, int wait);
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid);
- 
- static inline __printf(2, 3)
- void btrfs_no_printk(const struct btrfs_fs_info *fs_info, const char *fmt, ...)
-diff --git a/fs/btrfs/export.c b/fs/btrfs/export.c
-index 2513a7f533342..92f80ed642194 100644
---- a/fs/btrfs/export.c
-+++ b/fs/btrfs/export.c
-@@ -55,9 +55,9 @@ static int btrfs_encode_fh(struct inode *inode, u32 *fh, int *max_len,
- 	return type;
- }
- 
--static struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
--				       u64 root_objectid, u32 generation,
--				       int check_generation)
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
- 	struct btrfs_root *root;
-@@ -150,7 +150,7 @@ static struct dentry *btrfs_fh_to_dentry(struct super_block *sb, struct fid *fh,
- 	return btrfs_get_dentry(sb, objectid, root_objectid, generation, 1);
- }
- 
--static struct dentry *btrfs_get_parent(struct dentry *child)
-+struct dentry *btrfs_get_parent(struct dentry *child)
- {
- 	struct inode *dir = d_inode(child);
- 	struct btrfs_root *root = BTRFS_I(dir)->root;
-diff --git a/fs/btrfs/export.h b/fs/btrfs/export.h
-index 074348a95841f..7a305e5549991 100644
---- a/fs/btrfs/export.h
-+++ b/fs/btrfs/export.h
-@@ -16,4 +16,9 @@ struct btrfs_fid {
- 	u64 parent_root_objectid;
- } __attribute__ ((packed));
- 
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation);
-+struct dentry *btrfs_get_parent(struct dentry *child);
-+
- #endif
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 9286603a6a98b..af5be060c651f 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -948,8 +948,8 @@ out:
- 	return error;
- }
- 
--static char *get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
--					   u64 subvol_objectid)
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid)
- {
- 	struct btrfs_root *root = fs_info->tree_root;
- 	struct btrfs_root *fs_root;
-@@ -1430,8 +1430,8 @@ static struct dentry *mount_subvol(const char *subvol_name, u64 subvol_objectid,
- 				goto out;
- 			}
- 		}
--		subvol_name = get_subvol_name_from_objectid(btrfs_sb(mnt->mnt_sb),
--							    subvol_objectid);
-+		subvol_name = btrfs_get_subvol_name_from_objectid(
-+					btrfs_sb(mnt->mnt_sb), subvol_objectid);
- 		if (IS_ERR(subvol_name)) {
- 			root = ERR_CAST(subvol_name);
- 			subvol_name = NULL;
--- 
-2.25.1
-
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4062,6 +4062,9 @@ static vm_fault_t handle_pte_fault(struc
+ 				vmf->flags & FAULT_FLAG_WRITE)) {
+ 		update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
+ 	} else {
++		/* Skip spurious TLB flush for retried page fault */
++		if (vmf->flags & FAULT_FLAG_TRIED)
++			goto unlock;
+ 		/*
+ 		 * This is needed only for protection faults but the arch code
+ 		 * is not yet telling us if this is a protection fault or not.
 
 
