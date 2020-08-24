@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EDF24F81A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:26:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7FD24F7CB
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728725AbgHXJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
+        id S1730403AbgHXIzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730132AbgHXIxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:01 -0400
+        id S1729908AbgHXIzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17A7B2072D;
-        Mon, 24 Aug 2020 08:53:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F2F6208E4;
+        Mon, 24 Aug 2020 08:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259180;
-        bh=qVU8jQNWyLlXjnrNh2gzlHqO6Dq7uBhUCkw5dhQOHOk=;
+        s=default; t=1598259316;
+        bh=CS9yBYvOyCspT8lvpjzMasnEsr4lb4jrjYWhggxhOWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfEmtYUTxaOLFbvF8srDq8B/fbQuggL22l1qeYQVZLTgkQu0bVeIeJsioUDThRzoy
-         qKo2JPOgqLzP+CJ9pRrG1TQplgBf4qnRVqrimH74UiebnPSUx2HARvyq5NHV5TIjWA
-         Sgx8n6B3Qfwv3QaEPiA+X9/x/7QGykP7tWy8+lUI=
+        b=QThR91gM6BroE889NeE3p7/y9Z0WvIckLWOo7LcLxMLZFCS9xrDHFWamMs5jLqQl+
+         ZPgerQNuWg8VwNG7GXL/g8UJBtFyAfKYe32O/i8bctt4baCKt5jzZRZZ4p7IF9qdbm
+         h70rDwoSV3gQrEbRv1c+hMtYzi6ds4DaVBKZ6SL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/50] khugepaged: khugepaged_test_exit() check mmget_still_valid()
+        David Hildenbrand <david@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Vinayak Menon <vinmenon@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 13/71] mm, page_alloc: fix core hung in free_pcppages_bulk()
 Date:   Mon, 24 Aug 2020 10:31:04 +0200
-Message-Id: <20200824082352.040818505@linuxfoundation.org>
+Message-Id: <20200824082356.557329090@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +50,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-[ Upstream commit bbe98f9cadff58cdd6a4acaeba0efa8565dabe65 ]
+commit 88e8ac11d2ea3acc003cf01bb5a38c8aa76c3cfd upstream.
 
-Move collapse_huge_page()'s mmget_still_valid() check into
-khugepaged_test_exit() itself.  collapse_huge_page() is used for anon THP
-only, and earned its mmget_still_valid() check because it inserts a huge
-pmd entry in place of the page table's pmd entry; whereas
-collapse_file()'s retract_page_tables() or collapse_pte_mapped_thp()
-merely clears the page table's pmd entry.  But core dumping without mmap
-lock must have been as open to mistaking a racily cleared pmd entry for a
-page table at physical page 0, as exit_mmap() was.  And we certainly have
-no interest in mapping as a THP once dumping core.
+The following race is observed with the repeated online, offline and a
+delay between two successive online of memory blocks of movable zone.
 
-Fixes: 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page() and core dumping")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+P1						P2
+
+Online the first memory block in
+the movable zone. The pcp struct
+values are initialized to default
+values,i.e., pcp->high = 0 &
+pcp->batch = 1.
+
+					Allocate the pages from the
+					movable zone.
+
+Try to Online the second memory
+block in the movable zone thus it
+entered the online_pages() but yet
+to call zone_pcp_update().
+					This process is entered into
+					the exit path thus it tries
+					to release the order-0 pages
+					to pcp lists through
+					free_unref_page_commit().
+					As pcp->high = 0, pcp->count = 1
+					proceed to call the function
+					free_pcppages_bulk().
+Update the pcp values thus the
+new pcp values are like, say,
+pcp->high = 378, pcp->batch = 63.
+					Read the pcp's batch value using
+					READ_ONCE() and pass the same to
+					free_pcppages_bulk(), pcp values
+					passed here are, batch = 63,
+					count = 1.
+
+					Since num of pages in the pcp
+					lists are less than ->batch,
+					then it will stuck in
+					while(list_empty(list)) loop
+					with interrupts disabled thus
+					a core hung.
+
+Avoid this by ensuring free_pcppages_bulk() is called with proper count of
+pcp list pages.
+
+The mentioned race is some what easily reproducible without [1] because
+pcp's are not updated for the first memory block online and thus there is
+a enough race window for P2 between alloc+free and pcp struct values
+update through onlining of second memory block.
+
+With [1], the race still exists but it is very narrow as we update the pcp
+struct values for the first memory block online itself.
+
+This is not limited to the movable zone, it could also happen in cases
+with the normal zone (e.g., hotplug to a node that only has DMA memory, or
+no other memory yet).
+
+[1]: https://patchwork.kernel.org/patch/11696389/
+
+Fixes: 5f8dcc21211a ("page-allocator: split per-cpu list into one-list-per-migrate-type")
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021217020.27773@eggly.anvils
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Vinayak Menon <vinmenon@codeaurora.org>
+Cc: <stable@vger.kernel.org> [2.6+]
+Link: http://lkml.kernel.org/r/1597150703-19003-1-git-send-email-charante@codeaurora.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/khugepaged.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ mm/page_alloc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 04b4c38d0c184..a1b7475c05d04 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -394,7 +394,7 @@ static void insert_to_mm_slots_hash(struct mm_struct *mm,
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1115,6 +1115,11 @@ static void free_pcppages_bulk(struct zo
+ 	struct page *page, *tmp;
+ 	LIST_HEAD(head);
  
- static inline int khugepaged_test_exit(struct mm_struct *mm)
- {
--	return atomic_read(&mm->mm_users) == 0;
-+	return atomic_read(&mm->mm_users) == 0 || !mmget_still_valid(mm);
- }
++	/*
++	 * Ensure proper count is passed which otherwise would stuck in the
++	 * below while (list_empty(list)) loop.
++	 */
++	count = min(pcp->count, count);
+ 	while (count) {
+ 		struct list_head *list;
  
- int __khugepaged_enter(struct mm_struct *mm)
-@@ -1006,9 +1006,6 @@ static void collapse_huge_page(struct mm_struct *mm,
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	down_write(&mm->mmap_sem);
--	result = SCAN_ANY_PROCESS;
--	if (!mmget_still_valid(mm))
--		goto out;
- 	result = hugepage_vma_revalidate(mm, address, &vma);
- 	if (result)
- 		goto out;
--- 
-2.25.1
-
 
 
