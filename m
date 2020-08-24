@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8A524F7F2
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0FD824F68B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730294AbgHXIyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:54:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34314 "EHLO mail.kernel.org"
+        id S1730615AbgHXI5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730036AbgHXIyN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:13 -0400
+        id S1730614AbgHXI47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:56:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E55A204FD;
-        Mon, 24 Aug 2020 08:54:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B2242072D;
+        Mon, 24 Aug 2020 08:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259252;
-        bh=V8IP8EA9VpB2T1l2jYQmpbW7svvqjAwsboHqoVjbVN8=;
+        s=default; t=1598259418;
+        bh=MUfmXe8Eq8zaIzW6yi47MEM48fwEIH2DgIVAT67gkcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGolTF5lRjcNAmEin3jzLuAxvkP7d/VhEFhedsOGQFDf+bsdXStmoFMEkbjuYt2QZ
-         zCpQjUaVeVdxbfOqoPbbmjj0NsC5PIDJdqr2ys4MgTU/uvniRB0khcqlZkVhd1GaAL
-         0RCVJhNpclnxbk6llGLGEZsbv3UmXuEJpcjN3vGA=
+        b=iCkrotGLlYlCZ6beLhaa3UXar8GJrijrGASjrniSS7fJt4M68MNclugi3n/owb3Lz
+         wYkpKhMDRaCzxGOqRhgARolmydE9v++32Y0NhkRUJmIcId/ZW4MjIheb7l1XzJG4If
+         VVvQpCJGTtBCcjPoEbkIEg+ufa7DEvh1Qs+z5oD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH 4.14 11/50] btrfs: sysfs: use NOFS for device creation
-Date:   Mon, 24 Aug 2020 10:31:12 +0200
-Message-Id: <20200824082352.476380248@linuxfoundation.org>
+        stable@vger.kernel.org, JiangYu <lnsyyj@hotmail.com>,
+        Daniel Meyerholt <dxm523@gmail.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/71] scsi: target: tcmu: Fix crash in tcmu_flush_dcache_range on ARM
+Date:   Mon, 24 Aug 2020 10:31:13 +0200
+Message-Id: <20200824082356.994960635@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,188 +47,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-Dave hit this splat during testing btrfs/078:
+[ Upstream commit 3145550a7f8b08356c8ff29feaa6c56aca12901d ]
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc6-default+ #1191 Not tainted
-  ------------------------------------------------------
-  kswapd0/75 is trying to acquire lock:
-  ffffa040e9d04ff8 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
+This patch fixes the following crash (see
+https://bugzilla.kernel.org/show_bug.cgi?id=208045)
 
-  but task is already holding lock:
-  ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+ Process iscsi_trx (pid: 7496, stack limit = 0x0000000010dd111a)
+ CPU: 0 PID: 7496 Comm: iscsi_trx Not tainted 4.19.118-0419118-generic
+        #202004230533
+ Hardware name: Greatwall QingTian DF720/F601, BIOS 601FBE20 Sep 26 2019
+ pstate: 80400005 (Nzcv daif +PAN -UAO)
+ pc : flush_dcache_page+0x18/0x40
+ lr : is_ring_space_avail+0x68/0x2f8 [target_core_user]
+ sp : ffff000015123a80
+ x29: ffff000015123a80 x28: 0000000000000000
+ x27: 0000000000001000 x26: ffff000023ea5000
+ x25: ffffcfa25bbe08b8 x24: 0000000000000078
+ x23: ffff7e0000000000 x22: ffff000023ea5001
+ x21: ffffcfa24b79c000 x20: 0000000000000fff
+ x19: ffff7e00008fa940 x18: 0000000000000000
+ x17: 0000000000000000 x16: ffff2d047e709138
+ x15: 0000000000000000 x14: 0000000000000000
+ x13: 0000000000000000 x12: ffff2d047fbd0a40
+ x11: 0000000000000000 x10: 0000000000000030
+ x9 : 0000000000000000 x8 : ffffc9a254820a00
+ x7 : 00000000000013b0 x6 : 000000000000003f
+ x5 : 0000000000000040 x4 : ffffcfa25bbe08e8
+ x3 : 0000000000001000 x2 : 0000000000000078
+ x1 : ffffcfa25bbe08b8 x0 : ffff2d040bc88a18
+ Call trace:
+  flush_dcache_page+0x18/0x40
+  is_ring_space_avail+0x68/0x2f8 [target_core_user]
+  queue_cmd_ring+0x1f8/0x680 [target_core_user]
+  tcmu_queue_cmd+0xe4/0x158 [target_core_user]
+  __target_execute_cmd+0x30/0xf0 [target_core_mod]
+  target_execute_cmd+0x294/0x390 [target_core_mod]
+  transport_generic_new_cmd+0x1e8/0x358 [target_core_mod]
+  transport_handle_cdb_direct+0x50/0xb0 [target_core_mod]
+  iscsit_execute_cmd+0x2b4/0x350 [iscsi_target_mod]
+  iscsit_sequence_cmd+0xd8/0x1d8 [iscsi_target_mod]
+  iscsit_process_scsi_cmd+0xac/0xf8 [iscsi_target_mod]
+  iscsit_get_rx_pdu+0x404/0xd00 [iscsi_target_mod]
+  iscsi_target_rx_thread+0xb8/0x130 [iscsi_target_mod]
+  kthread+0x130/0x138
+  ret_from_fork+0x10/0x18
+ Code: f9000bf3 aa0003f3 aa1e03e0 d503201f (f9400260)
+ ---[ end trace 1e451c73f4266776 ]---
 
-  which lock already depends on the new lock.
+The solution is based on patch:
 
-  the existing dependency chain (in reverse order) is:
+  "scsi: target: tcmu: Optimize use of flush_dcache_page"
 
-  -> #2 (fs_reclaim){+.+.}-{0:0}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 fs_reclaim_acquire.part.0+0x25/0x30
-	 __kmalloc_track_caller+0x49/0x330
-	 kstrdup+0x2e/0x60
-	 __kernfs_new_node.constprop.0+0x44/0x250
-	 kernfs_new_node+0x25/0x50
-	 kernfs_create_link+0x34/0xa0
-	 sysfs_do_create_link_sd+0x5e/0xd0
-	 btrfs_sysfs_add_devices_dir+0x65/0x100 [btrfs]
-	 btrfs_init_new_device+0x44c/0x12b0 [btrfs]
-	 btrfs_ioctl+0xc3c/0x25c0 [btrfs]
-	 ksys_ioctl+0x68/0xa0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0xe0
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+which restricts the use of tcmu_flush_dcache_range() to addresses from
+vmalloc'ed areas only.
 
-  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 btrfs_chunk_alloc+0x137/0x3e0 [btrfs]
-	 find_free_extent+0xb44/0xfb0 [btrfs]
-	 btrfs_reserve_extent+0x9b/0x180 [btrfs]
-	 btrfs_alloc_tree_block+0xc1/0x350 [btrfs]
-	 alloc_tree_block_no_bg_flush+0x4a/0x60 [btrfs]
-	 __btrfs_cow_block+0x143/0x7a0 [btrfs]
-	 btrfs_cow_block+0x15f/0x310 [btrfs]
-	 push_leaf_right+0x150/0x240 [btrfs]
-	 split_leaf+0x3cd/0x6d0 [btrfs]
-	 btrfs_search_slot+0xd14/0xf70 [btrfs]
-	 btrfs_insert_empty_items+0x64/0xc0 [btrfs]
-	 __btrfs_commit_inode_delayed_items+0xb2/0x840 [btrfs]
-	 btrfs_async_run_delayed_root+0x10e/0x1d0 [btrfs]
-	 btrfs_work_helper+0x2f9/0x650 [btrfs]
-	 process_one_work+0x22c/0x600
-	 worker_thread+0x50/0x3b0
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+This patch now replaces the virt_to_page() call in
+tcmu_flush_dcache_range() - which is wrong for vmalloced addrs - by
+vmalloc_to_page().
 
-  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
-	 check_prev_add+0x98/0xa20
-	 validate_chain+0xa8c/0x2a00
-	 __lock_acquire+0x56f/0xaa0
-	 lock_acquire+0xa3/0x440
-	 __mutex_lock+0xa0/0xaf0
-	 __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-	 btrfs_evict_inode+0x3bf/0x560 [btrfs]
-	 evict+0xd6/0x1c0
-	 dispose_list+0x48/0x70
-	 prune_icache_sb+0x54/0x80
-	 super_cache_scan+0x121/0x1a0
-	 do_shrink_slab+0x175/0x420
-	 shrink_slab+0xb1/0x2e0
-	 shrink_node+0x192/0x600
-	 balance_pgdat+0x31f/0x750
-	 kswapd+0x206/0x510
-	 kthread+0x137/0x150
-	 ret_from_fork+0x1f/0x30
+The patch was tested on ARM with kernel 4.19.118 and 5.7.2
 
-  other info that might help us debug this:
-
-  Chain exists of:
-    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(fs_reclaim);
-				 lock(&fs_info->chunk_mutex);
-				 lock(fs_reclaim);
-    lock(&delayed_node->mutex);
-
-   *** DEADLOCK ***
-
-  3 locks held by kswapd0/75:
-   #0: ffffffff8b0c8040 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
-   #1: ffffffff8b0b50b8 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x54/0x2e0
-   #2: ffffa040e057c0e8 (&type->s_umount_key#26){++++}-{3:3}, at: trylock_super+0x16/0x50
-
-  stack backtrace:
-  CPU: 2 PID: 75 Comm: kswapd0 Not tainted 5.8.0-rc6-default+ #1191
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x16f/0x190
-   check_prev_add+0x98/0xa20
-   validate_chain+0xa8c/0x2a00
-   __lock_acquire+0x56f/0xaa0
-   lock_acquire+0xa3/0x440
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __mutex_lock+0xa0/0xaf0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? __lock_acquire+0x56f/0xaa0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   ? lock_acquire+0xa3/0x440
-   ? btrfs_evict_inode+0x138/0x560 [btrfs]
-   ? btrfs_evict_inode+0x2fe/0x560 [btrfs]
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   __btrfs_release_delayed_node.part.0+0x3f/0x310 [btrfs]
-   btrfs_evict_inode+0x3bf/0x560 [btrfs]
-   evict+0xd6/0x1c0
-   dispose_list+0x48/0x70
-   prune_icache_sb+0x54/0x80
-   super_cache_scan+0x121/0x1a0
-   do_shrink_slab+0x175/0x420
-   shrink_slab+0xb1/0x2e0
-   shrink_node+0x192/0x600
-   balance_pgdat+0x31f/0x750
-   kswapd+0x206/0x510
-   ? _raw_spin_unlock_irqrestore+0x3e/0x50
-   ? finish_wait+0x90/0x90
-   ? balance_pgdat+0x750/0x750
-   kthread+0x137/0x150
-   ? kthread_stop+0x2a0/0x2a0
-   ret_from_fork+0x1f/0x30
-
-This is because we're holding the chunk_mutex while adding this device
-and adding its sysfs entries.  We actually hold different locks in
-different places when calling this function, the dev_replace semaphore
-for instance in dev replace, so instead of moving this call around
-simply wrap it's operations in NOFS.
-
-CC: stable@vger.kernel.org # 4.14+
-Reported-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20200618131632.32748-3-bstroesser@ts.fujitsu.com
+Tested-by: JiangYu <lnsyyj@hotmail.com>
+Tested-by: Daniel Meyerholt <dxm523@gmail.com>
+Acked-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/sysfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/target/target_core_user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/sysfs.c b/fs/btrfs/sysfs.c
-index f05341bda1d14..383546ff62f04 100644
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -25,6 +25,7 @@
- #include <linux/bug.h>
- #include <linux/genhd.h>
- #include <linux/debugfs.h>
-+#include <linux/sched/mm.h>
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 8da89925a874d..9c05e820857aa 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -612,7 +612,7 @@ static inline void tcmu_flush_dcache_range(void *vaddr, size_t size)
+ 	size = round_up(size+offset, PAGE_SIZE);
  
- #include "ctree.h"
- #include "disk-io.h"
-@@ -749,7 +750,9 @@ int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
- {
- 	int error = 0;
- 	struct btrfs_device *dev;
-+	unsigned int nofs_flag;
- 
-+	nofs_flag = memalloc_nofs_save();
- 	list_for_each_entry(dev, &fs_devices->devices, dev_list) {
- 		struct hd_struct *disk;
- 		struct kobject *disk_kobj;
-@@ -768,6 +771,7 @@ int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
- 		if (error)
- 			break;
+ 	while (size) {
+-		flush_dcache_page(virt_to_page(start));
++		flush_dcache_page(vmalloc_to_page(start));
+ 		start += PAGE_SIZE;
+ 		size -= PAGE_SIZE;
  	}
-+	memalloc_nofs_restore(nofs_flag);
- 
- 	return error;
- }
 -- 
 2.25.1
 
