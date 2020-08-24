@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE1B24F650
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D0624F5E9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730575AbgHXI6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S1730386AbgHXIzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730462AbgHXI6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:58:09 -0400
+        id S1729505AbgHXIzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D74C42074D;
-        Mon, 24 Aug 2020 08:58:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 405D7204FD;
+        Mon, 24 Aug 2020 08:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259488;
-        bh=39BZSNOZ3YCtH8xHE/nc+9Glh3GPa0Ojog1NJQhchpA=;
+        s=default; t=1598259299;
+        bh=9fAn6yvTNYRybXEOoUFrVTBvErh/xKIBcFay/eU4W7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bJvJLnkU+RhmReazxHF08V6S1+y9xIIhBv9RUzIxhG8bEPmOg3gQlIdEOBHZ+quR
-         RvxLaVluwPso0FYAZo16kLRHt5zIyfhzmXQkwuJscO0+NUBIeaLZSTzHhdI6vKP8Io
-         2lqy0KGvw62Cz5zdG440pHvyFmX5ub0UM+1BPRig=
+        b=PCVTJoJg1CCxzXhIrMosXTbpS4Q2QmcOSM2R9HJJABjOhe254xY3pTFLb4e7QBcDH
+         qRZtDUCIx/zCbv4rqcUt1Mjy85QFLPtSatHZ9L1Bf9jiJUWelX+ZmbWbXTC0Rh6Wt4
+         a3UeN8jO0K+qaiIZKQcKyqeTgXTVFpoZDK+5rf1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Juergen Gross <jgross@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        xen-devel@lists.xenproject.org, linux-pci@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/71] Fix build error when CONFIG_ACPI is not set/enabled:
-Date:   Mon, 24 Aug 2020 10:31:48 +0200
-Message-Id: <20200824082358.762937348@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 48/50] mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+Date:   Mon, 24 Aug 2020 10:31:49 +0200
+Message-Id: <20200824082354.469722286@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit ee87e1557c42dc9c2da11c38e11b87c311569853 ]
+commit 75802ca66354a39ab8e35822747cd08b3384a99a upstream.
 
-../arch/x86/pci/xen.c: In function ‘pci_xen_init’:
-../arch/x86/pci/xen.c:410:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
-  acpi_noirq_set();
+This is found by code observation only.
 
-Fixes: 88e9ca161c13 ("xen/pci: Use acpi_noirq_set() helper to avoid #ifdef")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xenproject.org
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Firstly, the worst case scenario should assume the whole range was covered
+by pmd sharing.  The old algorithm might not work as expected for ranges
+like (1g-2m, 1g+2m), where the adjusted range should be (0, 1g+2m) but the
+expected range should be (0, 2g).
+
+Since at it, remove the loop since it should not be required.  With that,
+the new code should be faster too when the invalidating range is huge.
+
+Mike said:
+
+: With range (1g-2m, 1g+2m) within a vma (0, 2g) the existing code will only
+: adjust to (0, 1g+2m) which is incorrect.
+:
+: We should cc stable.  The original reason for adjusting the range was to
+: prevent data corruption (getting wrong page).  Since the range is not
+: always adjusted correctly, the potential for corruption still exists.
+:
+: However, I am fairly confident that adjust_range_if_pmd_sharing_possible
+: is only gong to be called in two cases:
+:
+: 1) for a single page
+: 2) for range == entire vma
+:
+: In those cases, the current code should produce the correct results.
+:
+: To be safe, let's just cc stable.
+
+Fixes: 017b1660df89 ("mm: migration: fix migration of huge PMD shared pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730201636.74778-1-peterx@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/pci/xen.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/hugetlb.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
-index 9112d1cb397bb..22da9bfd8a458 100644
---- a/arch/x86/pci/xen.c
-+++ b/arch/x86/pci/xen.c
-@@ -25,6 +25,7 @@
- #include <asm/xen/pci.h>
- #include <asm/xen/cpuid.h>
- #include <asm/apic.h>
-+#include <asm/acpi.h>
- #include <asm/i8259.h>
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4575,25 +4575,21 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long check_addr = *start;
++	unsigned long a_start, a_end;
  
- static int xen_pcifront_enable_irq(struct pci_dev *dev)
--- 
-2.25.1
-
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	for (check_addr = *start; check_addr < *end; check_addr += PUD_SIZE) {
+-		unsigned long a_start = check_addr & PUD_MASK;
+-		unsigned long a_end = a_start + PUD_SIZE;
++	/* Extend the range to be PUD aligned for a worst case scenario */
++	a_start = ALIGN_DOWN(*start, PUD_SIZE);
++	a_end = ALIGN(*end, PUD_SIZE);
+ 
+-		/*
+-		 * If sharing is possible, adjust start/end if necessary.
+-		 */
+-		if (range_in_vma(vma, a_start, a_end)) {
+-			if (a_start < *start)
+-				*start = a_start;
+-			if (a_end > *end)
+-				*end = a_end;
+-		}
+-	}
++	/*
++	 * Intersect the range with the vma range, since pmd sharing won't be
++	 * across vma after all
++	 */
++	*start = max(vma->vm_start, a_start);
++	*end = min(vma->vm_end, a_end);
+ }
+ 
+ /*
 
 
