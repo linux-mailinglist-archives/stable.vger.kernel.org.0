@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DA024FAD0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 12:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590D624FAA9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726832AbgHXIcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39976 "EHLO mail.kernel.org"
+        id S1727881AbgHXJ6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726802AbgHXIct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:32:49 -0400
+        id S1727884AbgHXIeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 916A9206F0;
-        Mon, 24 Aug 2020 08:32:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E1BF206F0;
+        Mon, 24 Aug 2020 08:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257969;
-        bh=1I0FJfJlkGo4/bQRz+yIbSTD2q6adynUdm/vCXmFolc=;
+        s=default; t=1598258056;
+        bh=zL6LKo2P1koAyupmQ6PvuVWQybcemZ5+MnGyBZXepzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xA44E3Ra9DIKcTEpaxUYWL2PliAiahbbNhuyMuphPfWyxpalGcN5E0X2DzP6aRg6H
-         jQhERAshrb3LqwOVtotVDIYz1S68/BeCDQ3ugOFWI6mZFIvnDynPdLiy96g7LX592e
-         zGjJJvIecX2qtb2gVMOpe7sToF2ThOXiZ5C6DMxU=
+        b=zEJLW2kpZOW4I23Yu9hu79PG3U4LI00POcbaZZcVTbXgWaavrjvFNNUid05jKVJQ5
+         i1EGyho6Th57eHV9tlBIXZc/0oJTLMS01tba21piewTk00lYWeIEAa7Vaq4MLvENXi
+         osmQL36g+LBOppO6taNGCd9gA0cGfl6BNgdJ8m5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.8 009/148] can: j1939: transport: j1939_session_tx_dat(): fix use-after-free read in j1939_tp_txtimer()
-Date:   Mon, 24 Aug 2020 10:28:27 +0200
-Message-Id: <20200824082414.396969214@linuxfoundation.org>
+        Charan Teja Reddy <charante@codeaurora.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Vinayak Menon <vinmenon@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 019/148] mm, page_alloc: fix core hung in free_pcppages_bulk()
+Date:   Mon, 24 Aug 2020 10:28:37 +0200
+Message-Id: <20200824082414.888818988@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -45,66 +50,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-commit cd3b3636c99fcac52c598b64061f3fe4413c6a12 upstream.
+commit 88e8ac11d2ea3acc003cf01bb5a38c8aa76c3cfd upstream.
 
-The current stack implementation do not support ECTS requests of not
-aligned TP sized blocks.
+The following race is observed with the repeated online, offline and a
+delay between two successive online of memory blocks of movable zone.
 
-If ECTS will request a block with size and offset spanning two TP
-blocks, this will cause memcpy() to read beyond the queued skb (which
-does only contain one TP sized block).
+P1						P2
 
-Sometimes KASAN will detect this read if the memory region beyond the
-skb was previously allocated and freed. In other situations it will stay
-undetected. The ETP transfer in any case will be corrupted.
+Online the first memory block in
+the movable zone. The pcp struct
+values are initialized to default
+values,i.e., pcp->high = 0 &
+pcp->batch = 1.
 
-This patch adds a sanity check to avoid this kind of read and abort the
-session with error J1939_XTP_ABORT_ECTS_TOO_BIG.
+					Allocate the pages from the
+					movable zone.
 
-Reported-by: syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20200807105200.26441-3-o.rempel@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Try to Online the second memory
+block in the movable zone thus it
+entered the online_pages() but yet
+to call zone_pcp_update().
+					This process is entered into
+					the exit path thus it tries
+					to release the order-0 pages
+					to pcp lists through
+					free_unref_page_commit().
+					As pcp->high = 0, pcp->count = 1
+					proceed to call the function
+					free_pcppages_bulk().
+Update the pcp values thus the
+new pcp values are like, say,
+pcp->high = 378, pcp->batch = 63.
+					Read the pcp's batch value using
+					READ_ONCE() and pass the same to
+					free_pcppages_bulk(), pcp values
+					passed here are, batch = 63,
+					count = 1.
+
+					Since num of pages in the pcp
+					lists are less than ->batch,
+					then it will stuck in
+					while(list_empty(list)) loop
+					with interrupts disabled thus
+					a core hung.
+
+Avoid this by ensuring free_pcppages_bulk() is called with proper count of
+pcp list pages.
+
+The mentioned race is some what easily reproducible without [1] because
+pcp's are not updated for the first memory block online and thus there is
+a enough race window for P2 between alloc+free and pcp struct values
+update through onlining of second memory block.
+
+With [1], the race still exists but it is very narrow as we update the pcp
+struct values for the first memory block online itself.
+
+This is not limited to the movable zone, it could also happen in cases
+with the normal zone (e.g., hotplug to a node that only has DMA memory, or
+no other memory yet).
+
+[1]: https://patchwork.kernel.org/patch/11696389/
+
+Fixes: 5f8dcc21211a ("page-allocator: split per-cpu list into one-list-per-migrate-type")
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Vinayak Menon <vinmenon@codeaurora.org>
+Cc: <stable@vger.kernel.org> [2.6+]
+Link: http://lkml.kernel.org/r/1597150703-19003-1-git-send-email-charante@codeaurora.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/j1939/transport.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ mm/page_alloc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -787,6 +787,18 @@ static int j1939_session_tx_dat(struct j
- 		if (len > 7)
- 			len = 7;
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1306,6 +1306,11 @@ static void free_pcppages_bulk(struct zo
+ 	struct page *page, *tmp;
+ 	LIST_HEAD(head);
  
-+		if (offset + len > se_skb->len) {
-+			netdev_err_once(priv->ndev,
-+					"%s: 0x%p: requested data outside of queued buffer: offset %i, len %i, pkt.tx: %i\n",
-+					__func__, session, skcb->offset, se_skb->len , session->pkt.tx);
-+			return -EOVERFLOW;
-+		}
-+
-+		if (!len) {
-+			ret = -ENOBUFS;
-+			break;
-+		}
-+
- 		memcpy(&dat[1], &tpdat[offset], len);
- 		ret = j1939_tp_tx_dat(session, dat, len + 1);
- 		if (ret < 0) {
-@@ -1120,6 +1132,9 @@ static enum hrtimer_restart j1939_tp_txt
- 		 * cleanup including propagation of the error to user space.
- 		 */
- 		break;
-+	case -EOVERFLOW:
-+		j1939_session_cancel(session, J1939_XTP_ABORT_ECTS_TOO_BIG);
-+		break;
- 	case 0:
- 		session->tx_retry = 0;
- 		break;
++	/*
++	 * Ensure proper count is passed which otherwise would stuck in the
++	 * below while (list_empty(list)) loop.
++	 */
++	count = min(pcp->count, count);
+ 	while (count) {
+ 		struct list_head *list;
+ 
 
 
