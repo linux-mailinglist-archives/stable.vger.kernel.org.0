@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6446A24FAC3
+	by mail.lfdr.de (Postfix) with ESMTP id DDB2F24FAC4
 	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726985AbgHXIdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:33:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40628 "EHLO mail.kernel.org"
+        id S1726502AbgHXJ7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726967AbgHXIdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:33:14 -0400
+        id S1726986AbgHXIdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:33:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A965A206F0;
-        Mon, 24 Aug 2020 08:33:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BE70207D3;
+        Mon, 24 Aug 2020 08:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257994;
-        bh=RJOqI9Y/VEL2LCFQfLWO6cFIAWr88mM0h3JoXL/F7lg=;
+        s=default; t=1598257996;
+        bh=kCkV9GnogaTy4jEU/uZ8pRQps80RvBYxzFXGpYVLYd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fn/tRO3WDkyQi3N7Zg9Y5Gq7xxGy8tv0TbdDIg01MIm3XOGwZK/EThGTQBoR4gTae
-         cCJsrQvT/ADEIlJ1DDBHi7PQmImGVU31t7+Ub95QjzMEbGD3rovhFnSCIGyQnpnnRg
-         WryCv+7GSEewsYBY2GYmojAOekLyf/LwwV6Kqo4w=
+        b=LCd+UiMDo5qgyrjOv0Nps/+Zd8u/Y6fPM73ddyUIy3KGzQkNEDaLGOy8aKcIvama8
+         31Pe/ISi+bffjUx9zRg7wXX1QyDqEYEahMMZEAXTy5aEx2JDKDjK0J6BJz+F72gyuB
+         7TjVutS9SWPFNqiZdeoag33GucjzLMhP/RwIaDXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Xu Yu <xuyu@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Yang Shi <shy828301@gmail.com>
-Subject: [PATCH 5.8 035/148] mm/memory.c: skip spurious TLB flush for retried page fault
-Date:   Mon, 24 Aug 2020 10:28:53 +0200
-Message-Id: <20200824082415.728055711@linuxfoundation.org>
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.8 036/148] drm: amdgpu: Use the correct size when allocating memory
+Date:   Mon, 24 Aug 2020 10:28:54 +0200
+Message-Id: <20200824082415.777369848@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -48,52 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit b7333b58f358f38d90d78e00c1ee5dec82df10ad upstream.
+commit 78484d7c747e30468b35bd5f19edf602f50162a7 upstream.
 
-Recently we found regression when running will_it_scale/page_fault3 test
-on ARM64.  Over 70% down for the multi processes cases and over 20% down
-for the multi threads cases.  It turns out the regression is caused by
-commit 89b15332af7c ("mm: drop mmap_sem before calling
-balance_dirty_pages() in write fault").
+When '*sgt' is allocated, we must allocated 'sizeof(**sgt)' bytes instead
+of 'sizeof(*sg)'.
 
-The test mmaps a memory size file then write to the mapping, this would
-make all memory dirty and trigger dirty pages throttle, that upstream
-commit would release mmap_sem then retry the page fault.  The retried
-page fault would see correct PTEs installed then just fall through to
-spurious TLB flush.  The regression is caused by the excessive spurious
-TLB flush.  It is fine on x86 since x86's spurious TLB flush is no-op.
+The sizeof(*sg) is bigger than sizeof(**sgt) so this wastes memory but
+it won't lead to corruption.
 
-We could just skip the spurious TLB flush to mitigate the regression.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Xu Yu <xuyu@linux.alibaba.com>
-Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
-Tested-by: Xu Yu <xuyu@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f44ffd677fb3 ("drm/amdgpu: add support for exporting VRAM using DMA-buf v3")
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memory.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4248,6 +4248,9 @@ static vm_fault_t handle_pte_fault(struc
- 				vmf->flags & FAULT_FLAG_WRITE)) {
- 		update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
- 	} else {
-+		/* Skip spurious TLB flush for retried page fault */
-+		if (vmf->flags & FAULT_FLAG_TRIED)
-+			goto unlock;
- 		/*
- 		 * This is needed only for protection faults but the arch code
- 		 * is not yet telling us if this is a protection fault or not.
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c
+@@ -465,7 +465,7 @@ int amdgpu_vram_mgr_alloc_sgt(struct amd
+ 	unsigned int pages;
+ 	int i, r;
+ 
+-	*sgt = kmalloc(sizeof(*sg), GFP_KERNEL);
++	*sgt = kmalloc(sizeof(**sgt), GFP_KERNEL);
+ 	if (!*sgt)
+ 		return -ENOMEM;
+ 
 
 
