@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0176724F645
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B74724F66F
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730760AbgHXI6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
+        id S1729188AbgHXJAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:00:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730756AbgHXI6O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:58:14 -0400
+        id S1730663AbgHXI5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:57:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1C0B204FD;
-        Mon, 24 Aug 2020 08:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38FA4207D3;
+        Mon, 24 Aug 2020 08:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259493;
-        bh=t60HpLwE+ABxU3kRI1QY62eWALzA2Y88UuNatmqx9pc=;
+        s=default; t=1598259440;
+        bh=wo/VMhhoIfF+r2/yvcpmPDPzE5Dmw+aqF6lxpzx73iI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDeMf7DEbRH8FHyShWYBuL0splf67xxQ/AKVPX7ZLsvEOGLxFcZrOf0vLPrcse8Zx
-         whIJlocXLFQnPLsUlIT9lZjNrlWNsirFA8KluuZmzRiVkiqmxb/s9oCk0QHN1XZAdS
-         JwCse5VemYpBPLVSVBHdT3e9OiExabO/1uftbZio=
+        b=Eru70YROa17fVyCyogDOcSxReZzYODJjs/tSvwrEglADYMFJEGB2SERxC6tq/jCqc
+         E7bBe8bx0RfU6ae3Dgq0zHgdRX9SDry5oT8gzTSeE6eHnzYhzAHdu/Z2GuBYDUxIW0
+         wVHxLIfxSEIg+aoGzD+SrxcQ21Mx5WybFezAGcdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/71] afs: Fix NULL deref in afs_dynroot_depopulate()
-Date:   Mon, 24 Aug 2020 10:31:50 +0200
-Message-Id: <20200824082358.868712543@linuxfoundation.org>
+Subject: [PATCH 4.19 60/71] bonding: fix active-backup failover for current ARP slave
+Date:   Mon, 24 Aug 2020 10:31:51 +0200
+Message-Id: <20200824082358.932514657@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
 References: <20200824082355.848475917@linuxfoundation.org>
@@ -46,86 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-[ Upstream commit 5e0b17b026eb7c6de9baa9b0d45a51b05f05abe1 ]
+[ Upstream commit 0410d07190961ac526f05085765a8d04d926545b ]
 
-If an error occurs during the construction of an afs superblock, it's
-possible that an error occurs after a superblock is created, but before
-we've created the root dentry.  If the superblock has a dynamic root
-(ie.  what's normally mounted on /afs), the afs_kill_super() will call
-afs_dynroot_depopulate() to unpin any created dentries - but this will
-oops if the root hasn't been created yet.
+When the ARP monitor is used for link detection, ARP replies are
+validated for all slaves (arp_validate=3) and fail_over_mac is set to
+active, two slaves of an active-backup bond may get stuck in a state
+where both of them are active and pass packets that they receive to
+the bond. This state makes IPv6 duplicate address detection fail. The
+state is reached thus:
+1. The current active slave goes down because the ARP target
+   is not reachable.
+2. The current ARP slave is chosen and made active.
+3. A new slave is enslaved. This new slave becomes the current active
+   slave and can reach the ARP target.
+As a result, the current ARP slave stays active after the enslave
+action has finished and the log is littered with "PROBE BAD" messages:
+> bond0: PROBE: c_arp ens10 && cas ens11 BAD
+The workaround is to remove the slave with "going back" status from
+the bond and re-enslave it. This issue was encountered when DPDK PMD
+interfaces were being enslaved to an active-backup bond.
 
-Fix this by skipping that bit of code if there is no root dentry.
+I would be possible to fix the issue in bond_enslave() or
+bond_change_active_slave() but the ARP monitor was fixed instead to
+keep most of the actions changing the current ARP slave in the ARP
+monitor code. The current ARP slave is set as inactive and backup
+during the commit phase. A new state, BOND_LINK_FAIL, has been
+introduced for slaves in the context of the ARP monitor. This allows
+administrators to see how slaves are rotated for sending ARP requests
+and attempts are made to find a new active slave.
 
-This leads to an oops looking like:
-
-	general protection fault, ...
-	KASAN: null-ptr-deref in range [0x0000000000000068-0x000000000000006f]
-	...
-	RIP: 0010:afs_dynroot_depopulate+0x25f/0x529 fs/afs/dynroot.c:385
-	...
-	Call Trace:
-	 afs_kill_super+0x13b/0x180 fs/afs/super.c:535
-	 deactivate_locked_super+0x94/0x160 fs/super.c:335
-	 afs_get_tree+0x1124/0x1460 fs/afs/super.c:598
-	 vfs_get_tree+0x89/0x2f0 fs/super.c:1547
-	 do_new_mount fs/namespace.c:2875 [inline]
-	 path_mount+0x1387/0x2070 fs/namespace.c:3192
-	 do_mount fs/namespace.c:3205 [inline]
-	 __do_sys_mount fs/namespace.c:3413 [inline]
-	 __se_sys_mount fs/namespace.c:3390 [inline]
-	 __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
-	 do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-which is oopsing on this line:
-
-	inode_lock(root->d_inode);
-
-presumably because sb->s_root was NULL.
-
-Fixes: 0da0b7fd73e4 ("afs: Display manually added cells in dynamic root mount")
-Reported-by: syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b2220cad583c9 ("bonding: refactor ARP active-backup monitor")
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dynroot.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/bonding/bond_main.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/dynroot.c b/fs/afs/dynroot.c
-index 069273a2483f9..fc6c42eeb659c 100644
---- a/fs/afs/dynroot.c
-+++ b/fs/afs/dynroot.c
-@@ -299,15 +299,17 @@ void afs_dynroot_depopulate(struct super_block *sb)
- 		net->dynroot_sb = NULL;
- 	mutex_unlock(&net->proc_cells_lock);
- 
--	inode_lock(root->d_inode);
--
--	/* Remove all the pins for dirs created for manually added cells */
--	list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
--		if (subdir->d_fsdata) {
--			subdir->d_fsdata = NULL;
--			dput(subdir);
-+	if (root) {
-+		inode_lock(root->d_inode);
-+
-+		/* Remove all the pins for dirs created for manually added cells */
-+		list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
-+			if (subdir->d_fsdata) {
-+				subdir->d_fsdata = NULL;
-+				dput(subdir);
-+			}
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index ee7138a92d5e7..d32e32e791741 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2773,6 +2773,9 @@ static int bond_ab_arp_inspect(struct bonding *bond)
+ 			if (bond_time_in_interval(bond, last_rx, 1)) {
+ 				bond_propose_link_state(slave, BOND_LINK_UP);
+ 				commit++;
++			} else if (slave->link == BOND_LINK_BACK) {
++				bond_propose_link_state(slave, BOND_LINK_FAIL);
++				commit++;
+ 			}
+ 			continue;
  		}
--	}
+@@ -2883,6 +2886,19 @@ static void bond_ab_arp_commit(struct bonding *bond)
  
--	inode_unlock(root->d_inode);
-+		inode_unlock(root->d_inode);
-+	}
- }
+ 			continue;
+ 
++		case BOND_LINK_FAIL:
++			bond_set_slave_link_state(slave, BOND_LINK_FAIL,
++						  BOND_SLAVE_NOTIFY_NOW);
++			bond_set_slave_inactive_flags(slave,
++						      BOND_SLAVE_NOTIFY_NOW);
++
++			/* A slave has just been enslaved and has become
++			 * the current active slave.
++			 */
++			if (rtnl_dereference(bond->curr_active_slave))
++				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
++			continue;
++
+ 		default:
+ 			netdev_err(bond->dev, "impossible: new_link %d on slave %s\n",
+ 				   slave->link_new_state, slave->dev->name);
+@@ -2932,8 +2948,6 @@ static bool bond_ab_arp_probe(struct bonding *bond)
+ 			return should_notify_rtnl;
+ 	}
+ 
+-	bond_set_slave_inactive_flags(curr_arp_slave, BOND_SLAVE_NOTIFY_LATER);
+-
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+ 		if (!found && !before && bond_slave_is_up(slave))
+ 			before = slave;
 -- 
 2.25.1
 
