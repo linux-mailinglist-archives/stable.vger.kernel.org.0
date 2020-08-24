@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4CF24FA10
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF9F24F8C7
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728094AbgHXIio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
+        id S1729527AbgHXIsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728006AbgHXIil (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:41 -0400
+        id S1728113AbgHXIsH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BF3A20FC3;
-        Mon, 24 Aug 2020 08:38:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30FBA2072D;
+        Mon, 24 Aug 2020 08:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258321;
-        bh=z9X8XAf5pNu5xFYsewaUK9xluow/ICaWKL8M9zLZUyo=;
+        s=default; t=1598258886;
+        bh=dXM8ebUwK/gOG6BlRks6/cnXzv5LRwXZ/MAjWYPQJ0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Se2ZnQanC6n0qXQVjDAG7hhvFBneca7hSwM04pvkh5Bz6snz7hWz+rDgzpaUmP1CK
-         yFd87uwN46i5MPRctrAYX/ByVlaueA+I7VrtQ8Bi1j/ug9zU/WHbroJu5t86W9iFeE
-         10v3erO5tQHwEpdFUShZ/7hDKB0bMMBZyIMMPGvM=
+        b=ZxkMu3T/lgnqfmNTedsQZoTqOoP4y0T5SULUBazxZRrLk0bJUaGrBUJMWEKhUJ/eu
+         Yy1VWXBhF5cfHkVrtSEoY52mE2jsEF7pY0X9nNFmO144amT2HlzrP0N0iWv4UsvZgj
+         mycXnEDL6LMRG9YeQ4OCx8Bhwuxk81VTrxrXLK0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.8 148/148] do_epoll_ctl(): clean the failure exits up a bit
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 080/107] can: j1939: add rxtimer for multipacket broadcast session
 Date:   Mon, 24 Aug 2020 10:30:46 +0200
-Message-Id: <20200824082421.115891566@linuxfoundation.org>
+Message-Id: <20200824082409.079524169@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 52c479697c9b73f628140dcdfcd39ea302d05482 upstream.
+[ Upstream commit 0ae18a82686f9b9965a8ce0dd81371871b306ffe ]
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+According to SAE J1939/21 (Chapter 5.12.3 and APPENDIX C), for transmit side
+the required time interval between packets of a multipacket broadcast message
+is 50 to 200 ms, the responder shall use a timeout of 250ms (provides margin
+allowing for the maximumm spacing of 200ms). For receive side a timeout will
+occur when a time of greater than 750 ms elapsed between two message packets
+when more packets were expected.
 
+So this patch fix and add rxtimer for multipacket broadcast session.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1596599425-5534-5-git-send-email-zhangchangzhong@huawei.com
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |   19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ net/can/j1939/transport.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -2203,29 +2203,22 @@ int do_epoll_ctl(int epfd, int op, int f
- 			full_check = 1;
- 			if (is_file_epoll(tf.file)) {
- 				error = -ELOOP;
--				if (ep_loop_check(ep, tf.file) != 0) {
--					clear_tfile_check_list();
-+				if (ep_loop_check(ep, tf.file) != 0)
- 					goto error_tgt_fput;
--				}
- 			} else {
- 				get_file(tf.file);
- 				list_add(&tf.file->f_tfile_llink,
- 							&tfile_check_list);
- 			}
- 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
--			if (error) {
--out_del:
--				list_del(&tf.file->f_tfile_llink);
--				if (!is_file_epoll(tf.file))
--					fput(tf.file);
-+			if (error)
- 				goto error_tgt_fput;
--			}
- 			if (is_file_epoll(tf.file)) {
- 				tep = tf.file->private_data;
- 				error = epoll_mutex_lock(&tep->mtx, 1, nonblock);
- 				if (error) {
- 					mutex_unlock(&ep->mtx);
--					goto out_del;
-+					goto error_tgt_fput;
- 				}
- 			}
- 		}
-@@ -2246,8 +2239,6 @@ out_del:
- 			error = ep_insert(ep, epds, tf.file, fd, full_check);
- 		} else
- 			error = -EEXIST;
--		if (full_check)
--			clear_tfile_check_list();
- 		break;
- 	case EPOLL_CTL_DEL:
- 		if (epi)
-@@ -2270,8 +2261,10 @@ out_del:
- 	mutex_unlock(&ep->mtx);
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index e3167619b196f..dbd215cbc53d8 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -723,10 +723,12 @@ static int j1939_session_tx_rts(struct j1939_session *session)
+ 		return ret;
  
- error_tgt_fput:
--	if (full_check)
-+	if (full_check) {
-+		clear_tfile_check_list();
- 		mutex_unlock(&epmutex);
+ 	session->last_txcmd = dat[0];
+-	if (dat[0] == J1939_TP_CMD_BAM)
++	if (dat[0] == J1939_TP_CMD_BAM) {
+ 		j1939_tp_schedule_txtimer(session, 50);
+-
+-	j1939_tp_set_rxtimeout(session, 1250);
++		j1939_tp_set_rxtimeout(session, 250);
++	} else {
++		j1939_tp_set_rxtimeout(session, 1250);
 +	}
  
- 	fdput(tf);
- error_fput:
+ 	netdev_dbg(session->priv->ndev, "%s: 0x%p\n", __func__, session);
+ 
+@@ -1687,11 +1689,15 @@ static void j1939_xtp_rx_rts(struct j1939_priv *priv, struct sk_buff *skb,
+ 	}
+ 	session->last_cmd = cmd;
+ 
+-	j1939_tp_set_rxtimeout(session, 1250);
+-
+-	if (cmd != J1939_TP_CMD_BAM && !session->transmission) {
+-		j1939_session_txtimer_cancel(session);
+-		j1939_tp_schedule_txtimer(session, 0);
++	if (cmd == J1939_TP_CMD_BAM) {
++		if (!session->transmission)
++			j1939_tp_set_rxtimeout(session, 750);
++	} else {
++		if (!session->transmission) {
++			j1939_session_txtimer_cancel(session);
++			j1939_tp_schedule_txtimer(session, 0);
++		}
++		j1939_tp_set_rxtimeout(session, 1250);
+ 	}
+ 
+ 	j1939_session_put(session);
+@@ -1742,6 +1748,7 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
+ 	int offset;
+ 	int nbytes;
+ 	bool final = false;
++	bool remain = false;
+ 	bool do_cts_eoma = false;
+ 	int packet;
+ 
+@@ -1804,6 +1811,8 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
+ 	    j1939_cb_is_broadcast(&session->skcb)) {
+ 		if (session->pkt.rx >= session->pkt.total)
+ 			final = true;
++		else
++			remain = true;
+ 	} else {
+ 		/* never final, an EOMA must follow */
+ 		if (session->pkt.rx >= session->pkt.last)
+@@ -1813,6 +1822,9 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
+ 	if (final) {
+ 		j1939_session_timers_cancel(session);
+ 		j1939_session_completed(session);
++	} else if (remain) {
++		if (!session->transmission)
++			j1939_tp_set_rxtimeout(session, 750);
+ 	} else if (do_cts_eoma) {
+ 		j1939_tp_set_rxtimeout(session, 1250);
+ 		if (!session->transmission)
+-- 
+2.25.1
+
 
 
