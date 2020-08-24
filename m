@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BB824FA7C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9063A24F9D1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbgHXIf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:35:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46124 "EHLO mail.kernel.org"
+        id S1728083AbgHXIj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:39:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728098AbgHXIf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:26 -0400
+        id S1728633AbgHXIjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB6982177B;
-        Mon, 24 Aug 2020 08:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BE8A20FC3;
+        Mon, 24 Aug 2020 08:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258126;
-        bh=cBWRrPXAZq+OpXD8QP6SeV0mkgjHFxpB8eaf/FyXlsA=;
+        s=default; t=1598258360;
+        bh=5A2VtyRJR0QYn/NUiPF8cKX4wWAD7dQLc9ZXAmgRtV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJFSsMCFh/iBFMfexXySvZ68oE02IrFOOB+Rx7nMphu+UI30IRsB+/B9hxalbXmtN
-         a1p+s5PIy6K2vOnP2IBJmlKzenUrpG86/yWXRAyCnfkVJ0y5fDv/tOWGyqeM+omHhW
-         TKscMGEgYC5brmC9b3/V1G3XITgjTKWkZyZOZ5j0=
+        b=tRejIB/9BVcvlTlTy9AFt5aaVRhdTiCWBuYnxkQYIdfIhfZw5SmezP+Zey2qaNMzx
+         oJWHtTHmAG0HRGsBLIhr4zlYLk5OXR+vv4B1l61cDXFFDEKJ9dX55UWxP9+h7Nz7yJ
+         JtHXBHTPOFd12XSK0a+z/gcI5Poaakb9PGxcAzXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 055/148] m68knommu: fix overwriting of bits in ColdFire V3 cache control
-Date:   Mon, 24 Aug 2020 10:29:13 +0200
-Message-Id: <20200824082416.702919367@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.7 020/124] scsi: zfcp: Fix use-after-free in request timeout handlers
+Date:   Mon, 24 Aug 2020 10:29:14 +0200
+Message-Id: <20200824082410.412275851@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Steffen Maier <maier@linux.ibm.com>
 
-[ Upstream commit bdee0e793cea10c516ff48bf3ebb4ef1820a116b ]
+commit 2d9a2c5f581be3991ba67fa9e7497c711220ea8e upstream.
 
-The Cache Control Register (CACR) of the ColdFire V3 has bits that
-control high level caching functions, and also enable/disable the use
-of the alternate stack pointer register (the EUSP bit) to provide
-separate supervisor and user stack pointer registers. The code as
-it is today will blindly clear the EUSP bit on cache actions like
-invalidation. So it is broken for this case - and that will result
-in failed booting (interrupt entry and exit processing will be
-completely hosed).
+Before v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
+timer_setup()"), we intentionally only passed zfcp_adapter as context
+argument to zfcp_fsf_request_timeout_handler(). Since we only trigger
+adapter recovery, it was unnecessary to sync against races between timeout
+and (late) completion.  Likewise, we only passed zfcp_erp_action as context
+argument to zfcp_erp_timeout_handler(). Since we only wakeup an ERP action,
+it was unnecessary to sync against races between timeout and (late)
+completion.
 
-This only affects ColdFire V3 parts that support the alternate stack
-register (like the 5329 for example) - generally speaking new parts do,
-older parts don't. It has no impact on ColdFire V3 parts with the single
-stack pointer, like the 5307 for example.
+Meanwhile the timeout handlers get timer_list as context argument and do a
+timer-specific container-of to zfcp_fsf_req which can have been freed.
 
-Fix the cache bit defines used, so they maintain the EUSP bit when
-carrying out cache actions through the CACR register.
+Fix it by making sure that any request timeout handlers, that might just
+have started before del_timer(), are completed by using del_timer_sync()
+instead. This ensures the request free happens afterwards.
 
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Space time diagram of potential use-after-free:
+
+Basic idea is to have 2 or more pending requests whose timeouts run out at
+almost the same time.
+
+req 1 timeout     ERP thread        req 2 timeout
+----------------  ----------------  ---------------------------------------
+zfcp_fsf_request_timeout_handler
+fsf_req = from_timer(fsf_req, t, timer)
+adapter = fsf_req->adapter
+zfcp_qdio_siosl(adapter)
+zfcp_erp_adapter_reopen(adapter,...)
+                  zfcp_erp_strategy
+                  ...
+                  zfcp_fsf_req_dismiss_all
+                  list_for_each_entry_safe
+                    zfcp_fsf_req_complete 1
+                    del_timer 1
+                    zfcp_fsf_req_free 1
+                    zfcp_fsf_req_complete 2
+                                    zfcp_fsf_request_timeout_handler
+                    del_timer 2
+                                    fsf_req = from_timer(fsf_req, t, timer)
+                    zfcp_fsf_req_free 2
+                                    adapter = fsf_req->adapter
+                                              ^^^^^^^ already freed
+
+Link: https://lore.kernel.org/r/20200813152856.50088-1-maier@linux.ibm.com
+Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+Cc: <stable@vger.kernel.org> #4.15+
+Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/m68k/include/asm/m53xxacr.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/include/asm/m53xxacr.h b/arch/m68k/include/asm/m53xxacr.h
-index 9138a624c5c81..692f90e7fecc1 100644
---- a/arch/m68k/include/asm/m53xxacr.h
-+++ b/arch/m68k/include/asm/m53xxacr.h
-@@ -89,9 +89,9 @@
-  * coherency though in all cases. And for copyback caches we will need
-  * to push cached data as well.
-  */
--#define CACHE_INIT	  CACR_CINVA
--#define CACHE_INVALIDATE  CACR_CINVA
--#define CACHE_INVALIDATED CACR_CINVA
-+#define CACHE_INIT        (CACHE_MODE + CACR_CINVA - CACR_EC)
-+#define CACHE_INVALIDATE  (CACHE_MODE + CACR_CINVA)
-+#define CACHE_INVALIDATED (CACHE_MODE + CACR_CINVA)
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -430,7 +430,7 @@ static void zfcp_fsf_req_complete(struct
+ 		return;
+ 	}
  
- #define ACR0_MODE	((CONFIG_RAMBASE & 0xff000000) + \
- 			 (0x000f0000) + \
--- 
-2.25.1
-
+-	del_timer(&req->timer);
++	del_timer_sync(&req->timer);
+ 	zfcp_fsf_protstatus_eval(req);
+ 	zfcp_fsf_fsfstatus_eval(req);
+ 	req->handler(req);
+@@ -905,7 +905,7 @@ static int zfcp_fsf_req_send(struct zfcp
+ 	req->qdio_req.qdio_outb_usage = atomic_read(&qdio->req_q_free);
+ 	req->issued = get_tod_clock();
+ 	if (zfcp_qdio_send(qdio, &req->qdio_req)) {
+-		del_timer(&req->timer);
++		del_timer_sync(&req->timer);
+ 		/* lookup request again, list might have changed */
+ 		zfcp_reqlist_find_rm(adapter->req_list, req_id);
+ 		zfcp_erp_adapter_reopen(adapter, 0, "fsrs__1");
 
 
