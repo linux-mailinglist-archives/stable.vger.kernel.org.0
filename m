@@ -2,75 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1374424FD74
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 14:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3FD024FD87
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 14:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726739AbgHXMHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 08:07:42 -0400
-Received: from www.zeus03.de ([194.117.254.33]:42514 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726466AbgHXMHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 08:07:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=FdR4jm5F5Z57/fNoP7GbP3o8BTe0
-        1SeGyFzr5uf+Mjc=; b=2x55aK2z+U98UaGg0Qz0QZq2rgYhAt60zNi3Br6OvhWo
-        etczisSRyJJ3G6jpG40qxnu7dTTPS5wqPh3YAfrPqi6cbI+rTOfp81pCylJF5YqM
-        uQ/wDtmQHKfIGsQroTAGiDIBtOWpV8asDAZYug1WBBspXLMkqP34SVZ2kcl9/NU=
-Received: (qmail 1869772 invoked from network); 24 Aug 2020 14:07:38 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 24 Aug 2020 14:07:38 +0200
-X-UD-Smtp-Session: l3s3148p1@3jPJbp6tvIAgAwDPXwQSAE8ZH2VjqKES
-Date:   Mon, 24 Aug 2020 14:07:35 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Eugeniu Rosca <erosca@de.adit-jv.com>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Dirk Behme <dirk.behme@de.bosch.com>,
-        Andy Lowe <andy_lowe@mentor.com>
-Subject: Re: [PATCH] i2c: i2c-rcar: Auto select RESET_CONTROLLER
-Message-ID: <20200824120734.GA2500@ninjato>
-References: <20200824062623.9346-1-erosca@de.adit-jv.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-In-Reply-To: <20200824062623.9346-1-erosca@de.adit-jv.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1725963AbgHXMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 08:15:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13384 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725906AbgHXMPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 08:15:00 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07OC235Z146980;
+        Mon, 24 Aug 2020 08:14:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=ilaU6IUDf52Jth9wTolQYR+bi5i9FlQ3hnQWsivcPRE=;
+ b=l6QVX2hLXEf/1hDtQuWvBcZ4rvLQ6h0urOXN8QpiEf9FxQwO51ZyP3xKQO3pFd6smLaE
+ hebJABxG8PpAUYEaIWBXn+SCnWwDgeyNmf9AukG+FlYDgb22u5ZhERjoio+Zm+mddIKC
+ KxDwG9oTPWYp6r8toFCAbSPatHMivlk9SUJvNhKuTqkLWTiturRlD7uIZbZ1Ggl3g0Jw
+ WhvIaRIbh6I+/9UnXXwZ3DJBOVw84BygJ7ZqTZoQGmnBTmyjBx/2pv+RAFGPifdkI9MN
+ sQ1GfcQEYi0hnXpMJZtCwSxIaYqDqarOQRMAsvQ2Ye1IvoZRFcdyVVja2K83ESPB32vT 3Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 334b09msjj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 08:14:53 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07OC26uI147048;
+        Mon, 24 Aug 2020 08:14:53 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 334b09mshv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 08:14:52 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07OCEIY2004082;
+        Mon, 24 Aug 2020 12:14:51 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 332uk6ab3n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 12:14:51 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07OCDJ7C61342054
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Aug 2020 12:13:19 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0F0EA404D;
+        Mon, 24 Aug 2020 12:14:48 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 52496A4040;
+        Mon, 24 Aug 2020 12:14:47 +0000 (GMT)
+Received: from sig-9-65-254-31.ibm.com (unknown [9.65.254.31])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 24 Aug 2020 12:14:47 +0000 (GMT)
+Message-ID: <1a30cf978efa004efb5583c2c1aef0121eaa6caa.camel@linux.ibm.com>
+Subject: Re: [PATCH 04/11] evm: Check size of security.evm before using it
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Mon, 24 Aug 2020 08:14:46 -0400
+In-Reply-To: <20200618160133.937-4-roberto.sassu@huawei.com>
+References: <20200618160133.937-1-roberto.sassu@huawei.com>
+         <20200618160133.937-4-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-24_08:2020-08-24,2020-08-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0 bulkscore=0
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=788
+ suspectscore=3 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2008240092
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 2020-06-18 at 18:01 +0200, Roberto Sassu wrote:
+> This patch checks the size for the EVM_IMA_XATTR_DIGSIG and
+> EVM_XATTR_PORTABLE_DIGSIG types to ensure that the algorithm is read from
+> the buffer returned by vfs_getxattr_alloc().
+> 
+> Cc: stable@vger.kernel.org # 4.19.x
+> Fixes: 5feeb61183dde ("evm: Allow non-SHA1 digital signatures")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-
-> +	select RESET_CONTROLLER
-
-Only needed for Gen3, so 'if ARCH_RCAR_GEN3'?
-
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9DrYMACgkQFA3kzBSg
-KbbSZQ/+PhuTLW6kqCSCd55WdUymNIJPFUzPNEyQa59oRhx0DHZsP+KfEVlV/zug
-vhM8gpwTWCenzuydgeV2f1tFI4lVYKNF3ER1ukl5hQI9QTjKarodaEnC3i40D5vN
-8JW1hIPl0KD1R/5mSr7/D7qEAZxPenNkmsrjN85pMz0BhYP4lV8If4pxf3BBPWqO
-kG27YT/jt4mfAeAEabP9iEJobaJaPEiZ7YPfkH53a/bttg1JZW+60BNfh4D9nD7+
-FwbfjyJ5dj6K3xdmpffs4hFqavKq/xO3drIvf+ALQ5AqD4i55YRWGpJai93VVtiu
-45t7guU1HCPcxIPphJCBSHODV0xuOoEcWOuvpelnd/+dJyeYZ4u0rsu8EEEdJpKt
-8tJSTqruY7Q+/GhAqk/J6pTc/wOjA//s6RCbreQPXIggsWg1H9u0/nWEVKEoVjhJ
-bgIcaDrpMocnw5maTQ95pS+ni4ekDbJ+i/H/tUSGWS/rS4wZYYVfFW+NOjyF0UpC
-FXz42WfpyaDNrTywaX1zU7W4nNUtYOC/ZnHE+P7jBWSD7pj7JRBCKHkWRKXZaM7+
-ET1ymMRV/T/6vgQqbFP+xCU6+HWV9diauWfo5UFEms39F3fjJS944ucw60m8e8kf
-T/HSvjWKefoY7D2QbsXJ0/izOBc5be05f9a/ycHiBK+/XkEkf24=
-=b6JU
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
