@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E45624F52F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259CC24F469
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727807AbgHXIpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43070 "EHLO mail.kernel.org"
+        id S1728218AbgHXIgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729245AbgHXIpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:42 -0400
+        id S1728191AbgHXIf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:35:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46046206F0;
-        Mon, 24 Aug 2020 08:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D805204FD;
+        Mon, 24 Aug 2020 08:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258742;
-        bh=bwJDBs57T0HWecCtTiQwXS+EX5zVLlTne8P+SfQfMyA=;
+        s=default; t=1598258156;
+        bh=EOrNn+I9LL2TuN8tdupUg4Zfr9vHbqKssGESOa5M87o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdRpS36dcc9bF5t18oQsFuU5X9ou0R1h9UCjkQAi3N9kp8KQqHaaGhK98efcVDGMu
-         4OyUc/y1K09jVgWecheKcmL1TaNDUOX21b2m/8zPMxo27BJvhgZSMLlDyumvo9G247
-         u4R+GJRCnkWFppUN1JHX86KCoIrPwpmv8uMve8Qs=
+        b=IPb2SdZf9h191B9Yc94sYrwl4fPHRKezi5A0InKaz/3Nzyb5H+VtdMHxHm0/JnGhx
+         pwJ1KBKCFq7k8dbO9xznkoQ0IlwqolyrVPVwx9m7gt2JYxeS1AXKtAIzsrB5Ak5hz+
+         8bTZgW2xSfc6bSjcyoM37CaOuyy7iNCblaSaki/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Song Liu <songliubraving@fb.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 028/107] uprobes: __replace_page() avoid BUG in munlock_vma_page()
+        stable@vger.kernel.org,
+        syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 096/148] bonding: fix a potential double-unregister
 Date:   Mon, 24 Aug 2020 10:29:54 +0200
-Message-Id: <20200824082406.505127550@linuxfoundation.org>
+Message-Id: <20200824082418.635907967@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit c17c3dc9d08b9aad9a55a1e53f205187972f448e upstream.
+[ Upstream commit 832707021666411d04795c564a4adea5d6b94f17 ]
 
-syzbot crashed on the VM_BUG_ON_PAGE(PageTail) in munlock_vma_page(), when
-called from uprobes __replace_page().  Which of many ways to fix it?
-Settled on not calling when PageCompound (since Head and Tail are equals
-in this context, PageCompound the usual check in uprobes.c, and the prior
-use of FOLL_SPLIT_PMD will have cleared PageMlocked already).
+When we tear down a network namespace, we unregister all
+the netdevices within it. So we may queue a slave device
+and a bonding device together in the same unregister queue.
 
-Fixes: 5a52c9df62b4 ("uprobe: use FOLL_SPLIT_PMD instead of FOLL_SPLIT")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008161338360.20413@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If the only slave device is non-ethernet, it would
+automatically unregister the bonding device as well. Thus,
+we may end up unregistering the bonding device twice.
 
+Workaround this special case by checking reg_state.
+
+Fixes: 9b5e383c11b0 ("net: Introduce unregister_netdevice_many()")
+Reported-by: syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/uprobes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -211,7 +211,7 @@ static int __replace_page(struct vm_area
- 		try_to_free_swap(old_page);
- 	page_vma_mapped_walk_done(&pvmw);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index a35a05610a5e3..f438e20fcda1f 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2084,7 +2084,8 @@ static int bond_release_and_destroy(struct net_device *bond_dev,
+ 	int ret;
  
--	if (vma->vm_flags & VM_LOCKED)
-+	if ((vma->vm_flags & VM_LOCKED) && !PageCompound(old_page))
- 		munlock_vma_page(old_page);
- 	put_page(old_page);
- 
+ 	ret = __bond_release_one(bond_dev, slave_dev, false, true);
+-	if (ret == 0 && !bond_has_slaves(bond)) {
++	if (ret == 0 && !bond_has_slaves(bond) &&
++	    bond_dev->reg_state != NETREG_UNREGISTERING) {
+ 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
+ 		netdev_info(bond_dev, "Destroying bond\n");
+ 		bond_remove_proc_entry(bond);
+-- 
+2.25.1
+
 
 
