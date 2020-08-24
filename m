@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B3624F525
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EB324F479
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728480AbgHXIpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42124 "EHLO mail.kernel.org"
+        id S1728078AbgHXIhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:37:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729211AbgHXIpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:16 -0400
+        id S1728361AbgHXIhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F30D2075B;
-        Mon, 24 Aug 2020 08:45:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98A94207DF;
+        Mon, 24 Aug 2020 08:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258715;
-        bh=44e3L+wfAhsJFaYQWD5Hycna69Md2DIlFvyL3u8gXZc=;
+        s=default; t=1598258220;
+        bh=woyqq0iGieHRlS+G0TycRP69+XZ2LrEamldPHGlnPIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfMdnEXBF2QfZG9SDSoXMb7vYKL1v5sX5xtfCV84WraFa7hdTwP3HajuJiM68FPw2
-         JOrll3P6Fzm0hjkwBAtdiOhmMD57zxO2xOfcm6g7rrp71yYvPJobAnsZNPlcAlvGto
-         k5pGNyLavIHhFeahLHePLtPlttBLws15gpPB7X20=
+        b=EQuirNXFDqn4O9kr5KobEFre5Ac11shE+Y0jCA4wfgR+a8DzfCwM4HTlGy6HmucYA
+         uyuFT+DS3/nITv/f/Jib17Bl38vFeogv+hbmvGeNgIG3VJqeo2EXlGb3CxuMx7a0PS
+         uRGJctpCZETSUhd8kRgC6j+1gdFLB9UKAzCE3ZlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 020/107] btrfs: add wrapper for transaction abort predicate
-Date:   Mon, 24 Aug 2020 10:29:46 +0200
-Message-Id: <20200824082406.096763389@linuxfoundation.org>
+Subject: [PATCH 5.8 089/148] i40e: Fix crash during removing i40e driver
+Date:   Mon, 24 Aug 2020 10:29:47 +0200
+Message-Id: <20200824082418.308843744@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,250 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
 
-[ Upstream commit bf31f87f71cc7a89871ab0a451c047a0c0144bf1 ]
+[ Upstream commit 5b6d4a7f20b09c47ca598760f6dafd554af8b6d5 ]
 
-The status of aborted transaction can change between calls and it needs
-to be accessed by READ_ONCE. Add a helper that also wraps the unlikely
-hint.
+Fix the reason of crashing system by add waiting time to finish reset
+recovery process before starting remove driver procedure.
+Now VSI is releasing if VSI is not in reset recovery mode.
+Without this fix it was possible to start remove driver if other
+processing command need reset recovery procedure which resulted in
+null pointer dereference. VSI used by the ethtool process has been
+cleared by remove driver process.
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[ 6731.508665] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[ 6731.508668] #PF: supervisor read access in kernel mode
+[ 6731.508670] #PF: error_code(0x0000) - not-present page
+[ 6731.508671] PGD 0 P4D 0
+[ 6731.508674] Oops: 0000 [#1] SMP PTI
+[ 6731.508679] Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0021.032120170601 03/21/2017
+[ 6731.508694] RIP: 0010:i40e_down+0x252/0x310 [i40e]
+[ 6731.508696] Code: c7 78 de fa c0 e8 61 02 3a c1 66 83 bb f6 0c 00 00 00 0f 84 bf 00 00 00 45 31 e4 45 31 ff eb 03 41 89 c7 48 8b 83 98 0c 00 00 <4a> 8b 3c 20 e8 a5 79 02 00 48 83 bb d0 0c 00 00 00 74 10 48 8b 83
+[ 6731.508698] RSP: 0018:ffffb75ac7b3faf0 EFLAGS: 00010246
+[ 6731.508700] RAX: 0000000000000000 RBX: ffff9c9874bd5000 RCX: 0000000000000007
+[ 6731.508701] RDX: 0000000000000000 RSI: 0000000000000096 RDI: ffff9c987f4d9780
+[ 6731.508703] RBP: ffffb75ac7b3fb30 R08: 0000000000005b60 R09: 0000000000000004
+[ 6731.508704] R10: ffffb75ac64fbd90 R11: 0000000000000001 R12: 0000000000000000
+[ 6731.508706] R13: ffff9c97a08e0000 R14: ffff9c97a08e0a68 R15: 0000000000000000
+[ 6731.508708] FS:  00007f2617cd2740(0000) GS:ffff9c987f4c0000(0000) knlGS:0000000000000000
+[ 6731.508710] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 6731.508711] CR2: 0000000000000000 CR3: 0000001e765c4006 CR4: 00000000003606e0
+[ 6731.508713] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 6731.508714] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 6731.508715] Call Trace:
+[ 6731.508734]  i40e_vsi_close+0x84/0x90 [i40e]
+[ 6731.508742]  i40e_quiesce_vsi.part.98+0x3c/0x40 [i40e]
+[ 6731.508749]  i40e_pf_quiesce_all_vsi+0x55/0x60 [i40e]
+[ 6731.508757]  i40e_prep_for_reset+0x59/0x130 [i40e]
+[ 6731.508765]  i40e_reconfig_rss_queues+0x5a/0x120 [i40e]
+[ 6731.508774]  i40e_set_channels+0xda/0x170 [i40e]
+[ 6731.508778]  ethtool_set_channels+0xe9/0x150
+[ 6731.508781]  dev_ethtool+0x1b94/0x2920
+[ 6731.508805]  dev_ioctl+0xc2/0x590
+[ 6731.508811]  sock_do_ioctl+0xae/0x150
+[ 6731.508813]  sock_ioctl+0x34f/0x3c0
+[ 6731.508821]  ksys_ioctl+0x98/0xb0
+[ 6731.508828]  __x64_sys_ioctl+0x1a/0x20
+[ 6731.508831]  do_syscall_64+0x57/0x1c0
+[ 6731.508835]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 4b8164467b85 ("i40e: Add common function for finding VSI by type")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c   |  2 +-
- fs/btrfs/delayed-inode.c |  2 +-
- fs/btrfs/extent-tree.c   | 10 +++++-----
- fs/btrfs/super.c         |  2 +-
- fs/btrfs/transaction.c   | 25 +++++++++++++------------
- fs/btrfs/transaction.h   | 12 ++++++++++++
- 6 files changed, 33 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 42d69e77f89d9..b167649f5f5de 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2168,7 +2168,7 @@ static int cache_save_setup(struct btrfs_block_group_cache *block_group,
- 		return 0;
- 	}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 56ecd6c3f2362..6af6367e7cac2 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -15352,6 +15352,9 @@ static void i40e_remove(struct pci_dev *pdev)
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), 0);
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(1), 0);
  
--	if (trans->aborted)
-+	if (TRANS_ABORTED(trans))
- 		return 0;
- again:
- 	inode = lookup_free_space_inode(block_group, path);
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index 5bcccfbcc7c15..a34ee9c2f3151 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1151,7 +1151,7 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans, int nr)
- 	int ret = 0;
- 	bool count = (nr > 0);
- 
--	if (trans->aborted)
-+	if (TRANS_ABORTED(trans))
- 		return -EIO;
- 
- 	path = btrfs_alloc_path();
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 739332b462059..a36bd4507bacd 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -1561,7 +1561,7 @@ static int run_delayed_extent_op(struct btrfs_trans_handle *trans,
- 	int err = 0;
- 	int metadata = !extent_op->is_data;
- 
--	if (trans->aborted)
-+	if (TRANS_ABORTED(trans))
- 		return 0;
- 
- 	if (metadata && !btrfs_fs_incompat(fs_info, SKINNY_METADATA))
-@@ -1681,7 +1681,7 @@ static int run_one_delayed_ref(struct btrfs_trans_handle *trans,
- {
- 	int ret = 0;
- 
--	if (trans->aborted) {
-+	if (TRANS_ABORTED(trans)) {
- 		if (insert_reserved)
- 			btrfs_pin_extent(trans->fs_info, node->bytenr,
- 					 node->num_bytes, 1);
-@@ -2169,7 +2169,7 @@ int btrfs_run_delayed_refs(struct btrfs_trans_handle *trans,
- 	int run_all = count == (unsigned long)-1;
- 
- 	/* We'll clean this up in btrfs_cleanup_transaction */
--	if (trans->aborted)
-+	if (TRANS_ABORTED(trans))
- 		return 0;
- 
- 	if (test_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags))
-@@ -2892,7 +2892,7 @@ int btrfs_finish_extent_commit(struct btrfs_trans_handle *trans)
- 	else
- 		unpin = &fs_info->freed_extents[0];
- 
--	while (!trans->aborted) {
-+	while (!TRANS_ABORTED(trans)) {
- 		struct extent_state *cached_state = NULL;
- 
- 		mutex_lock(&fs_info->unused_bg_unpin_mutex);
-@@ -2924,7 +2924,7 @@ int btrfs_finish_extent_commit(struct btrfs_trans_handle *trans)
- 		u64 trimmed = 0;
- 
- 		ret = -EROFS;
--		if (!trans->aborted)
-+		if (!TRANS_ABORTED(trans))
- 			ret = btrfs_discard_extent(fs_info,
- 						   block_group->key.objectid,
- 						   block_group->key.offset,
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index e21cae80c6d58..a1498df419b4f 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -241,7 +241,7 @@ void __btrfs_abort_transaction(struct btrfs_trans_handle *trans,
- {
- 	struct btrfs_fs_info *fs_info = trans->fs_info;
- 
--	trans->aborted = errno;
-+	WRITE_ONCE(trans->aborted, errno);
- 	/* Nothing used. The other threads that have joined this
- 	 * transaction may be able to continue. */
- 	if (!trans->dirty && list_empty(&trans->new_bgs)) {
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 465ddb297c381..c346ee7ec18d4 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -174,7 +174,7 @@ loop:
- 
- 	cur_trans = fs_info->running_transaction;
- 	if (cur_trans) {
--		if (cur_trans->aborted) {
-+		if (TRANS_ABORTED(cur_trans)) {
- 			spin_unlock(&fs_info->trans_lock);
- 			return cur_trans->aborted;
- 		}
-@@ -390,7 +390,7 @@ static inline int is_transaction_blocked(struct btrfs_transaction *trans)
- {
- 	return (trans->state >= TRANS_STATE_BLOCKED &&
- 		trans->state < TRANS_STATE_UNBLOCKED &&
--		!trans->aborted);
-+		!TRANS_ABORTED(trans));
- }
- 
- /* wait for commit against the current transaction to become unblocked
-@@ -409,7 +409,7 @@ static void wait_current_trans(struct btrfs_fs_info *fs_info)
- 
- 		wait_event(fs_info->transaction_wait,
- 			   cur_trans->state >= TRANS_STATE_UNBLOCKED ||
--			   cur_trans->aborted);
-+			   TRANS_ABORTED(cur_trans));
- 		btrfs_put_transaction(cur_trans);
- 	} else {
- 		spin_unlock(&fs_info->trans_lock);
-@@ -870,7 +870,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
- 	if (throttle)
- 		btrfs_run_delayed_iputs(info);
- 
--	if (trans->aborted ||
-+	if (TRANS_ABORTED(trans) ||
- 	    test_bit(BTRFS_FS_STATE_ERROR, &info->fs_state)) {
- 		wake_up_process(info->transaction_kthread);
- 		if (TRANS_ABORTED(trans))
-@@ -1730,7 +1730,8 @@ static void wait_current_trans_commit_start(struct btrfs_fs_info *fs_info,
- 					    struct btrfs_transaction *trans)
- {
- 	wait_event(fs_info->transaction_blocked_wait,
--		   trans->state >= TRANS_STATE_COMMIT_START || trans->aborted);
-+		   trans->state >= TRANS_STATE_COMMIT_START ||
-+		   TRANS_ABORTED(trans));
- }
- 
- /*
-@@ -1742,7 +1743,8 @@ static void wait_current_trans_commit_start_and_unblock(
- 					struct btrfs_transaction *trans)
- {
- 	wait_event(fs_info->transaction_wait,
--		   trans->state >= TRANS_STATE_UNBLOCKED || trans->aborted);
-+		   trans->state >= TRANS_STATE_UNBLOCKED ||
-+		   TRANS_ABORTED(trans));
- }
- 
- /*
-@@ -1960,7 +1962,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	trans->dirty = true;
- 
- 	/* Stop the commit early if ->aborted is set */
--	if (unlikely(READ_ONCE(cur_trans->aborted))) {
-+	if (TRANS_ABORTED(cur_trans)) {
- 		ret = cur_trans->aborted;
- 		btrfs_end_transaction(trans);
- 		return ret;
-@@ -2034,7 +2036,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 
- 		wait_for_commit(cur_trans);
- 
--		if (unlikely(cur_trans->aborted))
-+		if (TRANS_ABORTED(cur_trans))
- 			ret = cur_trans->aborted;
- 
- 		btrfs_put_transaction(cur_trans);
-@@ -2053,7 +2055,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 			spin_unlock(&fs_info->trans_lock);
- 
- 			wait_for_commit(prev_trans);
--			ret = prev_trans->aborted;
-+			ret = READ_ONCE(prev_trans->aborted);
- 
- 			btrfs_put_transaction(prev_trans);
- 			if (ret)
-@@ -2107,8 +2109,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	wait_event(cur_trans->writer_wait,
- 		   atomic_read(&cur_trans->num_writers) == 1);
- 
--	/* ->aborted might be set after the previous check, so check it */
--	if (unlikely(READ_ONCE(cur_trans->aborted))) {
-+	if (TRANS_ABORTED(cur_trans)) {
- 		ret = cur_trans->aborted;
- 		goto scrub_continue;
- 	}
-@@ -2226,7 +2227,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	 * The tasks which save the space cache and inode cache may also
- 	 * update ->aborted, check it.
- 	 */
--	if (unlikely(READ_ONCE(cur_trans->aborted))) {
-+	if (TRANS_ABORTED(cur_trans)) {
- 		ret = cur_trans->aborted;
- 		mutex_unlock(&fs_info->tree_log_mutex);
- 		mutex_unlock(&fs_info->reloc_mutex);
-diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index b15c31d231488..7291a2a930751 100644
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -116,6 +116,10 @@ struct btrfs_trans_handle {
- 	struct btrfs_block_rsv *orig_rsv;
- 	refcount_t use_count;
- 	unsigned int type;
-+	/*
-+	 * Error code of transaction abort, set outside of locks and must use
-+	 * the READ_ONCE/WRITE_ONCE access
-+	 */
- 	short aborted;
- 	bool adding_csums;
- 	bool allocating_chunk;
-@@ -127,6 +131,14 @@ struct btrfs_trans_handle {
- 	struct list_head new_bgs;
- };
- 
-+/*
-+ * The abort status can be changed between calls and is not protected by locks.
-+ * This accepts btrfs_transaction and btrfs_trans_handle as types. Once it's
-+ * set to a non-zero value it does not change, so the macro should be in checks
-+ * but is not necessary for further reads of the value.
-+ */
-+#define TRANS_ABORTED(trans)		(unlikely(READ_ONCE((trans)->aborted)))
++	while (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
++		usleep_range(1000, 2000);
 +
- struct btrfs_pending_snapshot {
- 	struct dentry *dentry;
- 	struct inode *dir;
+ 	/* no more scheduling of any task */
+ 	set_bit(__I40E_SUSPENDED, pf->state);
+ 	set_bit(__I40E_DOWN, pf->state);
 -- 
 2.25.1
 
