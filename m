@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC93F24F411
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CCE024F413
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726513AbgHXIcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:32:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
+        id S1726661AbgHXIcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726037AbgHXIcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:32:09 -0400
+        id S1726646AbgHXIcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:32:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48F592074D;
-        Mon, 24 Aug 2020 08:32:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 722302075B;
+        Mon, 24 Aug 2020 08:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257928;
-        bh=2FKLRsp/q4hCpwXTaY8+6NDt7k4ARIDqnPQJhxEo6BY=;
+        s=default; t=1598257938;
+        bh=MdqGIJpCx/+wgQQjrkGUNZbwGiGXF25VfSr3JxxELIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1T7CkykaxA0ieOGgtps0HycJ9sVwcKeUAh1hc/q/RPG5jHTgrkyEnaSImBkjKwxJ
-         y/5WLOi7ENqGLqt5vxigla+7hnCiqTEoXPEix2PMRzl1f1o6uEx3dOof2N33h+I/IG
-         jySxa8IId3oLNijzxcxhsZq2KylHK7+oHP72zO9U=
+        b=pu128YIQMKPa8/7gkvSj0TqEzARdTsZgf7uZLjvNtOuzteA69ZRt/AUS7hND6pxs+
+         AA6yvAgtdmuaDBuFJipir6bs65XqDATRCQSgcgUyz4GENahfYpJNyXycvO0/K4COQ1
+         r/p59h64vXvFEEn1jgud1LkxBO04FoduZzm/9DmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 012/148] io_uring: find and cancel head link async work on files exit
-Date:   Mon, 24 Aug 2020 10:28:30 +0200
-Message-Id: <20200824082414.547922920@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        David Rientjes <rientjes@google.com>,
+        Michel Lespinasse <walken@google.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Akash Goel <akash.goel@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 015/148] kernel/relay.c: fix memleak on destroy relay channel
+Date:   Mon, 24 Aug 2020 10:28:33 +0200
+Message-Id: <20200824082414.696953831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -43,77 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit b711d4eaf0c408a811311ee3e94d6e9e5a230a9a upstream.
+commit 71e843295c680898959b22dc877ae3839cc22470 upstream.
 
-Commit f254ac04c874 ("io_uring: enable lookup of links holding inflight files")
-only handled 2 out of the three head link cases we have, we also need to
-lookup and cancel work that is blocked in io-wq if that work has a link
-that's holding a reference to the files structure.
+kmemleak report memory leak as follows:
 
-Put the "cancel head links that hold this request pending" logic into
-io_attempt_cancel(), which will to through the motions of finding and
-canceling head links that hold the current inflight files stable request
-pending.
+  unreferenced object 0x607ee4e5f948 (size 8):
+  comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
+  hex dump (first 8 bytes):
+  00 00 00 00 00 00 00 00 ........
+  backtrace:
+     relay_open kernel/relay.c:583 [inline]
+     relay_open+0xb6/0x970 kernel/relay.c:563
+     do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
+     __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
+     blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
+     blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
+     block_ioctl+0xe5/0x120 fs/block_dev.c:1871
+     vfs_ioctl fs/ioctl.c:48 [inline]
+     __do_sys_ioctl fs/ioctl.c:753 [inline]
+     __se_sys_ioctl fs/ioctl.c:739 [inline]
+     __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
+     do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
+     entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Cc: stable@vger.kernel.org
-Reported-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
+while destroy the relay channel.  Fix it by adding free_percpu() before
+return from relay_destroy_channel().
+
+Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Daniel Axtens <dja@axtens.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Akash Goel <akash.goel@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |   33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ kernel/relay.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7609,6 +7609,33 @@ static bool io_timeout_remove_link(struc
- 	return found;
- }
- 
-+static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
-+{
-+	return io_match_link(container_of(work, struct io_kiocb, work), data);
-+}
-+
-+static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
-+{
-+	enum io_wq_cancel cret;
-+
-+	/* cancel this particular work, if it's running */
-+	cret = io_wq_cancel_work(ctx->io_wq, &req->work);
-+	if (cret != IO_WQ_CANCEL_NOTFOUND)
-+		return;
-+
-+	/* find links that hold this pending, cancel those */
-+	cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_link_cb, req, true);
-+	if (cret != IO_WQ_CANCEL_NOTFOUND)
-+		return;
-+
-+	/* if we have a poll link holding this pending, cancel that */
-+	if (io_poll_remove_link(ctx, req))
-+		return;
-+
-+	/* final option, timeout link is holding this req pending */
-+	io_timeout_remove_link(ctx, req);
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -197,6 +197,7 @@ free_buf:
+ static void relay_destroy_channel(struct kref *kref)
  {
-@@ -7665,10 +7692,8 @@ static void io_uring_cancel_files(struct
- 				continue;
- 			}
- 		} else {
--			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
--			/* could be a link, check and remove if it is */
--			if (!io_poll_remove_link(ctx, cancel_req))
--				io_timeout_remove_link(ctx, cancel_req);
-+			/* cancel this request, or head link requests */
-+			io_attempt_cancel(ctx, cancel_req);
- 			io_put_req(cancel_req);
- 		}
+ 	struct rchan *chan = container_of(kref, struct rchan, kref);
++	free_percpu(chan->buf);
+ 	kfree(chan);
+ }
  
 
 
