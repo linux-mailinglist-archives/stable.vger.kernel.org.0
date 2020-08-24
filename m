@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E869024F883
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80CC024F88A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbgHXItm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52276 "EHLO mail.kernel.org"
+        id S1729715AbgHXIt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:49:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729751AbgHXItj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:39 -0400
+        id S1729208AbgHXIt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:49:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95B0B2075B;
-        Mon, 24 Aug 2020 08:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E6AD2074D;
+        Mon, 24 Aug 2020 08:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258979;
-        bh=ngj6WiQUPERZ5q4EO+GD7YhTNCR/Src7jBSoABAThGI=;
+        s=default; t=1598258966;
+        bh=fJ8NNjH3ZkCW8nghxtzb5HVti5kIN+YwOf4V+x2XJF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWL0+p9OKCyqOXWmUwSSaayyG7sga2xEYgtpnqod2k7ygT3C6jQEPlBEilh9I5u4m
-         jvRMLzw1zgnGAmLvW3gkkVKaLgsf1VuEfJ3P1dFhOHaOcv2jCd1PPave7AgWDObskl
-         RugO59rYbFSV+PbZRT5EGo0xg02+5ItocGU3XI/U=
+        b=nCpS4JM7IegswO2TLHHOpJzuWTGk0+2J7hf4E4vVlv7VPaWnj1ipktORiNEhnAiNE
+         2xoo0wCxCGcOj4tNcOqe7LNNqBJn8Gct2HvzkllI+ysvEB+HeotQqIXAWuS7kZ7c2R
+         B6fXr2teN3KuhLz/WZ9reADAlmjEKmtYGUvsx7Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 102/107] powerpc/pseries: Do not initiate shutdown when system is running on UPS
-Date:   Mon, 24 Aug 2020 10:31:08 +0200
-Message-Id: <20200824082410.131537208@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Li Heng <liheng40@huawei.com>, Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.4 103/107] efi: add missed destroy_workqueue when efisubsys_init fails
+Date:   Mon, 24 Aug 2020 10:31:09 +0200
+Message-Id: <20200824082410.193518492@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
 References: <20200824082405.020301642@linuxfoundation.org>
@@ -44,66 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+From: Li Heng <liheng40@huawei.com>
 
-commit 90a9b102eddf6a3f987d15f4454e26a2532c1c98 upstream.
+commit 98086df8b70c06234a8f4290c46064e44dafa0ed upstream.
 
-As per PAPR we have to look for both EPOW sensor value and event
-modifier to identify the type of event and take appropriate action.
+destroy_workqueue() should be called to destroy efi_rts_wq
+when efisubsys_init() init resources fails.
 
-In LoPAPR v1.1 section 10.2.2 includes table 136 "EPOW Action Codes":
-
-  SYSTEM_SHUTDOWN 3
-
-  The system must be shut down. An EPOW-aware OS logs the EPOW error
-  log information, then schedules the system to be shut down to begin
-  after an OS defined delay internal (default is 10 minutes.)
-
-Then in section 10.3.2.2.8 there is table 146 "Platform Event Log
-Format, Version 6, EPOW Section", which includes the "EPOW Event
-Modifier":
-
-  For EPOW sensor value = 3
-  0x01 = Normal system shutdown with no additional delay
-  0x02 = Loss of utility power, system is running on UPS/Battery
-  0x03 = Loss of system critical functions, system should be shutdown
-  0x04 = Ambient temperature too high
-  All other values = reserved
-
-We have a user space tool (rtas_errd) on LPAR to monitor for
-EPOW_SHUTDOWN_ON_UPS. Once it gets an event it initiates shutdown
-after predefined time. It also starts monitoring for any new EPOW
-events. If it receives "Power restored" event before predefined time
-it will cancel the shutdown. Otherwise after predefined time it will
-shutdown the system.
-
-Commit 79872e35469b ("powerpc/pseries: All events of
-EPOW_SYSTEM_SHUTDOWN must initiate shutdown") changed our handling of
-the "on UPS/Battery" case, to immediately shutdown the system. This
-breaks existing setups that rely on the userspace tool to delay
-shutdown and let the system run on the UPS.
-
-Fixes: 79872e35469b ("powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must initiate shutdown")
-Cc: stable@vger.kernel.org # v4.0+
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-[mpe: Massage change log and add PAPR references]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com
+Cc: <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Heng <liheng40@huawei.com>
+Link: https://lore.kernel.org/r/1595229738-10087-1-git-send-email-liheng40@huawei.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/ras.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/firmware/efi/efi.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -184,7 +184,6 @@ static void handle_system_shutdown(char
- 	case EPOW_SHUTDOWN_ON_UPS:
- 		pr_emerg("Loss of system power detected. System is running on"
- 			 " UPS/battery. Check RTAS error log for details\n");
--		orderly_poweroff(true);
- 		break;
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -345,6 +345,7 @@ static int __init efisubsys_init(void)
+ 	efi_kobj = kobject_create_and_add("efi", firmware_kobj);
+ 	if (!efi_kobj) {
+ 		pr_err("efi: Firmware registration failed.\n");
++		destroy_workqueue(efi_rts_wq);
+ 		return -ENOMEM;
+ 	}
  
- 	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
+@@ -381,6 +382,7 @@ err_unregister:
+ 	generic_ops_unregister();
+ err_put:
+ 	kobject_put(efi_kobj);
++	destroy_workqueue(efi_rts_wq);
+ 	return error;
+ }
+ 
 
 
