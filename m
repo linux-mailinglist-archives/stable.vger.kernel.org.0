@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CEA24F68D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B69124F7EE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730589AbgHXJBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
+        id S1730222AbgHXJX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730608AbgHXI44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:56:56 -0400
+        id S1730309AbgHXIyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:54:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC05A207DF;
-        Mon, 24 Aug 2020 08:56:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87895207DF;
+        Mon, 24 Aug 2020 08:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259416;
-        bh=mLg33dRJv606ImBdPl/BmdZH0zzU8+19bF4jAr1Lr+Y=;
+        s=default; t=1598259258;
+        bh=Gl4jNOH4OH/fe6YEFEorvVIhkVY8kwj2SMw84rehO6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6CPEB3sGpTHFUei+ffV8IEoel8dNSZr6XK5PrGqs0FfM+k5uv31CXwxshjsS5G+5
-         2GYHYQzekCl9+mgOZbAbwWeMvKHOAHIPkulx8rJDuar3X2akGjaRxeIf+sJaUeswRc
-         o7NLaAss5sNFcOzp2D6ez4EIKoRNO4yU8qUTAO4o=
+        b=2Z6z9cmS7MR8TYiioz68QuzK3XHAZjntrQwijkNJzAZLDh7Zn50XuXUKJW3uu1XpY
+         /q4Wjhx56W3u9vy/c1OLcHAA+8pkGpaYCfPmioo2wvRFmvKz/pD7etBI+IGSQZ+ing
+         Tz/WPG7CcU+Cn5qZhYoS+oJl/bdvEQwh6YjSY1Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stephan Gerhold <stephan@gerhold.net>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/71] ASoC: msm8916-wcd-analog: fix register Interrupt offset
+Subject: [PATCH 4.14 39/50] ASoC: msm8916-wcd-analog: fix register Interrupt offset
 Date:   Mon, 24 Aug 2020 10:31:40 +0200
-Message-Id: <20200824082358.355979950@linuxfoundation.org>
+Message-Id: <20200824082354.029293409@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
-index cbdb6d4bb91ef..f4aba065c9257 100644
+index 3633eb30dd135..4f949ad50d6a7 100644
 --- a/sound/soc/codecs/msm8916-wcd-analog.c
 +++ b/sound/soc/codecs/msm8916-wcd-analog.c
 @@ -16,8 +16,8 @@
