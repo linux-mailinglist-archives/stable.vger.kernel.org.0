@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C8024F921
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A7624FA61
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729335AbgHXJlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
+        id S1728258AbgHXJz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729214AbgHXIpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:06 -0400
+        id S1726990AbgHXIgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:36:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BC312087D;
-        Mon, 24 Aug 2020 08:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EA0F2224D;
+        Mon, 24 Aug 2020 08:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258705;
-        bh=3F4RE6hopPFbfBNDid9aYaJPmZcK8dmA9Gyh2mJYUr8=;
+        s=default; t=1598258177;
+        bh=D+Vmybzmzen28AV30V9SfoitNCjmhrlbMMUqq2jVhw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqgEF/8hGBi4r0eesSNP6A/reKqjzKH76AQIY3Hvvyzgu5FfiYkBNt/IM3Bv6eTHA
-         IL9j7bcT1pnmPPnsPX6ysxT8/tunALH4k1oY25+HcQPgj9A4J/N+MJzgL9xBgDbfAI
-         I3gx04oHufqmxPFndJNZk5IAas/vzy6qLEdX3ii0=
+        b=PpNylCI5guRHNajXSQFloxpJtZb1RzeYKoUfzNuPN8t3Sp76Q/47Drf759UIqmJ7g
+         9tvONp5zBG4xnZkr3IHvgByD5RYWfkj175v8pvY49YMKbWYfgJdFinwx2yoFs/B5V8
+         2FkaX80dyDTa32o5xRsKIl6hMkUTrh/S9Vfk3SSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 017/107] btrfs: export helpers for subvolume name/id resolution
+Subject: [PATCH 5.8 085/148] can: j1939: transport: j1939_simple_recv(): ignore local J1939 messages send not by J1939 stack
 Date:   Mon, 24 Aug 2020 10:29:43 +0200
-Message-Id: <20200824082405.935028333@linuxfoundation.org>
+Message-Id: <20200824082418.127157572@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit c0c907a47dccf2cf26251a8fb4a8e7a3bf79ce84 ]
+[ Upstream commit b43e3a82bc432c1caaed8950e7662c143470c54c ]
 
-The functions will be used outside of export.c and super.c to allow
-resolving subvolume name from a given id, eg. for subvolume deletion by
-id ioctl.
+In current J1939 stack implementation, we process all locally send
+messages as own messages. Even if it was send by CAN_RAW socket.
 
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ split from the next patch ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+To reproduce it use following commands:
+testj1939 -P -r can0:0x80 &
+cansend can0 18238040#0123
+
+This step will trigger false positive not critical warning:
+j1939_simple_recv: Received already invalidated message
+
+With this patch we add additional check to make sure, related skb is own
+echo message.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20200807105200.26441-2-o.rempel@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h  | 2 ++
- fs/btrfs/export.c | 8 ++++----
- fs/btrfs/export.h | 5 +++++
- fs/btrfs/super.c  | 8 ++++----
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ net/can/j1939/socket.c    | 1 +
+ net/can/j1939/transport.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 2374f3f6f3b70..18357b054a91e 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -2965,6 +2965,8 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
- int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 			unsigned long new_flags);
- int btrfs_sync_fs(struct super_block *sb, int wait);
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid);
+diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
+index 1b7dc1a8547f3..bf9fd6ee88fe0 100644
+--- a/net/can/j1939/socket.c
++++ b/net/can/j1939/socket.c
+@@ -398,6 +398,7 @@ static int j1939_sk_init(struct sock *sk)
+ 	spin_lock_init(&jsk->sk_session_queue_lock);
+ 	INIT_LIST_HEAD(&jsk->sk_session_queue);
+ 	sk->sk_destruct = j1939_sk_sock_destruct;
++	sk->sk_protocol = CAN_J1939;
  
- static inline __printf(2, 3) __cold
- void btrfs_no_printk(const struct btrfs_fs_info *fs_info, const char *fmt, ...)
-diff --git a/fs/btrfs/export.c b/fs/btrfs/export.c
-index ddf28ecf17f93..93cceeba484cc 100644
---- a/fs/btrfs/export.c
-+++ b/fs/btrfs/export.c
-@@ -57,9 +57,9 @@ static int btrfs_encode_fh(struct inode *inode, u32 *fh, int *max_len,
- 	return type;
+ 	return 0;
  }
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index 5bfe6bf15a999..30957c9a8eb7a 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -2032,6 +2032,10 @@ void j1939_simple_recv(struct j1939_priv *priv, struct sk_buff *skb)
+ 	if (!skb->sk)
+ 		return;
  
--static struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
--				       u64 root_objectid, u32 generation,
--				       int check_generation)
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
- 	struct btrfs_root *root;
-@@ -152,7 +152,7 @@ static struct dentry *btrfs_fh_to_dentry(struct super_block *sb, struct fid *fh,
- 	return btrfs_get_dentry(sb, objectid, root_objectid, generation, 1);
- }
- 
--static struct dentry *btrfs_get_parent(struct dentry *child)
-+struct dentry *btrfs_get_parent(struct dentry *child)
- {
- 	struct inode *dir = d_inode(child);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(dir->i_sb);
-diff --git a/fs/btrfs/export.h b/fs/btrfs/export.h
-index 57488ecd7d4ef..f32f4113c976a 100644
---- a/fs/btrfs/export.h
-+++ b/fs/btrfs/export.h
-@@ -18,4 +18,9 @@ struct btrfs_fid {
- 	u64 parent_root_objectid;
- } __attribute__ ((packed));
- 
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation);
-+struct dentry *btrfs_get_parent(struct dentry *child);
++	if (skb->sk->sk_family != AF_CAN ||
++	    skb->sk->sk_protocol != CAN_J1939)
++		return;
 +
- #endif
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 4b0ee34aa65d5..32c36821cc7b4 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1009,8 +1009,8 @@ out:
- 	return error;
- }
- 
--static char *get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
--					   u64 subvol_objectid)
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid)
- {
- 	struct btrfs_root *root = fs_info->tree_root;
- 	struct btrfs_root *fs_root;
-@@ -1421,8 +1421,8 @@ static struct dentry *mount_subvol(const char *subvol_name, u64 subvol_objectid,
- 				goto out;
- 			}
- 		}
--		subvol_name = get_subvol_name_from_objectid(btrfs_sb(mnt->mnt_sb),
--							    subvol_objectid);
-+		subvol_name = btrfs_get_subvol_name_from_objectid(
-+					btrfs_sb(mnt->mnt_sb), subvol_objectid);
- 		if (IS_ERR(subvol_name)) {
- 			root = ERR_CAST(subvol_name);
- 			subvol_name = NULL;
+ 	j1939_session_list_lock(priv);
+ 	session = j1939_session_get_simple(priv, skb);
+ 	j1939_session_list_unlock(priv);
 -- 
 2.25.1
 
