@@ -2,62 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B84250664
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D16B2506A5
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728007AbgHXRc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:32:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727995AbgHXRbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 13:31:53 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB43C061573;
-        Mon, 24 Aug 2020 10:31:53 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id t14so8980720wmi.3;
-        Mon, 24 Aug 2020 10:31:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ptGIL1/M9Anqh/4n8uHq9h8dNqCw4NwN18MuWXuUz44=;
-        b=NAdWRMqAq/4lRGWfeBSJ1uiDIVehTkuVKp8AkMmkPbXs5mJDD+6vP3hf0RPBXksIim
-         zCpgC44yHyicAdjFpV5bKFx2DAXZLYGYEtUpWTATa9Yx8ZByWAV92/NNIyW8qPOG6RPI
-         bZPqNJL2k3bUA4eDHxlG/aOmcrrOHPa1FFgJHqI5EPowssj1SyKJWJwFV5tHYdCgjt3S
-         ig9JuGnCOVC+hCiPogUGkBmadegH3viFnD8yi2y6Psl+xphXEZ6LsOxMYyjYsfprcY/D
-         ZgP08MJEPa1sa3aNJyWHEZbtABGNMyqwXhndtfG84QZX2nTMv0l/S3oQj0jPApncSokY
-         +dJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ptGIL1/M9Anqh/4n8uHq9h8dNqCw4NwN18MuWXuUz44=;
-        b=YMNNjNRdXTaTJIc/AiZ2gUMkvpnulG8KvU5GF5GvPtKqpTA1cvQMkA1b2dHVaBL0jH
-         xHQkSDxR4nSXkPyOBcNndIp/d7bbhUebasMXb3wjxDfYane4zQwPGhDGRso9ZPFe8WsW
-         5jFpor4AcME+Als5pdvQuZAVWxg0KD3PG1BoJW1wb8Jr/pu1cx1ylCgMWSxLGxF3ysFi
-         nnMmLEb/nce6x/GIdeY00XuH47BPeod2aaZcA+vfPHHPSFk5ltyJc84RV9G9G7Hj5Leh
-         AFgW2GZxSNCrvB98/a/rPs2vNxg/Z1Set2bOYOoM0GxsH1APbcA842rXh8/QVAkelyDz
-         l0+g==
-X-Gm-Message-State: AOAM531FwGgL71ilgLUtuCymyN6D0sMN91GAwO5D7/Ns5noldYKvYmvR
-        wFesvNoxYWmAkZX0w3R/KnubcQrhoGHyIQ==
-X-Google-Smtp-Source: ABdhPJyEW3uhyBM0vhHSQQw7wYBknr9KSDXsSaPpB/crnODeddsCwseCyhXaqn6ksgfvvFFCrgxv6g==
-X-Received: by 2002:a05:600c:c4:: with SMTP id u4mr364632wmm.100.1598290307750;
-        Mon, 24 Aug 2020 10:31:47 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:e0a:118:6200:290:f5ff:fed7:e2dd])
-        by smtp.gmail.com with ESMTPSA id g18sm26027333wru.27.2020.08.24.10.31.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2020 10:31:46 -0700 (PDT)
-From:   Cyril Roelandt <tipecaml@gmail.com>
-To:     linux-usb@vger.kernel.org
-Cc:     stern@rowland.harvard.edu, sellis@redhat.com, pachoramos@gmail.com,
-        labbott@fedoraproject.org, javhera@gmx.com, brice.goglin@gmail.com,
-        Cyril Roelandt <tipecaml@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
-Date:   Mon, 24 Aug 2020 19:31:28 +0200
-Message-Id: <20200824173128.48740-1-tipecaml@gmail.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824074027.GB3983120@kroah.com>
-References: <20200824074027.GB3983120@kroah.com>
+        id S1726502AbgHXRjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:39:01 -0400
+Received: from mga03.intel.com ([134.134.136.65]:14058 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726429AbgHXRjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 13:39:01 -0400
+IronPort-SDR: 3/nVyT8NyH6u5Q7J3dDI6/ErPgEcraR1+uCPBCc1Wsq/D0Iv6C1aD2geeOnaDCpsqcpwl/PKI9
+ EdC3BDnXaetA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9723"; a="155947636"
+X-IronPort-AV: E=Sophos;i="5.76,349,1592895600"; 
+   d="scan'208";a="155947636"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2020 10:38:59 -0700
+IronPort-SDR: ASDlAofjocUSMIYGzbaj5gDU0bc97VjF7h1cCJ02ujr9++LCPFwdmKrHjDjjDB2p2yVa/HwjGf
+ 2SJmBgnaNfdQ==
+X-IronPort-AV: E=Sophos;i="5.76,349,1592895600"; 
+   d="scan'208";a="443305024"
+Received: from agluck-desk2.sc.intel.com ([10.3.52.68])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2020 10:38:59 -0700
+From:   Tony Luck <tony.luck@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Tony Luck <tony.luck@intel.com>,
+        Gabriele Paoloni <gabriele.paoloni@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH backport to v5.4] EDAC/{i7core,sb,pnd2,skx}: Fix error event severity
+Date:   Mon, 24 Aug 2020 10:38:58 -0700
+Message-Id: <20200824173858.815-1-tony.luck@intel.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -65,30 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This device does not support UAS properly and a similar entry already
-exists in drivers/usb/storage/unusual_uas.h. Without this patch,
-storage_probe() defers the handling of this device to UAS, which cannot
-handle it either.
+commit 45bc6098a3e279d8e391d22428396687562797e2 upstream
 
-Tested-by: Brice Goglin <brice.goglin@gmail.com>
-CC: <stable@vger.kernel.org>
+IA32_MCG_STATUS.RIPV indicates whether the return RIP value pushed onto
+the stack as part of machine check delivery is valid or not.
+
+Various drivers copied a code fragment that uses the RIPV bit to
+determine the severity of the error as either HW_EVENT_ERR_UNCORRECTED
+or HW_EVENT_ERR_FATAL, but this check is reversed (marking errors where
+RIPV is set as "FATAL").
+
+Reverse the tests so that the error is marked fatal when RIPV is not set.
+
+Reported-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 ---
- drivers/usb/storage/unusual_devs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/i7core_edac.c | 4 ++--
+ drivers/edac/pnd2_edac.c   | 2 +-
+ drivers/edac/sb_edac.c     | 6 +++---
+ drivers/edac/skx_common.c  | 6 +++---
+ 4 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 220ae2c356ee..5732e9691f08 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2328,7 +2328,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
- 		"JMicron",
- 		"USB to ATA/ATAPI Bridge",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_BROKEN_FUA ),
-+		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
+diff --git a/drivers/edac/i7core_edac.c b/drivers/edac/i7core_edac.c
+index a71cca6eeb33..6be7e65f7389 100644
+--- a/drivers/edac/i7core_edac.c
++++ b/drivers/edac/i7core_edac.c
+@@ -1711,9 +1711,9 @@ static void i7core_mce_output_error(struct mem_ctl_info *mci,
+ 	if (uncorrected_error) {
+ 		core_err_cnt = 1;
+ 		if (ripv)
+-			tp_event = HW_EVENT_ERR_FATAL;
+-		else
+ 			tp_event = HW_EVENT_ERR_UNCORRECTED;
++		else
++			tp_event = HW_EVENT_ERR_FATAL;
+ 	} else {
+ 		tp_event = HW_EVENT_ERR_CORRECTED;
+ 	}
+diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
+index b1193be1ef1d..dac45e2071b3 100644
+--- a/drivers/edac/pnd2_edac.c
++++ b/drivers/edac/pnd2_edac.c
+@@ -1155,7 +1155,7 @@ static void pnd2_mce_output_error(struct mem_ctl_info *mci, const struct mce *m,
+ 	u32 optypenum = GET_BITFIELD(m->status, 4, 6);
+ 	int rc;
  
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
+-	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_FATAL : HW_EVENT_ERR_UNCORRECTED) :
++	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_UNCORRECTED : HW_EVENT_ERR_FATAL) :
+ 						 HW_EVENT_ERR_CORRECTED;
+ 
+ 	/*
+diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
+index f743502ca9b7..d2f02e539b68 100644
+--- a/drivers/edac/sb_edac.c
++++ b/drivers/edac/sb_edac.c
+@@ -2981,11 +2981,11 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
+ 	if (uncorrected_error) {
+ 		core_err_cnt = 1;
+ 		if (ripv) {
+-			type = "FATAL";
+-			tp_event = HW_EVENT_ERR_FATAL;
+-		} else {
+ 			type = "NON_FATAL";
+ 			tp_event = HW_EVENT_ERR_UNCORRECTED;
++		} else {
++			type = "FATAL";
++			tp_event = HW_EVENT_ERR_FATAL;
+ 		}
+ 	} else {
+ 		type = "CORRECTED";
+diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
+index 2177ad765bd1..1b5253e88303 100644
+--- a/drivers/edac/skx_common.c
++++ b/drivers/edac/skx_common.c
+@@ -490,11 +490,11 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
+ 	if (uncorrected_error) {
+ 		core_err_cnt = 1;
+ 		if (ripv) {
+-			type = "FATAL";
+-			tp_event = HW_EVENT_ERR_FATAL;
+-		} else {
+ 			type = "NON_FATAL";
+ 			tp_event = HW_EVENT_ERR_UNCORRECTED;
++		} else {
++			type = "FATAL";
++			tp_event = HW_EVENT_ERR_FATAL;
+ 		}
+ 	} else {
+ 		type = "CORRECTED";
 -- 
-2.28.0
+2.21.1
 
