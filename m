@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5175F24F7FC
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147C024F6D1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730251AbgHXIxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33582 "EHLO mail.kernel.org"
+        id S1726701AbgHXJGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730250AbgHXIxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:53 -0400
+        id S1730549AbgHXI4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:56:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDAFF207D3;
-        Mon, 24 Aug 2020 08:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DF53206F0;
+        Mon, 24 Aug 2020 08:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259232;
-        bh=gDxGAOb0qK+ueuz1Ha9bY/C+e/XGqAv2qeL00uHAwHA=;
+        s=default; t=1598259389;
+        bh=74F5MkyewlBKyOZLP5uivaOmS0bftJ/MiCzuXqFjmag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLPon5D0uDeo5tTX8GUDxf6A7bMIYCySLRiWUfkOnpnY1PiQK8tmtz6f2v/siS9qU
-         HKkHhcYFRvCn5vrp0U95bq+LXbARRlyC8dc9Vjfte9GE2O3C0fPW5EKoaU++45jvVt
-         4wQ8GhAPb9/+F9OFAECNoVrLAjbmFCh/kGUGw+SY=
+        b=mTLouSRx7xTgY4aLzpziNW3kS4RJZZcKKHKHtL7BHK7mc+rxc51C2yPtZjSNlm+7n
+         BbRjCcMcuQZRbwxWp9qSqUkG+PJl2IU+9zsOShrZ60e1JiN+rAi/8fZeii9QwW9RX5
+         09pzO/jvZc221UCUWl45yfeq2xJTbVlWf1KJAozI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/50] virtio_ring: Avoid loop when vq is broken in virtqueue_poll
+Subject: [PATCH 4.19 40/71] ext4: dont allow overlapping system zones
 Date:   Mon, 24 Aug 2020 10:31:31 +0200
-Message-Id: <20200824082353.565875953@linuxfoundation.org>
+Message-Id: <20200824082357.893019120@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <wenan.mao@linux.alibaba.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 481a0d7422db26fb63e2d64f0652667a5c6d0f3e ]
+[ Upstream commit bf9a379d0980e7413d94cb18dac73db2bfc5f470 ]
 
-The loop may exist if vq->broken is true,
-virtqueue_get_buf_ctx_packed or virtqueue_get_buf_ctx_split
-will return NULL, so virtnet_poll will reschedule napi to
-receive packet, it will lead cpu usage(si) to 100%.
+Currently, add_system_zone() just silently merges two added system zones
+that overlap. However the overlap should not happen and it generally
+suggests that some unrelated metadata overlap which indicates the fs is
+corrupted. We should have caught such problems earlier (e.g. in
+ext4_check_descriptors()) but add this check as another line of defense.
+In later patch we also use this for stricter checking of journal inode
+extent tree.
 
-call trace as below:
-virtnet_poll
-	virtnet_receive
-		virtqueue_get_buf_ctx
-			virtqueue_get_buf_ctx_packed
-			virtqueue_get_buf_ctx_split
-	virtqueue_napi_complete
-		virtqueue_poll           //return true
-		virtqueue_napi_schedule //it will reschedule napi
-
-to fix this, return false if vq is broken in virtqueue_poll.
-
-Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/1596354249-96204-1-git-send-email-wenan.mao@linux.alibaba.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200728130437.7804-3-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/block_validity.c | 36 +++++++++++++-----------------------
+ 1 file changed, 13 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b82bb0b081615..51278f8bd3ab3 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -829,6 +829,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
+diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
+index d203cc935ff83..552164034d340 100644
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -68,7 +68,7 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
+ 			   ext4_fsblk_t start_blk,
+ 			   unsigned int count)
  {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
+-	struct ext4_system_zone *new_entry = NULL, *entry;
++	struct ext4_system_zone *new_entry, *entry;
+ 	struct rb_node **n = &system_blks->root.rb_node, *node;
+ 	struct rb_node *parent = NULL, *new_node = NULL;
  
-+	if (unlikely(vq->broken))
-+		return false;
+@@ -79,30 +79,20 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
+ 			n = &(*n)->rb_left;
+ 		else if (start_blk >= (entry->start_blk + entry->count))
+ 			n = &(*n)->rb_right;
+-		else {
+-			if (start_blk + count > (entry->start_blk +
+-						 entry->count))
+-				entry->count = (start_blk + count -
+-						entry->start_blk);
+-			new_node = *n;
+-			new_entry = rb_entry(new_node, struct ext4_system_zone,
+-					     node);
+-			break;
+-		}
++		else	/* Unexpected overlap of system zones. */
++			return -EFSCORRUPTED;
+ 	}
+ 
+-	if (!new_entry) {
+-		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
+-					     GFP_KERNEL);
+-		if (!new_entry)
+-			return -ENOMEM;
+-		new_entry->start_blk = start_blk;
+-		new_entry->count = count;
+-		new_node = &new_entry->node;
+-
+-		rb_link_node(new_node, parent, n);
+-		rb_insert_color(new_node, &system_blks->root);
+-	}
++	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
++				     GFP_KERNEL);
++	if (!new_entry)
++		return -ENOMEM;
++	new_entry->start_blk = start_blk;
++	new_entry->count = count;
++	new_node = &new_entry->node;
 +
- 	virtio_mb(vq->weak_barriers);
- 	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev, vq->vring.used->idx);
- }
++	rb_link_node(new_node, parent, n);
++	rb_insert_color(new_node, &system_blks->root);
+ 
+ 	/* Can we merge to the left? */
+ 	node = rb_prev(new_node);
 -- 
 2.25.1
 
