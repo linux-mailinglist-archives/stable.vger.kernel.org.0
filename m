@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8763124F8D0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DF624F939
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726138AbgHXJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:37:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47760 "EHLO mail.kernel.org"
+        id S1729151AbgHXJmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729366AbgHXIrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:41 -0400
+        id S1728562AbgHXIoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0DE72075B;
-        Mon, 24 Aug 2020 08:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 591FF2075B;
+        Mon, 24 Aug 2020 08:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258860;
-        bh=YTJRcXK1ZnJiD5zCZMM5LGHCt49kjkUKNjoMZvKaxHs=;
+        s=default; t=1598258669;
+        bh=RxrUd6NwJT1JocZoUbagDtzQCpm8uEzFEdrEK3y0wMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNh3ieQP0bab/JKxYW9lyvza99hhv54p6AQTsttxsBpxUvwYiEh641HarVKggmxKn
-         P3J2qZ2v0z1DWW4F5W9smfcAf10AorK8dgBe5auhZDLx9jp69fZX8ReiOgsCw47SnA
-         d+nRkRRfh6Z3iZsQa8jTynkC4f/x3twbZo5x2iss=
+        b=idvuJM2V9I7ai6SRes5qute8bm5Vmgo3CutZCv6dHKXiEEq/SevABUTUtzNlHjvjy
+         2MMMOENsS+4I0Vsy4O33fqtVSGbr27PEDxRQsBFvQuLQehcMaEfoEwYwKn3BDugkja
+         mx2eGofvbsneaaurPSwNyb1wkiIgJiIZbrB7BEjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/107] bpf: sock_ops sk access may stomp registers when dst_reg = src_reg
-Date:   Mon, 24 Aug 2020 10:30:35 +0200
-Message-Id: <20200824082408.541331644@linuxfoundation.org>
+Subject: [PATCH 5.7 102/124] kconfig: qconf: fix signal connection to invalid slots
+Date:   Mon, 24 Aug 2020 10:30:36 +0200
+Message-Id: <20200824082414.437274361@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,122 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 84f44df664e9f0e261157e16ee1acd77cc1bb78d ]
+[ Upstream commit d85de3399f97467baa2026fbbbe587850d01ba8a ]
 
-Similar to patch ("bpf: sock_ops ctx access may stomp registers") if the
-src_reg = dst_reg when reading the sk field of a sock_ops struct we
-generate xlated code,
+If you right-click in the ConfigList window, you will see the following
+messages in the console:
 
-  53: (61) r9 = *(u32 *)(r9 +28)
-  54: (15) if r9 == 0x0 goto pc+3
-  56: (79) r9 = *(u64 *)(r9 +0)
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:888
+QObject::connect:  (sender name:   'config')
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:897
+QObject::connect:  (sender name:   'config')
+QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:906
+QObject::connect:  (sender name:   'config')
 
-This stomps on the r9 reg to do the sk_fullsock check and then when
-reading the skops->sk field instead of the sk pointer we get the
-sk_fullsock. To fix use similar pattern noted in the previous fix
-and use the temp field to save/restore a register used to do
-sk_fullsock check.
+Right, there is no such slot in QAction. I think this is a typo of
+setChecked.
 
-After the fix the generated xlated code reads,
+Due to this bug, when you toggled the menu "Option->Show Name/Range/Data"
+the state of the context menu was not previously updated. Fix this.
 
-  52: (7b) *(u64 *)(r9 +32) = r8
-  53: (61) r8 = *(u32 *)(r9 +28)
-  54: (15) if r9 == 0x0 goto pc+3
-  55: (79) r8 = *(u64 *)(r9 +32)
-  56: (79) r9 = *(u64 *)(r9 +0)
-  57: (05) goto pc+1
-  58: (79) r8 = *(u64 *)(r9 +32)
-
-Here r9 register was in-use so r8 is chosen as the temporary register.
-In line 52 r8 is saved in temp variable and at line 54 restored in case
-fullsock != 0. Finally we handle fullsock == 0 case by restoring at
-line 58.
-
-This adds a new macro SOCK_OPS_GET_SK it is almost possible to merge
-this with SOCK_OPS_GET_FIELD, but I found the extra branch logic a
-bit more confusing than just adding a new macro despite a bit of
-duplicating code.
-
-Fixes: 1314ef561102e ("bpf: export bpf_sock for BPF_PROG_TYPE_SOCK_OPS prog type")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/159718349653.4728.6559437186853473612.stgit@john-Precision-5820-Tower
+Fixes: d5d973c3f8a9 ("Port xconfig to Qt5 - Put back some of the old implementation(part 2)")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 49 ++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 38 insertions(+), 11 deletions(-)
+ scripts/kconfig/qconf.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index bd1e46d61d8a1..5c490d473df1d 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -8010,6 +8010,43 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
- 				      offsetof(OBJ, OBJ_FIELD));	      \
- 	} while (0)
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index e7e201d261f78..1eb076c7eae17 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -890,7 +890,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowName(bool)));
+ 		connect(parent(), SIGNAL(showNameChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showName);
+ 		headerPopup->addAction(action);
  
-+#define SOCK_OPS_GET_SK()							      \
-+	do {								      \
-+		int fullsock_reg = si->dst_reg, reg = BPF_REG_9, jmp = 1;     \
-+		if (si->dst_reg == reg || si->src_reg == reg)		      \
-+			reg--;						      \
-+		if (si->dst_reg == reg || si->src_reg == reg)		      \
-+			reg--;						      \
-+		if (si->dst_reg == si->src_reg) {			      \
-+			*insn++ = BPF_STX_MEM(BPF_DW, si->src_reg, reg,	      \
-+					  offsetof(struct bpf_sock_ops_kern,  \
-+					  temp));			      \
-+			fullsock_reg = reg;				      \
-+			jmp += 2;					      \
-+		}							      \
-+		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(			      \
-+						struct bpf_sock_ops_kern,     \
-+						is_fullsock),		      \
-+				      fullsock_reg, si->src_reg,	      \
-+				      offsetof(struct bpf_sock_ops_kern,      \
-+					       is_fullsock));		      \
-+		*insn++ = BPF_JMP_IMM(BPF_JEQ, fullsock_reg, 0, jmp);	      \
-+		if (si->dst_reg == si->src_reg)				      \
-+			*insn++ = BPF_LDX_MEM(BPF_DW, reg, si->src_reg,	      \
-+				      offsetof(struct bpf_sock_ops_kern,      \
-+				      temp));				      \
-+		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(			      \
-+						struct bpf_sock_ops_kern, sk),\
-+				      si->dst_reg, si->src_reg,		      \
-+				      offsetof(struct bpf_sock_ops_kern, sk));\
-+		if (si->dst_reg == si->src_reg)	{			      \
-+			*insn++ = BPF_JMP_A(1);				      \
-+			*insn++ = BPF_LDX_MEM(BPF_DW, reg, si->src_reg,	      \
-+				      offsetof(struct bpf_sock_ops_kern,      \
-+				      temp));				      \
-+		}							      \
-+	} while (0)
-+
- #define SOCK_OPS_GET_TCP_SOCK_FIELD(FIELD) \
- 		SOCK_OPS_GET_FIELD(FIELD, FIELD, struct tcp_sock)
+@@ -899,7 +899,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowRange(bool)));
+ 		connect(parent(), SIGNAL(showRangeChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showRange);
+ 		headerPopup->addAction(action);
  
-@@ -8294,17 +8331,7 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
- 		SOCK_OPS_GET_TCP_SOCK_FIELD(bytes_acked);
- 		break;
- 	case offsetof(struct bpf_sock_ops, sk):
--		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(
--						struct bpf_sock_ops_kern,
--						is_fullsock),
--				      si->dst_reg, si->src_reg,
--				      offsetof(struct bpf_sock_ops_kern,
--					       is_fullsock));
--		*insn++ = BPF_JMP_IMM(BPF_JEQ, si->dst_reg, 0, 1);
--		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(
--						struct bpf_sock_ops_kern, sk),
--				      si->dst_reg, si->src_reg,
--				      offsetof(struct bpf_sock_ops_kern, sk));
-+		SOCK_OPS_GET_SK();
- 		break;
+@@ -908,7 +908,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ 		connect(action, SIGNAL(toggled(bool)),
+ 			parent(), SLOT(setShowData(bool)));
+ 		connect(parent(), SIGNAL(showDataChanged(bool)),
+-			action, SLOT(setOn(bool)));
++			action, SLOT(setChecked(bool)));
+ 		action->setChecked(showData);
+ 		headerPopup->addAction(action);
  	}
- 	return insn - insn_buf;
+@@ -1240,7 +1240,7 @@ QMenu* ConfigInfoView::createStandardContextMenu(const QPoint & pos)
+ 
+ 	action->setCheckable(true);
+ 	connect(action, SIGNAL(toggled(bool)), SLOT(setShowDebug(bool)));
+-	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setOn(bool)));
++	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setChecked(bool)));
+ 	action->setChecked(showDebug());
+ 	popup->addSeparator();
+ 	popup->addAction(action);
 -- 
 2.25.1
 
