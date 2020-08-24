@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CCB24F5AF
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA5624F62A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbgHXIwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57956 "EHLO mail.kernel.org"
+        id S1730588AbgHXI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729494AbgHXIwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:09 -0400
+        id S1730599AbgHXI4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:56:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F4DC2072D;
-        Mon, 24 Aug 2020 08:52:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85F5F206F0;
+        Mon, 24 Aug 2020 08:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259129;
-        bh=PvGubglU6cmFIj4jp9q0XiJbLPU4XYVuiuvBCjSn7m8=;
+        s=default; t=1598259411;
+        bh=WXvp02546LbDNcX171OiDWWC59ghuXzbW2bJ3O0fb3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTbKiTdZL5dNOxslZh8bdEDjwsQv3DSUg/MULH8NlGH33/6gr3aY/ZYuE30q5bPbr
-         dagGofBIvnb0yufkZTewd7rEeBcgvwWZkzRFbalxANKux0QqUx07UsqVm1x9tO5378
-         nw4QOWWvNTAlNJmjCnYGOOBErDHlJCy2YNt61GMo=
+        b=tua/jMdFgUpS2Ix7fgMu+7C42dD+emTRzAeCM+vompftVVeSUktc3Agqe0YHvS3TQ
+         c3enQtYyHTIXDblIIW7wZ0qtb/zBWJhdjrrYvBrMM37jsH05hjrqIe5ZNPSVZfJzAj
+         NcXUheFykThf15mdTsUuxOBvBkck8cAXuyvrlKuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        David Rientjes <rientjes@google.com>,
-        Michel Lespinasse <walken@google.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Akash Goel <akash.goel@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 12/39] kernel/relay.c: fix memleak on destroy relay channel
-Date:   Mon, 24 Aug 2020 10:31:11 +0200
-Message-Id: <20200824082349.099514201@linuxfoundation.org>
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 21/71] scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
+Date:   Mon, 24 Aug 2020 10:31:12 +0200
+Message-Id: <20200824082356.955599240@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-commit 71e843295c680898959b22dc877ae3839cc22470 upstream.
+[ Upstream commit c0a18ee0ce78d7957ec1a53be35b1b3beba80668 ]
 
-kmemleak report memory leak as follows:
+It is confirmed that Micron device needs DELAY_BEFORE_LPM quirk to have a
+delay before VCC is powered off. Sdd Micron vendor ID and this quirk for
+Micron devices.
 
-  unreferenced object 0x607ee4e5f948 (size 8):
-  comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
-  hex dump (first 8 bytes):
-  00 00 00 00 00 00 00 00 ........
-  backtrace:
-     relay_open kernel/relay.c:583 [inline]
-     relay_open+0xb6/0x970 kernel/relay.c:563
-     do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
-     __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
-     blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
-     blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
-     block_ioctl+0xe5/0x120 fs/block_dev.c:1871
-     vfs_ioctl fs/ioctl.c:48 [inline]
-     __do_sys_ioctl fs/ioctl.c:753 [inline]
-     __se_sys_ioctl fs/ioctl.c:739 [inline]
-     __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
-     do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
-while destroy the relay channel.  Fix it by adding free_percpu() before
-return from relay_destroy_channel().
-
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Akash Goel <akash.goel@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200612012625.6615-2-stanley.chu@mediatek.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/relay.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufs_quirks.h | 1 +
+ drivers/scsi/ufs/ufshcd.c     | 2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -196,6 +196,7 @@ free_buf:
- static void relay_destroy_channel(struct kref *kref)
- {
- 	struct rchan *chan = container_of(kref, struct rchan, kref);
-+	free_percpu(chan->buf);
- 	kfree(chan);
- }
+diff --git a/drivers/scsi/ufs/ufs_quirks.h b/drivers/scsi/ufs/ufs_quirks.h
+index 5d2dfdb41a6ff..758d3a67047df 100644
+--- a/drivers/scsi/ufs/ufs_quirks.h
++++ b/drivers/scsi/ufs/ufs_quirks.h
+@@ -21,6 +21,7 @@
+ #define UFS_ANY_VENDOR 0xFFFF
+ #define UFS_ANY_MODEL  "ANY_MODEL"
  
++#define UFS_VENDOR_MICRON      0x12C
+ #define UFS_VENDOR_TOSHIBA     0x198
+ #define UFS_VENDOR_SAMSUNG     0x1CE
+ #define UFS_VENDOR_SKHYNIX     0x1AD
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index bd21c9cdf8183..ab628fd37e026 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -218,6 +218,8 @@ ufs_get_desired_pm_lvl_for_dev_link_state(enum ufs_dev_pwr_mode dev_state,
+ 
+ static struct ufs_dev_fix ufs_fixups[] = {
+ 	/* UFS cards deviations table */
++	UFS_FIX(UFS_VENDOR_MICRON, UFS_ANY_MODEL,
++		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
+ 		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
+ 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL, UFS_DEVICE_NO_VCCQ),
+-- 
+2.25.1
+
 
 
