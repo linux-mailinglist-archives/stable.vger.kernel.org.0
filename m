@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C1124F647
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FA824F5E4
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730738AbgHXI6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:58:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
+        id S1730373AbgHXIyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:54:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730733AbgHXI6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:58:00 -0400
+        id S1730369AbgHXIyt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:54:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBA9E2074D;
-        Mon, 24 Aug 2020 08:57:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E960204FD;
+        Mon, 24 Aug 2020 08:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259479;
-        bh=JRJaIuSadhMHjDTscVwGRwHFLMEXH6qLsUGeoTeAi6A=;
+        s=default; t=1598259288;
+        bh=nDjY3y7ErgtlHV9zuxLaLxvjiiP3J7I04nb1tlS5++0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3kIy2uOunJn9tvfKDtuE2V4/6PBWPKyu4dPelTxEFnMoFp1B3CM7c3HbBOaHnEdu
-         vt7miGZ7Km1glBjgPC4buiubQiUwZXnXTyFPv/6O8OWOn5AMRIYmLYHp8/uM35jCmb
-         hZ+y3NKe+0rIgzoUJ2BAfrlwOVQIZzggEhmIiyhs=
+        b=jZUX1wG+cl5Bv1aAiETZdrjjkanQqHME69at+u6E05ILm8Tew+9EuwpBb54UIkb0O
+         +CxNiu6KkgnhXhFbjiCM/peas6m4FxO0qZoQ5nRXpkZQl5qTSuGtk3zo/QUpZ5lqLa
+         AHetzuqGTfAn7Cd5azZkMUBjys4d0A8QlVzsRtmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 54/71] kconfig: qconf: do not limit the pop-up menu to the first row
+Subject: [PATCH 4.14 44/50] net: dsa: b53: check for timeout
 Date:   Mon, 24 Aug 2020 10:31:45 +0200
-Message-Id: <20200824082358.598884966@linuxfoundation.org>
+Message-Id: <20200824082354.271719950@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit fa8de0a3bf3c02e6f00b7746e7e934db522cdda9 ]
+[ Upstream commit 774d977abfd024e6f73484544b9abe5a5cd62de7 ]
 
-If you right-click the first row in the option tree, the pop-up menu
-shows up, but if you right-click the second row or below, the event
-is ignored due to the following check:
+clang static analysis reports this problem
 
-  if (e->y() <= header()->geometry().bottom()) {
+b53_common.c:1583:13: warning: The left expression of the compound
+  assignment is an uninitialized value. The computed value will
+  also be garbage
+        ent.port &= ~BIT(port);
+        ~~~~~~~~ ^
 
-Perhaps, the intention was to show the pop-menu only when the tree
-header was right-clicked, but this handler is not called in that case.
+ent is set by a successful call to b53_arl_read().  Unsuccessful
+calls are caught by an switch statement handling specific returns.
+b32_arl_read() calls b53_arl_op_wait() which fails with the
+unhandled -ETIMEDOUT.
 
-Since the origin of e->y() starts from the bottom of the header,
-this check is odd.
+So add -ETIMEDOUT to the switch statement.  Because
+b53_arl_op_wait() already prints out a message, do not add another
+one.
 
-Going forward, you can right-click anywhere in the tree to get the
-pop-up menu.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/qconf.cc | 68 ++++++++++++++++++++--------------------
- 1 file changed, 34 insertions(+), 34 deletions(-)
+ drivers/net/dsa/b53/b53_common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
-index 8f004db6f6034..294d4329f4810 100644
---- a/scripts/kconfig/qconf.cc
-+++ b/scripts/kconfig/qconf.cc
-@@ -869,40 +869,40 @@ void ConfigList::focusInEvent(QFocusEvent *e)
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 274d369151107..5c3fa0be8844e 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1160,6 +1160,8 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
+ 		return ret;
  
- void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- {
--	if (e->y() <= header()->geometry().bottom()) {
--		if (!headerPopup) {
--			QAction *action;
--
--			headerPopup = new QMenu(this);
--			action = new QAction("Show Name", this);
--			  action->setCheckable(true);
--			  connect(action, SIGNAL(toggled(bool)),
--				  parent(), SLOT(setShowName(bool)));
--			  connect(parent(), SIGNAL(showNameChanged(bool)),
--				  action, SLOT(setOn(bool)));
--			  action->setChecked(showName);
--			  headerPopup->addAction(action);
--			action = new QAction("Show Range", this);
--			  action->setCheckable(true);
--			  connect(action, SIGNAL(toggled(bool)),
--				  parent(), SLOT(setShowRange(bool)));
--			  connect(parent(), SIGNAL(showRangeChanged(bool)),
--				  action, SLOT(setOn(bool)));
--			  action->setChecked(showRange);
--			  headerPopup->addAction(action);
--			action = new QAction("Show Data", this);
--			  action->setCheckable(true);
--			  connect(action, SIGNAL(toggled(bool)),
--				  parent(), SLOT(setShowData(bool)));
--			  connect(parent(), SIGNAL(showDataChanged(bool)),
--				  action, SLOT(setOn(bool)));
--			  action->setChecked(showData);
--			  headerPopup->addAction(action);
--		}
--		headerPopup->exec(e->globalPos());
--		e->accept();
--	} else
--		e->ignore();
-+	if (!headerPopup) {
-+		QAction *action;
-+
-+		headerPopup = new QMenu(this);
-+		action = new QAction("Show Name", this);
-+		action->setCheckable(true);
-+		connect(action, SIGNAL(toggled(bool)),
-+			parent(), SLOT(setShowName(bool)));
-+		connect(parent(), SIGNAL(showNameChanged(bool)),
-+			action, SLOT(setOn(bool)));
-+		action->setChecked(showName);
-+		headerPopup->addAction(action);
-+
-+		action = new QAction("Show Range", this);
-+		action->setCheckable(true);
-+		connect(action, SIGNAL(toggled(bool)),
-+			parent(), SLOT(setShowRange(bool)));
-+		connect(parent(), SIGNAL(showRangeChanged(bool)),
-+			action, SLOT(setOn(bool)));
-+		action->setChecked(showRange);
-+		headerPopup->addAction(action);
-+
-+		action = new QAction("Show Data", this);
-+		action->setCheckable(true);
-+		connect(action, SIGNAL(toggled(bool)),
-+			parent(), SLOT(setShowData(bool)));
-+		connect(parent(), SIGNAL(showDataChanged(bool)),
-+			action, SLOT(setOn(bool)));
-+		action->setChecked(showData);
-+		headerPopup->addAction(action);
-+	}
-+
-+	headerPopup->exec(e->globalPos());
-+	e->accept();
- }
- 
- ConfigView*ConfigView::viewList;
+ 	switch (ret) {
++	case -ETIMEDOUT:
++		return ret;
+ 	case -ENOSPC:
+ 		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
+ 			addr, vid);
 -- 
 2.25.1
 
