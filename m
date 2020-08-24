@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2CE250455
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B532250453
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726779AbgHXRA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40360 "EHLO mail.kernel.org"
+        id S1726947AbgHXRA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728495AbgHXQil (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:38:41 -0400
+        id S1728210AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:38:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67FDB22D2C;
-        Mon, 24 Aug 2020 16:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2694622D02;
+        Mon, 24 Aug 2020 16:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287117;
-        bh=Io4p9WMxBPOmvvvDV5Rh1K3tXuBa/vm5am+uOFzQy5Q=;
+        s=default; t=1598287120;
+        bh=GOfb5yWcc32qC6+K8JzNjIZ0IRW6e52mmGom4d+a53A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xb4liEk+6duS9lioxOKloQJ5YHSV8KorHF8VykoJ6BrggW5WTNiyvkejuThTbTEJi
-         ReHZJxxlaaffnvynPGiUpZ/+zsoEPiasMUF166zr6NBFMUAW1TMiZOMVgKRJ0CU+cD
-         TyW8hd0fVVww+vfC6HMX6k8Xu6hmKmyhAVbukcYQ=
+        b=AHerpMl35tKxM+Fhf0CdTIl50yMfaWboW++nyALX/pY2gzJcfUlG85LhSGAorH6vL
+         lDWfQzK/sDfWTzY5btsfz0cq7vpIbrOCGYZH7QHQ7xtU8uuExsd0v5XnYn0UGRj80I
+         RRZNBY1nTvpM+qKwNSStI2w50Io7Kh7J2yjxvCnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sumera Priyadarsini <sylphrenadin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 33/38] net: gianfar: Add of_node_put() before goto statement
-Date:   Mon, 24 Aug 2020 12:37:45 -0400
-Message-Id: <20200824163751.606577-33-sashal@kernel.org>
+Cc:     Jiansong Chen <Jiansong.Chen@amd.com>,
+        Kenneth Feng <kenneth.feng@amd.com>,
+        Tao Zhou <tao.zhou1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 35/38] Revert "drm/amdgpu: disable gfxoff for navy_flounder"
+Date:   Mon, 24 Aug 2020 12:37:47 -0400
+Message-Id: <20200824163751.606577-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -43,44 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumera Priyadarsini <sylphrenadin@gmail.com>
+From: Jiansong Chen <Jiansong.Chen@amd.com>
 
-[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
+[ Upstream commit da2446b66b5e2c7f3ab63912c8d999810e35e8b3 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-reference count of the previous node, however when control
-is transferred from the middle of the loop, as in the case of
-a return or break or goto, there is no decrement thus ultimately
-resulting in a memory leak.
+This reverts commit 9c9b17a7d19a8e21db2e378784fff1128b46c9d3.
+Newly released sdma fw (51.52) provides a fix for the issue.
 
-Fix a potential memory leak in gianfar.c by inserting of_node_put()
-before the goto statement.
-
-Issue found with Coccinelle.
-
-Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
+Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index 2580bcd850253..3978d82c95989 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -751,8 +751,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
- 				continue;
- 
- 			err = gfar_parse_group(child, priv, model);
--			if (err)
-+			if (err) {
-+				of_node_put(child);
- 				goto err_grp_init;
-+			}
- 		}
- 	} else { /* SQ_SG_MODE */
- 		err = gfar_parse_group(np, priv, model);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 3a5b4efa7a5e6..64d96eb0a2337 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -617,9 +617,6 @@ static void gfx_v10_0_check_gfxoff_flag(struct amdgpu_device *adev)
+ 	case CHIP_NAVI10:
+ 		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
+ 		break;
+-	case CHIP_NAVY_FLOUNDER:
+-		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
+-		break;
+ 	default:
+ 		break;
+ 	}
 -- 
 2.25.1
 
