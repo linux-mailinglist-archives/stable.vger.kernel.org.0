@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA8924F942
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A6E24F8BC
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbgHXIoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:44:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39310 "EHLO mail.kernel.org"
+        id S1729436AbgHXJg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728690AbgHXIoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:04 -0400
+        id S1729551AbgHXIs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 775562075B;
-        Mon, 24 Aug 2020 08:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA0A3204FD;
+        Mon, 24 Aug 2020 08:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258644;
-        bh=58Z6IeNs6Hg/9kOGBErvEFQIfNcXC8BC2NCSVEBxqas=;
+        s=default; t=1598258907;
+        bh=wZ6Ga9/LK8jl4Ht/RtyD0Avy0rx8x0tBexNUgy5gQrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=byletigB+KuAu6PyEK3tg5F5ye/QkIofNBIrQIUblz+7tFkrA3KEE23Oy85g8ppzN
-         /zXgCZ77W3vpqsTmZFmgrCMPt6bCQbI67e+zwnDJfDbMKkerXj9fzzR4eP2nZzTruO
-         2MfkJkgZUkIZXxl+y94JGj5VY5B0/D0rf3984KqE=
+        b=GcjwL5B9OoErqj160p6MdYJ1jyOaPvB2awIwzTfhs+c5xlKVjLf5vrqVOSxzbkOL3
+         zESRI4oNeLG46AMhL9BRBuHRmqG+ugmJKkOTnhG49GkJsiHrT0MAq02FVaBZKd5feb
+         3n+aeujjP/otQ4EwtvCMisEjLGHJ686xUrVDvpBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.7 119/124] efi/x86: Mark kernel rodata non-executable for mixed mode
-Date:   Mon, 24 Aug 2020 10:30:53 +0200
-Message-Id: <20200824082415.261235479@linuxfoundation.org>
+        stable@vger.kernel.org, Huaitong Han <huaitong.han@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/107] kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode
+Date:   Mon, 24 Aug 2020 10:30:54 +0200
+Message-Id: <20200824082409.468704123@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Jim Mattson <jmattson@google.com>
 
-commit c8502eb2d43b6b9b1dc382299a4d37031be63876 upstream.
+[ Upstream commit cb957adb4ea422bd758568df5b2478ea3bb34f35 ]
 
-When remapping the kernel rodata section RO in the EFI pagetables, the
-protection flags that were used for the text section are being reused,
-but the rodata section should not be marked executable.
+See the SDM, volume 3, section 4.4.1:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Link: https://lore.kernel.org/r/20200717194526.3452089-1-nivedita@alum.mit.edu
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If PAE paging would be in use following an execution of MOV to CR0 or
+MOV to CR4 (see Section 4.1.1) and the instruction is modifying any of
+CR0.CD, CR0.NW, CR0.PG, CR4.PAE, CR4.PGE, CR4.PSE, or CR4.SMEP; then
+the PDPTEs are loaded from the address in CR3.
 
+Fixes: b9baba8614890 ("KVM, pkeys: expose CPUID/CR4 to guest")
+Cc: Huaitong Han <huaitong.han@intel.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Message-Id: <20200817181655.3716509-1-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/efi_64.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/x86.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -269,6 +269,8 @@ int __init efi_setup_page_tables(unsigne
- 	npages = (__end_rodata - __start_rodata) >> PAGE_SHIFT;
- 	rodata = __pa(__start_rodata);
- 	pfn = rodata >> PAGE_SHIFT;
-+
-+	pf = _PAGE_NX | _PAGE_ENC;
- 	if (kernel_map_pages_in_pgd(pgd, pfn, rodata, npages, pf)) {
- 		pr_err("Failed to map kernel rodata 1:1\n");
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 1721a8c8eb26c..8920ee7b28811 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -972,7 +972,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ {
+ 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
+ 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
+-				   X86_CR4_SMEP | X86_CR4_PKE;
++				   X86_CR4_SMEP;
+ 
+ 	if (kvm_valid_cr4(vcpu, cr4))
  		return 1;
+-- 
+2.25.1
+
 
 
