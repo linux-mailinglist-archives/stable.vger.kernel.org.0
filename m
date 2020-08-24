@@ -2,135 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D16B2506A5
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F53D2506C7
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726502AbgHXRjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:39:01 -0400
-Received: from mga03.intel.com ([134.134.136.65]:14058 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726429AbgHXRjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 13:39:01 -0400
-IronPort-SDR: 3/nVyT8NyH6u5Q7J3dDI6/ErPgEcraR1+uCPBCc1Wsq/D0Iv6C1aD2geeOnaDCpsqcpwl/PKI9
- EdC3BDnXaetA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9723"; a="155947636"
-X-IronPort-AV: E=Sophos;i="5.76,349,1592895600"; 
-   d="scan'208";a="155947636"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2020 10:38:59 -0700
-IronPort-SDR: ASDlAofjocUSMIYGzbaj5gDU0bc97VjF7h1cCJ02ujr9++LCPFwdmKrHjDjjDB2p2yVa/HwjGf
- 2SJmBgnaNfdQ==
-X-IronPort-AV: E=Sophos;i="5.76,349,1592895600"; 
-   d="scan'208";a="443305024"
-Received: from agluck-desk2.sc.intel.com ([10.3.52.68])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2020 10:38:59 -0700
-From:   Tony Luck <tony.luck@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Tony Luck <tony.luck@intel.com>,
-        Gabriele Paoloni <gabriele.paoloni@intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH backport to v5.4] EDAC/{i7core,sb,pnd2,skx}: Fix error event severity
-Date:   Mon, 24 Aug 2020 10:38:58 -0700
-Message-Id: <20200824173858.815-1-tony.luck@intel.com>
-X-Mailer: git-send-email 2.21.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726026AbgHXRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:45:12 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31306 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725601AbgHXRpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 13:45:12 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07OHVwsT169379;
+        Mon, 24 Aug 2020 13:45:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=LLSRJbnN1rzlyk5a9nLMVRUtWdyFeR8aOd9giiaAzjg=;
+ b=sOX5dqt/fm60iVUH5jNLH6ljv0F/G3N41XlagB2QNV8IYDVPUq4yHHP+Ls+Iq93Ukmsk
+ 8GEnX+oSAkGhiTe4hgEhll4a2qMlEK6gMQu7GWSPcIERC5chPuRkc4P0V3O8k9B+xF9D
+ nvfV34tXGLOtj3txCcecfrutXTQJO7K9qyF9PG6UIDAQhF9CimrzIcV1/i8AEyVOkazu
+ 1cNRnP+eoyQOok68F+phTeDBOjqJTYNsIsraVLoGOCCqX3FjpImS0B3BJ4i8oQGa6zSC
+ /UARsq9dzsz7A3HZRiuVxoRMaHlDmaSMOy2TAniP9+vdu0Erj0HXBh/ivNNjpP47SL8+ gw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 334gxn2h6c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 13:45:07 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07OHWoCN174371;
+        Mon, 24 Aug 2020 13:45:07 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 334gxn2h54-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 13:45:06 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07OHh2B6017626;
+        Mon, 24 Aug 2020 17:45:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 332uk6akxg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 17:45:04 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07OHj2JA60817720
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Aug 2020 17:45:02 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D93E4C04A;
+        Mon, 24 Aug 2020 17:45:02 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 520F94C046;
+        Mon, 24 Aug 2020 17:45:01 +0000 (GMT)
+Received: from sig-9-65-254-31.ibm.com (unknown [9.65.254.31])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 24 Aug 2020 17:45:01 +0000 (GMT)
+Message-ID: <d4c9d5333256b17acdbe41729dd680f534266130.camel@linux.ibm.com>
+Subject: Re: [PATCH 01/11] evm: Execute evm_inode_init_security() only when
+ the HMAC key is loaded
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Mon, 24 Aug 2020 13:45:00 -0400
+In-Reply-To: <2b204e31d21e93c0167d154c2397cd5d11be6e7f.camel@linux.ibm.com>
+References: <20200618160133.937-1-roberto.sassu@huawei.com>
+         <2b204e31d21e93c0167d154c2397cd5d11be6e7f.camel@linux.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-24_12:2020-08-24,2020-08-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
+ bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 mlxscore=0 suspectscore=3
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2008240138
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 45bc6098a3e279d8e391d22428396687562797e2 upstream
+Hi Roberto,
 
-IA32_MCG_STATUS.RIPV indicates whether the return RIP value pushed onto
-the stack as part of machine check delivery is valid or not.
+On Fri, 2020-08-21 at 14:30 -0400, Mimi Zohar wrote:
+> Sorry for the delay in reviewing these patches.   Missing from this
+> patch set is a cover letter with an explanation for grouping these
+> patches into a patch set, other than for convenience.  In this case, it
+> would be along the lines that the original use case for EVM portable
+> and immutable keys support was for a few critical files, not combined
+> with an EVM encrypted key type.   This patch set more fully integrates
+> the initial EVM portable and immutable signature support.
 
-Various drivers copied a code fragment that uses the RIPV bit to
-determine the severity of the error as either HW_EVENT_ERR_UNCORRECTED
-or HW_EVENT_ERR_FATAL, but this check is reversed (marking errors where
-RIPV is set as "FATAL").
+Thank you for more fully integrating the EVM portable signatures into
+IMA.
 
-Reverse the tests so that the error is marked fatal when RIPV is not set.
+" [PATCH 08/11] ima: Allow imasig requirement to be satisfied by EVM
+portable signatures" equates an IMA signature to having a portable and
+immutable EVM signature.  That is true in terms of signature
+verification, but from an attestation perspective the "ima-sig"
+template will not contain a signature.  If not the EVM signature, then
+at least some other indication should be included in the measurement
+list.
 
-Reported-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- drivers/edac/i7core_edac.c | 4 ++--
- drivers/edac/pnd2_edac.c   | 2 +-
- drivers/edac/sb_edac.c     | 6 +++---
- drivers/edac/skx_common.c  | 6 +++---
- 4 files changed, 9 insertions(+), 9 deletions(-)
+Are you planning on posting the associated IMA/EVM regression tests?
 
-diff --git a/drivers/edac/i7core_edac.c b/drivers/edac/i7core_edac.c
-index a71cca6eeb33..6be7e65f7389 100644
---- a/drivers/edac/i7core_edac.c
-+++ b/drivers/edac/i7core_edac.c
-@@ -1711,9 +1711,9 @@ static void i7core_mce_output_error(struct mem_ctl_info *mci,
- 	if (uncorrected_error) {
- 		core_err_cnt = 1;
- 		if (ripv)
--			tp_event = HW_EVENT_ERR_FATAL;
--		else
- 			tp_event = HW_EVENT_ERR_UNCORRECTED;
-+		else
-+			tp_event = HW_EVENT_ERR_FATAL;
- 	} else {
- 		tp_event = HW_EVENT_ERR_CORRECTED;
- 	}
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index b1193be1ef1d..dac45e2071b3 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -1155,7 +1155,7 @@ static void pnd2_mce_output_error(struct mem_ctl_info *mci, const struct mce *m,
- 	u32 optypenum = GET_BITFIELD(m->status, 4, 6);
- 	int rc;
- 
--	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_FATAL : HW_EVENT_ERR_UNCORRECTED) :
-+	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_UNCORRECTED : HW_EVENT_ERR_FATAL) :
- 						 HW_EVENT_ERR_CORRECTED;
- 
- 	/*
-diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
-index f743502ca9b7..d2f02e539b68 100644
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -2981,11 +2981,11 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
- 	if (uncorrected_error) {
- 		core_err_cnt = 1;
- 		if (ripv) {
--			type = "FATAL";
--			tp_event = HW_EVENT_ERR_FATAL;
--		} else {
- 			type = "NON_FATAL";
- 			tp_event = HW_EVENT_ERR_UNCORRECTED;
-+		} else {
-+			type = "FATAL";
-+			tp_event = HW_EVENT_ERR_FATAL;
- 		}
- 	} else {
- 		type = "CORRECTED";
-diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
-index 2177ad765bd1..1b5253e88303 100644
---- a/drivers/edac/skx_common.c
-+++ b/drivers/edac/skx_common.c
-@@ -490,11 +490,11 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
- 	if (uncorrected_error) {
- 		core_err_cnt = 1;
- 		if (ripv) {
--			type = "FATAL";
--			tp_event = HW_EVENT_ERR_FATAL;
--		} else {
- 			type = "NON_FATAL";
- 			tp_event = HW_EVENT_ERR_UNCORRECTED;
-+		} else {
-+			type = "FATAL";
-+			tp_event = HW_EVENT_ERR_FATAL;
- 		}
- 	} else {
- 		type = "CORRECTED";
--- 
-2.21.1
+Mimi
 
