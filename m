@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F3A24F8E0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AE824FA37
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729442AbgHXIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S1728426AbgHXJyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:54:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729455AbgHXIrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:23 -0400
+        id S1727935AbgHXIhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45DE62075B;
-        Mon, 24 Aug 2020 08:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF0B4221E2;
+        Mon, 24 Aug 2020 08:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258842;
-        bh=7YDrs1oIUKwrP9elypvEo5hqcXKbslkuTGu34TR+wfA=;
+        s=default; t=1598258257;
+        bh=BtnyVmk8EG3RJP7QrC5NvOWIju1VwmHKfCJG0w1OciQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHjmKR7z3S4tVJJpmkre8c5N3lLH9Kko0gAUFRuVU2SuzHM9NJBtO9Qh0BRkBIBIO
-         /n97w95M9o6wQzucuKG+FSsCqWsfCzalgdMSYrkLYzkCnbCzEs8tBGaSC4gshzvrYz
-         l3UFPyD93pk/NSd6xf9X2LxKCj3AnV9mG94CQUJw=
+        b=mfwjxw98+kxcXC/UrLbSn5B/Yx1P6Uyw3ALHT+oXiyolHFFJVtXBo5RddW95YsDR/
+         kcPoVmJ/MkBZ2UQPBiK4+FS7d+ca/BXixkqtLpdsWjVLBZOpRsIDHQbEFm1B7Gehdb
+         HxKifpH0uxDSUxrPuzWQ7I+04sVN45zqqBuG7Q/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/107] ext4: dont allow overlapping system zones
-Date:   Mon, 24 Aug 2020 10:30:30 +0200
-Message-Id: <20200824082408.295125220@linuxfoundation.org>
+Subject: [PATCH 5.8 133/148] net: ena: Prevent reset after device destruction
+Date:   Mon, 24 Aug 2020 10:30:31 +0200
+Message-Id: <20200824082420.388699703@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit bf9a379d0980e7413d94cb18dac73db2bfc5f470 ]
+[ Upstream commit 63d4a4c145cca2e84dc6e62d2ef5cb990c9723c2 ]
 
-Currently, add_system_zone() just silently merges two added system zones
-that overlap. However the overlap should not happen and it generally
-suggests that some unrelated metadata overlap which indicates the fs is
-corrupted. We should have caught such problems earlier (e.g. in
-ext4_check_descriptors()) but add this check as another line of defense.
-In later patch we also use this for stricter checking of journal inode
-extent tree.
+The reset work is scheduled by the timer routine whenever it
+detects that a device reset is required (e.g. when a keep_alive signal
+is missing).
+When releasing device resources in ena_destroy_device() the driver
+cancels the scheduling of the timer routine without destroying the reset
+work explicitly.
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This creates the following bug:
+    The driver is suspended and the ena_suspend() function is called
+	-> This function calls ena_destroy_device() to free the net device
+	   resources
+	    -> The driver waits for the timer routine to finish
+	    its execution and then cancels it, thus preventing from it
+	    to be called again.
+
+    If, in its final execution, the timer routine schedules a reset,
+    the reset routine might be called afterwards,and a redundant call to
+    ena_restore_device() would be made.
+
+By changing the reset routine we allow it to read the device's state
+accurately.
+This is achieved by checking whether ENA_FLAG_TRIGGER_RESET flag is set
+before resetting the device and making both the destruction function and
+the flag check are under rtnl lock.
+The ENA_FLAG_TRIGGER_RESET is cleared at the end of the destruction
+routine. Also surround the flag check with 'likely' because
+we expect that the reset routine would be called only when
+ENA_FLAG_TRIGGER_RESET flag is set.
+
+The destruction of the timer and reset services in __ena_shutoff() have to
+stay, even though the timer routine is destroyed in ena_destroy_device().
+This is to avoid a case in which the reset routine is scheduled after
+free_netdev() in __ena_shutoff(), which would create an access to freed
+memory in adapter->flags.
+
+Fixes: 8c5c7abdeb2d ("net: ena: add power management ops to the ENA driver")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c | 36 +++++++++++++-----------------------
- 1 file changed, 13 insertions(+), 23 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index ff8e1205127ee..ceb54ccc937e9 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -68,7 +68,7 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			   ext4_fsblk_t start_blk,
- 			   unsigned int count)
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index dda4b8fc9525e..1a2a464fb2f5f 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -3523,16 +3523,14 @@ static void ena_fw_reset_device(struct work_struct *work)
  {
--	struct ext4_system_zone *new_entry = NULL, *entry;
-+	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &system_blks->root.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
+ 	struct ena_adapter *adapter =
+ 		container_of(work, struct ena_adapter, reset_task);
+-	struct pci_dev *pdev = adapter->pdev;
  
-@@ -79,30 +79,20 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			n = &(*n)->rb_left;
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = &(*n)->rb_right;
--		else {
--			if (start_blk + count > (entry->start_blk +
--						 entry->count))
--				entry->count = (start_blk + count -
--						entry->start_blk);
--			new_node = *n;
--			new_entry = rb_entry(new_node, struct ext4_system_zone,
--					     node);
--			break;
--		}
-+		else	/* Unexpected overlap of system zones. */
-+			return -EFSCORRUPTED;
- 	}
- 
--	if (!new_entry) {
--		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
--					     GFP_KERNEL);
--		if (!new_entry)
--			return -ENOMEM;
--		new_entry->start_blk = start_blk;
--		new_entry->count = count;
--		new_node = &new_entry->node;
--
--		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &system_blks->root);
+-	if (unlikely(!test_bit(ENA_FLAG_TRIGGER_RESET, &adapter->flags))) {
+-		dev_err(&pdev->dev,
+-			"device reset schedule while reset bit is off\n");
+-		return;
 -	}
-+	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
-+				     GFP_KERNEL);
-+	if (!new_entry)
-+		return -ENOMEM;
-+	new_entry->start_blk = start_blk;
-+	new_entry->count = count;
-+	new_node = &new_entry->node;
+ 	rtnl_lock();
+-	ena_destroy_device(adapter, false);
+-	ena_restore_device(adapter);
 +
-+	rb_link_node(new_node, parent, n);
-+	rb_insert_color(new_node, &system_blks->root);
++	if (likely(test_bit(ENA_FLAG_TRIGGER_RESET, &adapter->flags))) {
++		ena_destroy_device(adapter, false);
++		ena_restore_device(adapter);
++	}
++
+ 	rtnl_unlock();
+ }
  
- 	/* Can we merge to the left? */
- 	node = rb_prev(new_node);
+@@ -4366,8 +4364,11 @@ static void __ena_shutoff(struct pci_dev *pdev, bool shutdown)
+ 		netdev->rx_cpu_rmap = NULL;
+ 	}
+ #endif /* CONFIG_RFS_ACCEL */
+-	del_timer_sync(&adapter->timer_service);
+ 
++	/* Make sure timer and reset routine won't be called after
++	 * freeing device resources.
++	 */
++	del_timer_sync(&adapter->timer_service);
+ 	cancel_work_sync(&adapter->reset_task);
+ 
+ 	rtnl_lock(); /* lock released inside the below if-else block */
 -- 
 2.25.1
 
