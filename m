@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C52E24F81E
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C2A724F756
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgHXJ0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59610 "EHLO mail.kernel.org"
+        id S1730491AbgHXI4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:56:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730114AbgHXIwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:53 -0400
+        id S1730485AbgHXI4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:56:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 197E722B4E;
-        Mon, 24 Aug 2020 08:52:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6539322BF5;
+        Mon, 24 Aug 2020 08:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259172;
-        bh=MGpCxETfVBdJUi9yLlAn0NS7XSW2oCvWtdSw+Yn9XmU=;
+        s=default; t=1598259371;
+        bh=fcu9tkV638RyO4qXm29ePKUITiCHaZxHndRULWlEA/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAhx4Y4D1v45geoCHlEp/fbxGb4JsVgJaT5tJ4ZlyVutLen+vVxO3iC/rUa2RMWTg
-         OfaXqmNUgd/hktK6cKEszVkG71R42udLu0Xq/UvP/lPbzKEpCJUQmWOAaqHUOdzRi5
-         tGQqgpBVEhoA4CuPgP2H7Lmz3dgHeGs8e1ZeXl40=
+        b=CCo5Vn56ObMEqAaHN59pV9Ur3SPwQWk2JF3GvGlGALkBQwPpEKu4Ug+W9y+SmBYkK
+         Jcdd7YyO/7Byu4TzI93T1sToYTRlVV9yHTUOoFJTqRczXwmdcg1m6Sj4Wyysy6iIVB
+         XoajMSPQxPrw0KSlChvWdyjsWoplUbsUhx9UI0fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/39] virtio_ring: Avoid loop when vq is broken in virtqueue_poll
+Subject: [PATCH 4.19 34/71] virtio_ring: Avoid loop when vq is broken in virtqueue_poll
 Date:   Mon, 24 Aug 2020 10:31:25 +0200
-Message-Id: <20200824082349.872857339@linuxfoundation.org>
+Message-Id: <20200824082357.590278239@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index e459cd7302e27..5cad9f41c238b 100644
+index 6228b48d1e127..df7980aef927a 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -785,6 +785,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
+@@ -828,6 +828,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
  {
  	struct vring_virtqueue *vq = to_vvq(_vq);
  
