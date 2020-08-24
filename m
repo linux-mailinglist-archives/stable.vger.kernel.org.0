@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E2624FA3C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B854324F969
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726332AbgHXJyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50756 "EHLO mail.kernel.org"
+        id S1728983AbgHXImv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:42:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727821AbgHXIhY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:37:24 -0400
+        id S1728671AbgHXImt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20575221E2;
-        Mon, 24 Aug 2020 08:37:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A8DC2075B;
+        Mon, 24 Aug 2020 08:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258243;
-        bh=2WqdaqYNLMI3GI7UkDLyVTeint5ew7zR2IiT361LbKM=;
+        s=default; t=1598258568;
+        bh=3nDsga2bpnQ7gibh7J1sl5vVziLsJsa7Ai2+ydM4siQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cuN1RAoT+MRTzSfI+tR3qQHj1wELBoODBNsLk3hdVPbVeLNPE0k6761nsa4oFf3y3
-         o288VnZbA/YF1Dn6zDJUN4zyZpDAZM8FMEnAnbf+GNJg2t86omAo5SSwXfDklpu9f3
-         DX6TZvCI8sehX07MstiEq31LuX0SOZFIstfvhWLA=
+        b=je/j17Sq+t/j5sydvEwZvJlDq/GUJqsmzQmPkWgjBViMN2FPQq6tAAoDs5W4bBp0G
+         nek109R5dyRqrj70mvScTQKPXY6ZvA1qZHUNF4ZgM+MZfmI5IaN67fbLYJRqUfmbT+
+         7SXZVOdp+aLC/Dve51IGSZBWtUGp5G6CsA8YSRUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 128/148] powerpc: Add POWER10 raw mode cputable entry
+Subject: [PATCH 5.7 092/124] scsi: ufs: ti-j721e-ufs: Fix error return in ti_j721e_ufs_probe()
 Date:   Mon, 24 Aug 2020 10:30:26 +0200
-Message-Id: <20200824082420.146914546@linuxfoundation.org>
+Message-Id: <20200824082413.946229004@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhavan Srinivasan <maddy@linux.ibm.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 327da008e65a25b8206b36b7fc0c9e4edbb36a58 ]
+[ Upstream commit 2138d1c918246e3d8193c3cb8b6d22d0bb888061 ]
 
-Add a raw mode cputable entry for POWER10. Copies most of the fields
-from commit a3ea40d5c736 ("powerpc: Add POWER10 architected mode")
-except for oprofile_cpu_type, machine_check_early, pvr_mask and
-pvr_mask fields. On bare metal systems we use DT CPU features, which
-doesn't need a cputable entry. But in VMs we still rely on the raw
-cputable entry to set the correct values for the PMU related fields.
+Fix to return error code PTR_ERR() from the error handling case instead of
+0.
 
-Fixes: a3ea40d5c736 ("powerpc: Add POWER10 architected mode")
-Signed-off-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-[mpe: Reorder vs cleanup patch and add Fixes tag]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200817005618.3305028-2-maddy@linux.ibm.com
+Link: https://lore.kernel.org/r/20200806070135.67797-1-jingxiangfeng@huawei.com
+Fixes: 22617e216331 ("scsi: ufs: ti-j721e-ufs: Fix unwinding of pm_runtime changes")
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/cputable.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/scsi/ufs/ti-j721e-ufs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/cputable.c b/arch/powerpc/kernel/cputable.c
-index b4066354f0730..bb0c7f43a8283 100644
---- a/arch/powerpc/kernel/cputable.c
-+++ b/arch/powerpc/kernel/cputable.c
-@@ -75,6 +75,7 @@ extern void __restore_cpu_power10(void);
- extern long __machine_check_early_realmode_p7(struct pt_regs *regs);
- extern long __machine_check_early_realmode_p8(struct pt_regs *regs);
- extern long __machine_check_early_realmode_p9(struct pt_regs *regs);
-+extern long __machine_check_early_realmode_p10(struct pt_regs *regs);
- #endif /* CONFIG_PPC64 */
- #if defined(CONFIG_E500)
- extern void __setup_cpu_e5500(unsigned long offset, struct cpu_spec* spec);
-@@ -541,6 +542,25 @@ static struct cpu_spec __initdata cpu_specs[] = {
- 		.machine_check_early	= __machine_check_early_realmode_p9,
- 		.platform		= "power9",
- 	},
-+	{	/* Power10 */
-+		.pvr_mask		= 0xffff0000,
-+		.pvr_value		= 0x00800000,
-+		.cpu_name		= "POWER10 (raw)",
-+		.cpu_features		= CPU_FTRS_POWER10,
-+		.cpu_user_features	= COMMON_USER_POWER10,
-+		.cpu_user_features2	= COMMON_USER2_POWER10,
-+		.mmu_features		= MMU_FTRS_POWER10,
-+		.icache_bsize		= 128,
-+		.dcache_bsize		= 128,
-+		.num_pmcs		= 6,
-+		.pmc_type		= PPC_PMC_IBM,
-+		.oprofile_cpu_type	= "ppc64/power10",
-+		.oprofile_type		= PPC_OPROFILE_INVALID,
-+		.cpu_setup		= __setup_cpu_power10,
-+		.cpu_restore		= __restore_cpu_power10,
-+		.machine_check_early	= __machine_check_early_realmode_p10,
-+		.platform		= "power10",
-+	},
- 	{	/* Cell Broadband Engine */
- 		.pvr_mask		= 0xffff0000,
- 		.pvr_value		= 0x00700000,
+diff --git a/drivers/scsi/ufs/ti-j721e-ufs.c b/drivers/scsi/ufs/ti-j721e-ufs.c
+index 46bb905b4d6a9..eafe0db98d542 100644
+--- a/drivers/scsi/ufs/ti-j721e-ufs.c
++++ b/drivers/scsi/ufs/ti-j721e-ufs.c
+@@ -38,6 +38,7 @@ static int ti_j721e_ufs_probe(struct platform_device *pdev)
+ 	/* Select MPHY refclk frequency */
+ 	clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(clk)) {
++		ret = PTR_ERR(clk);
+ 		dev_err(dev, "Cannot claim MPHY clock.\n");
+ 		goto clk_err;
+ 	}
 -- 
 2.25.1
 
