@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8DB624F90B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4D924FA6A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729264AbgHXIpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43398 "EHLO mail.kernel.org"
+        id S1728222AbgHXIgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbgHXIpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:51 -0400
+        id S1728213AbgHXIgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:36:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40AA8206F0;
-        Mon, 24 Aug 2020 08:45:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 978C4206F0;
+        Mon, 24 Aug 2020 08:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258750;
-        bh=BUqh9hxrrhfBSUuYGJs7qbkTVzJ4kaDSPrSOfKiy10g=;
+        s=default; t=1598258166;
+        bh=an6+2DqmminxtMIu4A/ZhdmOYJXJxJgM44v0lI1h1gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5LVj4FP3muRYyqs+wRwRdb2YOJUaPLZOyooZgS5dEIGFke9/Neo2VS1Q2V2YRwN+
-         b1rGcGU69Z8qMjB3ykZ5zJa89UHwJebaxU2EdIHi72/ijBrRvGxhWbqLmWFM2670fJ
-         4VNnv6fUXfTXEch2Jlv2kIlbNyuG4cVhdxCPmUzQ=
+        b=oG+HE6g7MHTVnqkCbs6v3OsuEpW6z1kvo7Gk+sAiRzz+M7IoJm/hbtlXp31Ns3vhU
+         EWH4QezB6Xswppt+JDAXBa3ZJ+wDfqEi75//wRj9wfUXWs33JodBlf/kJmmWS2Ey8B
+         ukrc8KGLToqJ5ayCkrQNNj2woO9sy+p9rHTR1vcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 031/107] RDMA/hfi1: Correct an interlock issue for TID RDMA WRITE request
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 099/148] s390/ptrace: fix storage key handling
 Date:   Mon, 24 Aug 2020 10:29:57 +0200
-Message-Id: <20200824082406.656234232@linuxfoundation.org>
+Message-Id: <20200824082418.780992297@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit b25e8e85e75a61af1ddc88c4798387dd3132dd43 upstream.
+[ Upstream commit fd78c59446b8d050ecf3e0897c5a486c7de7c595 ]
 
-The following message occurs when running an AI application with TID RDMA
-enabled:
+The key member of the runtime instrumentation control block contains
+only the access key, not the complete storage key. Therefore the value
+must be shifted by four bits. Since existing user space does not
+necessarily query and set the access key correctly, just ignore the
+user space provided key and use the correct one.
+Note: this is only relevant for debugging purposes in case somebody
+compiles a kernel with a default storage access key set to a value not
+equal to zero.
 
-hfi1 0000:7f:00.0: hfi1_0: [QP74] hfi1_tid_timeout 4084
-hfi1 0000:7f:00.0: hfi1_0: [QP70] hfi1_tid_timeout 4084
-
-The issue happens when TID RDMA WRITE request is followed by an
-IB_WR_RDMA_WRITE_WITH_IMM request, the latter could be completed first on
-the responder side. As a result, no ACK packet for the latter could be
-sent because the TID RDMA WRITE request is still being processed on the
-responder side.
-
-When the TID RDMA WRITE request is eventually completed, the requester
-will wait for the IB_WR_RDMA_WRITE_WITH_IMM request to be acknowledged.
-
-If the next request is another TID RDMA WRITE request, no TID RDMA WRITE
-DATA packet could be sent because the preceding IB_WR_RDMA_WRITE_WITH_IMM
-request is not completed yet.
-
-Consequently the IB_WR_RDMA_WRITE_WITH_IMM will be retried but it will be
-ignored on the responder side because the responder thinks it has already
-been completed. Eventually the retry will be exhausted and the qp will be
-put into error state on the requester side. On the responder side, the TID
-resource timer will eventually expire because no TID RDMA WRITE DATA
-packets will be received for the second TID RDMA WRITE request.  There is
-also risk of a write-after-write memory corruption due to the issue.
-
-Fix by adding a requester side interlock to prevent any potential data
-corruption and TID RDMA protocol error.
-
-Fixes: a0b34f75ec20 ("IB/hfi1: Add interlock between a TID RDMA request and other requests")
-Link: https://lore.kernel.org/r/20200811174931.191210.84093.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org> # 5.4.x+
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 262832bc5acd ("s390/ptrace: add runtime instrumention register get/set")
+Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/ptrace.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -3215,6 +3215,7 @@ bool hfi1_tid_rdma_wqe_interlock(struct
- 	case IB_WR_ATOMIC_CMP_AND_SWP:
- 	case IB_WR_ATOMIC_FETCH_AND_ADD:
- 	case IB_WR_RDMA_WRITE:
-+	case IB_WR_RDMA_WRITE_WITH_IMM:
- 		switch (prev->wr.opcode) {
- 		case IB_WR_TID_RDMA_WRITE:
- 			req = wqe_to_tid_req(prev);
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 3cc15c0662983..2924f236d89c6 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -1310,7 +1310,6 @@ static bool is_ri_cb_valid(struct runtime_instr_cb *cb)
+ 		cb->pc == 1 &&
+ 		cb->qc == 0 &&
+ 		cb->reserved2 == 0 &&
+-		cb->key == PAGE_DEFAULT_KEY &&
+ 		cb->reserved3 == 0 &&
+ 		cb->reserved4 == 0 &&
+ 		cb->reserved5 == 0 &&
+@@ -1374,7 +1373,11 @@ static int s390_runtime_instr_set(struct task_struct *target,
+ 		kfree(data);
+ 		return -EINVAL;
+ 	}
+-
++	/*
++	 * Override access key in any case, since user space should
++	 * not be able to set it, nor should it care about it.
++	 */
++	ri_cb.key = PAGE_DEFAULT_KEY >> 4;
+ 	preempt_disable();
+ 	if (!target->thread.ri_cb)
+ 		target->thread.ri_cb = data;
+-- 
+2.25.1
+
 
 
