@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084722505DB
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92542505C5
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726519AbgHXRU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40072 "EHLO mail.kernel.org"
+        id S1728072AbgHXRVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728282AbgHXQgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728285AbgHXQgH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:36:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F52722D06;
-        Mon, 24 Aug 2020 16:35:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 065D422D02;
+        Mon, 24 Aug 2020 16:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286954;
-        bh=suhF0qwwSU0yECNHcaKgTLO11nlKyMh0NmEMGkWs6+U=;
+        s=default; t=1598286957;
+        bh=iko1cVkcks4eJF/tsESV//trlKvUBqx6xMAyNEqxTXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+GzIR/vyRAN4wamwDrkUpyq/DPuh03dvq9F3WeJetrdNfhj1eUKrPqxPgd1dewb9
-         kfqYv/OcIJuR/JgP1g2NZ5gepcdfj9sxtXN/8qWbTDxKQzj7KvuSQa+QmScblIFoPF
-         ZbXs1PvsDKsElsMtPn7VeR0gmEyJ+GLUBOyK7T5Y=
+        b=L338VFWqta5F5fsolrg/d8jgXb+KZxfXQlyEkHkjFDQTgiqo5LZkxAEpQMyuk9k9Q
+         AbDhlCmtPXZ+Z2p2HvNOd0LXOKi1S8oNTz6LnOi3Je2Qsun4DouAOl10miqrQNSIvy
+         P+nrs9L6oHVa0VX3KxPet9EIP14DFEIXSmlyOmLo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Ahern <dsahern@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 37/63] selftests: disable rp_filter for icmp_redirect.sh
-Date:   Mon, 24 Aug 2020 12:34:37 -0400
-Message-Id: <20200824163504.605538-37-sashal@kernel.org>
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Andy Teng <andy.teng@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 39/63] scsi: ufs: Fix possible infinite loop in ufshcd_hold
+Date:   Mon, 24 Aug 2020 12:34:39 -0400
+Message-Id: <20200824163504.605538-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -44,36 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit bcf7ddb0186d366f761f86196b480ea6dd2dc18c ]
+[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
 
-h1 is initially configured to reach h2 via r1 rather than the
-more direct path through r2. If rp_filter is set and inherited
-for r2, forwarding fails since the source address of h1 is
-reachable from eth0 vs the packet coming to it via r1 and eth1.
-Since rp_filter setting affects the test, explicitly reset it.
+In ufshcd_suspend(), after clk-gating is suspended and link is set
+as Hibern8 state, ufshcd_hold() is still possibly invoked before
+ufshcd_suspend() returns. For example, MediaTek's suspend vops may
+issue UIC commands which would call ufshcd_hold() during the command
+issuing flow.
 
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
+then ufshcd_hold() may enter infinite loops because there is no
+clk-ungating work scheduled or pending. In this case, ufshcd_hold()
+shall just bypass, and keep the link as Hibern8 state.
+
+Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Co-developed-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/icmp_redirect.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/icmp_redirect.sh b/tools/testing/selftests/net/icmp_redirect.sh
-index 18c5de53558af..bf361f30d6ef9 100755
---- a/tools/testing/selftests/net/icmp_redirect.sh
-+++ b/tools/testing/selftests/net/icmp_redirect.sh
-@@ -180,6 +180,8 @@ setup()
- 			;;
- 		r[12]) ip netns exec $ns sysctl -q -w net.ipv4.ip_forward=1
- 		       ip netns exec $ns sysctl -q -w net.ipv4.conf.all.send_redirects=1
-+		       ip netns exec $ns sysctl -q -w net.ipv4.conf.default.rp_filter=0
-+		       ip netns exec $ns sysctl -q -w net.ipv4.conf.all.rp_filter=0
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index e412e43d23821..8185ab3b41c9b 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1557,6 +1557,7 @@ static void ufshcd_ungate_work(struct work_struct *work)
+ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ {
+ 	int rc = 0;
++	bool flush_result;
+ 	unsigned long flags;
  
- 		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
- 		       ip netns exec $ns sysctl -q -w net.ipv6.route.mtu_expires=10
+ 	if (!ufshcd_is_clkgating_allowed(hba))
+@@ -1588,7 +1589,9 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 				break;
+ 			}
+ 			spin_unlock_irqrestore(hba->host->host_lock, flags);
+-			flush_work(&hba->clk_gating.ungate_work);
++			flush_result = flush_work(&hba->clk_gating.ungate_work);
++			if (hba->clk_gating.is_suspended && !flush_result)
++				goto out;
+ 			spin_lock_irqsave(hba->host->host_lock, flags);
+ 			goto start;
+ 		}
 -- 
 2.25.1
 
