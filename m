@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C28A24F86F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D82824F89C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729497AbgHXIuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:50:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
+        id S1726666AbgHXJfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729811AbgHXIuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:03 -0400
+        id S1729649AbgHXItE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:49:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88B00207D3;
-        Mon, 24 Aug 2020 08:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9945F204FD;
+        Mon, 24 Aug 2020 08:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259002;
-        bh=zKQ8ZtWYpiM4WvCVnO7PZSUwlvnZhnWf8oE8kLvil2E=;
+        s=default; t=1598258943;
+        bh=Wh6sT37MzZ5crsokFE5tf1ZxGjZm1aGj9OgnT/9kwyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qj8YaQTjSrNrnv3fhi5zYT4DWd1eoEvAsrGqA8CDq2sKGrB1nAF8pz9apUmtolR6w
-         690vRqdOom6wuJi+YMlC6moQ7IZ+o0vUheT9pbnCeiZb0BZZo2u6k6yRHTDsQx/YeP
-         KitZUeyKqzLiKKzUZpA1W+fYHaAuuifqZSN7nkV0=
+        b=hxvLzLp/oE+guqOazVHIo4M6p1AWFgDinxIgD6BAFRGYgCWduXHTN6otLbbJ8sFL4
+         ArXwQJJS0jv91nKu/Pu3GLkzg6YqPHIUEKFDHb2I1oT67DBBsyoOLYB5gixq3pabRC
+         UWO/Qv3yfEegej1K+hlRcW4aJ3IDW1NATxV6mcZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/33] btrfs: export helpers for subvolume name/id resolution
-Date:   Mon, 24 Aug 2020 10:31:05 +0200
-Message-Id: <20200824082346.992358892@linuxfoundation.org>
+Subject: [PATCH 5.4 100/107] hv_netvsc: Fix the queue_mapping in netvsc_vf_xmit()
+Date:   Mon, 24 Aug 2020 10:31:06 +0200
+Message-Id: <20200824082410.035303327@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
-References: <20200824082346.498653578@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-[ Upstream commit c0c907a47dccf2cf26251a8fb4a8e7a3bf79ce84 ]
+[ Upstream commit c3d897e01aef8ddc43149e4d661b86f823e3aae7 ]
 
-The functions will be used outside of export.c and super.c to allow
-resolving subvolume name from a given id, eg. for subvolume deletion by
-id ioctl.
+netvsc_vf_xmit() / dev_queue_xmit() will call VF NIC’s ndo_select_queue
+or netdev_pick_tx() again. They will use skb_get_rx_queue() to get the
+queue number, so the “skb->queue_mapping - 1” will be used. This may
+cause the last queue of VF not been used.
 
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ split from the next patch ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Use skb_record_rx_queue() here, so that the skb_get_rx_queue() called
+later will get the correct queue number, and VF will be able to use
+all queues.
+
+Fixes: b3bf5666a510 ("hv_netvsc: defer queue selection to VF")
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h  | 2 ++
- fs/btrfs/export.c | 8 ++++----
- fs/btrfs/export.h | 5 +++++
- fs/btrfs/super.c  | 8 ++++----
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 0b06d4942da77..8fb9a1e0048be 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -4096,6 +4096,8 @@ ssize_t btrfs_listxattr(struct dentry *dentry, char *buffer, size_t size);
- /* super.c */
- int btrfs_parse_options(struct btrfs_root *root, char *options);
- int btrfs_sync_fs(struct super_block *sb, int wait);
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid);
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 24bb721a12bc0..42eb7a7ecd96b 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -501,7 +501,7 @@ static int netvsc_vf_xmit(struct net_device *net, struct net_device *vf_netdev,
+ 	int rc;
  
- #ifdef CONFIG_PRINTK
- __printf(2, 3)
-diff --git a/fs/btrfs/export.c b/fs/btrfs/export.c
-index 2513a7f533342..92f80ed642194 100644
---- a/fs/btrfs/export.c
-+++ b/fs/btrfs/export.c
-@@ -55,9 +55,9 @@ static int btrfs_encode_fh(struct inode *inode, u32 *fh, int *max_len,
- 	return type;
- }
+ 	skb->dev = vf_netdev;
+-	skb->queue_mapping = qdisc_skb_cb(skb)->slave_dev_queue_mapping;
++	skb_record_rx_queue(skb, qdisc_skb_cb(skb)->slave_dev_queue_mapping);
  
--static struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
--				       u64 root_objectid, u32 generation,
--				       int check_generation)
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
- 	struct btrfs_root *root;
-@@ -150,7 +150,7 @@ static struct dentry *btrfs_fh_to_dentry(struct super_block *sb, struct fid *fh,
- 	return btrfs_get_dentry(sb, objectid, root_objectid, generation, 1);
- }
- 
--static struct dentry *btrfs_get_parent(struct dentry *child)
-+struct dentry *btrfs_get_parent(struct dentry *child)
- {
- 	struct inode *dir = d_inode(child);
- 	struct btrfs_root *root = BTRFS_I(dir)->root;
-diff --git a/fs/btrfs/export.h b/fs/btrfs/export.h
-index 074348a95841f..7a305e5549991 100644
---- a/fs/btrfs/export.h
-+++ b/fs/btrfs/export.h
-@@ -16,4 +16,9 @@ struct btrfs_fid {
- 	u64 parent_root_objectid;
- } __attribute__ ((packed));
- 
-+struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
-+				u64 root_objectid, u32 generation,
-+				int check_generation);
-+struct dentry *btrfs_get_parent(struct dentry *child);
-+
- #endif
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 404051bf5cba9..540e6f141745a 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -843,8 +843,8 @@ out:
- 	return error;
- }
- 
--static char *get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
--					   u64 subvol_objectid)
-+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-+					  u64 subvol_objectid)
- {
- 	struct btrfs_root *root = fs_info->tree_root;
- 	struct btrfs_root *fs_root;
-@@ -1323,8 +1323,8 @@ static struct dentry *mount_subvol(const char *subvol_name, u64 subvol_objectid,
- 				goto out;
- 			}
- 		}
--		subvol_name = get_subvol_name_from_objectid(btrfs_sb(mnt->mnt_sb),
--							    subvol_objectid);
-+		subvol_name = btrfs_get_subvol_name_from_objectid(
-+					btrfs_sb(mnt->mnt_sb), subvol_objectid);
- 		if (IS_ERR(subvol_name)) {
- 			root = ERR_CAST(subvol_name);
- 			subvol_name = NULL;
+ 	rc = dev_queue_xmit(skb);
+ 	if (likely(rc == NET_XMIT_SUCCESS || rc == NET_XMIT_CN)) {
 -- 
 2.25.1
 
