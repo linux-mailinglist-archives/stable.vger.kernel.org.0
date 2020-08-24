@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B532250453
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF48B25044F
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbgHXRA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:00:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S1726910AbgHXRAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:00:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728210AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728499AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:38:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2694622D02;
-        Mon, 24 Aug 2020 16:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E963722C9F;
+        Mon, 24 Aug 2020 16:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287120;
-        bh=GOfb5yWcc32qC6+K8JzNjIZ0IRW6e52mmGom4d+a53A=;
+        s=default; t=1598287122;
+        bh=gX242I+Ys66LLIFI8NFdVo8uWb+C82vQGDzHe3iSuT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHerpMl35tKxM+Fhf0CdTIl50yMfaWboW++nyALX/pY2gzJcfUlG85LhSGAorH6vL
-         lDWfQzK/sDfWTzY5btsfz0cq7vpIbrOCGYZH7QHQ7xtU8uuExsd0v5XnYn0UGRj80I
-         RRZNBY1nTvpM+qKwNSStI2w50Io7Kh7J2yjxvCnk=
+        b=kWv/eZR/49j2+YEWmOWeGjejxU9/mrBdl1/aRUZliTSNmMsQfNpAgnJMo1i3Gp93Y
+         ApFpBBWJSYXK/Ilzko3H9o3lspkTK8mYYe5+dfZx6I49p95iGG+QVMkfDlORn32gym
+         5his11898NJ8VVW+VprxBgQ7Qqp2gLYtSD3nrYBw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiansong Chen <Jiansong.Chen@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 35/38] Revert "drm/amdgpu: disable gfxoff for navy_flounder"
-Date:   Mon, 24 Aug 2020 12:37:47 -0400
-Message-Id: <20200824163751.606577-35-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 37/38] arm64: Move handling of erratum 1418040 into C code
+Date:   Mon, 24 Aug 2020 12:37:49 -0400
+Message-Id: <20200824163751.606577-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -46,37 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit da2446b66b5e2c7f3ab63912c8d999810e35e8b3 ]
+[ Upstream commit d49f7d7376d0c0daf8680984a37bd07581ac7d38 ]
 
-This reverts commit 9c9b17a7d19a8e21db2e378784fff1128b46c9d3.
-Newly released sdma fw (51.52) provides a fix for the issue.
+Instead of dealing with erratum 1418040 on each entry and exit,
+let's move the handling to __switch_to() instead, which has
+several advantages:
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+- It can be applied when it matters (switching between 32 and 64
+  bit tasks).
+- It is written in C (yay!)
+- It can rely on static keys rather than alternatives
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20200731173824.107480-2-maz@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm64/kernel/process.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-index 3a5b4efa7a5e6..64d96eb0a2337 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -617,9 +617,6 @@ static void gfx_v10_0_check_gfxoff_flag(struct amdgpu_device *adev)
- 	case CHIP_NAVI10:
- 		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
- 		break;
--	case CHIP_NAVY_FLOUNDER:
--		adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
--		break;
- 	default:
- 		break;
- 	}
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index fab013c5ee8c9..10190c4b16dc4 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -498,6 +498,39 @@ static void entry_task_switch(struct task_struct *next)
+ 	__this_cpu_write(__entry_task, next);
+ }
+ 
++/*
++ * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
++ * Assuming the virtual counter is enabled at the beginning of times:
++ *
++ * - disable access when switching from a 64bit task to a 32bit task
++ * - enable access when switching from a 32bit task to a 64bit task
++ */
++static void erratum_1418040_thread_switch(struct task_struct *prev,
++					  struct task_struct *next)
++{
++	bool prev32, next32;
++	u64 val;
++
++	if (!(IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) &&
++	      cpus_have_const_cap(ARM64_WORKAROUND_1418040)))
++		return;
++
++	prev32 = is_compat_thread(task_thread_info(prev));
++	next32 = is_compat_thread(task_thread_info(next));
++
++	if (prev32 == next32)
++		return;
++
++	val = read_sysreg(cntkctl_el1);
++
++	if (!next32)
++		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
++	else
++		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
++
++	write_sysreg(val, cntkctl_el1);
++}
++
+ /*
+  * Thread switching.
+  */
+@@ -514,6 +547,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
+ 	uao_thread_switch(next);
+ 	ptrauth_thread_switch(next);
+ 	ssbs_thread_switch(next);
++	erratum_1418040_thread_switch(prev, next);
+ 
+ 	/*
+ 	 * Complete any pending TLB or cache maintenance on this CPU in case
 -- 
 2.25.1
 
