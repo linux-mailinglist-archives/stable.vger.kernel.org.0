@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC3E24F950
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BBC24F892
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbgHXJoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:44:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38010 "EHLO mail.kernel.org"
+        id S1729695AbgHXItS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728495AbgHXInb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:43:31 -0400
+        id S1729688AbgHXItQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:49:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20D2F2087D;
-        Mon, 24 Aug 2020 08:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EFFB204FD;
+        Mon, 24 Aug 2020 08:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258610;
-        bh=/DMNXdWyR44RKoBGbBNhca/NOo7MsflkjKpNszxYWNE=;
+        s=default; t=1598258956;
+        bh=Szw6jA3d8Pxqmf1JA6WaAVW8AEfSzqqzAAso5Yu42xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AM/8/7e8z26W8wqDEAD6Tbeb+GoKU90CEeScQiANPbCgHg1mXNQndirvVn6g1v1nI
-         C9eLYRVNq/U9Q/X5Ns5UztvKx5roM8pOQGxvxFVD01bGhH8BWH8VMklsiaDqlH7JFj
-         Gj2d4M3aLuOFO0mNt50oPZ4Mu1oTxrKvo2Cze/zs=
+        b=qM3CDyAjh3iQesSUS3idK/NugNSkf+lX/swF0Lb6sNhIB+WBuWIe9Cln+60GykTzv
+         44usMxnzYu84MC9aWYeTgJSzYf43reMdCUlWEC5hE/ALvE59WFreOCq+ICvmFWDoys
+         69t7CAWW93jwegV+jdhgCyIq5bU6WfP90dlpz0Wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 108/124] powerpc/fixmap: Fix the size of the early debug area
-Date:   Mon, 24 Aug 2020 10:30:42 +0200
-Message-Id: <20200824082414.719735807@linuxfoundation.org>
+Subject: [PATCH 5.4 077/107] can: j1939: fix support for multipacket broadcast message
+Date:   Mon, 24 Aug 2020 10:30:43 +0200
+Message-Id: <20200824082408.931023464@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit fdc6edbb31fba76fd25d7bd016b675a92908d81e ]
+[ Upstream commit f4fd77fd87e9b214c26bb2ebd4f90055eaea5ade ]
 
-Commit ("03fd42d458fb powerpc/fixmap: Fix FIX_EARLY_DEBUG_BASE when
-page size is 256k") reworked the setup of the early debug area and
-mistakenly replaced 128 * 1024 by SZ_128.
+Currently j1939_tp_im_involved_anydir() in j1939_tp_recv() check the previously
+set flags J1939_ECU_LOCAL_DST and J1939_ECU_LOCAL_SRC of incoming skb, thus
+multipacket broadcast message was aborted by receive side because it may come
+from remote ECUs and have no exact dst address. Similarly, j1939_tp_cmd_recv()
+and j1939_xtp_rx_dat() didn't process broadcast message.
 
-Change to SZ_128K to restore the original 128 kbytes size of the area.
+So fix it by checking and process broadcast message in j1939_tp_recv(),
+j1939_tp_cmd_recv() and j1939_xtp_rx_dat().
 
-Fixes: 03fd42d458fb ("powerpc/fixmap: Fix FIX_EARLY_DEBUG_BASE when page size is 256k")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/996184974d674ff984643778cf1cdd7fe58cc065.1597644194.git.christophe.leroy@csgroup.eu
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1596599425-5534-2-git-send-email-zhangchangzhong@huawei.com
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/fixmap.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/j1939/transport.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
-index 77ab25a199740..e808461e6532e 100644
---- a/arch/powerpc/include/asm/fixmap.h
-+++ b/arch/powerpc/include/asm/fixmap.h
-@@ -52,7 +52,7 @@ enum fixed_addresses {
- 	FIX_HOLE,
- 	/* reserve the top 128K for early debugging purposes */
- 	FIX_EARLY_DEBUG_TOP = FIX_HOLE,
--	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+(ALIGN(SZ_128, PAGE_SIZE)/PAGE_SIZE)-1,
-+	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+(ALIGN(SZ_128K, PAGE_SIZE)/PAGE_SIZE)-1,
- #ifdef CONFIG_HIGHMEM
- 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
- 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index 90a2baac8a4aa..67189b4c482c5 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1673,8 +1673,12 @@ static void j1939_xtp_rx_rts(struct j1939_priv *priv, struct sk_buff *skb,
+ 			return;
+ 		}
+ 		session = j1939_xtp_rx_rts_session_new(priv, skb);
+-		if (!session)
++		if (!session) {
++			if (cmd == J1939_TP_CMD_BAM && j1939_sk_recv_match(priv, skcb))
++				netdev_info(priv->ndev, "%s: failed to create TP BAM session\n",
++					    __func__);
+ 			return;
++		}
+ 	} else {
+ 		if (j1939_xtp_rx_rts_session_active(session, skb)) {
+ 			j1939_session_put(session);
+@@ -1852,6 +1856,13 @@ static void j1939_xtp_rx_dat(struct j1939_priv *priv, struct sk_buff *skb)
+ 		else
+ 			j1939_xtp_rx_dat_one(session, skb);
+ 	}
++
++	if (j1939_cb_is_broadcast(skcb)) {
++		session = j1939_session_get_by_addr(priv, &skcb->addr, false,
++						    false);
++		if (session)
++			j1939_xtp_rx_dat_one(session, skb);
++	}
+ }
+ 
+ /* j1939 main intf */
+@@ -1943,7 +1954,7 @@ static void j1939_tp_cmd_recv(struct j1939_priv *priv, struct sk_buff *skb)
+ 		if (j1939_tp_im_transmitter(skcb))
+ 			j1939_xtp_rx_rts(priv, skb, true);
+ 
+-		if (j1939_tp_im_receiver(skcb))
++		if (j1939_tp_im_receiver(skcb) || j1939_cb_is_broadcast(skcb))
+ 			j1939_xtp_rx_rts(priv, skb, false);
+ 
+ 		break;
+@@ -2007,7 +2018,7 @@ int j1939_tp_recv(struct j1939_priv *priv, struct sk_buff *skb)
+ {
+ 	struct j1939_sk_buff_cb *skcb = j1939_skb_to_cb(skb);
+ 
+-	if (!j1939_tp_im_involved_anydir(skcb))
++	if (!j1939_tp_im_involved_anydir(skcb) && !j1939_cb_is_broadcast(skcb))
+ 		return 0;
+ 
+ 	switch (skcb->addr.pgn) {
 -- 
 2.25.1
 
