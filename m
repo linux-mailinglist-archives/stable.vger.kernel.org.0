@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6FF24F815
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C03824F82F
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728576AbgHXJZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60578 "EHLO mail.kernel.org"
+        id S1729685AbgHXJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730167AbgHXIxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:16 -0400
+        id S1730049AbgHXIwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:52:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2F812072D;
-        Mon, 24 Aug 2020 08:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76A42204FD;
+        Mon, 24 Aug 2020 08:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259196;
-        bh=G343O5zXct8Gjh/XR2kSlojFg+A+zPRcw02RL1ptuFM=;
+        s=default; t=1598259126;
+        bh=nstCH6mn71s6+t+b0/T4hwQQsqc+bqiv7+SPeqwEVLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlMAtwoefIqpbpA/TUWW2TKq4aFUeMtBLFi+F08Yeb42QkCGihr9dRKU9bevBGfv2
-         Digypsykqmkq6Djy7wis29f1WsUq7GOsP7bZX10gHHkIntDtU4mLFlqf8X+sJqLQ74
-         lHPwN4gKnTeU4aFSIaApHBExaAUwiAXbs1O5IZjs=
+        b=VCDYeOVO24Z1Syhqy8c9+TVZLKd0stVaILvO4ZrFaRb2wpkxEBkUJaxS+Br5JfXeQ
+         eO+0WmbojiFG3aQzCUnh0B47qcG8COofa7RmuVurCqnaQEv9n+jDHwNgik+t3rj/fP
+         9BJLXr3vGmMNjd+45pXIai6MdSgpBIFpe1uIxQdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/50] btrfs: Move free_pages_out label in inline extent handling branch in compress_file_range
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 11/39] romfs: fix uninitialized memory leak in romfs_dev_read()
 Date:   Mon, 24 Aug 2020 10:31:10 +0200
-Message-Id: <20200824082352.379084187@linuxfoundation.org>
+Message-Id: <20200824082349.051078970@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
+References: <20200824082348.445866152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit cecc8d9038d164eda61fbcd72520975a554ea63e ]
+commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
 
-This label is only executed if compress_file_range fails to create an
-inline extent. So move its code in the semantically related inline
-extent handling branch. No functional changes.
+romfs has a superblock field that limits the size of the filesystem; data
+beyond that limit is never accessed.
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+romfs_dev_read() fetches a caller-supplied number of bytes from the
+backing device.  It returns 0 on success or an error code on failure;
+therefore, its API can't represent short reads, it's all-or-nothing.
+
+However, when romfs_dev_read() detects that the requested operation would
+cross the filesystem size limit, it currently silently truncates the
+requested number of bytes.  This e.g.  means that when the content of a
+file with size 0x1000 starts one byte before the filesystem size limit,
+->readpage() will only fill a single byte of the supplied page while
+leaving the rest uninitialized, leaking that uninitialized memory to
+userspace.
+
+Fix it by returning an error code instead of truncating the read when the
+requested read operation would go beyond the end of the filesystem.
+
+Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/inode.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/romfs/storage.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 57908ee964a20..dc520749f51db 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -629,7 +629,14 @@ cont:
- 				btrfs_free_reserved_data_space_noquota(inode,
- 							       start,
- 							       end - start + 1);
--			goto free_pages_out;
-+
-+			for (i = 0; i < nr_pages; i++) {
-+				WARN_ON(pages[i]->mapping);
-+				put_page(pages[i]);
-+			}
-+			kfree(pages);
-+
-+			return;
- 		}
- 	}
+--- a/fs/romfs/storage.c
++++ b/fs/romfs/storage.c
+@@ -221,10 +221,8 @@ int romfs_dev_read(struct super_block *s
+ 	size_t limit;
  
-@@ -708,13 +715,6 @@ cleanup_and_bail_uncompressed:
- 	*num_added += 1;
+ 	limit = romfs_maxsize(sb);
+-	if (pos >= limit)
++	if (pos >= limit || buflen > limit - pos)
+ 		return -EIO;
+-	if (buflen > limit - pos)
+-		buflen = limit - pos;
  
- 	return;
--
--free_pages_out:
--	for (i = 0; i < nr_pages; i++) {
--		WARN_ON(pages[i]->mapping);
--		put_page(pages[i]);
--	}
--	kfree(pages);
- }
- 
- static void free_async_extent_pages(struct async_extent *async_extent)
--- 
-2.25.1
-
+ #ifdef CONFIG_ROMFS_ON_MTD
+ 	if (sb->s_mtd)
 
 
