@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C2E24F895
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80CE224F954
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729679AbgHXItP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
+        id S1727822AbgHXJoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:44:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbgHXItL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:11 -0400
+        id S1728510AbgHXIn2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:43:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A70C8204FD;
-        Mon, 24 Aug 2020 08:49:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BCA02074D;
+        Mon, 24 Aug 2020 08:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258951;
-        bh=Z2BaQpAKYv9JDob0kBSAPrWAG5hENYzWb+eB29KmjUo=;
+        s=default; t=1598258608;
+        bh=l+KKjuyv0K+3EtnedaDSTu3bi2Trkpi4G9PEyEiUh64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uu+ZGZz5rio4s4iJpdii3P1qli/9FR/Q6b6HNIdnZ2UsGb/2JoozlG1eBJTueIGsu
-         QPbIDjx12Ee0PLRDAF8FXLmxk9EwKumozFT3mLKbMLqRWuxQ3uk/VDZY9hyfW8gquB
-         XC0kFgym56znpkqaesRVDlcPYJsgSGeJ2pjsJSRc=
+        b=plinFpnd/n2LPNJddUv+1k0ZYQAV2zVMvYB+2JS6p0CknPvW+Wv5KXXsINdpc/uPd
+         stiQ9SRXuCX+7xyf+uh/ifdBl/wafsf81/3E3hkAFNCZAwxpi+pcSd7n+Ci9hfSvQo
+         Ek4FOoXUA+uFTRev3DZ/M/yTl1BbzlbrjAAtNqiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 075/107] net: fec: correct the error path for regulator disable in probe
+Subject: [PATCH 5.7 107/124] ARM64: vdso32: Install vdso32 from vdso_install
 Date:   Mon, 24 Aug 2020 10:30:41 +0200
-Message-Id: <20200824082408.833409792@linuxfoundation.org>
+Message-Id: <20200824082414.672823482@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit c6165cf0dbb82ded90163dce3ac183fc7a913dc4 ]
+[ Upstream commit 8d75785a814241587802655cc33e384230744f0c ]
 
-Correct the error path for regulator disable.
+Add the 32-bit vdso Makefile to the vdso_install rule so that 'make
+vdso_install' installs the 32-bit compat vdso when it is compiled.
 
-Fixes: 9269e5560b26 ("net: fec: add phy-reset-gpios PROBE_DEFER check")
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a7f71a2c8903 ("arm64: compat: Add vDSO")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://lore.kernel.org/r/20200818014950.42492-1-swboyd@chromium.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/Makefile               | 1 +
+ arch/arm64/kernel/vdso32/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 39c112f1543c1..a0e4b12ac4ea2 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3707,11 +3707,11 @@ fec_probe(struct platform_device *pdev)
- failed_irq:
- failed_init:
- 	fec_ptp_stop(pdev);
--	if (fep->reg_phy)
--		regulator_disable(fep->reg_phy);
- failed_reset:
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	if (fep->reg_phy)
-+		regulator_disable(fep->reg_phy);
- failed_regulator:
- 	clk_disable_unprepare(fep->clk_ahb);
- failed_clk_ahb:
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index 85e4149cc5d5c..d3c7ffa72902d 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -156,6 +156,7 @@ zinstall install:
+ PHONY += vdso_install
+ vdso_install:
+ 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso $@
++	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso32 $@
+ 
+ # We use MRPROPER_FILES and CLEAN_FILES now
+ archclean:
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index 0433bb58ce52c..601c075f1f476 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -201,7 +201,7 @@ quiet_cmd_vdsosym = VDSOSYM $@
+       cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
+ 
+ # Install commands for the unstripped file
+-quiet_cmd_vdso_install = INSTALL $@
++quiet_cmd_vdso_install = INSTALL32 $@
+       cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/vdso32.so
+ 
+ vdso.so: $(obj)/vdso.so.dbg
 -- 
 2.25.1
 
