@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7C025039A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B69250398
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728622AbgHXQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:47:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46868 "EHLO mail.kernel.org"
+        id S1728717AbgHXQrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728559AbgHXQjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:39:14 -0400
+        id S1728560AbgHXQjR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:39:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E5A122BED;
-        Mon, 24 Aug 2020 16:39:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0848222CB1;
+        Mon, 24 Aug 2020 16:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287154;
-        bh=oSERYQXpQfBuJnrHVHRieZoE8sDcxceBGWQ9X7mqF34=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOBMQcUZHL6iv62S1D/bJ5J98vRMTJr5rg5Oq0NXn2c/vzCWuW49AMrVDaq8TXwPp
-         TEtRzxjpPOksQSdT0EfE30/SPrFXW2RYm4MA95TIQr23iZ3D2La9hykjVjBfmNA7wB
-         TnRlkyCy8ya68yarkUgvfUC+FcfJ/qY0+4QjGqHo=
+        s=default; t=1598287156;
+        bh=snMbzTxAXziI+TGcqqhm4M7hh/cVmzzwrT2pf+fy6PI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0rsE++QbPy01fZafXUJVfK1n3LKM4Mt0Hi7jQnzQhmN63K9Y5w8wL8QCz3gJEJxv1
+         hY2TbPEd/j5ZaeF8xuiJo2NnrcULzYtObVbxr6Is46a5p38Yjx6eLQ6Iulr4B8/782
+         9US4DPOpRARAYYaPat+A1i9TorZK/TBcP52Wsw3A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 21/21] powerpc/perf: Fix soft lockups due to missed interrupt accounting
-Date:   Mon, 24 Aug 2020 12:38:45 -0400
-Message-Id: <20200824163845.606933-21-sashal@kernel.org>
+Cc:     Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/11] jbd2: make sure jh have b_transaction set in refile/unfile_buffer
+Date:   Mon, 24 Aug 2020 12:39:04 -0400
+Message-Id: <20200824163914.607152-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200824163845.606933-1-sashal@kernel.org>
-References: <20200824163845.606933-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,54 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit 17899eaf88d689529b866371344c8f269ba79b5f ]
+[ Upstream commit 24dc9864914eb5813173cfa53313fcd02e4aea7d ]
 
-Performance monitor interrupt handler checks if any counter has
-overflown and calls record_and_restart() in core-book3s which invokes
-perf_event_overflow() to record the sample information. Apart from
-creating sample, perf_event_overflow() also does the interrupt and
-period checks via perf_event_account_interrupt().
+Callers of __jbd2_journal_unfile_buffer() and
+__jbd2_journal_refile_buffer() assume that the b_transaction is set. In
+fact if it's not, we can end up with journal_head refcounting errors
+leading to crash much later that might be very hard to track down. Add
+asserts to make sure that is the case.
 
-Currently we record information only if the SIAR (Sampled Instruction
-Address Register) valid bit is set (using siar_valid() check) and
-hence the interrupt check.
+We also make sure that b_next_transaction is NULL in
+__jbd2_journal_unfile_buffer() since the callers expect that as well and
+we should not get into that stage in this state anyway, leading to
+problems later on if we do.
 
-But it is possible that we do sampling for some events that are not
-generating valid SIAR, and hence there is no chance to disable the
-event if interrupts are more than max_samples_per_tick. This leads to
-soft lockup.
+Tested with fstests.
 
-Fix this by adding perf_event_account_interrupt() in the invalid SIAR
-code path for a sampling event. ie if SIAR is invalid, just do
-interrupt check and don't record the sample information.
-
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1596717992-7321-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200617092549.6712-1-lczerner@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/jbd2/transaction.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 4004dbdab9c7b..d407b73298171 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2087,6 +2087,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index a355ca418e788..b4bde0ae10948 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -1914,6 +1914,9 @@ static void __jbd2_journal_temp_unlink_buffer(struct journal_head *jh)
+  */
+ static void __jbd2_journal_unfile_buffer(struct journal_head *jh)
+ {
++	J_ASSERT_JH(jh, jh->b_transaction != NULL);
++	J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
++
+ 	__jbd2_journal_temp_unlink_buffer(jh);
+ 	jh->b_transaction = NULL;
+ 	jbd2_journal_put_journal_head(jh);
+@@ -2461,6 +2464,13 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
  
- 		if (perf_event_overflow(event, &data, regs))
- 			power_pmu_stop(event, 0);
-+	} else if (period) {
-+		/* Account for interrupt in case of invalid SIAR */
-+		if (perf_event_account_interrupt(event))
-+			power_pmu_stop(event, 0);
- 	}
- }
- 
+ 	was_dirty = test_clear_buffer_jbddirty(bh);
+ 	__jbd2_journal_temp_unlink_buffer(jh);
++
++	/*
++	 * b_transaction must be set, otherwise the new b_transaction won't
++	 * be holding jh reference
++	 */
++	J_ASSERT_JH(jh, jh->b_transaction != NULL);
++
+ 	/*
+ 	 * We set b_transaction here because b_next_transaction will inherit
+ 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
 -- 
 2.25.1
 
