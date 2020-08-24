@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E19124FA11
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4CF24FA10
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgHXJwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:52:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53594 "EHLO mail.kernel.org"
+        id S1728094AbgHXIio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:38:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727838AbgHXIin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:43 -0400
+        id S1728006AbgHXIil (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:38:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 007482177B;
-        Mon, 24 Aug 2020 08:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF3A20FC3;
+        Mon, 24 Aug 2020 08:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258323;
-        bh=FHuqGYt9PkW0yhIUAUqjGzka7TWB2CLzxU6+I4s4Uao=;
+        s=default; t=1598258321;
+        bh=z9X8XAf5pNu5xFYsewaUK9xluow/ICaWKL8M9zLZUyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJlpLk/0ovcFkFji45on960UdUCwK/FBJ7RrUnPUyW3yzxKqiVMy9x5Loq8mQpkUo
-         y87Lvx/ldW4VDsHVRjz9ZbQddkJVMWJC8aLNY9yBqRtxzqqJskbdSARXcNVtzvZI9k
-         JzqpqQ4so+NuZj1CbsBdQmQqsUX1hojb1u8swQ3w=
+        b=Se2ZnQanC6n0qXQVjDAG7hhvFBneca7hSwM04pvkh5Bz6snz7hWz+rDgzpaUmP1CK
+         yFd87uwN46i5MPRctrAYX/ByVlaueA+I7VrtQ8Bi1j/ug9zU/WHbroJu5t86W9iFeE
+         10v3erO5tQHwEpdFUShZ/7hDKB0bMMBZyIMMPGvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.8 147/148] efi/libstub: Handle unterminated cmdline
-Date:   Mon, 24 Aug 2020 10:30:45 +0200
-Message-Id: <20200824082421.065889947@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.8 148/148] do_epoll_ctl(): clean the failure exits up a bit
+Date:   Mon, 24 Aug 2020 10:30:46 +0200
+Message-Id: <20200824082421.115891566@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -43,44 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 8a8a3237a78cbc0557f0eb16a89f16d616323e99 upstream.
+commit 52c479697c9b73f628140dcdfcd39ea302d05482 upstream.
 
-Make the command line parsing more robust, by handling the case it is
-not NUL-terminated.
-
-Use strnlen instead of strlen, and make sure that the temporary copy is
-NUL-terminated before parsing.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Link: https://lore.kernel.org/r/20200813185811.554051-4-nivedita@alum.mit.edu
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/libstub/efi-stub-helper.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/eventpoll.c |   19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
---- a/drivers/firmware/efi/libstub/efi-stub-helper.c
-+++ b/drivers/firmware/efi/libstub/efi-stub-helper.c
-@@ -194,12 +194,14 @@ efi_status_t efi_parse_options(char cons
- 	if (!cmdline)
- 		return EFI_SUCCESS;
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2203,29 +2203,22 @@ int do_epoll_ctl(int epfd, int op, int f
+ 			full_check = 1;
+ 			if (is_file_epoll(tf.file)) {
+ 				error = -ELOOP;
+-				if (ep_loop_check(ep, tf.file) != 0) {
+-					clear_tfile_check_list();
++				if (ep_loop_check(ep, tf.file) != 0)
+ 					goto error_tgt_fput;
+-				}
+ 			} else {
+ 				get_file(tf.file);
+ 				list_add(&tf.file->f_tfile_llink,
+ 							&tfile_check_list);
+ 			}
+ 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
+-			if (error) {
+-out_del:
+-				list_del(&tf.file->f_tfile_llink);
+-				if (!is_file_epoll(tf.file))
+-					fput(tf.file);
++			if (error)
+ 				goto error_tgt_fput;
+-			}
+ 			if (is_file_epoll(tf.file)) {
+ 				tep = tf.file->private_data;
+ 				error = epoll_mutex_lock(&tep->mtx, 1, nonblock);
+ 				if (error) {
+ 					mutex_unlock(&ep->mtx);
+-					goto out_del;
++					goto error_tgt_fput;
+ 				}
+ 			}
+ 		}
+@@ -2246,8 +2239,6 @@ out_del:
+ 			error = ep_insert(ep, epds, tf.file, fd, full_check);
+ 		} else
+ 			error = -EEXIST;
+-		if (full_check)
+-			clear_tfile_check_list();
+ 		break;
+ 	case EPOLL_CTL_DEL:
+ 		if (epi)
+@@ -2270,8 +2261,10 @@ out_del:
+ 	mutex_unlock(&ep->mtx);
  
--	len = strlen(cmdline) + 1;
-+	len = strnlen(cmdline, COMMAND_LINE_SIZE - 1) + 1;
- 	status = efi_bs_call(allocate_pool, EFI_LOADER_DATA, len, (void **)&buf);
- 	if (status != EFI_SUCCESS)
- 		return status;
+ error_tgt_fput:
+-	if (full_check)
++	if (full_check) {
++		clear_tfile_check_list();
+ 		mutex_unlock(&epmutex);
++	}
  
--	str = skip_spaces(memcpy(buf, cmdline, len));
-+	memcpy(buf, cmdline, len - 1);
-+	buf[len - 1] = '\0';
-+	str = skip_spaces(buf);
- 
- 	while (*str) {
- 		char *param, *val;
+ 	fdput(tf);
+ error_fput:
 
 
