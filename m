@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6888E24F8AF
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D7324F881
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729585AbgHXIsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50048 "EHLO mail.kernel.org"
+        id S1728561AbgHXJdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729581AbgHXIsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:48:40 -0400
+        id S1728661AbgHXItr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:49:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B786206F0;
-        Mon, 24 Aug 2020 08:48:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 425C02075B;
+        Mon, 24 Aug 2020 08:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258919;
-        bh=NEWTEZlSCSzOxgnVhzVtHV0GC7GOne6TuPez85qmcsA=;
+        s=default; t=1598258986;
+        bh=f75tl17vxQarEIOmbQCAPyjN44tFzQmDBYKWO4ULK34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edcV6AaqQLgOwSDDgY53YBrF6roE9zciCLi3z4O2t72Cv+6A7+kc2W3MJQ0ruzHVx
-         wzsVgKHZ6e7DzBUWWCG/S4bvXeSyrAxqHMM+cR82irMCEIHF5zKzjJ0o92mZ5SyB/3
-         D9/gucfUhCkl7z+kmu+uqAXa/UpZLStfoHww+laU=
+        b=cw6H7NrDuXldc+a4TguUiUtyEP5UBwc3MCf9gpfiikW8O/Q7PzdWb7H4V1x41ugvD
+         u9z3ZaLwbwPkuB58ch/pawMYK1l2cCZ0zreqBZWr/84EPymeZmOfKO+/yvHzWDpz9O
+         CpvgHXJwhaQR8JsSwsaqOUUnAin6oWUy1L7IhCjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/107] efi: avoid error message when booting under Xen
-Date:   Mon, 24 Aug 2020 10:30:58 +0200
-Message-Id: <20200824082409.657257803@linuxfoundation.org>
+Subject: [PATCH 4.4 03/33] net/compat: Add missing sock updates for SCM_RIGHTS
+Date:   Mon, 24 Aug 2020 10:30:59 +0200
+Message-Id: <20200824082346.694200004@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6163a985e50cb19d5bdf73f98e45b8af91a77658 ]
+[ Upstream commit d9539752d23283db4692384a634034f451261e29 ]
 
-efifb_probe() will issue an error message in case the kernel is booted
-as Xen dom0 from UEFI as EFI_MEMMAP won't be set in this case. Avoid
-that message by calling efi_mem_desc_lookup() only if EFI_MEMMAP is set.
+Add missed sock updates to compat path via a new helper, which will be
+used more in coming patches. (The net/core/scm.c code is left as-is here
+to assist with -stable backports for the compat path.)
 
-Fixes: 38ac0287b7f4 ("fbdev/efifb: Honour UEFI memory map attributes when mapping the FB")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Sargun Dhillon <sargun@sargun.me>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
+Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/efifb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/sock.h |  4 ++++
+ net/compat.c       |  1 +
+ net/core/sock.c    | 21 +++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
-diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
-index 51d97ec4f58f9..e0cbf5b3d2174 100644
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -453,7 +453,7 @@ static int efifb_probe(struct platform_device *dev)
- 	info->apertures->ranges[0].base = efifb_fix.smem_start;
- 	info->apertures->ranges[0].size = size_remap;
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 426a57874964c..31198b32d9122 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -779,6 +779,8 @@ static inline int sk_memalloc_socks(void)
+ {
+ 	return static_key_false(&memalloc_socks);
+ }
++
++void __receive_sock(struct file *file);
+ #else
  
--	if (efi_enabled(EFI_BOOT) &&
-+	if (efi_enabled(EFI_MEMMAP) &&
- 	    !efi_mem_desc_lookup(efifb_fix.smem_start, &md)) {
- 		if ((efifb_fix.smem_start + efifb_fix.smem_len) >
- 		    (md.phys_addr + (md.num_pages << EFI_PAGE_SHIFT))) {
+ static inline int sk_memalloc_socks(void)
+@@ -786,6 +788,8 @@ static inline int sk_memalloc_socks(void)
+ 	return 0;
+ }
+ 
++static inline void __receive_sock(struct file *file)
++{ }
+ #endif
+ 
+ static inline gfp_t sk_gfp_atomic(const struct sock *sk, gfp_t gfp_mask)
+diff --git a/net/compat.c b/net/compat.c
+index d676840104556..20c5e5f215f23 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -284,6 +284,7 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
+ 			break;
+ 		}
+ 		/* Bump the usage count and install the file. */
++		__receive_sock(fp[i]);
+ 		fd_install(new_fd, get_file(fp[i]));
+ 	}
+ 
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 120d5058d81ae..82f9a7dbea6fe 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2275,6 +2275,27 @@ int sock_no_mmap(struct file *file, struct socket *sock, struct vm_area_struct *
+ }
+ EXPORT_SYMBOL(sock_no_mmap);
+ 
++/*
++ * When a file is received (via SCM_RIGHTS, etc), we must bump the
++ * various sock-based usage counts.
++ */
++void __receive_sock(struct file *file)
++{
++	struct socket *sock;
++	int error;
++
++	/*
++	 * The resulting value of "error" is ignored here since we only
++	 * need to take action when the file is a socket and testing
++	 * "sock" for NULL is sufficient.
++	 */
++	sock = sock_from_file(file, &error);
++	if (sock) {
++		sock_update_netprioidx(sock->sk);
++		sock_update_classid(sock->sk);
++	}
++}
++
+ ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
+ {
+ 	ssize_t res;
 -- 
 2.25.1
 
