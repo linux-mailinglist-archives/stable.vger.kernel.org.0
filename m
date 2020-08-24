@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F5E2504FD
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:10:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA332504F8
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726826AbgHXRKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:10:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41062 "EHLO mail.kernel.org"
+        id S1728059AbgHXRJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:09:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728030AbgHXQh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:37:58 -0400
+        id S1727998AbgHXQiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:38:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C638522D2C;
-        Mon, 24 Aug 2020 16:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A54023104;
+        Mon, 24 Aug 2020 16:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287042;
-        bh=upVsOQ2KHwcYP2yfAKHJEXx+O9tSRjzfNLYR83MxXrk=;
+        s=default; t=1598287044;
+        bh=4liA3bSXuXAyOirdTzhgqvbhRg6gkDsgcplNT6Y7sEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/im7QMvSc7/h3CcX9FHl+KMeTEzLCSQ/qA9M+JIt9tYIipOEb63WkG5f7gpQVyHg
-         /dsvvfzPF/4JgdH5Ba2/w6IRQCf5S8oSqqb9VOKajDQTFaiAh8hFiaRbFrG7yqRb0f
-         keWaxDsPE7um9y19bwZB+k5naMn5z10RZxFOjSZU=
+        b=TNz6lxIzh9R3qmYm0CtHeNMFHWtSIJcm4OJ1+gVr3Qc+gmKFeehgRxR46hpQYgSdd
+         qUo5WWdp3CLBIgeCStGQqfumtcVkFzR3gqsO8+Mke8/TCP6/S43vCVPBCNvRoESpxn
+         1nbxgIdDRmvjwjWvZ0YtsyoCoLRHED/ea27qoC4s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
         Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 35/54] scsi: ufs: Improve interrupt handling for shared interrupts
-Date:   Mon, 24 Aug 2020 12:36:14 -0400
-Message-Id: <20200824163634.606093-35-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 36/54] scsi: ufs: Clean up completed request without interrupt notification
+Date:   Mon, 24 Aug 2020 12:36:15 -0400
+Message-Id: <20200824163634.606093-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163634.606093-1-sashal@kernel.org>
 References: <20200824163634.606093-1-sashal@kernel.org>
@@ -44,53 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 127d5f7c4b653b8be5eb3b2c7bbe13728f9003ff ]
+[ Upstream commit b10178ee7fa88b68a9e8adc06534d2605cb0ec23 ]
 
-For shared interrupts, the interrupt status might be zero, so check that
-first.
+If somehow no interrupt notification is raised for a completed request and
+its doorbell bit is cleared by host, UFS driver needs to cleanup its
+outstanding bit in ufshcd_abort(). Otherwise, system may behave abnormally
+in the following scenario:
 
-Link: https://lore.kernel.org/r/20200811133936.19171-2-adrian.hunter@intel.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+After ufshcd_abort() returns, this request will be requeued by SCSI layer
+with its outstanding bit set. Any future completed request will trigger
+ufshcd_transfer_req_compl() to handle all "completed outstanding bits". At
+this time the "abnormal outstanding bit" will be detected and the "requeued
+request" will be chosen to execute request post-processing flow. This is
+wrong because this request is still "alive".
+
+Link: https://lore.kernel.org/r/20200811141859.27399-2-huobean@gmail.com
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a61f95ffd45fd..93c8d1caeba2b 100644
+index 93c8d1caeba2b..a36f003d00af1 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5677,7 +5677,7 @@ static irqreturn_t ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
-  */
- static irqreturn_t ufshcd_intr(int irq, void *__hba)
- {
--	u32 intr_status, enabled_intr_status;
-+	u32 intr_status, enabled_intr_status = 0;
- 	irqreturn_t retval = IRQ_NONE;
- 	struct ufs_hba *hba = __hba;
- 	int retries = hba->nutrs;
-@@ -5691,7 +5691,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 	 * read, make sure we handle them by checking the interrupt status
- 	 * again in a loop until we process all of the reqs before returning.
- 	 */
--	do {
-+	while (intr_status && retries--) {
- 		enabled_intr_status =
- 			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
- 		if (intr_status)
-@@ -5700,7 +5700,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 			retval |= ufshcd_sl_intr(hba, enabled_intr_status);
+@@ -6227,7 +6227,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
+ 			/* command completed already */
+ 			dev_err(hba->dev, "%s: cmd at tag %d successfully cleared from DB.\n",
+ 				__func__, tag);
+-			goto out;
++			goto cleanup;
+ 		} else {
+ 			dev_err(hba->dev,
+ 				"%s: no response from device. tag = %d, err %d\n",
+@@ -6261,6 +6261,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
+ 		goto out;
+ 	}
  
- 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
--	} while (intr_status && --retries);
-+	}
++cleanup:
+ 	scsi_dma_unmap(cmd);
  
- 	if (retval == IRQ_NONE) {
- 		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
+ 	spin_lock_irqsave(host->host_lock, flags);
 -- 
 2.25.1
 
