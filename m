@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A91D24F993
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7645F24F92E
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728505AbgHXIlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59556 "EHLO mail.kernel.org"
+        id S1729191AbgHXIou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:44:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728847AbgHXIlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:41:23 -0400
+        id S1729188AbgHXIot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 849B02075B;
-        Mon, 24 Aug 2020 08:41:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC12A2075B;
+        Mon, 24 Aug 2020 08:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258483;
-        bh=xL2qg++RQpZnkx6HEtomf1ghduN88WYy0YoMy333zXg=;
+        s=default; t=1598258689;
+        bh=0X30z4DisFwYl98Ju+BD1ok+cOtQCvoLeVdz63zHFcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSykEWCOXKRVFLuK+wDJBRlazkjzRDom9OUUkaSLxYfvyiDNO3QmeMGBDEdC0JrRJ
-         0yMx6F/rmwINig+QkfgFicFaU7QGqN62+jEmWG9azeyPJGIvETx1rQTtMZTbdYrbqX
-         xK8+BiydWTbLWwvZIN4lgAtCpa0U2P97NGjpYrIQ=
+        b=nixB199saqFE7ViAhRDWlhbp0E6+FRMMWygLWYNws2goqp+askXE+tkmGw078HOdO
+         9seAlF+TY5ei50Q/Byd73ZVnOyBZRsVDiUbUwr2G0cP1nUoKC9k3q/EpmgcGKhJHUj
+         eZDEDl/yndYNpf1gmj7XKkNNamCYB72txLOo3C5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 035/124] scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.4 003/107] net: wan: wanxl: use allow to pass CROSS_COMPILE_M68k for rebuilding firmware
 Date:   Mon, 24 Aug 2020 10:29:29 +0200
-Message-Id: <20200824082411.143845581@linuxfoundation.org>
+Message-Id: <20200824082405.197958066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit c0a18ee0ce78d7957ec1a53be35b1b3beba80668 ]
+commit 63b903dfebdea92aa92ad337d8451a6fbfeabf9d upstream.
 
-It is confirmed that Micron device needs DELAY_BEFORE_LPM quirk to have a
-delay before VCC is powered off. Sdd Micron vendor ID and this quirk for
-Micron devices.
+As far as I understood from the Kconfig help text, this build rule is
+used to rebuild the driver firmware, which runs on an old m68k-based
+chip. So, you need m68k tools for the firmware rebuild.
 
-Link: https://lore.kernel.org/r/20200612012625.6615-2-stanley.chu@mediatek.com
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+wanxl.c is a PCI driver, but CONFIG_M68K does not select CONFIG_HAVE_PCI.
+So, you cannot enable CONFIG_WANXL_BUILD_FIRMWARE for ARCH=m68k. In other
+words, ifeq ($(ARCH),m68k) is false here.
+
+I am keeping the dead code for now, but rebuilding the firmware requires
+'as68k' and 'ld68k', which I do not have in hand.
+
+Instead, the kernel.org m68k GCC [1] successfully built it.
+
+Allowing a user to pass in CROSS_COMPILE_M68K= is handier.
+
+[1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/9.2.0/x86_64-gcc-9.2.0-nolibc-m68k-linux.tar.xz
+
+Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufs_quirks.h | 1 +
- drivers/scsi/ufs/ufshcd.c     | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/wan/Kconfig  |    2 +-
+ drivers/net/wan/Makefile |   12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs_quirks.h b/drivers/scsi/ufs/ufs_quirks.h
-index df7a1e6805a3b..c3af72c58805d 100644
---- a/drivers/scsi/ufs/ufs_quirks.h
-+++ b/drivers/scsi/ufs/ufs_quirks.h
-@@ -12,6 +12,7 @@
- #define UFS_ANY_VENDOR 0xFFFF
- #define UFS_ANY_MODEL  "ANY_MODEL"
+--- a/drivers/net/wan/Kconfig
++++ b/drivers/net/wan/Kconfig
+@@ -200,7 +200,7 @@ config WANXL_BUILD_FIRMWARE
+ 	depends on WANXL && !PREVENT_FIRMWARE_BUILD
+ 	help
+ 	  Allows you to rebuild firmware run by the QUICC processor.
+-	  It requires as68k, ld68k and hexdump programs.
++	  It requires m68k toolchains and hexdump programs.
  
-+#define UFS_VENDOR_MICRON      0x12C
- #define UFS_VENDOR_TOSHIBA     0x198
- #define UFS_VENDOR_SAMSUNG     0x1CE
- #define UFS_VENDOR_SKHYNIX     0x1AD
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 477b6cfff381b..2c02967f159ea 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -211,6 +211,8 @@ ufs_get_desired_pm_lvl_for_dev_link_state(enum ufs_dev_pwr_mode dev_state,
+ 	  You should never need this option, say N.
  
- static struct ufs_dev_fix ufs_fixups[] = {
- 	/* UFS cards deviations table */
-+	UFS_FIX(UFS_VENDOR_MICRON, UFS_ANY_MODEL,
-+		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
- 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
- 		UFS_DEVICE_QUIRK_DELAY_BEFORE_LPM),
- 	UFS_FIX(UFS_VENDOR_SAMSUNG, UFS_ANY_MODEL,
--- 
-2.25.1
-
+--- a/drivers/net/wan/Makefile
++++ b/drivers/net/wan/Makefile
+@@ -40,17 +40,17 @@ $(obj)/wanxl.o:	$(obj)/wanxlfw.inc
+ 
+ ifeq ($(CONFIG_WANXL_BUILD_FIRMWARE),y)
+ ifeq ($(ARCH),m68k)
+-  AS68K = $(AS)
+-  LD68K = $(LD)
++  M68KAS = $(AS)
++  M68KLD = $(LD)
+ else
+-  AS68K = as68k
+-  LD68K = ld68k
++  M68KAS = $(CROSS_COMPILE_M68K)as
++  M68KLD = $(CROSS_COMPILE_M68K)ld
+ endif
+ 
+ quiet_cmd_build_wanxlfw = BLD FW  $@
+       cmd_build_wanxlfw = \
+-	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(AS68K) -m68360 -o $(obj)/wanxlfw.o; \
+-	$(LD68K) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
++	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(M68KAS) -m68360 -o $(obj)/wanxlfw.o; \
++	$(M68KLD) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
+ 	hexdump -ve '"\n" 16/1 "0x%02X,"' $(obj)/wanxlfw.bin | sed 's/0x  ,//g;1s/^/static const u8 firmware[]={/;$$s/,$$/\n};\n/' >$(obj)/wanxlfw.inc; \
+ 	rm -f $(obj)/wanxlfw.bin $(obj)/wanxlfw.o
+ 
 
 
