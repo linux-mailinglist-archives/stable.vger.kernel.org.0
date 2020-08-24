@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625D824F9C8
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D01724FA9B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727031AbgHXIkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
+        id S1727964AbgHXIei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728029AbgHXIjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:39:54 -0400
+        id S1727954AbgHXIeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58A772177B;
-        Mon, 24 Aug 2020 08:39:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9972E207DF;
+        Mon, 24 Aug 2020 08:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258393;
-        bh=J0/8psHqkcXmla2yHdL0e3lJZ5L+/bmM4h8z9edyFBA=;
+        s=default; t=1598258077;
+        bh=DaLrVr7gb8fmO/aKLBWZESC8SZ7KeLFUyl9HyttA2JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/JqG199y7//9Aw/gV/V4hybLyy6UBVu+D988aPeO115XDP/O5XmCWph4FjoO3Hsi
-         ECY/dwyNh06EmCZe0k2ARm1KUr46ttFuG5CKwlOQihwa3/c+hOLlAd4RV/vNAzaX3v
-         Uxps1pTHvQiqqjIB/szEVgYUSCt7oQee+i0T6rfo=
+        b=uF3m21ujGI+Z7GSsR7xznZ6JqYs5hJ5Nah+O5Mw3lTpBrOd2Ikz2w3VHoyAeCYF91
+         cpNURw+0U+Aahg8kDlVYxWwt9v/ww6fAJTmp9UDUlXqwZePjL4aoFDrZYqpYUJ4tdx
+         afYCer5hVae7KasDBAULzfyjLoqu+L8UwDqDGIWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 030/124] io_uring: cancel all tasks requests on exit
-Date:   Mon, 24 Aug 2020 10:29:24 +0200
-Message-Id: <20200824082410.897068252@linuxfoundation.org>
+        stable@vger.kernel.org, Gaurav Singh <gaurav1086@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Michal Koutn <mkoutny@suse.com>, Roman Gushchin <guro@fb.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Chris Down <chris@chrisdown.name>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 067/148] tools/testing/selftests/cgroup/cgroup_util.c: cg_read_strcmp: fix null pointer dereference
+Date:   Mon, 24 Aug 2020 10:29:25 +0200
+Message-Id: <20200824082417.286266595@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Gaurav Singh <gaurav1086@gmail.com>
 
-[ Upstream commit 44e728b8aae0bb6d4229129083974f9dea43f50b ]
+[ Upstream commit d830020656c5b68ced962ed3cb51a90e0a89d4c4 ]
 
-If a process is going away, io_uring_flush() will cancel only 1
-request with a matching pid. Cancel all of them
+Haven't reproduced this issue. This PR is does a minor code cleanup.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Michal Koutn <mkoutny@suse.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Chris Down <chris@chrisdown.name>
+Link: http://lkml.kernel.org/r/20200726013808.22242-1-gaurav1086@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c    | 14 --------------
- fs/io-wq.h    |  1 -
- fs/io_uring.c | 14 ++++++++++++--
- 3 files changed, 12 insertions(+), 17 deletions(-)
+ tools/testing/selftests/cgroup/cgroup_util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 6d2e8ccc229e3..2bfa9117bc289 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -1022,20 +1022,6 @@ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork)
- 	return io_wq_cancel_cb(wq, io_wq_io_cb_cancel_data, (void *)cwork, false);
- }
+diff --git a/tools/testing/selftests/cgroup/cgroup_util.c b/tools/testing/selftests/cgroup/cgroup_util.c
+index 8a637ca7d73a4..05853b0b88318 100644
+--- a/tools/testing/selftests/cgroup/cgroup_util.c
++++ b/tools/testing/selftests/cgroup/cgroup_util.c
+@@ -106,7 +106,7 @@ int cg_read_strcmp(const char *cgroup, const char *control,
  
--static bool io_wq_pid_match(struct io_wq_work *work, void *data)
--{
--	pid_t pid = (pid_t) (unsigned long) data;
--
--	return work->task_pid == pid;
--}
--
--enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid)
--{
--	void *data = (void *) (unsigned long) pid;
--
--	return io_wq_cancel_cb(wq, io_wq_pid_match, data, false);
--}
--
- struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- {
- 	int ret = -ENOMEM, node;
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 8902903831f25..df8a4cd3236db 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -129,7 +129,6 @@ static inline bool io_wq_is_hashed(struct io_wq_work *work)
+ 	/* Handle the case of comparing against empty string */
+ 	if (!expected)
+-		size = 32;
++		return -1;
+ 	else
+ 		size = strlen(expected) + 1;
  
- void io_wq_cancel_all(struct io_wq *wq);
- enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork);
--enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid);
- 
- typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
- 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cf32705546773..9bb23edf2363a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7720,6 +7720,13 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 	}
- }
- 
-+static bool io_cancel_pid_cb(struct io_wq_work *work, void *data)
-+{
-+	pid_t pid = (pid_t) (unsigned long) data;
-+
-+	return work->task_pid == pid;
-+}
-+
- static int io_uring_flush(struct file *file, void *data)
- {
- 	struct io_ring_ctx *ctx = file->private_data;
-@@ -7729,8 +7736,11 @@ static int io_uring_flush(struct file *file, void *data)
- 	/*
- 	 * If the task is going away, cancel work it may have pending
- 	 */
--	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
--		io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
-+	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
-+		void *data = (void *) (unsigned long)task_pid_vnr(current);
-+
-+		io_wq_cancel_cb(ctx->io_wq, io_cancel_pid_cb, data, true);
-+	}
- 
- 	return 0;
- }
 -- 
 2.25.1
 
