@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C1924FA60
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9824624F97E
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727048AbgHXIgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48564 "EHLO mail.kernel.org"
+        id S1728762AbgHXJqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:46:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728253AbgHXIgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:36:15 -0400
+        id S1728944AbgHXImZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BA1C206F0;
-        Mon, 24 Aug 2020 08:36:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 784BF2075B;
+        Mon, 24 Aug 2020 08:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258174;
-        bh=TMcgGpj0HK5jtl7J2jbGq1Bs+4VVnmcgR1udoAv4ziQ=;
+        s=default; t=1598258545;
+        bh=9HAS2loCHxQ24PIAcghVs2Z0hXa2Wx19xvuumM0vtFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TO4XS+GqaP2sMJvZYDLFTuY2+QvtPHMX+ERdJQxuQZsJhiHZnhXG0+m6FSYOzgdWf
-         t/zjBZQ4hUI1+FJPIDJmFcJw26D+b6VCy7ARtwJhipp9wEl7PF0wq2bOoBNtBgMwXk
-         zHMrcmCEbfAQ2AeDCYYl4kRPs0ucGSNqOpxR0xA4=
+        b=gTWTq7V9SlXGmnoi1/4GDGzxvNIFACaEWJbyJtIRVv8W5l/6xy3QqdpAui8HAhb9V
+         LEZG5kCuNorXazsa2FVx/H7opZQRUJyb8ZSwqHpcwJNvAmNfO5HgKBq3sV6JECleCY
+         v39Q7SSCj9+lZUovxYblJ4qUbfWu3D4XncbcYHtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 102/148] watch_queue: Limit the number of watches a user can hold
+Subject: [PATCH 5.7 066/124] ASoC: q6routing: add dummy register read/write function
 Date:   Mon, 24 Aug 2020 10:30:00 +0200
-Message-Id: <20200824082418.916968691@linuxfoundation.org>
+Message-Id: <20200824082412.663970116@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,97 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 29e44f4535faa71a70827af3639b5e6762d8f02a ]
+[ Upstream commit 796a58fe2b8c9b6668db00d92512ec84be663027 ]
 
-Impose a limit on the number of watches that a user can hold so that
-they can't use this mechanism to fill up all the available memory.
+Most of the DAPM widgets for DSP ASoC components reuse reg field
+of the widgets for its internal calculations, however these are not
+real registers. So read/writes to these numbers are not really
+valid. However ASoC core will read these registers to get default
+state during startup.
 
-This is done by putting a counter in user_struct that's incremented when
-a watch is allocated and decreased when it is released.  If the number
-exceeds the RLIMIT_NOFILE limit, the watch is rejected with EAGAIN.
+With recent changes to ASoC core, every register read/write
+failures are reported very verbosely. Prior to this fails to reads
+are totally ignored, so we never saw any error messages.
 
-This can be tested by the following means:
+To fix this add dummy read/write function to return default value.
 
- (1) Create a watch queue and attach it to fd 5 in the program given - in
-     this case, bash:
-
-	keyctl watch_session /tmp/nlog /tmp/gclog 5 bash
-
- (2) In the shell, set the maximum number of files to, say, 99:
-
-	ulimit -n 99
-
- (3) Add 200 keyrings:
-
-	for ((i=0; i<200; i++)); do keyctl newring a$i @s || break; done
-
- (4) Try to watch all of the keyrings:
-
-	for ((i=0; i<200; i++)); do echo $i; keyctl watch_add 5 %:a$i || break; done
-
-     This should fail when the number of watches belonging to the user hits
-     99.
-
- (5) Remove all the keyrings and all of those watches should go away:
-
-	for ((i=0; i<200; i++)); do keyctl unlink %:a$i; done
-
- (6) Kill off the watch queue by exiting the shell spawned by
-     watch_session.
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
+Reported-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200811120205.21805-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/user.h | 3 +++
- kernel/watch_queue.c       | 8 ++++++++
- 2 files changed, 11 insertions(+)
+ sound/soc/qcom/qdsp6/q6routing.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/include/linux/sched/user.h b/include/linux/sched/user.h
-index 917d88edb7b9d..a8ec3b6093fcb 100644
---- a/include/linux/sched/user.h
-+++ b/include/linux/sched/user.h
-@@ -36,6 +36,9 @@ struct user_struct {
-     defined(CONFIG_NET) || defined(CONFIG_IO_URING)
- 	atomic_long_t locked_vm;
- #endif
-+#ifdef CONFIG_WATCH_QUEUE
-+	atomic_t nr_watches;	/* The number of watches this user currently has */
-+#endif
- 
- 	/* Miscellaneous per-user rate limit */
- 	struct ratelimit_state ratelimit;
-diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
-index f74020f6bd9d5..0ef8f65bd2d71 100644
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -393,6 +393,7 @@ static void free_watch(struct rcu_head *rcu)
- 	struct watch *watch = container_of(rcu, struct watch, rcu);
- 
- 	put_watch_queue(rcu_access_pointer(watch->queue));
-+	atomic_dec(&watch->cred->user->nr_watches);
- 	put_cred(watch->cred);
+diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
+index 46e50612b92c1..750e6a30444eb 100644
+--- a/sound/soc/qcom/qdsp6/q6routing.c
++++ b/sound/soc/qcom/qdsp6/q6routing.c
+@@ -973,6 +973,20 @@ static int msm_routing_probe(struct snd_soc_component *c)
+ 	return 0;
  }
  
-@@ -452,6 +453,13 @@ int add_watch_to_object(struct watch *watch, struct watch_list *wlist)
- 	watch->cred = get_current_cred();
- 	rcu_assign_pointer(watch->watch_list, wlist);
- 
-+	if (atomic_inc_return(&watch->cred->user->nr_watches) >
-+	    task_rlimit(current, RLIMIT_NOFILE)) {
-+		atomic_dec(&watch->cred->user->nr_watches);
-+		put_cred(watch->cred);
-+		return -EAGAIN;
-+	}
++static unsigned int q6routing_reg_read(struct snd_soc_component *component,
++				       unsigned int reg)
++{
++	/* default value */
++	return 0;
++}
 +
- 	spin_lock_bh(&wqueue->lock);
- 	kref_get(&wqueue->usage);
- 	kref_get(&watch->usage);
++static int q6routing_reg_write(struct snd_soc_component *component,
++			       unsigned int reg, unsigned int val)
++{
++	/* dummy */
++	return 0;
++}
++
+ static const struct snd_soc_component_driver msm_soc_routing_component = {
+ 	.probe = msm_routing_probe,
+ 	.name = DRV_NAME,
+@@ -981,6 +995,8 @@ static const struct snd_soc_component_driver msm_soc_routing_component = {
+ 	.num_dapm_widgets = ARRAY_SIZE(msm_qdsp6_widgets),
+ 	.dapm_routes = intercon,
+ 	.num_dapm_routes = ARRAY_SIZE(intercon),
++	.read = q6routing_reg_read,
++	.write = q6routing_reg_write,
+ };
+ 
+ static int q6pcm_routing_probe(struct platform_device *pdev)
 -- 
 2.25.1
 
