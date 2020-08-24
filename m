@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A5124F90F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC0324FA69
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728019AbgHXJki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:40:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
+        id S1728216AbgHXIgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729252AbgHXIpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:46 -0400
+        id S1728182AbgHXIgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:36:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B22D2072D;
-        Mon, 24 Aug 2020 08:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B47A204FD;
+        Mon, 24 Aug 2020 08:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258744;
-        bh=Oh3umyAlURcds4JmNFmbVOeFnE76pIx3mR/Qxh/CU5E=;
+        s=default; t=1598258162;
+        bh=riN4z/mrdo2qC42KeSPF/qU3Hm3H0TkNahjQu/VUgaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0MI49HxUbLLa8fwnR7zN3f4c3EYnWoZ65C7aitesudSLL5lXW5yl+AMWSQIPkdn/
-         SRNHsS9yzNtBaaGwLAqil9gQfIySbfyynlyXpbK9uWGsPBeKR4skqgCZ1Oo96fGQhj
-         bTn+PUPngTCILjk24+39jYqMHeT5DECAtDRMMH3g=
+        b=NrQ18nInGCsTcfIa7/dBmIeWW4m5tJ8K0t9THCa96VA/Upm4HUvMni4AiPHlvqqUh
+         9lFQcrkTbZdrinEBX80GzdMn9mh9cduFejuNgCONXijdKf5wMaQBw0B0gVW2UOzrJb
+         JZ1RT1FVkdT23tS3LYkF8nrMQukMGuB50yPyMrrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Jason Baron <jbaron@akamai.com>,
-        David Rientjes <rientjes@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 029/107] mm: include CMA pages in lowmem_reserve at boot
-Date:   Mon, 24 Aug 2020 10:29:55 +0200
-Message-Id: <20200824082406.557063413@linuxfoundation.org>
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 098/148] s390/runtime_instrumentation: fix storage key handling
+Date:   Mon, 24 Aug 2020 10:29:56 +0200
+Message-Id: <20200824082418.734685366@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,85 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit e08d3fdfe2dafa0331843f70ce1ff6c1c4900bf4 upstream.
+[ Upstream commit 9eaba29c7985236e16468f4e6a49cc18cf01443e ]
 
-The lowmem_reserve arrays provide a means of applying pressure against
-allocations from lower zones that were targeted at higher zones.  Its
-values are a function of the number of pages managed by higher zones and
-are assigned by a call to the setup_per_zone_lowmem_reserve() function.
+The key member of the runtime instrumentation control block contains
+only the access key, not the complete storage key. Therefore the value
+must be shifted by four bits.
+Note: this is only relevant for debugging purposes in case somebody
+compiles a kernel with a default storage access key set to a value not
+equal to zero.
 
-The function is initially called at boot time by the function
-init_per_zone_wmark_min() and may be called later by accesses of the
-/proc/sys/vm/lowmem_reserve_ratio sysctl file.
-
-The function init_per_zone_wmark_min() was moved up from a module_init to
-a core_initcall to resolve a sequencing issue with khugepaged.
-Unfortunately this created a sequencing issue with CMA page accounting.
-
-The CMA pages are added to the managed page count of a zone when
-cma_init_reserved_areas() is called at boot also as a core_initcall.  This
-makes it uncertain whether the CMA pages will be added to the managed page
-counts of their zones before or after the call to
-init_per_zone_wmark_min() as it becomes dependent on link order.  With the
-current link order the pages are added to the managed count after the
-lowmem_reserve arrays are initialized at boot.
-
-This means the lowmem_reserve values at boot may be lower than the values
-used later if /proc/sys/vm/lowmem_reserve_ratio is accessed even if the
-ratio values are unchanged.
-
-In many cases the difference is not significant, but for example
-an ARM platform with 1GB of memory and the following memory layout
-
-  cma: Reserved 256 MiB at 0x0000000030000000
-  Zone ranges:
-    DMA      [mem 0x0000000000000000-0x000000002fffffff]
-    Normal   empty
-    HighMem  [mem 0x0000000030000000-0x000000003fffffff]
-
-would result in 0 lowmem_reserve for the DMA zone.  This would allow
-userspace to deplete the DMA zone easily.
-
-Funnily enough
-
-  $ cat /proc/sys/vm/lowmem_reserve_ratio
-
-would fix up the situation because as a side effect it forces
-setup_per_zone_lowmem_reserve.
-
-This commit breaks the link order dependency by invoking
-init_per_zone_wmark_min() as a postcore_initcall so that the CMA pages
-have the chance to be properly accounted in their zone(s) and allowing
-the lowmem_reserve arrays to receive consistent values.
-
-Fixes: bc22af74f271 ("mm: update min_free_kbytes from khugepaged after core initialization")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/1597423766-27849-1-git-send-email-opendmb@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e4b8b3f33fca ("s390: add support for runtime instrumentation")
+Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    2 +-
+ arch/s390/kernel/runtime_instr.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7867,7 +7867,7 @@ int __meminit init_per_zone_wmark_min(vo
- 
- 	return 0;
+diff --git a/arch/s390/kernel/runtime_instr.c b/arch/s390/kernel/runtime_instr.c
+index 125c7f6e87150..1788a5454b6fc 100644
+--- a/arch/s390/kernel/runtime_instr.c
++++ b/arch/s390/kernel/runtime_instr.c
+@@ -57,7 +57,7 @@ static void init_runtime_instr_cb(struct runtime_instr_cb *cb)
+ 	cb->k = 1;
+ 	cb->ps = 1;
+ 	cb->pc = 1;
+-	cb->key = PAGE_DEFAULT_KEY;
++	cb->key = PAGE_DEFAULT_KEY >> 4;
+ 	cb->v = 1;
  }
--core_initcall(init_per_zone_wmark_min)
-+postcore_initcall(init_per_zone_wmark_min)
  
- /*
-  * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so
+-- 
+2.25.1
+
 
 
