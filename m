@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B33A624F91D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:41:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F4F024F990
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbgHXIpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41546 "EHLO mail.kernel.org"
+        id S1728847AbgHXIlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729204AbgHXIpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:02 -0400
+        id S1728865AbgHXIll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:41:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3779021741;
-        Mon, 24 Aug 2020 08:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 667A32074D;
+        Mon, 24 Aug 2020 08:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258699;
-        bh=DX+lrG/Yw2Pb8sivFLiHbe6JkA7xqAuK8FHDZgEzWN0=;
+        s=default; t=1598258501;
+        bh=2OGik1si2CQz73pb1R1EN1XL5l9NZWL7GYoRLCxjPrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0h7gkZZwSP6p3vX0WgNb42wLKy/gNN9/PJ1DAv2nXwEL0tcbRIp2ZkDdlt529YVm
-         47REFxq1uKfc7aoDOL6Xd48Z9lb7lvj687h/Cx12Ibbf4IR1EVmvZEG6pLWfeS3Lme
-         EoxiP9THooUd4IZuiI+5N8NI2iXLpb3NLfvdYOR4=
+        b=PZChjbF63tHb6n5uEdO9CKCZBMybgpG9/4yOUMmiJBv3jbfyJCES6ya/ZWXT2AtIu
+         1LrmKEYipFlBhMgjFcHPCW4CgcfLhtd+PDVwqvVmbPu3iFPArxvNdAPwevXulh93KL
+         QNBsw1+uqkHtj3+anFueApxypO1mAoG9cnj7cCiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 5.4 007/107] kbuild: remove AS variable
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 039/124] rtc: goldfish: Enable interrupt in set_alarm() when necessary
 Date:   Mon, 24 Aug 2020 10:29:33 +0200
-Message-Id: <20200824082405.402732074@linuxfoundation.org>
+Message-Id: <20200824082411.339511124@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit aa824e0c962b532d5073cbb41b2efcd6f5e72bae upstream.
+[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
 
-As commit 5ef872636ca7 ("kbuild: get rid of misleading $(AS) from
-documents") noted, we rarely use $(AS) directly in the kernel build.
+When use goldfish rtc, the "hwclock" command fails with "select() to
+/dev/rtc to wait for clock tick timed out". This is because "hwclock"
+need the set_alarm() hook to enable interrupt when alrm->enabled is
+true. This operation is missing in goldfish rtc (but other rtc drivers,
+such as cmos rtc, enable interrupt here), so add it.
 
-Now that the only/last user of $(AS) in drivers/net/wan/Makefile was
-converted to $(CC), $(AS) is no longer used in the build process.
-
-You can still pass in AS=clang, which is just a switch to turn on
-the LLVM integrated assembler.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-goldfish.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -404,7 +404,6 @@ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAG
- KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
- 
- # Make variables (CC, etc...)
--AS		= $(CROSS_COMPILE)as
- LD		= $(CROSS_COMPILE)ld
- CC		= $(CROSS_COMPILE)gcc
- CPP		= $(CC) -E
-@@ -471,7 +470,7 @@ KBUILD_LDFLAGS :=
- GCC_PLUGINS_CFLAGS :=
- CLANG_FLAGS :=
- 
--export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
-+export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
- export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF PAHOLE LEX YACC AWK INSTALLKERNEL
- export PERL PYTHON PYTHON3 CHECK CHECKFLAGS MAKE UTS_MACHINE HOSTCXX
- export KBUILD_HOSTCXXFLAGS KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS LDFLAGS_MODULE
-@@ -534,7 +533,7 @@ endif
- ifneq ($(GCC_TOOLCHAIN),)
- CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
- endif
--ifeq ($(shell $(AS) --version 2>&1 | head -n 1 | grep clang),)
-+ifeq ($(if $(AS),$(shell $(AS) --version 2>&1 | head -n 1 | grep clang)),)
- CLANG_FLAGS	+= -no-integrated-as
- endif
- CLANG_FLAGS	+= -Werror=unknown-warning-option
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index cb6b0ad7ec3f2..5dd92147f1680 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -73,6 +73,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 		rtc_alarm64 = rtc_tm_to_time64(&alrm->time) * NSEC_PER_SEC;
+ 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+ 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
++		writel(1, base + TIMER_IRQ_ENABLED);
+ 	} else {
+ 		/*
+ 		 * if this function was called with enabled=0
+-- 
+2.25.1
+
 
 
