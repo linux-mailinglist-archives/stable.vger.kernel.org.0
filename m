@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C40924FA94
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8121724F931
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727996AbgHXIeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:34:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
+        id S1729182AbgHXIor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727990AbgHXIem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:34:42 -0400
+        id S1728923AbgHXIor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5552207D3;
-        Mon, 24 Aug 2020 08:34:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BEBA2074D;
+        Mon, 24 Aug 2020 08:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258082;
-        bh=9Qb0N9+6E/GV3ZEmAcr2/EdtRX3yuWtlrYKP2CZhivA=;
+        s=default; t=1598258686;
+        bh=ywTZQoPHFm5xNDERvgrcnsMxT2rIgAxrrrPjsaiuDCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7tgNKK0Wd74p1evXcZ1HDzPvQOdCVgCH2FA1S1z+wmrtberJ2g+jtCO25mix50VH
-         hlIVarjhrU3Z/3qelZx7H4aq7kBgLfO6vYo3CvaH63YS+lQUZ1dMNHTBAKzMGU8npX
-         vw7fs3EL6sZiHdw/pL7FVu7PdCH8OXDx1xmKcH2o=
+        b=ZwTVWrSf3lw1X6nLNglZKT4AOBOCOxj9yEcBav+z/whIYDtCCEfRA60fZfaV7/n27
+         h9OpKuOagY1GuSgWOsfsznlna9HD5Hw3r+xQoPnt3b39Mj19/P+BJQsyf6F4WYCLic
+         PRImefFz8dD+vaa5g/DmUPTmAoqEgAjrZY26yaFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 069/148] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Mon, 24 Aug 2020 10:29:27 +0200
-Message-Id: <20200824082417.383396991@linuxfoundation.org>
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.4 002/107] Documentation/llvm: fix the name of llvm-size
+Date:   Mon, 24 Aug 2020 10:29:28 +0200
+Message-Id: <20200824082405.149935933@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,57 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Fangrui Song <maskray@google.com>
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+commit 0f44fbc162b737ff6251ae248184390ae2279fee upstream.
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+The tool is called llvm-size, not llvm-objsize.
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
-
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fcf1b6a35c16 ("Documentation/llvm: add documentation on building w/ Clang/LLVM")
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/kbuild/llvm.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index a4d0c19f1e796..640e1a2f57b42 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -489,10 +489,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
- }
- #endif
+--- a/Documentation/kbuild/llvm.rst
++++ b/Documentation/kbuild/llvm.rst
+@@ -51,7 +51,7 @@ LLVM has substitutes for GNU binutils ut
+ additional parameters to `make`.
  
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+ 	make CC=clang AS=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
+-	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-objsize \\
++	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size \\
+ 	  READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar \\
+ 	  HOSTLD=ld.lld
  
- #define inb_p		inb
- #define inw_p		inw
--- 
-2.25.1
-
 
 
