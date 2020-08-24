@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26EB624F857
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD74F24F7AD
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725921AbgHXJaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:30:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55344 "EHLO mail.kernel.org"
+        id S1727955AbgHXJT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729878AbgHXIu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:57 -0400
+        id S1730324AbgHXIzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C64DE2075B;
-        Mon, 24 Aug 2020 08:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53643207DF;
+        Mon, 24 Aug 2020 08:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259056;
-        bh=JybTueb32MztoA3mhfLUfMFI647wfKdR59gapxgWM/E=;
+        s=default; t=1598259352;
+        bh=mUdn7UuU3nwJp2IY9r4db0B/5TkIdr3gT2nHsWEQrW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0J/3/WbhaEPhM2S0Ho1kSdERuQOvILdtSo/FWxa7r9fkCLpnrPIv+ymxhZGmglZe
-         7rr1Y9e6re0b1Amk+QilgrI6VBAevBMV/26d5uR3gdQjwXtkTqLX9RHfAt0JPpERtm
-         8jUiKLzIk6HiIANM2AhCC/cebWLn/4aNF9IhRVfM=
+        b=lHFNMf1HAUNmXIFe1Y1M6EdA/jM+ABPi7HV2Yy8O9taVxJB4xOQ9Sy8VmyFKqUM1g
+         ciChUsuJbawMLadqQi8K9A5W3bfW2dnXksWho9BmnMkB8pJZJm4OkW60AD7xjPgolK
+         3YGPvJVKCh5R8Y9BdEM82UgO2lZ55L9yd2uFac9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/33] ext4: clean up ext4_match() and callers
+        stable@vger.kernel.org, Liang Chen <cl@rock-chips.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 4.19 19/71] kthread: Do not preempt current task if it is going to call schedule()
 Date:   Mon, 24 Aug 2020 10:31:10 +0200
-Message-Id: <20200824082347.245673019@linuxfoundation.org>
+Message-Id: <20200824082356.854382859@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
-References: <20200824082346.498653578@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,165 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Liang Chen <cl@rock-chips.com>
 
-[ Upstream commit d9b9f8d5a88cb7881d9f1c2b7e9de9a3fe1dc9e2 ]
+commit 26c7295be0c5e6da3fa45970e9748be983175b1b upstream.
 
-When ext4 encryption was originally merged, we were encrypting the
-user-specified filename in ext4_match(), introducing a lot of additional
-complexity into ext4_match() and its callers.  This has since been
-changed to encrypt the filename earlier, so we can remove the gunk
-that's no longer needed.  This more or less reverts ext4_search_dir()
-and ext4_find_dest_de() to the way they were in the v4.0 kernel.
+when we create a kthread with ktrhead_create_on_cpu(),the child thread
+entry is ktread.c:ktrhead() which will be preempted by the parent after
+call complete(done) while schedule() is not called yet,then the parent
+will call wait_task_inactive(child) but the child is still on the runqueue,
+so the parent will schedule_hrtimeout() for 1 jiffy,it will waste a lot of
+time,especially on startup.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  parent                             child
+ktrhead_create_on_cpu()
+  wait_fo_completion(&done) -----> ktread.c:ktrhead()
+                             |----- complete(done);--wakeup and preempted by parent
+ kthread_bind() <------------|  |-> schedule();--dequeue here
+  wait_task_inactive(child)     |
+   schedule_hrtimeout(1 jiffy) -|
+
+So we hope the child just wakeup parent but not preempted by parent, and the
+child is going to call schedule() soon,then the parent will not call
+schedule_hrtimeout(1 jiffy) as the child is already dequeue.
+
+The same issue for ktrhead_park()&&kthread_parkme().
+This patch can save 120ms on rk312x startup with CONFIG_HZ=300.
+
+Signed-off-by: Liang Chen <cl@rock-chips.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/20200306070133.18335-2-cl@rock-chips.com
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c | 81 +++++++++++++++----------------------------------
- 1 file changed, 25 insertions(+), 56 deletions(-)
+ kernel/kthread.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 566a8b08ccdd6..eb41fb189d4b3 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1226,19 +1226,18 @@ static void dx_insert_block(struct dx_frame *frame, u32 hash, ext4_lblk_t block)
- }
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -190,8 +190,15 @@ static void __kthread_parkme(struct kthr
+ 		if (!test_bit(KTHREAD_SHOULD_PARK, &self->flags))
+ 			break;
  
- /*
-- * NOTE! unlike strncmp, ext4_match returns 1 for success, 0 for failure.
-+ * Test whether a directory entry matches the filename being searched for.
-  *
-- * `len <= EXT4_NAME_LEN' is guaranteed by caller.
-- * `de != NULL' is guaranteed by caller.
-+ * Return: %true if the directory entry matches, otherwise %false.
-  */
--static inline int ext4_match(struct ext4_filename *fname,
--			     struct ext4_dir_entry_2 *de)
-+static inline bool ext4_match(const struct ext4_filename *fname,
-+			      const struct ext4_dir_entry_2 *de)
- {
- 	const void *name = fname_name(fname);
- 	u32 len = fname_len(fname);
- 
- 	if (!de->inode)
--		return 0;
-+		return false;
- 
- #ifdef CONFIG_EXT4_FS_ENCRYPTION
- 	if (unlikely(!name)) {
-@@ -1270,48 +1269,31 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
- 	struct ext4_dir_entry_2 * de;
- 	char * dlimit;
- 	int de_len;
--	int res;
- 
- 	de = (struct ext4_dir_entry_2 *)search_buf;
- 	dlimit = search_buf + buf_size;
- 	while ((char *) de < dlimit) {
- 		/* this code is executed quadratically often */
- 		/* do minimal checking `by hand' */
--		if ((char *) de + de->name_len <= dlimit) {
--			res = ext4_match(fname, de);
--			if (res < 0) {
--				res = -1;
--				goto return_result;
--			}
--			if (res > 0) {
--				/* found a match - just to be sure, do
--				 * a full check */
--				if (ext4_check_dir_entry(dir, NULL, de, bh,
--						bh->b_data,
--						 bh->b_size, offset)) {
--					res = -1;
--					goto return_result;
--				}
--				*res_dir = de;
--				res = 1;
--				goto return_result;
--			}
--
-+		if ((char *) de + de->name_len <= dlimit &&
-+		    ext4_match(fname, de)) {
-+			/* found a match - just to be sure, do
-+			 * a full check */
-+			if (ext4_check_dir_entry(dir, NULL, de, bh, bh->b_data,
-+						 bh->b_size, offset))
-+				return -1;
-+			*res_dir = de;
-+			return 1;
- 		}
- 		/* prevent looping on a bad block */
- 		de_len = ext4_rec_len_from_disk(de->rec_len,
- 						dir->i_sb->s_blocksize);
--		if (de_len <= 0) {
--			res = -1;
--			goto return_result;
--		}
-+		if (de_len <= 0)
-+			return -1;
- 		offset += de_len;
- 		de = (struct ext4_dir_entry_2 *) ((char *) de + de_len);
++		/*
++		 * Thread is going to call schedule(), do not preempt it,
++		 * or the caller of kthread_park() may spend more time in
++		 * wait_task_inactive().
++		 */
++		preempt_disable();
+ 		complete(&self->parked);
+-		schedule();
++		schedule_preempt_disabled();
++		preempt_enable();
  	}
--
--	res = 0;
--return_result:
--	return res;
-+	return 0;
+ 	__set_current_state(TASK_RUNNING);
  }
+@@ -236,8 +243,14 @@ static int kthread(void *_create)
+ 	/* OK, tell user we're spawned, wait for stop or wakeup */
+ 	__set_current_state(TASK_UNINTERRUPTIBLE);
+ 	create->result = current;
++	/*
++	 * Thread is going to call schedule(), do not preempt it,
++	 * or the creator may spend more time in wait_task_inactive().
++	 */
++	preempt_disable();
+ 	complete(done);
+-	schedule();
++	schedule_preempt_disabled();
++	preempt_enable();
  
- static int is_dx_internal_node(struct inode *dir, ext4_lblk_t block,
-@@ -1824,24 +1806,15 @@ int ext4_find_dest_de(struct inode *dir, struct inode *inode,
- 	int nlen, rlen;
- 	unsigned int offset = 0;
- 	char *top;
--	int res;
- 
- 	de = (struct ext4_dir_entry_2 *)buf;
- 	top = buf + buf_size - reclen;
- 	while ((char *) de <= top) {
- 		if (ext4_check_dir_entry(dir, NULL, de, bh,
--					 buf, buf_size, offset)) {
--			res = -EFSCORRUPTED;
--			goto return_result;
--		}
--		/* Provide crypto context and crypto buffer to ext4 match */
--		res = ext4_match(fname, de);
--		if (res < 0)
--			goto return_result;
--		if (res > 0) {
--			res = -EEXIST;
--			goto return_result;
--		}
-+					 buf, buf_size, offset))
-+			return -EFSCORRUPTED;
-+		if (ext4_match(fname, de))
-+			return -EEXIST;
- 		nlen = EXT4_DIR_REC_LEN(de->name_len);
- 		rlen = ext4_rec_len_from_disk(de->rec_len, buf_size);
- 		if ((de->inode ? rlen - nlen : rlen) >= reclen)
-@@ -1849,15 +1822,11 @@ int ext4_find_dest_de(struct inode *dir, struct inode *inode,
- 		de = (struct ext4_dir_entry_2 *)((char *)de + rlen);
- 		offset += rlen;
- 	}
--
- 	if ((char *) de > top)
--		res = -ENOSPC;
--	else {
--		*dest_de = de;
--		res = 0;
--	}
--return_result:
--	return res;
-+		return -ENOSPC;
-+
-+	*dest_de = de;
-+	return 0;
- }
- 
- int ext4_insert_dentry(struct inode *dir,
--- 
-2.25.1
-
+ 	ret = -EINTR;
+ 	if (!test_bit(KTHREAD_SHOULD_STOP, &self->flags)) {
 
 
