@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 267DC24FA77
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4523524F9DB
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726861AbgHXIfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46504 "EHLO mail.kernel.org"
+        id S1728553AbgHXJtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:49:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728123AbgHXIff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:35 -0400
+        id S1727889AbgHXIj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF3FA204FD;
-        Mon, 24 Aug 2020 08:35:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CB6920FC3;
+        Mon, 24 Aug 2020 08:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258134;
-        bh=ASNGJWgtwtS9VpHWrz2J5lsF5hX9JWswGiuJzWsIJqw=;
+        s=default; t=1598258366;
+        bh=83LRrZrC4LInnS5Myvxnbeok5E3I28f+ZTEuGCIFQTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahtxM8xrC1qqws7h5aaMtBa1RvKQxs3l76Fi1x0osmAj6IlWfkBb/IPeJpUW+Bx47
-         mC7/3Xz5jgiD0UyQ79ADEwWxWHhwR37SyAOxBpg3RXJh1p0zT3RXxtKV9zDaTzUxyd
-         l6SVyJKgeZTU4f8Ie9wS/p3byhx9QXgCzUh/vzT0=
+        b=twt840eeclLi3CT4e3t7W8smeH46sQoGacvHuxTLeOt4ztENfboPxBYNC0F806CW4
+         kg1GMmmGUY+nJ8B04a0bvEOvP/l3mc74mEF4b5rAV6WX+aA7V6tVbVs1fzlyyBqS3S
+         JGBkmtVM+ZJblVri7zfndMPh7o0cWNqYU00rS/0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Laurent Morichetti <laurent.morichetti@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 058/148] drm/ttm: fix offset in VMAs with a pg_offs in ttm_bo_vm_access
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Xu Yu <xuyu@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Yang Shi <shy828301@gmail.com>
+Subject: [PATCH 5.7 022/124] mm/memory.c: skip spurious TLB flush for retried page fault
 Date:   Mon, 24 Aug 2020 10:29:16 +0200
-Message-Id: <20200824082416.848529113@linuxfoundation.org>
+Message-Id: <20200824082410.510847956@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit c0001213d195d1bac83e0744c06ff06dd5a8ba53 ]
+commit b7333b58f358f38d90d78e00c1ee5dec82df10ad upstream.
 
-VMAs with a pg_offs that's offset from the start of the vma_node need
-to adjust the offset within the BO accordingly. This matches the
-offset calculation in ttm_bo_vm_fault_reserved.
+Recently we found regression when running will_it_scale/page_fault3 test
+on ARM64.  Over 70% down for the multi processes cases and over 20% down
+for the multi threads cases.  It turns out the regression is caused by
+commit 89b15332af7c ("mm: drop mmap_sem before calling
+balance_dirty_pages() in write fault").
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Tested-by: Laurent Morichetti <laurent.morichetti@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/381169/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The test mmaps a memory size file then write to the mapping, this would
+make all memory dirty and trigger dirty pages throttle, that upstream
+commit would release mmap_sem then retry the page fault.  The retried
+page fault would see correct PTEs installed then just fall through to
+spurious TLB flush.  The regression is caused by the excessive spurious
+TLB flush.  It is fine on x86 since x86's spurious TLB flush is no-op.
+
+We could just skip the spurious TLB flush to mitigate the regression.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Xu Yu <xuyu@linux.alibaba.com>
+Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
+Tested-by: Xu Yu <xuyu@linux.alibaba.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/ttm/ttm_bo_vm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index fa03fab02076d..33526c5df0e8c 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -505,8 +505,10 @@ static int ttm_bo_vm_access_kmap(struct ttm_buffer_object *bo,
- int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
- 		     void *buf, int len, int write)
- {
--	unsigned long offset = (addr) - vma->vm_start;
- 	struct ttm_buffer_object *bo = vma->vm_private_data;
-+	unsigned long offset = (addr) - vma->vm_start +
-+		((vma->vm_pgoff - drm_vma_node_start(&bo->base.vma_node))
-+		 << PAGE_SHIFT);
- 	int ret;
- 
- 	if (len < 1 || (offset + len) >> PAGE_SHIFT > bo->num_pages)
--- 
-2.25.1
-
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4237,6 +4237,9 @@ static vm_fault_t handle_pte_fault(struc
+ 				vmf->flags & FAULT_FLAG_WRITE)) {
+ 		update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
+ 	} else {
++		/* Skip spurious TLB flush for retried page fault */
++		if (vmf->flags & FAULT_FLAG_TRIED)
++			goto unlock;
+ 		/*
+ 		 * This is needed only for protection faults but the arch code
+ 		 * is not yet telling us if this is a protection fault or not.
 
 
