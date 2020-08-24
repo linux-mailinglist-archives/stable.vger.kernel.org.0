@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF48B25044F
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DECB5250451
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726910AbgHXRAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:00:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
+        id S1726413AbgHXRAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728499AbgHXQin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:38:43 -0400
+        id S1728501AbgHXQio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:38:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E963722C9F;
-        Mon, 24 Aug 2020 16:38:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7532722BED;
+        Mon, 24 Aug 2020 16:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287122;
-        bh=gX242I+Ys66LLIFI8NFdVo8uWb+C82vQGDzHe3iSuT0=;
+        s=default; t=1598287124;
+        bh=mHJBKvhnUJ/S+3nxeAcbt10YL0vWVfmMtJO8E7cMELs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWv/eZR/49j2+YEWmOWeGjejxU9/mrBdl1/aRUZliTSNmMsQfNpAgnJMo1i3Gp93Y
-         ApFpBBWJSYXK/Ilzko3H9o3lspkTK8mYYe5+dfZx6I49p95iGG+QVMkfDlORn32gym
-         5his11898NJ8VVW+VprxBgQ7Qqp2gLYtSD3nrYBw=
+        b=Eihs6L9uFR7BWc5oKGmQYyBta0C3BM6bffKO0wF60Q23vpR+MDzJ+yhUUVYwO7dKm
+         BEfiqrSE2oK/T5avgM7bNI0pNa6LiuhEHrECfovqXqAXPZmDJzsikEXQCN8tCTbkV3
+         KcdsVoFgmfYbo1lQOa55J6v2Xvttl+eM1ljaXPeQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marc Zyngier <maz@kernel.org>,
         Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
         Stephen Boyd <swboyd@chromium.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Will Deacon <will@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 37/38] arm64: Move handling of erratum 1418040 into C code
-Date:   Mon, 24 Aug 2020 12:37:49 -0400
-Message-Id: <20200824163751.606577-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 38/38] arm64: Allow booting of late CPUs affected by erratum 1418040
+Date:   Mon, 24 Aug 2020 12:37:50 -0400
+Message-Id: <20200824163751.606577-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -49,80 +50,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d49f7d7376d0c0daf8680984a37bd07581ac7d38 ]
+[ Upstream commit bf87bb0881d0f59181fe3bbcf29c609f36483ff8 ]
 
-Instead of dealing with erratum 1418040 on each entry and exit,
-let's move the handling to __switch_to() instead, which has
-several advantages:
-
-- It can be applied when it matters (switching between 32 and 64
-  bit tasks).
-- It is written in C (yay!)
-- It can rely on static keys rather than alternatives
+As we can now switch from a system that isn't affected by 1418040
+to a system that globally is affected, let's allow affected CPUs
+to come in at a later time.
 
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200731173824.107480-2-maz@kernel.org
+Link: https://lore.kernel.org/r/20200731173824.107480-3-maz@kernel.org
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/process.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ arch/arm64/kernel/cpu_errata.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index fab013c5ee8c9..10190c4b16dc4 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -498,6 +498,39 @@ static void entry_task_switch(struct task_struct *next)
- 	__this_cpu_write(__entry_task, next);
- }
- 
-+/*
-+ * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
-+ * Assuming the virtual counter is enabled at the beginning of times:
-+ *
-+ * - disable access when switching from a 64bit task to a 32bit task
-+ * - enable access when switching from a 32bit task to a 64bit task
-+ */
-+static void erratum_1418040_thread_switch(struct task_struct *prev,
-+					  struct task_struct *next)
-+{
-+	bool prev32, next32;
-+	u64 val;
-+
-+	if (!(IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) &&
-+	      cpus_have_const_cap(ARM64_WORKAROUND_1418040)))
-+		return;
-+
-+	prev32 = is_compat_thread(task_thread_info(prev));
-+	next32 = is_compat_thread(task_thread_info(next));
-+
-+	if (prev32 == next32)
-+		return;
-+
-+	val = read_sysreg(cntkctl_el1);
-+
-+	if (!next32)
-+		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
-+	else
-+		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
-+
-+	write_sysreg(val, cntkctl_el1);
-+}
-+
- /*
-  * Thread switching.
-  */
-@@ -514,6 +547,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
- 	uao_thread_switch(next);
- 	ptrauth_thread_switch(next);
- 	ssbs_thread_switch(next);
-+	erratum_1418040_thread_switch(prev, next);
- 
- 	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 0b2830379fe03..51462c59ab5da 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -917,6 +917,8 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		.desc = "ARM erratum 1418040",
+ 		.capability = ARM64_WORKAROUND_1418040,
+ 		ERRATA_MIDR_RANGE_LIST(erratum_1418040_list),
++		.type = (ARM64_CPUCAP_SCOPE_LOCAL_CPU |
++			 ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU),
+ 	},
+ #endif
+ #ifdef CONFIG_ARM64_ERRATUM_1165522
 -- 
 2.25.1
 
