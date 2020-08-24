@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D73A924F893
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C4424FA24
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729684AbgHXItP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S1728528AbgHXJxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:53:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729675AbgHXItO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:14 -0400
+        id S1728513AbgHXIiL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:38:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 504092072D;
-        Mon, 24 Aug 2020 08:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21E3520FC3;
+        Mon, 24 Aug 2020 08:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258953;
-        bh=67NKfojbCGWv2hUDoau8jNJpjbEzin4x+MY9ySUplyM=;
+        s=default; t=1598258290;
+        bh=5cbQV9c2lHZGlqdrGa8MUGaqrhRQfarfY4yneXqdzGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qvj6KVhhu5/s50pXdxJqxWIEM25SmCl6zF8bJWycd/fiejVpvFmt5BkQJa4dPj3UA
-         /q6KsMZqWruZ39405s6+OiIbGf2EESTjS+l4gVCedk9ndTG9rwu1nHackU+IOS+cRn
-         PPeJkhQTus0nngo7jQbD7beXFPlPPMeDGyAZj5io=
+        b=YVBMMQbQA9mbuFlL8L2rGKq+GCOD8VQrnUaSEhJfe8auPVlQLLpjW90Hkftvy3+6r
+         uhRu7QO+MnhXMytckTeOJQsQiLqujToPrcdAEonV4Ns0IiQ53o06p52rL4J5i4wYXy
+         g8TK2isHY4uuGHWCA/9DaPkpc/MnMHeRsl/ocIhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jarod Wilson <jarod@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/107] bonding: show saner speed for broadcast mode
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Li Heng <liheng40@huawei.com>, Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.8 144/148] efi: add missed destroy_workqueue when efisubsys_init fails
 Date:   Mon, 24 Aug 2020 10:30:42 +0200
-Message-Id: <20200824082408.880725524@linuxfoundation.org>
+Message-Id: <20200824082420.921660253@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,79 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Li Heng <liheng40@huawei.com>
 
-[ Upstream commit 4ca0d9ac3fd8f9f90b72a15d8da2aca3ffb58418 ]
+commit 98086df8b70c06234a8f4290c46064e44dafa0ed upstream.
 
-Broadcast mode bonds transmit a copy of all traffic simultaneously out of
-all interfaces, so the "speed" of the bond isn't really the aggregate of
-all interfaces, but rather, the speed of the slowest active interface.
+destroy_workqueue() should be called to destroy efi_rts_wq
+when efisubsys_init() init resources fails.
 
-Also, the type of the speed field is u32, not unsigned long, so adjust
-that accordingly, as required to make min() function here without
-complaining about mismatching types.
+Cc: <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Heng <liheng40@huawei.com>
+Link: https://lore.kernel.org/r/1595229738-10087-1-git-send-email-liheng40@huawei.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: bb5b052f751b ("bond: add support to read speed and duplex via ethtool")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/firmware/efi/efi.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 499845c32b1bc..11c014586d466 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4246,13 +4246,23 @@ static netdev_tx_t bond_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return ret;
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -381,6 +381,7 @@ static int __init efisubsys_init(void)
+ 	efi_kobj = kobject_create_and_add("efi", firmware_kobj);
+ 	if (!efi_kobj) {
+ 		pr_err("efi: Firmware registration failed.\n");
++		destroy_workqueue(efi_rts_wq);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -424,6 +425,7 @@ err_unregister:
+ 		generic_ops_unregister();
+ err_put:
+ 	kobject_put(efi_kobj);
++	destroy_workqueue(efi_rts_wq);
+ 	return error;
  }
  
-+static u32 bond_mode_bcast_speed(struct slave *slave, u32 speed)
-+{
-+	if (speed == 0 || speed == SPEED_UNKNOWN)
-+		speed = slave->speed;
-+	else
-+		speed = min(speed, slave->speed);
-+
-+	return speed;
-+}
-+
- static int bond_ethtool_get_link_ksettings(struct net_device *bond_dev,
- 					   struct ethtool_link_ksettings *cmd)
- {
- 	struct bonding *bond = netdev_priv(bond_dev);
--	unsigned long speed = 0;
- 	struct list_head *iter;
- 	struct slave *slave;
-+	u32 speed = 0;
- 
- 	cmd->base.duplex = DUPLEX_UNKNOWN;
- 	cmd->base.port = PORT_OTHER;
-@@ -4264,8 +4274,13 @@ static int bond_ethtool_get_link_ksettings(struct net_device *bond_dev,
- 	 */
- 	bond_for_each_slave(bond, slave, iter) {
- 		if (bond_slave_can_tx(slave)) {
--			if (slave->speed != SPEED_UNKNOWN)
--				speed += slave->speed;
-+			if (slave->speed != SPEED_UNKNOWN) {
-+				if (BOND_MODE(bond) == BOND_MODE_BROADCAST)
-+					speed = bond_mode_bcast_speed(slave,
-+								      speed);
-+				else
-+					speed += slave->speed;
-+			}
- 			if (cmd->base.duplex == DUPLEX_UNKNOWN &&
- 			    slave->duplex != DUPLEX_UNKNOWN)
- 				cmd->base.duplex = slave->duplex;
--- 
-2.25.1
-
 
 
