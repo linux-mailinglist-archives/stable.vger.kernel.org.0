@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 980EC24F9BE
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C40924FA94
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbgHXIkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:40:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57112 "EHLO mail.kernel.org"
+        id S1727996AbgHXIeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:34:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726645AbgHXIkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:40:20 -0400
+        id S1727990AbgHXIem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62D4D22B49;
-        Mon, 24 Aug 2020 08:40:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5552207D3;
+        Mon, 24 Aug 2020 08:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258419;
-        bh=8ZfPDjBednZIPM4jhBpxyi85ckrUlCtixwY+7Murw8M=;
+        s=default; t=1598258082;
+        bh=9Qb0N9+6E/GV3ZEmAcr2/EdtRX3yuWtlrYKP2CZhivA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fe7TPdhXQH7uOIMjXKaUnWJ1zVckJvCA09eV3tuBNu+py6EA541Krb3IkwgrtYTZP
-         vc16egeTbjA1WpSARULDs2uhBJFJcOX3JGmgrHLQqs6Wb2+20tN+AhHMj7uX+urRzI
-         U/oLANdnRw3opUWaBrEZvdqDr7WJfbmdrNBNfvcs=
+        b=n7tgNKK0Wd74p1evXcZ1HDzPvQOdCVgCH2FA1S1z+wmrtberJ2g+jtCO25mix50VH
+         hlIVarjhrU3Z/3qelZx7H4aq7kBgLfO6vYo3CvaH63YS+lQUZ1dMNHTBAKzMGU8npX
+         vw7fs3EL6sZiHdw/pL7FVu7PdCH8OXDx1xmKcH2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 033/124] opp: Reorder the code for !target_freq case
+Subject: [PATCH 5.8 069/148] alpha: fix annotation of io{read,write}{16,32}be()
 Date:   Mon, 24 Aug 2020 10:29:27 +0200
-Message-Id: <20200824082411.048028270@linuxfoundation.org>
+Message-Id: <20200824082417.383396991@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit b23dfa3543f31fbb8c0098925bf90fc23193d17a ]
+[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
 
-Reorder the code a bit to make it more readable. Add additional comment
-as well.
+These accessors must be used to read/write a big-endian bus.  The value
+returned or written is native-endian.
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Clément Péron <peron.clem@gmail.com>
-Tested-by: Clément Péron <peron.clem@gmail.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+However, these accessors are defined using be{16,32}_to_cpu() or
+cpu_to_be{16,32}() to make the endian conversion but these expect a
+__be{16,32} when none is present.  Keeping them would need a force cast
+that would solve nothing at all.
+
+So, do the conversion using swab{16,32}, like done in asm-generic for
+similar situations.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/core.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/alpha/include/asm/io.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index 195fcaff18448..2d3880b3d6ee0 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -817,15 +817,21 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
- 	}
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index a4d0c19f1e796..640e1a2f57b42 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -489,10 +489,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
+ }
+ #endif
  
- 	if (unlikely(!target_freq)) {
--		if (opp_table->required_opp_tables) {
--			ret = _set_required_opps(dev, opp_table, NULL);
--		} else if (!_get_opp_count(opp_table)) {
-+		/*
-+		 * Some drivers need to support cases where some platforms may
-+		 * have OPP table for the device, while others don't and
-+		 * opp_set_rate() just needs to behave like clk_set_rate().
-+		 */
-+		if (!_get_opp_count(opp_table))
- 			return 0;
--		} else {
-+
-+		if (!opp_table->required_opp_tables) {
- 			dev_err(dev, "target frequency can't be 0\n");
- 			ret = -EINVAL;
-+			goto put_opp_table;
- 		}
+-#define ioread16be(p) be16_to_cpu(ioread16(p))
+-#define ioread32be(p) be32_to_cpu(ioread32(p))
+-#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
+-#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
++#define ioread16be(p) swab16(ioread16(p))
++#define ioread32be(p) swab32(ioread32(p))
++#define iowrite16be(v,p) iowrite16(swab16(v), (p))
++#define iowrite32be(v,p) iowrite32(swab32(v), (p))
  
-+		ret = _set_required_opps(dev, opp_table, NULL);
- 		goto put_opp_table;
- 	}
- 
+ #define inb_p		inb
+ #define inw_p		inw
 -- 
 2.25.1
 
