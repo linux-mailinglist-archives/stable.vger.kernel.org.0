@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DC824F539
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1321024F457
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729302AbgHXIqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43920 "EHLO mail.kernel.org"
+        id S1726243AbgHXIfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729089AbgHXIqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:05 -0400
+        id S1726753AbgHXIfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:35:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3387204FD;
-        Mon, 24 Aug 2020 08:46:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA939206F0;
+        Mon, 24 Aug 2020 08:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258765;
-        bh=dzgFeAQT/fUS+kvXnk6gdHTY6W2ggSFZlVy7Y8aMhY4=;
+        s=default; t=1598258108;
+        bh=7E+dN2Dwfn9XnzV0ZiH7houZl7O40rFViWmGZxzzRPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzlALYiNVgOY465poSN3Da5SXOI5XiCo+O/eZAJyvDmsDfI5icimVvEj8gEf+SReZ
-         gcW62w0CzDyDXgVVW9IB03WWQIoWr7v9KWCGt1wZZ7rLWyEzBOSNQPOK9VVOjOYYuP
-         UTnbf6CxSVAZpzgyZcR1FB5oQbQ8orpObM8XVuaA=
+        b=OIcZCORKA3JYdyxEFkvVSsIyAm4BCfzNWg/1zhPBLqHbZFK2UK+Ms11k5ZUCRIQH3
+         v8k4H7QgUJz7lHbVFZyr3cJxMENlGGEZ/qo4Vn+9MGQIGjN8IVeGv8VmeR4k1H7Xu7
+         pwtdEQRjj3j9WfIrCJs9yOSBrcgQKJ23Rq09XMOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.4 009/107] kbuild: support LLVM=1 to switch the default tools to Clang/LLVM
+        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
+        Alain Volmat <alain.volmat@st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 077/148] spi: stm32: fixes suspend/resume management
 Date:   Mon, 24 Aug 2020 10:29:35 +0200
-Message-Id: <20200824082405.504824811@linuxfoundation.org>
+Message-Id: <20200824082417.764517299@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,164 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Amelie Delaunay <amelie.delaunay@st.com>
 
-commit a0d1c951ef08ed24f35129267e3595d86f57f5d3 upstream.
+[ Upstream commit db96bf976a4fc65439be0b4524c0d41427d98814 ]
 
-As Documentation/kbuild/llvm.rst implies, building the kernel with a
-full set of LLVM tools gets very verbose and unwieldy.
+This patch adds pinctrl power management, and reconfigure spi controller
+in case of resume.
 
-Provide a single switch LLVM=1 to use Clang and LLVM tools instead
-of GCC and Binutils. You can pass it from the command line or as an
-environment variable.
+Fixes: 038ac869c9d2 ("spi: stm32: add runtime PM support")
 
-Please note LLVM=1 does not turn on the integrated assembler. You need
-to pass LLVM_IAS=1 to use it. When the upstream kernel is ready for the
-integrated assembler, I think we can make it default.
-
-We discussed what we need, and we agreed to go with a simple boolean
-flag that switches both target and host tools:
-
-  https://lkml.org/lkml/2020/3/28/494
-  https://lkml.org/lkml/2020/4/3/43
-
-Some items discussed, but not adopted:
-
-- LLVM_DIR
-
-  When multiple versions of LLVM are installed, I just thought supporting
-  LLVM_DIR=/path/to/my/llvm/bin/ might be useful.
-
-  CC      = $(LLVM_DIR)clang
-  LD      = $(LLVM_DIR)ld.lld
-    ...
-
-  However, we can handle this by modifying PATH. So, we decided to not do
-  this.
-
-- LLVM_SUFFIX
-
-  Some distributions (e.g. Debian) package specific versions of LLVM with
-  naming conventions that use the version as a suffix.
-
-  CC      = clang$(LLVM_SUFFIX)
-  LD      = ld.lld(LLVM_SUFFIX)
-    ...
-
-  will allow a user to pass LLVM_SUFFIX=-11 to use clang-11 etc.,
-  but the suffixed versions in /usr/bin/ are symlinks to binaries in
-  /usr/lib/llvm-#/bin/, so this can also be handled by PATH.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com> # build
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+Link: https://lore.kernel.org/r/1597043558-29668-5-git-send-email-alain.volmat@st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/kbuild/kbuild.rst |    5 +++++
- Documentation/kbuild/llvm.rst   |    8 ++++++--
- Makefile                        |   29 +++++++++++++++++++++++------
- tools/objtool/Makefile          |    6 ++++++
- 4 files changed, 40 insertions(+), 8 deletions(-)
+ drivers/spi/spi-stm32.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
---- a/Documentation/kbuild/kbuild.rst
-+++ b/Documentation/kbuild/kbuild.rst
-@@ -262,3 +262,8 @@ KBUILD_BUILD_USER, KBUILD_BUILD_HOST
- These two variables allow to override the user@host string displayed during
- boot and in /proc/version. The default value is the output of the commands
- whoami and host, respectively.
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 4c643dfc7fbbc..9672cda2f8031 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -13,6 +13,7 @@
+ #include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
+ #include <linux/spi/spi.h>
+@@ -1996,6 +1997,8 @@ static int stm32_spi_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
++	pinctrl_pm_select_sleep_state(&pdev->dev);
 +
-+LLVM
-+----
-+If this variable is set to 1, Kbuild will use Clang and LLVM utilities instead
-+of GCC and GNU binutils to build the kernel.
---- a/Documentation/kbuild/llvm.rst
-+++ b/Documentation/kbuild/llvm.rst
-@@ -47,8 +47,12 @@ example:
- LLVM Utilities
- --------------
+ 	return 0;
+ }
  
--LLVM has substitutes for GNU binutils utilities. These can be invoked as
--additional parameters to `make`.
-+LLVM has substitutes for GNU binutils utilities. Kbuild supports `LLVM=1`
-+to enable them.
+@@ -2007,13 +2010,18 @@ static int stm32_spi_runtime_suspend(struct device *dev)
+ 
+ 	clk_disable_unprepare(spi->clk);
+ 
+-	return 0;
++	return pinctrl_pm_select_sleep_state(dev);
+ }
+ 
+ static int stm32_spi_runtime_resume(struct device *dev)
+ {
+ 	struct spi_master *master = dev_get_drvdata(dev);
+ 	struct stm32_spi *spi = spi_master_get_devdata(master);
++	int ret;
 +
-+	make LLVM=1
++	ret = pinctrl_pm_select_default_state(dev);
++	if (ret)
++		return ret;
+ 
+ 	return clk_prepare_enable(spi->clk);
+ }
+@@ -2043,10 +2051,23 @@ static int stm32_spi_resume(struct device *dev)
+ 		return ret;
+ 
+ 	ret = spi_master_resume(master);
+-	if (ret)
++	if (ret) {
+ 		clk_disable_unprepare(spi->clk);
++		return ret;
++	}
+ 
+-	return ret;
++	ret = pm_runtime_get_sync(dev);
++	if (ret) {
++		dev_err(dev, "Unable to power device:%d\n", ret);
++		return ret;
++	}
 +
-+They can be enabled individually. The full list of the parameters:
++	spi->cfg->config(spi);
++
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
++	return 0;
+ }
+ #endif
  
- 	make CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
- 	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size \\
---- a/Makefile
-+++ b/Makefile
-@@ -394,8 +394,13 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_C
- HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
- HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
- 
--HOSTCC       = gcc
--HOSTCXX      = g++
-+ifneq ($(LLVM),)
-+HOSTCC	= clang
-+HOSTCXX	= clang++
-+else
-+HOSTCC	= gcc
-+HOSTCXX	= g++
-+endif
- KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
- 		-fomit-frame-pointer -std=gnu89 $(HOST_LFS_CFLAGS) \
- 		$(HOSTCFLAGS)
-@@ -404,16 +409,28 @@ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAG
- KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
- 
- # Make variables (CC, etc...)
--LD		= $(CROSS_COMPILE)ld
--CC		= $(CROSS_COMPILE)gcc
- CPP		= $(CC) -E
-+ifneq ($(LLVM),)
-+CC		= clang
-+LD		= ld.lld
-+AR		= llvm-ar
-+NM		= llvm-nm
-+OBJCOPY		= llvm-objcopy
-+OBJDUMP		= llvm-objdump
-+READELF		= llvm-readelf
-+OBJSIZE		= llvm-size
-+STRIP		= llvm-strip
-+else
-+CC		= $(CROSS_COMPILE)gcc
-+LD		= $(CROSS_COMPILE)ld
- AR		= $(CROSS_COMPILE)ar
- NM		= $(CROSS_COMPILE)nm
--STRIP		= $(CROSS_COMPILE)strip
- OBJCOPY		= $(CROSS_COMPILE)objcopy
- OBJDUMP		= $(CROSS_COMPILE)objdump
--OBJSIZE		= $(CROSS_COMPILE)size
- READELF		= $(CROSS_COMPILE)readelf
-+OBJSIZE		= $(CROSS_COMPILE)size
-+STRIP		= $(CROSS_COMPILE)strip
-+endif
- PAHOLE		= pahole
- LEX		= flex
- YACC		= bison
---- a/tools/objtool/Makefile
-+++ b/tools/objtool/Makefile
-@@ -3,9 +3,15 @@ include ../scripts/Makefile.include
- include ../scripts/Makefile.arch
- 
- # always use the host compiler
-+ifneq ($(LLVM),)
-+HOSTAR	?= llvm-ar
-+HOSTCC	?= clang
-+HOSTLD	?= ld.lld
-+else
- HOSTAR	?= ar
- HOSTCC	?= gcc
- HOSTLD	?= ld
-+endif
- AR	 = $(HOSTAR)
- CC	 = $(HOSTCC)
- LD	 = $(HOSTLD)
+-- 
+2.25.1
+
 
 
