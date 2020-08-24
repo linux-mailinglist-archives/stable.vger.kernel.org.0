@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B919B2503CA
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB68E2503C3
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728713AbgHXQvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34518 "EHLO mail.kernel.org"
+        id S1728794AbgHXQuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728678AbgHXQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:49:09 -0400
+        id S1728570AbgHXQtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:49:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB5CB20578;
-        Mon, 24 Aug 2020 16:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D2122067C;
+        Mon, 24 Aug 2020 16:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287747;
-        bh=xbXbpi+8r1iCaM9Tjg31zOCQCcffA5MyiUBMkzh9LkU=;
+        s=default; t=1598287758;
+        bh=tPY5slmVT4CLtGjJ/wKMH1xlI3Y0Q2ALMul3irCTGHg=;
         h=From:To:Cc:Subject:Date:From;
-        b=xelDyxzs4QWyssNDMpvEmGWX0rBaEoS19yiJLSoZxGaNOJrnahR4vaVC8sGDTLTX0
-         3hTZnzbmzIZLCX46ifzocL5kkIqlVdRhLh2dsLJ5t/8zhWAGxCifGaCkSlgZ/tUPyA
-         6/sQdtiqkqBtc//+O3C7Qbn/fRqJxDsTIV/Vf0RY=
+        b=KIJ6cJ0A2JZ0rQaRR95Z51YUuYlVjZLPtdpkVjkarCAufoo7kIV9ex0DGg91BXYGQ
+         hLsnkc6rRYM8xOI6Ak/0mF6/SxBRP/cHA+VeQPKzgNUI8N3aiVSqvScs+n5p2p0eEq
+         F8DYnB7nccg//gi0Wifipp0HHnnOK0nJ0wAVlUEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 4.14 00/51] 4.14.195-rc2 review
-Date:   Mon, 24 Aug 2020 18:49:24 +0200
-Message-Id: <20200824164724.981131044@linuxfoundation.org>
+Subject: [PATCH 4.19 00/73] 4.19.142-rc2 review
+Date:   Mon, 24 Aug 2020 18:49:36 +0200
+Message-Id: <20200824164729.443078729@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.195-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.142-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.19.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.195-rc2
+X-KernelTest-Version: 4.19.142-rc2
 X-KernelTest-Deadline: 2020-08-26T16:47+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -50,8 +50,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.195 release.
-There are 51 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.19.142 release.
+There are 73 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -59,9 +59,9 @@ Responses should be made by Wed, 26 Aug 2020 16:47:07 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.195-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.142-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 and the diffstat can be found below.
 
 thanks,
@@ -72,10 +72,13 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.195-rc2
+    Linux 4.19.142-rc2
 
 Will Deacon <will@kernel.org>
-    KVM: arm/arm64: Don't reschedule in unmap_stage2_range()
+    KVM: arm64: Only reschedule if MMU_NOTIFIER_RANGE_BLOCKABLE is not set
+
+Will Deacon <will@kernel.org>
+    KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
 
 Stephen Boyd <sboyd@kernel.org>
     clk: Evict unregistered clks from parent caches
@@ -92,6 +95,9 @@ Al Viro <viro@zeniv.linux.org.uk>
 Marc Zyngier <maz@kernel.org>
     epoll: Keep a reference on files added to the check list
 
+Li Heng <liheng40@huawei.com>
+    efi: add missed destroy_workqueue when efisubsys_init fails
+
 Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
     powerpc/pseries: Do not initiate shutdown when system is running on UPS
 
@@ -101,8 +107,38 @@ Tom Rix <trix@redhat.com>
 Haiyang Zhang <haiyangz@microsoft.com>
     hv_netvsc: Fix the queue_mapping in netvsc_vf_xmit()
 
+Wang Hai <wanghai38@huawei.com>
+    net: gemini: Fix missing free_netdev() in error path of gemini_ethernet_port_probe()
+
+Shay Agroskin <shayagr@amazon.com>
+    net: ena: Prevent reset after device destruction
+
 Jiri Wiesner <jwiesner@suse.com>
     bonding: fix active-backup failover for current ARP slave
+
+David Howells <dhowells@redhat.com>
+    afs: Fix NULL deref in afs_dynroot_depopulate()
+
+Selvin Xavier <selvin.xavier@broadcom.com>
+    RDMA/bnxt_re: Do not add user qps to flushlist
+
+Randy Dunlap <rdunlap@infradead.org>
+    Fix build error when CONFIG_ACPI is not set/enabled:
+
+Juergen Gross <jgross@suse.com>
+    efi: avoid error message when booting under Xen
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kconfig: qconf: fix signal connection to invalid slots
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kconfig: qconf: do not limit the pop-up menu to the first row
+
+Jim Mattson <jmattson@google.com>
+    kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode
+
+Jim Mattson <jmattson@google.com>
+    kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode
 
 Alex Williamson <alex.williamson@redhat.com>
     vfio/type1: Add proper error unwind for vfio_iommu_replay()
@@ -112,6 +148,12 @@ Dinghao Liu <dinghao.liu@zju.edu.cn>
 
 Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
     ASoC: msm8916-wcd-analog: fix register Interrupt offset
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/ptrace: fix storage key handling
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/runtime_instrumentation: fix storage key handling
 
 Cong Wang <xiyou.wangcong@gmail.com>
     bonding: fix a potential double-unregister
@@ -128,14 +170,26 @@ Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
 Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
     i40e: Set RX_ONLY mode for unicast promiscuous on VLAN
 
+Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+    ASoC: q6routing: add dummy register read/write function
+
+Jan Kara <jack@suse.cz>
+    ext4: don't allow overlapping system zones
+
 Eric Sandeen <sandeen@redhat.com>
     ext4: fix potential negative array index in do_split()
+
+Helge Deller <deller@gmx.de>
+    fs/signalfd.c: fix inconsistent return codes for signalfd4
 
 Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
     alpha: fix annotation of io{read,write}{16,32}be()
 
 Eiichi Tsukata <devel@etsukata.com>
     xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
+
+Gaurav Singh <gaurav1086@gmail.com>
+    tools/testing/selftests/cgroup/cgroup_util.c: cg_read_strcmp: fix null pointer dereference
 
 Mao Wenan <wenan.mao@linux.alibaba.com>
     virtio_ring: Avoid loop when vq is broken in virtqueue_poll
@@ -146,11 +200,17 @@ Javed Hasan <jhasan@marvell.com>
 Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
     cpufreq: intel_pstate: Fix cpuinfo_max_freq when MSR_TURBO_RATIO_LIMIT is 0
 
+Xiubo Li <xiubli@redhat.com>
+    ceph: fix use-after-free for fsc->mdsc
+
 Zhe Li <lizhe67@huawei.com>
     jffs2: fix UAF problem
 
 Darrick J. Wong <darrick.wong@oracle.com>
     xfs: fix inode quota reservation checks
+
+Chuck Lever <chuck.lever@oracle.com>
+    svcrdma: Fix another Receive buffer leak
 
 Greg Ungerer <gerg@linux-m68k.org>
     m68knommu: fix overwriting of bits in ColdFire V3 cache control
@@ -167,14 +227,26 @@ Huacai Chen <chenhc@lemote.com>
 Chuhong Yuan <hslester96@gmail.com>
     media: budget-core: Improve exception handling in budget_register()
 
+Bodo Stroesser <bstroesser@ts.fujitsu.com>
+    scsi: target: tcmu: Fix crash in tcmu_flush_dcache_range on ARM
+
 Stanley Chu <stanley.chu@mediatek.com>
     scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
 
 Lukas Wunner <lukas@wunner.de>
     spi: Prevent adding devices below an unregistering controller
 
+Liang Chen <cl@rock-chips.com>
+    kthread: Do not preempt current task if it is going to call schedule()
+
+Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+    drm/amd/display: fix pow() crashing when given base 0
+
 Yang Shi <shy828301@gmail.com>
     mm/memory.c: skip spurious TLB flush for retried page fault
+
+Steffen Maier <maier@linux.ibm.com>
+    scsi: zfcp: Fix use-after-free in request timeout handlers
 
 zhangyi (F) <yi.zhang@huawei.com>
     jbd2: add the missing unlock_buffer() in the error path of jbd2_write_superblock()
@@ -209,12 +281,6 @@ Josef Bacik <josef@toxicpanda.com>
 Marcos Paulo de Souza <mpdesouza@suse.com>
     btrfs: export helpers for subvolume name/id resolution
 
-Michael Ellerman <mpe@ellerman.id.au>
-    powerpc: Allow 4224 bytes of stack expansion for the signal frame
-
-Christophe Leroy <christophe.leroy@c-s.fr>
-    powerpc/mm: Only read faulting instruction when necessary in do_page_fault()
-
 Hugh Dickins <hughd@google.com>
     khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
 
@@ -234,53 +300,83 @@ Diffstat:
 
  Makefile                                          |  4 +-
  arch/alpha/include/asm/io.h                       |  8 +--
+ arch/arm/include/asm/kvm_host.h                   |  2 +-
+ arch/arm64/include/asm/kvm_host.h                 |  2 +-
  arch/m68k/include/asm/m53xxacr.h                  |  6 +-
- arch/powerpc/mm/fault.c                           | 55 ++++++++++++------
+ arch/mips/include/asm/kvm_host.h                  |  2 +-
+ arch/mips/kvm/mmu.c                               |  3 +-
+ arch/powerpc/include/asm/kvm_host.h               |  3 +-
+ arch/powerpc/kvm/book3s.c                         |  3 +-
+ arch/powerpc/kvm/e500_mmu_host.c                  |  3 +-
  arch/powerpc/platforms/pseries/ras.c              |  1 -
+ arch/s390/kernel/ptrace.c                         |  7 ++-
+ arch/s390/kernel/runtime_instr.c                  |  2 +-
+ arch/x86/include/asm/kvm_host.h                   |  3 +-
+ arch/x86/kvm/mmu.c                                |  3 +-
+ arch/x86/kvm/x86.c                                |  2 +-
+ arch/x86/pci/xen.c                                |  1 +
  drivers/clk/clk.c                                 | 52 +++++++++++++----
  drivers/cpufreq/intel_pstate.c                    |  1 +
+ drivers/firmware/efi/efi.c                        |  2 +
+ drivers/gpu/drm/amd/display/include/fixed31_32.h  |  3 +
  drivers/gpu/drm/vgem/vgem_drv.c                   | 27 ---------
+ drivers/infiniband/hw/bnxt_re/main.c              |  3 +-
  drivers/input/mouse/psmouse-base.c                |  2 +-
  drivers/media/pci/ttpci/budget-core.c             | 11 +++-
  drivers/media/platform/davinci/vpss.c             | 20 +++++--
  drivers/net/bonding/bond_main.c                   | 42 ++++++++++++--
  drivers/net/dsa/b53/b53_common.c                  |  2 +
+ drivers/net/ethernet/amazon/ena/ena_netdev.c      | 19 +++---
+ drivers/net/ethernet/cortina/gemini.c             |  4 +-
  drivers/net/ethernet/freescale/fec_main.c         |  4 +-
  drivers/net/ethernet/intel/i40e/i40e_adminq_cmd.h |  2 +-
  drivers/net/ethernet/intel/i40e/i40e_common.c     | 35 ++++++++---
  drivers/net/ethernet/intel/i40e/i40e_main.c       |  3 +
  drivers/net/hyperv/netvsc_drv.c                   |  2 +-
  drivers/rtc/rtc-goldfish.c                        |  1 +
+ drivers/s390/scsi/zfcp_fsf.c                      |  4 +-
  drivers/scsi/libfc/fc_disc.c                      | 12 +++-
  drivers/scsi/ufs/ufs_quirks.h                     |  1 +
  drivers/scsi/ufs/ufshcd.c                         |  2 +
  drivers/spi/Kconfig                               |  3 +
  drivers/spi/spi.c                                 | 21 ++++++-
+ drivers/target/target_core_user.c                 |  2 +-
  drivers/vfio/vfio_iommu_type1.c                   | 71 +++++++++++++++++++++--
+ drivers/video/fbdev/efifb.c                       |  2 +-
  drivers/virtio/virtio_ring.c                      |  3 +
  drivers/xen/preempt.c                             |  2 +-
+ fs/afs/dynroot.c                                  | 20 ++++---
  fs/btrfs/ctree.h                                  |  2 +
  fs/btrfs/export.c                                 |  8 +--
  fs/btrfs/export.h                                 |  5 ++
  fs/btrfs/inode.c                                  | 23 +++++---
  fs/btrfs/super.c                                  | 18 ++++--
  fs/btrfs/sysfs.c                                  |  4 ++
+ fs/ceph/mds_client.c                              |  3 +-
  fs/eventpoll.c                                    | 19 +++---
+ fs/ext4/block_validity.c                          | 36 +++++-------
  fs/ext4/namei.c                                   | 22 +++++--
  fs/jbd2/journal.c                                 |  4 +-
  fs/jffs2/dir.c                                    |  6 +-
  fs/romfs/storage.c                                |  4 +-
+ fs/signalfd.c                                     | 10 ++--
  fs/xfs/xfs_sysfs.h                                |  6 +-
  fs/xfs/xfs_trans_dquot.c                          |  2 +-
+ kernel/kthread.c                                  | 17 +++++-
  kernel/relay.c                                    |  1 +
  mm/hugetlb.c                                      | 24 ++++----
  mm/khugepaged.c                                   |  7 +--
  mm/memory.c                                       |  3 +
  mm/page_alloc.c                                   |  7 ++-
+ net/sunrpc/xprtrdma/svc_rdma_recvfrom.c           |  2 +
+ scripts/kconfig/qconf.cc                          | 70 +++++++++++-----------
  sound/soc/codecs/msm8916-wcd-analog.c             |  4 +-
  sound/soc/intel/atom/sst-mfld-platform-pcm.c      |  5 +-
+ sound/soc/qcom/qdsp6/q6routing.c                  | 16 +++++
  tools/perf/util/probe-finder.c                    |  2 +-
- virt/kvm/arm/mmu.c                                |  6 --
- 49 files changed, 403 insertions(+), 172 deletions(-)
+ tools/testing/selftests/cgroup/cgroup_util.c      |  2 +-
+ virt/kvm/arm/mmu.c                                | 18 ++++--
+ virt/kvm/kvm_main.c                               |  2 +-
+ 79 files changed, 525 insertions(+), 260 deletions(-)
 
 
