@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6193224F873
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7CC24F8A5
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbgHXItz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S1729631AbgHXIs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729506AbgHXIty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:54 -0400
+        id S1729194AbgHXIsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B175D204FD;
-        Mon, 24 Aug 2020 08:49:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB0A6206F0;
+        Mon, 24 Aug 2020 08:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258994;
-        bh=7CNvVz8rGhDFYm7q2EFtNcKpYiN/FyhHfc/Pr+CZ0p0=;
+        s=default; t=1598258933;
+        bh=BogeMIUMhn33QwxLhf9C396jx0fr8ScZDX2z2rJ5PI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5aZV2SgyK6u//X1ChrrUXHoVyQKpVjuNMqjxBPOWL6X2JrgVPcn1058WedJZSnkT
-         DJ8+iYIPgIpZBICdXE2OaG3XYkvE1ntZi9cL9rGAoLxbtf2Bn6GgrIK+T3MglyfsjY
-         LkuU6tGllQV3M6HwHixMhRy0eiQRcJefx7qUyPb8=
+        b=FAW0jtlE8xR5INOJIGDSk4Y55pZ+lko74HlhVN2wEpUvgHFk4COJXwxaT5D9S7l5b
+         SUta8waHsFx5sJBx+7R61B1Ofe+yKh8wyYuiaKQCmA4UbV5Ff5P0QVY+N4n38Ofr6Q
+         cirqc08y3TDO8xhzdo3jsJNTlQc9i9tykseuxNTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/33] coredump: fix race condition between collapse_huge_page() and core dumping
-Date:   Mon, 24 Aug 2020 10:31:02 +0200
-Message-Id: <20200824082346.835996655@linuxfoundation.org>
+Subject: [PATCH 5.4 097/107] bonding: fix active-backup failover for current ARP slave
+Date:   Mon, 24 Aug 2020 10:31:03 +0200
+Message-Id: <20200824082409.898104237@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
-References: <20200824082346.498653578@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,101 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-[ Upstream commit 59ea6d06cfa9247b586a695c21f94afa7183af74 ]
+[ Upstream commit 0410d07190961ac526f05085765a8d04d926545b ]
 
-When fixing the race conditions between the coredump and the mmap_sem
-holders outside the context of the process, we focused on
-mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
-race condition between mmget_not_zero()/get_task_mm() and core
-dumping"), but those aren't the only cases where the mmap_sem can be
-taken outside of the context of the process as Michal Hocko noticed
-while backporting that commit to older -stable kernels.
+When the ARP monitor is used for link detection, ARP replies are
+validated for all slaves (arp_validate=3) and fail_over_mac is set to
+active, two slaves of an active-backup bond may get stuck in a state
+where both of them are active and pass packets that they receive to
+the bond. This state makes IPv6 duplicate address detection fail. The
+state is reached thus:
+1. The current active slave goes down because the ARP target
+   is not reachable.
+2. The current ARP slave is chosen and made active.
+3. A new slave is enslaved. This new slave becomes the current active
+   slave and can reach the ARP target.
+As a result, the current ARP slave stays active after the enslave
+action has finished and the log is littered with "PROBE BAD" messages:
+> bond0: PROBE: c_arp ens10 && cas ens11 BAD
+The workaround is to remove the slave with "going back" status from
+the bond and re-enslave it. This issue was encountered when DPDK PMD
+interfaces were being enslaved to an active-backup bond.
 
-If mmgrab() is called in the context of the process, but then the
-mm_count reference is transferred outside the context of the process,
-that can also be a problem if the mmap_sem has to be taken for writing
-through that mm_count reference.
+I would be possible to fix the issue in bond_enslave() or
+bond_change_active_slave() but the ARP monitor was fixed instead to
+keep most of the actions changing the current ARP slave in the ARP
+monitor code. The current ARP slave is set as inactive and backup
+during the commit phase. A new state, BOND_LINK_FAIL, has been
+introduced for slaves in the context of the ARP monitor. This allows
+administrators to see how slaves are rotated for sending ARP requests
+and attempts are made to find a new active slave.
 
-khugepaged registration calls mmgrab() in the context of the process,
-but the mmap_sem for writing is taken later in the context of the
-khugepaged kernel thread.
-
-collapse_huge_page() after taking the mmap_sem for writing doesn't
-modify any vma, so it's not obvious that it could cause a problem to the
-coredump, but it happens to modify the pmd in a way that breaks an
-invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
-needs the mmap_sem for writing just to block concurrent page faults that
-call pmd_trans_huge_lock().
-
-Specifically the invariant that "!pmd_trans_huge()" cannot become a
-"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
-
-The coredump will call __get_user_pages() without mmap_sem for reading,
-which eventually can invoke a lockless page fault which will need a
-functional pmd_trans_huge_lock().
-
-So collapse_huge_page() needs to use mmget_still_valid() to check it's
-not running concurrently with the coredump...  as long as the coredump
-can invoke page faults without holding the mmap_sem for reading.
-
-This has "Fixes: khugepaged" to facilitate backporting, but in my view
-it's more a bug in the coredump code that will eventually have to be
-rewritten to stop invoking page faults without the mmap_sem for reading.
-So the long term plan is still to drop all mmget_still_valid().
-
-Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
-Fixes: ba76149f47d8 ("thp: khugepaged")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reported-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b2220cad583c9 ("bonding: refactor ARP active-backup monitor")
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mm.h | 4 ++++
- mm/huge_memory.c   | 3 +++
- 2 files changed, 7 insertions(+)
+ drivers/net/bonding/bond_main.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 03cf5526e4456..2b17d2fca4299 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1123,6 +1123,10 @@ void unmap_vmas(struct mmu_gather *tlb, struct vm_area_struct *start_vma,
-  * followed by taking the mmap_sem for writing before modifying the
-  * vmas or anything the coredump pretends not to change from under it.
-  *
-+ * It also has to be called when mmgrab() is used in the context of
-+ * the process, but then the mm_count refcount is transferred outside
-+ * the context of the process to run down_write() on that pinned mm.
-+ *
-  * NOTE: find_extend_vma() called from GUP context is the only place
-  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
-  * for reading and outside the context of the process, so it is also
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 465786cd6490e..c5628ebc0fc29 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2587,6 +2587,9 @@ static void collapse_huge_page(struct mm_struct *mm,
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	down_write(&mm->mmap_sem);
-+	result = SCAN_ANY_PROCESS;
-+	if (!mmget_still_valid(mm))
-+		goto out;
- 	if (unlikely(khugepaged_test_exit(mm)))
- 		goto out;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index ce829a7a92101..0d7a173f8e61c 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2778,6 +2778,9 @@ static int bond_ab_arp_inspect(struct bonding *bond)
+ 			if (bond_time_in_interval(bond, last_rx, 1)) {
+ 				bond_propose_link_state(slave, BOND_LINK_UP);
+ 				commit++;
++			} else if (slave->link == BOND_LINK_BACK) {
++				bond_propose_link_state(slave, BOND_LINK_FAIL);
++				commit++;
+ 			}
+ 			continue;
+ 		}
+@@ -2886,6 +2889,19 @@ static void bond_ab_arp_commit(struct bonding *bond)
  
+ 			continue;
+ 
++		case BOND_LINK_FAIL:
++			bond_set_slave_link_state(slave, BOND_LINK_FAIL,
++						  BOND_SLAVE_NOTIFY_NOW);
++			bond_set_slave_inactive_flags(slave,
++						      BOND_SLAVE_NOTIFY_NOW);
++
++			/* A slave has just been enslaved and has become
++			 * the current active slave.
++			 */
++			if (rtnl_dereference(bond->curr_active_slave))
++				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
++			continue;
++
+ 		default:
+ 			slave_err(bond->dev, slave->dev,
+ 				  "impossible: link_new_state %d on slave\n",
+@@ -2936,8 +2952,6 @@ static bool bond_ab_arp_probe(struct bonding *bond)
+ 			return should_notify_rtnl;
+ 	}
+ 
+-	bond_set_slave_inactive_flags(curr_arp_slave, BOND_SLAVE_NOTIFY_LATER);
+-
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+ 		if (!found && !before && bond_slave_is_up(slave))
+ 			before = slave;
 -- 
 2.25.1
 
