@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E61524F7E5
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05E924F849
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730332AbgHXIyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34672 "EHLO mail.kernel.org"
+        id S1725947AbgHXJ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729980AbgHXIyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:21 -0400
+        id S1729890AbgHXIvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:51:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A669204FD;
-        Mon, 24 Aug 2020 08:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EE30204FD;
+        Mon, 24 Aug 2020 08:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259260;
-        bh=nstCH6mn71s6+t+b0/T4hwQQsqc+bqiv7+SPeqwEVLc=;
+        s=default; t=1598259065;
+        bh=1IES0gm3oirDe7IZ79Li86odL9lbx2TB4xRbdXUVcBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UI4CRGP0dnGdyHjmQMMgiJzRpN5jMtMKOEI6oME4wSn5uRZ0ZYpBYgtX7nXmwIPMN
-         3M4Wo/JdP4vrbj5leG3fBca7qYQP8HFUYQaBXRGQYPdrsJYvmBU54Q/xzQMq/wfY/b
-         RTqxf5avb5rRS8FD6FjTKRr/UtlIR8OBlu7LlMGE=
+        b=CD9g+OUVkSCc0HMq/PfNxIM0pHwiy4kETh2x36rloQGInlxx4yZPyv7uXTUee7Z2w
+         2p3C9burPhQG3RjlX44q4MilHi+x72tq7OrI9zl5M8tX/p+zqslNQyo/PXpTRUOw6E
+         2Vw2Cp4Mv72UeKplRIe0um6/L7NKoj7dV2hP4ORM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 12/50] romfs: fix uninitialized memory leak in romfs_dev_read()
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 17/33] media: vpss: clean up resources in init
 Date:   Mon, 24 Aug 2020 10:31:13 +0200
-Message-Id: <20200824082352.591103294@linuxfoundation.org>
+Message-Id: <20200824082347.394957122@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
+[ Upstream commit 9c487b0b0ea7ff22127fe99a7f67657d8730ff94 ]
 
-romfs has a superblock field that limits the size of the filesystem; data
-beyond that limit is never accessed.
+If platform_driver_register() fails within vpss_init() resources are not
+cleaned up. The patch fixes this issue by introducing the corresponding
+error handling.
 
-romfs_dev_read() fetches a caller-supplied number of bytes from the
-backing device.  It returns 0 on success or an error code on failure;
-therefore, its API can't represent short reads, it's all-or-nothing.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-However, when romfs_dev_read() detects that the requested operation would
-cross the filesystem size limit, it currently silently truncates the
-requested number of bytes.  This e.g.  means that when the content of a
-file with size 0x1000 starts one byte before the filesystem size limit,
-->readpage() will only fill a single byte of the supplied page while
-leaving the rest uninitialized, leaking that uninitialized memory to
-userspace.
-
-Fix it by returning an error code instead of truncating the read when the
-requested read operation would go beyond the end of the filesystem.
-
-Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/romfs/storage.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/media/platform/davinci/vpss.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/fs/romfs/storage.c
-+++ b/fs/romfs/storage.c
-@@ -221,10 +221,8 @@ int romfs_dev_read(struct super_block *s
- 	size_t limit;
+diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
+index c2c68988e38ac..9884b34d6f406 100644
+--- a/drivers/media/platform/davinci/vpss.c
++++ b/drivers/media/platform/davinci/vpss.c
+@@ -519,19 +519,31 @@ static void vpss_exit(void)
  
- 	limit = romfs_maxsize(sb);
--	if (pos >= limit)
-+	if (pos >= limit || buflen > limit - pos)
- 		return -EIO;
--	if (buflen > limit - pos)
--		buflen = limit - pos;
+ static int __init vpss_init(void)
+ {
++	int ret;
++
+ 	if (!request_mem_region(VPSS_CLK_CTRL, 4, "vpss_clock_control"))
+ 		return -EBUSY;
  
- #ifdef CONFIG_ROMFS_ON_MTD
- 	if (sb->s_mtd)
+ 	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
+ 	if (unlikely(!oper_cfg.vpss_regs_base2)) {
+-		release_mem_region(VPSS_CLK_CTRL, 4);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_ioremap;
+ 	}
+ 
+ 	writel(VPSS_CLK_CTRL_VENCCLKEN |
+-		     VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
++	       VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
++
++	ret = platform_driver_register(&vpss_driver);
++	if (ret)
++		goto err_pd_register;
++
++	return 0;
+ 
+-	return platform_driver_register(&vpss_driver);
++err_pd_register:
++	iounmap(oper_cfg.vpss_regs_base2);
++err_ioremap:
++	release_mem_region(VPSS_CLK_CTRL, 4);
++	return ret;
+ }
+ subsys_initcall(vpss_init);
+ module_exit(vpss_exit);
+-- 
+2.25.1
+
 
 
