@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8D524F9B8
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD23124FA7F
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729610AbgHXJsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:48:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57602 "EHLO mail.kernel.org"
+        id S1726041AbgHXJ4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:56:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbgHXIkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:40:33 -0400
+        id S1725780AbgHXIfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:35:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 340C02074D;
-        Mon, 24 Aug 2020 08:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80E8A221E2;
+        Mon, 24 Aug 2020 08:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258432;
-        bh=bN7dJrzpgTx4kNBALgXdM5o7wtL1Q+rEH6arvcnTpUo=;
+        s=default; t=1598258124;
+        bh=JibyKW7nZFIfL4HPjzevLQW3i52HwUo/nRmn8F5hksw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sd2ITVHT85dr+LKkJsbd/o5SL0Ow8NG/rRJoNpDgHKn68uBIKWZ0UvgLGRDP8T2Pf
-         FsA7NmrTWRXA93VauOx5W+dIf5WeY4cOwKAS44TmZ4OLX2RhvLTrHrLGERHT1qllja
-         /y7AA8bIGlVvTQokbRqtGn8D4ezb9qypX+gFgeLU=
+        b=rQWa05sQwlTWDIQOH9LRW8c8SUVLKMK1zai2WBhVhY6tnybHo4OOp363VVwmEWjCU
+         TZBt+cpnU6oeMrKiP4Lul4xdfaNHnJamdgmzzgEODlK9UwR9ZSDY/xgST9+SAqWWRO
+         ErRVHwOQ65HdrxI+QnnuteUYh8PQuGOzP0KIRSBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Laurent Morichetti <laurent.morichetti@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 046/124] drm/ttm: fix offset in VMAs with a pg_offs in ttm_bo_vm_access
+Subject: [PATCH 5.8 082/148] bpf: sock_ops sk access may stomp registers when dst_reg = src_reg
 Date:   Mon, 24 Aug 2020 10:29:40 +0200
-Message-Id: <20200824082411.690630357@linuxfoundation.org>
+Message-Id: <20200824082417.989393028@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit c0001213d195d1bac83e0744c06ff06dd5a8ba53 ]
+[ Upstream commit 84f44df664e9f0e261157e16ee1acd77cc1bb78d ]
 
-VMAs with a pg_offs that's offset from the start of the vma_node need
-to adjust the offset within the BO accordingly. This matches the
-offset calculation in ttm_bo_vm_fault_reserved.
+Similar to patch ("bpf: sock_ops ctx access may stomp registers") if the
+src_reg = dst_reg when reading the sk field of a sock_ops struct we
+generate xlated code,
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Tested-by: Laurent Morichetti <laurent.morichetti@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/381169/
+  53: (61) r9 = *(u32 *)(r9 +28)
+  54: (15) if r9 == 0x0 goto pc+3
+  56: (79) r9 = *(u64 *)(r9 +0)
+
+This stomps on the r9 reg to do the sk_fullsock check and then when
+reading the skops->sk field instead of the sk pointer we get the
+sk_fullsock. To fix use similar pattern noted in the previous fix
+and use the temp field to save/restore a register used to do
+sk_fullsock check.
+
+After the fix the generated xlated code reads,
+
+  52: (7b) *(u64 *)(r9 +32) = r8
+  53: (61) r8 = *(u32 *)(r9 +28)
+  54: (15) if r9 == 0x0 goto pc+3
+  55: (79) r8 = *(u64 *)(r9 +32)
+  56: (79) r9 = *(u64 *)(r9 +0)
+  57: (05) goto pc+1
+  58: (79) r8 = *(u64 *)(r9 +32)
+
+Here r9 register was in-use so r8 is chosen as the temporary register.
+In line 52 r8 is saved in temp variable and at line 54 restored in case
+fullsock != 0. Finally we handle fullsock == 0 case by restoring at
+line 58.
+
+This adds a new macro SOCK_OPS_GET_SK it is almost possible to merge
+this with SOCK_OPS_GET_FIELD, but I found the extra branch logic a
+bit more confusing than just adding a new macro despite a bit of
+duplicating code.
+
+Fixes: 1314ef561102e ("bpf: export bpf_sock for BPF_PROG_TYPE_SOCK_OPS prog type")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/159718349653.4728.6559437186853473612.stgit@john-Precision-5820-Tower
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo_vm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/filter.c | 49 ++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 38 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index 72100b84c7a90..b08fdfa4291b2 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -505,8 +505,10 @@ static int ttm_bo_vm_access_kmap(struct ttm_buffer_object *bo,
- int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
- 		     void *buf, int len, int write)
- {
--	unsigned long offset = (addr) - vma->vm_start;
- 	struct ttm_buffer_object *bo = vma->vm_private_data;
-+	unsigned long offset = (addr) - vma->vm_start +
-+		((vma->vm_pgoff - drm_vma_node_start(&bo->base.vma_node))
-+		 << PAGE_SHIFT);
- 	int ret;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 09286a1f7457d..a69e79327c29e 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -8290,6 +8290,43 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
+ 		}							      \
+ 	} while (0)
  
- 	if (len < 1 || (offset + len) >> PAGE_SHIFT > bo->num_pages)
++#define SOCK_OPS_GET_SK()							      \
++	do {								      \
++		int fullsock_reg = si->dst_reg, reg = BPF_REG_9, jmp = 1;     \
++		if (si->dst_reg == reg || si->src_reg == reg)		      \
++			reg--;						      \
++		if (si->dst_reg == reg || si->src_reg == reg)		      \
++			reg--;						      \
++		if (si->dst_reg == si->src_reg) {			      \
++			*insn++ = BPF_STX_MEM(BPF_DW, si->src_reg, reg,	      \
++					  offsetof(struct bpf_sock_ops_kern,  \
++					  temp));			      \
++			fullsock_reg = reg;				      \
++			jmp += 2;					      \
++		}							      \
++		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(			      \
++						struct bpf_sock_ops_kern,     \
++						is_fullsock),		      \
++				      fullsock_reg, si->src_reg,	      \
++				      offsetof(struct bpf_sock_ops_kern,      \
++					       is_fullsock));		      \
++		*insn++ = BPF_JMP_IMM(BPF_JEQ, fullsock_reg, 0, jmp);	      \
++		if (si->dst_reg == si->src_reg)				      \
++			*insn++ = BPF_LDX_MEM(BPF_DW, reg, si->src_reg,	      \
++				      offsetof(struct bpf_sock_ops_kern,      \
++				      temp));				      \
++		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(			      \
++						struct bpf_sock_ops_kern, sk),\
++				      si->dst_reg, si->src_reg,		      \
++				      offsetof(struct bpf_sock_ops_kern, sk));\
++		if (si->dst_reg == si->src_reg)	{			      \
++			*insn++ = BPF_JMP_A(1);				      \
++			*insn++ = BPF_LDX_MEM(BPF_DW, reg, si->src_reg,	      \
++				      offsetof(struct bpf_sock_ops_kern,      \
++				      temp));				      \
++		}							      \
++	} while (0)
++
+ #define SOCK_OPS_GET_TCP_SOCK_FIELD(FIELD) \
+ 		SOCK_OPS_GET_FIELD(FIELD, FIELD, struct tcp_sock)
+ 
+@@ -8574,17 +8611,7 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
+ 		SOCK_OPS_GET_TCP_SOCK_FIELD(bytes_acked);
+ 		break;
+ 	case offsetof(struct bpf_sock_ops, sk):
+-		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(
+-						struct bpf_sock_ops_kern,
+-						is_fullsock),
+-				      si->dst_reg, si->src_reg,
+-				      offsetof(struct bpf_sock_ops_kern,
+-					       is_fullsock));
+-		*insn++ = BPF_JMP_IMM(BPF_JEQ, si->dst_reg, 0, 1);
+-		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(
+-						struct bpf_sock_ops_kern, sk),
+-				      si->dst_reg, si->src_reg,
+-				      offsetof(struct bpf_sock_ops_kern, sk));
++		SOCK_OPS_GET_SK();
+ 		break;
+ 	}
+ 	return insn - insn_buf;
 -- 
 2.25.1
 
