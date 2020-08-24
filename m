@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB3124FA8A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A3D24F9B9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbgHXJ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:57:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45658 "EHLO mail.kernel.org"
+        id S1729041AbgHXJsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728082AbgHXIfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:17 -0400
+        id S1728754AbgHXIka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:40:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4069207D3;
-        Mon, 24 Aug 2020 08:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD15A2075B;
+        Mon, 24 Aug 2020 08:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258116;
-        bh=1neBPDzB78lUz+RGheFcYcrZH7SNAIGtxS/IZxHaiHQ=;
+        s=default; t=1598258430;
+        bh=P0+JSimvkNQ7Y26+AEJz4m0Ifkt1Pu0jAmcjm3+4N+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLX1V780uDErNdwaPhrdDczyQwkBG0DAxiH5n/g3sDsSSnJmLQ7wExLmC5za2y4Kn
-         33TNFbDaLPiRK+V6muZEtnBMS99ODljURGPwj9y8zDa6h6vLHwOIzIHzS+q5gkr99g
-         YGkU3/fLex4Mb9bIdRofoYXLkvd2w8MmHVwPKuxs=
+        b=xbVbMZHpLZ0ikYXPt/xNGxwhovvErsf+tOqduOiUJNBosmkZd63L3efkvwkIsi8cC
+         L2FWgZVM7aPfHgFREA1Hta2CUf1ajTD+3ZXk/YgcPL+ocTUtpa7yyVm86USfeSQmEm
+         /Mbd90bQjMZhq7GtZk7SagExAHLjZe+52/MbtDQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 080/148] tools/bpftool: Make skeleton code C++17-friendly by dropping typeof()
-Date:   Mon, 24 Aug 2020 10:29:38 +0200
-Message-Id: <20200824082417.891633939@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Allison Collins <allison.henderson@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 045/124] xfs: fix inode quota reservation checks
+Date:   Mon, 24 Aug 2020 10:29:39 +0200
+Message-Id: <20200824082411.641977731@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 8faf7fc597d59b142af41ddd4a2d59485f75f88a ]
+[ Upstream commit f959b5d037e71a4d69b5bf71faffa065d9269b4a ]
 
-Seems like C++17 standard mode doesn't recognize typeof() anymore. This can
-be tested by compiling test_cpp test with -std=c++17 or -std=c++1z options.
-The use of typeof in skeleton generated code is unnecessary, all types are
-well-known at the time of code generation, so remove all typeof()'s to make
-skeleton code more future-proof when interacting with C++ compilers.
+xfs_trans_dqresv is the function that we use to make reservations
+against resource quotas.  Each resource contains two counters: the
+q_core counter, which tracks resources allocated on disk; and the dquot
+reservation counter, which tracks how much of that resource has either
+been allocated or reserved by threads that are working on metadata
+updates.
 
-Fixes: 985ead416df3 ("bpftool: Add skeleton codegen command")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20200812025907.1371956-1-andriin@fb.com
+For disk blocks, we compare the proposed reservation counter against the
+hard and soft limits to decide if we're going to fail the operation.
+However, for inodes we inexplicably compare against the q_core counter,
+not the incore reservation count.
+
+Since the q_core counter is always lower than the reservation count and
+we unlock the dquot between reservation and transaction commit, this
+means that multiple threads can reserve the last inode count before we
+hit the hard limit, and when they commit, we'll be well over the hard
+limit.
+
+Fix this by checking against the incore inode reservation counter, since
+we would appear to maintain that correctly (and that's what we report in
+GETQUOTA).
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/gen.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/xfs/xfs_trans_dquot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-index 540ffde0b03a3..0be1330b4c1ba 100644
---- a/tools/bpf/bpftool/gen.c
-+++ b/tools/bpf/bpftool/gen.c
-@@ -400,7 +400,7 @@ static int do_skeleton(int argc, char **argv)
- 		{							    \n\
- 			struct %1$s *obj;				    \n\
- 									    \n\
--			obj = (typeof(obj))calloc(1, sizeof(*obj));	    \n\
-+			obj = (struct %1$s *)calloc(1, sizeof(*obj));	    \n\
- 			if (!obj)					    \n\
- 				return NULL;				    \n\
- 			if (%1$s__create_skeleton(obj))			    \n\
-@@ -464,7 +464,7 @@ static int do_skeleton(int argc, char **argv)
- 		{							    \n\
- 			struct bpf_object_skeleton *s;			    \n\
- 									    \n\
--			s = (typeof(s))calloc(1, sizeof(*s));		    \n\
-+			s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));\n\
- 			if (!s)						    \n\
- 				return -1;				    \n\
- 			obj->skeleton = s;				    \n\
-@@ -482,7 +482,7 @@ static int do_skeleton(int argc, char **argv)
- 				/* maps */				    \n\
- 				s->map_cnt = %zu;			    \n\
- 				s->map_skel_sz = sizeof(*s->maps);	    \n\
--				s->maps = (typeof(s->maps))calloc(s->map_cnt, s->map_skel_sz);\n\
-+				s->maps = (struct bpf_map_skeleton *)calloc(s->map_cnt, s->map_skel_sz);\n\
- 				if (!s->maps)				    \n\
- 					goto err;			    \n\
- 			",
-@@ -518,7 +518,7 @@ static int do_skeleton(int argc, char **argv)
- 				/* programs */				    \n\
- 				s->prog_cnt = %zu;			    \n\
- 				s->prog_skel_sz = sizeof(*s->progs);	    \n\
--				s->progs = (typeof(s->progs))calloc(s->prog_cnt, s->prog_skel_sz);\n\
-+				s->progs = (struct bpf_prog_skeleton *)calloc(s->prog_cnt, s->prog_skel_sz);\n\
- 				if (!s->progs)				    \n\
- 					goto err;			    \n\
- 			",
+diff --git a/fs/xfs/xfs_trans_dquot.c b/fs/xfs/xfs_trans_dquot.c
+index d1b9869bc5fa6..af3636a99bf60 100644
+--- a/fs/xfs/xfs_trans_dquot.c
++++ b/fs/xfs/xfs_trans_dquot.c
+@@ -647,7 +647,7 @@ xfs_trans_dqresv(
+ 			}
+ 		}
+ 		if (ninos > 0) {
+-			total_count = be64_to_cpu(dqp->q_core.d_icount) + ninos;
++			total_count = dqp->q_res_icount + ninos;
+ 			timer = be32_to_cpu(dqp->q_core.d_itimer);
+ 			warns = be16_to_cpu(dqp->q_core.d_iwarns);
+ 			warnlimit = dqp->q_mount->m_quotainfo->qi_iwarnlimit;
 -- 
 2.25.1
 
