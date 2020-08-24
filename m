@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB5D24F644
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0176724F645
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730757AbgHXI6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:58:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46170 "EHLO mail.kernel.org"
+        id S1730760AbgHXI6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:58:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730320AbgHXI6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:58:11 -0400
+        id S1730756AbgHXI6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:58:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72CE2208E4;
-        Mon, 24 Aug 2020 08:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1C0B204FD;
+        Mon, 24 Aug 2020 08:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259491;
-        bh=EDnv/XnL0MJacWiTODYRVvo+m/BqQm2xWEw0QsSVgk4=;
+        s=default; t=1598259493;
+        bh=t60HpLwE+ABxU3kRI1QY62eWALzA2Y88UuNatmqx9pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgRJPzuvaM98Nag9sQhW6rEAxEBn1CzF2vw4G/Q/wfPi6lABV6guoB+SbinSjW2FR
-         LUIqPjTMQ9qsR02s7AYNGqvqhCBle79yaOnWzi+hIs5JZ3wXbb+q95qWmUfYQJGRay
-         9OHmd/oc8JDDL28zhGch4pZZoCSKlqdwChi0n7Ws=
+        b=vDeMf7DEbRH8FHyShWYBuL0splf67xxQ/AKVPX7ZLsvEOGLxFcZrOf0vLPrcse8Zx
+         whIJlocXLFQnPLsUlIT9lZjNrlWNsirFA8KluuZmzRiVkiqmxb/s9oCk0QHN1XZAdS
+         JwCse5VemYpBPLVSVBHdT3e9OiExabO/1uftbZio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/71] RDMA/bnxt_re: Do not add user qps to flushlist
-Date:   Mon, 24 Aug 2020 10:31:49 +0200
-Message-Id: <20200824082358.815977982@linuxfoundation.org>
+Subject: [PATCH 4.19 59/71] afs: Fix NULL deref in afs_dynroot_depopulate()
+Date:   Mon, 24 Aug 2020 10:31:50 +0200
+Message-Id: <20200824082358.868712543@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
 References: <20200824082355.848475917@linuxfoundation.org>
@@ -44,40 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit a812f2d60a9fb7818f9c81f967180317b52545c0 ]
+[ Upstream commit 5e0b17b026eb7c6de9baa9b0d45a51b05f05abe1 ]
 
-Driver shall add only the kernel qps to the flush list for clean up.
-During async error events from the HW, driver is adding qps to this list
-without checking if the qp is kernel qp or not.
+If an error occurs during the construction of an afs superblock, it's
+possible that an error occurs after a superblock is created, but before
+we've created the root dentry.  If the superblock has a dynamic root
+(ie.  what's normally mounted on /afs), the afs_kill_super() will call
+afs_dynroot_depopulate() to unpin any created dentries - but this will
+oops if the root hasn't been created yet.
 
-Add a check to avoid user qp addition to the flush list.
+Fix this by skipping that bit of code if there is no root dentry.
 
-Fixes: 942c9b6ca8de ("RDMA/bnxt_re: Avoid Hard lockup during error CQE processing")
-Fixes: c50866e2853a ("bnxt_re: fix the regression due to changes in alloc_pbl")
-Link: https://lore.kernel.org/r/1596689148-4023-1-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This leads to an oops looking like:
+
+	general protection fault, ...
+	KASAN: null-ptr-deref in range [0x0000000000000068-0x000000000000006f]
+	...
+	RIP: 0010:afs_dynroot_depopulate+0x25f/0x529 fs/afs/dynroot.c:385
+	...
+	Call Trace:
+	 afs_kill_super+0x13b/0x180 fs/afs/super.c:535
+	 deactivate_locked_super+0x94/0x160 fs/super.c:335
+	 afs_get_tree+0x1124/0x1460 fs/afs/super.c:598
+	 vfs_get_tree+0x89/0x2f0 fs/super.c:1547
+	 do_new_mount fs/namespace.c:2875 [inline]
+	 path_mount+0x1387/0x2070 fs/namespace.c:3192
+	 do_mount fs/namespace.c:3205 [inline]
+	 __do_sys_mount fs/namespace.c:3413 [inline]
+	 __se_sys_mount fs/namespace.c:3390 [inline]
+	 __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
+	 do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+which is oopsing on this line:
+
+	inode_lock(root->d_inode);
+
+presumably because sb->s_root was NULL.
+
+Fixes: 0da0b7fd73e4 ("afs: Display manually added cells in dynamic root mount")
+Reported-by: syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/afs/dynroot.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index 589b0d4677d52..f1b666c80f368 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -753,7 +753,8 @@ static int bnxt_re_handle_qp_async_event(struct creq_qp_event *qp_event,
- 	struct ib_event event;
- 	unsigned int flags;
+diff --git a/fs/afs/dynroot.c b/fs/afs/dynroot.c
+index 069273a2483f9..fc6c42eeb659c 100644
+--- a/fs/afs/dynroot.c
++++ b/fs/afs/dynroot.c
+@@ -299,15 +299,17 @@ void afs_dynroot_depopulate(struct super_block *sb)
+ 		net->dynroot_sb = NULL;
+ 	mutex_unlock(&net->proc_cells_lock);
  
--	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR) {
-+	if (qp->qplib_qp.state == CMDQ_MODIFY_QP_NEW_STATE_ERR &&
-+	    rdma_is_kernel_res(&qp->ib_qp.res)) {
- 		flags = bnxt_re_lock_cqs(qp);
- 		bnxt_qplib_add_flush_qp(&qp->qplib_qp);
- 		bnxt_re_unlock_cqs(qp, flags);
+-	inode_lock(root->d_inode);
+-
+-	/* Remove all the pins for dirs created for manually added cells */
+-	list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
+-		if (subdir->d_fsdata) {
+-			subdir->d_fsdata = NULL;
+-			dput(subdir);
++	if (root) {
++		inode_lock(root->d_inode);
++
++		/* Remove all the pins for dirs created for manually added cells */
++		list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
++			if (subdir->d_fsdata) {
++				subdir->d_fsdata = NULL;
++				dput(subdir);
++			}
+ 		}
+-	}
+ 
+-	inode_unlock(root->d_inode);
++		inode_unlock(root->d_inode);
++	}
+ }
 -- 
 2.25.1
 
