@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C5024F844
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0597324F848
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbgHXIvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S1729900AbgHXIvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728968AbgHXIvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:51:18 -0400
+        id S1729896AbgHXIvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:51:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B799204FD;
-        Mon, 24 Aug 2020 08:51:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B182072D;
+        Mon, 24 Aug 2020 08:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259078;
-        bh=29g9Wr5ormSMSU1CxWGIebP4jV1FGScQfXafSepgtas=;
+        s=default; t=1598259067;
+        bh=oO0dZwfGj4Y6n706qO+SnIlv1vaIK4Y+d8ortXkuYlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjNSpcvNaID04avLTrAt8isfwDZjrTcTBewR1GEGdr+Yf/i2uTF308CB8I0qWw+Ic
-         uDDbUpMaJbrjXVtG9U2IbCrphVI+ZwRJUlHtm9TdsvW37jUquJ2k1X2jFidJWNetMu
-         M2+cCh0+ndOn8MvaUDwYGH7bAfMTtgyLWLhgQptY=
+        b=IH20dnCfe7vbNzFvXFvwDCaULXBx6fXLQVyZvpT8gy/NXJE2gLiPO6Wi6DRvfDyk/
+         eCNJUSL3fZtD5dFfyaGczDMI1oAduYTkKc9J2q9EOPVjIWnX14Yp7vwIjlU2eBnSB6
+         zY0itd1LhUay03b9AeX/uEvwStuzqs4nJfpmUqig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Song Liu <songliubraving@fb.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/39] perf probe: Fix memory leakage when the probe point is not found
-Date:   Mon, 24 Aug 2020 10:31:03 +0200
-Message-Id: <20200824082348.697579083@linuxfoundation.org>
+Subject: [PATCH 4.4 08/33] khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+Date:   Mon, 24 Aug 2020 10:31:04 +0200
+Message-Id: <20200824082346.936562325@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,50 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Hugh Dickins <hughd@google.com>
 
-[ Upstream commit 12d572e785b15bc764e956caaa8a4c846fd15694 ]
+[ Upstream commit f3f99d63a8156c7a4a6b20aac22b53c5579c7dc1 ]
 
-Fix the memory leakage in debuginfo__find_trace_events() when the probe
-point is not found in the debuginfo. If there is no probe point found in
-the debuginfo, debuginfo__find_probes() will NOT return -ENOENT, but 0.
+syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
+__khugepaged_enter(): yes, when one thread is about to dump core, has set
+core_state, and is waiting for others, another might do something calling
+__khugepaged_enter(), which now crashes because I lumped the core_state
+test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
+think it's best to lump them together, so just in this exceptional case,
+check mm->mm_users directly instead of khugepaged_test_exit().
 
-Thus the caller of debuginfo__find_probes() must check the tf.ntevs and
-release the allocated memory for the array of struct probe_trace_event.
-
-The current code releases the memory only if the debuginfo__find_probes()
-hits an error but not checks tf.ntevs. In the result, the memory allocated
-on *tevs are not released if tf.ntevs == 0.
-
-This fixes the memory leakage by checking tf.ntevs == 0 in addition to
-ret < 0.
-
-Fixes: ff741783506c ("perf probe: Introduce debuginfo to encapsulate dwarf information")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/159438668346.62703.10887420400718492503.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Yang Shi <shy828301@gmail.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 2 +-
+ mm/huge_memory.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 7d0d44b4f3d5c..863f668a07355 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1351,7 +1351,7 @@ int debuginfo__find_trace_events(struct debuginfo *dbg,
- 	tf.ntevs = 0;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 1c4d7d2f53d22..f38d24bb8a1bc 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2149,7 +2149,7 @@ int __khugepaged_enter(struct mm_struct *mm)
+ 		return -ENOMEM;
  
- 	ret = debuginfo__find_probes(dbg, &tf.pf);
--	if (ret < 0) {
-+	if (ret < 0 || tf.ntevs == 0) {
- 		for (i = 0; i < tf.ntevs; i++)
- 			clear_probe_trace_event(&tf.tevs[i]);
- 		zfree(tevs);
+ 	/* __khugepaged_exit() must not run from under us */
+-	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
++	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
+ 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
+ 		free_mm_slot(mm_slot);
+ 		return 0;
 -- 
 2.25.1
 
