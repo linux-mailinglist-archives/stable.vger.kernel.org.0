@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F3024F1F1
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 06:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C835524F20C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 06:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbgHXE25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 00:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
+        id S1725947AbgHXE7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 00:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726765AbgHXE25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 00:28:57 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469CDC061573
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 21:28:57 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id q93so2787131pjq.0
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 21:28:57 -0700 (PDT)
+        with ESMTP id S1725836AbgHXE7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 00:59:13 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 702E2C061573
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 21:59:13 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id m34so3975461pgl.11
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 21:59:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=F0WmpjOZ37dqQWtX1ElzM79V03NmaeCvIccYyyNLVEk=;
-        b=J4Pk3DEc4f2i40lu3T99CUOsiI5J75zKaYvsJZI8pzK8Nso7SDH0Qe5NM+oFT+ufjG
-         k3O9fnKX9YntY7oW5DpDwuv2OzIaJt7ufWdudpjC4/upDYOUHqvUFS/8opBkmcJl4/yo
-         c7GjABKPezsopXdHPQtZ/ZCjF9Zy6tq8m636M=
+        bh=iKrrsXBjc5h7qAhagoDiNfC9sRfyMjq2BOuls8v/q4E=;
+        b=ar3klIpwLrLraSWstpl+sEarRbsNRh8j1FXgRqsA9FppsjSBRYVeCHLyNMGwP0BnaE
+         69nua5sKvYtDhrjfcscLVyDv7hYOud9tniayN++jldKVkiIGH0dJ3fl71okj6KMrZDGA
+         a1w7fDT9g3xFLf1Na2yB8o0fXVoUjBIedAJk4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=F0WmpjOZ37dqQWtX1ElzM79V03NmaeCvIccYyyNLVEk=;
-        b=WIfRiWw4hw6mnV0bsZTgQp2qpMG7cI0IMoni7SE8T+1c9t0d7r/NJC/M8AUF8vhITg
-         hEt+/IW/AAVeK6wcRobmOC7c9E61XhUZjQ1pqqkOP91nal90Rru+jf2dfcC1rwcaEI21
-         blHXzRudf2Id11nUNqFlksWNnDndNaUsUCNqabDE/MIvYLBDhpndFylc7ANTFMAA5Lxd
-         WwdqPgGAA/KgYniYyziTJ9VVOexT1nsW4LOrTowDzAhZQmEN7u64hY7arS27qk5hxG32
-         tWy5bjnmJeE+UZllmG7pyHLSS6NQpfUagOIzRPdcJucEFmOFjxTQnEJTwhc5QN0WKXLh
-         GSNg==
-X-Gm-Message-State: AOAM532LOBI2dI+mRq92o30QIyN7wQhtBfhoZNRWH0PQGVh5w9WnVblt
-        IUExEZNM5pInQ+peBSxYJNqxdI2n5AwtFw==
-X-Google-Smtp-Source: ABdhPJxaygaIxZFYxFXDFVvDgSAGUWRbu8cr3+zmHzXkwgOK74wetbDPghgeAPA5h+Tqh4YynVO1Zg==
-X-Received: by 2002:a17:902:246:: with SMTP id 64mr2583672plc.70.1598243336389;
-        Sun, 23 Aug 2020 21:28:56 -0700 (PDT)
+        bh=iKrrsXBjc5h7qAhagoDiNfC9sRfyMjq2BOuls8v/q4E=;
+        b=VnRVFRIMtBlOaaZwE2XwNCmh/sdYcariBMX6iy1X7jMqMnK+DE0LAseUDp1/89A+PC
+         8lx8/30xNZJxWMBp22VPlOQsEzfQcwICvFbmdYXCHduSD+2hj/nSclZibmEcTT0vKTTF
+         ZWQkEec0rxFVEQsi5PJq3ENBY+CjmSi/anZL13wRvXZ4gb45G+FM3sxRx+IqG1bO6LWY
+         lPw0eCmQS8gjyPhUFsB/xdW4yt/SkQ9C9Upaakg6rz2vvV/cMEeluljPm8Gn6Bq0Yczb
+         Dj27RE5aRxkY2c+PzDUJFPish9bU5x3yB6XB4G69CM8zgsKDX+TerGpp+4IsdIAUmDnT
+         GNdA==
+X-Gm-Message-State: AOAM531Hed5X/WrNdQcGrrTX+Es5lpB8oU1y8lqaWLe5Wu+SmAUCzjV0
+        VhcQL37eO521+xce6KrqPBh4LK/sctc4Ng==
+X-Google-Smtp-Source: ABdhPJzmjRvCRPIifaIdacElbc2FnSj6RsPnp7hgUR+BxThJ5/NjIJlruK5/srSjBwlP879JYLcb5Q==
+X-Received: by 2002:a62:e30a:: with SMTP id g10mr2730519pfh.66.1598245152574;
+        Sun, 23 Aug 2020 21:59:12 -0700 (PDT)
 Received: from localhost (2001-44b8-1113-6700-9c73-b98a-9ec7-960a.static.ipv6.internode.on.net. [2001:44b8:1113:6700:9c73:b98a:9ec7:960a])
-        by smtp.gmail.com with ESMTPSA id d13sm9748674pfq.118.2020.08.23.21.28.55
+        by smtp.gmail.com with ESMTPSA id y7sm1130883pgk.73.2020.08.23.21.59.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2020 21:28:55 -0700 (PDT)
+        Sun, 23 Aug 2020 21:59:11 -0700 (PDT)
 From:   Daniel Axtens <dja@axtens.net>
 To:     stable@vger.kernel.org
 Cc:     Michael Ellerman <mpe@ellerman.id.au>,
         Tom Lane <tgl@sss.pgh.pa.us>, Daniel Axtens <dja@axtens.net>
-Subject: [PATCH v4.9] powerpc: Allow 4224 bytes of stack expansion for the signal frame
-Date:   Mon, 24 Aug 2020 14:28:51 +1000
-Message-Id: <20200824042851.139162-1-dja@axtens.net>
+Subject: [PATCH v4.4] powerpc: Allow 4224 bytes of stack expansion for the signal frame
+Date:   Mon, 24 Aug 2020 14:59:08 +1000
+Message-Id: <20200824045908.141079-1-dja@axtens.net>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -208,7 +208,7 @@ Signed-off-by: Daniel Axtens <dja@axtens.net>
  1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index 2791f568bdb2..3e4fb430ae45 100644
+index d1f860ca03ad..101c202c813c 100644
 --- a/arch/powerpc/mm/fault.c
 +++ b/arch/powerpc/mm/fault.c
 @@ -192,6 +192,9 @@ static int mm_fault_error(struct pt_regs *regs, unsigned long addr, int fault)
@@ -221,7 +221,7 @@ index 2791f568bdb2..3e4fb430ae45 100644
  /*
   * For 600- and 800-family processors, the error_code parameter is DSISR
   * for a data fault, SRR1 for an instruction fault. For 400-family processors
-@@ -341,7 +344,7 @@ int do_page_fault(struct pt_regs *regs, unsigned long address,
+@@ -341,7 +344,7 @@ int __kprobes do_page_fault(struct pt_regs *regs, unsigned long address,
  	/*
  	 * N.B. The POWER/Open ABI allows programs to access up to
  	 * 288 bytes below the stack pointer.
@@ -230,7 +230,7 @@ index 2791f568bdb2..3e4fb430ae45 100644
  	 * below the stack pointer (r1) before decrementing it.
  	 * The exec code can write slightly over 640kB to the stack
  	 * before setting the user r1.  Thus we allow the stack to
-@@ -365,7 +368,7 @@ int do_page_fault(struct pt_regs *regs, unsigned long address,
+@@ -365,7 +368,7 @@ int __kprobes do_page_fault(struct pt_regs *regs, unsigned long address,
  		 * between the last mapped region and the stack will
  		 * expand the stack rather than segfaulting.
  		 */
