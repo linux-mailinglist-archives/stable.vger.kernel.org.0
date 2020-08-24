@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E775424FA33
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEA524F8F9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728450AbgHXIhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:37:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51366 "EHLO mail.kernel.org"
+        id S1728079AbgHXJjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728433AbgHXIhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:37:43 -0400
+        id S1728629AbgHXIqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A6BB207DF;
-        Mon, 24 Aug 2020 08:37:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1EEC206F0;
+        Mon, 24 Aug 2020 08:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258262;
-        bh=+g15zvWxMTTR9tUD6wqrpflJZ0HmGnEdloiRcOmDlDo=;
+        s=default; t=1598258798;
+        bh=DDo9rlJ1vGfTkw3ErVmo14AXqfaIcHBATRLU97RdBrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcMi3o1Aj35zSqidte7CuUGxuKUGTQKTeB80ujB6I1ryhbCso11Aimb9ObnYvHsqm
-         077Id+dAA9Bm2kbMJMDF9e3pt0+iGdzP3Wp9SJmQqUB2CzrVs5ZgMm6ymZUrlM81RY
-         N6X9XEHpb0Bxa9nrW7WpyDzuzdrUPIVO0ssQQWIg=
+        b=rLiTzXKm0byPvH8aGkhVE75AiSgcDOkymwGCcq7eAcEdNd+U+AwYl68e+Do7xJOkY
+         66Ed9CghMg3+n4ssqk49Ex3YJk1SqoiC0mnzqYF6gNkSHlkGGn/KzxLQVj+i5Td9VF
+         y5BVzk4Za1T+lfMF6HYmByQTsK6iODdxKkOBWEOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 117/148] Revert "scsi: qla2xxx: Disable T10-DIF feature with FC-NVMe during probe"
+Subject: [PATCH 5.4 049/107] svcrdma: Fix another Receive buffer leak
 Date:   Mon, 24 Aug 2020 10:30:15 +0200
-Message-Id: <20200824082419.616434286@linuxfoundation.org>
+Message-Id: <20200824082407.562717573@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit dca93232b361d260413933903cd4bdbd92ebcc7f ]
+[ Upstream commit 64d26422516b2e347b32e6d9b1d40b3c19a62aae ]
 
-FCP T10-PI and NVMe features are independent of each other. This patch
-allows both features to co-exist.
+During a connection tear down, the Receive queue is flushed before
+the device resources are freed. Typically, all the Receives flush
+with IB_WR_FLUSH_ERR.
 
-This reverts commit 5da05a26b8305a625bc9d537671b981795b46dab.
+However, any pending successful Receives flush with IB_WR_SUCCESS,
+and the server automatically posts a fresh Receive to replace the
+completing one. This happens even after the connection has closed
+and the RQ is drained. Receives that are posted after the RQ is
+drained appear never to complete, causing a Receive resource leak.
+The leaked Receive buffer is left DMA-mapped.
 
-Link: https://lore.kernel.org/r/20200806111014.28434-12-njavali@marvell.com
-Fixes: 5da05a26b830 ("scsi: qla2xxx: Disable T10-DIF feature with FC-NVMe during probe")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To prevent these late-posted recv_ctxt's from leaking, block new
+Receive posting after XPT_CLOSE is set.
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/sunrpc/xprtrdma/svc_rdma_recvfrom.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index e92fad99338cd..5c7c22d0fab4b 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -2829,10 +2829,6 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	/* This may fail but that's ok */
- 	pci_enable_pcie_error_reporting(pdev);
+diff --git a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
+index 0ce4e75b29812..d803d814a03ad 100644
+--- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
+@@ -265,6 +265,8 @@ static int svc_rdma_post_recv(struct svcxprt_rdma *rdma)
+ {
+ 	struct svc_rdma_recv_ctxt *ctxt;
  
--	/* Turn off T10-DIF when FC-NVMe is enabled */
--	if (ql2xnvmeenable)
--		ql2xenabledif = 0;
--
- 	ha = kzalloc(sizeof(struct qla_hw_data), GFP_KERNEL);
- 	if (!ha) {
- 		ql_log_pci(ql_log_fatal, pdev, 0x0009,
++	if (test_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags))
++		return 0;
+ 	ctxt = svc_rdma_recv_ctxt_get(rdma);
+ 	if (!ctxt)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
