@@ -2,110 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F53D2506C7
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 506CB2506F0
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726026AbgHXRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:45:12 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31306 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725601AbgHXRpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 13:45:12 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07OHVwsT169379;
-        Mon, 24 Aug 2020 13:45:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=LLSRJbnN1rzlyk5a9nLMVRUtWdyFeR8aOd9giiaAzjg=;
- b=sOX5dqt/fm60iVUH5jNLH6ljv0F/G3N41XlagB2QNV8IYDVPUq4yHHP+Ls+Iq93Ukmsk
- 8GEnX+oSAkGhiTe4hgEhll4a2qMlEK6gMQu7GWSPcIERC5chPuRkc4P0V3O8k9B+xF9D
- nvfV34tXGLOtj3txCcecfrutXTQJO7K9qyF9PG6UIDAQhF9CimrzIcV1/i8AEyVOkazu
- 1cNRnP+eoyQOok68F+phTeDBOjqJTYNsIsraVLoGOCCqX3FjpImS0B3BJ4i8oQGa6zSC
- /UARsq9dzsz7A3HZRiuVxoRMaHlDmaSMOy2TAniP9+vdu0Erj0HXBh/ivNNjpP47SL8+ gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 334gxn2h6c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 13:45:07 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07OHWoCN174371;
-        Mon, 24 Aug 2020 13:45:07 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 334gxn2h54-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 13:45:06 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07OHh2B6017626;
-        Mon, 24 Aug 2020 17:45:04 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 332uk6akxg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Aug 2020 17:45:04 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07OHj2JA60817720
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Aug 2020 17:45:02 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D93E4C04A;
-        Mon, 24 Aug 2020 17:45:02 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 520F94C046;
-        Mon, 24 Aug 2020 17:45:01 +0000 (GMT)
-Received: from sig-9-65-254-31.ibm.com (unknown [9.65.254.31])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Aug 2020 17:45:01 +0000 (GMT)
-Message-ID: <d4c9d5333256b17acdbe41729dd680f534266130.camel@linux.ibm.com>
-Subject: Re: [PATCH 01/11] evm: Execute evm_inode_init_security() only when
- the HMAC key is loaded
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date:   Mon, 24 Aug 2020 13:45:00 -0400
-In-Reply-To: <2b204e31d21e93c0167d154c2397cd5d11be6e7f.camel@linux.ibm.com>
-References: <20200618160133.937-1-roberto.sassu@huawei.com>
-         <2b204e31d21e93c0167d154c2397cd5d11be6e7f.camel@linux.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-24_12:2020-08-24,2020-08-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
- bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 mlxscore=0 suspectscore=3
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2008240138
+        id S1726008AbgHXRxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726119AbgHXRxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 13:53:04 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C99C061573
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 10:53:04 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id i10so4920097pgk.1
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 10:53:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bp8FFja/OEjE8fqcU1aTntWbHLvKHP3wmYT4R3MpC8I=;
+        b=AO3Doz/dCJUb25/wJC5UMu+21TLk29lc/sewUsMRWSA4Tw4DcfidFuHFDoQ2DRPCG9
+         jflgTcllFSaU6DRciDdw1myKBLOz49TkbW83pTRbRggjHK0NZRGeVh3ooN7H0XuPcd1z
+         XrmpNBM12SuObXYqsyv3NLb9uA7imEI+nPYRld1iyFMI9tDFNZT+RdsTpXGGes3OCEJb
+         rcuB6WGPKJNIb3huusFZdFus5woE5zniP99/xngX26VQ/rw0GpBfuTcCjCLwpOyaCAxr
+         tAcdmaN3HLRjMvcSd2YJkMCZG187e6u5g/Flq8FSD/PGRXVhJ5bRS66maG+HqgDaoXl2
+         6Wtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bp8FFja/OEjE8fqcU1aTntWbHLvKHP3wmYT4R3MpC8I=;
+        b=ulwHJ35ZO+C6BANrIXibHpfrWHSt6hfaEbDZUMctmQbHSlH+9t5V9f0DFbW6BUNnN+
+         uuepQvgcwpCuG+pbE7OwSY+m00ZuJQ/w1UPZJWr5FVMvpIASHWdv9kbrTc27cqKDy9r/
+         DBZZgiBONZbBuLYFO1gqWrQoFyElz805aM29I27eExYVeb+hBv0tjRoebMEjfj6T/KpF
+         n34CjN9IR1LFviv3pMBn/30iyseDT/9Ce9ENR9qB4s5AJbm5viHRefBIsI9piMXb3KGQ
+         lh2OAm7j/DYrYlEIcALUBdm7Z8SktxG1noRN0C/X0zZchv6F8JIJCRiG0Tvte4yVV9vC
+         JvFQ==
+X-Gm-Message-State: AOAM533lyFoVae6dZj0kHGlYxCLG9NAP8b+wbNiJJegctL3oMmThNtfT
+        PPXubw+9LkH51UYq+pW88p6fcWLq4rrAZctIQuKSVA==
+X-Google-Smtp-Source: ABdhPJyRHW6aAkIzOSpe9xJMCTpL1lp70v/ECRJnC6PuDP4xrYsxjSCGAtm7ghhWolg+LLCdRK7lfJAAAIXnf6w2tmQ=
+X-Received: by 2002:a62:ddd1:: with SMTP id w200mr3335633pff.13.1598291582788;
+ Mon, 24 Aug 2020 10:53:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200727175720.4022402-2-willmcvicker@google.com>
+ <20200727190731.4035744-1-willmcvicker@google.com> <20200727190731.4035744-2-willmcvicker@google.com>
+ <20200820082357.GI4049659@kroah.com>
+In-Reply-To: <20200820082357.GI4049659@kroah.com>
+From:   William Mcvicker <willmcvicker@google.com>
+Date:   Mon, 24 Aug 2020 10:52:47 -0700
+Message-ID: <CABYd82Z_jpwEkcvJ7ajh9h5-_UewJ-794wA5z0TTSKZ253iYXA@mail.gmail.com>
+Subject: Re: [PATCH 0/1] Netfilter OOB memory access security patch
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Roberto,
+Hi Greg,
 
-On Fri, 2020-08-21 at 14:30 -0400, Mimi Zohar wrote:
-> Sorry for the delay in reviewing these patches.   Missing from this
-> patch set is a cover letter with an explanation for grouping these
-> patches into a patch set, other than for convenience.  In this case, it
-> would be along the lines that the original use case for EVM portable
-> and immutable keys support was for a few critical files, not combined
-> with an EVM encrypted key type.   This patch set more fully integrates
-> the initial EVM portable and immutable signature support.
+I have a follow up fix for this patch that is a lot cleaner and will
+hopefully apply cleanly to all the LTS branches. Let me upload the new
+patch and get the final ACK from the netfilter devs.
 
-Thank you for more fully integrating the EVM portable signatures into
-IMA.
+Thanks,
+Will
 
-" [PATCH 08/11] ima: Allow imasig requirement to be satisfied by EVM
-portable signatures" equates an IMA signature to having a portable and
-immutable EVM signature.  That is true in terms of signature
-verification, but from an attestation perspective the "ima-sig"
-template will not contain a signature.  If not the EVM signature, then
-at least some other indication should be included in the measurement
-list.
-
-Are you planning on posting the associated IMA/EVM regression tests?
-
-Mimi
-
+On Thu, Aug 20, 2020 at 1:23 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Jul 27, 2020 at 07:07:30PM +0000, Will McVicker wrote:
+> > Hi,
+> > The attached patch fixes an OOB memory access security bug. The bug is
+> > already fixed in the upstream kernel due to the vulnerable code being
+> > refactored in commit fe2d0020994c ("netfilter: nat: remove
+> > l4proto->in_range") and commit d6c4c8ffb5e5 ("netfilter: nat: remove
+> > l3proto struct"), but the 4.19 and below LTS branches remain vulnerable.
+> > I have verifed the OOB kernel panic is fixed with this patch on both the
+> > 4.19 and 4.14 kernels using the approariate hardware.
+> >
+> > Please review the fix and apply to branches 4.19.y, 4.14.y, 4.9.y and
+> > 4.4.y.
+>
+> This patch only applied to the 4.19.y tree, it failed to apply to all of
+> the other branches:
+>
+> Applying patch netfilter-nat-add-range-checks-for-access-to-nf_nat_lprotos.patch
+> patching file net/ipv4/netfilter/nf_nat_l3proto_ipv4.c
+> patching file net/ipv6/netfilter/nf_nat_l3proto_ipv6.c
+> patching file net/netfilter/nf_nat_core.c
+> Hunk #1 succeeded at 45 (offset -19 lines).
+> Hunk #2 succeeded at 298 with fuzz 1 (offset -23 lines).
+> Hunk #3 succeeded at 309 (offset -23 lines).
+> Hunk #4 succeeded at 376 (offset -24 lines).
+> Hunk #5 succeeded at 399 (offset -24 lines).
+> Hunk #6 succeeded at 419 (offset -24 lines).
+> Hunk #7 FAILED at 526.
+> Hunk #8 succeeded at 733 (offset -100 lines).
+> 1 out of 8 hunks FAILED -- rejects in file net/netfilter/nf_nat_core.c
+> patching file net/netfilter/nf_nat_helper.c
+>
+> And you didn't cc: the netfilter developers for this, are they ok with
+> this?  I need an ack from them to be able to take this.
+>
+> Can you fix this up, resend working versions for all branches, and get
+> their acks?
+>
+> thanks,
+>
+> greg k-h
