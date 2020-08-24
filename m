@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0300924F578
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E824B24F505
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729450AbgHXIt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51588 "EHLO mail.kernel.org"
+        id S1729064AbgHXInn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729438AbgHXItV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:21 -0400
+        id S1729052AbgHXInn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:43:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 676F12072D;
-        Mon, 24 Aug 2020 08:49:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDC752074D;
+        Mon, 24 Aug 2020 08:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258961;
-        bh=Jneed6ie/AYBGZ4JnR/nz3pF9fM3dYNvhGU5zeQzGlY=;
+        s=default; t=1598258622;
+        bh=+qJ9DRu0GxvMwF2BD+XIGfnfHZ/3jdNdQiqfxdn1Et8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVu4AwZsRhlBl2pBgKEhIeZQKtEVUfUVZ+GvVvauKY3kQeGZD9cSKF+M5rNaEgIFe
-         +0GbGCisiwiXndYM081tksVtOmSPy6x+Z7CMHi6R500eJjIWdphKqrppcessp4EVJS
-         QTFQUByppTaYvcKMfZXPleWcnoFMAtcdU4nkxSSo=
+        b=j4j2sNbTs9eO0Vi4VbZlvIh/tlFUVPD6mhcxrFINfMupA3N53WjSWEKtE+5I7+x6o
+         laB47JA1gSbHnaNCmy0bhoiGZDB5sFAKqnMKGGpQ2jEtCcbhuxkjDIvBkmh1RGIubX
+         8EAFpjS4fG8BBdLIoaekpe415fHKV+vSDMsTaHLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 079/107] can: j1939: abort multipacket broadcast session when timeout occurs
-Date:   Mon, 24 Aug 2020 10:30:45 +0200
-Message-Id: <20200824082409.030477715@linuxfoundation.org>
+Subject: [PATCH 5.7 112/124] net: ena: Change WARN_ON expression in ena_del_napi_in_range()
+Date:   Mon, 24 Aug 2020 10:30:46 +0200
+Message-Id: <20200824082414.914299559@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit 2b8b2e31555cf55ba3680fb28e2b382e168d7ea1 ]
+[ Upstream commit 8b147f6f3e7de4e51113e3e9ec44aa2debc02c58 ]
 
-If timeout occurs, j1939_tp_rxtimer() first calls hrtimer_start() to restart
-rxtimer, and then calls __j1939_session_cancel() to set session->state =
-J1939_SESSION_WAITING_ABORT. At next timeout expiration, because of the
-J1939_SESSION_WAITING_ABORT session state j1939_tp_rxtimer() will call
-j1939_session_deactivate_activate_next() to deactivate current session, and
-rxtimer won't be set.
+The ena_del_napi_in_range() function unregisters the napi handler for
+rings in a given range.
+This function had the following WARN_ON macro:
 
-But for multipacket broadcast session, __j1939_session_cancel() don't set
-session->state = J1939_SESSION_WAITING_ABORT, thus current session won't be
-deactivate and hrtimer_start() is called to start new rxtimer again and again.
+    WARN_ON(ENA_IS_XDP_INDEX(adapter, i) &&
+	    adapter->ena_napi[i].xdp_ring);
 
-So fix it by moving session->state = J1939_SESSION_WAITING_ABORT out of if
-(!j1939_cb_is_broadcast(&session->skcb)) statement.
+This macro prints the call stack if the expression inside of it is
+true [1], but the expression inside of it is the wanted situation.
+The expression checks whether the ring has an XDP queue and its index
+corresponds to a XDP one.
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1596599425-5534-4-git-send-email-zhangchangzhong@huawei.com
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This patch changes the expression to
+    !ENA_IS_XDP_INDEX(adapter, i) && adapter->ena_napi[i].xdp_ring
+which indicates an unwanted situation.
+
+Also, change the structure of the function. The napi handler is
+unregistered for all rings, and so there's no need to check whether the
+index is an XDP index or not. By removing this check the code becomes
+much more readable.
+
+Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index d1a9adde677b0..e3167619b196f 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1074,9 +1074,9 @@ static void __j1939_session_cancel(struct j1939_session *session,
- 	lockdep_assert_held(&session->priv->active_session_list_lock);
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index dc3fda4599242..c501a4edc34d6 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -2166,13 +2166,10 @@ static void ena_del_napi_in_range(struct ena_adapter *adapter,
+ 	int i;
  
- 	session->err = j1939_xtp_abort_to_errno(priv, err);
-+	session->state = J1939_SESSION_WAITING_ABORT;
- 	/* do not send aborts on incoming broadcasts */
- 	if (!j1939_cb_is_broadcast(&session->skcb)) {
--		session->state = J1939_SESSION_WAITING_ABORT;
- 		j1939_xtp_tx_abort(priv, &session->skcb,
- 				   !session->transmission,
- 				   err, session->skcb.addr.pgn);
+ 	for (i = first_index; i < first_index + count; i++) {
+-		/* Check if napi was initialized before */
+-		if (!ENA_IS_XDP_INDEX(adapter, i) ||
+-		    adapter->ena_napi[i].xdp_ring)
+-			netif_napi_del(&adapter->ena_napi[i].napi);
+-		else
+-			WARN_ON(ENA_IS_XDP_INDEX(adapter, i) &&
+-				adapter->ena_napi[i].xdp_ring);
++		netif_napi_del(&adapter->ena_napi[i].napi);
++
++		WARN_ON(!ENA_IS_XDP_INDEX(adapter, i) &&
++			adapter->ena_napi[i].xdp_ring);
+ 	}
+ }
+ 
 -- 
 2.25.1
 
