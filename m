@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6945024F6C3
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E615A24F825
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730011AbgHXJEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
+        id S1729588AbgHXJ05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:26:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730560AbgHXI4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:56:33 -0400
+        id S1729656AbgHXIwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:52:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDAE1207DF;
-        Mon, 24 Aug 2020 08:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BDBE204FD;
+        Mon, 24 Aug 2020 08:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259392;
-        bh=Ys87Lof4nlIwJI1DRGTlm7+7kotLyXnT2dUplrWM5vU=;
+        s=default; t=1598259165;
+        bh=Okk13ya5vY/zxAdaG1dG8uTrUbWIRUGPqbRNUa/aJjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khPcGEHEZxzp8PMr7zZQIHjAFlh4BfEs3pWOFpiSYzsLzHYpAlYkCklsXUVViaH0+
-         b8UcufUE4JbgtMcFiHYtJH/YlCSvJgysHdakBUSIMkSV4oLwli8mVuSpQ/DdLjQRLc
-         1CLVr/JZJIfGeewrDwUXV/wlcEl3H6jCl+6LOpeA=
+        b=TIT6kKsNqB95VWbaYvVEK2YwGRzUXmzAHwqx00blmOzFlSjKspr8g8+qalhtBByFY
+         K6qq1nKhD7Lv9xqnEJrnByrxJvNoXwrrTQFzMTKpjFjmyZyQ2GptGyNtdLkYpY/yp1
+         ukpcb+U8McWC4bWunnYO51X1xXwqT6ttHxHvi1fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/71] ASoC: q6routing: add dummy register read/write function
+Subject: [PATCH 4.9 33/39] net: dsa: b53: check for timeout
 Date:   Mon, 24 Aug 2020 10:31:32 +0200
-Message-Id: <20200824082357.943890893@linuxfoundation.org>
+Message-Id: <20200824082350.220310354@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
+References: <20200824082348.445866152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 796a58fe2b8c9b6668db00d92512ec84be663027 ]
+[ Upstream commit 774d977abfd024e6f73484544b9abe5a5cd62de7 ]
 
-Most of the DAPM widgets for DSP ASoC components reuse reg field
-of the widgets for its internal calculations, however these are not
-real registers. So read/writes to these numbers are not really
-valid. However ASoC core will read these registers to get default
-state during startup.
+clang static analysis reports this problem
 
-With recent changes to ASoC core, every register read/write
-failures are reported very verbosely. Prior to this fails to reads
-are totally ignored, so we never saw any error messages.
+b53_common.c:1583:13: warning: The left expression of the compound
+  assignment is an uninitialized value. The computed value will
+  also be garbage
+        ent.port &= ~BIT(port);
+        ~~~~~~~~ ^
 
-To fix this add dummy read/write function to return default value.
+ent is set by a successful call to b53_arl_read().  Unsuccessful
+calls are caught by an switch statement handling specific returns.
+b32_arl_read() calls b53_arl_op_wait() which fails with the
+unhandled -ETIMEDOUT.
 
-Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200811120205.21805-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So add -ETIMEDOUT to the switch statement.  Because
+b53_arl_op_wait() already prints out a message, do not add another
+one.
+
+Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/dsa/b53/b53_common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
-index c6b51571be945..44eee18c658ae 100644
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -968,6 +968,20 @@ static int msm_routing_probe(struct snd_soc_component *c)
- 	return 0;
- }
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 060f9b1769298..c387be5c926b7 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1175,6 +1175,8 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
+ 		return ret;
  
-+static unsigned int q6routing_reg_read(struct snd_soc_component *component,
-+				       unsigned int reg)
-+{
-+	/* default value */
-+	return 0;
-+}
-+
-+static int q6routing_reg_write(struct snd_soc_component *component,
-+			       unsigned int reg, unsigned int val)
-+{
-+	/* dummy */
-+	return 0;
-+}
-+
- static const struct snd_soc_component_driver msm_soc_routing_component = {
- 	.ops = &q6pcm_routing_ops,
- 	.probe = msm_routing_probe,
-@@ -976,6 +990,8 @@ static const struct snd_soc_component_driver msm_soc_routing_component = {
- 	.num_dapm_widgets = ARRAY_SIZE(msm_qdsp6_widgets),
- 	.dapm_routes = intercon,
- 	.num_dapm_routes = ARRAY_SIZE(intercon),
-+	.read = q6routing_reg_read,
-+	.write = q6routing_reg_write,
- };
- 
- static int q6pcm_routing_probe(struct platform_device *pdev)
+ 	switch (ret) {
++	case -ETIMEDOUT:
++		return ret;
+ 	case -ENOSPC:
+ 		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
+ 			addr, vid);
 -- 
 2.25.1
 
