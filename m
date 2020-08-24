@@ -2,126 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D33C24EFC0
-	for <lists+stable@lfdr.de>; Sun, 23 Aug 2020 22:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9155424F133
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 04:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725885AbgHWU5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Aug 2020 16:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39772 "EHLO
+        id S1727929AbgHXChz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Aug 2020 22:37:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725995AbgHWU5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 16:57:17 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219B0C061573
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 13:57:17 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id y6so3244487plt.3
-        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 13:57:17 -0700 (PDT)
+        with ESMTP id S1726635AbgHXChy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Aug 2020 22:37:54 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A83C061573
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 19:37:53 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id kr4so3470192pjb.2
+        for <stable@vger.kernel.org>; Sun, 23 Aug 2020 19:37:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=o7jk5hj99z/ZW8lA4yke5NQO1f1PEATc2IjL4V7LiEQ=;
-        b=nrQ/dxb2PcPzvZXPeu60H6f3nfjJLIngalECmEc54pOfRTpqqDddqzHmWK50H5iJXa
-         gfmdiAyDQ/p/Yi9N7/4vWxqYKSOs3LOrPX2rkpXZoOrE/V2ul4n86t9P3lFmcA3AF3fY
-         wYbopLRboSTIfHPV9h/MsTK90wx8U5gvCXiwyJGBP+pq+aZxHK3F0GzN8L7eulskJfwh
-         BIVYmFLN3Rj69GVYnELJ57NiRStzEQjCCTUzjSueu0hokcWTi570mLnZT8TVI3l5BVhD
-         7w7hB3Sf3Qu/GzMKLRiIOL/G7rZGwoOLEJeFLCaD2zPwXS42pCL+92XAGTk/AMPPXL56
-         PVQA==
+        d=axtens.net; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8SAg9sWH9jj3Wg54hvvGj9vB/FAqVU/pNzNlIjt2KXg=;
+        b=i7kJWeY6RdNsL/zCpSye2fWI8MEWWeN43byeMFigCUCHJZn+7OQfQbrnv2l5fYVLav
+         /xKKTtqG+P8kBQI1o3ZfXrlGShBkLKOjG3Cr70gfTRYzoqDuX59bdSjNEYiX1faHMgzO
+         il0IkhNElq4o1LF3VecvDD39AUKTmMW+5TLXI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=o7jk5hj99z/ZW8lA4yke5NQO1f1PEATc2IjL4V7LiEQ=;
-        b=fJta1gJQJp+6Ir+vHytFV94i+ELtKs3MrOzfZQpLRtu8mQamplwAVP8KSwFBBQYmPX
-         OuS8pOUgFztlRZmPYI+GBL8gjkdFhN8SIJUSHiP0+o5LcGwzbvVU9MhH3VMtdxFPtWyn
-         R7M/lqul2Ex96o6ETC2Q4Fhw5AwRx8wM6sDk895xnOjSxEM3MV5VjnAxVOAaALltRtoX
-         qr08VWURoJcnrz0WXI7F1xnxTsRP1jF3gwjb6ujMJ3nvTSINyUWa/DIJ/uqkkKfnQGcK
-         6kzjMGexp6quReFDSNVZABMub7N/2CdeYssNMysZjqYESmu/8s6WiGggW7fyCdQq96az
-         pU+Q==
-X-Gm-Message-State: AOAM532l1APeRLavOj6wKQ8XSjTqggt2p+xuE+VoDSotlyzhRMzzHjMk
-        sElM19HsKGGNQkyrI62LHvv1xWMwiT5cHvmF
-X-Google-Smtp-Source: ABdhPJzRlpxxtmQRgtTroQi6C07ddl2PPE72sx8XNq1LEYSk2VGlMFs6IvaDDawc7OXbBbeamqcgoQ==
-X-Received: by 2002:a17:90a:de89:: with SMTP id n9mr2055028pjv.50.1598216236219;
-        Sun, 23 Aug 2020 13:57:16 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id x23sm8861711pfi.60.2020.08.23.13.57.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 23 Aug 2020 13:57:15 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: find and cancel head link async
- work on files exit" failed to apply to 5.7-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, asml.silence@gmail.com,
-        stable@vger.kernel.org
-References: <159818496684216@kroah.com>
- <5e0d43b1-f2ed-3faa-cb30-8cacd5f16faa@kernel.dk>
- <fcf3384c-956e-8310-d0d6-1ac8e1f66ebe@kernel.dk>
- <20200823204309.GF8670@sasha-vm>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <16861aa9-463f-b7c2-0de5-2f9bf3b32fa1@kernel.dk>
-Date:   Sun, 23 Aug 2020 14:57:14 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        bh=8SAg9sWH9jj3Wg54hvvGj9vB/FAqVU/pNzNlIjt2KXg=;
+        b=Wy0Sx2WMq2ZTEJPReQyXyQLHnL4qFWoCKksWGuJ0OTaJo2YRVN3pU1mmAhWfb1DHqw
+         5uB6dLp0hFsYMt53QGlJ+Hs5GYIpyec+I99r8UtCoFwd6EMdLr3dWIh2Xo5agZB3sVvL
+         /ZqKLnlSVDzKw3zeMZbo0/iyr/SHWv7ck2XdBR8bVeXutvfUvlgLI/6XavO1ZOGPjEzS
+         xf8Yz4cpgvmnV6769DxnUcuW9nBxXmC1PZyG9LXdoWxUz2bTcNkGBaewl/d7zSWrGaTb
+         14ciaJsGb2lDTreUCLXsch7XBTK+zIp0Yz8EDizgJPaC4Zy2kg7Tn8Yx5jBXJ+NajuBm
+         uTeg==
+X-Gm-Message-State: AOAM531OTutSaiH9/QgTJhVFG/afTDa2rIxpaPju0g+ZnAoqyjtHhstr
+        64QLZzQp95peM3oBInjgh6g1Wu/TXsCEDQ==
+X-Google-Smtp-Source: ABdhPJyDxEx5VQoakZpO/vJWvk989oZO4Gj8UG2Zx/EKgu88l8Pwy6VrHbvXqs5DCtutgFo5wNAWfg==
+X-Received: by 2002:a17:90b:1895:: with SMTP id mn21mr2949181pjb.173.1598236671925;
+        Sun, 23 Aug 2020 19:37:51 -0700 (PDT)
+Received: from localhost (2001-44b8-1113-6700-9c73-b98a-9ec7-960a.static.ipv6.internode.on.net. [2001:44b8:1113:6700:9c73:b98a:9ec7:960a])
+        by smtp.gmail.com with ESMTPSA id q207sm8161020pgq.71.2020.08.23.19.37.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Aug 2020 19:37:51 -0700 (PDT)
+From:   Daniel Axtens <dja@axtens.net>
+To:     stable@vger.kernel.org
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Tom Lane <tgl@sss.pgh.pa.us>, Daniel Axtens <dja@axtens.net>
+Subject: [PATCH v4.14] powerpc: Allow 4224 bytes of stack expansion for the signal frame
+Date:   Mon, 24 Aug 2020 12:37:47 +1000
+Message-Id: <20200824023747.135293-1-dja@axtens.net>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20200823204309.GF8670@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/23/20 2:43 PM, Sasha Levin wrote:
-> On Sun, Aug 23, 2020 at 02:04:25PM -0600, Jens Axboe wrote:
->> On 8/23/20 7:48 AM, Jens Axboe wrote:
->>> On 8/23/20 6:16 AM, gregkh@linuxfoundation.org wrote:
->>>>
->>>> The patch below does not apply to the 5.7-stable tree.
->>>> If someone wants it applied there, or to any other stable or longterm
->>>> tree, then please email the backport, including the original git commit
->>>> id to <stable@vger.kernel.org>.
->>>
->>> This needs this one backported:
->>>
->>> commit 4f26bda1522c35d2701fc219368c7101c17005c1
->>> Author: Pavel Begunkov <asml.silence@gmail.com>
->>> Date:   Mon Jun 15 10:24:03 2020 +0300
->>>
->>>     io-wq: add an option to cancel all matched reqs
->>>
->>> I'll take a look later today, unless Pavel beats me to it.
->>
->> OK, you just need to cherry pick this one:
->>
->> commit f4c2665e33f48904f2766d644df33fb3fd54b5ec
->> Author: Pavel Begunkov <asml.silence@gmail.com>
->> Date:   Mon Jun 15 10:24:02 2020 +0300
->>
->>    io-wq: reorder cancellation pending -> running
->>
->> and then cherry pick this one:
->>
->> commit 4f26bda1522c35d2701fc219368c7101c17005c1
->> Author: Pavel Begunkov <asml.silence@gmail.com>
->> Date:   Mon Jun 15 10:24:03 2020 +0300
->>
->>    io-wq: add an option to cancel all matched reqs
->>
->> and then the patch will apply directly without needing any sort of
->> massaging. Looking at that series, please pick this one as well (either
->> at the end, or after the first two):
->>
->> commit 44e728b8aae0bb6d4229129083974f9dea43f50b
->> Author: Pavel Begunkov <asml.silence@gmail.com>
->> Date:   Mon Jun 15 10:24:04 2020 +0300
->>
->>    io_uring: cancel all task's requests on exit
-> 
-> Done, thanks!
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-Thanks Sasha!
+commit 63dee5df43a31f3844efabc58972f0a206ca4534 upstream.
 
+We have powerpc specific logic in our page fault handling to decide if
+an access to an unmapped address below the stack pointer should expand
+the stack VMA.
+
+The code was originally added in 2004 "ported from 2.4". The rough
+logic is that the stack is allowed to grow to 1MB with no extra
+checking. Over 1MB the access must be within 2048 bytes of the stack
+pointer, or be from a user instruction that updates the stack pointer.
+
+The 2048 byte allowance below the stack pointer is there to cover the
+288 byte "red zone" as well as the "about 1.5kB" needed by the signal
+delivery code.
+
+Unfortunately since then the signal frame has expanded, and is now
+4224 bytes on 64-bit kernels with transactional memory enabled. This
+means if a process has consumed more than 1MB of stack, and its stack
+pointer lies less than 4224 bytes from the next page boundary, signal
+delivery will fault when trying to expand the stack and the process
+will see a SEGV.
+
+The total size of the signal frame is the size of struct rt_sigframe
+(which includes the red zone) plus __SIGNAL_FRAMESIZE (128 bytes on
+64-bit).
+
+The 2048 byte allowance was correct until 2008 as the signal frame
+was:
+
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1440 */
+        /* --- cacheline 11 boundary (1408 bytes) was 32 bytes ago --- */
+        long unsigned int          _unused[2];           /*  1440    16 */
+        unsigned int               tramp[6];             /*  1456    24 */
+        struct siginfo *           pinfo;                /*  1480     8 */
+        void *                     puc;                  /*  1488     8 */
+        struct siginfo     info;                         /*  1496   128 */
+        /* --- cacheline 12 boundary (1536 bytes) was 88 bytes ago --- */
+        char                       abigap[288];          /*  1624   288 */
+
+        /* size: 1920, cachelines: 15, members: 7 */
+        /* padding: 8 */
+};
+
+1920 + 128 = 2048
+
+Then in commit ce48b2100785 ("powerpc: Add VSX context save/restore,
+ptrace and signal support") (Jul 2008) the signal frame expanded to
+2304 bytes:
+
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */	<--
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        long unsigned int          _unused[2];           /*  1696    16 */
+        unsigned int               tramp[6];             /*  1712    24 */
+        struct siginfo *           pinfo;                /*  1736     8 */
+        void *                     puc;                  /*  1744     8 */
+        struct siginfo     info;                         /*  1752   128 */
+        /* --- cacheline 14 boundary (1792 bytes) was 88 bytes ago --- */
+        char                       abigap[288];          /*  1880   288 */
+
+        /* size: 2176, cachelines: 17, members: 7 */
+        /* padding: 8 */
+};
+
+2176 + 128 = 2304
+
+At this point we should have been exposed to the bug, though as far as
+I know it was never reported. I no longer have a system old enough to
+easily test on.
+
+Then in 2010 commit 320b2b8de126 ("mm: keep a guard page below a
+grow-down stack segment") caused our stack expansion code to never
+trigger, as there was always a VMA found for a write up to PAGE_SIZE
+below r1.
+
+That meant the bug was hidden as we continued to expand the signal
+frame in commit 2b0a576d15e0 ("powerpc: Add new transactional memory
+state to the signal context") (Feb 2013):
+
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        struct ucontext    uc_transact;                  /*  1696  1696 */	<--
+        /* --- cacheline 26 boundary (3328 bytes) was 64 bytes ago --- */
+        long unsigned int          _unused[2];           /*  3392    16 */
+        unsigned int               tramp[6];             /*  3408    24 */
+        struct siginfo *           pinfo;                /*  3432     8 */
+        void *                     puc;                  /*  3440     8 */
+        struct siginfo     info;                         /*  3448   128 */
+        /* --- cacheline 27 boundary (3456 bytes) was 120 bytes ago --- */
+        char                       abigap[288];          /*  3576   288 */
+
+        /* size: 3872, cachelines: 31, members: 8 */
+        /* padding: 8 */
+        /* last cacheline: 32 bytes */
+};
+
+3872 + 128 = 4000
+
+And commit 573ebfa6601f ("powerpc: Increase stack redzone for 64-bit
+userspace to 512 bytes") (Feb 2014):
+
+struct rt_sigframe {
+        struct ucontext    uc;                           /*     0  1696 */
+        /* --- cacheline 13 boundary (1664 bytes) was 32 bytes ago --- */
+        struct ucontext    uc_transact;                  /*  1696  1696 */
+        /* --- cacheline 26 boundary (3328 bytes) was 64 bytes ago --- */
+        long unsigned int          _unused[2];           /*  3392    16 */
+        unsigned int               tramp[6];             /*  3408    24 */
+        struct siginfo *           pinfo;                /*  3432     8 */
+        void *                     puc;                  /*  3440     8 */
+        struct siginfo     info;                         /*  3448   128 */
+        /* --- cacheline 27 boundary (3456 bytes) was 120 bytes ago --- */
+        char                       abigap[512];          /*  3576   512 */	<--
+
+        /* size: 4096, cachelines: 32, members: 8 */
+        /* padding: 8 */
+};
+
+4096 + 128 = 4224
+
+Then finally in 2017, commit 1be7107fbe18 ("mm: larger stack guard
+gap, between vmas") exposed us to the existing bug, because it changed
+the stack VMA to be the correct/real size, meaning our stack expansion
+code is now triggered.
+
+Fix it by increasing the allowance to 4224 bytes.
+
+Hard-coding 4224 is obviously unsafe against future expansions of the
+signal frame in the same way as the existing code. We can't easily use
+sizeof() because the signal frame structure is not in a header. We
+will either fix that, or rip out all the custom stack expansion
+checking logic entirely.
+
+Fixes: ce48b2100785 ("powerpc: Add VSX context save/restore, ptrace and signal support")
+Cc: stable@vger.kernel.org # v2.6.27+
+Reported-by: Tom Lane <tgl@sss.pgh.pa.us>
+Tested-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200724092528.1578671-2-mpe@ellerman.id.au
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+---
+ arch/powerpc/mm/fault.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index 5fc8a010fdf0..b990415d4922 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -227,6 +227,9 @@ static bool bad_kernel_fault(bool is_exec, unsigned long error_code,
+ 	return is_exec || (address >= TASK_SIZE);
+ }
+ 
++// This comes from 64-bit struct rt_sigframe + __SIGNAL_FRAMESIZE
++#define SIGFRAME_MAX_SIZE	(4096 + 128)
++
+ static bool bad_stack_expansion(struct pt_regs *regs, unsigned long address,
+ 				struct vm_area_struct *vma,
+ 				bool store_update_sp)
+@@ -234,7 +237,7 @@ static bool bad_stack_expansion(struct pt_regs *regs, unsigned long address,
+ 	/*
+ 	 * N.B. The POWER/Open ABI allows programs to access up to
+ 	 * 288 bytes below the stack pointer.
+-	 * The kernel signal delivery code writes up to about 1.5kB
++	 * The kernel signal delivery code writes a bit over 4KB
+ 	 * below the stack pointer (r1) before decrementing it.
+ 	 * The exec code can write slightly over 640kB to the stack
+ 	 * before setting the user r1.  Thus we allow the stack to
+@@ -258,7 +261,7 @@ static bool bad_stack_expansion(struct pt_regs *regs, unsigned long address,
+ 		 * between the last mapped region and the stack will
+ 		 * expand the stack rather than segfaulting.
+ 		 */
+-		if (address + 2048 < uregs->gpr[1] && !store_update_sp)
++		if (address + SIGFRAME_MAX_SIZE < uregs->gpr[1] && !store_update_sp)
+ 			return true;
+ 	}
+ 	return false;
 -- 
-Jens Axboe
+2.25.1
 
