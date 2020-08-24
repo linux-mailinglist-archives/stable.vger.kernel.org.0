@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70EB224F4B5
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC1824F4B8
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728228AbgHXIjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:39:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
+        id S1728677AbgHXIjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbgHXIjj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:39:39 -0400
+        id S1728665AbgHXIjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D946A22B49;
-        Mon, 24 Aug 2020 08:39:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B14F5221E2;
+        Mon, 24 Aug 2020 08:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258378;
-        bh=axrNnX8tt3YCR1/f6ugFOlCWrbE2ylmJgM32F8pJ0so=;
+        s=default; t=1598258384;
+        bh=f+eJYYMbONiJeb1v9bjRb1whw7sxNoF7XtF8OaQ7S1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZAy1sheceBcStlEEkIT5Jd8wp0NbLs6H8lbglFxzbWzvjY82+zkeuJAFezR7sYva
-         FiH/Yo0tgdHy+C3DRF3mq7uORpNuzmkH30TsOvEZaWS2uzliJL3cZD/0GkpsAWzIC0
-         g766AZ8Blxc4BJhPcqilShad1LQjnZwGouw4AMxo=
+        b=xv2k2z9CxQutNGp9smaH7MdRjaWVplTtKzfijkc5VtoSH1FiUa+g2RxjlYS9eGeV2
+         10kHlercUfHgeZVU22+gtfcD7nPfdeDIjo/0m+DnnCkOoTevHasvesqq1rGR/dCzEM
+         k+S+yhDcdxL6XNklQZ1N5Pi98TVDAmzD7JkS7o64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Hsieh <paul.hsieh@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 026/124] drm/amd/display: Fix DFPstate hang due to view port changed
-Date:   Mon, 24 Aug 2020 10:29:20 +0200
-Message-Id: <20200824082410.708270050@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 028/124] io-wq: reorder cancellation pending -> running
+Date:   Mon, 24 Aug 2020 10:29:22 +0200
+Message-Id: <20200824082410.797298921@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
 References: <20200824082409.368269240@linuxfoundation.org>
@@ -45,40 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Hsieh <paul.hsieh@amd.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 8e80d482608a4e6a97c75272ef8b4bcfc5d0c490 upstream.
+[ Upstream commit f4c2665e33f48904f2766d644df33fb3fd54b5ec ]
 
-[Why]
-Place the cursor in the center of screen between two pipes then
-adjusting the viewport but cursour doesn't update cause DFPstate hang.
+Go all over all pending lists and cancel works there, and only then
+try to match running requests. No functional changes here, just a
+preparation for bulk cancellation.
 
-[How]
-If viewport changed, update cursor as well.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Hsieh <paul.hsieh@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/io-wq.c | 54 ++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1386,8 +1386,8 @@ static void dcn20_update_dchubp_dpp(
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 4023c98468608..3283f8c5b5a18 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -931,19 +931,14 @@ static bool io_wq_worker_cancel(struct io_worker *worker, void *data)
+ 	return ret;
+ }
  
- 	/* Any updates are handled in dc interface, just need to apply existing for plane enable */
- 	if ((pipe_ctx->update_flags.bits.enable || pipe_ctx->update_flags.bits.opp_changed ||
--			pipe_ctx->update_flags.bits.scaler || pipe_ctx->update_flags.bits.viewport)
--			&& pipe_ctx->stream->cursor_attributes.address.quad_part != 0) {
-+			pipe_ctx->update_flags.bits.scaler || viewport_changed == true) &&
-+			pipe_ctx->stream->cursor_attributes.address.quad_part != 0) {
- 		dc->hwss.set_cursor_position(pipe_ctx);
- 		dc->hwss.set_cursor_attribute(pipe_ctx);
+-static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+-					    struct io_cb_cancel_data *match)
++static bool io_wqe_cancel_pending_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
+ {
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
+ 	unsigned long flags;
+ 	bool found = false;
  
+-	/*
+-	 * First check pending list, if we're lucky we can just remove it
+-	 * from there. CANCEL_OK means that the work is returned as-new,
+-	 * no completion will be posted for it.
+-	 */
+ 	spin_lock_irqsave(&wqe->lock, flags);
+ 	wq_list_for_each(node, prev, &wqe->work_list) {
+ 		work = container_of(node, struct io_wq_work, list);
+@@ -956,21 +951,20 @@ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+ 	}
+ 	spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+-	if (found) {
++	if (found)
+ 		io_run_cancel(work, wqe);
+-		return IO_WQ_CANCEL_OK;
+-	}
++	return found;
++}
++
++static bool io_wqe_cancel_running_work(struct io_wqe *wqe,
++				       struct io_cb_cancel_data *match)
++{
++	bool found;
+ 
+-	/*
+-	 * Now check if a free (going busy) or busy worker has the work
+-	 * currently running. If we find it there, we'll return CANCEL_RUNNING
+-	 * as an indication that we attempt to signal cancellation. The
+-	 * completion will run normally in this case.
+-	 */
+ 	rcu_read_lock();
+ 	found = io_wq_for_each_worker(wqe, io_wq_worker_cancel, match);
+ 	rcu_read_unlock();
+-	return found ? IO_WQ_CANCEL_RUNNING : IO_WQ_CANCEL_NOTFOUND;
++	return found;
+ }
+ 
+ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+@@ -980,18 +974,34 @@ enum io_wq_cancel io_wq_cancel_cb(struct io_wq *wq, work_cancel_fn *cancel,
+ 		.fn	= cancel,
+ 		.data	= data,
+ 	};
+-	enum io_wq_cancel ret = IO_WQ_CANCEL_NOTFOUND;
+ 	int node;
+ 
++	/*
++	 * First check pending list, if we're lucky we can just remove it
++	 * from there. CANCEL_OK means that the work is returned as-new,
++	 * no completion will be posted for it.
++	 */
+ 	for_each_node(node) {
+ 		struct io_wqe *wqe = wq->wqes[node];
+ 
+-		ret = io_wqe_cancel_work(wqe, &match);
+-		if (ret != IO_WQ_CANCEL_NOTFOUND)
+-			break;
++		if (io_wqe_cancel_pending_work(wqe, &match))
++			return IO_WQ_CANCEL_OK;
+ 	}
+ 
+-	return ret;
++	/*
++	 * Now check if a free (going busy) or busy worker has the work
++	 * currently running. If we find it there, we'll return CANCEL_RUNNING
++	 * as an indication that we attempt to signal cancellation. The
++	 * completion will run normally in this case.
++	 */
++	for_each_node(node) {
++		struct io_wqe *wqe = wq->wqes[node];
++
++		if (io_wqe_cancel_running_work(wqe, &match))
++			return IO_WQ_CANCEL_RUNNING;
++	}
++
++	return IO_WQ_CANCEL_NOTFOUND;
+ }
+ 
+ static bool io_wq_io_cb_cancel_data(struct io_wq_work *work, void *data)
+-- 
+2.25.1
+
 
 
