@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A33E224F7D9
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E906224F7CA
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729778AbgHXJWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:22:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36664 "EHLO mail.kernel.org"
+        id S1729915AbgHXIzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbgHXIzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:55:07 -0400
+        id S1728018AbgHXIza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:55:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 881D22072D;
-        Mon, 24 Aug 2020 08:55:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 622F22072D;
+        Mon, 24 Aug 2020 08:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259307;
-        bh=3OTZlymDPzV28010Bf0ZDLIKHdyjPso850u1d4l7nig=;
+        s=default; t=1598259330;
+        bh=mYiy1U+6aDVDGNbMhew9y2jYBrUhIdioZaGVFmmRo0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjzUtu+7uLOSVeQTG97DUL/ErClYESYDhOtym/Kl7eYypZ1g9i7gA3vJ2UemPmcvF
-         yUFZ6IEGgvvH+rp0b9c1ev79Jn0sVnwn/24tUhUpfucmLNMRQ1CrvfhKhOvvV/gguk
-         CEWeeuzognAe7hsQwFwfPE8xDmQXVmSuyElWqfa0=
+        b=mEY8JbuQjzvBHghNbCKtD2+ha/FOBTHznyML14KIVPUME7Z3g3fkiqZZldBFQsgeE
+         Rm4FoQvyV88bsLaJlpFEjQyY4H+xcvw2TA+nvE5be5KIm/xhgSdU54REYUhZfNeEcG
+         akG9S0LGrAxLAXdAh+9YdcFnOqgso8x4dUWOP0bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/71] drm/vgem: Replace opencoded version of drm_gem_dumb_map_offset()
-Date:   Mon, 24 Aug 2020 10:30:52 +0200
-Message-Id: <20200824082355.941463987@linuxfoundation.org>
+Subject: [PATCH 4.19 02/71] perf probe: Fix memory leakage when the probe point is not found
+Date:   Mon, 24 Aug 2020 10:30:53 +0200
+Message-Id: <20200824082355.990627469@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
 References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,81 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 119c53d2d4044c59c450c4f5a568d80b9d861856 ]
+[ Upstream commit 12d572e785b15bc764e956caaa8a4c846fd15694 ]
 
-drm_gem_dumb_map_offset() now exists and does everything
-vgem_gem_dump_map does and *ought* to do.
+Fix the memory leakage in debuginfo__find_trace_events() when the probe
+point is not found in the debuginfo. If there is no probe point found in
+the debuginfo, debuginfo__find_probes() will NOT return -ENOENT, but 0.
 
-In particular, vgem_gem_dumb_map() was trying to reject mmapping an
-imported dmabuf by checking the existence of obj->filp. Unfortunately,
-we always allocated an obj->filp, even if unused for an imported dmabuf.
-Instead, the drm_gem_dumb_map_offset(), since commit 90378e589192
-("drm/gem: drm_gem_dumb_map_offset(): reject dma-buf"), uses the
-obj->import_attach to reject such invalid mmaps.
+Thus the caller of debuginfo__find_probes() must check the tf.ntevs and
+release the allocated memory for the array of struct probe_trace_event.
 
-This prevents vgem from allowing userspace mmapping the dumb handle and
-attempting to incorrectly fault in remote pages belonging to another
-device, where there may not even be a struct page.
+The current code releases the memory only if the debuginfo__find_probes()
+hits an error but not checks tf.ntevs. In the result, the memory allocated
+on *tevs are not released if tf.ntevs == 0.
 
-v2: Use the default drm_gem_dumb_map_offset() callback
+This fixes the memory leakage by checking tf.ntevs == 0 in addition to
+ret < 0.
 
-Fixes: af33a9190d02 ("drm/vgem: Enable dmabuf import interfaces")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: <stable@vger.kernel.org> # v4.13+
-Link: https://patchwork.freedesktop.org/patch/msgid/20200708154911.21236-1-chris@chris-wilson.co.uk
+Fixes: ff741783506c ("perf probe: Introduce debuginfo to encapsulate dwarf information")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/159438668346.62703.10887420400718492503.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vgem/vgem_drv.c | 27 ---------------------------
- 1 file changed, 27 deletions(-)
+ tools/perf/util/probe-finder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index 4709f08f39e49..1c1a435d354bc 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -219,32 +219,6 @@ static int vgem_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
- 	return 0;
- }
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index 60169196b9481..4da4ec2552463 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1351,7 +1351,7 @@ int debuginfo__find_trace_events(struct debuginfo *dbg,
+ 	tf.ntevs = 0;
  
--static int vgem_gem_dumb_map(struct drm_file *file, struct drm_device *dev,
--			     uint32_t handle, uint64_t *offset)
--{
--	struct drm_gem_object *obj;
--	int ret;
--
--	obj = drm_gem_object_lookup(file, handle);
--	if (!obj)
--		return -ENOENT;
--
--	if (!obj->filp) {
--		ret = -EINVAL;
--		goto unref;
--	}
--
--	ret = drm_gem_create_mmap_offset(obj);
--	if (ret)
--		goto unref;
--
--	*offset = drm_vma_node_offset_addr(&obj->vma_node);
--unref:
--	drm_gem_object_put_unlocked(obj);
--
--	return ret;
--}
--
- static struct drm_ioctl_desc vgem_ioctls[] = {
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_ATTACH, vgem_fence_attach_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_SIGNAL, vgem_fence_signal_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
-@@ -438,7 +412,6 @@ static struct drm_driver vgem_driver = {
- 	.fops				= &vgem_driver_fops,
- 
- 	.dumb_create			= vgem_gem_dumb_create,
--	.dumb_map_offset		= vgem_gem_dumb_map,
- 
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	ret = debuginfo__find_probes(dbg, &tf.pf);
+-	if (ret < 0) {
++	if (ret < 0 || tf.ntevs == 0) {
+ 		for (i = 0; i < tf.ntevs; i++)
+ 			clear_probe_trace_event(&tf.tevs[i]);
+ 		zfree(tevs);
 -- 
 2.25.1
 
