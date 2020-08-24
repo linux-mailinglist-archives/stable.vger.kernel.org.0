@@ -2,90 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D492507C3
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 20:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E21E2507C7
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 20:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726803AbgHXSeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 14:34:46 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:2652 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726336AbgHXSep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 14:34:45 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f4408360000>; Mon, 24 Aug 2020 11:34:30 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Mon, 24 Aug 2020 11:34:44 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Mon, 24 Aug 2020 11:34:44 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 24 Aug
- 2020 18:34:43 +0000
-Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Mon, 24 Aug 2020 18:34:43 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.4 00/34] 4.4.234-rc2 review
-In-Reply-To: <20200824164719.331619736@linuxfoundation.org>
-References: <20200824164719.331619736@linuxfoundation.org>
-X-NVConfidentiality: public
-MIME-Version: 1.0
-Message-ID: <389096c398024a9b8df359bb0864e1d3@HQMAIL105.nvidia.com>
-Date:   Mon, 24 Aug 2020 18:34:43 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1598294070; bh=k8fkdxVgCEO5zBklbLP3cckHN8jUlsuPTeGHwhdl1U0=;
-        h=X-PGP-Universal:From:To:CC:Subject:In-Reply-To:References:
-         X-NVConfidentiality:MIME-Version:Message-ID:Date:Content-Type:
-         Content-Transfer-Encoding;
-        b=lGgrEk4iTVWl1ivOnrjtqDclTEry4jJu8iX+PcLhZBafXyPRvPmxHPmRnybRFfl7j
-         gcI/6XqUouIeE8DSu06azV92RDxisrzNg8KuFcYwSmRmdWPb8brHkgMc597vjelNRr
-         UH9HC6ARk1rIsO4e7q8OTtqYccBstNCGlfi7/ZHA8cNN/tfkZ9thJ02RdSLP/1pKH8
-         HFYg46l9HS3hnFMMNTBl2KuK2dPxXzWkpKaQg1XZQMGj0c7Ht89FdZetGkxaux8yfs
-         qbXABxBypWniniWzhQ/m+t6BvfjqdC2JojcEPrAj90OSYoev24LmkXIeCcpIRgOoOi
-         Jzx90onTsbE0w==
+        id S1726336AbgHXSgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 14:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726303AbgHXSgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 14:36:01 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9EAC061573;
+        Mon, 24 Aug 2020 11:36:01 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id y206so5284409pfb.10;
+        Mon, 24 Aug 2020 11:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=0q3yj900uh0Ob40g7BB3IvyNcAY/lFT70Br/QukZZGg=;
+        b=LIcmqzOCVpHqgmI9hDZEPhZLds5gQ4yk7wpmblvSuMH+QIlzN6CvpZLKjD946EM0Kz
+         8ytEwHFIDk7EZWA787zBoGrCx495LTEFwHXz+wZnIncHiGZ2pmZeY47eTvTD9y8IImRh
+         ivApC4OJX47d24kn8Kli+TT7ZEl5/VURAcARcGKTHo2LcaGXHzZIBZGZiwuGAQDZUXqE
+         6Nyn6HgeGCFCzvM93jhXGGrGM1iOSszQqXq0mgrG2ZsI8hHs376aG1uLx1SxZzBLarhT
+         dAgZxDkrIKGByzlhcYU8tdR+CYvq9zs5Ghjf/qh3Y5Rh6yhBr0y7lFe+Ue5zjQIqPshw
+         yrMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=0q3yj900uh0Ob40g7BB3IvyNcAY/lFT70Br/QukZZGg=;
+        b=Tb3MOdPNXR8UERglXyEoCj3BAj2+gzudLfnluSt2ScxwDpE/cXolMRUWdFNEunyhTg
+         Jfb7qYB4prRyJv7NvXEcyrGDMt4G6zbdMKjbFIsAsUULaUHEQ1Ed6sJ1/IYxUUJke2x5
+         /xU4x7laXPzJgZsYNJPCyhrJJ8MlY0QiurOS/AT0Zg9wSKN1n6mX0ToT7/VzYV3OXTa+
+         I5cZhxKtk/+7eR3SdeUB53eBuEZaP5XZkJWSIHcAbo/recWbPjsVz/vcjXLypdCY6y+M
+         TU4JXn8uWm5rvElLwHMtgR2SXdh+nHEfhGIBcLjIhOonCodUx7iSrvvAo/qo/kAdQbfX
+         MqBw==
+X-Gm-Message-State: AOAM530hLvXblBTbfs4fa60NsaCHi9o7wjDxIM2p74bu5gYDFPRhlArm
+        hmgD2X5DqAIfLzhljMDHkis3las66hE=
+X-Google-Smtp-Source: ABdhPJwBGdPN9kSlUa5MQoEYHoyE/DxDybs19vVY2S9ykx0HiGZwuaZLpKa7AiNCvrpGrhFFDoq6vw==
+X-Received: by 2002:a17:902:8eca:: with SMTP id x10mr4557058plo.336.1598294160989;
+        Mon, 24 Aug 2020 11:36:00 -0700 (PDT)
+Received: from stbirv-lnx-3.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id j10sm12167900pff.171.2020.08.24.11.35.59
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Aug 2020 11:36:00 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
+        <kvmarm@lists.cs.columbia.edu>
+Subject: [PATCH stable 4.19 v2 0/2] arm64: entry: Place an SB sequence following an ERET instruction
+Date:   Mon, 24 Aug 2020 11:35:10 -0700
+Message-Id: <1598294112-19197-1-git-send-email-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Aug 2020 18:49:01 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.234 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 Aug 2020 16:47:07 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.234-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Changes in v2:
 
-All tests passing for Tegra ...
+- included missing preliminary patch to define the SB barrier instruction
 
-Test results for stable-v4.4:
-    6 builds:	6 pass, 0 fail
-    12 boots:	12 pass, 0 fail
-    28 tests:	28 pass, 0 fail
+Will Deacon (2):
+  arm64: Add support for SB barrier and patch in over DSB; ISB sequences
+  arm64: entry: Place an SB sequence following an ERET instruction
 
-Linux version:	4.4.234-rc2-gf607f7ffa21b
-Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
-                tegra30-cardhu-a04
+ arch/arm64/include/asm/assembler.h  | 13 +++++++++++++
+ arch/arm64/include/asm/barrier.h    |  4 ++++
+ arch/arm64/include/asm/cpucaps.h    |  3 ++-
+ arch/arm64/include/asm/sysreg.h     |  6 ++++++
+ arch/arm64/include/asm/uaccess.h    |  3 +--
+ arch/arm64/include/uapi/asm/hwcap.h |  1 +
+ arch/arm64/kernel/cpufeature.c      | 12 ++++++++++++
+ arch/arm64/kernel/cpuinfo.c         |  1 +
+ arch/arm64/kernel/entry.S           |  2 ++
+ arch/arm64/kvm/hyp/entry.S          |  1 +
+ arch/arm64/kvm/hyp/hyp-entry.S      |  4 ++++
+ 11 files changed, 47 insertions(+), 3 deletions(-)
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+-- 
+2.7.4
 
-Jon
