@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3A2250447
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34789250448
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbgHXQ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:58:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
+        id S1726435AbgHXQ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728520AbgHXQiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:38:52 -0400
+        id S1728524AbgHXQix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:38:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5F0522D6F;
-        Mon, 24 Aug 2020 16:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB9DF22CBB;
+        Mon, 24 Aug 2020 16:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287131;
-        bh=IcXALHFZUK8dc4IRIzM+yDCtE9/gqUl/eI79c203FXw=;
+        s=default; t=1598287132;
+        bh=otWkLV9AE7p/mLHlRBKBh6b3nTllnZikxbDu+4RwkJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWyyFieo5UxzJyeFvmeJh2vP8mrr5JJh6j3NUPy86lf5bhxXzbKiBL1+AF0Kqg4D7
-         pMNHw2XmWYkIUMjwRqYIjcP31F2LadnQ5jiut/1yK+mjXKGoR9Oe0yKNtUFnhoa1JA
-         nJkS/qc579tNAHazGczgUIU4BMlHlZtgdCo4uMi8=
+        b=A/N+DiI+0P/CHcgPiMQgW+rXhIHFc7MRNWcrU+fJofndDdyZiZUFKkKbjJZBar4Wj
+         hQXhf5QAQSRlXfmj+1a887REfQK1pcJa1H0qN3i3DSO0SE8SM6n6VQ3SjvvjUTfNMe
+         5vY6ktf/BXdVwiUxdvpqyDOZN8ClJ5lf4IVvIQsQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/21] jbd2: abort journal if free a async write error metadata buffer
-Date:   Mon, 24 Aug 2020 12:38:28 -0400
-Message-Id: <20200824163845.606933-4-sashal@kernel.org>
+Cc:     Lukas Czerner <lczerner@redhat.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/21] ext4: handle option set by mount flags correctly
+Date:   Mon, 24 Aug 2020 12:38:29 -0400
+Message-Id: <20200824163845.606933-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163845.606933-1-sashal@kernel.org>
 References: <20200824163845.606933-1-sashal@kernel.org>
@@ -42,64 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit c044f3d8360d2ecf831ba2cc9f08cf9fb2c699fb ]
+[ Upstream commit f25391ebb475d3ffb3aa61bb90e3594c841749ef ]
 
-If we free a metadata buffer which has been failed to async write out
-in the background, the jbd2 checkpoint procedure will not detect this
-failure in jbd2_log_do_checkpoint(), so it may lead to filesystem
-inconsistency after cleanup journal tail. This patch abort the journal
-if free a buffer has write_io_error flag to prevent potential further
-inconsistency.
+Currently there is a problem with mount options that can be both set by
+vfs using mount flags or by a string parsing in ext4.
 
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20200620025427.1756360-5-yi.zhang@huawei.com
+i_version/iversion options gets lost after remount, for example
+
+$ mount -o i_version /dev/pmem0 /mnt
+$ grep pmem0 /proc/self/mountinfo | grep i_version
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,seclabel,i_version
+$ mount -o remount,ro /mnt
+$ grep pmem0 /proc/self/mountinfo | grep i_version
+
+nolazytime gets ignored by ext4 on remount, for example
+
+$ mount -o lazytime /dev/pmem0 /mnt
+$ grep pmem0 /proc/self/mountinfo | grep lazytime
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,lazytime,seclabel
+$ mount -o remount,nolazytime /mnt
+$ grep pmem0 /proc/self/mountinfo | grep lazytime
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,lazytime,seclabel
+
+Fix it by applying the SB_LAZYTIME and SB_I_VERSION flags from *flags to
+s_flags before we parse the option and use the resulting state of the
+same flags in *flags at the end of successful remount.
+
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200723150526.19931-1-lczerner@redhat.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/ext4/super.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 5a0de78a5d71a..8c305593fb51f 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -2009,6 +2009,7 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 23ef8fbdb582f..03ebb0b385467 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5249,7 +5249,7 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
  {
- 	struct buffer_head *head;
- 	struct buffer_head *bh;
-+	bool has_write_io_error = false;
- 	int ret = 0;
+ 	struct ext4_super_block *es;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+-	unsigned long old_sb_flags;
++	unsigned long old_sb_flags, vfs_flags;
+ 	struct ext4_mount_options old_opts;
+ 	int enable_quota = 0;
+ 	ext4_group_t g;
+@@ -5292,6 +5292,14 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 	if (sbi->s_journal && sbi->s_journal->j_task->io_context)
+ 		journal_ioprio = sbi->s_journal->j_task->io_context->ioprio;
  
- 	J_ASSERT(PageLocked(page));
-@@ -2033,11 +2034,26 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
- 		jbd_unlock_bh_state(bh);
- 		if (buffer_jbd(bh))
- 			goto busy;
++	/*
++	 * Some options can be enabled by ext4 and/or by VFS mount flag
++	 * either way we need to make sure it matches in both *flags and
++	 * s_flags. Copy those selected flags from *flags to s_flags
++	 */
++	vfs_flags = SB_LAZYTIME | SB_I_VERSION;
++	sb->s_flags = (sb->s_flags & ~vfs_flags) | (*flags & vfs_flags);
 +
-+		/*
-+		 * If we free a metadata buffer which has been failed to
-+		 * write out, the jbd2 checkpoint procedure will not detect
-+		 * this failure and may lead to filesystem inconsistency
-+		 * after cleanup journal tail.
-+		 */
-+		if (buffer_write_io_error(bh)) {
-+			pr_err("JBD2: Error while async write back metadata bh %llu.",
-+			       (unsigned long long)bh->b_blocknr);
-+			has_write_io_error = true;
-+		}
- 	} while ((bh = bh->b_this_page) != head);
+ 	if (!parse_options(data, sb, NULL, &journal_ioprio, 1)) {
+ 		err = -EINVAL;
+ 		goto restore_opts;
+@@ -5345,9 +5353,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
+ 	}
  
- 	ret = try_to_free_buffers(page);
+-	if (*flags & SB_LAZYTIME)
+-		sb->s_flags |= SB_LAZYTIME;
+-
+ 	if ((bool)(*flags & SB_RDONLY) != sb_rdonly(sb)) {
+ 		if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED) {
+ 			err = -EROFS;
+@@ -5487,7 +5492,13 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 	}
+ #endif
  
- busy:
-+	if (has_write_io_error)
-+		jbd2_journal_abort(journal, -EIO);
+-	*flags = (*flags & ~SB_LAZYTIME) | (sb->s_flags & SB_LAZYTIME);
++	/*
++	 * Some options can be enabled by ext4 and/or by VFS mount flag
++	 * either way we need to make sure it matches in both *flags and
++	 * s_flags. Copy those selected flags from s_flags to *flags
++	 */
++	*flags = (*flags & ~vfs_flags) | (sb->s_flags & vfs_flags);
 +
- 	return ret;
- }
- 
+ 	ext4_msg(sb, KERN_INFO, "re-mounted. Opts: %s", orig_data);
+ 	kfree(orig_data);
+ 	return 0;
 -- 
 2.25.1
 
