@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8AF524F885
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE18124F870
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729754AbgHXItl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52184 "EHLO mail.kernel.org"
+        id S1726024AbgHXJcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729748AbgHXIth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:37 -0400
+        id S1726909AbgHXIuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F4422072D;
-        Mon, 24 Aug 2020 08:49:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8003C20FC3;
+        Mon, 24 Aug 2020 08:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258976;
-        bh=BYU4VwRM5xFvzKpaDfvkbDeIvtDQMxsMNHx+jb8xCq8=;
+        s=default; t=1598259007;
+        bh=6aHggL1RkTAzBEHv4FvfQ9+Mk3/6PJyf2EJjPbmIUQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5uxX6Nv8PNIQ/Oz0d4rXsDWfu+u3d89hZL1i02PZxYcmrT5dw/Ph/27o2hT65bIO
-         PT36/V8XvUxgJQoJpQS3jvH7myrzAXwYJ6sMPj1JhiJaAduaKUGl6Ww94rB6bBh+r4
-         cWcB4C1qyDZ/xBn/LawZWbsPs2GOQ00Th+zJp/Po=
+        b=VlcgrOErM9arNdK+6Jc5sA32GoW11tFsdAcCK933m4fMNWhGjcTMEBspzLCeOh370
+         gLb6J/dAaXugjyGxW2K5bdk+ONNOFQl0qnDtYkkR97b7APo4BBQvWobq0Nz+jlAj3W
+         xKPr27/eWFk2Iyj8BQgzZOoyW52HaNhSyVjlwI+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sarah Newman <srn@prgmr.com>, Juergen Gross <jgross@suse.com>,
-        Chris Brannon <cmb@prgmr.com>
-Subject: [PATCH 5.4 107/107] xen: dont reschedule in preemption off sections
-Date:   Mon, 24 Aug 2020 10:31:13 +0200
-Message-Id: <20200824082410.383029726@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 19/33] m68knommu: fix overwriting of bits in ColdFire V3 cache control
+Date:   Mon, 24 Aug 2020 10:31:15 +0200
+Message-Id: <20200824082347.504318577@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-For support of long running hypercalls xen_maybe_preempt_hcall() is
-calling cond_resched() in case a hypercall marked as preemptible has
-been interrupted.
+[ Upstream commit bdee0e793cea10c516ff48bf3ebb4ef1820a116b ]
 
-Normally this is no problem, as only hypercalls done via some ioctl()s
-are marked to be preemptible. In rare cases when during such a
-preemptible hypercall an interrupt occurs and any softirq action is
-started from irq_exit(), a further hypercall issued by the softirq
-handler will be regarded to be preemptible, too. This might lead to
-rescheduling in spite of the softirq handler potentially having set
-preempt_disable(), leading to splats like:
+The Cache Control Register (CACR) of the ColdFire V3 has bits that
+control high level caching functions, and also enable/disable the use
+of the alternate stack pointer register (the EUSP bit) to provide
+separate supervisor and user stack pointer registers. The code as
+it is today will blindly clear the EUSP bit on cache actions like
+invalidation. So it is broken for this case - and that will result
+in failed booting (interrupt entry and exit processing will be
+completely hosed).
 
-BUG: sleeping function called from invalid context at drivers/xen/preempt.c:37
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 20775, name: xl
-INFO: lockdep is turned off.
-CPU: 1 PID: 20775 Comm: xl Tainted: G D W 5.4.46-1_prgmr_debug.el7.x86_64 #1
-Call Trace:
-<IRQ>
-dump_stack+0x8f/0xd0
-___might_sleep.cold.76+0xb2/0x103
-xen_maybe_preempt_hcall+0x48/0x70
-xen_do_hypervisor_callback+0x37/0x40
-RIP: e030:xen_hypercall_xen_version+0xa/0x20
-Code: ...
-RSP: e02b:ffffc900400dcc30 EFLAGS: 00000246
-RAX: 000000000004000d RBX: 0000000000000200 RCX: ffffffff8100122a
-RDX: ffff88812e788000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: ffffffff83ee3ad0 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: ffff8881824aa0b0
-R13: 0000000865496000 R14: 0000000865496000 R15: ffff88815d040000
-? xen_hypercall_xen_version+0xa/0x20
-? xen_force_evtchn_callback+0x9/0x10
-? check_events+0x12/0x20
-? xen_restore_fl_direct+0x1f/0x20
-? _raw_spin_unlock_irqrestore+0x53/0x60
-? debug_dma_sync_single_for_cpu+0x91/0xc0
-? _raw_spin_unlock_irqrestore+0x53/0x60
-? xen_swiotlb_sync_single_for_cpu+0x3d/0x140
-? mlx4_en_process_rx_cq+0x6b6/0x1110 [mlx4_en]
-? mlx4_en_poll_rx_cq+0x64/0x100 [mlx4_en]
-? net_rx_action+0x151/0x4a0
-? __do_softirq+0xed/0x55b
-? irq_exit+0xea/0x100
-? xen_evtchn_do_upcall+0x2c/0x40
-? xen_do_hypervisor_callback+0x29/0x40
-</IRQ>
-? xen_hypercall_domctl+0xa/0x20
-? xen_hypercall_domctl+0x8/0x20
-? privcmd_ioctl+0x221/0x990 [xen_privcmd]
-? do_vfs_ioctl+0xa5/0x6f0
-? ksys_ioctl+0x60/0x90
-? trace_hardirqs_off_thunk+0x1a/0x20
-? __x64_sys_ioctl+0x16/0x20
-? do_syscall_64+0x62/0x250
-? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+This only affects ColdFire V3 parts that support the alternate stack
+register (like the 5329 for example) - generally speaking new parts do,
+older parts don't. It has no impact on ColdFire V3 parts with the single
+stack pointer, like the 5307 for example.
 
-Fix that by testing preempt_count() before calling cond_resched().
+Fix the cache bit defines used, so they maintain the EUSP bit when
+carrying out cache actions through the CACR register.
 
-In kernel 5.8 this can't happen any more due to the entry code rework
-(more than 100 patches, so not a candidate for backporting).
-
-The issue was introduced in kernel 4.3, so this patch should go into
-all stable kernels in [4.3 ... 5.7].
-
-Reported-by: Sarah Newman <srn@prgmr.com>
-Fixes: 0fa2f5cb2b0ecd8 ("sched/preempt, xen: Use need_resched() instead of should_resched()")
-Cc: Sarah Newman <srn@prgmr.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Chris Brannon <cmb@prgmr.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/preempt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/include/asm/m53xxacr.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/xen/preempt.c
-+++ b/drivers/xen/preempt.c
-@@ -27,7 +27,7 @@ EXPORT_SYMBOL_GPL(xen_in_preemptible_hca
- asmlinkage __visible void xen_maybe_preempt_hcall(void)
- {
- 	if (unlikely(__this_cpu_read(xen_in_preemptible_hcall)
--		     && need_resched())) {
-+		     && need_resched() && !preempt_count())) {
- 		/*
- 		 * Clear flag as we may be rescheduled on a different
- 		 * cpu.
+diff --git a/arch/m68k/include/asm/m53xxacr.h b/arch/m68k/include/asm/m53xxacr.h
+index 3177ce8331d69..baee0c77b9818 100644
+--- a/arch/m68k/include/asm/m53xxacr.h
++++ b/arch/m68k/include/asm/m53xxacr.h
+@@ -88,9 +88,9 @@
+  * coherency though in all cases. And for copyback caches we will need
+  * to push cached data as well.
+  */
+-#define CACHE_INIT	  CACR_CINVA
+-#define CACHE_INVALIDATE  CACR_CINVA
+-#define CACHE_INVALIDATED CACR_CINVA
++#define CACHE_INIT        (CACHE_MODE + CACR_CINVA - CACR_EC)
++#define CACHE_INVALIDATE  (CACHE_MODE + CACR_CINVA)
++#define CACHE_INVALIDATED (CACHE_MODE + CACR_CINVA)
+ 
+ #define ACR0_MODE	((CONFIG_RAMBASE & 0xff000000) + \
+ 			 (0x000f0000) + \
+-- 
+2.25.1
+
 
 
