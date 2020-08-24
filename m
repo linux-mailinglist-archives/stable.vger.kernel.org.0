@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57667250660
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80470250656
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726727AbgHXRbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38976 "EHLO mail.kernel.org"
+        id S1728270AbgHXRba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:31:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727809AbgHXQfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:35:09 -0400
+        id S1727995AbgHXQfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:35:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF30E22B3F;
-        Mon, 24 Aug 2020 16:35:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39B5B22B43;
+        Mon, 24 Aug 2020 16:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286908;
-        bh=gCTvQTLPg9c34/+tHTY+I4sVVRrI6y4KuPLF+MFm32o=;
+        s=default; t=1598286910;
+        bh=6KE4ASTSrOT39hBG04ZwanzUjKq+GBVCDHdOGprPM6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tublTO3YEOn2muPQlBkBxFM//lAafwZMdd1ZKMeDdUEpBK0buWfPLJvU+RV8Em58y
-         j5bImMgx+xQiRCyY3KooIH9Mafnyj5s1qwwSfaL0KUKu9DGQoJrFkt/r4alaXGWZU6
-         0S+atR8JY6iAjZbqf3BUct0gyfAAeQWZpRYf1+7E=
+        b=BYZs6ryx4/m/hhYWKW8cwsn6G//kx1ifIFukUrhdtHTPuD78I+8ILd2foo2Fsdovv
+         4LiEuLOF5yNP036Jx1CzFy4JlK3x2j4Zyg4FBLvX2KfsQYJ9b21e5OaN7AcjCmyRWR
+         l+xa7KMFUbZnJ/yoWmXsjCHR37pQlL0ydopdB4tk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+Cc:     Lukas Czerner <lczerner@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>,
         Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
         linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 03/63] ext4: don't BUG on inconsistent journal feature
-Date:   Mon, 24 Aug 2020 12:34:03 -0400
-Message-Id: <20200824163504.605538-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 04/63] ext4: handle read only external journal device
+Date:   Mon, 24 Aug 2020 12:34:04 -0400
+Message-Id: <20200824163504.605538-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -43,210 +44,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit 11215630aada28307ba555a43138db6ac54fa825 ]
+[ Upstream commit 273108fa5015eeffc4bacfa5ce272af3434b96e4 ]
 
-A customer has reported a BUG_ON in ext4_clear_journal_err() hitting
-during an LTP testing. Either this has been caused by a test setup
-issue where the filesystem was being overwritten while LTP was mounting
-it or the journal replay has overwritten the superblock with invalid
-data. In either case it is preferable we don't take the machine down
-with a BUG_ON. So handle the situation of unexpectedly missing
-has_journal feature more gracefully. We issue warning and fail the mount
-in the cases where the race window is narrow and the failed check is
-most likely a programming error. In cases where fs corruption is more
-likely, we do full ext4_error() handling before failing mount / remount.
+Ext4 uses blkdev_get_by_dev() to get the block_device for journal device
+which does check to see if the read-only block device was opened
+read-only.
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200710140759.18031-1-jack@suse.cz
+As a result ext4 will hapily proceed mounting the file system with
+external journal on read-only device. This is bad as we would not be
+able to use the journal leading to errors later on.
+
+Instead of simply failing to mount file system in this case, treat it in
+a similar way we treat internal journal on read-only device. Allow to
+mount with -o noload in read-only mode.
+
+This can be reproduced easily like this:
+
+mke2fs -F -O journal_dev $JOURNAL_DEV 100M
+mkfs.$FSTYPE -F -J device=$JOURNAL_DEV $FS_DEV
+blockdev --setro $JOURNAL_DEV
+mount $FS_DEV $MNT
+touch $MNT/file
+umount $MNT
+
+leading to error like this
+
+[ 1307.318713] ------------[ cut here ]------------
+[ 1307.323362] generic_make_request: Trying to write to read-only block-device dm-2 (partno 0)
+[ 1307.331741] WARNING: CPU: 36 PID: 3224 at block/blk-core.c:855 generic_make_request_checks+0x2c3/0x580
+[ 1307.341041] Modules linked in: ext4 mbcache jbd2 rfkill intel_rapl_msr intel_rapl_common isst_if_commd
+[ 1307.419445] CPU: 36 PID: 3224 Comm: jbd2/dm-2 Tainted: G        W I       5.8.0-rc5 #2
+[ 1307.427359] Hardware name: Dell Inc. PowerEdge R740/01KPX8, BIOS 2.3.10 08/15/2019
+[ 1307.434932] RIP: 0010:generic_make_request_checks+0x2c3/0x580
+[ 1307.440676] Code: 94 03 00 00 48 89 df 48 8d 74 24 08 c6 05 cf 2b 18 01 01 e8 7f a4 ff ff 48 c7 c7 50e
+[ 1307.459420] RSP: 0018:ffffc0d70eb5fb48 EFLAGS: 00010286
+[ 1307.464646] RAX: 0000000000000000 RBX: ffff9b33b2978300 RCX: 0000000000000000
+[ 1307.471780] RDX: ffff9b33e12a81e0 RSI: ffff9b33e1298000 RDI: ffff9b33e1298000
+[ 1307.478913] RBP: ffff9b7b9679e0c0 R08: 0000000000000837 R09: 0000000000000024
+[ 1307.486044] R10: 0000000000000000 R11: ffffc0d70eb5f9f0 R12: 0000000000000400
+[ 1307.493177] R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
+[ 1307.500308] FS:  0000000000000000(0000) GS:ffff9b33e1280000(0000) knlGS:0000000000000000
+[ 1307.508396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1307.514142] CR2: 000055eaf4109000 CR3: 0000003dee40a006 CR4: 00000000007606e0
+[ 1307.521273] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1307.528407] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1307.535538] PKRU: 55555554
+[ 1307.538250] Call Trace:
+[ 1307.540708]  generic_make_request+0x30/0x340
+[ 1307.544985]  submit_bio+0x43/0x190
+[ 1307.548393]  ? bio_add_page+0x62/0x90
+[ 1307.552068]  submit_bh_wbc+0x16a/0x190
+[ 1307.555833]  jbd2_write_superblock+0xec/0x200 [jbd2]
+[ 1307.560803]  jbd2_journal_update_sb_log_tail+0x65/0xc0 [jbd2]
+[ 1307.566557]  jbd2_journal_commit_transaction+0x2ae/0x1860 [jbd2]
+[ 1307.572566]  ? check_preempt_curr+0x7a/0x90
+[ 1307.576756]  ? update_curr+0xe1/0x1d0
+[ 1307.580421]  ? account_entity_dequeue+0x7b/0xb0
+[ 1307.584955]  ? newidle_balance+0x231/0x3d0
+[ 1307.589056]  ? __switch_to_asm+0x42/0x70
+[ 1307.592986]  ? __switch_to_asm+0x36/0x70
+[ 1307.596918]  ? lock_timer_base+0x67/0x80
+[ 1307.600851]  kjournald2+0xbd/0x270 [jbd2]
+[ 1307.604873]  ? finish_wait+0x80/0x80
+[ 1307.608460]  ? commit_timeout+0x10/0x10 [jbd2]
+[ 1307.612915]  kthread+0x114/0x130
+[ 1307.616152]  ? kthread_park+0x80/0x80
+[ 1307.619816]  ret_from_fork+0x22/0x30
+[ 1307.623400] ---[ end trace 27490236265b1630 ]---
+
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20200717090605.2612-1-lczerner@redhat.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 68 ++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 47 insertions(+), 21 deletions(-)
+ fs/ext4/super.c | 51 ++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 18 deletions(-)
 
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 330957ed1f05c..9fdad843b30ef 100644
+index 9fdad843b30ef..dda967efcbc2c 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -66,10 +66,10 @@ static int ext4_load_journal(struct super_block *, struct ext4_super_block *,
- 			     unsigned long journal_devnum);
- static int ext4_show_options(struct seq_file *seq, struct dentry *root);
- static int ext4_commit_super(struct super_block *sb, int sync);
--static void ext4_mark_recovery_complete(struct super_block *sb,
-+static int ext4_mark_recovery_complete(struct super_block *sb,
- 					struct ext4_super_block *es);
--static void ext4_clear_journal_err(struct super_block *sb,
--				   struct ext4_super_block *es);
-+static int ext4_clear_journal_err(struct super_block *sb,
-+				  struct ext4_super_block *es);
- static int ext4_sync_fs(struct super_block *sb, int wait);
- static int ext4_remount(struct super_block *sb, int *flags, char *data);
- static int ext4_statfs(struct dentry *dentry, struct kstatfs *buf);
-@@ -4770,7 +4770,9 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
- 	if (needs_recovery) {
- 		ext4_msg(sb, KERN_INFO, "recovery complete");
--		ext4_mark_recovery_complete(sb, es);
-+		err = ext4_mark_recovery_complete(sb, es);
-+		if (err)
-+			goto failed_mount8;
- 	}
- 	if (EXT4_SB(sb)->s_journal) {
- 		if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA)
-@@ -4813,10 +4815,8 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		ext4_msg(sb, KERN_ERR, "VFS: Can't find ext4 filesystem");
- 	goto failed_mount;
- 
--#ifdef CONFIG_QUOTA
- failed_mount8:
- 	ext4_unregister_sysfs(sb);
--#endif
- failed_mount7:
- 	ext4_unregister_li_request(sb);
- failed_mount6:
-@@ -4956,7 +4956,8 @@ static journal_t *ext4_get_journal(struct super_block *sb,
- 	struct inode *journal_inode;
- 	journal_t *journal;
- 
--	BUG_ON(!ext4_has_feature_journal(sb));
-+	if (WARN_ON_ONCE(!ext4_has_feature_journal(sb)))
-+		return NULL;
- 
- 	journal_inode = ext4_get_journal_inode(sb, journal_inum);
- 	if (!journal_inode)
-@@ -4986,7 +4987,8 @@ static journal_t *ext4_get_dev_journal(struct super_block *sb,
- 	struct ext4_super_block *es;
- 	struct block_device *bdev;
- 
--	BUG_ON(!ext4_has_feature_journal(sb));
-+	if (WARN_ON_ONCE(!ext4_has_feature_journal(sb)))
-+		return NULL;
- 
- 	bdev = ext4_blkdev_get(j_dev, sb);
- 	if (bdev == NULL)
-@@ -5078,7 +5080,8 @@ static int ext4_load_journal(struct super_block *sb,
+@@ -5079,6 +5079,7 @@ static int ext4_load_journal(struct super_block *sb,
+ 	dev_t journal_dev;
  	int err = 0;
  	int really_read_only;
++	int journal_dev_ro;
  
--	BUG_ON(!ext4_has_feature_journal(sb));
-+	if (WARN_ON_ONCE(!ext4_has_feature_journal(sb)))
-+		return -EFSCORRUPTED;
+ 	if (WARN_ON_ONCE(!ext4_has_feature_journal(sb)))
+ 		return -EFSCORRUPTED;
+@@ -5091,7 +5092,31 @@ static int ext4_load_journal(struct super_block *sb,
+ 	} else
+ 		journal_dev = new_decode_dev(le32_to_cpu(es->s_journal_dev));
  
- 	if (journal_devnum &&
- 	    journal_devnum != le32_to_cpu(es->s_journal_dev)) {
-@@ -5148,7 +5151,12 @@ static int ext4_load_journal(struct super_block *sb,
+-	really_read_only = bdev_read_only(sb->s_bdev);
++	if (journal_inum && journal_dev) {
++		ext4_msg(sb, KERN_ERR,
++			 "filesystem has both journal inode and journal device!");
++		return -EINVAL;
++	}
++
++	if (journal_inum) {
++		journal = ext4_get_journal(sb, journal_inum);
++		if (!journal)
++			return -EINVAL;
++	} else {
++		journal = ext4_get_dev_journal(sb, journal_dev);
++		if (!journal)
++			return -EINVAL;
++	}
++
++	journal_dev_ro = bdev_read_only(journal->j_dev);
++	really_read_only = bdev_read_only(sb->s_bdev) | journal_dev_ro;
++
++	if (journal_dev_ro && !sb_rdonly(sb)) {
++		ext4_msg(sb, KERN_ERR,
++			 "journal device read-only, try mounting with '-o ro'");
++		err = -EROFS;
++		goto err_out;
++	}
+ 
+ 	/*
+ 	 * Are we loading a blank journal or performing recovery after a
+@@ -5106,27 +5131,14 @@ static int ext4_load_journal(struct super_block *sb,
+ 				ext4_msg(sb, KERN_ERR, "write access "
+ 					"unavailable, cannot proceed "
+ 					"(try mounting with noload)");
+-				return -EROFS;
++				err = -EROFS;
++				goto err_out;
+ 			}
+ 			ext4_msg(sb, KERN_INFO, "write access will "
+ 			       "be enabled during recovery");
+ 		}
+ 	}
+ 
+-	if (journal_inum && journal_dev) {
+-		ext4_msg(sb, KERN_ERR, "filesystem has both journal "
+-		       "and inode journals!");
+-		return -EINVAL;
+-	}
+-
+-	if (journal_inum) {
+-		if (!(journal = ext4_get_journal(sb, journal_inum)))
+-			return -EINVAL;
+-	} else {
+-		if (!(journal = ext4_get_dev_journal(sb, journal_dev)))
+-			return -EINVAL;
+-	}
+-
+ 	if (!(journal->j_flags & JBD2_BARRIER))
+ 		ext4_msg(sb, KERN_INFO, "barriers disabled");
+ 
+@@ -5146,8 +5158,7 @@ static int ext4_load_journal(struct super_block *sb,
+ 
+ 	if (err) {
+ 		ext4_msg(sb, KERN_ERR, "error loading journal");
+-		jbd2_journal_destroy(journal);
+-		return err;
++		goto err_out;
  	}
  
  	EXT4_SB(sb)->s_journal = journal;
--	ext4_clear_journal_err(sb, es);
-+	err = ext4_clear_journal_err(sb, es);
-+	if (err) {
-+		EXT4_SB(sb)->s_journal = NULL;
-+		jbd2_journal_destroy(journal);
-+		return err;
-+	}
- 
- 	if (!really_read_only && journal_devnum &&
- 	    journal_devnum != le32_to_cpu(es->s_journal_dev)) {
-@@ -5244,26 +5252,32 @@ static int ext4_commit_super(struct super_block *sb, int sync)
-  * remounting) the filesystem readonly, then we will end up with a
-  * consistent fs on disk.  Record that fact.
-  */
--static void ext4_mark_recovery_complete(struct super_block *sb,
--					struct ext4_super_block *es)
-+static int ext4_mark_recovery_complete(struct super_block *sb,
-+				       struct ext4_super_block *es)
- {
-+	int err;
- 	journal_t *journal = EXT4_SB(sb)->s_journal;
- 
- 	if (!ext4_has_feature_journal(sb)) {
--		BUG_ON(journal != NULL);
--		return;
-+		if (journal != NULL) {
-+			ext4_error(sb, "Journal got removed while the fs was "
-+				   "mounted!");
-+			return -EFSCORRUPTED;
-+		}
-+		return 0;
+@@ -5167,6 +5178,10 @@ static int ext4_load_journal(struct super_block *sb,
  	}
- 	jbd2_journal_lock_updates(journal);
--	if (jbd2_journal_flush(journal) < 0)
-+	err = jbd2_journal_flush(journal);
-+	if (err < 0)
- 		goto out;
  
- 	if (ext4_has_feature_journal_needs_recovery(sb) && sb_rdonly(sb)) {
- 		ext4_clear_feature_journal_needs_recovery(sb);
- 		ext4_commit_super(sb, 1);
- 	}
--
- out:
- 	jbd2_journal_unlock_updates(journal);
+ 	return 0;
++
++err_out:
++	jbd2_journal_destroy(journal);
 +	return err;
  }
  
- /*
-@@ -5271,14 +5285,17 @@ static void ext4_mark_recovery_complete(struct super_block *sb,
-  * has recorded an error from a previous lifetime, move that error to the
-  * main filesystem now.
-  */
--static void ext4_clear_journal_err(struct super_block *sb,
-+static int ext4_clear_journal_err(struct super_block *sb,
- 				   struct ext4_super_block *es)
- {
- 	journal_t *journal;
- 	int j_errno;
- 	const char *errstr;
- 
--	BUG_ON(!ext4_has_feature_journal(sb));
-+	if (!ext4_has_feature_journal(sb)) {
-+		ext4_error(sb, "Journal got removed while the fs was mounted!");
-+		return -EFSCORRUPTED;
-+	}
- 
- 	journal = EXT4_SB(sb)->s_journal;
- 
-@@ -5303,6 +5320,7 @@ static void ext4_clear_journal_err(struct super_block *sb,
- 		jbd2_journal_clear_err(journal);
- 		jbd2_journal_update_sb_errno(journal);
- 	}
-+	return 0;
- }
- 
- /*
-@@ -5573,8 +5591,13 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 			    (sbi->s_mount_state & EXT4_VALID_FS))
- 				es->s_state = cpu_to_le16(sbi->s_mount_state);
- 
--			if (sbi->s_journal)
-+			if (sbi->s_journal) {
-+				/*
-+				 * We let remount-ro finish even if marking fs
-+				 * as clean failed...
-+				 */
- 				ext4_mark_recovery_complete(sb, es);
-+			}
- 			if (sbi->s_mmp_tsk)
- 				kthread_stop(sbi->s_mmp_tsk);
- 		} else {
-@@ -5622,8 +5645,11 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 			 * been changed by e2fsck since we originally mounted
- 			 * the partition.)
- 			 */
--			if (sbi->s_journal)
--				ext4_clear_journal_err(sb, es);
-+			if (sbi->s_journal) {
-+				err = ext4_clear_journal_err(sb, es);
-+				if (err)
-+					goto restore_opts;
-+			}
- 			sbi->s_mount_state = le16_to_cpu(es->s_state);
- 
- 			err = ext4_setup_super(sb, es, 0);
+ static int ext4_commit_super(struct super_block *sb, int sync)
 -- 
 2.25.1
 
