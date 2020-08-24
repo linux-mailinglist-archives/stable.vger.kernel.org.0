@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583DD24F766
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DE724F80B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729469AbgHXJN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
+        id S1730156AbgHXIxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730457AbgHXI4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:56:06 -0400
+        id S1728534AbgHXIx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:53:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F98C2074D;
-        Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3D5E207D3;
+        Mon, 24 Aug 2020 08:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259366;
-        bh=RlpcFNhQhQeGISJeB07hKfvLDYKsouJijQsNCkkp6Do=;
+        s=default; t=1598259208;
+        bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPspAhriKnoCRZWC1c/cYEVxLLB1pqHx1aw663sxXbOscjA9F2LK2+dEVr/NYfoWK
-         2GsNlzxppOlZS1DAMChW/9hQt+H5jm6Bz26j8r/wXvA+HKSUz4wCwdvJa6Ho8oixBs
-         nhflSxeNHSXknr3oW1cGYL5k9DbzYr05CQyvDKRI=
+        b=Xxi4EQf/Hqnu//gHsW4VwgwMHDgu83D4EYu8iTyusifzVwzv6mF7/Klec4Yc4Ukht
+         YsF5/HF2U6zRwUd4hFj9o8K2dZnSPuHLj7Ha0Y4SVsW2KmuDKstX4KQKZ6ZUqB2XFQ
+         xlvv6qPm1sPkWdhq/WBg5+M+oTbzLyqtg1HyrM3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/71] cpufreq: intel_pstate: Fix cpuinfo_max_freq when MSR_TURBO_RATIO_LIMIT is 0
+Subject: [PATCH 4.14 22/50] rtc: goldfish: Enable interrupt in set_alarm() when necessary
 Date:   Mon, 24 Aug 2020 10:31:23 +0200
-Message-Id: <20200824082357.496305936@linuxfoundation.org>
+Message-Id: <20200824082353.148146093@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-[ Upstream commit 4daca379c703ff55edc065e8e5173dcfeecf0148 ]
+[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
 
-The MSR_TURBO_RATIO_LIMIT can be 0. This is not an error. User can update
-this MSR via BIOS settings on some systems or can use msr tools to update.
-Also some systems boot with value = 0.
+When use goldfish rtc, the "hwclock" command fails with "select() to
+/dev/rtc to wait for clock tick timed out". This is because "hwclock"
+need the set_alarm() hook to enable interrupt when alrm->enabled is
+true. This operation is missing in goldfish rtc (but other rtc drivers,
+such as cmos rtc, enable interrupt here), so add it.
 
-This results in display of cpufreq/cpuinfo_max_freq wrong. This value
-will be equal to cpufreq/base_frequency, even though turbo is enabled.
-
-But platform will still function normally in HWP mode as we get max
-1-core frequency from the MSR_HWP_CAPABILITIES. This MSR is already used
-to calculate cpu->pstate.turbo_freq, which is used for to set
-policy->cpuinfo.max_freq. But some other places cpu->pstate.turbo_pstate
-is used. For example to set policy->max.
-
-To fix this, also update cpu->pstate.turbo_pstate when updating
-cpu->pstate.turbo_freq.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 1 +
+ drivers/rtc/rtc-goldfish.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index e7b3d4ed8eff4..99166000ffb77 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1431,6 +1431,7 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
- 
- 		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
- 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
-+		cpu->pstate.turbo_pstate = phy_max;
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index a1c44d0c85578..30cbe22c57a8e 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -87,6 +87,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
+ 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+ 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
++		writel(1, base + TIMER_IRQ_ENABLED);
  	} else {
- 		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
- 	}
+ 		/*
+ 		 * if this function was called with enabled=0
 -- 
 2.25.1
 
