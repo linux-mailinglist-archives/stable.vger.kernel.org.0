@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590D624FAA9
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C3424FAAF
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727881AbgHXJ6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42528 "EHLO mail.kernel.org"
+        id S1727839AbgHXIeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:34:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727884AbgHXIeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:34:17 -0400
+        id S1727835AbgHXIeC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E1BF206F0;
-        Mon, 24 Aug 2020 08:34:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 627A92074D;
+        Mon, 24 Aug 2020 08:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258056;
-        bh=zL6LKo2P1koAyupmQ6PvuVWQybcemZ5+MnGyBZXepzc=;
+        s=default; t=1598258042;
+        bh=tpw+/6/+QISjO9o4rVZsj04GqJFEc56uTfd9A5kKfmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEJLW2kpZOW4I23Yu9hu79PG3U4LI00POcbaZZcVTbXgWaavrjvFNNUid05jKVJQ5
-         i1EGyho6Th57eHV9tlBIXZc/0oJTLMS01tba21piewTk00lYWeIEAa7Vaq4MLvENXi
-         osmQL36g+LBOppO6taNGCd9gA0cGfl6BNgdJ8m5I=
+        b=DYRi4oxvrIqWV1dqrAvkENnMNBcAnCX2Hul/QXdPjv+cp+3rWkbrc2b79MC4hP13s
+         IOEKFYOiKla4Ju4Z3CAFyKV+lHof3+pqYpgVckQZB7aaxRidSKh+k7k7obhInU1vgJ
+         +FOAepE2yTNrym2ow0VKkHnBNQcEU5TrvsEVy2FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Vinayak Menon <vinmenon@codeaurora.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 019/148] mm, page_alloc: fix core hung in free_pcppages_bulk()
-Date:   Mon, 24 Aug 2020 10:28:37 +0200
-Message-Id: <20200824082414.888818988@linuxfoundation.org>
+        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.8 023/148] opp: Put opp table in dev_pm_opp_set_rate() for empty tables
+Date:   Mon, 24 Aug 2020 10:28:41 +0200
+Message-Id: <20200824082415.077693170@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -50,100 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 88e8ac11d2ea3acc003cf01bb5a38c8aa76c3cfd upstream.
+commit 8979ef70850eb469e1094279259d1ef393ffe85f upstream.
 
-The following race is observed with the repeated online, offline and a
-delay between two successive online of memory blocks of movable zone.
+We get the opp_table pointer at the top of the function and so we should
+put the pointer at the end of the function like all other exit paths
+from this function do.
 
-P1						P2
-
-Online the first memory block in
-the movable zone. The pcp struct
-values are initialized to default
-values,i.e., pcp->high = 0 &
-pcp->batch = 1.
-
-					Allocate the pages from the
-					movable zone.
-
-Try to Online the second memory
-block in the movable zone thus it
-entered the online_pages() but yet
-to call zone_pcp_update().
-					This process is entered into
-					the exit path thus it tries
-					to release the order-0 pages
-					to pcp lists through
-					free_unref_page_commit().
-					As pcp->high = 0, pcp->count = 1
-					proceed to call the function
-					free_pcppages_bulk().
-Update the pcp values thus the
-new pcp values are like, say,
-pcp->high = 378, pcp->batch = 63.
-					Read the pcp's batch value using
-					READ_ONCE() and pass the same to
-					free_pcppages_bulk(), pcp values
-					passed here are, batch = 63,
-					count = 1.
-
-					Since num of pages in the pcp
-					lists are less than ->batch,
-					then it will stuck in
-					while(list_empty(list)) loop
-					with interrupts disabled thus
-					a core hung.
-
-Avoid this by ensuring free_pcppages_bulk() is called with proper count of
-pcp list pages.
-
-The mentioned race is some what easily reproducible without [1] because
-pcp's are not updated for the first memory block online and thus there is
-a enough race window for P2 between alloc+free and pcp struct values
-update through onlining of second memory block.
-
-With [1], the race still exists but it is very narrow as we update the pcp
-struct values for the first memory block online itself.
-
-This is not limited to the movable zone, it could also happen in cases
-with the normal zone (e.g., hotplug to a node that only has DMA memory, or
-no other memory yet).
-
-[1]: https://patchwork.kernel.org/patch/11696389/
-
-Fixes: 5f8dcc21211a ("page-allocator: split per-cpu list into one-list-per-migrate-type")
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Vinayak Menon <vinmenon@codeaurora.org>
-Cc: <stable@vger.kernel.org> [2.6+]
-Link: http://lkml.kernel.org/r/1597150703-19003-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
+Fixes: aca48b61f963 ("opp: Manage empty OPP tables with clk handle")
+Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+[ Viresh: Split the patch into two ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page_alloc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/opp/core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1306,6 +1306,11 @@ static void free_pcppages_bulk(struct zo
- 	struct page *page, *tmp;
- 	LIST_HEAD(head);
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -862,8 +862,10 @@ int dev_pm_opp_set_rate(struct device *d
+ 		 * have OPP table for the device, while others don't and
+ 		 * opp_set_rate() just needs to behave like clk_set_rate().
+ 		 */
+-		if (!_get_opp_count(opp_table))
+-			return 0;
++		if (!_get_opp_count(opp_table)) {
++			ret = 0;
++			goto put_opp_table;
++		}
  
-+	/*
-+	 * Ensure proper count is passed which otherwise would stuck in the
-+	 * below while (list_empty(list)) loop.
-+	 */
-+	count = min(pcp->count, count);
- 	while (count) {
- 		struct list_head *list;
- 
+ 		if (!opp_table->required_opp_tables && !opp_table->regulators &&
+ 		    !opp_table->paths) {
 
 
