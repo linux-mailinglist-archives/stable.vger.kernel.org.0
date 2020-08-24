@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6485C24FAC8
+	by mail.lfdr.de (Postfix) with ESMTP id D22B524FAC9
 	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgHXJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728063AbgHXJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Aug 2020 05:59:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40202 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726878AbgHXIdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726873AbgHXIdA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 04:33:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98762207DF;
-        Mon, 24 Aug 2020 08:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70762206F0;
+        Mon, 24 Aug 2020 08:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257977;
-        bh=q7ovJEESpMS9fL3yuRScjYX4gV5PCOccEWwYhFe/NaE=;
+        s=default; t=1598257980;
+        bh=lVVAh9Z9McLW3SoXxl5P+4DwQWEYitbI4AmCQQ3aerw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxYL6tfwb6wR7q0HU8MBmJlLJbWHvgUNzkgIS9gA/tkF84Ps8sm1YSWo8mQH5y79U
-         BjAT1h9IrgkIi8U8iHo3nwSiVamwXs2SgN4TZXgprhiXc1VFaioO8JuTAQqA76pQlr
-         PINBfrpgTajQJh8whsIN6EFbuFsWJhJWPGTTk+YE=
+        b=LlVQrELTLpGyA0Nb8FpolZ+vOVwma5sBDGd+0ec0iStlvvKA9G64YvLeipqwYvTjh
+         fOZUjpxe1AbWNiLFTNqXEvdHeFFQHsJhBqPo3fGZSZuzE5FUuP/VN2VvvAkFRHJV/K
+         4ZeKI2oeiXADPLX1j7E6S47SuaMQemnBEpTz4fUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Yang Weijiang <weijiang.yang@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.8 029/148] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
-Date:   Mon, 24 Aug 2020 10:28:47 +0200
-Message-Id: <20200824082415.348353053@linuxfoundation.org>
+Subject: [PATCH 5.8 030/148] selftests: kvm: Use a shorter encoding to clear RAX
+Date:   Mon, 24 Aug 2020 10:28:48 +0200
+Message-Id: <20200824082415.398316113@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -46,158 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Yang Weijiang <weijiang.yang@intel.com>
 
-commit fdfe7cbd58806522e799e2a50a15aee7f2cbb7b6 upstream.
+commit 98b0bf02738004829d7e26d6cb47b2e469aaba86 upstream.
 
-The 'flags' field of 'struct mmu_notifier_range' is used to indicate
-whether invalidate_range_{start,end}() are permitted to block. In the
-case of kvm_mmu_notifier_invalidate_range_start(), this field is not
-forwarded on to the architecture-specific implementation of
-kvm_unmap_hva_range() and therefore the backend cannot sensibly decide
-whether or not to block.
+If debug_regs.c is built with newer binutils, the resulting binary is "optimized"
+by the assembler:
 
-Add an extra 'flags' parameter to kvm_unmap_hva_range() so that
-architectures are aware as to whether or not they are permitted to block.
+asm volatile("ss_start: "
+             "xor %%rax,%%rax\n\t"
+             "cpuid\n\t"
+             "movl $0x1a0,%%ecx\n\t"
+             "rdmsr\n\t"
+             : : : "rax", "ecx");
 
-Cc: <stable@vger.kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Message-Id: <20200811102725.7121-2-will@kernel.org>
+is translated to :
+
+  000000000040194e <ss_start>:
+  40194e:       31 c0                   xor    %eax,%eax     <----- rax->eax?
+  401950:       0f a2                   cpuid
+  401952:       b9 a0 01 00 00          mov    $0x1a0,%ecx
+  401957:       0f 32                   rdmsr
+
+As you can see rax is replaced with eax in target binary code.
+This causes a difference is the length of xor instruction (2 Byte vs 3 Byte),
+and makes the hard-coded instruction length check fail:
+
+        /* Instruction lengths starting at ss_start */
+        int ss_size[4] = {
+                3,              /* xor */   <-------- 2 or 3?
+                2,              /* cpuid */
+                5,              /* mov */
+                2,              /* rdmsr */
+        };
+
+Encode the shorter version directly and, while at it, fix the "clobbers"
+of the asm.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Yang Weijiang <weijiang.yang@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h   |    2 +-
- arch/arm64/kvm/mmu.c                |    2 +-
- arch/mips/include/asm/kvm_host.h    |    2 +-
- arch/mips/kvm/mmu.c                 |    3 ++-
- arch/powerpc/include/asm/kvm_host.h |    3 ++-
- arch/powerpc/kvm/book3s.c           |    3 ++-
- arch/powerpc/kvm/e500_mmu_host.c    |    3 ++-
- arch/x86/include/asm/kvm_host.h     |    3 ++-
- arch/x86/kvm/mmu/mmu.c              |    3 ++-
- virt/kvm/kvm_main.c                 |    3 ++-
- 10 files changed, 17 insertions(+), 10 deletions(-)
+ tools/testing/selftests/kvm/x86_64/debug_regs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -443,7 +443,7 @@ int __kvm_arm_vcpu_set_events(struct kvm
+--- a/tools/testing/selftests/kvm/x86_64/debug_regs.c
++++ b/tools/testing/selftests/kvm/x86_64/debug_regs.c
+@@ -40,11 +40,11 @@ static void guest_code(void)
  
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end);
-+			unsigned long start, unsigned long end, unsigned flags);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
---- a/arch/arm64/kvm/mmu.c
-+++ b/arch/arm64/kvm/mmu.c
-@@ -2203,7 +2203,7 @@ static int kvm_unmap_hva_handler(struct
- }
+ 	/* Single step test, covers 2 basic instructions and 2 emulated */
+ 	asm volatile("ss_start: "
+-		     "xor %%rax,%%rax\n\t"
++		     "xor %%eax,%%eax\n\t"
+ 		     "cpuid\n\t"
+ 		     "movl $0x1a0,%%ecx\n\t"
+ 		     "rdmsr\n\t"
+-		     : : : "rax", "ecx");
++		     : : : "eax", "ebx", "ecx", "edx");
  
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end)
-+			unsigned long start, unsigned long end, unsigned flags)
- {
- 	if (!kvm->arch.pgd)
- 		return 0;
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -981,7 +981,7 @@ enum kvm_mips_fault_result kvm_trap_emul
- 
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- int kvm_unmap_hva_range(struct kvm *kvm,
--			unsigned long start, unsigned long end);
-+			unsigned long start, unsigned long end, unsigned flags);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
---- a/arch/mips/kvm/mmu.c
-+++ b/arch/mips/kvm/mmu.c
-@@ -518,7 +518,8 @@ static int kvm_unmap_hva_handler(struct
- 	return 1;
- }
- 
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	handle_hva_to_gpa(kvm, start, end, &kvm_unmap_hva_handler, NULL);
- 
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -58,7 +58,8 @@
- #define KVM_ARCH_WANT_MMU_NOTIFIER
- 
- extern int kvm_unmap_hva_range(struct kvm *kvm,
--			       unsigned long start, unsigned long end);
-+			       unsigned long start, unsigned long end,
-+			       unsigned flags);
- extern int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- extern int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
- extern int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
---- a/arch/powerpc/kvm/book3s.c
-+++ b/arch/powerpc/kvm/book3s.c
-@@ -834,7 +834,8 @@ void kvmppc_core_commit_memory_region(st
- 	kvm->arch.kvm_ops->commit_memory_region(kvm, mem, old, new, change);
- }
- 
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	return kvm->arch.kvm_ops->unmap_hva_range(kvm, start, end);
- }
---- a/arch/powerpc/kvm/e500_mmu_host.c
-+++ b/arch/powerpc/kvm/e500_mmu_host.c
-@@ -734,7 +734,8 @@ static int kvm_unmap_hva(struct kvm *kvm
- 	return 0;
- }
- 
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	/* kvm_unmap_hva flushes everything anyways */
- 	kvm_unmap_hva(kvm, start);
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1641,7 +1641,8 @@ asmlinkage void kvm_spurious_fault(void)
- 	_ASM_EXTABLE(666b, 667b)
- 
- #define KVM_ARCH_WANT_MMU_NOTIFIER
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end);
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags);
- int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
- int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1971,7 +1971,8 @@ static int kvm_handle_hva(struct kvm *kv
- 	return kvm_handle_hva_range(kvm, hva, hva + 1, data, handler);
- }
- 
--int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end)
-+int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
-+			unsigned flags)
- {
- 	return kvm_handle_hva_range(kvm, start, end, 0, kvm_unmap_rmapp);
- }
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -427,7 +427,8 @@ static int kvm_mmu_notifier_invalidate_r
- 	 * count is also read inside the mmu_lock critical section.
- 	 */
- 	kvm->mmu_notifier_count++;
--	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end);
-+	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end,
-+					     range->flags);
- 	need_tlb_flush |= kvm->tlbs_dirty;
- 	/* we've to flush the tlb before the pages can be freed */
- 	if (need_tlb_flush)
+ 	/* DR6.BD test */
+ 	asm volatile("bd_start: mov %%dr0, %%rax" : : : "rax");
 
 
