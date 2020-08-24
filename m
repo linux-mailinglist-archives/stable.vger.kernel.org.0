@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F1124F7E1
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F14824F7DE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbgHXJW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35502 "EHLO mail.kernel.org"
+        id S1728946AbgHXJWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:22:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727932AbgHXIyj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:39 -0400
+        id S1730363AbgHXIyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:54:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADCA02072D;
-        Mon, 24 Aug 2020 08:54:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C50A207D3;
+        Mon, 24 Aug 2020 08:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259279;
-        bh=VLxyeZYkenFDg1boaLTN/3BvGt362DubtCiD0r8yk0I=;
+        s=default; t=1598259286;
+        bh=KvW2rz2zbwbkT+LXyYl4TUn0AOswUOmA+ZKF95S8iKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H723QC66mle7NOLyEUv4Bs6WfuuuqBIAmc5ReKvTOPqz3fyhBDPfKAmF38eMqHVN5
-         y9ITx5rNiqFl6gAw7uNavQo1RLnUCeYv3LR81rzJPCJ0dRXCHcD+TbTN4OfOioZHTl
-         W2tqu+5NQZiUpmkXrGzMUVbzxV6x8TRnz9TiVcnU=
+        b=HoglygKaVzpR58G924SMUjBo0vjP5i4jdD5Qd9E6elBCIyzC3fAnHJKFpszh1GJJO
+         AEHDLH7jhK9qyeqlAYt8PVVGM+CnuWS//Kdy3UXiBjxthZXRure63qYW6YPaE6FNy4
+         l24B2cwgu6ZroE3Zo0oB8PedJk0b5K2g+RyfeeTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiyi Guo <zhguo@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/50] vfio/type1: Add proper error unwind for vfio_iommu_replay()
-Date:   Mon, 24 Aug 2020 10:31:42 +0200
-Message-Id: <20200824082354.134279106@linuxfoundation.org>
+Subject: [PATCH 4.14 43/50] hv_netvsc: Fix the queue_mapping in netvsc_vf_xmit()
+Date:   Mon, 24 Aug 2020 10:31:44 +0200
+Message-Id: <20200824082354.226087780@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
 References: <20200824082351.823243923@linuxfoundation.org>
@@ -45,162 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-[ Upstream commit aae7a75a821a793ed6b8ad502a5890fb8e8f172d ]
+[ Upstream commit c3d897e01aef8ddc43149e4d661b86f823e3aae7 ]
 
-The vfio_iommu_replay() function does not currently unwind on error,
-yet it does pin pages, perform IOMMU mapping, and modify the vfio_dma
-structure to indicate IOMMU mapping.  The IOMMU mappings are torn down
-when the domain is destroyed, but the other actions go on to cause
-trouble later.  For example, the iommu->domain_list can be empty if we
-only have a non-IOMMU backed mdev attached.  We don't currently check
-if the list is empty before getting the first entry in the list, which
-leads to a bogus domain pointer.  If a vfio_dma entry is erroneously
-marked as iommu_mapped, we'll attempt to use that bogus pointer to
-retrieve the existing physical page addresses.
+netvsc_vf_xmit() / dev_queue_xmit() will call VF NIC’s ndo_select_queue
+or netdev_pick_tx() again. They will use skb_get_rx_queue() to get the
+queue number, so the “skb->queue_mapping - 1” will be used. This may
+cause the last queue of VF not been used.
 
-This is the scenario that uncovered this issue, attempting to hot-add
-a vfio-pci device to a container with an existing mdev device and DMA
-mappings, one of which could not be pinned, causing a failure adding
-the new group to the existing container and setting the conditions
-for a subsequent attempt to explode.
+Use skb_record_rx_queue() here, so that the skb_get_rx_queue() called
+later will get the correct queue number, and VF will be able to use
+all queues.
 
-To resolve this, we can first check if the domain_list is empty so
-that we can reject replay of a bogus domain, should we ever encounter
-this inconsistent state again in the future.  The real fix though is
-to add the necessary unwind support, which means cleaning up the
-current pinning if an IOMMU mapping fails, then walking back through
-the r-b tree of DMA entries, reading from the IOMMU which ranges are
-mapped, and unmapping and unpinning those ranges.  To be able to do
-this, we also defer marking the DMA entry as IOMMU mapped until all
-entries are processed, in order to allow the unwind to know the
-disposition of each entry.
-
-Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
-Reported-by: Zhiyi Guo <zhguo@redhat.com>
-Tested-by: Zhiyi Guo <zhguo@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: b3bf5666a510 ("hv_netvsc: defer queue selection to VF")
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_type1.c | 71 ++++++++++++++++++++++++++++++---
- 1 file changed, 66 insertions(+), 5 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 35a3750a6ddd3..f22425501bc16 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1086,13 +1086,16 @@ static int vfio_bus_type(struct device *dev, void *data)
- static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 			     struct vfio_domain *domain)
- {
--	struct vfio_domain *d;
-+	struct vfio_domain *d = NULL;
- 	struct rb_node *n;
- 	unsigned long limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
- 	int ret;
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 10c3480c2da89..dbc6c9ed1c8f8 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -500,7 +500,7 @@ static int netvsc_vf_xmit(struct net_device *net, struct net_device *vf_netdev,
+ 	int rc;
  
- 	/* Arbitrarily pick the first domain in the list for lookups */
--	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
-+	if (!list_empty(&iommu->domain_list))
-+		d = list_first_entry(&iommu->domain_list,
-+				     struct vfio_domain, next);
-+
- 	n = rb_first(&iommu->dma_list);
+ 	skb->dev = vf_netdev;
+-	skb->queue_mapping = qdisc_skb_cb(skb)->slave_dev_queue_mapping;
++	skb_record_rx_queue(skb, qdisc_skb_cb(skb)->slave_dev_queue_mapping);
  
- 	for (; n; n = rb_next(n)) {
-@@ -1110,6 +1113,11 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 				phys_addr_t p;
- 				dma_addr_t i;
- 
-+				if (WARN_ON(!d)) { /* mapped w/o a domain?! */
-+					ret = -EINVAL;
-+					goto unwind;
-+				}
-+
- 				phys = iommu_iova_to_phys(d->domain, iova);
- 
- 				if (WARN_ON(!phys)) {
-@@ -1139,7 +1147,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 				if (npage <= 0) {
- 					WARN_ON(!npage);
- 					ret = (int)npage;
--					return ret;
-+					goto unwind;
- 				}
- 
- 				phys = pfn << PAGE_SHIFT;
-@@ -1148,14 +1156,67 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 
- 			ret = iommu_map(domain->domain, iova, phys,
- 					size, dma->prot | domain->prot);
--			if (ret)
--				return ret;
-+			if (ret) {
-+				if (!dma->iommu_mapped)
-+					vfio_unpin_pages_remote(dma, iova,
-+							phys >> PAGE_SHIFT,
-+							size >> PAGE_SHIFT,
-+							true);
-+				goto unwind;
-+			}
- 
- 			iova += size;
- 		}
-+	}
-+
-+	/* All dmas are now mapped, defer to second tree walk for unwind */
-+	for (n = rb_first(&iommu->dma_list); n; n = rb_next(n)) {
-+		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
-+
- 		dma->iommu_mapped = true;
- 	}
-+
- 	return 0;
-+
-+unwind:
-+	for (; n; n = rb_prev(n)) {
-+		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
-+		dma_addr_t iova;
-+
-+		if (dma->iommu_mapped) {
-+			iommu_unmap(domain->domain, dma->iova, dma->size);
-+			continue;
-+		}
-+
-+		iova = dma->iova;
-+		while (iova < dma->iova + dma->size) {
-+			phys_addr_t phys, p;
-+			size_t size;
-+			dma_addr_t i;
-+
-+			phys = iommu_iova_to_phys(domain->domain, iova);
-+			if (!phys) {
-+				iova += PAGE_SIZE;
-+				continue;
-+			}
-+
-+			size = PAGE_SIZE;
-+			p = phys + size;
-+			i = iova + size;
-+			while (i < dma->iova + dma->size &&
-+			       p == iommu_iova_to_phys(domain->domain, i)) {
-+				size += PAGE_SIZE;
-+				p += PAGE_SIZE;
-+				i += PAGE_SIZE;
-+			}
-+
-+			iommu_unmap(domain->domain, iova, size);
-+			vfio_unpin_pages_remote(dma, iova, phys >> PAGE_SHIFT,
-+						size >> PAGE_SHIFT, true);
-+		}
-+	}
-+
-+	return ret;
- }
- 
- /*
+ 	rc = dev_queue_xmit(skb);
+ 	if (likely(rc == NET_XMIT_SUCCESS || rc == NET_XMIT_CN)) {
 -- 
 2.25.1
 
