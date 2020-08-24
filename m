@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6F024F914
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F052924F9A2
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbgHXJk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:40:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
+        id S1728192AbgHXJrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgHXIpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:45:36 -0400
+        id S1726818AbgHXIlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:41:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0140B204FD;
-        Mon, 24 Aug 2020 08:45:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 747A62087D;
+        Mon, 24 Aug 2020 08:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258735;
-        bh=q2KANpMGXSeyzKEWZM9I8ni3OZPfwzMBznz7DQYRhiE=;
+        s=default; t=1598258474;
+        bh=+wO7/hn/KPi4LzV/su4H+IQbuELUFq9lcgIlERekZRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRN7qhDl+yC+4UyfyJtRDzb7WHFxsHrcdxMETx92RxCE8lGXAkO7pL1cX8alBFXsn
-         kCt4mVyI1y7W0+vkbOkrBBwDMLz6n3mQjAjAIcCkVQqewdWdnodbR7u7fCl8VkrL5e
-         FcHlgliogRHOSmY9+tSnN90ySV9KvACp6MdHuOC8=
+        b=JxisfguBE1bb7p3N5ISxUw+P+EO11uxirPjF6uMeudCFxGr841KMAD+a02x+mOKFa
+         sZgfzhC9OStXPHPQZ8EZu7aF8sg2ZfvtSnff0qefQPCvZHIWd6rzOu0/BOxsC84yhc
+         DI9WZdptw51BzWdjGslZRJet0JmSQjlzDeJ1S/iU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 026/107] romfs: fix uninitialized memory leak in romfs_dev_read()
-Date:   Mon, 24 Aug 2020 10:29:52 +0200
-Message-Id: <20200824082406.395752684@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 059/124] ext4: fix potential negative array index in do_split()
+Date:   Mon, 24 Aug 2020 10:29:53 +0200
+Message-Id: <20200824082412.327109156@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
+[ Upstream commit 5872331b3d91820e14716632ebb56b1399b34fe1 ]
 
-romfs has a superblock field that limits the size of the filesystem; data
-beyond that limit is never accessed.
+If for any reason a directory passed to do_split() does not have enough
+active entries to exceed half the size of the block, we can end up
+iterating over all "count" entries without finding a split point.
 
-romfs_dev_read() fetches a caller-supplied number of bytes from the
-backing device.  It returns 0 on success or an error code on failure;
-therefore, its API can't represent short reads, it's all-or-nothing.
+In this case, count == move, and split will be zero, and we will
+attempt a negative index into map[].
 
-However, when romfs_dev_read() detects that the requested operation would
-cross the filesystem size limit, it currently silently truncates the
-requested number of bytes.  This e.g.  means that when the content of a
-file with size 0x1000 starts one byte before the filesystem size limit,
-->readpage() will only fill a single byte of the supplied page while
-leaving the rest uninitialized, leaking that uninitialized memory to
-userspace.
+Guard against this by detecting this case, and falling back to
+split-to-half-of-count instead; in this case we will still have
+plenty of space (> half blocksize) in each split block.
 
-Fix it by returning an error code instead of truncating the read when the
-requested read operation would go beyond the end of the filesystem.
-
-Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ef2b02d3e617 ("ext34: ensure do_split leaves enough free space in both blocks")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/f53e246b-647c-64bb-16ec-135383c70ad7@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/romfs/storage.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/ext4/namei.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/fs/romfs/storage.c
-+++ b/fs/romfs/storage.c
-@@ -217,10 +217,8 @@ int romfs_dev_read(struct super_block *s
- 	size_t limit;
- 
- 	limit = romfs_maxsize(sb);
--	if (pos >= limit)
-+	if (pos >= limit || buflen > limit - pos)
- 		return -EIO;
--	if (buflen > limit - pos)
--		buflen = limit - pos;
- 
- #ifdef CONFIG_ROMFS_ON_MTD
- 	if (sb->s_mtd)
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 98b91f2314eba..a91a5bb8c3a2b 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1858,7 +1858,7 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 			     blocksize, hinfo, map);
+ 	map -= count;
+ 	dx_sort_map(map, count);
+-	/* Split the existing block in the middle, size-wise */
++	/* Ensure that neither split block is over half full */
+ 	size = 0;
+ 	move = 0;
+ 	for (i = count-1; i >= 0; i--) {
+@@ -1868,8 +1868,18 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 		size += map[i].size;
+ 		move++;
+ 	}
+-	/* map index at which we will split */
+-	split = count - move;
++	/*
++	 * map index at which we will split
++	 *
++	 * If the sum of active entries didn't exceed half the block size, just
++	 * split it in half by count; each resulting block will have at least
++	 * half the space free.
++	 */
++	if (i > 0)
++		split = count - move;
++	else
++		split = count/2;
++
+ 	hash2 = map[split].hash;
+ 	continued = hash2 == map[split - 1].hash;
+ 	dxtrace(printk(KERN_INFO "Split block %lu at %x, %i/%i\n",
+-- 
+2.25.1
+
 
 
