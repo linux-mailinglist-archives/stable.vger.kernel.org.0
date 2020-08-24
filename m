@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7F524F974
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7874E24F8C5
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbgHXJpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38970 "EHLO mail.kernel.org"
+        id S1729539AbgHXIsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729087AbgHXIn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:43:56 -0400
+        id S1729538AbgHXIsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 811582074D;
-        Mon, 24 Aug 2020 08:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C873A206F0;
+        Mon, 24 Aug 2020 08:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258636;
-        bh=v1rV0+cSpDxIvN/6ZeU7yyZcDQgDMvN6tAWvb4P70Wo=;
+        s=default; t=1598258899;
+        bh=VEHsi2lvfwmOe5KZ6QdafMJpjIqDpBNCgokbpeJlJVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kz/JQWRqdovfRF+r7b3cnr1IGJpzQGsVEBx4DrqYAcfhqX58yZo4RZQ+95OBDnWme
-         5qYKbVxHcXJNdx7DMPMiaX1z6PLCHOtsFBVNRKcdoPSzrvBzFstto8spZE89SDT9W0
-         qOOWV7A9G0aH6KUoS6XS105tSeP00T4cUI5fP/3I=
+        b=QfYTVYSEan5ABQz/hbxvk8K+b/Uw1rjM6uuTIsJyG7Qx2tq2BigppoPA/wCgoUkMN
+         xczZyMocwkKQeTsHVZZqgHkwbJ0kvSO1/bFWe7H1IVlkbGaReeBvjr5KbMmUCr6L4a
+         PXvElcfuIjfMsVX/B2wYvOCbBXn/XFGljzWIIB0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.7 116/124] epoll: Keep a reference on files added to the check list
-Date:   Mon, 24 Aug 2020 10:30:50 +0200
-Message-Id: <20200824082415.113654028@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 085/107] ASoC: intel: Fix memleak in sst_media_open
+Date:   Mon, 24 Aug 2020 10:30:51 +0200
+Message-Id: <20200824082409.328956134@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit a9ed4a6560b8562b7e2e2bed9527e88001f7b682 upstream.
+[ Upstream commit 062fa09f44f4fb3776a23184d5d296b0c8872eb9 ]
 
-When adding a new fd to an epoll, and that this new fd is an
-epoll fd itself, we recursively scan the fds attached to it
-to detect cycles, and add non-epool files to a "check list"
-that gets subsequently parsed.
+When power_up_sst() fails, stream needs to be freed
+just like when try_module_get() fails. However, current
+code is returning directly and ends up leaking memory.
 
-However, this check list isn't completely safe when deletions
-can happen concurrently. To sidestep the issue, make sure that
-a struct file placed on the check list sees its f_count increased,
-ensuring that a concurrent deletion won't result in the file
-disapearing from under our feet.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0121327c1a68b ("ASoC: Intel: mfld-pcm: add control for powering up/down dsp")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200813084112.26205-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1994,9 +1994,11 @@ static int ep_loop_check_proc(void *priv
- 			 * not already there, and calling reverse_path_check()
- 			 * during ep_insert().
- 			 */
--			if (list_empty(&epi->ffd.file->f_tfile_llink))
-+			if (list_empty(&epi->ffd.file->f_tfile_llink)) {
-+				get_file(epi->ffd.file);
- 				list_add(&epi->ffd.file->f_tfile_llink,
- 					 &tfile_check_list);
-+			}
- 		}
- 	}
- 	mutex_unlock(&ep->mtx);
-@@ -2040,6 +2042,7 @@ static void clear_tfile_check_list(void)
- 		file = list_first_entry(&tfile_check_list, struct file,
- 					f_tfile_llink);
- 		list_del_init(&file->f_tfile_llink);
-+		fput(file);
- 	}
- 	INIT_LIST_HEAD(&tfile_check_list);
+diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+index 8cc3cc363eb03..31f1dd6541aa1 100644
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -331,7 +331,7 @@ static int sst_media_open(struct snd_pcm_substream *substream,
+ 
+ 	ret_val = power_up_sst(stream);
+ 	if (ret_val < 0)
+-		return ret_val;
++		goto out_power_up;
+ 
+ 	/* Make sure, that the period size is always even */
+ 	snd_pcm_hw_constraint_step(substream->runtime, 0,
+@@ -340,8 +340,9 @@ static int sst_media_open(struct snd_pcm_substream *substream,
+ 	return snd_pcm_hw_constraint_integer(runtime,
+ 			 SNDRV_PCM_HW_PARAM_PERIODS);
+ out_ops:
+-	kfree(stream);
+ 	mutex_unlock(&sst_lock);
++out_power_up:
++	kfree(stream);
+ 	return ret_val;
  }
-@@ -2204,13 +2207,17 @@ int do_epoll_ctl(int epfd, int op, int f
- 					clear_tfile_check_list();
- 					goto error_tgt_fput;
- 				}
--			} else
-+			} else {
-+				get_file(tf.file);
- 				list_add(&tf.file->f_tfile_llink,
- 							&tfile_check_list);
-+			}
- 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
- 			if (error) {
- out_del:
- 				list_del(&tf.file->f_tfile_llink);
-+				if (!is_file_epoll(tf.file))
-+					fput(tf.file);
- 				goto error_tgt_fput;
- 			}
- 			if (is_file_epoll(tf.file)) {
+ 
+-- 
+2.25.1
+
 
 
