@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B516324F8FF
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A82D824F9B3
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729143AbgHXIq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
+        id S1728764AbgHXJsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:48:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729343AbgHXIq0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:26 -0400
+        id S1726645AbgHXIkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:40:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7270206F0;
-        Mon, 24 Aug 2020 08:46:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E33CA20FC3;
+        Mon, 24 Aug 2020 08:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258786;
-        bh=1RUvlJj4UOjBfLIGHgxFknh/nqgcIeP7tjGttnAp8Oo=;
+        s=default; t=1598258435;
+        bh=nzildonZ2Cp5d5EqEk9pDNpe/ArGo68DTb1T0ykhnEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z0iuatpNFbQ6+p7OixpymmSQTZYYwcc+inqXkPgJghqEeAudQYro6vZOMyghANyAk
-         3Q8GMOadiS7BkUcZHMOyprMIl3bVJk66nc5pNZksDRJoZm6oq9OSuOALRthgAoACmZ
-         rj6JDGG5Q0h0w955WVCcHhADHW7j5o8hdJ5YHixg=
+        b=K10/7dWCD2gV4mwLXb9GbUgnytC2E2ILOl3JxOoNYq/Mx5nztlw1J4EnJQ/dLlKqt
+         2vSkqKq5iRGuDzVQ8qJUA1Y6sRRPzR195O3QCydc+m1DrRDaVRbcdgcnvfTFw9eWUu
+         Gy5FIaVDEc7yCRY8EKFsMpXf/zReSuJHnsIJP8MA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/107] khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+Subject: [PATCH 5.7 047/124] riscv: Fixup static_obj() fail
 Date:   Mon, 24 Aug 2020 10:29:41 +0200
-Message-Id: <20200824082405.826004689@linuxfoundation.org>
+Message-Id: <20200824082411.740393222@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit f3f99d63a8156c7a4a6b20aac22b53c5579c7dc1 ]
+[ Upstream commit 6184358da0004c8fd940afda6c0a0fa4027dc911 ]
 
-syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
-__khugepaged_enter(): yes, when one thread is about to dump core, has set
-core_state, and is waiting for others, another might do something calling
-__khugepaged_enter(), which now crashes because I lumped the core_state
-test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
-think it's best to lump them together, so just in this exceptional case,
-check mm->mm_users directly instead of khugepaged_test_exit().
+When enable LOCKDEP, static_obj() will cause error. Because some
+__initdata static variables is before _stext:
 
-Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+static int static_obj(const void *obj)
+{
+        unsigned long start = (unsigned long) &_stext,
+                      end   = (unsigned long) &_end,
+                      addr  = (unsigned long) obj;
+
+        /*
+         * static variable?
+         */
+        if ((addr >= start) && (addr < end))
+                return 1;
+
+[    0.067192] INFO: trying to register non-static key.
+[    0.067325] the code is fine but needs lockdep annotation.
+[    0.067449] turning off the locking correctness validator.
+[    0.067718] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc7-dirty #44
+[    0.067945] Call Trace:
+[    0.068369] [<ffffffe00020323c>] walk_stackframe+0x0/0xa4
+[    0.068506] [<ffffffe000203422>] show_stack+0x2a/0x34
+[    0.068631] [<ffffffe000521e4e>] dump_stack+0x94/0xca
+[    0.068757] [<ffffffe000255a4e>] register_lock_class+0x5b8/0x5bc
+[    0.068969] [<ffffffe000255abe>] __lock_acquire+0x6c/0x1d5c
+[    0.069101] [<ffffffe0002550fe>] lock_acquire+0xae/0x312
+[    0.069228] [<ffffffe000989a8e>] _raw_spin_lock_irqsave+0x40/0x5a
+[    0.069357] [<ffffffe000247c64>] complete+0x1e/0x50
+[    0.069479] [<ffffffe000984c38>] rest_init+0x1b0/0x28a
+[    0.069660] [<ffffffe0000016a2>] 0xffffffe0000016a2
+[    0.069779] [<ffffffe000001b84>] 0xffffffe000001b84
+[    0.069953] [<ffffffe000001092>] 0xffffffe000001092
+
+static __initdata DECLARE_COMPLETION(kthreadd_done);
+
+noinline void __ref rest_init(void)
+{
+	...
+	complete(&kthreadd_done);
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c | 2 +-
+ arch/riscv/kernel/vmlinux.lds.S | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 76e3e90dbc16e..3623d1c5343f2 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -438,7 +438,7 @@ int __khugepaged_enter(struct mm_struct *mm)
- 		return -ENOMEM;
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index 0339b6bbe11ab..bf3f34dbe630b 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -22,6 +22,7 @@ SECTIONS
+ 	/* Beginning of code and text segment */
+ 	. = LOAD_OFFSET;
+ 	_start = .;
++	_stext = .;
+ 	HEAD_TEXT_SECTION
+ 	. = ALIGN(PAGE_SIZE);
  
- 	/* __khugepaged_exit() must not run from under us */
--	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
-+	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
- 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
- 		free_mm_slot(mm_slot);
- 		return 0;
+@@ -49,7 +50,6 @@ SECTIONS
+ 	. = ALIGN(SECTION_ALIGN);
+ 	.text : {
+ 		_text = .;
+-		_stext = .;
+ 		TEXT_TEXT
+ 		SCHED_TEXT
+ 		CPUIDLE_TEXT
 -- 
 2.25.1
 
