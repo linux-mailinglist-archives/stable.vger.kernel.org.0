@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB8E24F5A0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82DA624F582
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729940AbgHXIvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:51:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
+        id S1729518AbgHXIuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728460AbgHXIv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:51:26 -0400
+        id S1728670AbgHXIuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A227D2072D;
-        Mon, 24 Aug 2020 08:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF5CD208E4;
+        Mon, 24 Aug 2020 08:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259086;
-        bh=CNhFNAUvh1EmrgeFYiDEaS9LJYFkJitLo/xMDYLQ+vY=;
+        s=default; t=1598259004;
+        bh=zzPswJhfQd/4W/b2P8W2qrcTfu+qr2gLdqmk0us4tzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkUFqxXD41PeIBty5Tm1JRYAjyAxjLpYryjB2mLM82QOXkHfDm9XzZe+JMFc7fipW
-         w5dJqIb0ck9Zgav74cuGb8pT9hp9qVbqmEzLBeOHTIAWd0cGXDA/8j+t9llv0Y2Skc
-         9MyFnULSDrWwW+rUSJkXGyvixSEff2jrIiloq540=
+        b=nuCzg/3TSjKi/yoF93wn9UEJf73n7/WTqMe06WbIfn+cR6wum8DSINEl7fqpzDjNl
+         pW4UmEQvebAFt2AbWV5v2DwZTPXTyUAFYHm27XZzTwA9c++/3jGXA4a1fNfYM3+/Wb
+         VBXlFeXz54mgyOISLx4dFGkwtiQwZ0dRuY7RHRK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 15/39] jbd2: add the missing unlock_buffer() in the error path of jbd2_write_superblock()
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 18/33] Input: psmouse - add a newline when printing proto by sysfs
 Date:   Mon, 24 Aug 2020 10:31:14 +0200
-Message-Id: <20200824082349.270439673@linuxfoundation.org>
+Message-Id: <20200824082347.452493240@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit ef3f5830b859604eda8723c26d90ab23edc027a4 upstream.
+[ Upstream commit 4aec14de3a15cf9789a0e19c847f164776f49473 ]
 
-jbd2_write_superblock() is under the buffer lock of journal superblock
-before ending that superblock write, so add a missing unlock_buffer() in
-in the error path before submitting buffer.
+When I cat parameter 'proto' by sysfs, it displays as follows. It's
+better to add a newline for easy reading.
 
-Fixes: 742b06b5628f ("jbd2: check superblock mapped prior to committing")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20200620061948.2049579-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+root@syzkaller:~# cat /sys/module/psmouse/parameters/proto
+autoroot@syzkaller:~#
 
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20200720073846.120724-1-wangxiongfeng2@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/journal.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/mouse/psmouse-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -1340,8 +1340,10 @@ static int jbd2_write_superblock(journal
- 	int ret;
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index ad18dab0ac476..5bd9633541b07 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1911,7 +1911,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
+ {
+ 	int type = *((unsigned int *)kp->arg);
  
- 	/* Buffer got discarded which means block device got invalidated */
--	if (!buffer_mapped(bh))
-+	if (!buffer_mapped(bh)) {
-+		unlock_buffer(bh);
- 		return -EIO;
-+	}
+-	return sprintf(buffer, "%s", psmouse_protocol_by_type(type)->name);
++	return sprintf(buffer, "%s\n", psmouse_protocol_by_type(type)->name);
+ }
  
- 	trace_jbd2_write_superblock(journal, write_flags);
- 	if (!(journal->j_flags & JBD2_BARRIER))
+ static int __init psmouse_init(void)
+-- 
+2.25.1
+
 
 
