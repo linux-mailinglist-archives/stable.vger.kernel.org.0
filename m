@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E32DC24F549
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A4924F4A1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729402AbgHXIq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45948 "EHLO mail.kernel.org"
+        id S1728558AbgHXIig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:38:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729399AbgHXIqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:55 -0400
+        id S1728555AbgHXIif (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:38:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9935B206F0;
-        Mon, 24 Aug 2020 08:46:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 039F42177B;
+        Mon, 24 Aug 2020 08:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258815;
-        bh=dCAY1/5cj0Mc5sodwYE/kMvFDeBX4kjWx8QWkQtuaLg=;
+        s=default; t=1598258315;
+        bh=QNFI7UwkzHpeEeP4WV7EBOwHIbcHMhRpqohCeXwFHBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdggkBmVmuGrLtAXogNZT2uPyazUN7i/uA7/4sQCPs6ft+y322zNUs6D1K0Mk8HFo
-         jBSKy3tK7ai9Ths1tCeDJREAKiVkcOZ+BABGq3itqCHFHnfaTev2quwWsGpxYURbm/
-         +lJdP4di/51g0WyANLomOw0uk2fKXsOb8BypivjA=
+        b=wBuxz3HGhUy90yqWg0YnwqPCGtxMp2LTNmoxDEncKQShoJ+4fwVef4uUxw35PrILV
+         9zWIFI/p4UVKkR0GLxTS2D8ROVCBryBMCGGfBaouZLnFbqWPzGhlwrPLa8+yCAJ2aj
+         yuvED2jFZcxcln29+opnVkIFW0N7bBZY6lhBfFbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Dave Botsch <botsch@cnf.cornell.edu>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/107] cpufreq: intel_pstate: Fix cpuinfo_max_freq when MSR_TURBO_RATIO_LIMIT is 0
-Date:   Mon, 24 Aug 2020 10:30:21 +0200
-Message-Id: <20200824082407.847242860@linuxfoundation.org>
+Subject: [PATCH 5.8 124/148] afs: Fix key ref leak in afs_put_operation()
+Date:   Mon, 24 Aug 2020 10:30:22 +0200
+Message-Id: <20200824082419.953664165@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 4daca379c703ff55edc065e8e5173dcfeecf0148 ]
+[ Upstream commit ba8e42077bbe046a09bdb965dbfbf8c27594fe8f ]
 
-The MSR_TURBO_RATIO_LIMIT can be 0. This is not an error. User can update
-this MSR via BIOS settings on some systems or can use msr tools to update.
-Also some systems boot with value = 0.
+The afs_put_operation() function needs to put the reference to the key
+that's authenticating the operation.
 
-This results in display of cpufreq/cpuinfo_max_freq wrong. This value
-will be equal to cpufreq/base_frequency, even though turbo is enabled.
-
-But platform will still function normally in HWP mode as we get max
-1-core frequency from the MSR_HWP_CAPABILITIES. This MSR is already used
-to calculate cpu->pstate.turbo_freq, which is used for to set
-policy->cpuinfo.max_freq. But some other places cpu->pstate.turbo_pstate
-is used. For example to set policy->max.
-
-To fix this, also update cpu->pstate.turbo_pstate when updating
-cpu->pstate.turbo_freq.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e49c7b2f6de7 ("afs: Build an abstraction around an "operation" concept")
+Reported-by: Dave Botsch <botsch@cnf.cornell.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 1 +
+ fs/afs/fs_operation.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index d3d7c4ef7d045..53dc0fd6f6d3c 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1571,6 +1571,7 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
- 
- 		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
- 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
-+		cpu->pstate.turbo_pstate = phy_max;
- 	} else {
- 		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
- 	}
+diff --git a/fs/afs/fs_operation.c b/fs/afs/fs_operation.c
+index 24fd163c6323e..97cab12b0a6c2 100644
+--- a/fs/afs/fs_operation.c
++++ b/fs/afs/fs_operation.c
+@@ -235,6 +235,7 @@ int afs_put_operation(struct afs_operation *op)
+ 	afs_end_cursor(&op->ac);
+ 	afs_put_serverlist(op->net, op->server_list);
+ 	afs_put_volume(op->net, op->volume, afs_volume_trace_put_put_op);
++	key_put(op->key);
+ 	kfree(op);
+ 	return ret;
+ }
 -- 
 2.25.1
 
