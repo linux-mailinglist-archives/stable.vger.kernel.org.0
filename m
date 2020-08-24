@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE5724FAB4
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E6F24F9BC
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727079AbgHXIdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41272 "EHLO mail.kernel.org"
+        id S1728737AbgHXIkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:40:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727073AbgHXIdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:33:36 -0400
+        id S1728732AbgHXIkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:40:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5179D206F0;
-        Mon, 24 Aug 2020 08:33:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D269122B43;
+        Mon, 24 Aug 2020 08:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258015;
-        bh=X1Jc6HRrlX3sT+03uEUsKl4ouu4xw5betJQxvtle9D8=;
+        s=default; t=1598258411;
+        bh=1I0FJfJlkGo4/bQRz+yIbSTD2q6adynUdm/vCXmFolc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pttGgOa3iucOAFVdGMpboDoH+KaVLCNOgIiLOXIb8veBcoQXGZelx/iOmYpdmRqGq
-         4pPHHd19NMlQvI4GpPigeTppDb7OeecirOYA2WQ1maOsETtwuP5uTvu6qBQoa3J1FM
-         /Fj0n6zVlpicPCMViaeUayoRuXbxxNy71/m4+cyg=
+        b=hoH03DqVcfRJv6ujcnJnl9MpJOc3elR+y+dI/72TtSYpoEGnB4FL3VQE613ea/H5k
+         OyCq/FCrfascTwOUeSgMIguyaYS9xxfI6HwLfO1cUMluypFVpuaJYqLpukuWxkpbO/
+         ++yFRfhgVMLMvRHYbcowsFS6iVEk95UqRGVODVTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.8 042/148] drm/amd/display: fix pow() crashing when given base 0
-Date:   Mon, 24 Aug 2020 10:29:00 +0200
-Message-Id: <20200824082416.069469455@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.7 008/124] can: j1939: transport: j1939_session_tx_dat(): fix use-after-free read in j1939_tp_txtimer()
+Date:   Mon, 24 Aug 2020 10:29:02 +0200
+Message-Id: <20200824082409.815361151@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit d2e59d0ff4c44d1f6f8ed884a5bea7d1bb7fd98c upstream.
+commit cd3b3636c99fcac52c598b64061f3fe4413c6a12 upstream.
 
-[Why&How]
-pow(a,x) is implemented as exp(x*log(a)). log(0) will crash.
-So return 0^x = 0, unless x=0, convention seems to be 0^0 = 1.
+The current stack implementation do not support ECTS requests of not
+aligned TP sized blocks.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+If ECTS will request a block with size and offset spanning two TP
+blocks, this will cause memcpy() to read beyond the queued skb (which
+does only contain one TP sized block).
+
+Sometimes KASAN will detect this read if the memory region beyond the
+skb was previously allocated and freed. In other situations it will stay
+undetected. The ETP transfer in any case will be corrupted.
+
+This patch adds a sanity check to avoid this kind of read and abort the
+session with error J1939_XTP_ABORT_ECTS_TOO_BIG.
+
+Reported-by: syzbot+5322482fe520b02aea30@syzkaller.appspotmail.com
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20200807105200.26441-3-o.rempel@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/include/fixed31_32.h |    3 +++
- 1 file changed, 3 insertions(+)
+ net/can/j1939/transport.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/include/fixed31_32.h
-+++ b/drivers/gpu/drm/amd/display/include/fixed31_32.h
-@@ -431,6 +431,9 @@ struct fixed31_32 dc_fixpt_log(struct fi
-  */
- static inline struct fixed31_32 dc_fixpt_pow(struct fixed31_32 arg1, struct fixed31_32 arg2)
- {
-+	if (arg1.value == 0)
-+		return arg2.value == 0 ? dc_fixpt_one : dc_fixpt_zero;
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -787,6 +787,18 @@ static int j1939_session_tx_dat(struct j
+ 		if (len > 7)
+ 			len = 7;
+ 
++		if (offset + len > se_skb->len) {
++			netdev_err_once(priv->ndev,
++					"%s: 0x%p: requested data outside of queued buffer: offset %i, len %i, pkt.tx: %i\n",
++					__func__, session, skcb->offset, se_skb->len , session->pkt.tx);
++			return -EOVERFLOW;
++		}
 +
- 	return dc_fixpt_exp(
- 		dc_fixpt_mul(
- 			dc_fixpt_log(arg1),
++		if (!len) {
++			ret = -ENOBUFS;
++			break;
++		}
++
+ 		memcpy(&dat[1], &tpdat[offset], len);
+ 		ret = j1939_tp_tx_dat(session, dat, len + 1);
+ 		if (ret < 0) {
+@@ -1120,6 +1132,9 @@ static enum hrtimer_restart j1939_tp_txt
+ 		 * cleanup including propagation of the error to user space.
+ 		 */
+ 		break;
++	case -EOVERFLOW:
++		j1939_session_cancel(session, J1939_XTP_ABORT_ECTS_TOO_BIG);
++		break;
+ 	case 0:
+ 		session->tx_retry = 0;
+ 		break;
 
 
