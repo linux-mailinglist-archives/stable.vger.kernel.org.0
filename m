@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C573224F8FD
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B33A624F91D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728007AbgHXJj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:39:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44886 "EHLO mail.kernel.org"
+        id S1729215AbgHXIpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbgHXIq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:29 -0400
+        id S1729204AbgHXIpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:45:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FBA1204FD;
-        Mon, 24 Aug 2020 08:46:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3779021741;
+        Mon, 24 Aug 2020 08:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258789;
-        bh=DpOnkbPZw4SB30cqBU97Llu/uZnXc+6xv7pwrG8oUQ0=;
+        s=default; t=1598258699;
+        bh=DX+lrG/Yw2Pb8sivFLiHbe6JkA7xqAuK8FHDZgEzWN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkzqsBRImjYCLCGPQidjbw1K8ehitnWDJ+OjJLo1fmiJT1quaHTBCxoalTCyXgv3C
-         Ozpam0ExPdvgITQGfiZUcI9Ej/DN+J4JhUvH8IHdnMeUBxC6vPPzOImkPU0plgWN0Q
-         enDjzRfSi+tigdlDpOO9Duy0G53hzwSYcJYc50Wk=
+        b=T0h7gkZZwSP6p3vX0WgNb42wLKy/gNN9/PJ1DAv2nXwEL0tcbRIp2ZkDdlt529YVm
+         47REFxq1uKfc7aoDOL6Xd48Z9lb7lvj687h/Cx12Ibbf4IR1EVmvZEG6pLWfeS3Lme
+         EoxiP9THooUd4IZuiI+5N8NI2iXLpb3NLfvdYOR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.4 006/107] kbuild: remove PYTHON2 variable
-Date:   Mon, 24 Aug 2020 10:29:32 +0200
-Message-Id: <20200824082405.351431962@linuxfoundation.org>
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH 5.4 007/107] kbuild: remove AS variable
+Date:   Mon, 24 Aug 2020 10:29:33 +0200
+Message-Id: <20200824082405.402732074@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
 References: <20200824082405.020301642@linuxfoundation.org>
@@ -45,35 +46,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 94f7345b712405b79647a6a4bf8ccbd0d78fa69d upstream.
+commit aa824e0c962b532d5073cbb41b2efcd6f5e72bae upstream.
 
-Python 2 has retired. There is no user of this variable.
+As commit 5ef872636ca7 ("kbuild: get rid of misleading $(AS) from
+documents") noted, we rarely use $(AS) directly in the kernel build.
+
+Now that the only/last user of $(AS) in drivers/net/wan/Makefile was
+converted to $(CC), $(AS) is no longer used in the build process.
+
+You can still pass in AS=clang, which is just a switch to turn on
+the LLVM integrated assembler.
 
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Makefile |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 --- a/Makefile
 +++ b/Makefile
-@@ -423,7 +423,6 @@ INSTALLKERNEL  := installkernel
- DEPMOD		= /sbin/depmod
- PERL		= perl
- PYTHON		= python
--PYTHON2		= python2
- PYTHON3		= python3
- CHECK		= sparse
- BASH		= bash
-@@ -474,7 +473,7 @@ CLANG_FLAGS :=
+@@ -404,7 +404,6 @@ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAG
+ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
  
- export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
+ # Make variables (CC, etc...)
+-AS		= $(CROSS_COMPILE)as
+ LD		= $(CROSS_COMPILE)ld
+ CC		= $(CROSS_COMPILE)gcc
+ CPP		= $(CC) -E
+@@ -471,7 +470,7 @@ KBUILD_LDFLAGS :=
+ GCC_PLUGINS_CFLAGS :=
+ CLANG_FLAGS :=
+ 
+-export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
++export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
  export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF PAHOLE LEX YACC AWK INSTALLKERNEL
--export PERL PYTHON PYTHON2 PYTHON3 CHECK CHECKFLAGS MAKE UTS_MACHINE HOSTCXX
-+export PERL PYTHON PYTHON3 CHECK CHECKFLAGS MAKE UTS_MACHINE HOSTCXX
+ export PERL PYTHON PYTHON3 CHECK CHECKFLAGS MAKE UTS_MACHINE HOSTCXX
  export KBUILD_HOSTCXXFLAGS KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS LDFLAGS_MODULE
- 
- export KBUILD_CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS KBUILD_LDFLAGS
+@@ -534,7 +533,7 @@ endif
+ ifneq ($(GCC_TOOLCHAIN),)
+ CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+-ifeq ($(shell $(AS) --version 2>&1 | head -n 1 | grep clang),)
++ifeq ($(if $(AS),$(shell $(AS) --version 2>&1 | head -n 1 | grep clang)),)
+ CLANG_FLAGS	+= -no-integrated-as
+ endif
+ CLANG_FLAGS	+= -Werror=unknown-warning-option
 
 
