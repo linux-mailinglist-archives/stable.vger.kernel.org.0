@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C9724F8B6
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 387B724F936
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbgHXIsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
+        id S1729155AbgHXIoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729559AbgHXIsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:48:33 -0400
+        id S1728426AbgHXIog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6EBC204FD;
-        Mon, 24 Aug 2020 08:48:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B0E62087D;
+        Mon, 24 Aug 2020 08:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258912;
-        bh=I2rc69Oc47pz8Ily187amhLgZCDrNoxj7kJnj5evJDg=;
+        s=default; t=1598258675;
+        bh=jRgIWyY0b4yL1+iU+rEN7X0YTkrV7SA7WEWwegKb4Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1w9tJSMa+v+JCpYVHSHYyOj6k62o57nVjHu1z1B501Vqo6cOxpDja1/GcH01+NrsV
-         9e/ypZ7iQrV8K1R/nM4OGxnqFPaKUfLD5bfVJtkwaGJvyYX/QueFxcuh05gcK1aYXN
-         nD9bENFilcKkQpZ6jKuz/dZKkfinR5hxfb09flGA=
+        b=GLv05kR1lWE6WrE5AooVSyROBQkbsFuDzjoOdbFbz1UxliK6VrA8nFGiD/kdj+VVa
+         0C0OjG/Pc+2FzCsoAP2pE/Swlgfa5GZhfEs/E+9gla8cn+ANU8Hub44fWspLRXbO5M
+         lCfowSlWWve5nuTwNU4cvBDWoDTHQYIOn3vE7Xho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henrique Figueira <henrislip@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Juergen Gross <jgross@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        xen-devel@lists.xenproject.org, linux-pci@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/107] can: j1939: transport: add j1939_session_skb_find_by_offset() function
+Subject: [PATCH 5.7 104/124] Fix build error when CONFIG_ACPI is not set/enabled:
 Date:   Mon, 24 Aug 2020 10:30:38 +0200
-Message-Id: <20200824082408.687314889@linuxfoundation.org>
+Message-Id: <20200824082414.534832195@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 840835c9281215341d84966a8855f267a971e6a3 ]
+[ Upstream commit ee87e1557c42dc9c2da11c38e11b87c311569853 ]
 
-Sometimes it makes no sense to search the skb by pkt.dpo, since we need
-next the skb within the transaction block. This may happen if we have an
-ETP session with CTS set to less than 255 packets.
+../arch/x86/pci/xen.c: In function ‘pci_xen_init’:
+../arch/x86/pci/xen.c:410:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
+  acpi_noirq_set();
 
-After this patch, we will be able to work with ETP sessions where the
-block size (ETP.CM_CTS byte 2) is less than 255 packets.
-
-Reported-by: Henrique Figueira <henrislip@gmail.com>
-Reported-by: https://github.com/linux-can/can-utils/issues/228
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20200807105200.26441-5-o.rempel@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 88e9ca161c13 ("xen/pci: Use acpi_noirq_set() helper to avoid #ifdef")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xenproject.org
+Cc: linux-pci@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ arch/x86/pci/xen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index 30957c9a8eb7a..90a2baac8a4aa 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -352,17 +352,16 @@ void j1939_session_skb_queue(struct j1939_session *session,
- 	skb_queue_tail(&session->skb_queue, skb);
- }
+diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+index 91220cc258547..5c11ae66b5d8e 100644
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -26,6 +26,7 @@
+ #include <asm/xen/pci.h>
+ #include <asm/xen/cpuid.h>
+ #include <asm/apic.h>
++#include <asm/acpi.h>
+ #include <asm/i8259.h>
  
--static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
-+static struct
-+sk_buff *j1939_session_skb_find_by_offset(struct j1939_session *session,
-+					  unsigned int offset_start)
- {
- 	struct j1939_priv *priv = session->priv;
-+	struct j1939_sk_buff_cb *do_skcb;
- 	struct sk_buff *skb = NULL;
- 	struct sk_buff *do_skb;
--	struct j1939_sk_buff_cb *do_skcb;
--	unsigned int offset_start;
- 	unsigned long flags;
- 
--	offset_start = session->pkt.dpo * 7;
--
- 	spin_lock_irqsave(&session->skb_queue.lock, flags);
- 	skb_queue_walk(&session->skb_queue, do_skb) {
- 		do_skcb = j1939_skb_to_cb(do_skb);
-@@ -382,6 +381,14 @@ static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
- 	return skb;
- }
- 
-+static struct sk_buff *j1939_session_skb_find(struct j1939_session *session)
-+{
-+	unsigned int offset_start;
-+
-+	offset_start = session->pkt.dpo * 7;
-+	return j1939_session_skb_find_by_offset(session, offset_start);
-+}
-+
- /* see if we are receiver
-  * returns 0 for broadcasts, although we will receive them
-  */
-@@ -766,7 +773,7 @@ static int j1939_session_tx_dat(struct j1939_session *session)
- 	int ret = 0;
- 	u8 dat[8];
- 
--	se_skb = j1939_session_skb_find(session);
-+	se_skb = j1939_session_skb_find_by_offset(session, session->pkt.tx * 7);
- 	if (!se_skb)
- 		return -ENOBUFS;
- 
-@@ -1765,7 +1772,8 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
- 			    __func__, session);
- 		goto out_session_cancel;
- 	}
--	se_skb = j1939_session_skb_find(session);
-+
-+	se_skb = j1939_session_skb_find_by_offset(session, packet * 7);
- 	if (!se_skb) {
- 		netdev_warn(priv->ndev, "%s: 0x%p: no skb found\n", __func__,
- 			    session);
+ static int xen_pcifront_enable_irq(struct pci_dev *dev)
 -- 
 2.25.1
 
