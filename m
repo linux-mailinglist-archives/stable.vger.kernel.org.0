@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CDA2502BA
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07122502CE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727892AbgHXQfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
+        id S1726803AbgHXQgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728197AbgHXQfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:35:32 -0400
+        id S1728284AbgHXQgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:36:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5979422CB1;
-        Mon, 24 Aug 2020 16:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E44E22D07;
+        Mon, 24 Aug 2020 16:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286931;
-        bh=JuLsNZjZqesuqcAnyc87ATn2vCVdmiJJkLFcGGjUi/0=;
+        s=default; t=1598286955;
+        bh=6v8rcxjk5E46zO64zz2NpKgHnlGR5IMJkXeHxdpH0BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWuj57pGNwFtw/HJJ7mdFzUZ65rUx1OxADs+9wkqfJ1ykb2ZXGVqDtguCE5UEbym7
-         370J+8fDweO50tSK9AYEU4tUgvalmH/8/+Vs28rYxeSWVdsbVieKG4P0byW8tgdg/Y
-         x2eRwel1GhnvKyKQV9+dJyoni9VwICSAsO1h5pjw=
+        b=jv3uO6/qNyAP/QSdpLnPhVCsuKLlrohgBkje9EgiPWTnTMASEANceQ00KEChujFMv
+         ube4eOx0LC3o8fuyQlSi6Qp3OfTIp2/pTxAVaJgDunI+Ljt0GdfnZgt7/CW4E0Va3N
+         GZWrkqNQHs06s51iN2tffFvyaAQmD/khp1YEGphM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Koo <Anthony.Koo@amd.com>,
-        Ashley Thomas <Ashley.Thomas2@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 20/63] drm/amd/display: Switch to immediate mode for updating infopackets
-Date:   Mon, 24 Aug 2020 12:34:20 -0400
-Message-Id: <20200824163504.605538-20-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 38/63] scsi: fcoe: Fix I/O path allocation
+Date:   Mon, 24 Aug 2020 12:34:38 -0400
+Message-Id: <20200824163504.605538-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -46,112 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit abba907c7a20032c2d504fd5afe3af7d440a09d0 ]
+[ Upstream commit fa39ab5184d64563cd36f2fb5f0d3fbad83a432c ]
 
-[Why]
-Using FRAME_UPDATE will result in infopacket to be potentially updated
-one frame late.
-In commit stream scenarios for previously active stream, some stale
-infopacket data from previous config might be erroneously sent out on
-initial frame after stream is re-enabled.
+ixgbe_fcoe_ddp_setup() can be called from the main I/O path and is called
+with a spin_lock held, so we have to use GFP_ATOMIC allocation instead of
+GFP_KERNEL.
 
-[How]
-Switch to using IMMEDIATE_UPDATE mode
-
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Ashley Thomas <Ashley.Thomas2@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/1596831813-9839-1-git-send-email-michael.christie@oracle.com
+cc: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/dcn10/dcn10_stream_encoder.c  | 16 ++++++++--------
- .../amd/display/dc/dcn10/dcn10_stream_encoder.h  | 14 ++++++++++++++
- 2 files changed, 22 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-index 07b2f9399671d..842abb4c475bc 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-@@ -121,35 +121,35 @@ void enc1_update_generic_info_packet(
- 	switch (packet_index) {
- 	case 0:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC0_FRAME_UPDATE, 1);
-+				AFMT_GENERIC0_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 1:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC1_FRAME_UPDATE, 1);
-+				AFMT_GENERIC1_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 2:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC2_FRAME_UPDATE, 1);
-+				AFMT_GENERIC2_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 3:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC3_FRAME_UPDATE, 1);
-+				AFMT_GENERIC3_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 4:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC4_FRAME_UPDATE, 1);
-+				AFMT_GENERIC4_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 5:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC5_FRAME_UPDATE, 1);
-+				AFMT_GENERIC5_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 6:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC6_FRAME_UPDATE, 1);
-+				AFMT_GENERIC6_IMMEDIATE_UPDATE, 1);
- 		break;
- 	case 7:
- 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL1,
--				AFMT_GENERIC7_FRAME_UPDATE, 1);
-+				AFMT_GENERIC7_IMMEDIATE_UPDATE, 1);
- 		break;
- 	default:
- 		break;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-index f9b9e221c698b..7507000a99ac4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-@@ -273,7 +273,14 @@ struct dcn10_stream_enc_registers {
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC2_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC3_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC4_FRAME_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC0_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC1_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC2_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC3_IMMEDIATE_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC4_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC5_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC6_IMMEDIATE_UPDATE, mask_sh),\
-+	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC7_IMMEDIATE_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC5_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC6_FRAME_UPDATE, mask_sh),\
- 	SE_SF(DIG0_AFMT_VBI_PACKET_CONTROL1, AFMT_GENERIC7_FRAME_UPDATE, mask_sh),\
-@@ -337,7 +344,14 @@ struct dcn10_stream_enc_registers {
- 	type AFMT_GENERIC2_FRAME_UPDATE;\
- 	type AFMT_GENERIC3_FRAME_UPDATE;\
- 	type AFMT_GENERIC4_FRAME_UPDATE;\
-+	type AFMT_GENERIC0_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC1_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC2_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC3_IMMEDIATE_UPDATE;\
- 	type AFMT_GENERIC4_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC5_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC6_IMMEDIATE_UPDATE;\
-+	type AFMT_GENERIC7_IMMEDIATE_UPDATE;\
- 	type AFMT_GENERIC5_FRAME_UPDATE;\
- 	type AFMT_GENERIC6_FRAME_UPDATE;\
- 	type AFMT_GENERIC7_FRAME_UPDATE;\
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
+index ec7a11d13fdc0..9e70b9a674409 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
+@@ -192,7 +192,7 @@ static int ixgbe_fcoe_ddp_setup(struct net_device *netdev, u16 xid,
+ 	}
+ 
+ 	/* alloc the udl from per cpu ddp pool */
+-	ddp->udl = dma_pool_alloc(ddp_pool->pool, GFP_KERNEL, &ddp->udp);
++	ddp->udl = dma_pool_alloc(ddp_pool->pool, GFP_ATOMIC, &ddp->udp);
+ 	if (!ddp->udl) {
+ 		e_err(drv, "failed allocated ddp context\n");
+ 		goto out_noddp_unmap;
 -- 
 2.25.1
 
