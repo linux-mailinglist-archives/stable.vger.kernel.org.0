@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DF624F939
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8805024FA2A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbgHXJmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:42:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
+        id S1728822AbgHXJxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728562AbgHXIoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:30 -0400
+        id S1728046AbgHXIhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 591FF2075B;
-        Mon, 24 Aug 2020 08:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5423322B43;
+        Mon, 24 Aug 2020 08:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258669;
-        bh=RxrUd6NwJT1JocZoUbagDtzQCpm8uEzFEdrEK3y0wMc=;
+        s=default; t=1598258273;
+        bh=aiRh9XyYF6dfGQtKNR2Jle8UKz4fP5jc8wiQswXz8yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=idvuJM2V9I7ai6SRes5qute8bm5Vmgo3CutZCv6dHKXiEEq/SevABUTUtzNlHjvjy
-         2MMMOENsS+4I0Vsy4O33fqtVSGbr27PEDxRQsBFvQuLQehcMaEfoEwYwKn3BDugkja
-         mx2eGofvbsneaaurPSwNyb1wkiIgJiIZbrB7BEjU=
+        b=L8foEBWZvwkAfb2u5bGfLRmjL4OJ+bBzr0Kmfd+UF/uuNNf+guKH7QMWV0pCSQGXG
+         m7tnc7v4hEQHL1InZo2SCxB7lzp54rYEmfrX6SkssomZxVXXNqbYEwTsPgVdnGwGj/
+         PfHTi2tEK8MNsMuBotEvViMZ5s1tHaNMTUyUSB1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 102/124] kconfig: qconf: fix signal connection to invalid slots
+Subject: [PATCH 5.8 138/148] net: dsa: b53: check for timeout
 Date:   Mon, 24 Aug 2020 10:30:36 +0200
-Message-Id: <20200824082414.437274361@linuxfoundation.org>
+Message-Id: <20200824082420.627962740@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit d85de3399f97467baa2026fbbbe587850d01ba8a ]
+[ Upstream commit 774d977abfd024e6f73484544b9abe5a5cd62de7 ]
 
-If you right-click in the ConfigList window, you will see the following
-messages in the console:
+clang static analysis reports this problem
 
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:888
-QObject::connect:  (sender name:   'config')
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:897
-QObject::connect:  (sender name:   'config')
-QObject::connect: No such slot QAction::setOn(bool) in scripts/kconfig/qconf.cc:906
-QObject::connect:  (sender name:   'config')
+b53_common.c:1583:13: warning: The left expression of the compound
+  assignment is an uninitialized value. The computed value will
+  also be garbage
+        ent.port &= ~BIT(port);
+        ~~~~~~~~ ^
 
-Right, there is no such slot in QAction. I think this is a typo of
-setChecked.
+ent is set by a successful call to b53_arl_read().  Unsuccessful
+calls are caught by an switch statement handling specific returns.
+b32_arl_read() calls b53_arl_op_wait() which fails with the
+unhandled -ETIMEDOUT.
 
-Due to this bug, when you toggled the menu "Option->Show Name/Range/Data"
-the state of the context menu was not previously updated. Fix this.
+So add -ETIMEDOUT to the switch statement.  Because
+b53_arl_op_wait() already prints out a message, do not add another
+one.
 
-Fixes: d5d973c3f8a9 ("Port xconfig to Qt5 - Put back some of the old implementation(part 2)")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/qconf.cc | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/dsa/b53/b53_common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
-index e7e201d261f78..1eb076c7eae17 100644
---- a/scripts/kconfig/qconf.cc
-+++ b/scripts/kconfig/qconf.cc
-@@ -890,7 +890,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowName(bool)));
- 		connect(parent(), SIGNAL(showNameChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showName);
- 		headerPopup->addAction(action);
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 1df05841ab6b1..86869337223a8 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1555,6 +1555,8 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
+ 		return ret;
  
-@@ -899,7 +899,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowRange(bool)));
- 		connect(parent(), SIGNAL(showRangeChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showRange);
- 		headerPopup->addAction(action);
- 
-@@ -908,7 +908,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
- 		connect(action, SIGNAL(toggled(bool)),
- 			parent(), SLOT(setShowData(bool)));
- 		connect(parent(), SIGNAL(showDataChanged(bool)),
--			action, SLOT(setOn(bool)));
-+			action, SLOT(setChecked(bool)));
- 		action->setChecked(showData);
- 		headerPopup->addAction(action);
- 	}
-@@ -1240,7 +1240,7 @@ QMenu* ConfigInfoView::createStandardContextMenu(const QPoint & pos)
- 
- 	action->setCheckable(true);
- 	connect(action, SIGNAL(toggled(bool)), SLOT(setShowDebug(bool)));
--	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setOn(bool)));
-+	connect(this, SIGNAL(showDebugChanged(bool)), action, SLOT(setChecked(bool)));
- 	action->setChecked(showDebug());
- 	popup->addSeparator();
- 	popup->addAction(action);
+ 	switch (ret) {
++	case -ETIMEDOUT:
++		return ret;
+ 	case -ENOSPC:
+ 		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
+ 			addr, vid);
 -- 
 2.25.1
 
