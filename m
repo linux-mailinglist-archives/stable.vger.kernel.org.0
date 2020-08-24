@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D69924F545
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9686524F49B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729369AbgHXIqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45374 "EHLO mail.kernel.org"
+        id S1728075AbgHXIiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:38:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729350AbgHXIql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:41 -0400
+        id S1728059AbgHXIiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:38:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B8E72074D;
-        Mon, 24 Aug 2020 08:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBE992177B;
+        Mon, 24 Aug 2020 08:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258800;
-        bh=ldyMiwBbRauUHe1SIjQNGlhy0uoQPyGhgSory7/YRWg=;
+        s=default; t=1598258293;
+        bh=9W0Ya6Gt65VYCcjU3mitmvFQa1ldn5Bt82bw6ASrcjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/ElQ8x4W3PjfUink2TAmBXg3HmmRhQ2GK82j3yxYqZDq9wF1tWjziurP62tP8Qc1
-         6wTnxDiNx83c8nx966fkLgGcEFhNtTHpPzlev4ypWrs3bQSjiBdSOEdLXrydlm6wcu
-         mtdqoXWzmv4rYLc/1IRVIbRZJ4Wr3N4sHAJuVxPo=
+        b=yscEc30mbCA4jLtRWDdoYM9k+lQHnNP57VnrCVi0LYc9nQUKDl2aXJspzBBhhQGXV
+         zpJ4H9eEWoZQeNFDLVZiunnqBsmzfbhI8cd4zqhmb95tF7v0JVN4Btf3DH05J3FlS6
+         J45z5Z9uyhqv+aHIpatHkWqX8nQGsaV6ZI0aUoEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Allison Collins <allison.henderson@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/107] xfs: fix inode quota reservation checks
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 118/148] kconfig: qconf: do not limit the pop-up menu to the first row
 Date:   Mon, 24 Aug 2020 10:30:16 +0200
-Message-Id: <20200824082407.611833855@linuxfoundation.org>
+Message-Id: <20200824082419.664536136@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit f959b5d037e71a4d69b5bf71faffa065d9269b4a ]
+[ Upstream commit fa8de0a3bf3c02e6f00b7746e7e934db522cdda9 ]
 
-xfs_trans_dqresv is the function that we use to make reservations
-against resource quotas.  Each resource contains two counters: the
-q_core counter, which tracks resources allocated on disk; and the dquot
-reservation counter, which tracks how much of that resource has either
-been allocated or reserved by threads that are working on metadata
-updates.
+If you right-click the first row in the option tree, the pop-up menu
+shows up, but if you right-click the second row or below, the event
+is ignored due to the following check:
 
-For disk blocks, we compare the proposed reservation counter against the
-hard and soft limits to decide if we're going to fail the operation.
-However, for inodes we inexplicably compare against the q_core counter,
-not the incore reservation count.
+  if (e->y() <= header()->geometry().bottom()) {
 
-Since the q_core counter is always lower than the reservation count and
-we unlock the dquot between reservation and transaction commit, this
-means that multiple threads can reserve the last inode count before we
-hit the hard limit, and when they commit, we'll be well over the hard
-limit.
+Perhaps, the intention was to show the pop-menu only when the tree
+header was right-clicked, but this handler is not called in that case.
 
-Fix this by checking against the incore inode reservation counter, since
-we would appear to maintain that correctly (and that's what we report in
-GETQUOTA).
+Since the origin of e->y() starts from the bottom of the header,
+this check is odd.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Going forward, you can right-click anywhere in the tree to get the
+pop-up menu.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_trans_dquot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/kconfig/qconf.cc | 68 ++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 34 deletions(-)
 
-diff --git a/fs/xfs/xfs_trans_dquot.c b/fs/xfs/xfs_trans_dquot.c
-index 16457465833ba..904780dd74aa3 100644
---- a/fs/xfs/xfs_trans_dquot.c
-+++ b/fs/xfs/xfs_trans_dquot.c
-@@ -646,7 +646,7 @@ xfs_trans_dqresv(
- 			}
- 		}
- 		if (ninos > 0) {
--			total_count = be64_to_cpu(dqp->q_core.d_icount) + ninos;
-+			total_count = dqp->q_res_icount + ninos;
- 			timer = be32_to_cpu(dqp->q_core.d_itimer);
- 			warns = be16_to_cpu(dqp->q_core.d_iwarns);
- 			warnlimit = dqp->q_mount->m_quotainfo->qi_iwarnlimit;
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index 23d1cb01a41ae..be67e74237d22 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -864,40 +864,40 @@ void ConfigList::focusInEvent(QFocusEvent *e)
+ 
+ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ {
+-	if (e->y() <= header()->geometry().bottom()) {
+-		if (!headerPopup) {
+-			QAction *action;
+-
+-			headerPopup = new QMenu(this);
+-			action = new QAction("Show Name", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowName(bool)));
+-			  connect(parent(), SIGNAL(showNameChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showName);
+-			  headerPopup->addAction(action);
+-			action = new QAction("Show Range", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowRange(bool)));
+-			  connect(parent(), SIGNAL(showRangeChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showRange);
+-			  headerPopup->addAction(action);
+-			action = new QAction("Show Data", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowData(bool)));
+-			  connect(parent(), SIGNAL(showDataChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showData);
+-			  headerPopup->addAction(action);
+-		}
+-		headerPopup->exec(e->globalPos());
+-		e->accept();
+-	} else
+-		e->ignore();
++	if (!headerPopup) {
++		QAction *action;
++
++		headerPopup = new QMenu(this);
++		action = new QAction("Show Name", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowName(bool)));
++		connect(parent(), SIGNAL(showNameChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showName);
++		headerPopup->addAction(action);
++
++		action = new QAction("Show Range", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowRange(bool)));
++		connect(parent(), SIGNAL(showRangeChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showRange);
++		headerPopup->addAction(action);
++
++		action = new QAction("Show Data", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowData(bool)));
++		connect(parent(), SIGNAL(showDataChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showData);
++		headerPopup->addAction(action);
++	}
++
++	headerPopup->exec(e->globalPos());
++	e->accept();
+ }
+ 
+ ConfigView*ConfigView::viewList;
 -- 
 2.25.1
 
