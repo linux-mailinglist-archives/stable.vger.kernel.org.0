@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BDB24F9D7
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C391C24F9B1
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725926AbgHXJth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
+        id S1728209AbgHXJse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbgHXIki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:40:38 -0400
+        id S1728764AbgHXIkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A955021741;
-        Mon, 24 Aug 2020 08:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED5AA2074D;
+        Mon, 24 Aug 2020 08:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258438;
-        bh=Nsx1/QnVpUDV33+SrioDmlhfg5tkM9R+Pa91bvw0w0Q=;
+        s=default; t=1598258441;
+        bh=NePlWlJmYvZlb6se0k6yww0+lm5ofUjMpEEudg8Tvjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HivRY4Fx1E3HkX8wPbNYeIAOosKK24dMkgK4ONykfZZycq8q8+Dl/efB+LyqdhNE/
-         Ol/03JA8BGtyy49/GTKw6tiPUKL7YQF4cLBgQDu8+xeVpMqJORtUu3KDZXng0BhHEa
-         f5wheSZmgqMTy57QV60jZaO4BCwD7Ys1PNtyFoPU=
+        b=j0NjDRdDAo6K9CBt9sHb6uRe1umQ/ofZL0uuI4oYQ02fHLeiD//oNQ9izBlhstsr4
+         uqkxewLnx2JSYccmAdioYbpZ9fiuKq7Igttbx733Nr05kJZci3MqTgGaDJ/czimGc+
+         2CUGhqw5KLpSoBKOujbsF28p7ZXKWh/c14JWVJ80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhe Li <lizhe67@huawei.com>,
-        Hou Tao <houtao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        syzbot+b57f46d8d6ea51960b8c@syzkaller.appspotmail.com,
+        Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 048/124] jffs2: fix UAF problem
-Date:   Mon, 24 Aug 2020 10:29:42 +0200
-Message-Id: <20200824082411.790486836@linuxfoundation.org>
+Subject: [PATCH 5.7 049/124] ceph: fix use-after-free for fsc->mdsc
+Date:   Mon, 24 Aug 2020 10:29:43 +0200
+Message-Id: <20200824082411.840340779@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
 References: <20200824082409.368269240@linuxfoundation.org>
@@ -45,78 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhe Li <lizhe67@huawei.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 798b7347e4f29553db4b996393caf12f5b233daf ]
+[ Upstream commit a7caa88f8b72c136f9a401f498471b8a8e35370d ]
 
-The log of UAF problem is listed below.
-BUG: KASAN: use-after-free in jffs2_rmdir+0xa4/0x1cc [jffs2] at addr c1f165fc
-Read of size 4 by task rm/8283
-=============================================================================
-BUG kmalloc-32 (Tainted: P    B      O   ): kasan: bad access detected
------------------------------------------------------------------------------
+If the ceph_mdsc_init() fails, it will free the mdsc already.
 
-INFO: Allocated in 0xbbbbbbbb age=3054364 cpu=0 pid=0
-        0xb0bba6ef
-        jffs2_write_dirent+0x11c/0x9c8 [jffs2]
-        __slab_alloc.isra.21.constprop.25+0x2c/0x44
-        __kmalloc+0x1dc/0x370
-        jffs2_write_dirent+0x11c/0x9c8 [jffs2]
-        jffs2_do_unlink+0x328/0x5fc [jffs2]
-        jffs2_rmdir+0x110/0x1cc [jffs2]
-        vfs_rmdir+0x180/0x268
-        do_rmdir+0x2cc/0x300
-        ret_from_syscall+0x0/0x3c
-INFO: Freed in 0x205b age=3054364 cpu=0 pid=0
-        0x2e9173
-        jffs2_add_fd_to_list+0x138/0x1dc [jffs2]
-        jffs2_add_fd_to_list+0x138/0x1dc [jffs2]
-        jffs2_garbage_collect_dirent.isra.3+0x21c/0x288 [jffs2]
-        jffs2_garbage_collect_live+0x16bc/0x1800 [jffs2]
-        jffs2_garbage_collect_pass+0x678/0x11d4 [jffs2]
-        jffs2_garbage_collect_thread+0x1e8/0x3b0 [jffs2]
-        kthread+0x1a8/0x1b0
-        ret_from_kernel_thread+0x5c/0x64
-Call Trace:
-[c17ddd20] [c02452d4] kasan_report.part.0+0x298/0x72c (unreliable)
-[c17ddda0] [d2509680] jffs2_rmdir+0xa4/0x1cc [jffs2]
-[c17dddd0] [c026da04] vfs_rmdir+0x180/0x268
-[c17dde00] [c026f4e4] do_rmdir+0x2cc/0x300
-[c17ddf40] [c001a658] ret_from_syscall+0x0/0x3c
-
-The root cause is that we don't get "jffs2_inode_info.sem" before
-we scan list "jffs2_inode_info.dents" in function jffs2_rmdir.
-This patch add codes to get "jffs2_inode_info.sem" before we scan
-"jffs2_inode_info.dents" to slove the UAF problem.
-
-Signed-off-by: Zhe Li <lizhe67@huawei.com>
-Reviewed-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Reported-by: syzbot+b57f46d8d6ea51960b8c@syzkaller.appspotmail.com
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/dir.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ceph/mds_client.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/jffs2/dir.c b/fs/jffs2/dir.c
-index f20cff1194bb6..776493713153f 100644
---- a/fs/jffs2/dir.c
-+++ b/fs/jffs2/dir.c
-@@ -590,10 +590,14 @@ static int jffs2_rmdir (struct inode *dir_i, struct dentry *dentry)
- 	int ret;
- 	uint32_t now = JFFS2_NOW();
- 
-+	mutex_lock(&f->sem);
- 	for (fd = f->dents ; fd; fd = fd->next) {
--		if (fd->ino)
-+		if (fd->ino) {
-+			mutex_unlock(&f->sem);
- 			return -ENOTEMPTY;
-+		}
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index 95272ae36b058..e32935b68d0a4 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4337,7 +4337,6 @@ int ceph_mdsc_init(struct ceph_fs_client *fsc)
+ 		return -ENOMEM;
  	}
-+	mutex_unlock(&f->sem);
  
- 	ret = jffs2_do_unlink(c, dir_f, dentry->d_name.name,
- 			      dentry->d_name.len, f, now);
+-	fsc->mdsc = mdsc;
+ 	init_completion(&mdsc->safe_umount_waiters);
+ 	init_waitqueue_head(&mdsc->session_close_wq);
+ 	INIT_LIST_HEAD(&mdsc->waiting_for_map);
+@@ -4390,6 +4389,8 @@ int ceph_mdsc_init(struct ceph_fs_client *fsc)
+ 
+ 	strscpy(mdsc->nodename, utsname()->nodename,
+ 		sizeof(mdsc->nodename));
++
++	fsc->mdsc = mdsc;
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
