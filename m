@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4047124F4E7
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:42:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFBF24F55C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728586AbgHXImP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33664 "EHLO mail.kernel.org"
+        id S1728571AbgHXIsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728914AbgHXImI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:42:08 -0400
+        id S1729513AbgHXIr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:47:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3983F2075B;
-        Mon, 24 Aug 2020 08:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9362206F0;
+        Mon, 24 Aug 2020 08:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258527;
-        bh=Szw6jA3d8Pxqmf1JA6WaAVW8AEfSzqqzAAso5Yu42xk=;
+        s=default; t=1598258878;
+        bh=88Xw40YC1QnjNuLG/+6YqfiY2ut1djo/oaUujd9yOWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1k0pKAwTmBVhyKzAfI54FKQUbhwoDnDSuj2db0fedpjuu7zccOCJzoFybDEufzl3
-         XKBMvegUTLnHUetBuZ1Go3mSgZZpapVak/Umi6OpX2NELMJqZyO/EZrU7nZdJFKojo
-         Cwe3MLjAz6CPmLr9A2yhlmOhISxrQ2C19fQQg0FE=
+        b=G1F7lANRjdHiMGrw1ZmotJ076q4vwmzLXN7EIBPAAlFbqha0+7gScn8qbqV187nTF
+         8qAQual7B0qR1JGdtId0UXNmSruO6zgRwwo+RZKKocePhLJROeru2wI5RJBBucwvul
+         VeWojVaftOhaTHhcnZEMtOZBsmyDBCRmKZlXROTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Jinyang He <hejinyang@loongson.cn>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 078/124] can: j1939: fix support for multipacket broadcast message
-Date:   Mon, 24 Aug 2020 10:30:12 +0200
-Message-Id: <20200824082413.247087210@linuxfoundation.org>
+Subject: [PATCH 5.4 047/107] MIPS: Fix unable to reserve memory for Crash kernel
+Date:   Mon, 24 Aug 2020 10:30:13 +0200
+Message-Id: <20200824082407.463082027@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Jinyang He <hejinyang@loongson.cn>
 
-[ Upstream commit f4fd77fd87e9b214c26bb2ebd4f90055eaea5ade ]
+[ Upstream commit b1ce9716f3b5ed3b49badf1f003b9e34b7ead0f9 ]
 
-Currently j1939_tp_im_involved_anydir() in j1939_tp_recv() check the previously
-set flags J1939_ECU_LOCAL_DST and J1939_ECU_LOCAL_SRC of incoming skb, thus
-multipacket broadcast message was aborted by receive side because it may come
-from remote ECUs and have no exact dst address. Similarly, j1939_tp_cmd_recv()
-and j1939_xtp_rx_dat() didn't process broadcast message.
+Use 0 as the align parameter in memblock_find_in_range() is
+incorrect when we reserve memory for Crash kernel.
 
-So fix it by checking and process broadcast message in j1939_tp_recv(),
-j1939_tp_cmd_recv() and j1939_xtp_rx_dat().
+The environment as follows:
+[    0.000000] MIPS: machine is loongson,loongson64c-4core-rs780e
+...
+[    1.951016]     crashkernel=64M@128M
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1596599425-5534-2-git-send-email-zhangchangzhong@huawei.com
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The warning as follows:
+[    0.000000] Invalid memory region reserved for crash kernel
+
+And the iomem as follows:
+00200000-0effffff : System RAM
+  04000000-0484009f : Kernel code
+  048400a0-04ad7fff : Kernel data
+  04b40000-05c4c6bf : Kernel bss
+1a000000-1bffffff : pci@1a000000
+...
+
+The align parameter may be finally used by round_down() or round_up().
+Like the following call tree:
+
+mips-next: mm/memblock.c
+
+memblock_find_in_range
+└── memblock_find_in_range_node
+    ├── __memblock_find_range_bottom_up
+    │   └── round_up
+    └── __memblock_find_range_top_down
+        └── round_down
+\#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
+\#define round_down(x, y) ((x) & ~__round_mask(x, y))
+\#define __round_mask(x, y) ((__typeof__(x))((y)-1))
+
+The round_down(or round_up)'s second parameter must be a power of 2.
+If the second parameter is 0, it both will return 0.
+
+Use 1 as the parameter to fix the bug and the iomem as follows:
+00200000-0effffff : System RAM
+  04000000-0484009f : Kernel code
+  048400a0-04ad7fff : Kernel data
+  04b40000-05c4c6bf : Kernel bss
+  08000000-0bffffff : Crash kernel
+1a000000-1bffffff : pci@1a000000
+...
+
+Signed-off-by: Jinyang He <hejinyang@loongson.cn>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ arch/mips/kernel/setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index 90a2baac8a4aa..67189b4c482c5 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1673,8 +1673,12 @@ static void j1939_xtp_rx_rts(struct j1939_priv *priv, struct sk_buff *skb,
- 			return;
- 		}
- 		session = j1939_xtp_rx_rts_session_new(priv, skb);
--		if (!session)
-+		if (!session) {
-+			if (cmd == J1939_TP_CMD_BAM && j1939_sk_recv_match(priv, skcb))
-+				netdev_info(priv->ndev, "%s: failed to create TP BAM session\n",
-+					    __func__);
- 			return;
-+		}
- 	} else {
- 		if (j1939_xtp_rx_rts_session_active(session, skb)) {
- 			j1939_session_put(session);
-@@ -1852,6 +1856,13 @@ static void j1939_xtp_rx_dat(struct j1939_priv *priv, struct sk_buff *skb)
- 		else
- 			j1939_xtp_rx_dat_one(session, skb);
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index 7b06e6ee6817d..b8884de89c81e 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -494,7 +494,7 @@ static void __init mips_parse_crashkernel(void)
+ 	if (ret != 0 || crash_size <= 0)
+ 		return;
+ 
+-	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 0)) {
++	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 1)) {
+ 		pr_warn("Invalid memory region reserved for crash kernel\n");
+ 		return;
  	}
-+
-+	if (j1939_cb_is_broadcast(skcb)) {
-+		session = j1939_session_get_by_addr(priv, &skcb->addr, false,
-+						    false);
-+		if (session)
-+			j1939_xtp_rx_dat_one(session, skb);
-+	}
- }
- 
- /* j1939 main intf */
-@@ -1943,7 +1954,7 @@ static void j1939_tp_cmd_recv(struct j1939_priv *priv, struct sk_buff *skb)
- 		if (j1939_tp_im_transmitter(skcb))
- 			j1939_xtp_rx_rts(priv, skb, true);
- 
--		if (j1939_tp_im_receiver(skcb))
-+		if (j1939_tp_im_receiver(skcb) || j1939_cb_is_broadcast(skcb))
- 			j1939_xtp_rx_rts(priv, skb, false);
- 
- 		break;
-@@ -2007,7 +2018,7 @@ int j1939_tp_recv(struct j1939_priv *priv, struct sk_buff *skb)
- {
- 	struct j1939_sk_buff_cb *skcb = j1939_skb_to_cb(skb);
- 
--	if (!j1939_tp_im_involved_anydir(skcb))
-+	if (!j1939_tp_im_involved_anydir(skcb) && !j1939_cb_is_broadcast(skcb))
- 		return 0;
- 
- 	switch (skcb->addr.pgn) {
 -- 
 2.25.1
 
