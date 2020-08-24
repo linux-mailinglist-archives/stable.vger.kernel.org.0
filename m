@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0361024F7EB
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3A924F687
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728930AbgHXJXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34826 "EHLO mail.kernel.org"
+        id S1730272AbgHXJBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729645AbgHXIyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:54:23 -0400
+        id S1728959AbgHXI5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:57:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80E42207D3;
-        Mon, 24 Aug 2020 08:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17B252072D;
+        Mon, 24 Aug 2020 08:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259263;
-        bh=PvGubglU6cmFIj4jp9q0XiJbLPU4XYVuiuvBCjSn7m8=;
+        s=default; t=1598259423;
+        bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioAqUkNmzXlnJ3Zv70ObhIMBQoOdk4W1RpzmN/Tfh+8aLci1htE6lX3BguqmoIvrS
-         81dg3iSJeJPfmvEFG3ZnCffOFyBIMRD/vq86mK56T0zIE7UxUa6AF9wV/q2oBLT5by
-         Q3tiudjMzJg+8sEARBIk0inX4jUdGYiYSK+Vwzs8=
+        b=TiSM+Z01rB3nqIepwNUGllhhDcCNhwQ4RW74dz5B1ZMkYjXpysBKBfQQuMm4tIjvg
+         qrMlleKoPA6ZpOa3eHKxm6IZjKOPbTFF75lkl5EgmwV/zB5NNfkHTj7hWtnGx+hI55
+         yE+WrDb0910pMsV4am/kRL2XnpbuIsUqV6TfhrQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        David Rientjes <rientjes@google.com>,
-        Michel Lespinasse <walken@google.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Akash Goel <akash.goel@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 13/50] kernel/relay.c: fix memleak on destroy relay channel
-Date:   Mon, 24 Aug 2020 10:31:14 +0200
-Message-Id: <20200824082352.641695215@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/71] rtc: goldfish: Enable interrupt in set_alarm() when necessary
+Date:   Mon, 24 Aug 2020 10:31:15 +0200
+Message-Id: <20200824082357.095355850@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
+References: <20200824082355.848475917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit 71e843295c680898959b22dc877ae3839cc22470 upstream.
+[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
 
-kmemleak report memory leak as follows:
+When use goldfish rtc, the "hwclock" command fails with "select() to
+/dev/rtc to wait for clock tick timed out". This is because "hwclock"
+need the set_alarm() hook to enable interrupt when alrm->enabled is
+true. This operation is missing in goldfish rtc (but other rtc drivers,
+such as cmos rtc, enable interrupt here), so add it.
 
-  unreferenced object 0x607ee4e5f948 (size 8):
-  comm "syz-executor.1", pid 2098, jiffies 4295031601 (age 288.468s)
-  hex dump (first 8 bytes):
-  00 00 00 00 00 00 00 00 ........
-  backtrace:
-     relay_open kernel/relay.c:583 [inline]
-     relay_open+0xb6/0x970 kernel/relay.c:563
-     do_blk_trace_setup+0x4a8/0xb20 kernel/trace/blktrace.c:557
-     __blk_trace_setup+0xb6/0x150 kernel/trace/blktrace.c:597
-     blk_trace_ioctl+0x146/0x280 kernel/trace/blktrace.c:738
-     blkdev_ioctl+0xb2/0x6a0 block/ioctl.c:613
-     block_ioctl+0xe5/0x120 fs/block_dev.c:1871
-     vfs_ioctl fs/ioctl.c:48 [inline]
-     __do_sys_ioctl fs/ioctl.c:753 [inline]
-     __se_sys_ioctl fs/ioctl.c:739 [inline]
-     __x64_sys_ioctl+0x170/0x1ce fs/ioctl.c:739
-     do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-'chan->buf' is malloced in relay_open() by alloc_percpu() but not free
-while destroy the relay channel.  Fix it by adding free_percpu() before
-return from relay_destroy_channel().
-
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Akash Goel <akash.goel@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200817122826.48518-1-weiyongjun1@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/relay.c |    1 +
+ drivers/rtc/rtc-goldfish.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -196,6 +196,7 @@ free_buf:
- static void relay_destroy_channel(struct kref *kref)
- {
- 	struct rchan *chan = container_of(kref, struct rchan, kref);
-+	free_percpu(chan->buf);
- 	kfree(chan);
- }
- 
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index a1c44d0c85578..30cbe22c57a8e 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -87,6 +87,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
+ 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+ 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
++		writel(1, base + TIMER_IRQ_ENABLED);
+ 	} else {
+ 		/*
+ 		 * if this function was called with enabled=0
+-- 
+2.25.1
+
 
 
