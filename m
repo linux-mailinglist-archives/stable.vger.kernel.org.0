@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F13902505B7
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EB12505AB
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgHXRUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:20:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
+        id S1728335AbgHXRUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:20:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728312AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:36:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4112B22D3E;
-        Mon, 24 Aug 2020 16:36:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D24D22BED;
+        Mon, 24 Aug 2020 16:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286967;
-        bh=1YRBpfcEYrGnghyLyLgK06HG7AO8Cm74B/emJ+NPNMo=;
+        s=default; t=1598286968;
+        bh=17+7dKdrlvtY6f+cbt6QtQNq/t3bTyN0CVvDmAMpWcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTZ2DnB4vc+HsXtj8/g+RJhsO1CyKBMXi/bslXLkR5wjTA9yzeLgUdvHUjbx2JGjv
-         m8dq2mUbxk0isWRkiMBOzxdLtRyFd1C5DIQDWqWW96kUJqsX1xx2oEh/k8u1zyChQt
-         C0tlgKiSeA9t8GZIn7XsoF2SNeQFUwybQ4cupvR8=
+        b=wbhmZmu96sGkuO0exsaAegM8HN2m2qgGtmMYjx/lA3R2zAriWGuZm69nGYkLCcf53
+         chyy/V1dj6v7+Ks0MRyv+L7liQre4tTA6BBUtOc7y58wpZBr4TTWn/2Kzj8ZYWk6Hw
+         U/yCboOE7n8OKKnS2G+fq2XAt7lflGlBOWhwwkq4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
+Cc:     Saurav Kashyap <skashyap@marvell.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 46/63] scsi: qla2xxx: Fix login timeout
-Date:   Mon, 24 Aug 2020 12:34:46 -0400
-Message-Id: <20200824163504.605538-46-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 47/63] scsi: qla2xxx: Check if FW supports MQ before enabling
+Date:   Mon, 24 Aug 2020 12:34:47 -0400
+Message-Id: <20200824163504.605538-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -45,71 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-[ Upstream commit abb31aeaa9b20680b0620b23fea5475ea4591e31 ]
+[ Upstream commit dffa11453313a115157b19021cc2e27ea98e624c ]
 
-Multipath errors were seen during failback due to login timeout.  The
-remote device sent LOGO, the local host tore down the session and did
-relogin. The RSCN arrived indicates remote device is going through failover
-after which the relogin is in a 20s timeout phase.  At this point the
-driver is stuck in the relogin process.  Add a fix to delete the session as
-part of abort/flush the login.
+OS boot during Boot from SAN was stuck at dracut emergency shell after
+enabling NVMe driver parameter. For non-MQ support the driver was enabling
+MQ. Add a check to confirm if FW supports MQ.
 
-Link: https://lore.kernel.org/r/20200806111014.28434-5-njavali@marvell.com
+Link: https://lore.kernel.org/r/20200806111014.28434-9-njavali@marvell.com
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c     | 18 +++++++++++++++---
- drivers/scsi/qla2xxx/qla_target.c |  2 +-
- 2 files changed, 16 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 3bfb5678f6515..de9fd7f688d01 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3538,10 +3538,22 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 		}
- 
- 		if (fcport->scan_state != QLA_FCPORT_FOUND) {
-+			bool do_delete = false;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index e92fad99338cd..00c854b9b4179 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -2017,6 +2017,11 @@ qla2x00_iospace_config(struct qla_hw_data *ha)
+ 	/* Determine queue resources */
+ 	ha->max_req_queues = ha->max_rsp_queues = 1;
+ 	ha->msix_count = QLA_BASE_VECTORS;
 +
-+			if (fcport->scan_needed &&
-+			    fcport->disc_state == DSC_LOGIN_PEND) {
-+				/* Cable got disconnected after we sent
-+				 * a login. Do delete to prevent timeout.
-+				 */
-+				fcport->logout_on_delete = 1;
-+				do_delete = true;
-+			}
++	/* Check if FW supports MQ or not */
++	if (!(ha->fw_attributes & BIT_6))
++		goto mqiobase_exit;
 +
- 			fcport->scan_needed = 0;
--			if ((qla_dual_mode_enabled(vha) ||
--				qla_ini_mode_enabled(vha)) &&
--			    atomic_read(&fcport->state) == FCS_ONLINE) {
-+			if (((qla_dual_mode_enabled(vha) ||
-+			      qla_ini_mode_enabled(vha)) &&
-+			    atomic_read(&fcport->state) == FCS_ONLINE) ||
-+				do_delete) {
- 				if (fcport->loop_id != FC_NO_LOOP_ID) {
- 					if (fcport->flags & FCF_FCP2_DEVICE)
- 						fcport->logout_on_delete = 0;
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index fbb80a043b4fe..90289162dbd4c 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1270,7 +1270,7 @@ void qlt_schedule_sess_for_deletion(struct fc_port *sess)
- 
- 	qla24xx_chk_fcp_state(sess);
- 
--	ql_dbg(ql_dbg_tgt, sess->vha, 0xe001,
-+	ql_dbg(ql_dbg_disc, sess->vha, 0xe001,
- 	    "Scheduling sess %p for deletion %8phC\n",
- 	    sess, sess->port_name);
- 
+ 	if (!ql2xmqsupport || !ql2xnvmeenable ||
+ 	    (!IS_QLA25XX(ha) && !IS_QLA81XX(ha)))
+ 		goto mqiobase_exit;
 -- 
 2.25.1
 
