@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB8224F9DE
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FDB24FA99
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbgHXJuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54658 "EHLO mail.kernel.org"
+        id S1729781AbgHXJ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728601AbgHXIjI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:39:08 -0400
+        id S1726690AbgHXIes (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F137E20FC3;
-        Mon, 24 Aug 2020 08:39:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A806B206F0;
+        Mon, 24 Aug 2020 08:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258348;
-        bh=23ucjoFeJ1M8m1lUFCqnbYUhv+4g9L4TflRGrF9xXrw=;
+        s=default; t=1598258088;
+        bh=bTH5iXVwhap6MKUOjysl2NNrLylw8YNHEzLt+9lZNL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzibhZpazSEOB7eIS1aiNeuSllsA0kA5mlB9aTsb5NW7l17sDFq5vk9fGOyi/8qKZ
-         ZLHhQKkAqMVDYnoZkZdjAhupRr6XBQIVmpyM34RvlKEbb8sK4efhFxt7g/V2p7JaOV
-         u5UXG16ZFKgxx4fQ2ZDFFsltbv2m7UE9b8vw6Tqw=
+        b=KaG8lLXpN84gr6nHAOSPISDajPMx/gWGOldTOcyGYOWS4H7Xa2l5BrnHjz4r8gtM1
+         7GrtUsP7n8XZ05ARm4PdpZLe43gF7CqgBhuSIwJ3FPJJwUyamWVVI2y+t+gIlBN5N0
+         pX6UT51p4+f9JIftosIofuGHJMyZ/3EyfVh8F0dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Filipe Manana <fdmanana@gmail.com>, Jan Kara <jack@suse.cz>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.7 017/124] ext4: do not block RWF_NOWAIT dio write on unallocated space
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 053/148] Input: psmouse - add a newline when printing proto by sysfs
 Date:   Mon, 24 Aug 2020 10:29:11 +0200
-Message-Id: <20200824082410.264793677@linuxfoundation.org>
+Message-Id: <20200824082416.607254112@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 0b3171b6d195637f84ddf8b59bae818ea20bc8ac upstream.
+[ Upstream commit 4aec14de3a15cf9789a0e19c847f164776f49473 ]
 
-Since commit 378f32bab371 ("ext4: introduce direct I/O write using iomap
-infrastructure") we don't properly bail out of RWF_NOWAIT direct IO
-write if underlying blocks are not allocated. Also
-ext4_dio_write_checks() does not honor RWF_NOWAIT when re-acquiring
-i_rwsem. Fix both issues.
+When I cat parameter 'proto' by sysfs, it displays as follows. It's
+better to add a newline for easy reading.
 
-Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
-Cc: stable@kernel.org
-Reported-by: Filipe Manana <fdmanana@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200708153516.9507-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+root@syzkaller:~# cat /sys/module/psmouse/parameters/proto
+autoroot@syzkaller:~#
 
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20200720073846.120724-1-wangxiongfeng2@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/file.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/mouse/psmouse-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -428,6 +428,10 @@ restart:
- 	 */
- 	if (*ilock_shared && (!IS_NOSEC(inode) || *extend ||
- 	     !ext4_overwrite_io(inode, offset, count))) {
-+		if (iocb->ki_flags & IOCB_NOWAIT) {
-+			ret = -EAGAIN;
-+			goto out;
-+		}
- 		inode_unlock_shared(inode);
- 		*ilock_shared = false;
- 		inode_lock(inode);
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 527ae0b9a191e..0b4a3039f312f 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -2042,7 +2042,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
+ {
+ 	int type = *((unsigned int *)kp->arg);
+ 
+-	return sprintf(buffer, "%s", psmouse_protocol_by_type(type)->name);
++	return sprintf(buffer, "%s\n", psmouse_protocol_by_type(type)->name);
+ }
+ 
+ static int __init psmouse_init(void)
+-- 
+2.25.1
+
 
 
