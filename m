@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 430D524F537
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3E624F4F6
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729293AbgHXIqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43828 "EHLO mail.kernel.org"
+        id S1728997AbgHXImz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbgHXIqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:03 -0400
+        id S1728561AbgHXImz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1895B206F0;
-        Mon, 24 Aug 2020 08:46:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FEAB2074D;
+        Mon, 24 Aug 2020 08:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258762;
-        bh=6dKXPbkOsXvYAwvbYQTU8pkwY4FYFgSClqrMNdZdVw8=;
+        s=default; t=1598258574;
+        bh=wjpowUP7dx0cGLzUNx9C8EZ8qkL6/g1Hxp1R20UAaC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvF1ygbGhlnF9CEMFBkufVmGiJU/gNLQLta4+1ILmEYNauYKwubLCu4Guq9a/oaPa
-         2rn/LVXGOYF1BCM4jR0ZqqCTTF3Bz3reIXsoRzSY69S0CjP3wlaFtPZBG19EvidBeX
-         qekCvWgHtY9bIkcD902nCk5B+qtYomptdYlPpEOI=
+        b=nZfnhWYv3uDnG9sRiwnFK0CN74KAlBJzzpl5MWR7FxukbxW464Kj3X6+w4gcRgFhZ
+         VaCFV2LowxtPGrcJpSWaXRT8bD/nq3+xRGVotjkj+cXkvAKl1dGnNWMs0xikhZcg5T
+         qUhoem37xnWK5l1SYzDag7Z0NfD4WjLfR11NJds4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Xu Yu <xuyu@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Yang Shi <shy828301@gmail.com>
-Subject: [PATCH 5.4 035/107] mm/memory.c: skip spurious TLB flush for retried page fault
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 067/124] tools/bpftool: Make skeleton code C++17-friendly by dropping typeof()
 Date:   Mon, 24 Aug 2020 10:30:01 +0200
-Message-Id: <20200824082406.860641951@linuxfoundation.org>
+Message-Id: <20200824082412.715248898@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-commit b7333b58f358f38d90d78e00c1ee5dec82df10ad upstream.
+[ Upstream commit 8faf7fc597d59b142af41ddd4a2d59485f75f88a ]
 
-Recently we found regression when running will_it_scale/page_fault3 test
-on ARM64.  Over 70% down for the multi processes cases and over 20% down
-for the multi threads cases.  It turns out the regression is caused by
-commit 89b15332af7c ("mm: drop mmap_sem before calling
-balance_dirty_pages() in write fault").
+Seems like C++17 standard mode doesn't recognize typeof() anymore. This can
+be tested by compiling test_cpp test with -std=c++17 or -std=c++1z options.
+The use of typeof in skeleton generated code is unnecessary, all types are
+well-known at the time of code generation, so remove all typeof()'s to make
+skeleton code more future-proof when interacting with C++ compilers.
 
-The test mmaps a memory size file then write to the mapping, this would
-make all memory dirty and trigger dirty pages throttle, that upstream
-commit would release mmap_sem then retry the page fault.  The retried
-page fault would see correct PTEs installed then just fall through to
-spurious TLB flush.  The regression is caused by the excessive spurious
-TLB flush.  It is fine on x86 since x86's spurious TLB flush is no-op.
-
-We could just skip the spurious TLB flush to mitigate the regression.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Xu Yu <xuyu@linux.alibaba.com>
-Debugged-by: Xu Yu <xuyu@linux.alibaba.com>
-Tested-by: Xu Yu <xuyu@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 985ead416df3 ("bpftool: Add skeleton codegen command")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20200812025907.1371956-1-andriin@fb.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/bpf/bpftool/gen.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3886,6 +3886,9 @@ static vm_fault_t handle_pte_fault(struc
- 				vmf->flags & FAULT_FLAG_WRITE)) {
- 		update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
- 	} else {
-+		/* Skip spurious TLB flush for retried page fault */
-+		if (vmf->flags & FAULT_FLAG_TRIED)
-+			goto unlock;
- 		/*
- 		 * This is needed only for protection faults but the arch code
- 		 * is not yet telling us if this is a protection fault or not.
+diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
+index 5ff951e08c740..52ebe400e9ca4 100644
+--- a/tools/bpf/bpftool/gen.c
++++ b/tools/bpf/bpftool/gen.c
+@@ -402,7 +402,7 @@ static int do_skeleton(int argc, char **argv)
+ 		{							    \n\
+ 			struct %1$s *obj;				    \n\
+ 									    \n\
+-			obj = (typeof(obj))calloc(1, sizeof(*obj));	    \n\
++			obj = (struct %1$s *)calloc(1, sizeof(*obj));	    \n\
+ 			if (!obj)					    \n\
+ 				return NULL;				    \n\
+ 			if (%1$s__create_skeleton(obj))			    \n\
+@@ -466,7 +466,7 @@ static int do_skeleton(int argc, char **argv)
+ 		{							    \n\
+ 			struct bpf_object_skeleton *s;			    \n\
+ 									    \n\
+-			s = (typeof(s))calloc(1, sizeof(*s));		    \n\
++			s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));\n\
+ 			if (!s)						    \n\
+ 				return -1;				    \n\
+ 			obj->skeleton = s;				    \n\
+@@ -484,7 +484,7 @@ static int do_skeleton(int argc, char **argv)
+ 				/* maps */				    \n\
+ 				s->map_cnt = %zu;			    \n\
+ 				s->map_skel_sz = sizeof(*s->maps);	    \n\
+-				s->maps = (typeof(s->maps))calloc(s->map_cnt, s->map_skel_sz);\n\
++				s->maps = (struct bpf_map_skeleton *)calloc(s->map_cnt, s->map_skel_sz);\n\
+ 				if (!s->maps)				    \n\
+ 					goto err;			    \n\
+ 			",
+@@ -520,7 +520,7 @@ static int do_skeleton(int argc, char **argv)
+ 				/* programs */				    \n\
+ 				s->prog_cnt = %zu;			    \n\
+ 				s->prog_skel_sz = sizeof(*s->progs);	    \n\
+-				s->progs = (typeof(s->progs))calloc(s->prog_cnt, s->prog_skel_sz);\n\
++				s->progs = (struct bpf_prog_skeleton *)calloc(s->prog_cnt, s->prog_skel_sz);\n\
+ 				if (!s->progs)				    \n\
+ 					goto err;			    \n\
+ 			",
+-- 
+2.25.1
+
 
 
