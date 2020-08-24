@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A0724FAA6
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F03F24FA9D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgHXJ6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
+        id S1727919AbgHXIe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:34:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727866AbgHXIeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:34:22 -0400
+        id S1727912AbgHXIeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:34:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B0462075B;
-        Mon, 24 Aug 2020 08:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DE05206F0;
+        Mon, 24 Aug 2020 08:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258061;
-        bh=0sF119N4lHEg7qpSVs4LN+sAfHSYIUqUSvoS6KE/u40=;
+        s=default; t=1598258064;
+        bh=/S/5fcNXp1qF0dj5Sh7EBvrVNQQbog7E1B1vZS/c6vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZtzzhUMM0fyE06RxyzMfcuhjFWDO+vxUzi9E2kMx9mbCX8k9nyEm5ky1DWRtxj2X
-         mMqdkwODfxFRTFkLe/D6U10sw7moQNLmdJKEWd4SIV9fgWHo+0HkR8AKSaGEFj+M5W
-         vstPVhaR6cqzESC/p3LVVJoB3QjH3Qx8E6gvA4+U=
+        b=Vt+otLZRZtwDOZFRAjcN85nhbvYQi2LscemcqtCnSWKzCiFMqWiCumvN0L0eDITh5
+         fGYLsPWRGcGNLcOenR7TS5r3en412Cvvq8hnhOK0FoG+Q1jNNsKdk9z0se65DNraJ6
+         cmgwu/w7yx50BaGTfuyGiAgW3Cp2lygvtDnaGVBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b57f46d8d6ea51960b8c@syzkaller.appspotmail.com,
-        Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Roman Shaposhnik <roman@zededa.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 061/148] ceph: fix use-after-free for fsc->mdsc
-Date:   Mon, 24 Aug 2020 10:29:19 +0200
-Message-Id: <20200824082416.994206217@linuxfoundation.org>
+Subject: [PATCH 5.8 062/148] swiotlb-xen: use vmalloc_to_page on vmalloc virt addresses
+Date:   Mon, 24 Aug 2020 10:29:20 +0200
+Message-Id: <20200824082417.041872160@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -46,42 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
-[ Upstream commit a7caa88f8b72c136f9a401f498471b8a8e35370d ]
+[ Upstream commit 8b1e868f66076490189a36d984fcce286cdd6295 ]
 
-If the ceph_mdsc_init() fails, it will free the mdsc already.
+xen_alloc_coherent_pages might return pages for which virt_to_phys and
+virt_to_page don't work, e.g. ioremap'ed pages.
 
-Reported-by: syzbot+b57f46d8d6ea51960b8c@syzkaller.appspotmail.com
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+So in xen_swiotlb_free_coherent we can't assume that virt_to_page works.
+Instead add a is_vmalloc_addr check and use vmalloc_to_page on vmalloc
+virt addresses.
+
+This patch fixes the following crash at boot on RPi4 (the underlying
+issue is not RPi4 specific):
+https://marc.info/?l=xen-devel&m=158862573216800
+
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Tested-by: Corey Minyard <cminyard@mvista.com>
+Tested-by: Roman Shaposhnik <roman@zededa.com>
+Link: https://lore.kernel.org/r/20200710223427.6897-1-sstabellini@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/xen/swiotlb-xen.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index dea971f9d89ee..946f9a92658ab 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -4361,7 +4361,6 @@ int ceph_mdsc_init(struct ceph_fs_client *fsc)
- 		goto err_mdsc;
- 	}
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index b6d27762c6f8c..5fbadd07819bd 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -335,6 +335,7 @@ xen_swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
+ 	int order = get_order(size);
+ 	phys_addr_t phys;
+ 	u64 dma_mask = DMA_BIT_MASK(32);
++	struct page *page;
  
--	fsc->mdsc = mdsc;
- 	init_completion(&mdsc->safe_umount_waiters);
- 	init_waitqueue_head(&mdsc->session_close_wq);
- 	INIT_LIST_HEAD(&mdsc->waiting_for_map);
-@@ -4416,6 +4415,8 @@ int ceph_mdsc_init(struct ceph_fs_client *fsc)
+ 	if (hwdev && hwdev->coherent_dma_mask)
+ 		dma_mask = hwdev->coherent_dma_mask;
+@@ -346,9 +347,14 @@ xen_swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
+ 	/* Convert the size to actually allocated. */
+ 	size = 1UL << (order + XEN_PAGE_SHIFT);
  
- 	strscpy(mdsc->nodename, utsname()->nodename,
- 		sizeof(mdsc->nodename));
++	if (is_vmalloc_addr(vaddr))
++		page = vmalloc_to_page(vaddr);
++	else
++		page = virt_to_page(vaddr);
 +
-+	fsc->mdsc = mdsc;
- 	return 0;
+ 	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
+ 		     range_straddles_page_boundary(phys, size)) &&
+-	    TestClearPageXenRemapped(virt_to_page(vaddr)))
++	    TestClearPageXenRemapped(page))
+ 		xen_destroy_contiguous_region(phys, order);
  
- err_mdsmap:
+ 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
 -- 
 2.25.1
 
