@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BE624FA9C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 625D824F9C8
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbgHXIeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:34:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43312 "EHLO mail.kernel.org"
+        id S1727031AbgHXIkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727942AbgHXIef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:34:35 -0400
+        id S1728029AbgHXIjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CAC72087D;
-        Mon, 24 Aug 2020 08:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58A772177B;
+        Mon, 24 Aug 2020 08:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258074;
-        bh=YyAY6cc7QTViLWyp9xxjMzcu4icKEU23qQoNGK7Dd/w=;
+        s=default; t=1598258393;
+        bh=J0/8psHqkcXmla2yHdL0e3lJZ5L+/bmM4h8z9edyFBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AztTB+xg82Q6UVRF0yJQUDARNt5fKAgKsY84C2hR0kIjhji5XT3a6We9CTDqwDlzx
-         R+HZRb913audQXqZFj2B+hJljKwAvLAfJmYdSypDKJ2hRTzmo4PcPQ+awGVwLtNsqs
-         jNcetMYPD9TTCUEemP1iqci7ceC8HS/7G6v1EXJA=
+        b=B/JqG199y7//9Aw/gV/V4hybLyy6UBVu+D988aPeO115XDP/O5XmCWph4FjoO3Hsi
+         ECY/dwyNh06EmCZe0k2ARm1KUr46ttFuG5CKwlOQihwa3/c+hOLlAd4RV/vNAzaX3v
+         Uxps1pTHvQiqqjIB/szEVgYUSCt7oQee+i0T6rfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Anton Vasilyev <vasilyev@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 066/148] media: camss: fix memory leaks on error handling paths in probe
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 030/124] io_uring: cancel all tasks requests on exit
 Date:   Mon, 24 Aug 2020 10:29:24 +0200
-Message-Id: <20200824082417.236636968@linuxfoundation.org>
+Message-Id: <20200824082410.897068252@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit f45882cfb152f5d3a421fd58f177f227e44843b9 ]
+[ Upstream commit 44e728b8aae0bb6d4229129083974f9dea43f50b ]
 
-camss_probe() does not free camss on error handling paths. The patch
-introduces an additional error label for this purpose. Besides, it
-removes call of v4l2_async_notifier_cleanup() from
-camss_of_parse_ports() since its caller, camss_probe(), cleans up all
-its resources itself.
+If a process is going away, io_uring_flush() will cancel only 1
+request with a matching pid. Cancel all of them
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Anton Vasilyev <vasilyev@ispras.ru>
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/camss/camss.c | 30 +++++++++++++++--------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ fs/io-wq.c    | 14 --------------
+ fs/io-wq.h    |  1 -
+ fs/io_uring.c | 14 ++++++++++++--
+ 3 files changed, 12 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
-index 3fdc9f964a3c6..2483641799dfb 100644
---- a/drivers/media/platform/qcom/camss/camss.c
-+++ b/drivers/media/platform/qcom/camss/camss.c
-@@ -504,7 +504,6 @@ static int camss_of_parse_ports(struct camss *camss)
- 	return num_subdevs;
- 
- err_cleanup:
--	v4l2_async_notifier_cleanup(&camss->notifier);
- 	of_node_put(node);
- 	return ret;
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 6d2e8ccc229e3..2bfa9117bc289 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -1022,20 +1022,6 @@ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork)
+ 	return io_wq_cancel_cb(wq, io_wq_io_cb_cancel_data, (void *)cwork, false);
  }
-@@ -835,29 +834,38 @@ static int camss_probe(struct platform_device *pdev)
- 		camss->csid_num = 4;
- 		camss->vfe_num = 2;
- 	} else {
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_free;
+ 
+-static bool io_wq_pid_match(struct io_wq_work *work, void *data)
+-{
+-	pid_t pid = (pid_t) (unsigned long) data;
+-
+-	return work->task_pid == pid;
+-}
+-
+-enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid)
+-{
+-	void *data = (void *) (unsigned long) pid;
+-
+-	return io_wq_cancel_cb(wq, io_wq_pid_match, data, false);
+-}
+-
+ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ {
+ 	int ret = -ENOMEM, node;
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 8902903831f25..df8a4cd3236db 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -129,7 +129,6 @@ static inline bool io_wq_is_hashed(struct io_wq_work *work)
+ 
+ void io_wq_cancel_all(struct io_wq *wq);
+ enum io_wq_cancel io_wq_cancel_work(struct io_wq *wq, struct io_wq_work *cwork);
+-enum io_wq_cancel io_wq_cancel_pid(struct io_wq *wq, pid_t pid);
+ 
+ typedef bool (work_cancel_fn)(struct io_wq_work *, void *);
+ 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index cf32705546773..9bb23edf2363a 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7720,6 +7720,13 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
  	}
+ }
  
- 	camss->csiphy = devm_kcalloc(dev, camss->csiphy_num,
- 				     sizeof(*camss->csiphy), GFP_KERNEL);
--	if (!camss->csiphy)
--		return -ENOMEM;
-+	if (!camss->csiphy) {
-+		ret = -ENOMEM;
-+		goto err_free;
++static bool io_cancel_pid_cb(struct io_wq_work *work, void *data)
++{
++	pid_t pid = (pid_t) (unsigned long) data;
++
++	return work->task_pid == pid;
++}
++
+ static int io_uring_flush(struct file *file, void *data)
+ {
+ 	struct io_ring_ctx *ctx = file->private_data;
+@@ -7729,8 +7736,11 @@ static int io_uring_flush(struct file *file, void *data)
+ 	/*
+ 	 * If the task is going away, cancel work it may have pending
+ 	 */
+-	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
+-		io_wq_cancel_pid(ctx->io_wq, task_pid_vnr(current));
++	if (fatal_signal_pending(current) || (current->flags & PF_EXITING)) {
++		void *data = (void *) (unsigned long)task_pid_vnr(current);
++
++		io_wq_cancel_cb(ctx->io_wq, io_cancel_pid_cb, data, true);
 +	}
  
- 	camss->csid = devm_kcalloc(dev, camss->csid_num, sizeof(*camss->csid),
- 				   GFP_KERNEL);
--	if (!camss->csid)
--		return -ENOMEM;
-+	if (!camss->csid) {
-+		ret = -ENOMEM;
-+		goto err_free;
-+	}
- 
- 	camss->vfe = devm_kcalloc(dev, camss->vfe_num, sizeof(*camss->vfe),
- 				  GFP_KERNEL);
--	if (!camss->vfe)
--		return -ENOMEM;
-+	if (!camss->vfe) {
-+		ret = -ENOMEM;
-+		goto err_free;
-+	}
- 
- 	v4l2_async_notifier_init(&camss->notifier);
- 
- 	num_subdevs = camss_of_parse_ports(camss);
--	if (num_subdevs < 0)
--		return num_subdevs;
-+	if (num_subdevs < 0) {
-+		ret = num_subdevs;
-+		goto err_cleanup;
-+	}
- 
- 	ret = camss_init_subdevices(camss);
- 	if (ret < 0)
-@@ -936,6 +944,8 @@ err_register_entities:
- 	v4l2_device_unregister(&camss->v4l2_dev);
- err_cleanup:
- 	v4l2_async_notifier_cleanup(&camss->notifier);
-+err_free:
-+	kfree(camss);
- 
- 	return ret;
+ 	return 0;
  }
 -- 
 2.25.1
