@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEA524F8F9
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:39:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29C1A24F97D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbgHXJjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45290 "EHLO mail.kernel.org"
+        id S1728503AbgHXImY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728629AbgHXIqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:39 -0400
+        id S1728936AbgHXImU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1EEC206F0;
-        Mon, 24 Aug 2020 08:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9991E2075B;
+        Mon, 24 Aug 2020 08:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258798;
-        bh=DDo9rlJ1vGfTkw3ErVmo14AXqfaIcHBATRLU97RdBrc=;
+        s=default; t=1598258539;
+        bh=zX+PYRXhtE6PMjXkgX4sI3tpbql86gUJVBN/7PV38+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLiTzXKm0byPvH8aGkhVE75AiSgcDOkymwGCcq7eAcEdNd+U+AwYl68e+Do7xJOkY
-         66Ed9CghMg3+n4ssqk49Ex3YJk1SqoiC0mnzqYF6gNkSHlkGGn/KzxLQVj+i5Td9VF
-         y5BVzk4Za1T+lfMF6HYmByQTsK6iODdxKkOBWEOg=
+        b=h05dBi2DdgInvTjNNDrYgX6ONg4k3Id/7bhfkiMA7JD8lWSqvIezl8BvksHCkibq/
+         J9A9NqYl3DmsyM5rcI3/HgIG79JVHBdbPgdRt2ZeMZs2+ovv3Qlh6VC5Fk+JsXs7fJ
+         JvpcxoWncmKReZx+ZcoLPlGspxNPuZVdk6aZUna8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/107] svcrdma: Fix another Receive buffer leak
-Date:   Mon, 24 Aug 2020 10:30:15 +0200
-Message-Id: <20200824082407.562717573@linuxfoundation.org>
+Subject: [PATCH 5.7 082/124] bonding: fix a potential double-unregister
+Date:   Mon, 24 Aug 2020 10:30:16 +0200
+Message-Id: <20200824082413.444005717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 64d26422516b2e347b32e6d9b1d40b3c19a62aae ]
+[ Upstream commit 832707021666411d04795c564a4adea5d6b94f17 ]
 
-During a connection tear down, the Receive queue is flushed before
-the device resources are freed. Typically, all the Receives flush
-with IB_WR_FLUSH_ERR.
+When we tear down a network namespace, we unregister all
+the netdevices within it. So we may queue a slave device
+and a bonding device together in the same unregister queue.
 
-However, any pending successful Receives flush with IB_WR_SUCCESS,
-and the server automatically posts a fresh Receive to replace the
-completing one. This happens even after the connection has closed
-and the RQ is drained. Receives that are posted after the RQ is
-drained appear never to complete, causing a Receive resource leak.
-The leaked Receive buffer is left DMA-mapped.
+If the only slave device is non-ethernet, it would
+automatically unregister the bonding device as well. Thus,
+we may end up unregistering the bonding device twice.
 
-To prevent these late-posted recv_ctxt's from leaking, block new
-Receive posting after XPT_CLOSE is set.
+Workaround this special case by checking reg_state.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 9b5e383c11b0 ("net: Introduce unregister_netdevice_many()")
+Reported-by: syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/svc_rdma_recvfrom.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/bonding/bond_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
-index 0ce4e75b29812..d803d814a03ad 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
-@@ -265,6 +265,8 @@ static int svc_rdma_post_recv(struct svcxprt_rdma *rdma)
- {
- 	struct svc_rdma_recv_ctxt *ctxt;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 7abb3e2cc9926..02f2428cbc3ba 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2084,7 +2084,8 @@ static int bond_release_and_destroy(struct net_device *bond_dev,
+ 	int ret;
  
-+	if (test_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags))
-+		return 0;
- 	ctxt = svc_rdma_recv_ctxt_get(rdma);
- 	if (!ctxt)
- 		return -ENOMEM;
+ 	ret = __bond_release_one(bond_dev, slave_dev, false, true);
+-	if (ret == 0 && !bond_has_slaves(bond)) {
++	if (ret == 0 && !bond_has_slaves(bond) &&
++	    bond_dev->reg_state != NETREG_UNREGISTERING) {
+ 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
+ 		netdev_info(bond_dev, "Destroying bond\n");
+ 		bond_remove_proc_entry(bond);
 -- 
 2.25.1
 
