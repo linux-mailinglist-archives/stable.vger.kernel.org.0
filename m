@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3FE24F492
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA0724F560
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbgHXIh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51864 "EHLO mail.kernel.org"
+        id S1729526AbgHXIsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:48:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728460AbgHXIh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:37:56 -0400
+        id S1729091AbgHXIsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B38AB2177B;
-        Mon, 24 Aug 2020 08:37:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8323F204FD;
+        Mon, 24 Aug 2020 08:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258276;
-        bh=v1rV0+cSpDxIvN/6ZeU7yyZcDQgDMvN6tAWvb4P70Wo=;
+        s=default; t=1598258884;
+        bh=D+Vmybzmzen28AV30V9SfoitNCjmhrlbMMUqq2jVhw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhb+a6KloZLYpJSjFqkBzVfZfNLKj7PKLQ8R9K+24bZ3NKR74FtM+DuDEosMqnrOy
-         trkWPZpOIl5rRewRqg5bsNJhgYE/EGovYKBIbxbkQEZ5UCWj9w+b1QBxw2NtAMO0Qo
-         6+BKVAwt9on50XRaVLB/80bfuYxbLKcJRyfZChTM=
+        b=00y9SttHYIr7OEDDTWtoLvfKE/db2gHcXGgCm88EINZNAr1HUeFMGQj9hpYlQcRFP
+         UL03j2TIkDf1J3/owI7hUkcm6A32RvjHktzqQGGkRKqhTekbTKb0OSj3gJJePnTDHL
+         tH7vt+Rg/sha4zCX/rfq08Ctr+6/KqGfP3nMkHXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.8 139/148] epoll: Keep a reference on files added to the check list
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/107] can: j1939: transport: j1939_simple_recv(): ignore local J1939 messages send not by J1939 stack
 Date:   Mon, 24 Aug 2020 10:30:37 +0200
-Message-Id: <20200824082420.676387963@linuxfoundation.org>
+Message-Id: <20200824082408.639964158@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit a9ed4a6560b8562b7e2e2bed9527e88001f7b682 upstream.
+[ Upstream commit b43e3a82bc432c1caaed8950e7662c143470c54c ]
 
-When adding a new fd to an epoll, and that this new fd is an
-epoll fd itself, we recursively scan the fds attached to it
-to detect cycles, and add non-epool files to a "check list"
-that gets subsequently parsed.
+In current J1939 stack implementation, we process all locally send
+messages as own messages. Even if it was send by CAN_RAW socket.
 
-However, this check list isn't completely safe when deletions
-can happen concurrently. To sidestep the issue, make sure that
-a struct file placed on the check list sees its f_count increased,
-ensuring that a concurrent deletion won't result in the file
-disapearing from under our feet.
+To reproduce it use following commands:
+testj1939 -P -r can0:0x80 &
+cansend can0 18238040#0123
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This step will trigger false positive not critical warning:
+j1939_simple_recv: Received already invalidated message
 
+With this patch we add additional check to make sure, related skb is own
+echo message.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20200807105200.26441-2-o.rempel@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/can/j1939/socket.c    | 1 +
+ net/can/j1939/transport.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1994,9 +1994,11 @@ static int ep_loop_check_proc(void *priv
- 			 * not already there, and calling reverse_path_check()
- 			 * during ep_insert().
- 			 */
--			if (list_empty(&epi->ffd.file->f_tfile_llink))
-+			if (list_empty(&epi->ffd.file->f_tfile_llink)) {
-+				get_file(epi->ffd.file);
- 				list_add(&epi->ffd.file->f_tfile_llink,
- 					 &tfile_check_list);
-+			}
- 		}
- 	}
- 	mutex_unlock(&ep->mtx);
-@@ -2040,6 +2042,7 @@ static void clear_tfile_check_list(void)
- 		file = list_first_entry(&tfile_check_list, struct file,
- 					f_tfile_llink);
- 		list_del_init(&file->f_tfile_llink);
-+		fput(file);
- 	}
- 	INIT_LIST_HEAD(&tfile_check_list);
+diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
+index 1b7dc1a8547f3..bf9fd6ee88fe0 100644
+--- a/net/can/j1939/socket.c
++++ b/net/can/j1939/socket.c
+@@ -398,6 +398,7 @@ static int j1939_sk_init(struct sock *sk)
+ 	spin_lock_init(&jsk->sk_session_queue_lock);
+ 	INIT_LIST_HEAD(&jsk->sk_session_queue);
+ 	sk->sk_destruct = j1939_sk_sock_destruct;
++	sk->sk_protocol = CAN_J1939;
+ 
+ 	return 0;
  }
-@@ -2204,13 +2207,17 @@ int do_epoll_ctl(int epfd, int op, int f
- 					clear_tfile_check_list();
- 					goto error_tgt_fput;
- 				}
--			} else
-+			} else {
-+				get_file(tf.file);
- 				list_add(&tf.file->f_tfile_llink,
- 							&tfile_check_list);
-+			}
- 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
- 			if (error) {
- out_del:
- 				list_del(&tf.file->f_tfile_llink);
-+				if (!is_file_epoll(tf.file))
-+					fput(tf.file);
- 				goto error_tgt_fput;
- 			}
- 			if (is_file_epoll(tf.file)) {
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index 5bfe6bf15a999..30957c9a8eb7a 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -2032,6 +2032,10 @@ void j1939_simple_recv(struct j1939_priv *priv, struct sk_buff *skb)
+ 	if (!skb->sk)
+ 		return;
+ 
++	if (skb->sk->sk_family != AF_CAN ||
++	    skb->sk->sk_protocol != CAN_J1939)
++		return;
++
+ 	j1939_session_list_lock(priv);
+ 	session = j1939_session_get_simple(priv, skb);
+ 	j1939_session_list_unlock(priv);
+-- 
+2.25.1
+
 
 
