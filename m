@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A91C824F9EF
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F8324FAB0
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728937AbgHXJvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
+        id S1727935AbgHXJ7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:59:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728575AbgHXIit (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:38:49 -0400
+        id S1727781AbgHXIdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:33:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28F9F20FC3;
-        Mon, 24 Aug 2020 08:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4803206F0;
+        Mon, 24 Aug 2020 08:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258328;
-        bh=aDvv3BCDa3Vwd9aJxEajyyWg5YjOB3i1vNJINei1Cwk=;
+        s=default; t=1598258028;
+        bh=sXZ8Yu1jQFz3zs2GX8AIx26bfdTxIQt72kwnooGnfdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fm1Cc+2mARcZv/7cnxQhojOyyieKwNXOmKC6LWY5gLISGq939ahdPk8vpU0bHstHY
-         FUl62ZlgNQ42iXo3cdb30MXbf8c7ExrqYDTBL8lx2MadjMaTDEaSnuhJRJsLkRZO37
-         EwuYg0vQCLfzx5d3OrnPFcWdaM4wY2cZuf1vql48=
+        b=0T8X4rJIMMj3IoAMiKPqCWMDb1+s8FvCSlTDsCpp4RFgcXG8mBoS8DDTbOp9t6O4D
+         pg8jdAKeW5L6itAhO9Dr57dHO1Gv/hqc5dlQEf853TGzwjamEMgwfTB7fKeVcB2+kD
+         o9OnIrGjen2EFYXjFq2zFASmHBNNfTNMGkSLXN8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.7 010/124] spi: Prevent adding devices below an unregistering controller
-Date:   Mon, 24 Aug 2020 10:29:04 +0200
-Message-Id: <20200824082409.920347628@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 047/148] media: budget-core: Improve exception handling in budget_register()
+Date:   Mon, 24 Aug 2020 10:29:05 +0200
+Message-Id: <20200824082416.324324720@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,109 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit ddf75be47ca748f8b12d28ac64d624354fddf189 upstream.
+[ Upstream commit fc0456458df8b3421dba2a5508cd817fbc20ea71 ]
 
-CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
-using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
-same via sysfs.
+budget_register() has no error handling after its failure.
+Add the missed undo functions for error handling to fix it.
 
-But there are no precautions to prevent adding a device below a
-controller that's being removed.  Such a device is unusable and may not
-even be able to unbind cleanly as it becomes inaccessible once the
-controller has been torn down.  E.g. it is then impossible to quiesce
-the device's interrupt.
-
-of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
-but otherwise run lockless against spi_unregister_controller().
-
-Fix by holding the spi_add_lock in spi_unregister_controller() and
-bailing out of spi_add_device() if the controller has been unregistered
-concurrently.
-
-Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.19+
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/Kconfig |    3 +++
- drivers/spi/spi.c   |   21 ++++++++++++++++++++-
- 2 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/media/pci/ttpci/budget-core.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -989,4 +989,7 @@ config SPI_SLAVE_SYSTEM_CONTROL
+diff --git a/drivers/media/pci/ttpci/budget-core.c b/drivers/media/pci/ttpci/budget-core.c
+index fadbdeeb44955..293867b9e7961 100644
+--- a/drivers/media/pci/ttpci/budget-core.c
++++ b/drivers/media/pci/ttpci/budget-core.c
+@@ -369,20 +369,25 @@ static int budget_register(struct budget *budget)
+ 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->hw_frontend);
  
- endif # SPI_SLAVE
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
  
-+config SPI_DYNAMIC
-+	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
+ 	budget->mem_frontend.source = DMX_MEMORY_FE;
+ 	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &budget->mem_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
+ 
+ 	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &budget->hw_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_release_dmx;
+ 
+ 	dvb_net_init(&budget->dvb_adapter, &budget->dvb_net, &dvbdemux->dmx);
+ 
+ 	return 0;
 +
- endif # SPI
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -475,6 +475,12 @@ static LIST_HEAD(spi_controller_list);
-  */
- static DEFINE_MUTEX(board_lock);
- 
-+/*
-+ * Prevents addition of devices with same chip select and
-+ * addition of devices below an unregistering controller.
-+ */
-+static DEFINE_MUTEX(spi_add_lock);
-+
- /**
-  * spi_alloc_device - Allocate a new SPI device
-  * @ctlr: Controller to which device is connected
-@@ -554,7 +560,6 @@ static int spi_dev_check(struct device *
-  */
- int spi_add_device(struct spi_device *spi)
- {
--	static DEFINE_MUTEX(spi_add_lock);
- 	struct spi_controller *ctlr = spi->controller;
- 	struct device *dev = ctlr->dev.parent;
- 	int status;
-@@ -582,6 +587,13 @@ int spi_add_device(struct spi_device *sp
- 		goto done;
- 	}
- 
-+	/* Controller may unregister concurrently */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
-+	    !device_is_registered(&ctlr->dev)) {
-+		status = -ENODEV;
-+		goto done;
-+	}
-+
- 	/* Descriptors take precedence */
- 	if (ctlr->cs_gpiods)
- 		spi->cs_gpiod = ctlr->cs_gpiods[spi->chip_select];
-@@ -2761,6 +2773,10 @@ void spi_unregister_controller(struct sp
- 	struct spi_controller *found;
- 	int id = ctlr->bus_num;
- 
-+	/* Prevent addition of new devices, unregister existing ones */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_lock(&spi_add_lock);
-+
- 	device_for_each_child(&ctlr->dev, NULL, __unregister);
- 
- 	/* First make sure that this controller was ever added */
-@@ -2781,6 +2797,9 @@ void spi_unregister_controller(struct sp
- 	if (found == ctlr)
- 		idr_remove(&spi_master_idr, id);
- 	mutex_unlock(&board_lock);
-+
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_unlock(&spi_add_lock);
++err_release_dmx:
++	dvb_dmxdev_release(&budget->dmxdev);
++	dvb_dmx_release(&budget->demux);
++	return ret;
  }
- EXPORT_SYMBOL_GPL(spi_unregister_controller);
  
+ static void budget_unregister(struct budget *budget)
+-- 
+2.25.1
+
 
 
