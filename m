@@ -2,102 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E2024FE2C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 14:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4654724FE71
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 15:02:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727914AbgHXM43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 08:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53392 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727909AbgHXM4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 08:56:20 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E2A420706;
-        Mon, 24 Aug 2020 12:56:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598273780;
-        bh=7bMktPkaqQaWzue11MGOLW/pQ9euAy2VMSZRTdulEtI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=CIWyPAAhqglvx0WFJPdJTvfL1Seen+CxwPpV6kDQk+GHl+ElQHh+OzxWndgs9UpmW
-         /mu8IW3vpyN0+LxCkzq5ua/1cE8kzSC5vGPkAp93F6/v6FyHwz1poGJBMSNzpwtOYX
-         t6ROws8KiM4+60/9YuHgwEG9MNXBvXAHcPUJrm9Y=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1kAC1K-006DgR-Qe; Mon, 24 Aug 2020 13:56:18 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+        id S1726889AbgHXNCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 09:02:42 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57318 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726189AbgHXNCm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 09:02:42 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07OCYq1w141833;
+        Mon, 24 Aug 2020 09:02:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=fIp8RUpwJMp0o6RgRzKqxD/GxlQSQy5lvqbrxwtLA8w=;
+ b=WY+72C9l25B0HRlffPVL3R0LB8VlovEYorcNtb9R/Pnhb5+95jLsn2TGv29Uq5F8Pp+u
+ TfLfYT88+GS9wWL/ElHZ4+E5n/3cJnWsF+319YBe4GX4iBqWKldPpryASzqtNsEMFYtB
+ 71IUZQXXiGQHeAL5S/Bw57m7q/DQqqyNHAUgxiI++EbKioARAIjHa6z8ep8nsJCRYmyd
+ +Ea7wHIP83DjZhdJ2lf9ak7KdnmAYlrd4qwlJtOTY9ZLePveKAsxGaS7cA7RbcOHEPUs
+ xLLVyyZ8vjhzQyT33Q7PwBdQYub3sAeSAB+HG4Ag7tKVWNc6o7yhvyig7iRIFZY94fNr 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3349q90h4f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 09:02:35 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07OCap6U152042;
+        Mon, 24 Aug 2020 09:02:30 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3349q90h2j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 09:02:30 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07OCwKCs008721;
+        Mon, 24 Aug 2020 13:02:27 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 332uk6acgs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Aug 2020 13:02:27 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07OD2P3b32702740
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Aug 2020 13:02:25 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2503D4C058;
+        Mon, 24 Aug 2020 13:02:25 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 924614C050;
+        Mon, 24 Aug 2020 13:02:23 +0000 (GMT)
+Received: from sig-9-65-254-31.ibm.com (unknown [9.65.254.31])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 24 Aug 2020 13:02:23 +0000 (GMT)
+Message-ID: <ccf18096bf715d0eb8f68899c324452a4b044124.camel@linux.ibm.com>
+Subject: Re: [PATCH 10/11] ima: Don't ignore errors from
+ crypto_shash_update()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>, mjg59@google.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        stable@vger.kernel.org
+Date:   Mon, 24 Aug 2020 09:02:22 -0400
+In-Reply-To: <20200618160458.1579-10-roberto.sassu@huawei.com>
+References: <20200618160329.1263-2-roberto.sassu@huawei.com>
+         <20200618160458.1579-10-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date:   Mon, 24 Aug 2020 13:56:18 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
-        suzuki.poulose@arm.com, james.morse@arm.com, pbonzini@redhat.com,
-        kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH stable-4.14.y backport] KVM: arm/arm64: Don't reschedule
- in unmap_stage2_range()
-In-Reply-To: <20200824112954.24756-1-will@kernel.org>
-References: <20200824112954.24756-1-will@kernel.org>
-User-Agent: Roundcube Webmail/1.4.8
-Message-ID: <2d18375b13eeae3ae12dda5393154857@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: will@kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, suzuki.poulose@arm.com, james.morse@arm.com, pbonzini@redhat.com, kernel-team@android.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-24_11:2020-08-24,2020-08-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ adultscore=0 bulkscore=0 mlxscore=0 impostorscore=0 suspectscore=3
+ phishscore=0 mlxlogscore=909 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2006250000 definitions=main-2008240099
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-08-24 12:29, Will Deacon wrote:
-> Upstream commits fdfe7cbd5880 ("KVM: Pass MMU notifier range flags to
-> kvm_unmap_hva_range()") and b5331379bc62 ("KVM: arm64: Only reschedule
-> if MMU_NOTIFIER_RANGE_BLOCKABLE is not set") fix a "sleeping from 
-> invalid
-> context" BUG caused by unmap_stage2_range() attempting to reschedule 
-> when
-> called on the OOM path.
+On Thu, 2020-06-18 at 18:04 +0200, Roberto Sassu wrote:
+> Errors returned by crypto_shash_update() are not checked in
+> ima_calc_boot_aggregate_tfm() and thus can be overwritten at the next
+> iteration of the loop. This patch adds a check after calling
+> crypto_shash_update() and returns immediately if the result is not zero.
 > 
-> Unfortunately, these patches rely on the MMU notifier callback being
-> passed knowledge about whether or not blocking is permitted, which was
-> introduced in 4.19. Rather than backport this considerable amount of
-> infrastructure just for KVM on arm, instead just remove the conditional
-> reschedule.
-> 
-> Cc: <stable@vger.kernel.org> # v4.14 only
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-> Cc: James Morse <james.morse@arm.com>
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  virt/kvm/arm/mmu.c | 6 ------
->  1 file changed, 6 deletions(-)
-> 
-> diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
-> index 3814cdad643a..7fe673248e98 100644
-> --- a/virt/kvm/arm/mmu.c
-> +++ b/virt/kvm/arm/mmu.c
-> @@ -307,12 +307,6 @@ static void unmap_stage2_range(struct kvm *kvm,
-> phys_addr_t start, u64 size)
->  		next = stage2_pgd_addr_end(addr, end);
->  		if (!stage2_pgd_none(*pgd))
->  			unmap_stage2_puds(kvm, pgd, addr, next);
-> -		/*
-> -		 * If the range is too large, release the kvm->mmu_lock
-> -		 * to prevent starvation and lockup detector warnings.
-> -		 */
-> -		if (next != end)
-> -			cond_resched_lock(&kvm->mmu_lock);
->  	} while (pgd++, addr = next, addr != end);
->  }
+> Cc: stable@vger.kernel.org
+> Fixes: 3323eec921efd ("integrity: IMA as an integrity service provider")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
-Acked-by: Marc Zyngier <maz@kernel.org>
+Verification of the boot_aggregate will fail, but yes this should be
+fixed.  This patch  and the next should be moved up front to the
+beginning of the patch set.
 
-         M.
--- 
-Jazz is not dead. It just smells funny...
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+
+thanks,
+
+Mimi
+
