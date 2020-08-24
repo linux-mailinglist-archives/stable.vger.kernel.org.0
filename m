@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BCE624F806
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3C424F82A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730209AbgHXIxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33012 "EHLO mail.kernel.org"
+        id S1728969AbgHXJ1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730202AbgHXIxh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:53:37 -0400
+        id S1730101AbgHXIwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:52:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2609207D3;
-        Mon, 24 Aug 2020 08:53:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 220C020FC3;
+        Mon, 24 Aug 2020 08:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259216;
-        bh=cBWRrPXAZq+OpXD8QP6SeV0mkgjHFxpB8eaf/FyXlsA=;
+        s=default; t=1598259152;
+        bh=4hK1erPQRlP1+oL9gdRiB7F0rzjISyPy6USi40HgIjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZdK6fcF9cFzkwWrLZJkAMZ0tHMCqx7w1Ixp9LuemxieGxkLLtjvJ2qAP1gV5DEXN
-         IyRXIGoFrD9i9RfSJUNcytb7Hx8LzaueDM3pd8vRgpzbZCgjcIe7AUuFq4GS5t1nJ4
-         GhmqA18y1YOdVEOlwTSdreTgdMv08fbkTWkJBZLc=
+        b=0CQDzscgn1P3sfLLVJDl9VoIJZ7NJ7Kz7gfVne8C5rCLI04X1zhCiRsXlT5JFQzh0
+         pGx7f1opQzqGq1DplT3W83Vjt453te5OzNd1jZBK0ZL8kpc6EH6xcNS0IohbWH9oQ2
+         /MC3oKdVwYDAOU4znPdgvXcSSPVX2MXhE+kSqFyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/50] m68knommu: fix overwriting of bits in ColdFire V3 cache control
-Date:   Mon, 24 Aug 2020 10:31:26 +0200
-Message-Id: <20200824082353.314436934@linuxfoundation.org>
+Subject: [PATCH 4.9 28/39] alpha: fix annotation of io{read,write}{16,32}be()
+Date:   Mon, 24 Aug 2020 10:31:27 +0200
+Message-Id: <20200824082349.976616110@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
-References: <20200824082351.823243923@linuxfoundation.org>
+In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
+References: <20200824082348.445866152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit bdee0e793cea10c516ff48bf3ebb4ef1820a116b ]
+[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
 
-The Cache Control Register (CACR) of the ColdFire V3 has bits that
-control high level caching functions, and also enable/disable the use
-of the alternate stack pointer register (the EUSP bit) to provide
-separate supervisor and user stack pointer registers. The code as
-it is today will blindly clear the EUSP bit on cache actions like
-invalidation. So it is broken for this case - and that will result
-in failed booting (interrupt entry and exit processing will be
-completely hosed).
+These accessors must be used to read/write a big-endian bus.  The value
+returned or written is native-endian.
 
-This only affects ColdFire V3 parts that support the alternate stack
-register (like the 5329 for example) - generally speaking new parts do,
-older parts don't. It has no impact on ColdFire V3 parts with the single
-stack pointer, like the 5307 for example.
+However, these accessors are defined using be{16,32}_to_cpu() or
+cpu_to_be{16,32}() to make the endian conversion but these expect a
+__be{16,32} when none is present.  Keeping them would need a force cast
+that would solve nothing at all.
 
-Fix the cache bit defines used, so they maintain the EUSP bit when
-carrying out cache actions through the CACR register.
+So, do the conversion using swab{16,32}, like done in asm-generic for
+similar situations.
 
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/m53xxacr.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/alpha/include/asm/io.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/m68k/include/asm/m53xxacr.h b/arch/m68k/include/asm/m53xxacr.h
-index 9138a624c5c81..692f90e7fecc1 100644
---- a/arch/m68k/include/asm/m53xxacr.h
-+++ b/arch/m68k/include/asm/m53xxacr.h
-@@ -89,9 +89,9 @@
-  * coherency though in all cases. And for copyback caches we will need
-  * to push cached data as well.
-  */
--#define CACHE_INIT	  CACR_CINVA
--#define CACHE_INVALIDATE  CACR_CINVA
--#define CACHE_INVALIDATED CACR_CINVA
-+#define CACHE_INIT        (CACHE_MODE + CACR_CINVA - CACR_EC)
-+#define CACHE_INVALIDATE  (CACHE_MODE + CACR_CINVA)
-+#define CACHE_INVALIDATED (CACHE_MODE + CACR_CINVA)
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index ff4049155c840..355aec0867f4d 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -491,10 +491,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
+ }
+ #endif
  
- #define ACR0_MODE	((CONFIG_RAMBASE & 0xff000000) + \
- 			 (0x000f0000) + \
+-#define ioread16be(p) be16_to_cpu(ioread16(p))
+-#define ioread32be(p) be32_to_cpu(ioread32(p))
+-#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
+-#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
++#define ioread16be(p) swab16(ioread16(p))
++#define ioread32be(p) swab32(ioread32(p))
++#define iowrite16be(v,p) iowrite16(swab16(v), (p))
++#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+ 
+ #define inb_p		inb
+ #define inw_p		inw
 -- 
 2.25.1
 
