@@ -2,126 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B625C250B86
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 00:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB06A250BA8
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 00:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726531AbgHXWUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 18:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S1726739AbgHXW3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 18:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726519AbgHXWUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 18:20:06 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113EBC061574
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 15:20:06 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id m34so5348378pgl.11
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 15:20:06 -0700 (PDT)
+        with ESMTP id S1726303AbgHXW3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 18:29:08 -0400
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4BCC061574;
+        Mon, 24 Aug 2020 15:29:08 -0700 (PDT)
+Received: by mail-yb1-xb42.google.com with SMTP id e14so6054127ybf.4;
+        Mon, 24 Aug 2020 15:29:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WCgLmSD8oSldUydBVh4oNCyZnM+8FLwd4GHJ5GpRqqA=;
-        b=xuAr/KZ1Eq4odBFhHrz1JVPBP+37x25V3+p5dd/pb+y3QT9Q/XBpSsy9MbK0UFncyJ
-         /Gvlmt211ZXgIHbOQfhx2d+C/MRIRiHTkF4C8mjYFX9BcqtenYYmXGko7uyKc1ff/fyO
-         xvVJTDjCHQqEXiEvaJAiwX3VnrJyNuBws5JYUnoYUP/uKnxXGIZOZkk0Lg71iTIS3o3f
-         pIw/z6kYPqOPTyjTaEfWfSF0x8raDg1j4/7vScJ/C4EKIPT8isPXxbaq4APFcZxSuXTW
-         G375jP2oDn14mUmBZPoUKjMq6aL+wQ4swUZ8GZswtcOXgS6tgwkhYmN3EXkdVKm8Zmq3
-         rtzA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3qOJ3NzWfJ9sWmSZflRe5Z/SiLVOjHtScl8TXItrV3A=;
+        b=l+ltexb5PPukV4iJ9LAIkMPnqWOS/KfO3eQhMs5uqymC9AarAqrzL4DZ55+LKrNKSz
+         91zotAMJ+IBsnRBYfMbQH0xs+OdbmoP1up23cYmATdKMc/zXwQSpUTTHABL/n3opXon+
+         HE/Fq/cAu5BJU4ImGNv+HhWYQNgGH+PP9yH2BMw349IfG6r3haeeQANG55nAS4FG/HeO
+         NaxgdyRtxv6hwQUz9Sr8jRak8zKTXBwlzmdT/1qpVEczfvPzB09TFH4x2FhExHHvpZLE
+         e/ucPg/YKPJOPgfgV3cqPS7dPwu7mJ7VD1kWkeGncoG7+i/tF0ozMTgIkVhXZBG13v2C
+         Zh3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WCgLmSD8oSldUydBVh4oNCyZnM+8FLwd4GHJ5GpRqqA=;
-        b=hcoI+plGYqmKabRHKMqX8LA8m/TU1uuEqDRTR2iUXw4k5r1v5fphLHqDz0tjk071pi
-         KgE96CJVVs0GrMjT2vjHBHE35qY4foyKsTylfTgS9pJXBATaJzhcW8EkgHQpLrl0FCHc
-         o97EqJzKPkf1ikP/YLRFW59r/hFQrR5SiEBxlN7MawyugnZTld6GdP6hwLWBm15ZAYKR
-         TEqSP57sRUzmtbBkhsKxeBDzWg8Nadnsv89JCGURr/s9x6rliHrX64c0fRHed8s3BFNW
-         2SdCTvFpcq4vcazO4yUxc2Of73pD4nuJznZ9o2iZztwxwcOhxpFTuLv7e9Bmu0oC3Suv
-         DpUg==
-X-Gm-Message-State: AOAM5326KZGyBTpS+VKehGd8mAJDNwkUSOIgNxQibsojZyeZKVihtCWG
-        TxYMa3/9oUF37LnWa0Si+An0L0Cf1mqlnQ==
-X-Google-Smtp-Source: ABdhPJyiQZix6HoqhWNElbCQJvDFmwD8jbqJWWgHdBIX6Qybkko0dIpR7nREhutTfgOaLEGZD2MB6Q==
-X-Received: by 2002:a65:60ce:: with SMTP id r14mr4804519pgv.85.1598307603757;
-        Mon, 24 Aug 2020 15:20:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f17sm12861730pfq.67.2020.08.24.15.20.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2020 15:20:02 -0700 (PDT)
-Message-ID: <5f443d12.1c69fb81.e4102.765b@mx.google.com>
-Date:   Mon, 24 Aug 2020 15:20:02 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3qOJ3NzWfJ9sWmSZflRe5Z/SiLVOjHtScl8TXItrV3A=;
+        b=JJ+CgDgaPRrfgnfEwBzZNcR9wy7LO4EmEAH6i5LQi0RkBxDhKgUWfCZw0vY46SA8ow
+         d2JyQJ0ybyJhv4SpBTpwm1b0KY3DUtEPpbEhqdw1blOaoovTtenvuh5CGJaNpIHxczJl
+         uGSAVq15M7TF2JRqLch7T2vWB4VtnLvxKQia/wU12B4QpaN6GXJqmOHeJmHBkEmBJ+Vd
+         MJjM5GGAICP2jzos/nafmh53V+j34V46pE8nmgb20CZMad4h9ebNgBUBlXVtS21WIX+U
+         tiJdEKgCmtUQFQ4eCFw1UCXSGgwa5rMZiL8q1W+8MRV8FBcyvqSCGosz3Z8VXzl4yo4D
+         X5MA==
+X-Gm-Message-State: AOAM5329UvBjDctHJtrARSdMDUwapGSHOHItSRlKIMuKMyxmpF5mV9UM
+        jUu3FmmYK4f59LLcw0vzkYTvA9MPQRVSEwRxx+g=
+X-Google-Smtp-Source: ABdhPJwYgl3FJMdku6i+4HiglRO8zsQRW9BAP3I/BEAqKMIf1RRP+xNfrrsy4rPjxTHUVwO6XaFN+jSnZyngLiRiyAU=
+X-Received: by 2002:a25:8447:: with SMTP id r7mr9673141ybm.147.1598308147950;
+ Mon, 24 Aug 2020 15:29:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.7.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.7.17-128-gf16d132bb2de
-Subject: stable-rc/linux-5.7.y baseline: 166 runs,
- 1 regressions (v5.7.17-128-gf16d132bb2de)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200824183253.826343-1-lyude@redhat.com> <20200824183253.826343-2-lyude@redhat.com>
+In-Reply-To: <20200824183253.826343-2-lyude@redhat.com>
+From:   Ben Skeggs <skeggsb@gmail.com>
+Date:   Tue, 25 Aug 2020 08:28:56 +1000
+Message-ID: <CACAvsv6hymdcGkEcigL3fWACZ_1POpB+aefq9d9ChnYv_dHnVg@mail.gmail.com>
+Subject: Re: [Nouveau] [PATCH 1/2] drm/nouveau/kms/nv50-: Program notifier
+ offset before requesting disp caps
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     ML nouveau <nouveau@lists.freedesktop.org>,
+        Sasha Levin <sashal@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:DRM DRIVER FOR NVIDIA GEFORCE/QUADRO GPUS" 
+        <dri-devel@lists.freedesktop.org>, Ben Skeggs <bskeggs@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.7.y baseline: 166 runs, 1 regressions (v5.7.17-128-gf16d1=
-32bb2de)
+On Tue, 25 Aug 2020 at 04:33, Lyude Paul <lyude@redhat.com> wrote:
+>
+> Not entirely sure why this never came up when I originally tested this
+> (maybe some BIOSes already have this setup?) but the ->caps_init vfunc
+> appears to cause the display engine to throw an exception on driver
+> init, at least on my ThinkPad P72:
+>
+> nouveau 0000:01:00.0: disp: chid 0 mthd 008c data 00000000 0000508c 0000102b
+>
+> This is magic nvidia speak for "You need to have the DMA notifier offset
+> programmed before you can call NV507D_GET_CAPABILITIES." So, let's fix
+> this by doing that, and also perform an update afterwards to prevent
+> racing with the GPU when reading capabilities.
+>
+> Changes since v1:
+> * Don't just program the DMA notifier offset, make sure to actually
+>   perform an update
+I'm not sure there's a need to send an Update() method here, I believe
+GetCapabilities() is an action method on its own right?
 
-Regressions Summary
--------------------
+Ben.
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.7.y/kern=
-el/v5.7.17-128-gf16d132bb2de/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.7.y
-  Describe: v5.7.17-128-gf16d132bb2de
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f16d132bb2de3adb5e9470242c50c83b6d5d9a54 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f44074107516ecd6d9fb461
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-128-gf16d132bb2de/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.7.y/v5.7.17-=
-128-gf16d132bb2de/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f44074107516ecd6d9fb=
-462
-      failing since 39 days (last pass: v5.7.8-167-gc2fb28a4b6e4, first fai=
-l: v5.7.9)  =20
+>
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Fixes: 4a2cb4181b07 ("drm/nouveau/kms/nv50-: Probe SOR and PIOR caps for DP interlacing support")
+> Cc: <stable@vger.kernel.org> # v5.8+
+> ---
+>  drivers/gpu/drm/nouveau/dispnv50/core507d.c | 25 ++++++++++++++++-----
+>  1 file changed, 19 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/core507d.c b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> index e341f572c2696..5e86feec3b720 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> @@ -65,13 +65,26 @@ core507d_ntfy_init(struct nouveau_bo *bo, u32 offset)
+>  int
+>  core507d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
+>  {
+> -       u32 *push = evo_wait(&disp->core->chan, 2);
+> +       struct nv50_core *core = disp->core;
+> +       u32 interlock[NV50_DISP_INTERLOCK__SIZE] = {0};
+> +       u32 *push;
+>
+> -       if (push) {
+> -               evo_mthd(push, 0x008c, 1);
+> -               evo_data(push, 0x0);
+> -               evo_kick(push, &disp->core->chan);
+> -       }
+> +       core->func->ntfy_init(disp->sync, NV50_DISP_CORE_NTFY);
+> +
+> +       push = evo_wait(&core->chan, 4);
+> +       if (!push)
+> +               return 0;
+> +
+> +       evo_mthd(push, 0x0084, 1);
+> +       evo_data(push, 0x80000000 | NV50_DISP_CORE_NTFY);
+> +       evo_mthd(push, 0x008c, 1);
+> +       evo_data(push, 0x0);
+> +       evo_kick(push, &core->chan);
+> +
+> +       core->func->update(core, interlock, false);
+> +       if (core->func->ntfy_wait_done(disp->sync, NV50_DISP_CORE_NTFY,
+> +                                      core->chan.base.device))
+> +               NV_ERROR(drm, "core notifier timeout\n");
+>
+>         return 0;
+>  }
+> --
+> 2.26.2
+>
+> _______________________________________________
+> Nouveau mailing list
+> Nouveau@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/nouveau
