@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD4524F991
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBFD24F904
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728865AbgHXIlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60390 "EHLO mail.kernel.org"
+        id S1729114AbgHXIqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728873AbgHXIlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:41:44 -0400
+        id S1729330AbgHXIqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:46:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05C882087D;
-        Mon, 24 Aug 2020 08:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31CE1204FD;
+        Mon, 24 Aug 2020 08:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258503;
-        bh=Sg+HY/SjwdFSUsZ8B4+SllnIJRTPqzEqXtxp20azwPE=;
+        s=default; t=1598258775;
+        bh=G/McZE4QBg9BkUHnwrJRZBU4YvBJ3uxeKAUg6szMSYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHJh77D4MRssaNfk04++u4cPLaRoxiLch3aHIrl6XpvQwMHboZ4M1BKca+HhWYvBg
-         Ar6vXbc5RLcIGna6ioYaMXhJjIJnHNlqlx1gG/Tvr5/JVoO7Gff0HO2WSeZFf8x6Eq
-         17k+J31J71xkWK/JkH5KbW6EYMkgtYIUhzvDHWyQ=
+        b=arobwEZkndPlKFrIDOpzVwXxoJS8vaXrM6Of53oyw3TEJAONFAzeC1VCxAYyxI56+
+         h1/0BDro+ImiVakm8oHtrMbP3WN29WQIVN9dX9aAu6FcVpPbvmtDfDeImf6YtPq6jh
+         nr5+EemXoraoaULJOw7kQr7KW2FRAIq8NUvZlAM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 040/124] media: vpss: clean up resources in init
-Date:   Mon, 24 Aug 2020 10:29:34 +0200
-Message-Id: <20200824082411.390612980@linuxfoundation.org>
+Subject: [PATCH 5.4 011/107] gfs2: Improve mmap write vs. punch_hole consistency
+Date:   Mon, 24 Aug 2020 10:29:37 +0200
+Message-Id: <20200824082405.621982099@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 9c487b0b0ea7ff22127fe99a7f67657d8730ff94 ]
+[ Upstream commit 39c3a948ecf6e7b8f55f0e91a5febc924fede4d7 ]
 
-If platform_driver_register() fails within vpss_init() resources are not
-cleaned up. The patch fixes this issue by introducing the corresponding
-error handling.
+When punching a hole in a file, use filemap_write_and_wait_range to
+write back any dirty pages in the range of the hole.  As a side effect,
+if the hole isn't page aligned, this marks unaligned pages at the
+beginning and the end of the hole read-only.  This is required when the
+block size is smaller than the page size: when those pages are written
+to again after the hole punching, we must make sure that page_mkwrite is
+called for those pages so that the page will be fully allocated and any
+blocks turned into holes from the hole punching will be reallocated.
+(If a page is writably mapped, page_mkwrite won't be called.)
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Fixes xfstest generic/567.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpss.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ fs/gfs2/bmap.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
-index d38d2bbb6f0f8..7000f0bf0b353 100644
---- a/drivers/media/platform/davinci/vpss.c
-+++ b/drivers/media/platform/davinci/vpss.c
-@@ -505,19 +505,31 @@ static void vpss_exit(void)
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index adbb8fef22162..4846e0c47e6af 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -2442,8 +2442,16 @@ int __gfs2_punch_hole(struct file *file, loff_t offset, loff_t length)
+ 	struct inode *inode = file_inode(file);
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+ 	struct gfs2_sbd *sdp = GFS2_SB(inode);
++	unsigned int blocksize = i_blocksize(inode);
++	loff_t start, end;
+ 	int error;
  
- static int __init vpss_init(void)
- {
-+	int ret;
++	start = round_down(offset, blocksize);
++	end = round_up(offset + length, blocksize) - 1;
++	error = filemap_write_and_wait_range(inode->i_mapping, start, end);
++	if (error)
++		return error;
 +
- 	if (!request_mem_region(VPSS_CLK_CTRL, 4, "vpss_clock_control"))
- 		return -EBUSY;
+ 	if (gfs2_is_jdata(ip))
+ 		error = gfs2_trans_begin(sdp, RES_DINODE + 2 * RES_JDATA,
+ 					 GFS2_JTRUNC_REVOKES);
+@@ -2457,9 +2465,8 @@ int __gfs2_punch_hole(struct file *file, loff_t offset, loff_t length)
+ 		if (error)
+ 			goto out;
+ 	} else {
+-		unsigned int start_off, end_len, blocksize;
++		unsigned int start_off, end_len;
  
- 	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
- 	if (unlikely(!oper_cfg.vpss_regs_base2)) {
--		release_mem_region(VPSS_CLK_CTRL, 4);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_ioremap;
- 	}
- 
- 	writel(VPSS_CLK_CTRL_VENCCLKEN |
--		     VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
-+	       VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
-+
-+	ret = platform_driver_register(&vpss_driver);
-+	if (ret)
-+		goto err_pd_register;
-+
-+	return 0;
- 
--	return platform_driver_register(&vpss_driver);
-+err_pd_register:
-+	iounmap(oper_cfg.vpss_regs_base2);
-+err_ioremap:
-+	release_mem_region(VPSS_CLK_CTRL, 4);
-+	return ret;
- }
- subsys_initcall(vpss_init);
- module_exit(vpss_exit);
+-		blocksize = i_blocksize(inode);
+ 		start_off = offset & (blocksize - 1);
+ 		end_len = (offset + length) & (blocksize - 1);
+ 		if (start_off) {
 -- 
 2.25.1
 
