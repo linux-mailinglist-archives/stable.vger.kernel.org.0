@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90DB24F908
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16EE124FA63
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729305AbgHXIqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
+        id S1726923AbgHXJzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:55:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbgHXIqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:46:09 -0400
+        id S1728258AbgHXIgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:36:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0D12207D3;
-        Mon, 24 Aug 2020 08:46:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 262F4206F0;
+        Mon, 24 Aug 2020 08:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258768;
-        bh=WPMxQiXaIVKU9BE9M+GjN7jGrzR1Z1QBgsw1OK0nLUg=;
+        s=default; t=1598258182;
+        bh=bgTmsYHvGs3ntpuCwcRjLQ5BevUI8JP4aY4CVC7BZwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxCivM+huFX8ak2nXjaRMLmVW8YfTynbMXNdDtm5a5k7IaYaHxKjNoWEW+rSM/UCv
-         IcXDe+7sKnjQqZjG2lGw5P3Yl6OiRgISW0mzVNvUImg/+56sxxpKzYkju/gzOYIcJm
-         d3/o6httiWumR51oPsCV9p+u58jyhHhjI8s5rRFg=
+        b=ShK50+x47lw7TnXU8KOjC0HjTx5GoaAXVjPafBZQdORUsX5Akw+sCs2KyyP1jKd3Z
+         L5xsQDIG0tlGPae+9lf5sbqParWH5CVf17P4Fq4mWmM6w6WryP5zBhA9D+y9yEW3Ds
+         aHCTNFo9XOAzJwhBzec8nGXkTotQhfsiE0b9Y1yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Kolesa <daniel@octaforge.org>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 036/107] drm/amdgpu/display: use GFP_ATOMIC in dcn20_validate_bandwidth_internal
+        stable@vger.kernel.org, Zhiyi Guo <zhguo@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 104/148] vfio/type1: Add proper error unwind for vfio_iommu_replay()
 Date:   Mon, 24 Aug 2020 10:30:02 +0200
-Message-Id: <20200824082406.911184133@linuxfoundation.org>
+Message-Id: <20200824082419.007370794@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Kolesa <daniel@octaforge.org>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-commit f41ed88cbd6f025f7a683a11a74f901555fba11c upstream.
+[ Upstream commit aae7a75a821a793ed6b8ad502a5890fb8e8f172d ]
 
-GFP_KERNEL may and will sleep, and this is being executed in
-a non-preemptible context; this will mess things up since it's
-called inbetween DC_FP_START/END, and rescheduling will result
-in the DC_FP_END later being called in a different context (or
-just crashing if any floating point/vector registers/instructions
-are used after the call is resumed in a different context).
+The vfio_iommu_replay() function does not currently unwind on error,
+yet it does pin pages, perform IOMMU mapping, and modify the vfio_dma
+structure to indicate IOMMU mapping.  The IOMMU mappings are torn down
+when the domain is destroyed, but the other actions go on to cause
+trouble later.  For example, the iommu->domain_list can be empty if we
+only have a non-IOMMU backed mdev attached.  We don't currently check
+if the list is empty before getting the first entry in the list, which
+leads to a bogus domain pointer.  If a vfio_dma entry is erroneously
+marked as iommu_mapped, we'll attempt to use that bogus pointer to
+retrieve the existing physical page addresses.
 
-Signed-off-by: Daniel Kolesa <daniel@octaforge.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is the scenario that uncovered this issue, attempting to hot-add
+a vfio-pci device to a container with an existing mdev device and DMA
+mappings, one of which could not be pinned, causing a failure adding
+the new group to the existing container and setting the conditions
+for a subsequent attempt to explode.
 
+To resolve this, we can first check if the domain_list is empty so
+that we can reject replay of a bogus domain, should we ever encounter
+this inconsistent state again in the future.  The real fix though is
+to add the necessary unwind support, which means cleaning up the
+current pinning if an IOMMU mapping fails, then walking back through
+the r-b tree of DMA entries, reading from the IOMMU which ranges are
+mapped, and unmapping and unpinning those ranges.  To be able to do
+this, we also defer marking the DMA entry as IOMMU mapped until all
+entries are processed, in order to allow the unwind to know the
+disposition of each entry.
+
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Reported-by: Zhiyi Guo <zhguo@redhat.com>
+Tested-by: Zhiyi Guo <zhguo@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/vfio_iommu_type1.c | 71 ++++++++++++++++++++++++++++++---
+ 1 file changed, 66 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2845,7 +2845,7 @@ static bool dcn20_validate_bandwidth_int
- 	int vlevel = 0;
- 	int pipe_split_from[MAX_PIPES];
- 	int pipe_cnt = 0;
--	display_e2e_pipe_params_st *pipes = kzalloc(dc->res_pool->pipe_count * sizeof(display_e2e_pipe_params_st), GFP_KERNEL);
-+	display_e2e_pipe_params_st *pipes = kzalloc(dc->res_pool->pipe_count * sizeof(display_e2e_pipe_params_st), GFP_ATOMIC);
- 	DC_LOGGER_INIT(dc->ctx->logger);
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 5e556ac9102a5..f48f0db908a46 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -1422,13 +1422,16 @@ static int vfio_bus_type(struct device *dev, void *data)
+ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 			     struct vfio_domain *domain)
+ {
+-	struct vfio_domain *d;
++	struct vfio_domain *d = NULL;
+ 	struct rb_node *n;
+ 	unsigned long limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+ 	int ret;
  
- 	BW_VAL_TRACE_COUNT();
+ 	/* Arbitrarily pick the first domain in the list for lookups */
+-	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
++	if (!list_empty(&iommu->domain_list))
++		d = list_first_entry(&iommu->domain_list,
++				     struct vfio_domain, next);
++
+ 	n = rb_first(&iommu->dma_list);
+ 
+ 	for (; n; n = rb_next(n)) {
+@@ -1446,6 +1449,11 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 				phys_addr_t p;
+ 				dma_addr_t i;
+ 
++				if (WARN_ON(!d)) { /* mapped w/o a domain?! */
++					ret = -EINVAL;
++					goto unwind;
++				}
++
+ 				phys = iommu_iova_to_phys(d->domain, iova);
+ 
+ 				if (WARN_ON(!phys)) {
+@@ -1475,7 +1483,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 				if (npage <= 0) {
+ 					WARN_ON(!npage);
+ 					ret = (int)npage;
+-					return ret;
++					goto unwind;
+ 				}
+ 
+ 				phys = pfn << PAGE_SHIFT;
+@@ -1484,14 +1492,67 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 
+ 			ret = iommu_map(domain->domain, iova, phys,
+ 					size, dma->prot | domain->prot);
+-			if (ret)
+-				return ret;
++			if (ret) {
++				if (!dma->iommu_mapped)
++					vfio_unpin_pages_remote(dma, iova,
++							phys >> PAGE_SHIFT,
++							size >> PAGE_SHIFT,
++							true);
++				goto unwind;
++			}
+ 
+ 			iova += size;
+ 		}
++	}
++
++	/* All dmas are now mapped, defer to second tree walk for unwind */
++	for (n = rb_first(&iommu->dma_list); n; n = rb_next(n)) {
++		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
++
+ 		dma->iommu_mapped = true;
+ 	}
++
+ 	return 0;
++
++unwind:
++	for (; n; n = rb_prev(n)) {
++		struct vfio_dma *dma = rb_entry(n, struct vfio_dma, node);
++		dma_addr_t iova;
++
++		if (dma->iommu_mapped) {
++			iommu_unmap(domain->domain, dma->iova, dma->size);
++			continue;
++		}
++
++		iova = dma->iova;
++		while (iova < dma->iova + dma->size) {
++			phys_addr_t phys, p;
++			size_t size;
++			dma_addr_t i;
++
++			phys = iommu_iova_to_phys(domain->domain, iova);
++			if (!phys) {
++				iova += PAGE_SIZE;
++				continue;
++			}
++
++			size = PAGE_SIZE;
++			p = phys + size;
++			i = iova + size;
++			while (i < dma->iova + dma->size &&
++			       p == iommu_iova_to_phys(domain->domain, i)) {
++				size += PAGE_SIZE;
++				p += PAGE_SIZE;
++				i += PAGE_SIZE;
++			}
++
++			iommu_unmap(domain->domain, iova, size);
++			vfio_unpin_pages_remote(dma, iova, phys >> PAGE_SHIFT,
++						size >> PAGE_SHIFT, true);
++		}
++	}
++
++	return ret;
+ }
+ 
+ /*
+-- 
+2.25.1
+
 
 
