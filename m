@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A30424F865
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D818324F862
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbgHXJbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:31:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53886 "EHLO mail.kernel.org"
+        id S1729628AbgHXIu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728122AbgHXIuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:22 -0400
+        id S1729588AbgHXIuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A32F2075B;
-        Mon, 24 Aug 2020 08:50:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E85204FD;
+        Mon, 24 Aug 2020 08:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259022;
-        bh=4hK1erPQRlP1+oL9gdRiB7F0rzjISyPy6USi40HgIjg=;
+        s=default; t=1598259024;
+        bh=V6CCTp/Wp/CXuMiLrUt3VZ1YD9/ED1Sm6WtunPeO/dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFmJNeUDPBU9SLiymkPnyVof47ZXY6ec1o6WJYpYPSwd8wTKVyJ4jQux4tLn5ZJ+A
-         +jzfSgoPcQ8uVZDbLZIOgGFyHlNkBVRlGcLCb/ZSNogLf0I0qNpIx87mfJ0lhDGvG6
-         l+grVYbvps/ihXbKTSpdWIYieX1VXOBB00benkSg=
+        b=OnA5e2Rm5ExRYhtXwEbgw4Cj/UJvqwWzTmj8fLM2qYSOOk51YZj1lQQvX5q96okok
+         VO8LT0VhbbuzWIGiF07bSvd/dsRrIJOanwUdrdTqAoMI7B0x+yUzHc1kXzzGOD0H/I
+         uoeKrRMHZFL/5Asr2N5efE0nQxQEwyAqO1dMALhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 25/33] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Mon, 24 Aug 2020 10:31:21 +0200
-Message-Id: <20200824082347.799118539@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 26/33] ext4: fix potential negative array index in do_split()
+Date:   Mon, 24 Aug 2020 10:31:22 +0200
+Message-Id: <20200824082347.846753613@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
 References: <20200824082346.498653578@linuxfoundation.org>
@@ -50,55 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+[ Upstream commit 5872331b3d91820e14716632ebb56b1399b34fe1 ]
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+If for any reason a directory passed to do_split() does not have enough
+active entries to exceed half the size of the block, we can end up
+iterating over all "count" entries without finding a split point.
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
+In this case, count == move, and split will be zero, and we will
+attempt a negative index into map[].
 
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
+Guard against this by detecting this case, and falling back to
+split-to-half-of-count instead; in this case we will still have
+plenty of space (> half blocksize) in each split block.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ef2b02d3e617 ("ext34: ensure do_split leaves enough free space in both blocks")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/f53e246b-647c-64bb-16ec-135383c70ad7@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ext4/namei.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index ff4049155c840..355aec0867f4d 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -491,10 +491,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
- }
- #endif
- 
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
- 
- #define inb_p		inb
- #define inw_p		inw
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index faf142a6fa8bb..061b026e464c5 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1730,7 +1730,7 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 			     blocksize, hinfo, map);
+ 	map -= count;
+ 	dx_sort_map(map, count);
+-	/* Split the existing block in the middle, size-wise */
++	/* Ensure that neither split block is over half full */
+ 	size = 0;
+ 	move = 0;
+ 	for (i = count-1; i >= 0; i--) {
+@@ -1740,8 +1740,18 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 		size += map[i].size;
+ 		move++;
+ 	}
+-	/* map index at which we will split */
+-	split = count - move;
++	/*
++	 * map index at which we will split
++	 *
++	 * If the sum of active entries didn't exceed half the block size, just
++	 * split it in half by count; each resulting block will have at least
++	 * half the space free.
++	 */
++	if (i > 0)
++		split = count - move;
++	else
++		split = count/2;
++
+ 	hash2 = map[split].hash;
+ 	continued = hash2 == map[split - 1].hash;
+ 	dxtrace(printk(KERN_INFO "Split block %lu at %x, %i/%i\n",
 -- 
 2.25.1
 
