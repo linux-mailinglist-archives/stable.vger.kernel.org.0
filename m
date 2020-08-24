@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EB024F9D0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB8224F9DE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbgHXIjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
+        id S1728110AbgHXJuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:50:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726825AbgHXIjG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:39:06 -0400
+        id S1728601AbgHXIjI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 598252177B;
-        Mon, 24 Aug 2020 08:39:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F137E20FC3;
+        Mon, 24 Aug 2020 08:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258346;
-        bh=BUqh9hxrrhfBSUuYGJs7qbkTVzJ4kaDSPrSOfKiy10g=;
+        s=default; t=1598258348;
+        bh=23ucjoFeJ1M8m1lUFCqnbYUhv+4g9L4TflRGrF9xXrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LIs69x84Hoj7aqfcIGHnI6k/7JX/zSntDf/9agUM1XFGQZ2B9CFacjM0J7rA/gx9m
-         Y9JS6+cd6/5EzfBx6Rx4Ah+85frh8fPU7t37Cm0JH8ZyMpofpIMSIE1/aYFagMwcMP
-         F+r6lklOF4Kgg5/TI6zhP8RRqQ1CJ5vShSQZ04H0=
+        b=WzibhZpazSEOB7eIS1aiNeuSllsA0kA5mlB9aTsb5NW7l17sDFq5vk9fGOyi/8qKZ
+         ZLHhQKkAqMVDYnoZkZdjAhupRr6XBQIVmpyM34RvlKEbb8sK4efhFxt7g/V2p7JaOV
+         u5UXG16ZFKgxx4fQ2ZDFFsltbv2m7UE9b8vw6Tqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.7 016/124] RDMA/hfi1: Correct an interlock issue for TID RDMA WRITE request
-Date:   Mon, 24 Aug 2020 10:29:10 +0200
-Message-Id: <20200824082410.212338668@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Filipe Manana <fdmanana@gmail.com>, Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.7 017/124] ext4: do not block RWF_NOWAIT dio write on unallocated space
+Date:   Mon, 24 Aug 2020 10:29:11 +0200
+Message-Id: <20200824082410.264793677@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
 References: <20200824082409.368269240@linuxfoundation.org>
@@ -46,63 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit b25e8e85e75a61af1ddc88c4798387dd3132dd43 upstream.
+commit 0b3171b6d195637f84ddf8b59bae818ea20bc8ac upstream.
 
-The following message occurs when running an AI application with TID RDMA
-enabled:
+Since commit 378f32bab371 ("ext4: introduce direct I/O write using iomap
+infrastructure") we don't properly bail out of RWF_NOWAIT direct IO
+write if underlying blocks are not allocated. Also
+ext4_dio_write_checks() does not honor RWF_NOWAIT when re-acquiring
+i_rwsem. Fix both issues.
 
-hfi1 0000:7f:00.0: hfi1_0: [QP74] hfi1_tid_timeout 4084
-hfi1 0000:7f:00.0: hfi1_0: [QP70] hfi1_tid_timeout 4084
-
-The issue happens when TID RDMA WRITE request is followed by an
-IB_WR_RDMA_WRITE_WITH_IMM request, the latter could be completed first on
-the responder side. As a result, no ACK packet for the latter could be
-sent because the TID RDMA WRITE request is still being processed on the
-responder side.
-
-When the TID RDMA WRITE request is eventually completed, the requester
-will wait for the IB_WR_RDMA_WRITE_WITH_IMM request to be acknowledged.
-
-If the next request is another TID RDMA WRITE request, no TID RDMA WRITE
-DATA packet could be sent because the preceding IB_WR_RDMA_WRITE_WITH_IMM
-request is not completed yet.
-
-Consequently the IB_WR_RDMA_WRITE_WITH_IMM will be retried but it will be
-ignored on the responder side because the responder thinks it has already
-been completed. Eventually the retry will be exhausted and the qp will be
-put into error state on the requester side. On the responder side, the TID
-resource timer will eventually expire because no TID RDMA WRITE DATA
-packets will be received for the second TID RDMA WRITE request.  There is
-also risk of a write-after-write memory corruption due to the issue.
-
-Fix by adding a requester side interlock to prevent any potential data
-corruption and TID RDMA protocol error.
-
-Fixes: a0b34f75ec20 ("IB/hfi1: Add interlock between a TID RDMA request and other requests")
-Link: https://lore.kernel.org/r/20200811174931.191210.84093.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org> # 5.4.x+
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
+Cc: stable@kernel.org
+Reported-by: Filipe Manana <fdmanana@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200708153516.9507-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/file.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -3215,6 +3215,7 @@ bool hfi1_tid_rdma_wqe_interlock(struct
- 	case IB_WR_ATOMIC_CMP_AND_SWP:
- 	case IB_WR_ATOMIC_FETCH_AND_ADD:
- 	case IB_WR_RDMA_WRITE:
-+	case IB_WR_RDMA_WRITE_WITH_IMM:
- 		switch (prev->wr.opcode) {
- 		case IB_WR_TID_RDMA_WRITE:
- 			req = wqe_to_tid_req(prev);
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -428,6 +428,10 @@ restart:
+ 	 */
+ 	if (*ilock_shared && (!IS_NOSEC(inode) || *extend ||
+ 	     !ext4_overwrite_io(inode, offset, count))) {
++		if (iocb->ki_flags & IOCB_NOWAIT) {
++			ret = -EAGAIN;
++			goto out;
++		}
+ 		inode_unlock_shared(inode);
+ 		*ilock_shared = false;
+ 		inode_lock(inode);
 
 
