@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A3624F66C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C8624F667
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730497AbgHXI76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S1729173AbgHXI7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:59:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730380AbgHXI5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:57:31 -0400
+        id S1730678AbgHXI5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:57:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D6D821775;
-        Mon, 24 Aug 2020 08:57:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 302E42072D;
+        Mon, 24 Aug 2020 08:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259451;
-        bh=757PNobQ795Eu1IGN8HnNy53RSgjwC9oKfln1dCIZto=;
+        s=default; t=1598259453;
+        bh=zb+KGsttukQkJGMCIGufXytEYdL92m671OyjPkUYgkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7MSn1qh6qL7Jf45n9ZOFKtacX6GWRBKxZzK8PWXsI2dTQlM4gSzufV05migXeu12
-         g1BW1Fz4MGvJF+CgDu+Bza7moabCtK/0ywoneSs3aj3hjgGGtuE8n5p0AgNZQsZz/e
-         VDDGMRNnx+t+XF2Y5O0i/3L3HPMIAWxSGJ6HJWeY=
+        b=vKI+LAciUD54J+fWjEZpCzNiDA5j/JDBtXgrKoavareuW29W9V86Vjz7/wR14Z8Yg
+         8gXGBpar+zM4/KY1kyzAUugscTKU1972QP0dnFqBMwsLatkQ8oZMcem52VqdyGKfu5
+         LWYHff9D01fAzbTaipHyXXDBWekaPX8hcPQoFQ1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 64/71] net: dsa: b53: check for timeout
-Date:   Mon, 24 Aug 2020 10:31:55 +0200
-Message-Id: <20200824082359.149158595@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 65/71] powerpc/pseries: Do not initiate shutdown when system is running on UPS
+Date:   Mon, 24 Aug 2020 10:31:56 +0200
+Message-Id: <20200824082359.202438041@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
 References: <20200824082355.848475917@linuxfoundation.org>
@@ -45,51 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
 
-[ Upstream commit 774d977abfd024e6f73484544b9abe5a5cd62de7 ]
+commit 90a9b102eddf6a3f987d15f4454e26a2532c1c98 upstream.
 
-clang static analysis reports this problem
+As per PAPR we have to look for both EPOW sensor value and event
+modifier to identify the type of event and take appropriate action.
 
-b53_common.c:1583:13: warning: The left expression of the compound
-  assignment is an uninitialized value. The computed value will
-  also be garbage
-        ent.port &= ~BIT(port);
-        ~~~~~~~~ ^
+In LoPAPR v1.1 section 10.2.2 includes table 136 "EPOW Action Codes":
 
-ent is set by a successful call to b53_arl_read().  Unsuccessful
-calls are caught by an switch statement handling specific returns.
-b32_arl_read() calls b53_arl_op_wait() which fails with the
-unhandled -ETIMEDOUT.
+  SYSTEM_SHUTDOWN 3
 
-So add -ETIMEDOUT to the switch statement.  Because
-b53_arl_op_wait() already prints out a message, do not add another
-one.
+  The system must be shut down. An EPOW-aware OS logs the EPOW error
+  log information, then schedules the system to be shut down to begin
+  after an OS defined delay internal (default is 10 minutes.)
 
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Then in section 10.3.2.2.8 there is table 146 "Platform Event Log
+Format, Version 6, EPOW Section", which includes the "EPOW Event
+Modifier":
+
+  For EPOW sensor value = 3
+  0x01 = Normal system shutdown with no additional delay
+  0x02 = Loss of utility power, system is running on UPS/Battery
+  0x03 = Loss of system critical functions, system should be shutdown
+  0x04 = Ambient temperature too high
+  All other values = reserved
+
+We have a user space tool (rtas_errd) on LPAR to monitor for
+EPOW_SHUTDOWN_ON_UPS. Once it gets an event it initiates shutdown
+after predefined time. It also starts monitoring for any new EPOW
+events. If it receives "Power restored" event before predefined time
+it will cancel the shutdown. Otherwise after predefined time it will
+shutdown the system.
+
+Commit 79872e35469b ("powerpc/pseries: All events of
+EPOW_SYSTEM_SHUTDOWN must initiate shutdown") changed our handling of
+the "on UPS/Battery" case, to immediately shutdown the system. This
+breaks existing setups that rely on the userspace tool to delay
+shutdown and let the system run on the UPS.
+
+Fixes: 79872e35469b ("powerpc/pseries: All events of EPOW_SYSTEM_SHUTDOWN must initiate shutdown")
+Cc: stable@vger.kernel.org # v4.0+
+Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+[mpe: Massage change log and add PAPR references]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200820061844.306460-1-hegdevasant@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/dsa/b53/b53_common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/pseries/ras.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 11f3993ab7f30..294be86420b6d 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1335,6 +1335,8 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
- 		return ret;
+--- a/arch/powerpc/platforms/pseries/ras.c
++++ b/arch/powerpc/platforms/pseries/ras.c
+@@ -118,7 +118,6 @@ static void handle_system_shutdown(char
+ 	case EPOW_SHUTDOWN_ON_UPS:
+ 		pr_emerg("Loss of system power detected. System is running on"
+ 			 " UPS/battery. Check RTAS error log for details\n");
+-		orderly_poweroff(true);
+ 		break;
  
- 	switch (ret) {
-+	case -ETIMEDOUT:
-+		return ret;
- 	case -ENOSPC:
- 		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
- 			addr, vid);
--- 
-2.25.1
-
+ 	case EPOW_SHUTDOWN_LOSS_OF_CRITICAL_FUNCTIONS:
 
 
