@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D7324F881
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6238124F87B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728561AbgHXJdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52558 "EHLO mail.kernel.org"
+        id S1728129AbgHXJc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728661AbgHXItr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:47 -0400
+        id S1729779AbgHXItt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:49:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 425C02075B;
-        Mon, 24 Aug 2020 08:49:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B50D42087D;
+        Mon, 24 Aug 2020 08:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258986;
-        bh=f75tl17vxQarEIOmbQCAPyjN44tFzQmDBYKWO4ULK34=;
+        s=default; t=1598258989;
+        bh=7lsbmAPE+osnBo1JtRXsGT97WYY4/pQeVP4SvQXn9B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cw6H7NrDuXldc+a4TguUiUtyEP5UBwc3MCf9gpfiikW8O/Q7PzdWb7H4V1x41ugvD
-         u9z3ZaLwbwPkuB58ch/pawMYK1l2cCZ0zreqBZWr/84EPymeZmOfKO+/yvHzWDpz9O
-         CpvgHXJwhaQR8JsSwsaqOUUnAin6oWUy1L7IhCjg=
+        b=TWBfd3rkOwNsfW7QtEIkrCwek6LbHRXXDobnEDzQeP8y7PVbISRBK83rubH2Gkmbo
+         h6UGH6VfA1347aNyR6dHGiP316f3tH2YLofRGeH3oy7C35F0SOeXS3rk+H34Gly82K
+         nXWO//rVPZQX7PtfnpAzZn2u8vwOM+5z2ODsI9vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/33] net/compat: Add missing sock updates for SCM_RIGHTS
-Date:   Mon, 24 Aug 2020 10:30:59 +0200
-Message-Id: <20200824082346.694200004@linuxfoundation.org>
+Subject: [PATCH 4.4 04/33] watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
+Date:   Mon, 24 Aug 2020 10:31:00 +0200
+Message-Id: <20200824082346.743864011@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
 References: <20200824082346.498653578@linuxfoundation.org>
@@ -47,95 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit d9539752d23283db4692384a634034f451261e29 ]
+[ Upstream commit e871e93fb08a619dfc015974a05768ed6880fd82 ]
 
-Add missed sock updates to compat path via a new helper, which will be
-used more in coming patches. (The net/core/scm.c code is left as-is here
-to assist with -stable backports for the compat path.)
+The driver supports populating bootstatus with WDIOF_CARDRESET, but so
+far userspace couldn't portably determine whether absence of this flag
+meant no watchdog reset or no driver support. Or-in the bit to fix this.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Sargun Dhillon <sargun@sargun.me>
-Cc: Jakub Kicinski <kuba@kernel.org>
+Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
 Cc: stable@vger.kernel.org
-Fixes: 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
-Fixes: d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200611191750.28096-3-a.fatoum@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h |  4 ++++
- net/compat.c       |  1 +
- net/core/sock.c    | 21 +++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ drivers/watchdog/f71808e_wdt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 426a57874964c..31198b32d9122 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -779,6 +779,8 @@ static inline int sk_memalloc_socks(void)
- {
- 	return static_key_false(&memalloc_socks);
- }
-+
-+void __receive_sock(struct file *file);
- #else
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index 2048aad91add8..3577e356e08cc 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -644,7 +644,8 @@ static int __init watchdog_init(int sioaddr)
+ 	watchdog.sioaddr = sioaddr;
+ 	watchdog.ident.options = WDIOC_SETTIMEOUT
+ 				| WDIOF_MAGICCLOSE
+-				| WDIOF_KEEPALIVEPING;
++				| WDIOF_KEEPALIVEPING
++				| WDIOF_CARDRESET;
  
- static inline int sk_memalloc_socks(void)
-@@ -786,6 +788,8 @@ static inline int sk_memalloc_socks(void)
- 	return 0;
- }
- 
-+static inline void __receive_sock(struct file *file)
-+{ }
- #endif
- 
- static inline gfp_t sk_gfp_atomic(const struct sock *sk, gfp_t gfp_mask)
-diff --git a/net/compat.c b/net/compat.c
-index d676840104556..20c5e5f215f23 100644
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -284,6 +284,7 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
- 			break;
- 		}
- 		/* Bump the usage count and install the file. */
-+		__receive_sock(fp[i]);
- 		fd_install(new_fd, get_file(fp[i]));
- 	}
- 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 120d5058d81ae..82f9a7dbea6fe 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2275,6 +2275,27 @@ int sock_no_mmap(struct file *file, struct socket *sock, struct vm_area_struct *
- }
- EXPORT_SYMBOL(sock_no_mmap);
- 
-+/*
-+ * When a file is received (via SCM_RIGHTS, etc), we must bump the
-+ * various sock-based usage counts.
-+ */
-+void __receive_sock(struct file *file)
-+{
-+	struct socket *sock;
-+	int error;
-+
-+	/*
-+	 * The resulting value of "error" is ignored here since we only
-+	 * need to take action when the file is a socket and testing
-+	 * "sock" for NULL is sufficient.
-+	 */
-+	sock = sock_from_file(file, &error);
-+	if (sock) {
-+		sock_update_netprioidx(sock->sk);
-+		sock_update_classid(sock->sk);
-+	}
-+}
-+
- ssize_t sock_no_sendpage(struct socket *sock, struct page *page, int offset, size_t size, int flags)
- {
- 	ssize_t res;
+ 	snprintf(watchdog.ident.identity,
+ 		sizeof(watchdog.ident.identity), "%s watchdog",
 -- 
 2.25.1
 
