@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B49F24FA49
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12F724F98B
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728301AbgHXIgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:36:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49574 "EHLO mail.kernel.org"
+        id S1728305AbgHXJqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:46:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728282AbgHXIgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:36:45 -0400
+        id S1728905AbgHXImC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8B9B207DF;
-        Mon, 24 Aug 2020 08:36:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA5DE2074D;
+        Mon, 24 Aug 2020 08:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258204;
-        bh=rX5jIOJ4UV57ymxWv6hTyTsGD0Ib8mg9p/Kr+TdlOiA=;
+        s=default; t=1598258522;
+        bh=v0EkP+p2M3ReO2oddBs9lqatZyv+GgA96CSxfCFZfos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVNON7+/z0NpzuY4OtFhxg9rHsP5mPkOlusAVrg3xW7JbYNoE7+YdRjworMY+Ct7V
-         RAKp1/0MhbW//DRdwSYQfOWzFReCDfrKuGdRhpQQMkpGBCQxyK5fUJnB3it2K+kCH0
-         in3xW3tujVvHxUnRsxpmkz2haRv35RHL2S5X9PW0=
+        b=v89BaR6b4pTZd3nKZCfGiuhG4uePMx/NfZBMcgXYC9gZ7XJzLTq004E9v34+iMgMR
+         jAIlDGEWWmytArrkZoxnPLJ3S6tt1T3BIpBk8eB1xlEy8hka39XJ/jixELccKJSQIC
+         1Yh+tVMUXow715wCwriV7U10b3P2F8korSn89W0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Seungwon Jeon <essuuj@gmail.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 112/148] scsi: ufs: Add quirk to enable host controller without hce
+Subject: [PATCH 5.7 076/124] net: fec: correct the error path for regulator disable in probe
 Date:   Mon, 24 Aug 2020 10:30:10 +0200
-Message-Id: <20200824082419.376563114@linuxfoundation.org>
+Message-Id: <20200824082413.147234350@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,149 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 39bf2d83b54e900675cd7b52737ded695bb60bf1 ]
+[ Upstream commit c6165cf0dbb82ded90163dce3ac183fc7a913dc4 ]
 
-Some host controllers don't support host controller enable via HCE.
+Correct the error path for regulator disable.
 
-Link: https://lore.kernel.org/r/20200528011658.71590-4-alim.akhtar@samsung.com
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Seungwon Jeon <essuuj@gmail.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 9269e5560b26 ("net: fec: add phy-reset-gpios PROBE_DEFER check")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 76 +++++++++++++++++++++++++++++++++++++--
- drivers/scsi/ufs/ufshcd.h |  6 ++++
- 2 files changed, 80 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 47a4c4c239196..87473fa5bd0f9 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3557,6 +3557,52 @@ static int ufshcd_dme_link_startup(struct ufs_hba *hba)
- 			"dme-link-startup: error code %d\n", ret);
- 	return ret;
- }
-+/**
-+ * ufshcd_dme_reset - UIC command for DME_RESET
-+ * @hba: per adapter instance
-+ *
-+ * DME_RESET command is issued in order to reset UniPro stack.
-+ * This function now deals with cold reset.
-+ *
-+ * Returns 0 on success, non-zero value on failure
-+ */
-+static int ufshcd_dme_reset(struct ufs_hba *hba)
-+{
-+	struct uic_command uic_cmd = {0};
-+	int ret;
-+
-+	uic_cmd.command = UIC_CMD_DME_RESET;
-+
-+	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
-+	if (ret)
-+		dev_err(hba->dev,
-+			"dme-reset: error code %d\n", ret);
-+
-+	return ret;
-+}
-+
-+/**
-+ * ufshcd_dme_enable - UIC command for DME_ENABLE
-+ * @hba: per adapter instance
-+ *
-+ * DME_ENABLE command is issued in order to enable UniPro stack.
-+ *
-+ * Returns 0 on success, non-zero value on failure
-+ */
-+static int ufshcd_dme_enable(struct ufs_hba *hba)
-+{
-+	struct uic_command uic_cmd = {0};
-+	int ret;
-+
-+	uic_cmd.command = UIC_CMD_DME_ENABLE;
-+
-+	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
-+	if (ret)
-+		dev_err(hba->dev,
-+			"dme-reset: error code %d\n", ret);
-+
-+	return ret;
-+}
- 
- static inline void ufshcd_add_delay_before_dme_cmd(struct ufs_hba *hba)
- {
-@@ -4281,7 +4327,7 @@ static inline void ufshcd_hba_stop(struct ufs_hba *hba)
- }
- 
- /**
-- * ufshcd_hba_enable - initialize the controller
-+ * ufshcd_hba_execute_hce - initialize the controller
-  * @hba: per adapter instance
-  *
-  * The controller resets itself and controller firmware initialization
-@@ -4290,7 +4336,7 @@ static inline void ufshcd_hba_stop(struct ufs_hba *hba)
-  *
-  * Returns 0 on success, non-zero value on failure
-  */
--int ufshcd_hba_enable(struct ufs_hba *hba)
-+static int ufshcd_hba_execute_hce(struct ufs_hba *hba)
- {
- 	int retry;
- 
-@@ -4338,6 +4384,32 @@ int ufshcd_hba_enable(struct ufs_hba *hba)
- 
- 	return 0;
- }
-+
-+int ufshcd_hba_enable(struct ufs_hba *hba)
-+{
-+	int ret;
-+
-+	if (hba->quirks & UFSHCI_QUIRK_BROKEN_HCE) {
-+		ufshcd_set_link_off(hba);
-+		ufshcd_vops_hce_enable_notify(hba, PRE_CHANGE);
-+
-+		/* enable UIC related interrupts */
-+		ufshcd_enable_intr(hba, UFSHCD_UIC_MASK);
-+		ret = ufshcd_dme_reset(hba);
-+		if (!ret) {
-+			ret = ufshcd_dme_enable(hba);
-+			if (!ret)
-+				ufshcd_vops_hce_enable_notify(hba, POST_CHANGE);
-+			if (ret)
-+				dev_err(hba->dev,
-+					"Host controller enable failed with non-hce\n");
-+		}
-+	} else {
-+		ret = ufshcd_hba_execute_hce(hba);
-+	}
-+
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(ufshcd_hba_enable);
- 
- static int ufshcd_disable_tx_lcc(struct ufs_hba *hba, bool peer)
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index bda7ba1aea519..4198e5d883a1a 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -531,6 +531,12 @@ enum ufshcd_quirks {
- 	 * that the interrupt aggregation timer and counter are reset by s/w.
- 	 */
- 	UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR		= 1 << 7,
-+
-+	/*
-+	 * This quirks needs to be enabled if host controller cannot be
-+	 * enabled via HCE register.
-+	 */
-+	UFSHCI_QUIRK_BROKEN_HCE				= 1 << 8,
- };
- 
- enum ufshcd_caps {
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index bf73bc9bf35b9..76abafd099e22 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3719,11 +3719,11 @@ fec_probe(struct platform_device *pdev)
+ failed_irq:
+ failed_init:
+ 	fec_ptp_stop(pdev);
+-	if (fep->reg_phy)
+-		regulator_disable(fep->reg_phy);
+ failed_reset:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++	if (fep->reg_phy)
++		regulator_disable(fep->reg_phy);
+ failed_regulator:
+ 	clk_disable_unprepare(fep->clk_ahb);
+ failed_clk_ahb:
 -- 
 2.25.1
 
