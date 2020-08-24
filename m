@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A6E24F8BC
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFA624F8B9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbgHXJg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
+        id S1729169AbgHXJgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:36:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729551AbgHXIs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:48:27 -0400
+        id S1729344AbgHXIsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:48:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA0A3204FD;
-        Mon, 24 Aug 2020 08:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 493A2206F0;
+        Mon, 24 Aug 2020 08:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258907;
-        bh=wZ6Ga9/LK8jl4Ht/RtyD0Avy0rx8x0tBexNUgy5gQrg=;
+        s=default; t=1598258909;
+        bh=5NLj5sKI134qWWyTgQ08KsIfccN+WZfBmPvo8KiYckE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcjwL5B9OoErqj160p6MdYJ1jyOaPvB2awIwzTfhs+c5xlKVjLf5vrqVOSxzbkOL3
-         zESRI4oNeLG46AMhL9BRBuHRmqG+ugmJKkOTnhG49GkJsiHrT0MAq02FVaBZKd5feb
-         3n+aeujjP/otQ4EwtvCMisEjLGHJ686xUrVDvpBk=
+        b=oXf23BGsSzEmUbj6mQ/I2zSAmtaai1q33VCHgeedPhylHMimf1drzdgF8M8Sh7naS
+         QDMzslA34pZNsMjtP8Lk8w7MRK2b6MfdkYnKVJxdL8vOWoCtG/BfjZqQFpB/bX8ir7
+         jdjKOAFcu5b8+bGADf9KY4mIYAZMr/Dnb+SdZidk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huaitong Han <huaitong.han@intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/107] kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode
-Date:   Mon, 24 Aug 2020 10:30:54 +0200
-Message-Id: <20200824082409.468704123@linuxfoundation.org>
+Subject: [PATCH 5.4 089/107] Revert "scsi: qla2xxx: Disable T10-DIF feature with FC-NVMe during probe"
+Date:   Mon, 24 Aug 2020 10:30:55 +0200
+Message-Id: <20200824082409.516205901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
 References: <20200824082405.020301642@linuxfoundation.org>
@@ -47,42 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit cb957adb4ea422bd758568df5b2478ea3bb34f35 ]
+[ Upstream commit dca93232b361d260413933903cd4bdbd92ebcc7f ]
 
-See the SDM, volume 3, section 4.4.1:
+FCP T10-PI and NVMe features are independent of each other. This patch
+allows both features to co-exist.
 
-If PAE paging would be in use following an execution of MOV to CR0 or
-MOV to CR4 (see Section 4.1.1) and the instruction is modifying any of
-CR0.CD, CR0.NW, CR0.PG, CR4.PAE, CR4.PGE, CR4.PSE, or CR4.SMEP; then
-the PDPTEs are loaded from the address in CR3.
+This reverts commit 5da05a26b8305a625bc9d537671b981795b46dab.
 
-Fixes: b9baba8614890 ("KVM, pkeys: expose CPUID/CR4 to guest")
-Cc: Huaitong Han <huaitong.han@intel.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Reviewed-by: Oliver Upton <oupton@google.com>
-Message-Id: <20200817181655.3716509-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20200806111014.28434-12-njavali@marvell.com
+Fixes: 5da05a26b830 ("scsi: qla2xxx: Disable T10-DIF feature with FC-NVMe during probe")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1721a8c8eb26c..8920ee7b28811 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -972,7 +972,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- {
- 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
- 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
--				   X86_CR4_SMEP | X86_CR4_PKE;
-+				   X86_CR4_SMEP;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index d7ec4083a0911..d91c95d9981ac 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -2804,10 +2804,6 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	/* This may fail but that's ok */
+ 	pci_enable_pcie_error_reporting(pdev);
  
- 	if (kvm_valid_cr4(vcpu, cr4))
- 		return 1;
+-	/* Turn off T10-DIF when FC-NVMe is enabled */
+-	if (ql2xnvmeenable)
+-		ql2xenabledif = 0;
+-
+ 	ha = kzalloc(sizeof(struct qla_hw_data), GFP_KERNEL);
+ 	if (!ha) {
+ 		ql_log_pci(ql_log_fatal, pdev, 0x0009,
 -- 
 2.25.1
 
