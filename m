@@ -2,134 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4377124F3BF
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E222A24F3CA
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726027AbgHXIPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:15:49 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:56717 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725968AbgHXIPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 04:15:49 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 079945C00E4;
-        Mon, 24 Aug 2020 04:15:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 24 Aug 2020 04:15:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=VgbasxC9etNdXdZf1gk3gWIopfB
-        rI8g9ET6r2xupcek=; b=lFAB8n+I3geRY78QymLcA814K14cjjnEKrkAb03P5pk
-        GjcrJXww06qrcOLAkQ/XQ1jehSMX/Rbu+BhejXJkMWKzLHoXm5RC+wSLehtl2FJV
-        kJd72FG5NSiEWRYLLOB0BVsvwQczAOYTIIPNOu0RlysstpfZvLqZZoIkIHss/ngS
-        PA1wjkCAe/vMzLmq68usnA1q6H+9FODq9sG5JAQU186izg65MyoGOsLCbsRG8hn7
-        rbDOPx7wntQd8MT+DITvUF9gFss4hDX9zvk7Mll2SpcWUWg0WrMu9J4lP9uu+/dh
-        TcYeqSMoARhNOSIh6RTYPW30enO9OfIe1CC5XAILnzA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Vgbasx
-        C9etNdXdZf1gk3gWIopfBrI8g9ET6r2xupcek=; b=ka7gevwFumIoXk+qWapD2u
-        zdEB9TclAMM/pX9AVZsoiufIfAvn95Vw6fj5kr0IvacyAnowoEo2yalkXbnyY7Yg
-        nw433LMAA6xIydnmwdP+T8s+hQ2LsAMVEx+TFKANiatc7llLHJwouMkUy8oX9D7j
-        MO0UXDujOY6Jarp3Uc+suTmLIG/EaSF7VLnaFDlvPpD8A0N/CL+x3kW3OiouhVbI
-        J4/e8AysrdDCsRyM65NnDD7PIuBBFBGSsyuBLymfEUdmVN7fFSyg2CvGLMFeNlTe
-        BNith8F0S0ldarT/DNA1tuvsdelZu2SPvOO3aGv8z2uvRdPxDPYPjIyNduDvpwPg
-        ==
-X-ME-Sender: <xms:M3dDX_HOY_D7zXCX_Avhp5Dt39BW_u33oyTBM-feSnZTyk7BupkmDA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedruddujedgleduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:M3dDX8W-jRJOQ9ARg59qZ3OVg5gXQMRLpmVydaWCO2yrLAL9oQCfxw>
-    <xmx:M3dDXxKQu-o2TA_213kIR-dX9scRct5k2ZNGwQHl3z25kEYASLaT1Q>
-    <xmx:M3dDX9HvxybBUz6prXqZHctS1KjSVJ1VJKRCB7PZUfezOwOUnUKc3w>
-    <xmx:NHdDX2fdj-kqOB3j7NehVrPn6LTS3s5Bu2dgP_I2355Sg1XRLzaZRA>
+        id S1725977AbgHXIS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725836AbgHXIS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:18:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E8117328005A;
-        Mon, 24 Aug 2020 04:15:46 -0400 (EDT)
-Date:   Mon, 24 Aug 2020 10:16:06 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Adam Ford <aford173@gmail.com>
-Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        stable <stable@vger.kernel.org>,
-        Adam Ford-BE <aford@beaconembedded.com>
-Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
-Message-ID: <20200824081606.GA248691@kroah.com>
-References: <20200709121232.9827-1-aford173@gmail.com>
- <CAHCN7x+crwfE4pfufad_WEUhiJQXccSZHot+YNDZzZKvqhrmWA@mail.gmail.com>
- <86992356-b902-d7da-ffd7-e8b98f9252fd@ti.com>
- <20200805143328.GD2154236@kroah.com>
- <df411c41-2b75-725e-9f49-4ca6124f3d4e@ti.com>
- <CAHCN7x+Hhx=pNidpBpmsT2_J6Og4ioC9Dq_aYa7vy8j-D8-waw@mail.gmail.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C711E20738;
+        Mon, 24 Aug 2020 08:18:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598257105;
+        bh=jc2ZdJllY7rFi6smiNrx8eJZXT27bCjsYZyb/p1oIOo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iNmau/avDoftaYMD38taVSkLs5uknKkHzcy14C72Q59OVYBS/mFgSzqJ2zKf9vrPs
+         yeMuyJrJ2fyN97+yZhmQD1uh3IM0vptMzS3vH6x2oD2A0vDj3AuFZojFDg0VD/y4AS
+         OBo1w7ITWGdhhamXCuXhdltt3+ujlauzoN9X/qxk=
+Date:   Mon, 24 Aug 2020 10:18:43 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux- stable <stable@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        freedreno <freedreno@lists.freedesktop.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Michael Turquette <mturquette@baylibre.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Eric Anholt <eric@anholt.net>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        samuel@sholland.org
+Subject: Re: stable-rc 4.14: arm64: Internal error: Oops: clk_reparent
+ __clk_set_parent_before on db410c
+Message-ID: <20200824081843.GB248691@kroah.com>
+References: <CA+G9fYvGXOcsF=70FVwOxqVYOeGTUuzhUzh5od1cKV1hshsW_g@mail.gmail.com>
+ <CAK8P3a1ReCDR8REM7AWMisiEJ_D45pC8dXaoYFFVG3aZj91e7Q@mail.gmail.com>
+ <159549159798.3847286.18202724980881020289@swboyd.mtv.corp.google.com>
+ <CA+G9fYte5U-D7fqps2qJga_LSuGrb6t9Y1rOvPCPzz46BwchyA@mail.gmail.com>
+ <159549996283.3847286.2480782726716664105@swboyd.mtv.corp.google.com>
+ <159725426896.33733.4908725817224764584@swboyd.mtv.corp.google.com>
+ <CA+G9fYuVQonk+hcaJWaJ2CNWrsgV5EsRa+1eUr6+UUKxHGB3vw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHCN7x+Hhx=pNidpBpmsT2_J6Og4ioC9Dq_aYa7vy8j-D8-waw@mail.gmail.com>
+In-Reply-To: <CA+G9fYuVQonk+hcaJWaJ2CNWrsgV5EsRa+1eUr6+UUKxHGB3vw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 13, 2020 at 11:41:57AM -0500, Adam Ford wrote:
-> On Thu, Aug 6, 2020 at 4:46 AM Tomi Valkeinen <tomi.valkeinen@ti.com> wrote:
+On Thu, Aug 13, 2020 at 07:30:40PM +0530, Naresh Kamboju wrote:
+> On Wed, 12 Aug 2020 at 23:14, Stephen Boyd <sboyd@kernel.org> wrote:
 > >
-> > Hi Greg,
-> >
-> > On 05/08/2020 17:33, Greg KH wrote:
-> > > On Tue, Aug 04, 2020 at 04:19:54PM +0300, Tomi Valkeinen wrote:
-> > >> On 04/08/2020 16:13, Adam Ford wrote:
-> > >>>
-> > >>>
-> > >>> On Thu, Jul 9, 2020 at 7:12 AM Adam Ford <aford173@gmail.com <mailto:aford173@gmail.com>> wrote:
-> > >>>
-> > >>>     There appears to be a timing issue where using a divider of 32 breaks
-> > >>>     the DSS for OMAP36xx despite the TRM stating 32 is a valid
-> > >>>     number.  Through experimentation, it appears that 31 works.
-> > >>>
-> > >>>     This same fix was issued for kernels 4.5+.  However, between
-> > >>>     kernels 4.4 and 4.5, the directory structure was changed when the
-> > >>>     dss directory was moved inside the omapfb directory. That broke the
-> > >>>     patch on kernels older than 4.5, because it didn't permit the patch
-> > >>>     to apply cleanly for 4.4 and older.
-> > >>>
-> > >>>     A similar patch was applied to the 3.16 kernel already, but not to 4.4.
-> > >>>     Commit 4b911101a5cd ("drm/omap: fix max fclk divider for omap36xx") is
-> > >>>     on the 3.16 stable branch with notes from Ben about the path change.
-> > >>>
-> > >>>     Since this was applied for 3.16 already, this patch is for kernels
-> > >>>     3.17 through 4.4 only.
-> > >>>
-> > >>>     Fixes: f7018c213502 ("video: move fbdev to drivers/video/fbdev")
-> > >>>
-> > >>>     Cc: <stable@vger.kernel.org <mailto:stable@vger.kernel.org>> #3.17 - 4.4
-> > >>>     CC: <tomi.valkeinen@ti.com <mailto:tomi.valkeinen@ti.com>>
-> > >>>     Signed-off-by: Adam Ford <aford173@gmail.com <mailto:aford173@gmail.com>>
-> > >>>
-> > >>>
-> > >>> Tomi,
-> > >>>
-> > >>> Can you comment on this?  The 4.4 is still waiting for this fix.  The other branches are fixed.
-> > >>
-> > >> Looks good to me.
-> > >>
-> > >> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> > Quoting Stephen Boyd (2020-07-23 03:26:02)
+> > > Quoting Naresh Kamboju (2020-07-23 03:10:37)
+> > > > On Thu, 23 Jul 2020 at 13:36, Stephen Boyd <sboyd@kernel.org> wrote:
+> > > > >
+> > > > > It sounds like maybe you need this patch?
+> > > > >
+> > > > > bdcf1dc25324 ("clk: Evict unregistered clks from parent caches")
+> > > >
+> > > > Cherry-pick did not work on stable-rc 4.14
+> > > > this patch might need backporting.
+> > > > I am not sure.
+> > > >
 > > >
-> > > I don't seem to have the original of this anymore, can someone please
-> > > resend it?
+> > > Ok. That commit fixes a regression in the 3.x series of the kernel so it
+> > > should go back to any LTS kernels. It looks like at least on 4.14 it's a
+> > > trivial conflict. Here's a backport to 4.14
 > >
-> > I have attached the original.
+> > Did this help?
 > 
-> Greg,
+> Thanks for your patch.
+> Sorry for the late reply.
+> The reported issue is not always reproducible However,
+> I have tested this for 100 cycles and did not notice the reported problem.
 > 
-> Do you have what you need?  I see all the other kernels have been had
-> the corresponding patches pushed, but 4.4 needed something different
-> due to some path / naming changes.
+> Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-All good, now queued up, thanks!
+Great, now queued up to 4.14.y and 4.19.y.
 
 greg k-h
