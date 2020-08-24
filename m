@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 370C624F833
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42D824F7E4
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730042AbgHXIwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57834 "EHLO mail.kernel.org"
+        id S1726189AbgHXJXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:23:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730039AbgHXIwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:52:04 -0400
+        id S1730343AbgHXIyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:54:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 076B92075B;
-        Mon, 24 Aug 2020 08:52:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5BC7204FD;
+        Mon, 24 Aug 2020 08:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259124;
-        bh=uWAVItaEtN1KbR+X2t+2V6dYQWvx+SdeH4DwBSc9XsQ=;
+        s=default; t=1598259276;
+        bh=guEBnYs7vYaGJWWSLALjN97mlt8HGTIaUiWnp2CCR4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rC0tJ4XyniN45EvVCsZveOk9+9J+ewcU2LCQoufTuO0Ju3eghmgXvAIWFrA+95Z1e
-         K93VY4N8dV+rgHxfQl3S3yrqkQSeBydOv2CSb2FhXJj/gp1YhBLjfrv4YVw1Ji9bae
-         hnjzHof05Yz2PGLFZgsaASJ0b2W8ptdLNwE7UuuE=
+        b=BEnqC0FGjgcndl4dv2/NegHpQSJeHiVuFFQR7eKLhFPzqi/uQiaaX5+BKO7K1cdbm
+         o5oGW/piJIGvPUcHFxfkdP8n9WwzQLFcWsVvY6xEA9rT9dM5XHqTgUbUia+Lq/M8SV
+         USW6tucz3UHcjVcbTHCImnOTA08pt5w5spWUOprw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/39] btrfs: dont show full path of bind mounts in subvol=
+Subject: [PATCH 4.14 08/50] btrfs: dont show full path of bind mounts in subvol=
 Date:   Mon, 24 Aug 2020 10:31:09 +0200
-Message-Id: <20200824082348.996775982@linuxfoundation.org>
+Message-Id: <20200824082352.319650562@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
-References: <20200824082348.445866152@linuxfoundation.org>
+In-Reply-To: <20200824082351.823243923@linuxfoundation.org>
+References: <20200824082351.823243923@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,18 +77,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index af5be060c651f..3a0cb745164f8 100644
+index ca95e57b60ee1..eb64d4b159e07 100644
 --- a/fs/btrfs/super.c
 +++ b/fs/btrfs/super.c
-@@ -1225,6 +1225,7 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
+@@ -1221,6 +1221,7 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
+ {
  	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
- 	struct btrfs_root *root = info->tree_root;
  	char *compress_type;
 +	const char *subvol_name;
  
  	if (btrfs_test_opt(info, DEGRADED))
  		seq_puts(seq, ",degraded");
-@@ -1311,8 +1312,13 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
+@@ -1307,8 +1308,13 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
  #endif
  	seq_printf(seq, ",subvolid=%llu",
  		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
