@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA6724FA9A
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980EC24F9BE
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727981AbgHXIel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:34:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43608 "EHLO mail.kernel.org"
+        id S1728686AbgHXIkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:40:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727977AbgHXIek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:34:40 -0400
+        id S1726645AbgHXIkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:40:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52746206F0;
-        Mon, 24 Aug 2020 08:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D4D22B49;
+        Mon, 24 Aug 2020 08:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258079;
-        bh=ObB8scPObpqBxHgYAz3uByh5AW7ZXQnLWcvr0snphRw=;
+        s=default; t=1598258419;
+        bh=8ZfPDjBednZIPM4jhBpxyi85ckrUlCtixwY+7Murw8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNE38rRTwZ0FjEExwg6md2VVQRerjcuy0uvp9WZFqk3V3uh8YZ9EMs1wMo1tKteTr
-         DQhoyOMRPgGhat9GKjbNjN0sKmh+9SXlY2tILVsEPUUykNT+EfWXUnoDaQ35ctiR/R
-         76FU7O1Ssp6QCldKujwctaUjhsxKJsEN6ITu2gS4=
+        b=fe7TPdhXQH7uOIMjXKaUnWJ1zVckJvCA09eV3tuBNu+py6EA541Krb3IkwgrtYTZP
+         vc16egeTbjA1WpSARULDs2uhBJFJcOX3JGmgrHLQqs6Wb2+20tN+AhHMj7uX+urRzI
+         U/oLANdnRw3opUWaBrEZvdqDr7WJfbmdrNBNfvcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 068/148] xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
-Date:   Mon, 24 Aug 2020 10:29:26 +0200
-Message-Id: <20200824082417.335060916@linuxfoundation.org>
+Subject: [PATCH 5.7 033/124] opp: Reorder the code for !target_freq case
+Date:   Mon, 24 Aug 2020 10:29:27 +0200
+Message-Id: <20200824082411.048028270@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 96cf2a2c75567ff56195fe3126d497a2e7e4379f ]
+[ Upstream commit b23dfa3543f31fbb8c0098925bf90fc23193d17a ]
 
-If xfs_sysfs_init is called with parent_kobj == NULL, UBSAN
-shows the following warning:
+Reorder the code a bit to make it more readable. Add additional comment
+as well.
 
-  UBSAN: null-ptr-deref in ./fs/xfs/xfs_sysfs.h:37:23
-  member access within null pointer of type 'struct xfs_kobj'
-  Call Trace:
-   dump_stack+0x10e/0x195
-   ubsan_type_mismatch_common+0x241/0x280
-   __ubsan_handle_type_mismatch_v1+0x32/0x40
-   init_xfs_fs+0x12b/0x28f
-   do_one_initcall+0xdd/0x1d0
-   do_initcall_level+0x151/0x1b6
-   do_initcalls+0x50/0x8f
-   do_basic_setup+0x29/0x2b
-   kernel_init_freeable+0x19f/0x20b
-   kernel_init+0x11/0x1e0
-   ret_from_fork+0x22/0x30
-
-Fix it by checking parent_kobj before the code accesses its member.
-
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-[darrick: minor whitespace edits]
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Clément Péron <peron.clem@gmail.com>
+Tested-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_sysfs.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/opp/core.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/xfs_sysfs.h b/fs/xfs/xfs_sysfs.h
-index e9f810fc67317..43585850f1546 100644
---- a/fs/xfs/xfs_sysfs.h
-+++ b/fs/xfs/xfs_sysfs.h
-@@ -32,9 +32,11 @@ xfs_sysfs_init(
- 	struct xfs_kobj		*parent_kobj,
- 	const char		*name)
- {
-+	struct kobject		*parent;
-+
-+	parent = parent_kobj ? &parent_kobj->kobject : NULL;
- 	init_completion(&kobj->complete);
--	return kobject_init_and_add(&kobj->kobject, ktype,
--				    &parent_kobj->kobject, "%s", name);
-+	return kobject_init_and_add(&kobj->kobject, ktype, parent, "%s", name);
- }
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index 195fcaff18448..2d3880b3d6ee0 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -817,15 +817,21 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 	}
  
- static inline void
+ 	if (unlikely(!target_freq)) {
+-		if (opp_table->required_opp_tables) {
+-			ret = _set_required_opps(dev, opp_table, NULL);
+-		} else if (!_get_opp_count(opp_table)) {
++		/*
++		 * Some drivers need to support cases where some platforms may
++		 * have OPP table for the device, while others don't and
++		 * opp_set_rate() just needs to behave like clk_set_rate().
++		 */
++		if (!_get_opp_count(opp_table))
+ 			return 0;
+-		} else {
++
++		if (!opp_table->required_opp_tables) {
+ 			dev_err(dev, "target frequency can't be 0\n");
+ 			ret = -EINVAL;
++			goto put_opp_table;
+ 		}
+ 
++		ret = _set_required_opps(dev, opp_table, NULL);
+ 		goto put_opp_table;
+ 	}
+ 
 -- 
 2.25.1
 
