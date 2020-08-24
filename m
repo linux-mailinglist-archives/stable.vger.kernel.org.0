@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2BE24F93B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9AC324FA35
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgHXIoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:44:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39992 "EHLO mail.kernel.org"
+        id S1728461AbgHXIhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:37:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729121AbgHXIoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:21 -0400
+        id S1728462AbgHXIht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFE302074D;
-        Mon, 24 Aug 2020 08:44:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB5D207DF;
+        Mon, 24 Aug 2020 08:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258661;
-        bh=y+cdlWwnxSVfXPsP98WjNJycz7BCmcmnk0m4iUv16Bw=;
+        s=default; t=1598258268;
+        bh=XE6fwogygd3BtBfbN9VKJdPsGRATYwsuEUX0wNk/Ebk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNXRJzHo/VKdAoV/t0sAZ2cIiEVtryDO5hpoLbV2o7HUL+TldR+62eTnFP7wxyWy0
-         B8YGSo3BaGmLATujMxypGAbRxWH7SWbuK6IITAAymm4H563vm1nHClCoGv017V1m7w
-         WCddLTZaJChiXneZJecKZ7euzdc2VukJ3ewt7ME4=
+        b=wlDprk3NlZ0gZFRHFkcpovq8hw+HN8IvH1V4vuL4MGmJC3aRnZPBzVPEcLrh+l2lp
+         gYHRkL/6aMXsmM6IuNONQElWTZNBYGUe9lITgX0V3kgBMx4w8JxZinaJXp/1b5LoPW
+         jVF7/evL2VmXgnSNKr0eTIbfcGtf2cz1XnROvePo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Veronika Kabatova <vkabatov@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 099/124] scsi: ufs: Fix interrupt error message for shared interrupts
-Date:   Mon, 24 Aug 2020 10:30:33 +0200
-Message-Id: <20200824082414.287581819@linuxfoundation.org>
+Subject: [PATCH 5.8 136/148] selftests/bpf: Remove test_align leftovers
+Date:   Mon, 24 Aug 2020 10:30:34 +0200
+Message-Id: <20200824082420.533918870@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Veronika Kabatova <vkabatov@redhat.com>
 
-[ Upstream commit 6337f58cec030b34ced435b3d9d7d29d63c96e36 ]
+[ Upstream commit 5597432dde62befd3ab92e6ef9e073564e277ea8 ]
 
-The interrupt might be shared, in which case it is not an error for the
-interrupt handler to be called when the interrupt status is zero, so don't
-print the message unless there was enabled interrupt status.
+Calling generic selftests "make install" fails as rsync expects all
+files from TEST_GEN_PROGS to be present. The binary is not generated
+anymore (commit 3b09d27cc93d) so we can safely remove it from there
+and also from gitignore.
 
-Link: https://lore.kernel.org/r/20200811133936.19171-1-adrian.hunter@intel.com
-Fixes: 9333d7757348 ("scsi: ufs: Fix irq return code")
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 3b09d27cc93d ("selftests/bpf: Move test_align under test_progs")
+Signed-off-by: Veronika Kabatova <vkabatov@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Link: https://lore.kernel.org/bpf/20200819160710.1345956-1-vkabatov@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/.gitignore | 1 -
+ tools/testing/selftests/bpf/Makefile   | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 7298adbcdec85..3b80d692dd2e7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5803,7 +5803,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
- 	} while (intr_status && --retries);
+diff --git a/tools/testing/selftests/bpf/.gitignore b/tools/testing/selftests/bpf/.gitignore
+index 1bb204cee853f..9a0946ddb705a 100644
+--- a/tools/testing/selftests/bpf/.gitignore
++++ b/tools/testing/selftests/bpf/.gitignore
+@@ -6,7 +6,6 @@ test_lpm_map
+ test_tag
+ FEATURE-DUMP.libbpf
+ fixdep
+-test_align
+ test_dev_cgroup
+ /test_progs*
+ test_tcpbpf_user
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index 4f322d5388757..50965cc7bf098 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -32,7 +32,7 @@ LDLIBS += -lcap -lelf -lz -lrt -lpthread
  
--	if (retval == IRQ_NONE) {
-+	if (enabled_intr_status && retval == IRQ_NONE) {
- 		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
- 					__func__, intr_status);
- 		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
+ # Order correspond to 'make run_tests' order
+ TEST_GEN_PROGS = test_verifier test_tag test_maps test_lru_map test_lpm_map test_progs \
+-	test_align test_verifier_log test_dev_cgroup test_tcpbpf_user \
++	test_verifier_log test_dev_cgroup test_tcpbpf_user \
+ 	test_sock test_btf test_sockmap get_cgroup_id_user test_socket_cookie \
+ 	test_cgroup_storage \
+ 	test_netcnt test_tcpnotify_user test_sock_fields test_sysctl \
 -- 
 2.25.1
 
