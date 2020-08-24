@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3130E25048C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFCE250476
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgHXRCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:02:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
+        id S1727111AbgHXRC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728480AbgHXQii (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728481AbgHXQii (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:38:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7246C22CB1;
-        Mon, 24 Aug 2020 16:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5BE022D70;
+        Mon, 24 Aug 2020 16:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287101;
-        bh=SGrvq5KpMJDOoo8ypt7Ljvm6VOL79mY9JtRX84+7CDo=;
+        s=default; t=1598287102;
+        bh=suhF0qwwSU0yECNHcaKgTLO11nlKyMh0NmEMGkWs6+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCIDUk3msvEWa2Pe/YlFqYQgyA9YEt4EuSDdtRbHNAU23w73O7bKk7M4EZ42SCOqj
-         VPDyRSZ2X4jtFDyitZuaC9KcgJWbliV/pi6gt0voxxrAfNkeS+1nvlYRIlyXaF5mqj
-         2Np4LBpB/sda1WtkrgT1zqI9n/3Man2Ql8cu16MU=
+        b=dX8jLqaCNJBKjhDYgGwXGWVEG8+ahICXV+iXVorxpb9nm+ifSoO+Aydw6W0QkAdCU
+         iE/ro1uJpzGKi0mh8jeCEVEmNfD02N49/77+Qjyd0LcG8rLMvTGBUsTJrQmyjBvBgQ
+         RxqY88GyxAfSmRoe8khZzSJuXgpdcVlxrgqiNKFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 22/38] ASoC: wm8994: Avoid attempts to read unreadable registers
-Date:   Mon, 24 Aug 2020 12:37:34 -0400
-Message-Id: <20200824163751.606577-22-sashal@kernel.org>
+Cc:     David Ahern <dsahern@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 23/38] selftests: disable rp_filter for icmp_redirect.sh
+Date:   Mon, 24 Aug 2020 12:37:35 -0400
+Message-Id: <20200824163751.606577-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
 References: <20200824163751.606577-1-sashal@kernel.org>
@@ -45,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Nawrocki <s.nawrocki@samsung.com>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit f082bb59b72039a2326ec1a44496899fb8aa6d0e ]
+[ Upstream commit bcf7ddb0186d366f761f86196b480ea6dd2dc18c ]
 
-The driver supports WM1811, WM8994, WM8958 devices but according to
-documentation and the regmap definitions the WM8958_DSP2_* registers
-are only available on WM8958. In current code these registers are
-being accessed as if they were available on all the three chips.
+h1 is initially configured to reach h2 via r1 rather than the
+more direct path through r2. If rp_filter is set and inherited
+for r2, forwarding fails since the source address of h1 is
+reachable from eth0 vs the packet coming to it via r1 and eth1.
+Since rp_filter setting affects the test, explicitly reset it.
 
-When starting playback on WM1811 CODEC multiple errors like:
-"wm8994-codec wm8994-codec: ASoC: error at soc_component_read_no_lock on wm8994-codec: -5"
-can be seen, which is caused by attempts to read an unavailable
-WM8958_DSP2_PROGRAM register. The issue has been uncovered by recent
-commit "e2329ee ASoC: soc-component: add soc_component_err()".
-
-This patch adds a check in wm8958_aif_ev() callback so the DSP2 handling
-is only done for WM8958.
-
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200731173834.23832-1-s.nawrocki@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8958-dsp2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/net/icmp_redirect.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wm8958-dsp2.c b/sound/soc/codecs/wm8958-dsp2.c
-index 18535b326680a..04f23477039a5 100644
---- a/sound/soc/codecs/wm8958-dsp2.c
-+++ b/sound/soc/codecs/wm8958-dsp2.c
-@@ -416,8 +416,12 @@ int wm8958_aif_ev(struct snd_soc_dapm_widget *w,
- 		  struct snd_kcontrol *kcontrol, int event)
- {
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
-+	struct wm8994 *control = dev_get_drvdata(component->dev->parent);
- 	int i;
+diff --git a/tools/testing/selftests/net/icmp_redirect.sh b/tools/testing/selftests/net/icmp_redirect.sh
+index 18c5de53558af..bf361f30d6ef9 100755
+--- a/tools/testing/selftests/net/icmp_redirect.sh
++++ b/tools/testing/selftests/net/icmp_redirect.sh
+@@ -180,6 +180,8 @@ setup()
+ 			;;
+ 		r[12]) ip netns exec $ns sysctl -q -w net.ipv4.ip_forward=1
+ 		       ip netns exec $ns sysctl -q -w net.ipv4.conf.all.send_redirects=1
++		       ip netns exec $ns sysctl -q -w net.ipv4.conf.default.rp_filter=0
++		       ip netns exec $ns sysctl -q -w net.ipv4.conf.all.rp_filter=0
  
-+	if (control->type != WM8958)
-+		return 0;
-+
- 	switch (event) {
- 	case SND_SOC_DAPM_POST_PMU:
- 	case SND_SOC_DAPM_PRE_PMU:
+ 		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
+ 		       ip netns exec $ns sysctl -q -w net.ipv6.route.mtu_expires=10
 -- 
 2.25.1
 
