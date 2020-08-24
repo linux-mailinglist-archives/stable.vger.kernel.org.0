@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5164724F54B
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94AFE24F480
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728558AbgHXIrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
+        id S1728392AbgHXIhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729405AbgHXIrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:00 -0400
+        id S1728387AbgHXIhT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D80E5204FD;
-        Mon, 24 Aug 2020 08:46:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E8332177B;
+        Mon, 24 Aug 2020 08:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258820;
-        bh=iXmAtY7BG2mwDIC/wHHpkcNbC6q/kDidRTK1GVKOgL8=;
+        s=default; t=1598258238;
+        bh=x369bIKVLiGCDxbll4WzEJyb58NWRRKtTnoVx+10Nk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZ9GFX7wLtKbFyXkcw4zJ8spDR7E87dTws1F6JVBYSqYnXr1l18FSEZS42qB2hC3G
-         X+aKkC7mo5MiveTTwwp246s/I63La/0zqjEFudvWco43LbR7UA/A0xazuIXs2nTXFc
-         A4mQTxXoejV7mgGqD1uVW2iZqEtaJak98pNGHxS0=
+        b=RR3mTgN1y4lILeGn83o/aRpa+Nf3p0Q71k8gb/SnDPOxhoIGTy4hLgKbvcTKyKC10
+         Q/OMWvv1P10inWzFpJiTMKhF2ggqEf/fhcQcctIBe7zDG/GIQHjb1bbecKw1GypYwp
+         dN9Xa87h/Mxw+AozN4z8bD+XYJeW9fv3LT0kannM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/107] virtio_ring: Avoid loop when vq is broken in virtqueue_poll
-Date:   Mon, 24 Aug 2020 10:30:23 +0200
-Message-Id: <20200824082407.939994837@linuxfoundation.org>
+Subject: [PATCH 5.8 126/148] afs: Fix NULL deref in afs_dynroot_depopulate()
+Date:   Mon, 24 Aug 2020 10:30:24 +0200
+Message-Id: <20200824082420.050003623@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <wenan.mao@linux.alibaba.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 481a0d7422db26fb63e2d64f0652667a5c6d0f3e ]
+[ Upstream commit 5e0b17b026eb7c6de9baa9b0d45a51b05f05abe1 ]
 
-The loop may exist if vq->broken is true,
-virtqueue_get_buf_ctx_packed or virtqueue_get_buf_ctx_split
-will return NULL, so virtnet_poll will reschedule napi to
-receive packet, it will lead cpu usage(si) to 100%.
+If an error occurs during the construction of an afs superblock, it's
+possible that an error occurs after a superblock is created, but before
+we've created the root dentry.  If the superblock has a dynamic root
+(ie.  what's normally mounted on /afs), the afs_kill_super() will call
+afs_dynroot_depopulate() to unpin any created dentries - but this will
+oops if the root hasn't been created yet.
 
-call trace as below:
-virtnet_poll
-	virtnet_receive
-		virtqueue_get_buf_ctx
-			virtqueue_get_buf_ctx_packed
-			virtqueue_get_buf_ctx_split
-	virtqueue_napi_complete
-		virtqueue_poll           //return true
-		virtqueue_napi_schedule //it will reschedule napi
+Fix this by skipping that bit of code if there is no root dentry.
 
-to fix this, return false if vq is broken in virtqueue_poll.
+This leads to an oops looking like:
 
-Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/1596354249-96204-1-git-send-email-wenan.mao@linux.alibaba.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+	general protection fault, ...
+	KASAN: null-ptr-deref in range [0x0000000000000068-0x000000000000006f]
+	...
+	RIP: 0010:afs_dynroot_depopulate+0x25f/0x529 fs/afs/dynroot.c:385
+	...
+	Call Trace:
+	 afs_kill_super+0x13b/0x180 fs/afs/super.c:535
+	 deactivate_locked_super+0x94/0x160 fs/super.c:335
+	 afs_get_tree+0x1124/0x1460 fs/afs/super.c:598
+	 vfs_get_tree+0x89/0x2f0 fs/super.c:1547
+	 do_new_mount fs/namespace.c:2875 [inline]
+	 path_mount+0x1387/0x2070 fs/namespace.c:3192
+	 do_mount fs/namespace.c:3205 [inline]
+	 __do_sys_mount fs/namespace.c:3413 [inline]
+	 __se_sys_mount fs/namespace.c:3390 [inline]
+	 __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
+	 do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+which is oopsing on this line:
+
+	inode_lock(root->d_inode);
+
+presumably because sb->s_root was NULL.
+
+Fixes: 0da0b7fd73e4 ("afs: Display manually added cells in dynamic root mount")
+Reported-by: syzbot+c1eff8205244ae7e11a6@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/afs/dynroot.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 58b96baa8d488..4f7c73e6052f6 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1960,6 +1960,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
+diff --git a/fs/afs/dynroot.c b/fs/afs/dynroot.c
+index b79879aacc02e..7b784af604fd9 100644
+--- a/fs/afs/dynroot.c
++++ b/fs/afs/dynroot.c
+@@ -382,15 +382,17 @@ void afs_dynroot_depopulate(struct super_block *sb)
+ 		net->dynroot_sb = NULL;
+ 	mutex_unlock(&net->proc_cells_lock);
  
-+	if (unlikely(vq->broken))
-+		return false;
+-	inode_lock(root->d_inode);
+-
+-	/* Remove all the pins for dirs created for manually added cells */
+-	list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
+-		if (subdir->d_fsdata) {
+-			subdir->d_fsdata = NULL;
+-			dput(subdir);
++	if (root) {
++		inode_lock(root->d_inode);
 +
- 	virtio_mb(vq->weak_barriers);
- 	return vq->packed_ring ? virtqueue_poll_packed(_vq, last_used_idx) :
- 				 virtqueue_poll_split(_vq, last_used_idx);
++		/* Remove all the pins for dirs created for manually added cells */
++		list_for_each_entry_safe(subdir, tmp, &root->d_subdirs, d_child) {
++			if (subdir->d_fsdata) {
++				subdir->d_fsdata = NULL;
++				dput(subdir);
++			}
+ 		}
+-	}
+ 
+-	inode_unlock(root->d_inode);
++		inode_unlock(root->d_inode);
++	}
+ }
 -- 
 2.25.1
 
