@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3F8250629
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81DB525061C
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbgHXR2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
+        id S1728267AbgHXR1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:27:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727950AbgHXQfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:35:30 -0400
+        id S1728253AbgHXQfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:35:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA2D920578;
-        Mon, 24 Aug 2020 16:35:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C295F22CB3;
+        Mon, 24 Aug 2020 16:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286929;
-        bh=hEcf91JbzgPXRuztevJtJxtp78NU32tVPVA7ZRUoHnU=;
+        s=default; t=1598286932;
+        bh=TYTTdCegp15oLYrWq/F7PP5Ab8BnxcWk62tjoSVlprc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoObgjekUxgYr7qo4X5Y4CQMG+LjOX/YN18IBNONtW1HIWPqo5bbIpqVKEgP8RcVo
-         DXawu7LgWLuVhE3qPp76yMQb7TM5viqzav+EZUDqtCSm9qgyrcATfibJj3uAswW1AZ
-         /zznmE8fdDv9ZwX5MduB7M1zRAYYzpyYSSoYlil4=
+        b=fvM2waNELlc+JzCWDkFWEcIekDarNnw3hnpLX4gTSi0P8k7qWbYrD7h363vM4w0wy
+         XmBlHDlKz7EchMWE2Wd+1IfJKbLLrLOD5zBHlKpFg/PEZrixrtCIHtFd5cMSRJb/yI
+         TPpoS1S5N/pu1DguqSot1IPaAEEDfV5O0etr+0n0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Koo <Anthony.Koo@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 19/63] drm/amd/display: Fix LFC multiplier changing erratically
-Date:   Mon, 24 Aug 2020 12:34:19 -0400
-Message-Id: <20200824163504.605538-19-sashal@kernel.org>
+Cc:     Jianlin Lv <Jianlin.Lv@arm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 21/63] selftests/bpf: Fix segmentation fault in test_progs
+Date:   Mon, 24 Aug 2020 12:34:21 -0400
+Message-Id: <20200824163504.605538-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -45,88 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Jianlin Lv <Jianlin.Lv@arm.com>
 
-[ Upstream commit e4ed4dbbc8383d42a197da8fe7ca6434b0f14def ]
+[ Upstream commit 0390c429dbed4068bd2cd8dded937d9a5ec24cd2 ]
 
-[Why]
-1. There is a calculation that is using frame_time_in_us instead of
-last_render_time_in_us to calculate whether choosing an LFC multiplier
-would cause the inserted frame duration to be outside of range.
+test_progs reports the segmentation fault as below:
 
-2. We do not handle unsigned integer subtraction correctly and it underflows
-to a really large value, which causes some logic errors.
+  $ sudo ./test_progs -t mmap --verbose
+  test_mmap:PASS:skel_open_and_load 0 nsec
+  [...]
+  test_mmap:PASS:adv_mmap1 0 nsec
+  test_mmap:PASS:adv_mmap2 0 nsec
+  test_mmap:PASS:adv_mmap3 0 nsec
+  test_mmap:PASS:adv_mmap4 0 nsec
+  Segmentation fault
 
-[How]
-1. Fix logic to calculate 'within range' using last_render_time_in_us
-2. Split out delta_from_mid_point_delta_in_us calculation to ensure
-we don't underflow and wrap around
+This issue was triggered because mmap() and munmap() used inconsistent
+length parameters; mmap() creates a new mapping of 3 * page_size, but the
+length parameter set in the subsequent re-map and munmap() functions is
+4 * page_size; this leads to the destruction of the process space.
 
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix this issue, first create 4 pages of anonymous mapping, then do all
+the mmap() with MAP_FIXED.
+
+Another issue is that when unmap the second page fails, the length
+parameter to delete tmp1 mappings should be 4 * page_size.
+
+Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200810153940.125508-1-Jianlin.Lv@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/modules/freesync/freesync.c   | 36 +++++++++++++++----
- 1 file changed, 29 insertions(+), 7 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/mmap.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-index eb7421e83b865..23a7fa8447e24 100644
---- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-+++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-@@ -324,22 +324,44 @@ static void apply_below_the_range(struct core_freesync *core_freesync,
+diff --git a/tools/testing/selftests/bpf/prog_tests/mmap.c b/tools/testing/selftests/bpf/prog_tests/mmap.c
+index 43d0b5578f461..9c3c5c0f068fb 100644
+--- a/tools/testing/selftests/bpf/prog_tests/mmap.c
++++ b/tools/testing/selftests/bpf/prog_tests/mmap.c
+@@ -21,7 +21,7 @@ void test_mmap(void)
+ 	const long page_size = sysconf(_SC_PAGE_SIZE);
+ 	int err, duration = 0, i, data_map_fd, data_map_id, tmp_fd, rdmap_fd;
+ 	struct bpf_map *data_map, *bss_map;
+-	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp1, *tmp2;
++	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp0, *tmp1, *tmp2;
+ 	struct test_mmap__bss *bss_data;
+ 	struct bpf_map_info map_info;
+ 	__u32 map_info_sz = sizeof(map_info);
+@@ -183,16 +183,23 @@ void test_mmap(void)
  
- 		/* Choose number of frames to insert based on how close it
- 		 * can get to the mid point of the variable range.
-+		 *  - Delta for CEIL: delta_from_mid_point_in_us_1
-+		 *  - Delta for FLOOR: delta_from_mid_point_in_us_2
- 		 */
--		if ((frame_time_in_us / mid_point_frames_ceil) > in_out_vrr->min_duration_in_us &&
--				(delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2 ||
--						mid_point_frames_floor < 2)) {
-+		if ((last_render_time_in_us / mid_point_frames_ceil) < in_out_vrr->min_duration_in_us) {
-+			/* Check for out of range.
-+			 * If using CEIL produces a value that is out of range,
-+			 * then we are forced to use FLOOR.
-+			 */
-+			frames_to_insert = mid_point_frames_floor;
-+		} else if (mid_point_frames_floor < 2) {
-+			/* Check if FLOOR would result in non-LFC. In this case
-+			 * choose to use CEIL
-+			 */
-+			frames_to_insert = mid_point_frames_ceil;
-+		} else if (delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2) {
-+			/* If choosing CEIL results in a frame duration that is
-+			 * closer to the mid point of the range.
-+			 * Choose CEIL
-+			 */
- 			frames_to_insert = mid_point_frames_ceil;
--			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_2 -
--					delta_from_mid_point_in_us_1;
- 		} else {
-+			/* If choosing FLOOR results in a frame duration that is
-+			 * closer to the mid point of the range.
-+			 * Choose FLOOR
-+			 */
- 			frames_to_insert = mid_point_frames_floor;
--			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_1 -
--					delta_from_mid_point_in_us_2;
- 		}
+ 	/* check some more advanced mmap() manipulations */
  
- 		/* Prefer current frame multiplier when BTR is enabled unless it drifts
- 		 * too far from the midpoint
- 		 */
-+		if (delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2) {
-+			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_2 -
-+					delta_from_mid_point_in_us_1;
-+		} else {
-+			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_1 -
-+					delta_from_mid_point_in_us_2;
-+		}
- 		if (in_out_vrr->btr.frames_to_insert != 0 &&
- 				delta_from_mid_point_delta_in_us < BTR_DRIFT_MARGIN) {
- 			if (((last_render_time_in_us / in_out_vrr->btr.frames_to_insert) <
++	tmp0 = mmap(NULL, 4 * page_size, PROT_READ, MAP_SHARED | MAP_ANONYMOUS,
++			  -1, 0);
++	if (CHECK(tmp0 == MAP_FAILED, "adv_mmap0", "errno %d\n", errno))
++		goto cleanup;
++
+ 	/* map all but last page: pages 1-3 mapped */
+-	tmp1 = mmap(NULL, 3 * page_size, PROT_READ, MAP_SHARED,
++	tmp1 = mmap(tmp0, 3 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 			  data_map_fd, 0);
+-	if (CHECK(tmp1 == MAP_FAILED, "adv_mmap1", "errno %d\n", errno))
++	if (CHECK(tmp0 != tmp1, "adv_mmap1", "tmp0: %p, tmp1: %p\n", tmp0, tmp1)) {
++		munmap(tmp0, 4 * page_size);
+ 		goto cleanup;
++	}
+ 
+ 	/* unmap second page: pages 1, 3 mapped */
+ 	err = munmap(tmp1 + page_size, page_size);
+ 	if (CHECK(err, "adv_mmap2", "errno %d\n", errno)) {
+-		munmap(tmp1, map_sz);
++		munmap(tmp1, 4 * page_size);
+ 		goto cleanup;
+ 	}
+ 
+@@ -201,7 +208,7 @@ void test_mmap(void)
+ 		    MAP_SHARED | MAP_FIXED, data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap3", "errno %d\n", errno)) {
+ 		munmap(tmp1, page_size);
+-		munmap(tmp1 + 2*page_size, page_size);
++		munmap(tmp1 + 2*page_size, 2 * page_size);
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 + page_size != tmp2, "adv_mmap4",
+@@ -211,7 +218,7 @@ void test_mmap(void)
+ 	tmp2 = mmap(tmp1, 4 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 		    data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap5", "errno %d\n", errno)) {
+-		munmap(tmp1, 3 * page_size); /* unmap page 1 */
++		munmap(tmp1, 4 * page_size); /* unmap page 1 */
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 != tmp2, "adv_mmap6", "tmp1: %p, tmp2: %p\n", tmp1, tmp2);
 -- 
 2.25.1
 
