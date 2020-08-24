@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99ED224FA6E
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C6F024F914
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728174AbgHXIfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47222 "EHLO mail.kernel.org"
+        id S1726632AbgHXJk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:40:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728169AbgHXIfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:48 -0400
+        id S1729241AbgHXIpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:45:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBF14207D3;
-        Mon, 24 Aug 2020 08:35:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0140B204FD;
+        Mon, 24 Aug 2020 08:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258148;
-        bh=NSM0kikoMYd4CitRmeGSudrfPq2pKTmsMTIAOfWWzhc=;
+        s=default; t=1598258735;
+        bh=q2KANpMGXSeyzKEWZM9I8ni3OZPfwzMBznz7DQYRhiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sr19kNxjKpwRJ/oBMS3QkJqd0B/62vhukwOLvRlmEmI7QOPsN5KJy73G5XPpIHKAr
-         oJcY8UwdUqDSSfk2edIO93+z+J3KGlF6g5RKg8uC9cKfI2gX0mg55IneMLNrf3x/Rs
-         lVsVE/YrX0Qdjp9TRn3WQ/WZB1ChztLxT3K3AJLk=
+        b=pRN7qhDl+yC+4UyfyJtRDzb7WHFxsHrcdxMETx92RxCE8lGXAkO7pL1cX8alBFXsn
+         kCt4mVyI1y7W0+vkbOkrBBwDMLz6n3mQjAjAIcCkVQqewdWdnodbR7u7fCl8VkrL5e
+         FcHlgliogRHOSmY9+tSnN90ySV9KvACp6MdHuOC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 093/148] can: j1939: cancel rxtimer on multipacket broadcast session complete
-Date:   Mon, 24 Aug 2020 10:29:51 +0200
-Message-Id: <20200824082418.501852220@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 026/107] romfs: fix uninitialized memory leak in romfs_dev_read()
+Date:   Mon, 24 Aug 2020 10:29:52 +0200
+Message-Id: <20200824082406.395752684@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
+References: <20200824082405.020301642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit e8b17653088f28a87c81845fa41a2d295a3b458c ]
+commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
 
-If j1939_xtp_rx_dat_one() receive last frame of multipacket broadcast message,
-j1939_session_timers_cancel() should be called to cancel rxtimer.
+romfs has a superblock field that limits the size of the filesystem; data
+beyond that limit is never accessed.
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1596599425-5534-3-git-send-email-zhangchangzhong@huawei.com
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+romfs_dev_read() fetches a caller-supplied number of bytes from the
+backing device.  It returns 0 on success or an error code on failure;
+therefore, its API can't represent short reads, it's all-or-nothing.
+
+However, when romfs_dev_read() detects that the requested operation would
+cross the filesystem size limit, it currently silently truncates the
+requested number of bytes.  This e.g.  means that when the content of a
+file with size 0x1000 starts one byte before the filesystem size limit,
+->readpage() will only fill a single byte of the supplied page while
+leaving the rest uninitialized, leaking that uninitialized memory to
+userspace.
+
+Fix it by returning an error code instead of truncating the read when the
+requested read operation would go beyond the end of the filesystem.
+
+Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/can/j1939/transport.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/romfs/storage.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index 67189b4c482c5..d1a9adde677b0 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1811,6 +1811,7 @@ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
- 	}
+--- a/fs/romfs/storage.c
++++ b/fs/romfs/storage.c
+@@ -217,10 +217,8 @@ int romfs_dev_read(struct super_block *s
+ 	size_t limit;
  
- 	if (final) {
-+		j1939_session_timers_cancel(session);
- 		j1939_session_completed(session);
- 	} else if (do_cts_eoma) {
- 		j1939_tp_set_rxtimeout(session, 1250);
--- 
-2.25.1
-
+ 	limit = romfs_maxsize(sb);
+-	if (pos >= limit)
++	if (pos >= limit || buflen > limit - pos)
+ 		return -EIO;
+-	if (buflen > limit - pos)
+-		buflen = limit - pos;
+ 
+ #ifdef CONFIG_ROMFS_ON_MTD
+ 	if (sb->s_mtd)
 
 
