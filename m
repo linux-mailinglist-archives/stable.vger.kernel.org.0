@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28BFE250323
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F7B250329
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728635AbgHXQjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:39:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48008 "EHLO mail.kernel.org"
+        id S1728652AbgHXQkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728013AbgHXQjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:39:49 -0400
+        id S1726803AbgHXQju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:39:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A0D822BED;
-        Mon, 24 Aug 2020 16:39:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB14622C9F;
+        Mon, 24 Aug 2020 16:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598287189;
-        bh=UtSy+++UvUXgQi8IO+BabQaaW3cdDfWIWClOwtAohrs=;
+        s=default; t=1598287190;
+        bh=mdxoQ4ei3+fvVShYPWCRRxh5xRlB/KycAgoxaaOHUIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEpdgCazfjlXX6oCoykLLB8UgkN4XA5DWY6ht7RFlVUCym5igzWCPNVS3dA3S+ZG6
-         mx/xlIWr74h7PjqB25bloWlLarFw1dvQQksAyHRCMy+ZLBKbwyR6/jvRK+mR4/mleZ
-         viS2jOQvMTMLNHf8AEfsGIq4zeTgo98KQC/lIgJA=
+        b=O3YJF8tVHVfKzeB5iECkcoWXA3Rjc3wz/Po72PlESWPdEDHSAuCepumSocTjaw1FP
+         eKqLXIUlXcOPmijzZ7ON+gDrEz7D3cobJEL3mL99roDE5a6slUIa7H2yV5KWeNKML4
+         QaIEk0SxyKNb+WGoCRs/gfjyrzMemN6qwAQcxGZY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Andy Teng <andy.teng@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 4/6] scsi: ufs: Fix possible infinite loop in ufshcd_hold
-Date:   Mon, 24 Aug 2020 12:39:41 -0400
-Message-Id: <20200824163943.607406-4-sashal@kernel.org>
+Cc:     Sumera Priyadarsini <sylphrenadin@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 5/6] net: gianfar: Add of_node_put() before goto statement
+Date:   Mon, 24 Aug 2020 12:39:42 -0400
+Message-Id: <20200824163943.607406-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163943.607406-1-sashal@kernel.org>
 References: <20200824163943.607406-1-sashal@kernel.org>
@@ -47,55 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Sumera Priyadarsini <sylphrenadin@gmail.com>
 
-[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
+[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
 
-In ufshcd_suspend(), after clk-gating is suspended and link is set
-as Hibern8 state, ufshcd_hold() is still possibly invoked before
-ufshcd_suspend() returns. For example, MediaTek's suspend vops may
-issue UIC commands which would call ufshcd_hold() during the command
-issuing flow.
+Every iteration of for_each_available_child_of_node() decrements
+reference count of the previous node, however when control
+is transferred from the middle of the loop, as in the case of
+a return or break or goto, there is no decrement thus ultimately
+resulting in a memory leak.
 
-Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
-then ufshcd_hold() may enter infinite loops because there is no
-clk-ungating work scheduled or pending. In this case, ufshcd_hold()
-shall just bypass, and keep the link as Hibern8 state.
+Fix a potential memory leak in gianfar.c by inserting of_node_put()
+before the goto statement.
 
-Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Co-developed-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Issue found with Coccinelle.
+
+Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/gianfar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index d15cd7a02f9b4..d7a0a64f64536 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -575,6 +575,7 @@ static void ufshcd_ungate_work(struct work_struct *work)
- int ufshcd_hold(struct ufs_hba *hba, bool async)
- {
- 	int rc = 0;
-+	bool flush_result;
- 	unsigned long flags;
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index 37cc1f838dd8b..96310e2ee5458 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -845,8 +845,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
+ 				continue;
  
- 	if (!ufshcd_is_clkgating_allowed(hba))
-@@ -601,7 +602,9 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
- 				break;
- 			}
- 			spin_unlock_irqrestore(hba->host->host_lock, flags);
--			flush_work(&hba->clk_gating.ungate_work);
-+			flush_result = flush_work(&hba->clk_gating.ungate_work);
-+			if (hba->clk_gating.is_suspended && !flush_result)
-+				goto out;
- 			spin_lock_irqsave(hba->host->host_lock, flags);
- 			goto start;
+ 			err = gfar_parse_group(child, priv, model);
+-			if (err)
++			if (err) {
++				of_node_put(child);
+ 				goto err_grp_init;
++			}
  		}
+ 	} else { /* SQ_SG_MODE */
+ 		err = gfar_parse_group(np, priv, model);
 -- 
 2.25.1
 
