@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DED24F452
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B2F24F4DB
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbgHXIfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:35:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44784 "EHLO mail.kernel.org"
+        id S1728887AbgHXIlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728048AbgHXIfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:00 -0400
+        id S1728883AbgHXIlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:41:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C2602087D;
-        Mon, 24 Aug 2020 08:34:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306A52074D;
+        Mon, 24 Aug 2020 08:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258100;
-        bh=eA4vERAy34S0VeWfur/IzoADNGAc7BgNJIWlo12kVsM=;
+        s=default; t=1598258506;
+        bh=bTH5iXVwhap6MKUOjysl2NNrLylw8YNHEzLt+9lZNL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk74LnMBfj8ShWKT9vd8kjl9EzPp4zRzM2NT3J0D/OWkMLQIswqqmxbp8AlDsUCfp
-         10J9AQzVXuzBug5kSaKcrsjXaZ7RQhsaKrWhYh0JONogrHs8/AwtWGFHwpm08ENXL7
-         Hxzs5xkdeBJk+G/zEYOREo4sRIH0r7rCmgEnHgyA=
+        b=Na32zcn4577YXvBrKOKpteNN8ZrHr9KMu3fCBayBPymtp8yyvwKRnhUt2YEZfVvIx
+         gKxwjOgNX2d3eVF1CxjP1wtARB1YlsKZtVFR2C5/lrQQgfSJHuEyCoLbLP2LXrOBQQ
+         +onj/5jO+k9doVSWPwrjXT6RCXynvoB3hjfcLaAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 074/148] ext4: dont allow overlapping system zones
-Date:   Mon, 24 Aug 2020 10:29:32 +0200
-Message-Id: <20200824082417.616819822@linuxfoundation.org>
+Subject: [PATCH 5.7 041/124] Input: psmouse - add a newline when printing proto by sysfs
+Date:   Mon, 24 Aug 2020 10:29:35 +0200
+Message-Id: <20200824082411.441913012@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit bf9a379d0980e7413d94cb18dac73db2bfc5f470 ]
+[ Upstream commit 4aec14de3a15cf9789a0e19c847f164776f49473 ]
 
-Currently, add_system_zone() just silently merges two added system zones
-that overlap. However the overlap should not happen and it generally
-suggests that some unrelated metadata overlap which indicates the fs is
-corrupted. We should have caught such problems earlier (e.g. in
-ext4_check_descriptors()) but add this check as another line of defense.
-In later patch we also use this for stricter checking of journal inode
-extent tree.
+When I cat parameter 'proto' by sysfs, it displays as follows. It's
+better to add a newline for easy reading.
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+root@syzkaller:~# cat /sys/module/psmouse/parameters/proto
+autoroot@syzkaller:~#
+
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20200720073846.120724-1-wangxiongfeng2@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c | 36 +++++++++++++-----------------------
- 1 file changed, 13 insertions(+), 23 deletions(-)
+ drivers/input/mouse/psmouse-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 16e9b2fda03ae..b394a50ebbe30 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -68,7 +68,7 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			   ext4_fsblk_t start_blk,
- 			   unsigned int count)
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 527ae0b9a191e..0b4a3039f312f 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -2042,7 +2042,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
  {
--	struct ext4_system_zone *new_entry = NULL, *entry;
-+	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &system_blks->root.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
+ 	int type = *((unsigned int *)kp->arg);
  
-@@ -79,30 +79,20 @@ static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			n = &(*n)->rb_left;
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = &(*n)->rb_right;
--		else {
--			if (start_blk + count > (entry->start_blk +
--						 entry->count))
--				entry->count = (start_blk + count -
--						entry->start_blk);
--			new_node = *n;
--			new_entry = rb_entry(new_node, struct ext4_system_zone,
--					     node);
--			break;
--		}
-+		else	/* Unexpected overlap of system zones. */
-+			return -EFSCORRUPTED;
- 	}
+-	return sprintf(buffer, "%s", psmouse_protocol_by_type(type)->name);
++	return sprintf(buffer, "%s\n", psmouse_protocol_by_type(type)->name);
+ }
  
--	if (!new_entry) {
--		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
--					     GFP_KERNEL);
--		if (!new_entry)
--			return -ENOMEM;
--		new_entry->start_blk = start_blk;
--		new_entry->count = count;
--		new_node = &new_entry->node;
--
--		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &system_blks->root);
--	}
-+	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
-+				     GFP_KERNEL);
-+	if (!new_entry)
-+		return -ENOMEM;
-+	new_entry->start_blk = start_blk;
-+	new_entry->count = count;
-+	new_node = &new_entry->node;
-+
-+	rb_link_node(new_node, parent, n);
-+	rb_insert_color(new_node, &system_blks->root);
- 
- 	/* Can we merge to the left? */
- 	node = rb_prev(new_node);
+ static int __init psmouse_init(void)
 -- 
 2.25.1
 
