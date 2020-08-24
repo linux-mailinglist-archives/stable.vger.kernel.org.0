@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B84C250621
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C96E250628
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728252AbgHXQfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:35:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39512 "EHLO mail.kernel.org"
+        id S1726466AbgHXR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:28:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbgHXQf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:35:26 -0400
+        id S1728198AbgHXQf2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:35:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D536622C9E;
-        Mon, 24 Aug 2020 16:35:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3537C22BED;
+        Mon, 24 Aug 2020 16:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286925;
-        bh=4y3xbROUZGon7lxJn2+2Rwx+vsAhc8DrsiF8n1Ii7NA=;
+        s=default; t=1598286927;
+        bh=+fTUKEyrtLg4Uiu2RbCq3/3bQ+IX0Dc03GZZYbNK0kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3Fsndt22kEXmVNuRJXHCcDzVqcyWsJ2tR3xP53F67CrKdS/GbVRfSw5iNizIWel2
-         Lapi2or9VNg2oCEQFh3unkurkwlidTIlDdFuMFiaaVCNaleWQ++M4tKq8N+A19uJgC
-         XrV82dIusACredZKw8ao7zYE/MtuRrqgPgi+jjjU=
+        b=C3rgBByF+VEIpXqmh69Hoy2v10zgXyL9H1sA5weMYM3OfNIZCRjUdFi5WIsibLmey
+         AsjYDqmb8BAlEw3rzXmhi5//6Lb763PamQMwd6yYHzuQqVz3CpMZ+05qXMbqlMRzDw
+         qn4g/vWr6lxu3/+WJfPriQiO6Q2q3DYVx4euPlKs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alain Volmat <alain.volmat@st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 16/63] spi: stm32: always perform registers configuration prior to transfer
-Date:   Mon, 24 Aug 2020 12:34:16 -0400
-Message-Id: <20200824163504.605538-16-sashal@kernel.org>
+Cc:     Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.8 17/63] drm/amd/powerplay: correct Vega20 cached smu feature state
+Date:   Mon, 24 Aug 2020 12:34:17 -0400
+Message-Id: <20200824163504.605538-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
@@ -45,85 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@st.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 60ccb3515fc61a0124c70aa37317f75b67560024 ]
+[ Upstream commit 266d81d9eed30f4994d76a2b237c63ece062eefe ]
 
-SPI registers content may have been lost upon suspend/resume sequence.
-So, always compute and apply the necessary configuration in
-stm32_spi_transfer_one_setup routine.
+Correct the cached smu feature state on pp_features sysfs
+setting.
 
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Link: https://lore.kernel.org/r/1597043558-29668-6-git-send-email-alain.volmat@st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 42 +++++++++++++++++------------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ .../drm/amd/powerplay/hwmgr/vega20_hwmgr.c    | 38 +++++++++----------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 571dea72bf7e6..37dac7f0b8609 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -1596,41 +1596,33 @@ static int stm32_spi_transfer_one_setup(struct stm32_spi *spi,
- 	unsigned long flags;
- 	unsigned int comm_type;
- 	int nb_words, ret = 0;
-+	int mbr;
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
+index 9ff470f1b826c..b7f3f8b62c2ac 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
+@@ -979,10 +979,7 @@ static int vega20_disable_all_smu_features(struct pp_hwmgr *hwmgr)
+ {
+ 	struct vega20_hwmgr *data =
+ 			(struct vega20_hwmgr *)(hwmgr->backend);
+-	uint64_t features_enabled;
+-	int i;
+-	bool enabled;
+-	int ret = 0;
++	int i, ret = 0;
  
- 	spin_lock_irqsave(&spi->lock, flags);
+ 	PP_ASSERT_WITH_CODE((ret = smum_send_msg_to_smc(hwmgr,
+ 			PPSMC_MSG_DisableAllSmuFeatures,
+@@ -990,17 +987,8 @@ static int vega20_disable_all_smu_features(struct pp_hwmgr *hwmgr)
+ 			"[DisableAllSMUFeatures] Failed to disable all smu features!",
+ 			return ret);
  
- 	spi->cur_xferlen = transfer->len;
- 
--	if (spi->cur_bpw != transfer->bits_per_word) {
--		spi->cur_bpw = transfer->bits_per_word;
--		spi->cfg->set_bpw(spi);
+-	ret = vega20_get_enabled_smc_features(hwmgr, &features_enabled);
+-	PP_ASSERT_WITH_CODE(!ret,
+-			"[DisableAllSMUFeatures] Failed to get enabled smc features!",
+-			return ret);
+-
+-	for (i = 0; i < GNLD_FEATURES_MAX; i++) {
+-		enabled = (features_enabled & data->smu_features[i].smu_feature_bitmap) ?
+-			true : false;
+-		data->smu_features[i].enabled = enabled;
+-		data->smu_features[i].supported = enabled;
 -	}
--
--	if (spi->cur_speed != transfer->speed_hz) {
--		int mbr;
--
--		/* Update spi->cur_speed with real clock speed */
--		mbr = stm32_spi_prepare_mbr(spi, transfer->speed_hz,
--					    spi->cfg->baud_rate_div_min,
--					    spi->cfg->baud_rate_div_max);
--		if (mbr < 0) {
--			ret = mbr;
--			goto out;
--		}
-+	spi->cur_bpw = transfer->bits_per_word;
-+	spi->cfg->set_bpw(spi);
++	for (i = 0; i < GNLD_FEATURES_MAX; i++)
++		data->smu_features[i].enabled = 0;
  
--		transfer->speed_hz = spi->cur_speed;
--		stm32_spi_set_mbr(spi, mbr);
-+	/* Update spi->cur_speed with real clock speed */
-+	mbr = stm32_spi_prepare_mbr(spi, transfer->speed_hz,
-+				    spi->cfg->baud_rate_div_min,
-+				    spi->cfg->baud_rate_div_max);
-+	if (mbr < 0) {
-+		ret = mbr;
-+		goto out;
+ 	return 0;
+ }
+@@ -3230,10 +3218,11 @@ static int vega20_get_ppfeature_status(struct pp_hwmgr *hwmgr, char *buf)
+ 
+ static int vega20_set_ppfeature_status(struct pp_hwmgr *hwmgr, uint64_t new_ppfeature_masks)
+ {
+-	uint64_t features_enabled;
+-	uint64_t features_to_enable;
+-	uint64_t features_to_disable;
+-	int ret = 0;
++	struct vega20_hwmgr *data =
++			(struct vega20_hwmgr *)(hwmgr->backend);
++	uint64_t features_enabled, features_to_enable, features_to_disable;
++	int i, ret = 0;
++	bool enabled;
+ 
+ 	if (new_ppfeature_masks >= (1ULL << GNLD_FEATURES_MAX))
+ 		return -EINVAL;
+@@ -3262,6 +3251,17 @@ static int vega20_set_ppfeature_status(struct pp_hwmgr *hwmgr, uint64_t new_ppfe
+ 			return ret;
  	}
  
--	comm_type = stm32_spi_communication_type(spi_dev, transfer);
--	if (spi->cur_comm != comm_type) {
--		ret = spi->cfg->set_mode(spi, comm_type);
-+	transfer->speed_hz = spi->cur_speed;
-+	stm32_spi_set_mbr(spi, mbr);
++	/* Update the cached feature enablement state */
++	ret = vega20_get_enabled_smc_features(hwmgr, &features_enabled);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < GNLD_FEATURES_MAX; i++) {
++		enabled = (features_enabled & data->smu_features[i].smu_feature_bitmap) ?
++			true : false;
++		data->smu_features[i].enabled = enabled;
++	}
++
+ 	return 0;
+ }
  
--		if (ret < 0)
--			goto out;
-+	comm_type = stm32_spi_communication_type(spi_dev, transfer);
-+	ret = spi->cfg->set_mode(spi, comm_type);
-+	if (ret < 0)
-+		goto out;
- 
--		spi->cur_comm = comm_type;
--	}
-+	spi->cur_comm = comm_type;
- 
- 	if (spi->cfg->set_data_idleness)
- 		spi->cfg->set_data_idleness(spi, transfer->len);
 -- 
 2.25.1
 
