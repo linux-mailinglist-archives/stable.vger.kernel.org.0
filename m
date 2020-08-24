@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8313524F8DD
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:38:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB8124F965
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729421AbgHXIrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:47:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
+        id S1728625AbgHXJow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:44:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729432AbgHXIrO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:14 -0400
+        id S1729002AbgHXIm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 506B4204FD;
-        Mon, 24 Aug 2020 08:47:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721F32074D;
+        Mon, 24 Aug 2020 08:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258834;
-        bh=qfVjAFsYUJbEzJSUeRe9YMyUSPn194uANA9bKchzc2A=;
+        s=default; t=1598258578;
+        bh=+qRo7EazDkIauatNccwvEEaYm1kUYDmMfILi5Oc7xuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNBdUEUt16+rZzEYC8EGxvvhMKTA8lExeYfkzaCdt/sTHo2fsa04UwU6xBw8UgLvx
-         /R1rfwFJK3G3kdmSyQwuvZ5lPZvK9LVTxDcA9knBWcyPl+dNaTQ836NfxIaD4HRJ1G
-         XdDGYr0OB3yEdN9qBOnJhAAPRc08DAeaTdM/x0F4=
+        b=aH2g/mQaHm76oRtEkwb9tC620SBz0mjgJEFZvlu7YENeyCKrMBm3ONsHqzq3C+1T8
+         Ilcx+mVXdUfki7onsw1QM6zdrzFJdsRf5ZeTxsx4ZiS9oPyQbUBH9/KZGNKmIDk8bC
+         zz4w4yhaAkFxphOnTCo5Oj7/ZkZs5r0WqC5eUsXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Seungwon Jeon <essuuj@gmail.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/107] alpha: fix annotation of io{read,write}{16,32}be()
-Date:   Mon, 24 Aug 2020 10:30:27 +0200
-Message-Id: <20200824082408.149118415@linuxfoundation.org>
+Subject: [PATCH 5.7 094/124] scsi: ufs: Add quirk to disallow reset of interrupt aggregation
+Date:   Mon, 24 Aug 2020 10:30:28 +0200
+Message-Id: <20200824082414.030173227@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,55 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Alim Akhtar <alim.akhtar@samsung.com>
 
-[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
+[ Upstream commit b638b5eb624bd5d0766683b6181d578f414585e9 ]
 
-These accessors must be used to read/write a big-endian bus.  The value
-returned or written is native-endian.
+Some host controllers support interrupt aggregation but don't allow
+resetting counter and timer in software.
 
-However, these accessors are defined using be{16,32}_to_cpu() or
-cpu_to_be{16,32}() to make the endian conversion but these expect a
-__be{16,32} when none is present.  Keeping them would need a force cast
-that would solve nothing at all.
-
-So, do the conversion using swab{16,32}, like done in asm-generic for
-similar situations.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20200528011658.71590-3-alim.akhtar@samsung.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Seungwon Jeon <essuuj@gmail.com>
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ drivers/scsi/ufs/ufshcd.h | 6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index b771bf1b53523..103270d5a9fc6 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -502,10 +502,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
- }
- #endif
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 9e31f9569bf78..acd8fb4981142 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4889,7 +4889,8 @@ static irqreturn_t ufshcd_transfer_req_compl(struct ufs_hba *hba)
+ 	 * false interrupt if device completes another request after resetting
+ 	 * aggregation and before reading the DB.
+ 	 */
+-	if (ufshcd_is_intr_aggr_allowed(hba))
++	if (ufshcd_is_intr_aggr_allowed(hba) &&
++	    !(hba->quirks & UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR))
+ 		ufshcd_reset_intr_aggr(hba);
  
--#define ioread16be(p) be16_to_cpu(ioread16(p))
--#define ioread32be(p) be32_to_cpu(ioread32(p))
--#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
--#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
-+#define ioread16be(p) swab16(ioread16(p))
-+#define ioread32be(p) swab32(ioread32(p))
-+#define iowrite16be(v,p) iowrite16(swab16(v), (p))
-+#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+ 	tr_doorbell = ufshcd_readl(hba, REG_UTP_TRANSFER_REQ_DOOR_BELL);
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index ceadbd548e06d..5b1acdd83d5c1 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -523,6 +523,12 @@ enum ufshcd_quirks {
+ 	 * Clear handling for transfer/task request list is just opposite.
+ 	 */
+ 	UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR		= 1 << 6,
++
++	/*
++	 * This quirk needs to be enabled if host controller doesn't allow
++	 * that the interrupt aggregation timer and counter are reset by s/w.
++	 */
++	UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR		= 1 << 7,
+ };
  
- #define inb_p		inb
- #define inw_p		inw
+ enum ufshcd_caps {
 -- 
 2.25.1
 
