@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC25924FAD5
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 12:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9281F24FAD2
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 12:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726783AbgHXIcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:32:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
+        id S1726862AbgHXKAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 06:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726673AbgHXIci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:32:38 -0400
+        id S1726673AbgHXIco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:32:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 626B02074D;
-        Mon, 24 Aug 2020 08:32:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB68206F0;
+        Mon, 24 Aug 2020 08:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598257958;
-        bh=v9UYRrKpN87tXhldWDkb2mAuALsYnsp19MYKQXXH2zY=;
+        s=default; t=1598257963;
+        bh=zJj4oZNIjneuBuKEs+zGrgDRgY1q5Gf4SLC9QH7D+YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SiRL3o64lEKZ+9lZUvfYsuKTu6jnxmfEthgzyI/dNn8qB9pQCGFN9sYiblf86+yqT
-         ijCtjmL6tjgZ+90GmWDEnHPwe9o2EDs5Q/GaFUduWLcoHZ1Lh03MtR0Z8d6R0uozdT
-         ikoTHp79SCPoIqCP01l05Kq2dpvD5GLlAVDRo8HY=
+        b=U9knfLGmpVaOgJGQ6gd7E5biyfnfo146X4OWw29iMtGS+WQjHsGHBJ3tQ7wYXX5tN
+         oID9VEobJdH23g5tMfopOyqyfWJKPgquBmCNY0mE5GnG7JNvD7PFbi4J5n00tkSmJH
+         n8O1JRTnWjlUJkwd1zmw0Q7ojg8MoyqZZxnEL3pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 005/148] khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
-Date:   Mon, 24 Aug 2020 10:28:23 +0200
-Message-Id: <20200824082414.207669334@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Pozulp <pozulp.kernel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.8 007/148] ALSA: hda/realtek: Add quirk for Samsung Galaxy Flex Book
+Date:   Mon, 24 Aug 2020 10:28:25 +0200
+Message-Id: <20200824082414.304769270@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
 References: <20200824082413.900489417@linuxfoundation.org>
@@ -52,51 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Mike Pozulp <pozulp.kernel@gmail.com>
 
-[ Upstream commit f3f99d63a8156c7a4a6b20aac22b53c5579c7dc1 ]
+commit f70fff83cda63bbf596f99edc131b9daaba07458 upstream.
 
-syzbot crashes on the VM_BUG_ON_MM(khugepaged_test_exit(mm), mm) in
-__khugepaged_enter(): yes, when one thread is about to dump core, has set
-core_state, and is waiting for others, another might do something calling
-__khugepaged_enter(), which now crashes because I lumped the core_state
-test (known as "mmget_still_valid") into khugepaged_test_exit().  I still
-think it's best to lump them together, so just in this exceptional case,
-check mm->mm_users directly instead of khugepaged_test_exit().
+The Flex Book uses the same ALC298 codec as other Samsung laptops which
+have the no headphone sound bug, like my Samsung Notebook. The Flex Book
+owner used Early Patching to confirm that this quirk fixes the bug.
 
-Fixes: bbe98f9cadff ("khugepaged: khugepaged_test_exit() check mmget_still_valid()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008141503370.18085@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
+Signed-off-by: Mike Pozulp <pozulp.kernel@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200814045346.645367-1-pozulp.kernel@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/khugepaged.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index ac04b332a373a..1d6a9b0b6a9fd 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -466,7 +466,7 @@ int __khugepaged_enter(struct mm_struct *mm)
- 		return -ENOMEM;
- 
- 	/* __khugepaged_exit() must not run from under us */
--	VM_BUG_ON_MM(khugepaged_test_exit(mm), mm);
-+	VM_BUG_ON_MM(atomic_read(&mm->mm_users) == 0, mm);
- 	if (unlikely(test_and_set_bit(MMF_VM_HUGEPAGE, &mm->flags))) {
- 		free_mm_slot(mm_slot);
- 		return 0;
--- 
-2.25.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7696,6 +7696,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
 
 
