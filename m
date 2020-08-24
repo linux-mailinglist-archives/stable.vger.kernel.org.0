@@ -2,173 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2919D24F65D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF8524F5DF
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730720AbgHXI54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45556 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730093AbgHXI5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:57:54 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB61522B47;
-        Mon, 24 Aug 2020 08:57:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259473;
-        bh=+k/m/PhyK12aBbZ+P4lc6R+lVQy+FH3PiNue5J/umrQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7gQjNSwmyFnV7oX587cVpvYOn+bfYK+IR0ZLkssgY8zxKBZab3WQDiZF3ZnrMWjr
-         6XsN/16vYFecBQMw+ND21WcRrpmVT6/Sb7NonYvuTg7OhDUv/GzTJEnqfhDs9vZrRw
-         fzIf0T6H+ICx1vSMR8zoE7rxixOQ6EaLYYXgnXc4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: [PATCH 4.19 71/71] clk: Evict unregistered clks from parent caches
-Date:   Mon, 24 Aug 2020 10:32:02 +0200
-Message-Id: <20200824082359.534322751@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1730342AbgHXIyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:54:36 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:42373 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730330AbgHXIyb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 04:54:31 -0400
+Received: by mail-lf1-f68.google.com with SMTP id c8so4043199lfh.9;
+        Mon, 24 Aug 2020 01:54:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=LaVue5RwtmgkAnddefWKALJdn/bQBbjIItjnFY5oPlY=;
+        b=JZbmIsMYytG0w1wKqsBUs9VO3are4U4EPGrAvtgmniMbD4Gka2evEaOKFnBnRew0va
+         0y7kb1mfKrbPKguke9/CoGSPBhbAXm/DF2kii7ml6Xbte6bnbrybG4xJEa4hldcvt+UU
+         i5Tlrkyv3892yPn0TtZBr03TVi0gJId92oQxlte1WjXuevClaU20Wx1pwcqh1X7cO5w4
+         ZIgTtgqxLyqn1XNro1OcWjozcOEAjpjIJwTkDHE47IGxVqVptkWB1HHx8yxWRnXalsqD
+         cbc9qkCZ0EBja4HO8g5EoMx9Ht2yEKDd5uzuY8B4DBumVxxrssDf94nYIq3fBj0x8j/P
+         FnPw==
+X-Gm-Message-State: AOAM530YcFnS1FpY0VfkdRbOD1TfJfXlFfLADWrxPvQnRbTMpKtMQqSh
+        9ZOp/iDfwSQM7d3u1O4aVPM=
+X-Google-Smtp-Source: ABdhPJyhNc80MZicMYsowMdF6QWL9vuM/rf/AYpQF4xqCVSLiEfxkiJjphMZ943rBguzXc3EKaHLkg==
+X-Received: by 2002:a19:480b:: with SMTP id v11mr2171612lfa.130.1598259266779;
+        Mon, 24 Aug 2020 01:54:26 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id z18sm2046998lji.107.2020.08.24.01.54.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2020 01:54:26 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kA8FE-0006oj-Ij; Mon, 24 Aug 2020 10:54:25 +0200
+Date:   Mon, 24 Aug 2020 10:54:24 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Johan Hovold <johan@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.8 137/232] USB: serial: ftdi_sio: fix break and sysrq
+ handling
+Message-ID: <20200824085424.GB21288@localhost>
+References: <20200820091612.692383444@linuxfoundation.org>
+ <20200820091619.460392380@linuxfoundation.org>
+ <CAMgPeKX54WqE0Wc56u6W3M2JwttV=E7sBKmM5eRa5_Mu7m+okg@mail.gmail.com>
+ <20200820095652.GA1266907@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200820095652.GA1266907@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+On Thu, Aug 20, 2020 at 11:56:52AM +0200, Greg Kroah-Hartman wrote:
+> On Thu, Aug 20, 2020 at 11:51:56AM +0200, Johan Hovold wrote:
+> > This was never intended for stable as it is not a critical fix and has
+> > never worked properly in the first place. Please drop this one and the
+> > preparatory clean ups from all stable trees.
+> 
+> Ok, but the "fix this thing" and the "Fixes:" tag really did imply this
+> was actually fixing something :)
 
-commit bdcf1dc253248542537a742ae1e7ccafdd03f2d3 upstream.
+Sure and it is indeed a fix, just not for a regression or something
+critical (oops, etc), and therefore the stable-cc tag was omitted.
 
-We leave a dangling pointer in each clk_core::parents array that has an
-unregistered clk as a potential parent when that clk_core pointer is
-freed by clk{_hw}_unregister(). It is impossible for the true parent of
-a clk to be set with clk_set_parent() once the dangling pointer is left
-in the cache because we compare parent pointers in
-clk_fetch_parent_index() instead of checking for a matching clk name or
-clk_hw pointer.
+> I'll drop it from everywhere, thanks.
 
-Before commit ede77858473a ("clk: Remove global clk traversal on fetch
-parent index"), we would check clk_hw pointers, which has a higher
-chance of being the same between registration and unregistration, but it
-can still be allocated and freed by the clk provider. In fact, this has
-been a long standing problem since commit da0f0b2c3ad2 ("clk: Correct
-lookup logic in clk_fetch_parent_index()") where we stopped trying to
-compare clk names and skipped over entries in the cache that weren't
-NULL.
+Looks like you never dropped the preparatory clean ups. Should be ok.
 
-There are good (performance) reasons to not do the global tree lookup in
-cases where the cache holds dangling pointers to parents that have been
-unregistered. Let's take the performance hit on the uncommon
-registration path instead. Loop through all the clk_core::parents arrays
-when a clk is unregistered and set the entry to NULL when the parent
-cache entry and clk being unregistered are the same pointer. This will
-fix this problem and avoid the overhead for the "normal" case.
-
-Based on a patch by Bjorn Andersson.
-
-Fixes: da0f0b2c3ad2 ("clk: Correct lookup logic in clk_fetch_parent_index()")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190828181959.204401-1-sboyd@kernel.org
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/clk/clk.c |   52 +++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 41 insertions(+), 11 deletions(-)
-
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -40,6 +40,17 @@ static HLIST_HEAD(clk_root_list);
- static HLIST_HEAD(clk_orphan_list);
- static LIST_HEAD(clk_notifier_list);
- 
-+static struct hlist_head *all_lists[] = {
-+	&clk_root_list,
-+	&clk_orphan_list,
-+	NULL,
-+};
-+
-+static struct hlist_head *orphan_list[] = {
-+	&clk_orphan_list,
-+	NULL,
-+};
-+
- /***    private data structures    ***/
- 
- struct clk_core {
-@@ -2618,17 +2629,6 @@ static int inited = 0;
- static DEFINE_MUTEX(clk_debug_lock);
- static HLIST_HEAD(clk_debug_list);
- 
--static struct hlist_head *all_lists[] = {
--	&clk_root_list,
--	&clk_orphan_list,
--	NULL,
--};
--
--static struct hlist_head *orphan_list[] = {
--	&clk_orphan_list,
--	NULL,
--};
--
- static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
- 				 int level)
- {
-@@ -3328,6 +3328,34 @@ static const struct clk_ops clk_nodrv_op
- 	.set_parent	= clk_nodrv_set_parent,
- };
- 
-+static void clk_core_evict_parent_cache_subtree(struct clk_core *root,
-+						struct clk_core *target)
-+{
-+	int i;
-+	struct clk_core *child;
-+
-+	for (i = 0; i < root->num_parents; i++)
-+		if (root->parents[i] == target)
-+			root->parents[i] = NULL;
-+
-+	hlist_for_each_entry(child, &root->children, child_node)
-+		clk_core_evict_parent_cache_subtree(child, target);
-+}
-+
-+/* Remove this clk from all parent caches */
-+static void clk_core_evict_parent_cache(struct clk_core *core)
-+{
-+	struct hlist_head **lists;
-+	struct clk_core *root;
-+
-+	lockdep_assert_held(&prepare_lock);
-+
-+	for (lists = all_lists; *lists; lists++)
-+		hlist_for_each_entry(root, *lists, child_node)
-+			clk_core_evict_parent_cache_subtree(root, core);
-+
-+}
-+
- /**
-  * clk_unregister - unregister a currently registered clock
-  * @clk: clock to unregister
-@@ -3366,6 +3394,8 @@ void clk_unregister(struct clk *clk)
- 			clk_core_set_parent_nolock(child, NULL);
- 	}
- 
-+	clk_core_evict_parent_cache(clk->core);
-+
- 	hlist_del_init(&clk->core->child_node);
- 
- 	if (clk->core->prepare_count)
-
-
+Johan
