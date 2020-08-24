@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FBCA24F7D0
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5236824F843
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728972AbgHXJWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36760 "EHLO mail.kernel.org"
+        id S1729904AbgHXIvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730395AbgHXIzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:55:10 -0400
+        id S1729918AbgHXIvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:51:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32AF2204FD;
-        Mon, 24 Aug 2020 08:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDD212072D;
+        Mon, 24 Aug 2020 08:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259309;
-        bh=nstCH6mn71s6+t+b0/T4hwQQsqc+bqiv7+SPeqwEVLc=;
+        s=default; t=1598259075;
+        bh=AZXZEQCCAcc7yAFFDD4jb1Cme4oR0AkWkjL5b+2mTso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbbM0E47TJ1z24JO9GWb5IJCWFXsdlDsp+DQcH7XqACugfJ1nXvAWHea14Rq/mqOr
-         1Q0BdH+CuSCTEb0TGZB7apZ+TLClp9vK1A0qn2oH0tCNuOIYWTKF21xt2ENufBCarh
-         rBV30cJD+cMUlY2+SIGtGSzVJB+PS6MnZRpk5f7U=
+        b=HN6/Py1loI2+xUP2/CEqjP0Ua3FwzoOPQkp4gD2nOI2wH+J8+163hHrzqpcTGHK6g
+         MdCyJSj+Vhv/0m8+1X615Al44GciVprV1wMjgUsOrC5nz0RSAjMdQvSTFQJ7tnLlwe
+         FaRvWHrwuXJISwdCPoUnNByVi8TKShb5eXBmFlGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 10/71] romfs: fix uninitialized memory leak in romfs_dev_read()
-Date:   Mon, 24 Aug 2020 10:31:01 +0200
-Message-Id: <20200824082356.398552400@linuxfoundation.org>
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/39] drm/imx: imx-ldb: Disable both channels for split mode in enc->disable()
+Date:   Mon, 24 Aug 2020 10:31:02 +0200
+Message-Id: <20200824082348.647547565@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082355.848475917@linuxfoundation.org>
-References: <20200824082355.848475917@linuxfoundation.org>
+In-Reply-To: <20200824082348.445866152@linuxfoundation.org>
+References: <20200824082348.445866152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Liu Ying <victor.liu@nxp.com>
 
-commit bcf85fcedfdd17911982a3e3564fcfec7b01eebd upstream.
+[ Upstream commit 3b2a999582c467d1883716b37ffcc00178a13713 ]
 
-romfs has a superblock field that limits the size of the filesystem; data
-beyond that limit is never accessed.
+Both of the two LVDS channels should be disabled for split mode
+in the encoder's ->disable() callback, because they are enabled
+in the encoder's ->enable() callback.
 
-romfs_dev_read() fetches a caller-supplied number of bytes from the
-backing device.  It returns 0 on success or an error code on failure;
-therefore, its API can't represent short reads, it's all-or-nothing.
-
-However, when romfs_dev_read() detects that the requested operation would
-cross the filesystem size limit, it currently silently truncates the
-requested number of bytes.  This e.g.  means that when the content of a
-file with size 0x1000 starts one byte before the filesystem size limit,
-->readpage() will only fill a single byte of the supplied page while
-leaving the rest uninitialized, leaking that uninitialized memory to
-userspace.
-
-Fix it by returning an error code instead of truncating the read when the
-requested read operation would go beyond the end of the filesystem.
-
-Fixes: da4458bda237 ("NOMMU: Make it possible for RomFS to use MTD devices directly")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Howells <dhowells@redhat.com>
+Fixes: 6556f7f82b9c ("drm: imx: Move imx-drm driver out of staging")
+Cc: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: NXP Linux Team <linux-imx@nxp.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200818013202.2246365-1-jannh@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/romfs/storage.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/romfs/storage.c
-+++ b/fs/romfs/storage.c
-@@ -221,10 +221,8 @@ int romfs_dev_read(struct super_block *s
- 	size_t limit;
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 67881e5517fbf..2df407b2b0da7 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -317,6 +317,7 @@ static void imx_ldb_encoder_disable(struct drm_encoder *encoder)
+ {
+ 	struct imx_ldb_channel *imx_ldb_ch = enc_to_imx_ldb_ch(encoder);
+ 	struct imx_ldb *ldb = imx_ldb_ch->ldb;
++	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux, ret;
  
- 	limit = romfs_maxsize(sb);
--	if (pos >= limit)
-+	if (pos >= limit || buflen > limit - pos)
- 		return -EIO;
--	if (buflen > limit - pos)
--		buflen = limit - pos;
+ 	/*
+@@ -333,14 +334,14 @@ static void imx_ldb_encoder_disable(struct drm_encoder *encoder)
  
- #ifdef CONFIG_ROMFS_ON_MTD
- 	if (sb->s_mtd)
+ 	drm_panel_disable(imx_ldb_ch->panel);
+ 
+-	if (imx_ldb_ch == &ldb->channel[0])
++	if (imx_ldb_ch == &ldb->channel[0] || dual)
+ 		ldb->ldb_ctrl &= ~LDB_CH0_MODE_EN_MASK;
+-	else if (imx_ldb_ch == &ldb->channel[1])
++	if (imx_ldb_ch == &ldb->channel[1] || dual)
+ 		ldb->ldb_ctrl &= ~LDB_CH1_MODE_EN_MASK;
+ 
+ 	regmap_write(ldb->regmap, IOMUXC_GPR2, ldb->ldb_ctrl);
+ 
+-	if (ldb->ldb_ctrl & LDB_SPLIT_MODE_EN) {
++	if (dual) {
+ 		clk_disable_unprepare(ldb->clk[0]);
+ 		clk_disable_unprepare(ldb->clk[1]);
+ 	}
+-- 
+2.25.1
+
 
 
