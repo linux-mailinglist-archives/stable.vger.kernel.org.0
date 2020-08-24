@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1609424F868
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A30424F865
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726504AbgHXJbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:31:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
+        id S1729345AbgHXJbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729841AbgHXIuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:20 -0400
+        id S1728122AbgHXIuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43832207D3;
-        Mon, 24 Aug 2020 08:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A32F2075B;
+        Mon, 24 Aug 2020 08:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259019;
-        bh=zS1P8t9Wnw9TYrZUY4555coXnHbQY28UejCWY2f+zUc=;
+        s=default; t=1598259022;
+        bh=4hK1erPQRlP1+oL9gdRiB7F0rzjISyPy6USi40HgIjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drXBGtP8sI7QB0icdbkcgBk5mJOZ2PvhEcKHOKAWz19McW5gQBH0pzFu//PI7gnaW
-         +m9JU+HrpfhYjG0S8rFGmYiApv1tdkz45VazaHSdJ5nnO5p6e6YSlRIy48yH5FRxqO
-         /aHUw9pf0kMq+8rw+oQWrc52H62A4qFvGUC76sN8=
+        b=RFmJNeUDPBU9SLiymkPnyVof47ZXY6ec1o6WJYpYPSwd8wTKVyJ4jQux4tLn5ZJ+A
+         +jzfSgoPcQ8uVZDbLZIOgGFyHlNkBVRlGcLCb/ZSNogLf0I0qNpIx87mfJ0lhDGvG6
+         l+grVYbvps/ihXbKTSpdWIYieX1VXOBB00benkSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/33] xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
-Date:   Mon, 24 Aug 2020 10:31:20 +0200
-Message-Id: <20200824082347.749330035@linuxfoundation.org>
+Subject: [PATCH 4.4 25/33] alpha: fix annotation of io{read,write}{16,32}be()
+Date:   Mon, 24 Aug 2020 10:31:21 +0200
+Message-Id: <20200824082347.799118539@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
 References: <20200824082346.498653578@linuxfoundation.org>
@@ -44,57 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit 96cf2a2c75567ff56195fe3126d497a2e7e4379f ]
+[ Upstream commit bd72866b8da499e60633ff28f8a4f6e09ca78efe ]
 
-If xfs_sysfs_init is called with parent_kobj == NULL, UBSAN
-shows the following warning:
+These accessors must be used to read/write a big-endian bus.  The value
+returned or written is native-endian.
 
-  UBSAN: null-ptr-deref in ./fs/xfs/xfs_sysfs.h:37:23
-  member access within null pointer of type 'struct xfs_kobj'
-  Call Trace:
-   dump_stack+0x10e/0x195
-   ubsan_type_mismatch_common+0x241/0x280
-   __ubsan_handle_type_mismatch_v1+0x32/0x40
-   init_xfs_fs+0x12b/0x28f
-   do_one_initcall+0xdd/0x1d0
-   do_initcall_level+0x151/0x1b6
-   do_initcalls+0x50/0x8f
-   do_basic_setup+0x29/0x2b
-   kernel_init_freeable+0x19f/0x20b
-   kernel_init+0x11/0x1e0
-   ret_from_fork+0x22/0x30
+However, these accessors are defined using be{16,32}_to_cpu() or
+cpu_to_be{16,32}() to make the endian conversion but these expect a
+__be{16,32} when none is present.  Keeping them would need a force cast
+that would solve nothing at all.
 
-Fix it by checking parent_kobj before the code accesses its member.
+So, do the conversion using swab{16,32}, like done in asm-generic for
+similar situations.
 
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-[darrick: minor whitespace edits]
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20200622114232.80039-1-luc.vanoostenryck@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_sysfs.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/alpha/include/asm/io.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/xfs_sysfs.h b/fs/xfs/xfs_sysfs.h
-index be692e59938db..c457b010c623d 100644
---- a/fs/xfs/xfs_sysfs.h
-+++ b/fs/xfs/xfs_sysfs.h
-@@ -44,9 +44,11 @@ xfs_sysfs_init(
- 	struct xfs_kobj		*parent_kobj,
- 	const char		*name)
- {
-+	struct kobject		*parent;
-+
-+	parent = parent_kobj ? &parent_kobj->kobject : NULL;
- 	init_completion(&kobj->complete);
--	return kobject_init_and_add(&kobj->kobject, ktype,
--				    &parent_kobj->kobject, "%s", name);
-+	return kobject_init_and_add(&kobj->kobject, ktype, parent, "%s", name);
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index ff4049155c840..355aec0867f4d 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -491,10 +491,10 @@ extern inline void writeq(u64 b, volatile void __iomem *addr)
  }
+ #endif
  
- static inline void
+-#define ioread16be(p) be16_to_cpu(ioread16(p))
+-#define ioread32be(p) be32_to_cpu(ioread32(p))
+-#define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
+-#define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
++#define ioread16be(p) swab16(ioread16(p))
++#define ioread32be(p) swab32(ioread32(p))
++#define iowrite16be(v,p) iowrite16(swab16(v), (p))
++#define iowrite32be(v,p) iowrite32(swab32(v), (p))
+ 
+ #define inb_p		inb
+ #define inw_p		inw
 -- 
 2.25.1
 
