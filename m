@@ -2,116 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D3025027D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A20D2502A9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 18:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727955AbgHXQc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 12:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35014 "EHLO mail.kernel.org"
+        id S1728208AbgHXQfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 12:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbgHXQcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:32:16 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728114AbgHXQfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:35:17 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E8902067C;
-        Mon, 24 Aug 2020 16:32:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70D08207CD;
+        Mon, 24 Aug 2020 16:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286735;
-        bh=JWw68BuVJ7xfLohloWh48lvCAxIed5C9r3jJcJyxoFU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=y+9T9DDdaJQxrm+zCaoyAUMyqLdeyuK0qOA+cQzh+mMxS41Bv8U+rmlEuVsrkVvGw
-         v9T2hfFFPIeGCAOD2/nhQS5SvGDVtpEeC13I06nqHVJYs1m8Q2JYslDw/NiOUG9GRB
-         UkP89VXdr0z4pAX8KrTtN8anYDfYxYgeaWa6l96g=
-Date:   Mon, 24 Aug 2020 17:32:09 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
-        <kvmarm@lists.cs.columbia.edu>
-Subject: Re: [PATCH stable v4.9 v2] arm64: entry: Place an SB sequence
- following an ERET instruction
-Message-ID: <20200824163208.GA25316@willie-the-truck>
-References: <20200709195034.15185-1-f.fainelli@gmail.com>
- <20200720130411.GB494210@kroah.com>
- <df1de420-ac59-3647-3b81-a0c163783225@gmail.com>
- <9c29080e-8b3a-571c-3296-e0487fa473fa@gmail.com>
- <20200807131429.GB664450@kroah.com>
- <20200821160316.GE21517@willie-the-truck>
- <7480435b-355d-b9f7-3a42-b72a9c4b6f63@gmail.com>
+        s=default; t=1598286911;
+        bh=dzdvycN+vMiUHofR3jvJMXhONIaGcrfVUdqphJBV+ck=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SdkG+sUDQCwz9jH9NB45+btThmJHi+0ec+QixnGB9HtQQsAB7winb8X0iShy62z/j
+         qqeHzqgv2CdaeVURzOG3m1idjLkpIVB2OtB7wyP5qau81qw5gXbSIXvTWKMscGVvX3
+         s7XwgKf/c4qyR+BtLdGp5cNaJ5bCO9pfqGxv2b00=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alex Zhuravlev <azhuravlev@whamcloud.com>,
+        Andreas Dilger <adilger@whamcloud.com>,
+        Artem Blagodarenko <artem.blagodarenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 05/63] ext4: skip non-loaded groups at cr=0/1 when scanning for good groups
+Date:   Mon, 24 Aug 2020 12:34:05 -0400
+Message-Id: <20200824163504.605538-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
+References: <20200824163504.605538-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7480435b-355d-b9f7-3a42-b72a9c4b6f63@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Florian,
+From: Alex Zhuravlev <azhuravlev@whamcloud.com>
 
-On Fri, Aug 21, 2020 at 10:16:23AM -0700, Florian Fainelli wrote:
-> On 8/21/20 9:03 AM, Will Deacon wrote:
-> > On Fri, Aug 07, 2020 at 03:14:29PM +0200, Greg KH wrote:
-> >> On Thu, Aug 06, 2020 at 01:00:54PM -0700, Florian Fainelli wrote:
-> >>> Greg, did you have a chance to queue those changes for 4.9, 4.14 and 4.19?
-> >>>
-> >>> https://lore.kernel.org/linux-arm-kernel/20200720182538.13304-1-f.fainelli@gmail.com/
-> >>> https://lore.kernel.org/linux-arm-kernel/20200720182937.14099-1-f.fainelli@gmail.com/
-> >>> https://lore.kernel.org/linux-arm-kernel/20200709195034.15185-1-f.fainelli@gmail.com/
-> >>
-> >> Nope, I was waiting for Will's "ack" for these.
-> > 
-> > This patch doesn't even build for me (the 'sb' macro is not defined in 4.9),
-> > and I really wonder why we bother backporting it at all. Nobody's ever shown
-> > it to be a problem in practice, and it's clear that this is just being
-> > submitted to tick a box rather than anything else (otherwise it would build,
-> > right?).
-> 
-> Doh, I completely missed submitting the patch this depended on that's
-> why I did not notice the build failure locally, sorry about that, what a
-> shame.
-> 
-> Would not be the same "tick a box" argument be used against your
-> original submission then? Sure, I have not been able to demonstrate in
-> real life this was a problem, however the same can be said about a lot
-> security related fixes.
+[ Upstream commit c1d2c7d47e15482bb23cda83a5021e60f624a09c ]
 
-Sort of, although I wrote the original patch because it was dead easy to do
-and saved having to think too much about the problem, whereas the complexity
-of backporting largerly diminishes that imo.
+cr=0 is supposed to be an optimization to save CPU cycles, but if
+buddy data (in memory) is not initialized then all this makes no sense
+as we have to do sync IO taking a lot of cycles.  Also, at cr=0
+mballoc doesn't choose any available chunk.  cr=1 also skips groups
+using heuristic based on avg. fragment size.  It's more useful to skip
+such groups and switch to cr=2 where groups will be scanned for
+available chunks.  However, we always read the first block group in a
+flex_bg so metadata blocks will get read into the first flex_bg if
+possible.
 
-> What if it becomes exploitable in the future, would not it be nice to
-> have it in a 6 year LTS kernel?
+Using sparse image and dm-slow virtual device of 120TB was
+simulated, then the image was formatted and filled using debugfs to
+mark ~85% of available space as busy.  mount process w/o the patch
+couldn't complete in half an hour (according to vmstat it would take
+~10-11 hours).  With the patch applied mount took ~20 seconds.
 
-Even if people are stuck on an old LTS, they should still be taking the
-regular updates for it, and we would obviously need to backport the fix if
-it turned out to be exploitable (and hey, we could even test it then!).
+Lustre-bug-id: https://jira.whamcloud.com/browse/LU-12988
+Signed-off-by: Alex Zhuravlev <azhuravlev@whamcloud.com>
+Reviewed-by: Andreas Dilger <adilger@whamcloud.com>
+Reviewed-by: Artem Blagodarenko <artem.blagodarenko@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/ext4/mballoc.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-> > So I'm not going to Ack any of them. As with a lot of this side-channel
-> > stuff the cure is far worse than the disease.
-> Assuming that my v3 does build correctly, which it will, would you be
-> keen on changing your position?
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index c0a331e2feb02..9ed108b5bd7fd 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2177,6 +2177,7 @@ static int ext4_mb_good_group_nolock(struct ext4_allocation_context *ac,
+ {
+ 	struct ext4_group_info *grp = ext4_get_group_info(ac->ac_sb, group);
+ 	struct super_block *sb = ac->ac_sb;
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	bool should_lock = ac->ac_flags & EXT4_MB_STRICT_CHECK;
+ 	ext4_grpblk_t free;
+ 	int ret = 0;
+@@ -2195,7 +2196,25 @@ static int ext4_mb_good_group_nolock(struct ext4_allocation_context *ac,
+ 
+ 	/* We only do this if the grp has never been initialized */
+ 	if (unlikely(EXT4_MB_GRP_NEED_INIT(grp))) {
+-		ret = ext4_mb_init_group(ac->ac_sb, group, GFP_NOFS);
++		struct ext4_group_desc *gdp =
++			ext4_get_group_desc(sb, group, NULL);
++		int ret;
++
++		/* cr=0/1 is a very optimistic search to find large
++		 * good chunks almost for free.  If buddy data is not
++		 * ready, then this optimization makes no sense.  But
++		 * we never skip the first block group in a flex_bg,
++		 * since this gets used for metadata block allocation,
++		 * and we want to make sure we locate metadata blocks
++		 * in the first block group in the flex_bg if possible.
++		 */
++		if (cr < 2 &&
++		    (!sbi->s_log_groups_per_flex ||
++		     ((group & ((1 << sbi->s_log_groups_per_flex) - 1)) != 0)) &&
++		    !(ext4_has_group_desc_csum(sb) &&
++		      (gdp->bg_flags & cpu_to_le16(EXT4_BG_BLOCK_UNINIT))))
++			return 0;
++		ret = ext4_mb_init_group(sb, group, GFP_NOFS);
+ 		if (ret)
+ 			return ret;
+ 	}
+-- 
+2.25.1
 
-Note that I'm not trying to block this patch from going in, I'm just saying
-that I'm not supportive of it. Perhaps somebody from Arm can review it if
-they think it's worth the effort.
-
-Will
