@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F052324F4F3
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9F524F485
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728990AbgHXImx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35872 "EHLO mail.kernel.org"
+        id S1728422AbgHXIhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:37:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728989AbgHXImw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:42:52 -0400
+        id S1728415AbgHXIha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:37:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99E2E2087D;
-        Mon, 24 Aug 2020 08:42:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D57B2177B;
+        Mon, 24 Aug 2020 08:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258572;
-        bh=NdiqrzUUfY8s+HeHXe5kTD4K2TE4zqdO5P3wREK2qy4=;
+        s=default; t=1598258249;
+        bh=scT6Thky0JvXaho0x7iShlzBAYxDWBWqkWXwF7EqmPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nv6W+xgBzNVDqhIgCY+Cy82WDDgmwvn5/JhjAjVZcfOWDMnoMjNjJ6srfGHmrUcgH
-         PTgwqlpfkLfvAHSZtveVH+JqX004AtQ9sbLh5I+VTBgRZrd++gduGwK8NcbLN/CbfL
-         AYI5bRhHzlo4faQjY0LNoSOCWXWWM2ly+vSBW9RQ=
+        b=cOJ0Dzro/e1tm8WiP9dFmsYzsfdVyg+PHbz5G7eDSwAG4Q4Im4b5LnX6WHmEq1xYy
+         YVPaW5hm9xdQdEO42f4UDt4fjEB4kGRTgnVSYFTOocVdTKiFhl83S61ukzGs94+QI5
+         mulds9QhS37YR+OWUfvm0QpYwFDb93BAeveIKAL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Seungwon Jeon <essuuj@gmail.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 093/124] scsi: ufs: Add quirk to fix mishandling utrlclr/utmrlclr
-Date:   Mon, 24 Aug 2020 10:30:27 +0200
-Message-Id: <20200824082413.988843167@linuxfoundation.org>
+Subject: [PATCH 5.8 130/148] bpf: Use get_file_rcu() instead of get_file() for task_file iterator
+Date:   Mon, 24 Aug 2020 10:30:28 +0200
+Message-Id: <20200824082420.243013589@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
-References: <20200824082409.368269240@linuxfoundation.org>
+In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
+References: <20200824082413.900489417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,71 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 871838412adf533ffda0b4a0ede0c2984e3511e7 ]
+[ Upstream commit cf28f3bbfca097d956f9021cb710dfad56adcc62 ]
 
-With the correct behavior, setting the bit to '0' indicates clear and '1'
-indicates no change. If host controller handles this the other way around,
-UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR can be used.
+With latest `bpftool prog` command, we observed the following kernel
+panic.
+    BUG: kernel NULL pointer dereference, address: 0000000000000000
+    #PF: supervisor instruction fetch in kernel mode
+    #PF: error_code(0x0010) - not-present page
+    PGD dfe894067 P4D dfe894067 PUD deb663067 PMD 0
+    Oops: 0010 [#1] SMP
+    CPU: 9 PID: 6023 ...
+    RIP: 0010:0x0
+    Code: Bad RIP value.
+    RSP: 0000:ffffc900002b8f18 EFLAGS: 00010286
+    RAX: ffff8883a405f400 RBX: ffff888e46a6bf00 RCX: 000000008020000c
+    RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8883a405f400
+    RBP: ffff888e46a6bf50 R08: 0000000000000000 R09: ffffffff81129600
+    R10: ffff8883a405f300 R11: 0000160000000000 R12: 0000000000002710
+    R13: 000000e9494b690c R14: 0000000000000202 R15: 0000000000000009
+    FS:  00007fd9187fe700(0000) GS:ffff888e46a40000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffffffffffffffd6 CR3: 0000000de5d33002 CR4: 0000000000360ee0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+     <IRQ>
+     rcu_core+0x1a4/0x440
+     __do_softirq+0xd3/0x2c8
+     irq_exit+0x9d/0xa0
+     smp_apic_timer_interrupt+0x68/0x120
+     apic_timer_interrupt+0xf/0x20
+     </IRQ>
+    RIP: 0033:0x47ce80
+    Code: Bad RIP value.
+    RSP: 002b:00007fd9187fba40 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
+    RAX: 0000000000000002 RBX: 00007fd931789160 RCX: 000000000000010c
+    RDX: 00007fd9308cdfb4 RSI: 00007fd9308cdfb4 RDI: 00007ffedd1ea0a8
+    RBP: 00007fd9187fbab0 R08: 000000000000000e R09: 000000000000002a
+    R10: 0000000000480210 R11: 00007fd9187fc570 R12: 00007fd9316cc400
+    R13: 0000000000000118 R14: 00007fd9308cdfb4 R15: 00007fd9317a9380
 
-Link: https://lore.kernel.org/r/20200528011658.71590-2-alim.akhtar@samsung.com
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Seungwon Jeon <essuuj@gmail.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+After further analysis, the bug is triggered by
+Commit eaaacd23910f ("bpf: Add task and task/file iterator targets")
+which introduced task_file bpf iterator, which traverses all open file
+descriptors for all tasks in the current namespace.
+The latest `bpftool prog` calls a task_file bpf program to traverse
+all files in the system in order to associate processes with progs/maps, etc.
+When traversing files for a given task, rcu read_lock is taken to
+access all files in a file_struct. But it used get_file() to grab
+a file, which is not right. It is possible file->f_count is 0 and
+get_file() will unconditionally increase it.
+Later put_file() may cause all kind of issues with the above
+as one of sympotoms.
+
+The failure can be reproduced with the following steps in a few seconds:
+    $ cat t.c
+    #include <stdio.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <unistd.h>
+
+    #define N 10000
+    int fd[N];
+    int main() {
+      int i;
+
+      for (i = 0; i < N; i++) {
+        fd[i] = open("./note.txt", 'r');
+        if (fd[i] < 0) {
+           fprintf(stderr, "failed\n");
+           return -1;
+        }
+      }
+      for (i = 0; i < N; i++)
+        close(fd[i]);
+
+      return 0;
+    }
+    $ gcc -O2 t.c
+    $ cat run.sh
+    #/bin/bash
+    for i in {1..100}
+    do
+      while true; do ./a.out; done &
+    done
+    $ ./run.sh
+    $ while true; do bpftool prog >& /dev/null; done
+
+This patch used get_file_rcu() which only grabs a file if the
+file->f_count is not zero. This is to ensure the file pointer
+is always valid. The above reproducer did not fail for more
+than 30 minutes.
+
+Fixes: eaaacd23910f ("bpf: Add task and task/file iterator targets")
+Suggested-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/bpf/20200817174214.252601-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 11 +++++++++--
- drivers/scsi/ufs/ufshcd.h |  5 +++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ kernel/bpf/task_iter.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 2c02967f159ea..9e31f9569bf78 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -647,7 +647,11 @@ static inline int ufshcd_get_tr_ocs(struct ufshcd_lrb *lrbp)
-  */
- static inline void ufshcd_utrl_clear(struct ufs_hba *hba, u32 pos)
- {
--	ufshcd_writel(hba, ~(1 << pos), REG_UTP_TRANSFER_REQ_LIST_CLEAR);
-+	if (hba->quirks & UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR)
-+		ufshcd_writel(hba, (1 << pos), REG_UTP_TRANSFER_REQ_LIST_CLEAR);
-+	else
-+		ufshcd_writel(hba, ~(1 << pos),
-+				REG_UTP_TRANSFER_REQ_LIST_CLEAR);
- }
+diff --git a/kernel/bpf/task_iter.c b/kernel/bpf/task_iter.c
+index ac7869a389990..a4a0fb4f94cc1 100644
+--- a/kernel/bpf/task_iter.c
++++ b/kernel/bpf/task_iter.c
+@@ -177,10 +177,11 @@ task_file_seq_get_next(struct bpf_iter_seq_task_file_info *info,
+ 		f = fcheck_files(curr_files, curr_fd);
+ 		if (!f)
+ 			continue;
++		if (!get_file_rcu(f))
++			continue;
  
- /**
-@@ -657,7 +661,10 @@ static inline void ufshcd_utrl_clear(struct ufs_hba *hba, u32 pos)
-  */
- static inline void ufshcd_utmrl_clear(struct ufs_hba *hba, u32 pos)
- {
--	ufshcd_writel(hba, ~(1 << pos), REG_UTP_TASK_REQ_LIST_CLEAR);
-+	if (hba->quirks & UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR)
-+		ufshcd_writel(hba, (1 << pos), REG_UTP_TASK_REQ_LIST_CLEAR);
-+	else
-+		ufshcd_writel(hba, ~(1 << pos), REG_UTP_TASK_REQ_LIST_CLEAR);
- }
- 
- /**
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 2315ecc209272..ceadbd548e06d 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -518,6 +518,11 @@ enum ufshcd_quirks {
- 	 * ops (get_ufs_hci_version) to get the correct version.
- 	 */
- 	UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION		= 1 << 5,
-+
-+	/*
-+	 * Clear handling for transfer/task request list is just opposite.
-+	 */
-+	UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR		= 1 << 6,
- };
- 
- enum ufshcd_caps {
+ 		/* set info->fd */
+ 		info->fd = curr_fd;
+-		get_file(f);
+ 		rcu_read_unlock();
+ 		return f;
+ 	}
 -- 
 2.25.1
 
