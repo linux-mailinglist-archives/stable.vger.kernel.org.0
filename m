@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D82824F89C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B7D24F864
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726666AbgHXJfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:35:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
+        id S1728678AbgHXJbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729649AbgHXItE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:49:04 -0400
+        id S1729644AbgHXIua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9945F204FD;
-        Mon, 24 Aug 2020 08:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AD76204FD;
+        Mon, 24 Aug 2020 08:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258943;
-        bh=Wh6sT37MzZ5crsokFE5tf1ZxGjZm1aGj9OgnT/9kwyw=;
+        s=default; t=1598259029;
+        bh=0g7kyKxXgmcJ4N2m051xYs1jjPbheP0S6zKtTzT7HMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxvLzLp/oE+guqOazVHIo4M6p1AWFgDinxIgD6BAFRGYgCWduXHTN6otLbbJ8sFL4
-         ArXwQJJS0jv91nKu/Pu3GLkzg6YqPHIUEKFDHb2I1oT67DBBsyoOLYB5gixq3pabRC
-         UWO/Qv3yfEegej1K+hlRcW4aJ3IDW1NATxV6mcZ4=
+        b=HkZXQL2oDNW2GZiAKjKIzFsYUpinxWTwNSADhN1JoWFG7/3ia6k2OYh5X+aR9ULQ+
+         JLglhl2Kt2l0Vx9H81sv3g8DQLOkNj/K6Ryy3K4kRKtSP4r7ymbd1yhhzeMxPwXXb0
+         coVjojyaT/w/IdHEwsPJHXb2wKpt+p3JBYXaNe0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chris Murphy <chris@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/107] hv_netvsc: Fix the queue_mapping in netvsc_vf_xmit()
+Subject: [PATCH 4.4 10/33] btrfs: dont show full path of bind mounts in subvol=
 Date:   Mon, 24 Aug 2020 10:31:06 +0200
-Message-Id: <20200824082410.035303327@linuxfoundation.org>
+Message-Id: <20200824082347.038480018@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
+References: <20200824082346.498653578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit c3d897e01aef8ddc43149e4d661b86f823e3aae7 ]
+[ Upstream commit 3ef3959b29c4a5bd65526ab310a1a18ae533172a ]
 
-netvsc_vf_xmit() / dev_queue_xmit() will call VF NIC’s ndo_select_queue
-or netdev_pick_tx() again. They will use skb_get_rx_queue() to get the
-queue number, so the “skb->queue_mapping - 1” will be used. This may
-cause the last queue of VF not been used.
+Chris Murphy reported a problem where rpm ostree will bind mount a bunch
+of things for whatever voodoo it's doing.  But when it does this
+/proc/mounts shows something like
 
-Use skb_record_rx_queue() here, so that the skb_get_rx_queue() called
-later will get the correct queue number, and VF will be able to use
-all queues.
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo/bar 0 0
 
-Fixes: b3bf5666a510 ("hv_netvsc: defer queue selection to VF")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Despite subvolid=256 being subvol=/foo.  This is because we're just
+spitting out the dentry of the mount point, which in the case of bind
+mounts is the source path for the mountpoint.  Instead we should spit
+out the path to the actual subvol.  Fix this by looking up the name for
+the subvolid we have mounted.  With this fix the same test looks like
+this
+
+  /dev/sda /mnt/test btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+  /dev/sda /mnt/test/baz btrfs rw,relatime,subvolid=256,subvol=/foo 0 0
+
+Reported-by: Chris Murphy <chris@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/super.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 24bb721a12bc0..42eb7a7ecd96b 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -501,7 +501,7 @@ static int netvsc_vf_xmit(struct net_device *net, struct net_device *vf_netdev,
- 	int rc;
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 540e6f141745a..77e6ce0e1e351 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1120,6 +1120,7 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
+ 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
+ 	struct btrfs_root *root = info->tree_root;
+ 	char *compress_type;
++	const char *subvol_name;
  
- 	skb->dev = vf_netdev;
--	skb->queue_mapping = qdisc_skb_cb(skb)->slave_dev_queue_mapping;
-+	skb_record_rx_queue(skb, qdisc_skb_cb(skb)->slave_dev_queue_mapping);
+ 	if (btrfs_test_opt(root, DEGRADED))
+ 		seq_puts(seq, ",degraded");
+@@ -1204,8 +1205,13 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
+ #endif
+ 	seq_printf(seq, ",subvolid=%llu",
+ 		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
+-	seq_puts(seq, ",subvol=");
+-	seq_dentry(seq, dentry, " \t\n\\");
++	subvol_name = btrfs_get_subvol_name_from_objectid(info,
++			BTRFS_I(d_inode(dentry))->root->root_key.objectid);
++	if (!IS_ERR(subvol_name)) {
++		seq_puts(seq, ",subvol=");
++		seq_escape(seq, subvol_name, " \t\n\\");
++		kfree(subvol_name);
++	}
+ 	return 0;
+ }
  
- 	rc = dev_queue_xmit(skb);
- 	if (likely(rc == NET_XMIT_SUCCESS || rc == NET_XMIT_CN)) {
 -- 
 2.25.1
 
