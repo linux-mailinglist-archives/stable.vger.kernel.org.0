@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB0C2505BA
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B03CB2505A8
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 19:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726531AbgHXRT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 13:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40360 "EHLO mail.kernel.org"
+        id S1728417AbgHXRUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 13:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728341AbgHXQgj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 Aug 2020 12:36:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA3FB22CB1;
-        Mon, 24 Aug 2020 16:36:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C40A22CB3;
+        Mon, 24 Aug 2020 16:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286985;
-        bh=lvzQ/hEjHwDs3sJOe3by2TZKTk4WdMBQkeuthCXtYW0=;
+        s=default; t=1598286987;
+        bh=1r9Nwm+fHZWNLsNiNhca3Aszj5TIiU+51K/LKn1Uz5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+lzP+/vOpD3A7L4N0Okxsi5rboeouNP3Xlbb+HcBfNOLDbA3ZkKP91w0cPUbzpJK
-         5Bd2bOvPfY+9cen1Hwd9FU67IpsyluM506Q0U5mpuKxvgzVnIIasthro5z2IqTUFLa
-         fIsuEWfxO2/KJGFk3ygakMsy1zz8a/kb2Wf38wk4=
+        b=saloeLGZdC+qCI/wJkniCVsPfP46DPTAyRY2h+vzr7Beujnnxqbz34DWPjp6VqJ7l
+         kp2oGhup3TkPIOlKbtoiR2t8UCLlQdg8cWhLB4QfZ7QYeU+ZPZ0GfBNjeiFdnbHjwk
+         GhgclZomOnQhzhC0B/phDQGlXcIx+FMBVOJBVxko=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.8 59/63] powerpc/perf: Fix soft lockups due to missed interrupt accounting
-Date:   Mon, 24 Aug 2020 12:34:59 -0400
-Message-Id: <20200824163504.605538-59-sashal@kernel.org>
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 60/63] libbpf: Fix map index used in error message
+Date:   Mon, 24 Aug 2020 12:35:00 -0400
+Message-Id: <20200824163504.605538-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
 References: <20200824163504.605538-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,53 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 17899eaf88d689529b866371344c8f269ba79b5f ]
+[ Upstream commit 1e891e513e16c145cc9b45b1fdb8bf4a4f2f9557 ]
 
-Performance monitor interrupt handler checks if any counter has
-overflown and calls record_and_restart() in core-book3s which invokes
-perf_event_overflow() to record the sample information. Apart from
-creating sample, perf_event_overflow() also does the interrupt and
-period checks via perf_event_account_interrupt().
+The error message emitted by bpf_object__init_user_btf_maps() was using the
+wrong section ID.
 
-Currently we record information only if the SIAR (Sampled Instruction
-Address Register) valid bit is set (using siar_valid() check) and
-hence the interrupt check.
-
-But it is possible that we do sampling for some events that are not
-generating valid SIAR, and hence there is no chance to disable the
-event if interrupts are more than max_samples_per_tick. This leads to
-soft lockup.
-
-Fix this by adding perf_event_account_interrupt() in the invalid SIAR
-code path for a sampling event. ie if SIAR is invalid, just do
-interrupt check and don't record the sample information.
-
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1596717992-7321-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200819110534.9058-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/lib/bpf/libbpf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 01d70280d2872..190bc4f255b42 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2101,6 +2101,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 
- 		if (perf_event_overflow(event, &data, regs))
- 			power_pmu_stop(event, 0);
-+	} else if (period) {
-+		/* Account for interrupt in case of invalid SIAR */
-+		if (perf_event_account_interrupt(event))
-+			power_pmu_stop(event, 0);
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index e8e88c1ab69de..dd89cbc1acd7b 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -2237,7 +2237,7 @@ static int bpf_object__init_user_btf_maps(struct bpf_object *obj, bool strict,
+ 		data = elf_getdata(scn, NULL);
+ 	if (!scn || !data) {
+ 		pr_warn("failed to get Elf_Data from map section %d (%s)\n",
+-			obj->efile.maps_shndx, MAPS_ELF_SEC);
++			obj->efile.btf_maps_shndx, MAPS_ELF_SEC);
+ 		return -EINVAL;
  	}
- }
  
 -- 
 2.25.1
