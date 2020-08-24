@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4113C24F8E2
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 810D324F941
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726241AbgHXJiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47220 "EHLO mail.kernel.org"
+        id S1728039AbgHXIny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbgHXIr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:26 -0400
+        id S1729044AbgHXInx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:43:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A09182087D;
-        Mon, 24 Aug 2020 08:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5DEC2075B;
+        Mon, 24 Aug 2020 08:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258846;
-        bh=1fltyG6cJ5ElmygUi0VbWC9FfOCWtD9A9ccopYiiNDQ=;
+        s=default; t=1598258633;
+        bh=4Htyo/JK+OITXDYfLI/o2rmNeTy/SVpcIjbMD3leOVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjY2aWjBBA/ByOT7mB3UMRVgQwlJjoRYme8cIIjODkbjhHhlD9+5Jl+OPp6/3P/uE
-         iteyjOdtGIVg895CawYq3WzFw5p2nK0i8h1CAY5MXbebcyWIZG654jFheTJ8/BX5nq
-         knoYVFl9dgnJRIZCOTkBmK6kU6dWUiEAntfuofPY=
+        b=MVOmmuAyCwjez5/kczUxARQtdPJpfS+qlSUTCArxw16txbp+bK+k3JoJ3atCe8kix
+         NfrBZGCDoPixbc+F+sFg9oqzfpeTO7yFhG1DvTwaRjJleC1sR5P/v4OhBF17+qe1mo
+         nKBONTRXHLRmcuPynMY7MYQn5Yj9bbjyqyELTbiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/107] netfilter: nf_tables: nft_exthdr: the presence return value should be little-endian
-Date:   Mon, 24 Aug 2020 10:30:31 +0200
-Message-Id: <20200824082408.342915679@linuxfoundation.org>
+Subject: [PATCH 5.7 098/124] scsi: ufs-pci: Add quirk for broken auto-hibernate for Intel EHL
+Date:   Mon, 24 Aug 2020 10:30:32 +0200
+Message-Id: <20200824082414.239885527@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit b428336676dbca363262cc134b6218205df4f530 ]
+[ Upstream commit 8da76f71fef7d8a1a72af09d48899573feb60065 ]
 
-On big-endian machine, the returned register data when the exthdr is
-present is not being compared correctly because little-endian is
-assumed. The function nft_cmp_fast_mask(), called by nft_cmp_fast_eval()
-and nft_cmp_fast_init(), calls cpu_to_le32().
+Intel EHL UFS host controller advertises auto-hibernate capability but it
+does not work correctly. Add a quirk for that.
 
-The following dump also shows that little endian is assumed:
+[mkp: checkpatch fix]
 
-$ nft --debug=netlink add rule ip recordroute forward ip option rr exists counter
-ip
-  [ exthdr load ipv4 1b @ 7 + 0 present => reg 1 ]
-  [ cmp eq reg 1 0x01000000 ]
-  [ counter pkts 0 bytes 0 ]
-
-Lastly, debug print in nft_cmp_fast_init() and nft_cmp_fast_eval() when
-RR option exists in the packet shows that the comparison fails because
-the assumption:
-
-nft_cmp_fast_init:189 priv->sreg=4 desc.len=8 mask=0xff000000 data.data[0]=0x10003e0
-nft_cmp_fast_eval:57 regs->data[priv->sreg=4]=0x1 mask=0xff000000 priv->data=0x1000000
-
-v2: use nft_reg_store8() instead (Florian Westphal). Also to avoid the
-    warnings reported by kernel test robot.
-
-Fixes: dbb5281a1f84 ("netfilter: nf_tables: add support for matching IPv4 options")
-Fixes: c078ca3b0c5b ("netfilter: nft_exthdr: Add support for existence check")
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/r/20200810141024.28859-1-adrian.hunter@intel.com
+Fixes: 8c09d7527697 ("scsi: ufshdc-pci: Add Intel PCI IDs for EHL")
+Acked-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_exthdr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd-pci.c | 16 ++++++++++++++--
+ drivers/scsi/ufs/ufshcd.h     |  9 ++++++++-
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index a5e8469859e39..427d77b111b17 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -44,7 +44,7 @@ static void nft_exthdr_ipv6_eval(const struct nft_expr *expr,
+diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
+index 8f78a81514991..b220666774ce8 100644
+--- a/drivers/scsi/ufs/ufshcd-pci.c
++++ b/drivers/scsi/ufs/ufshcd-pci.c
+@@ -67,11 +67,23 @@ static int ufs_intel_link_startup_notify(struct ufs_hba *hba,
+ 	return err;
+ }
  
- 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
- 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
--		*dest = (err >= 0);
-+		nft_reg_store8(dest, err >= 0);
- 		return;
- 	} else if (err < 0) {
- 		goto err;
-@@ -141,7 +141,7 @@ static void nft_exthdr_ipv4_eval(const struct nft_expr *expr,
++static int ufs_intel_ehl_init(struct ufs_hba *hba)
++{
++	hba->quirks |= UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8;
++	return 0;
++}
++
+ static struct ufs_hba_variant_ops ufs_intel_cnl_hba_vops = {
+ 	.name                   = "intel-pci",
+ 	.link_startup_notify	= ufs_intel_link_startup_notify,
+ };
  
- 	err = ipv4_find_option(nft_net(pkt), skb, &offset, priv->type);
- 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
--		*dest = (err >= 0);
-+		nft_reg_store8(dest, err >= 0);
- 		return;
- 	} else if (err < 0) {
- 		goto err;
++static struct ufs_hba_variant_ops ufs_intel_ehl_hba_vops = {
++	.name                   = "intel-pci",
++	.init			= ufs_intel_ehl_init,
++	.link_startup_notify	= ufs_intel_link_startup_notify,
++};
++
+ #ifdef CONFIG_PM_SLEEP
+ /**
+  * ufshcd_pci_suspend - suspend power management function
+@@ -200,8 +212,8 @@ static const struct dev_pm_ops ufshcd_pci_pm_ops = {
+ static const struct pci_device_id ufshcd_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_SAMSUNG, 0xC00C, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+ 	{ PCI_VDEVICE(INTEL, 0x9DFA), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
+-	{ PCI_VDEVICE(INTEL, 0x4B41), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
+-	{ PCI_VDEVICE(INTEL, 0x4B43), (kernel_ulong_t)&ufs_intel_cnl_hba_vops },
++	{ PCI_VDEVICE(INTEL, 0x4B41), (kernel_ulong_t)&ufs_intel_ehl_hba_vops },
++	{ PCI_VDEVICE(INTEL, 0x4B43), (kernel_ulong_t)&ufs_intel_ehl_hba_vops },
+ 	{ }	/* terminate list */
+ };
+ 
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 59ca93b64bb08..ccbeae4f8325d 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -547,6 +547,12 @@ enum ufshcd_quirks {
+ 	 * OCS FATAL ERROR with device error through sense data
+ 	 */
+ 	UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR		= 1 << 10,
++
++	/*
++	 * This quirk needs to be enabled if the host controller has
++	 * auto-hibernate capability but it doesn't work.
++	 */
++	UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8		= 1 << 11,
+ };
+ 
+ enum ufshcd_caps {
+@@ -796,7 +802,8 @@ return true;
+ 
+ static inline bool ufshcd_is_auto_hibern8_supported(struct ufs_hba *hba)
+ {
+-	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT);
++	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT) &&
++		!(hba->quirks & UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8);
+ }
+ 
+ static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
 -- 
 2.25.1
 
