@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC5324FA73
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23EB024F9D0
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726682AbgHXIfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46878 "EHLO mail.kernel.org"
+        id S1728608AbgHXIjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728147AbgHXIfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:35:42 -0400
+        id S1726825AbgHXIjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:39:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1194204FD;
-        Mon, 24 Aug 2020 08:35:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 598252177B;
+        Mon, 24 Aug 2020 08:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258142;
-        bh=Sg+HY/SjwdFSUsZ8B4+SllnIJRTPqzEqXtxp20azwPE=;
+        s=default; t=1598258346;
+        bh=BUqh9hxrrhfBSUuYGJs7qbkTVzJ4kaDSPrSOfKiy10g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMMqRkch9uMGIZKq26VWkyiltyNWPUxKccE4S/3sygciGhlz0qeu0mPXE3VuiqCyh
-         DXMz1OQHdcdDI2uzMwxj+h/dt4LlIow9F9+MTZlGtG+8M68QnH/NtWE1VwvQPOyvgh
-         ZOGmKaFltcqUShOg84lb62hvotRLWNaR4yJDBE0U=
+        b=LIs69x84Hoj7aqfcIGHnI6k/7JX/zSntDf/9agUM1XFGQZ2B9CFacjM0J7rA/gx9m
+         Y9JS6+cd6/5EzfBx6Rx4Ah+85frh8fPU7t37Cm0JH8ZyMpofpIMSIE1/aYFagMwcMP
+         F+r6lklOF4Kgg5/TI6zhP8RRqQ1CJ5vShSQZ04H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 051/148] media: vpss: clean up resources in init
-Date:   Mon, 24 Aug 2020 10:29:09 +0200
-Message-Id: <20200824082416.512536208@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.7 016/124] RDMA/hfi1: Correct an interlock issue for TID RDMA WRITE request
+Date:   Mon, 24 Aug 2020 10:29:10 +0200
+Message-Id: <20200824082410.212338668@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Kaike Wan <kaike.wan@intel.com>
 
-[ Upstream commit 9c487b0b0ea7ff22127fe99a7f67657d8730ff94 ]
+commit b25e8e85e75a61af1ddc88c4798387dd3132dd43 upstream.
 
-If platform_driver_register() fails within vpss_init() resources are not
-cleaned up. The patch fixes this issue by introducing the corresponding
-error handling.
+The following message occurs when running an AI application with TID RDMA
+enabled:
 
-Found by Linux Driver Verification project (linuxtesting.org).
+hfi1 0000:7f:00.0: hfi1_0: [QP74] hfi1_tid_timeout 4084
+hfi1 0000:7f:00.0: hfi1_0: [QP70] hfi1_tid_timeout 4084
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue happens when TID RDMA WRITE request is followed by an
+IB_WR_RDMA_WRITE_WITH_IMM request, the latter could be completed first on
+the responder side. As a result, no ACK packet for the latter could be
+sent because the TID RDMA WRITE request is still being processed on the
+responder side.
+
+When the TID RDMA WRITE request is eventually completed, the requester
+will wait for the IB_WR_RDMA_WRITE_WITH_IMM request to be acknowledged.
+
+If the next request is another TID RDMA WRITE request, no TID RDMA WRITE
+DATA packet could be sent because the preceding IB_WR_RDMA_WRITE_WITH_IMM
+request is not completed yet.
+
+Consequently the IB_WR_RDMA_WRITE_WITH_IMM will be retried but it will be
+ignored on the responder side because the responder thinks it has already
+been completed. Eventually the retry will be exhausted and the qp will be
+put into error state on the requester side. On the responder side, the TID
+resource timer will eventually expire because no TID RDMA WRITE DATA
+packets will be received for the second TID RDMA WRITE request.  There is
+also risk of a write-after-write memory corruption due to the issue.
+
+Fix by adding a requester side interlock to prevent any potential data
+corruption and TID RDMA protocol error.
+
+Fixes: a0b34f75ec20 ("IB/hfi1: Add interlock between a TID RDMA request and other requests")
+Link: https://lore.kernel.org/r/20200811174931.191210.84093.stgit@awfm-01.aw.intel.com
+Cc: <stable@vger.kernel.org> # 5.4.x+
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/davinci/vpss.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hfi1/tid_rdma.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
-index d38d2bbb6f0f8..7000f0bf0b353 100644
---- a/drivers/media/platform/davinci/vpss.c
-+++ b/drivers/media/platform/davinci/vpss.c
-@@ -505,19 +505,31 @@ static void vpss_exit(void)
- 
- static int __init vpss_init(void)
- {
-+	int ret;
-+
- 	if (!request_mem_region(VPSS_CLK_CTRL, 4, "vpss_clock_control"))
- 		return -EBUSY;
- 
- 	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
- 	if (unlikely(!oper_cfg.vpss_regs_base2)) {
--		release_mem_region(VPSS_CLK_CTRL, 4);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_ioremap;
- 	}
- 
- 	writel(VPSS_CLK_CTRL_VENCCLKEN |
--		     VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
-+	       VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
-+
-+	ret = platform_driver_register(&vpss_driver);
-+	if (ret)
-+		goto err_pd_register;
-+
-+	return 0;
- 
--	return platform_driver_register(&vpss_driver);
-+err_pd_register:
-+	iounmap(oper_cfg.vpss_regs_base2);
-+err_ioremap:
-+	release_mem_region(VPSS_CLK_CTRL, 4);
-+	return ret;
- }
- subsys_initcall(vpss_init);
- module_exit(vpss_exit);
--- 
-2.25.1
-
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -3215,6 +3215,7 @@ bool hfi1_tid_rdma_wqe_interlock(struct
+ 	case IB_WR_ATOMIC_CMP_AND_SWP:
+ 	case IB_WR_ATOMIC_FETCH_AND_ADD:
+ 	case IB_WR_RDMA_WRITE:
++	case IB_WR_RDMA_WRITE_WITH_IMM:
+ 		switch (prev->wr.opcode) {
+ 		case IB_WR_TID_RDMA_WRITE:
+ 			req = wqe_to_tid_req(prev);
 
 
