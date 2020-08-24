@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFBF24F55C
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FC824F4E9
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbgHXIsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:48:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
+        id S1728932AbgHXImP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729513AbgHXIr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:47:59 -0400
+        id S1728051AbgHXImO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9362206F0;
-        Mon, 24 Aug 2020 08:47:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE5B621775;
+        Mon, 24 Aug 2020 08:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258878;
-        bh=88Xw40YC1QnjNuLG/+6YqfiY2ut1djo/oaUujd9yOWg=;
+        s=default; t=1598258533;
+        bh=Jneed6ie/AYBGZ4JnR/nz3pF9fM3dYNvhGU5zeQzGlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1F7lANRjdHiMGrw1ZmotJ076q4vwmzLXN7EIBPAAlFbqha0+7gScn8qbqV187nTF
-         8qAQual7B0qR1JGdtId0UXNmSruO6zgRwwo+RZKKocePhLJROeru2wI5RJBBucwvul
-         VeWojVaftOhaTHhcnZEMtOZBsmyDBCRmKZlXROTU=
+        b=GiY5fJQqa2SwkmTXfggr1ooRbb5l6eiUihnAy1jA/wtWR/oGEmd568/iiYYjXPwEl
+         nUrrkGAwGnKr/AnJEnoO/VZocEnu06LAdZF6NVPJ8g1RK+oX0m7wXeIOQ0PF586dv+
+         ET7sdkctq0PkU30BNeYiPHhjNIVdVccJaNvQO9iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinyang He <hejinyang@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/107] MIPS: Fix unable to reserve memory for Crash kernel
-Date:   Mon, 24 Aug 2020 10:30:13 +0200
-Message-Id: <20200824082407.463082027@linuxfoundation.org>
+Subject: [PATCH 5.7 080/124] can: j1939: abort multipacket broadcast session when timeout occurs
+Date:   Mon, 24 Aug 2020 10:30:14 +0200
+Message-Id: <20200824082413.349996764@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinyang He <hejinyang@loongson.cn>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit b1ce9716f3b5ed3b49badf1f003b9e34b7ead0f9 ]
+[ Upstream commit 2b8b2e31555cf55ba3680fb28e2b382e168d7ea1 ]
 
-Use 0 as the align parameter in memblock_find_in_range() is
-incorrect when we reserve memory for Crash kernel.
+If timeout occurs, j1939_tp_rxtimer() first calls hrtimer_start() to restart
+rxtimer, and then calls __j1939_session_cancel() to set session->state =
+J1939_SESSION_WAITING_ABORT. At next timeout expiration, because of the
+J1939_SESSION_WAITING_ABORT session state j1939_tp_rxtimer() will call
+j1939_session_deactivate_activate_next() to deactivate current session, and
+rxtimer won't be set.
 
-The environment as follows:
-[    0.000000] MIPS: machine is loongson,loongson64c-4core-rs780e
-...
-[    1.951016]     crashkernel=64M@128M
+But for multipacket broadcast session, __j1939_session_cancel() don't set
+session->state = J1939_SESSION_WAITING_ABORT, thus current session won't be
+deactivate and hrtimer_start() is called to start new rxtimer again and again.
 
-The warning as follows:
-[    0.000000] Invalid memory region reserved for crash kernel
+So fix it by moving session->state = J1939_SESSION_WAITING_ABORT out of if
+(!j1939_cb_is_broadcast(&session->skcb)) statement.
 
-And the iomem as follows:
-00200000-0effffff : System RAM
-  04000000-0484009f : Kernel code
-  048400a0-04ad7fff : Kernel data
-  04b40000-05c4c6bf : Kernel bss
-1a000000-1bffffff : pci@1a000000
-...
-
-The align parameter may be finally used by round_down() or round_up().
-Like the following call tree:
-
-mips-next: mm/memblock.c
-
-memblock_find_in_range
-└── memblock_find_in_range_node
-    ├── __memblock_find_range_bottom_up
-    │   └── round_up
-    └── __memblock_find_range_top_down
-        └── round_down
-\#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
-\#define round_down(x, y) ((x) & ~__round_mask(x, y))
-\#define __round_mask(x, y) ((__typeof__(x))((y)-1))
-
-The round_down(or round_up)'s second parameter must be a power of 2.
-If the second parameter is 0, it both will return 0.
-
-Use 1 as the parameter to fix the bug and the iomem as follows:
-00200000-0effffff : System RAM
-  04000000-0484009f : Kernel code
-  048400a0-04ad7fff : Kernel data
-  04b40000-05c4c6bf : Kernel bss
-  08000000-0bffffff : Crash kernel
-1a000000-1bffffff : pci@1a000000
-...
-
-Signed-off-by: Jinyang He <hejinyang@loongson.cn>
-Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1596599425-5534-4-git-send-email-zhangchangzhong@huawei.com
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/setup.c | 2 +-
+ net/can/j1939/transport.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-index 7b06e6ee6817d..b8884de89c81e 100644
---- a/arch/mips/kernel/setup.c
-+++ b/arch/mips/kernel/setup.c
-@@ -494,7 +494,7 @@ static void __init mips_parse_crashkernel(void)
- 	if (ret != 0 || crash_size <= 0)
- 		return;
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index d1a9adde677b0..e3167619b196f 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1074,9 +1074,9 @@ static void __j1939_session_cancel(struct j1939_session *session,
+ 	lockdep_assert_held(&session->priv->active_session_list_lock);
  
--	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 0)) {
-+	if (!memblock_find_in_range(crash_base, crash_base + crash_size, crash_size, 1)) {
- 		pr_warn("Invalid memory region reserved for crash kernel\n");
- 		return;
- 	}
+ 	session->err = j1939_xtp_abort_to_errno(priv, err);
++	session->state = J1939_SESSION_WAITING_ABORT;
+ 	/* do not send aborts on incoming broadcasts */
+ 	if (!j1939_cb_is_broadcast(&session->skcb)) {
+-		session->state = J1939_SESSION_WAITING_ABORT;
+ 		j1939_xtp_tx_abort(priv, &session->skcb,
+ 				   !session->transmission,
+ 				   err, session->skcb.addr.pgn);
 -- 
 2.25.1
 
