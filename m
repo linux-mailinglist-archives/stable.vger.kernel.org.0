@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE18124F870
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E0E24F86D
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726024AbgHXJcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 05:32:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53322 "EHLO mail.kernel.org"
+        id S1729295AbgHXIuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726909AbgHXIuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:50:07 -0400
+        id S1729824AbgHXIuJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:50:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8003C20FC3;
-        Mon, 24 Aug 2020 08:50:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D15DF207D3;
+        Mon, 24 Aug 2020 08:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598259007;
-        bh=6aHggL1RkTAzBEHv4FvfQ9+Mk3/6PJyf2EJjPbmIUQE=;
+        s=default; t=1598259009;
+        bh=iJe/3JHxc52K59A8RyXOFoprL91A7wLriuBsahOuwoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlcgrOErM9arNdK+6Jc5sA32GoW11tFsdAcCK933m4fMNWhGjcTMEBspzLCeOh370
-         gLb6J/dAaXugjyGxW2K5bdk+ONNOFQl0qnDtYkkR97b7APo4BBQvWobq0Nz+jlAj3W
-         xKPr27/eWFk2Iyj8BQgzZOoyW52HaNhSyVjlwI+k=
+        b=pWen/vtQEqlwx/tGCOK+gZX9okcOrhOdZEukARlBotBIkqyf3FXmNfXdLG51Xd2PU
+         Ps6shK+dWYpSdtP6HN3wsYTzdkYfFZkIXQWXoqwnycIdqyCycccP5gNU72MnYf2/Ys
+         jzAKjA3k6PxsBcUetB99Etwelw7r+vnPoaOKO0WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/33] m68knommu: fix overwriting of bits in ColdFire V3 cache control
-Date:   Mon, 24 Aug 2020 10:31:15 +0200
-Message-Id: <20200824082347.504318577@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Allison Collins <allison.henderson@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 20/33] xfs: fix inode quota reservation checks
+Date:   Mon, 24 Aug 2020 10:31:16 +0200
+Message-Id: <20200824082347.559533589@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082346.498653578@linuxfoundation.org>
 References: <20200824082346.498653578@linuxfoundation.org>
@@ -43,50 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit bdee0e793cea10c516ff48bf3ebb4ef1820a116b ]
+[ Upstream commit f959b5d037e71a4d69b5bf71faffa065d9269b4a ]
 
-The Cache Control Register (CACR) of the ColdFire V3 has bits that
-control high level caching functions, and also enable/disable the use
-of the alternate stack pointer register (the EUSP bit) to provide
-separate supervisor and user stack pointer registers. The code as
-it is today will blindly clear the EUSP bit on cache actions like
-invalidation. So it is broken for this case - and that will result
-in failed booting (interrupt entry and exit processing will be
-completely hosed).
+xfs_trans_dqresv is the function that we use to make reservations
+against resource quotas.  Each resource contains two counters: the
+q_core counter, which tracks resources allocated on disk; and the dquot
+reservation counter, which tracks how much of that resource has either
+been allocated or reserved by threads that are working on metadata
+updates.
 
-This only affects ColdFire V3 parts that support the alternate stack
-register (like the 5329 for example) - generally speaking new parts do,
-older parts don't. It has no impact on ColdFire V3 parts with the single
-stack pointer, like the 5307 for example.
+For disk blocks, we compare the proposed reservation counter against the
+hard and soft limits to decide if we're going to fail the operation.
+However, for inodes we inexplicably compare against the q_core counter,
+not the incore reservation count.
 
-Fix the cache bit defines used, so they maintain the EUSP bit when
-carrying out cache actions through the CACR register.
+Since the q_core counter is always lower than the reservation count and
+we unlock the dquot between reservation and transaction commit, this
+means that multiple threads can reserve the last inode count before we
+hit the hard limit, and when they commit, we'll be well over the hard
+limit.
 
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fix this by checking against the incore inode reservation counter, since
+we would appear to maintain that correctly (and that's what we report in
+GETQUOTA).
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/m53xxacr.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_trans_dquot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/include/asm/m53xxacr.h b/arch/m68k/include/asm/m53xxacr.h
-index 3177ce8331d69..baee0c77b9818 100644
---- a/arch/m68k/include/asm/m53xxacr.h
-+++ b/arch/m68k/include/asm/m53xxacr.h
-@@ -88,9 +88,9 @@
-  * coherency though in all cases. And for copyback caches we will need
-  * to push cached data as well.
-  */
--#define CACHE_INIT	  CACR_CINVA
--#define CACHE_INVALIDATE  CACR_CINVA
--#define CACHE_INVALIDATED CACR_CINVA
-+#define CACHE_INIT        (CACHE_MODE + CACR_CINVA - CACR_EC)
-+#define CACHE_INVALIDATE  (CACHE_MODE + CACR_CINVA)
-+#define CACHE_INVALIDATED (CACHE_MODE + CACR_CINVA)
- 
- #define ACR0_MODE	((CONFIG_RAMBASE & 0xff000000) + \
- 			 (0x000f0000) + \
+diff --git a/fs/xfs/xfs_trans_dquot.c b/fs/xfs/xfs_trans_dquot.c
+index ce78534a047ee..bb8de2dddabe2 100644
+--- a/fs/xfs/xfs_trans_dquot.c
++++ b/fs/xfs/xfs_trans_dquot.c
+@@ -662,7 +662,7 @@ xfs_trans_dqresv(
+ 			}
+ 		}
+ 		if (ninos > 0) {
+-			total_count = be64_to_cpu(dqp->q_core.d_icount) + ninos;
++			total_count = dqp->q_res_icount + ninos;
+ 			timer = be32_to_cpu(dqp->q_core.d_itimer);
+ 			warns = be16_to_cpu(dqp->q_core.d_iwarns);
+ 			warnlimit = dqp->q_mount->m_quotainfo->qi_iwarnlimit;
 -- 
 2.25.1
 
