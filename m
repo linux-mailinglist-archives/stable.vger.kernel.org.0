@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2D624F510
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB05324F512
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgHXIoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:44:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39510 "EHLO mail.kernel.org"
+        id S1729108AbgHXIoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:44:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729113AbgHXIoK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:44:10 -0400
+        id S1729121AbgHXIoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F7A720FC3;
-        Mon, 24 Aug 2020 08:44:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 073292074D;
+        Mon, 24 Aug 2020 08:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258649;
-        bh=isQXeN4Kjqa46COgWlJ4jwfTuzmKFsO5k3hpGO/mHW4=;
+        s=default; t=1598258655;
+        bh=z9X8XAf5pNu5xFYsewaUK9xluow/ICaWKL8M9zLZUyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPFdNtP5eUCDYu3gKaKXeidatLt8liruT+BHwHhk+68QqgdRE9Yw/Y26dLupx0FEW
-         xZE0OpnQ+wbO8G911PaCQ65/E5qT8Q8UMwpp3KbH1xEW26OP+YeR9ckIsIFz6vK/Yp
-         gnijQ3XX2d1+i+D7PBoh6+TEfrD/fSgIvKks8DF4=
+        b=uH7+wHZKGgk2+76z6yO/ApNzBBq9+die6sfZxl6isAdNMFiU3Cvi+lrGqlY/6Odq8
+         gwNWYjNAlkvVsikx9NhzIbWUwwLovB0dJ4cl/NK/HQnk/CY4mYzBa6Ma2HhC7/ZqJe
+         jxfzevcEAwXJwn70B1j0b41EcN9naAHRx+IMDJFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.7 121/124] efi/libstub: Stop parsing arguments at "--"
-Date:   Mon, 24 Aug 2020 10:30:55 +0200
-Message-Id: <20200824082415.357813730@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.7 123/124] do_epoll_ctl(): clean the failure exits up a bit
+Date:   Mon, 24 Aug 2020 10:30:57 +0200
+Message-Id: <20200824082415.455961148@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
 References: <20200824082409.368269240@linuxfoundation.org>
@@ -43,32 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 1fd9717d75df68e3c3509b8e7b1138ca63472f88 upstream.
+commit 52c479697c9b73f628140dcdfcd39ea302d05482 upstream.
 
-Arguments after "--" are arguments for init, not for the kernel.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Link: https://lore.kernel.org/r/20200725155916.1376773-1-nivedita@alum.mit.edu
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/libstub/efi-stub-helper.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/eventpoll.c |   19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
---- a/drivers/firmware/efi/libstub/efi-stub-helper.c
-+++ b/drivers/firmware/efi/libstub/efi-stub-helper.c
-@@ -87,6 +87,8 @@ efi_status_t efi_parse_options(char cons
- 		char *param, *val;
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2203,29 +2203,22 @@ int do_epoll_ctl(int epfd, int op, int f
+ 			full_check = 1;
+ 			if (is_file_epoll(tf.file)) {
+ 				error = -ELOOP;
+-				if (ep_loop_check(ep, tf.file) != 0) {
+-					clear_tfile_check_list();
++				if (ep_loop_check(ep, tf.file) != 0)
+ 					goto error_tgt_fput;
+-				}
+ 			} else {
+ 				get_file(tf.file);
+ 				list_add(&tf.file->f_tfile_llink,
+ 							&tfile_check_list);
+ 			}
+ 			error = epoll_mutex_lock(&ep->mtx, 0, nonblock);
+-			if (error) {
+-out_del:
+-				list_del(&tf.file->f_tfile_llink);
+-				if (!is_file_epoll(tf.file))
+-					fput(tf.file);
++			if (error)
+ 				goto error_tgt_fput;
+-			}
+ 			if (is_file_epoll(tf.file)) {
+ 				tep = tf.file->private_data;
+ 				error = epoll_mutex_lock(&tep->mtx, 1, nonblock);
+ 				if (error) {
+ 					mutex_unlock(&ep->mtx);
+-					goto out_del;
++					goto error_tgt_fput;
+ 				}
+ 			}
+ 		}
+@@ -2246,8 +2239,6 @@ out_del:
+ 			error = ep_insert(ep, epds, tf.file, fd, full_check);
+ 		} else
+ 			error = -EEXIST;
+-		if (full_check)
+-			clear_tfile_check_list();
+ 		break;
+ 	case EPOLL_CTL_DEL:
+ 		if (epi)
+@@ -2270,8 +2261,10 @@ out_del:
+ 	mutex_unlock(&ep->mtx);
  
- 		str = next_arg(str, &param, &val);
-+		if (!val && !strcmp(param, "--"))
-+			break;
+ error_tgt_fput:
+-	if (full_check)
++	if (full_check) {
++		clear_tfile_check_list();
+ 		mutex_unlock(&epmutex);
++	}
  
- 		if (!strcmp(param, "nokaslr")) {
- 			efi_nokaslr = true;
+ 	fdput(tf);
+ error_fput:
 
 
