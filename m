@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA3C24F48D
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9611624F518
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 10:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728464AbgHXIhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:37:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51466 "EHLO mail.kernel.org"
+        id S1728361AbgHXIob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 04:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728460AbgHXIhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:37:46 -0400
+        id S1729145AbgHXIo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:44:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDE0F22B43;
-        Mon, 24 Aug 2020 08:37:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED11B2075B;
+        Mon, 24 Aug 2020 08:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258265;
-        bh=uaWNLW9XVYMCb9Z1ayLAd98CimdrdQ6Rhy0Jm6kCvyc=;
+        s=default; t=1598258667;
+        bh=tQlFm5xToFGY2NUN7rgjiGp/qwq9MrJn5wWFr1gWNu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GWgntPEP/JKYGHdQ66slak2maieLnaPIsOJ7j4nri29jXMIF16pG3w0O3A/oPh3hh
-         0ULICZ0VI2b49FZ6H0+lt0BzqdzKjQguvF9rUQF2hJJh+EJ9NBGrMV2TUsiOQCp3TT
-         aTlCQCp2MaOEEU3fh6lQC8Ax2l6plIUkP6ypEkeo=
+        b=C3bQc86KUr7oSGW8StjBdxAGtYK2E22QmtVQFPTNrO5i32dOut50FfS8TPC/v89Kg
+         6TdqTk0gPAsyjnlLju2bgY3ny1pwIX/u1DOB6Yg1LvEJjYz8we/ZRzP6CQZFYFJo5Q
+         +hcH9VXSWKtbK7yuiw9BtIpH4Fy1i4pmPP6u6jBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 135/148] net: gemini: Fix missing free_netdev() in error path of gemini_ethernet_port_probe()
-Date:   Mon, 24 Aug 2020 10:30:33 +0200
-Message-Id: <20200824082420.485692703@linuxfoundation.org>
+Subject: [PATCH 5.7 101/124] kconfig: qconf: do not limit the pop-up menu to the first row
+Date:   Mon, 24 Aug 2020 10:30:35 +0200
+Message-Id: <20200824082414.387622814@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082413.900489417@linuxfoundation.org>
-References: <20200824082413.900489417@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit cf96d977381d4a23957bade2ddf1c420b74a26b6 ]
+[ Upstream commit fa8de0a3bf3c02e6f00b7746e7e934db522cdda9 ]
 
-Replace alloc_etherdev_mq with devm_alloc_etherdev_mqs. In this way,
-when probe fails, netdev can be freed automatically.
+If you right-click the first row in the option tree, the pop-up menu
+shows up, but if you right-click the second row or below, the event
+is ignored due to the following check:
 
-Fixes: 4d5ae32f5e1e ("net: ethernet: Add a driver for Gemini gigabit ethernet")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  if (e->y() <= header()->geometry().bottom()) {
+
+Perhaps, the intention was to show the pop-menu only when the tree
+header was right-clicked, but this handler is not called in that case.
+
+Since the origin of e->y() starts from the bottom of the header,
+this check is odd.
+
+Going forward, you can right-click anywhere in the tree to get the
+pop-up menu.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cortina/gemini.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ scripts/kconfig/qconf.cc | 68 ++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
-index 66e67b24a887c..62e271aea4a50 100644
---- a/drivers/net/ethernet/cortina/gemini.c
-+++ b/drivers/net/ethernet/cortina/gemini.c
-@@ -2389,7 +2389,7 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index c0ac8f7b5f1ab..e7e201d261f78 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -881,40 +881,40 @@ void ConfigList::focusInEvent(QFocusEvent *e)
  
- 	dev_info(dev, "probe %s ID %d\n", dev_name(dev), id);
- 
--	netdev = alloc_etherdev_mq(sizeof(*port), TX_QUEUE_NUM);
-+	netdev = devm_alloc_etherdev_mqs(dev, sizeof(*port), TX_QUEUE_NUM, TX_QUEUE_NUM);
- 	if (!netdev) {
- 		dev_err(dev, "Can't allocate ethernet device #%d\n", id);
- 		return -ENOMEM;
-@@ -2521,7 +2521,6 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
- 	}
- 
- 	port->netdev = NULL;
--	free_netdev(netdev);
- 	return ret;
+ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
+ {
+-	if (e->y() <= header()->geometry().bottom()) {
+-		if (!headerPopup) {
+-			QAction *action;
+-
+-			headerPopup = new QMenu(this);
+-			action = new QAction("Show Name", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowName(bool)));
+-			  connect(parent(), SIGNAL(showNameChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showName);
+-			  headerPopup->addAction(action);
+-			action = new QAction("Show Range", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowRange(bool)));
+-			  connect(parent(), SIGNAL(showRangeChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showRange);
+-			  headerPopup->addAction(action);
+-			action = new QAction("Show Data", this);
+-			  action->setCheckable(true);
+-			  connect(action, SIGNAL(toggled(bool)),
+-				  parent(), SLOT(setShowData(bool)));
+-			  connect(parent(), SIGNAL(showDataChanged(bool)),
+-				  action, SLOT(setOn(bool)));
+-			  action->setChecked(showData);
+-			  headerPopup->addAction(action);
+-		}
+-		headerPopup->exec(e->globalPos());
+-		e->accept();
+-	} else
+-		e->ignore();
++	if (!headerPopup) {
++		QAction *action;
++
++		headerPopup = new QMenu(this);
++		action = new QAction("Show Name", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowName(bool)));
++		connect(parent(), SIGNAL(showNameChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showName);
++		headerPopup->addAction(action);
++
++		action = new QAction("Show Range", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowRange(bool)));
++		connect(parent(), SIGNAL(showRangeChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showRange);
++		headerPopup->addAction(action);
++
++		action = new QAction("Show Data", this);
++		action->setCheckable(true);
++		connect(action, SIGNAL(toggled(bool)),
++			parent(), SLOT(setShowData(bool)));
++		connect(parent(), SIGNAL(showDataChanged(bool)),
++			action, SLOT(setOn(bool)));
++		action->setChecked(showData);
++		headerPopup->addAction(action);
++	}
++
++	headerPopup->exec(e->globalPos());
++	e->accept();
  }
  
-@@ -2530,7 +2529,6 @@ static int gemini_ethernet_port_remove(struct platform_device *pdev)
- 	struct gemini_ethernet_port *port = platform_get_drvdata(pdev);
- 
- 	gemini_port_remove(port);
--	free_netdev(port->netdev);
- 	return 0;
- }
- 
+ ConfigView*ConfigView::viewList;
 -- 
 2.25.1
 
