@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0038E24F8C4
-	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9300124F94A
+	for <lists+stable@lfdr.de>; Mon, 24 Aug 2020 11:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729296AbgHXIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 04:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48924 "EHLO mail.kernel.org"
+        id S1728692AbgHXJnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 05:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729528AbgHXIsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 04:48:09 -0400
+        id S1729076AbgHXInq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Aug 2020 04:43:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9951204FD;
-        Mon, 24 Aug 2020 08:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15EBC2074D;
+        Mon, 24 Aug 2020 08:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598258889;
-        bh=wp8LIuscKuYSAmiPVftb+5sKuyKhkbhHTw8iaVTj5i4=;
+        s=default; t=1598258625;
+        bh=TMMB5eBADth6RpEHYshCIv0cC+3m/MrHY2nIaZf+iOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLQDwEo2lO5wp3bHnA68BsccGixdvqLIrmJSCA5iU8wdWZmofIfw0WEuAflIiWauv
-         dAZL5kA76H+OePV7CR1t2G/3+KSvsiRbtqotvpAzMqG7ySPJ79G6o2cXpeLgRazC9c
-         fHcyHoYM8DNsV2SlUaLcrWe96Dhvwy1NBPBOt8K4=
+        b=JjaVvIqrz3TVbqKa7XEMbXwzrbM3F9Ij6//e9jpFu2RD/FDEkaZAbz1VEDKzoee2s
+         TK5MbDSEjORzHUq9oCFqyo6e9jHYSdIRe/qtdxsIp/q6BYFsMju3i42eaq/IUjFL1R
+         y4s/2LAxU9zJct8ogU+szR60Qr7OZ4ZnPiH2XBKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/107] bonding: fix a potential double-unregister
+Subject: [PATCH 5.7 113/124] net: gemini: Fix missing free_netdev() in error path of gemini_ethernet_port_probe()
 Date:   Mon, 24 Aug 2020 10:30:47 +0200
-Message-Id: <20200824082409.130142710@linuxfoundation.org>
+Message-Id: <20200824082414.963718313@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824082405.020301642@linuxfoundation.org>
-References: <20200824082405.020301642@linuxfoundation.org>
+In-Reply-To: <20200824082409.368269240@linuxfoundation.org>
+References: <20200824082409.368269240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,46 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 832707021666411d04795c564a4adea5d6b94f17 ]
+[ Upstream commit cf96d977381d4a23957bade2ddf1c420b74a26b6 ]
 
-When we tear down a network namespace, we unregister all
-the netdevices within it. So we may queue a slave device
-and a bonding device together in the same unregister queue.
+Replace alloc_etherdev_mq with devm_alloc_etherdev_mqs. In this way,
+when probe fails, netdev can be freed automatically.
 
-If the only slave device is non-ethernet, it would
-automatically unregister the bonding device as well. Thus,
-we may end up unregistering the bonding device twice.
-
-Workaround this special case by checking reg_state.
-
-Fixes: 9b5e383c11b0 ("net: Introduce unregister_netdevice_many()")
-Reported-by: syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: 4d5ae32f5e1e ("net: ethernet: Add a driver for Gemini gigabit ethernet")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/cortina/gemini.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 11c014586d466..ce829a7a92101 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2037,7 +2037,8 @@ static int bond_release_and_destroy(struct net_device *bond_dev,
- 	int ret;
+diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
+index 5359fb40578db..e641890e9702f 100644
+--- a/drivers/net/ethernet/cortina/gemini.c
++++ b/drivers/net/ethernet/cortina/gemini.c
+@@ -2388,7 +2388,7 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
  
- 	ret = __bond_release_one(bond_dev, slave_dev, false, true);
--	if (ret == 0 && !bond_has_slaves(bond)) {
-+	if (ret == 0 && !bond_has_slaves(bond) &&
-+	    bond_dev->reg_state != NETREG_UNREGISTERING) {
- 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
- 		netdev_info(bond_dev, "Destroying bond\n");
- 		bond_remove_proc_entry(bond);
+ 	dev_info(dev, "probe %s ID %d\n", dev_name(dev), id);
+ 
+-	netdev = alloc_etherdev_mq(sizeof(*port), TX_QUEUE_NUM);
++	netdev = devm_alloc_etherdev_mqs(dev, sizeof(*port), TX_QUEUE_NUM, TX_QUEUE_NUM);
+ 	if (!netdev) {
+ 		dev_err(dev, "Can't allocate ethernet device #%d\n", id);
+ 		return -ENOMEM;
+@@ -2520,7 +2520,6 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	port->netdev = NULL;
+-	free_netdev(netdev);
+ 	return ret;
+ }
+ 
+@@ -2529,7 +2528,6 @@ static int gemini_ethernet_port_remove(struct platform_device *pdev)
+ 	struct gemini_ethernet_port *port = platform_get_drvdata(pdev);
+ 
+ 	gemini_port_remove(port);
+-	free_netdev(port->netdev);
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
