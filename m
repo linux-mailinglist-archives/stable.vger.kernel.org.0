@@ -2,122 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F2FA250BC6
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 00:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CED1250FCF
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 05:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgHXWmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 18:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
+        id S1728364AbgHYDEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Aug 2020 23:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726531AbgHXWmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 18:42:38 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB7FC061574
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 15:42:38 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id t185so2639162pfd.13
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 15:42:38 -0700 (PDT)
+        with ESMTP id S1728377AbgHYDEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Aug 2020 23:04:22 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7FFC061574;
+        Mon, 24 Aug 2020 20:04:22 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id f193so6167797pfa.12;
+        Mon, 24 Aug 2020 20:04:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=iKC4hUumct3pxUwmjgmSJNjxXRqd8oGfxFxIXzBZz9A=;
-        b=1AfuaWTK/v70fIlNLk84lsAcIDUGRwgrIYQwwr41xAFUSnDMVXGPceAkp9FwFIuIaR
-         dzJy2ymKyqLBOfL7HHNzHU6EKo1fmeVfFHzrbH7wLofmkzXQ1gr09IAHvdi4W/aLp5v7
-         6/NxhF0JBsS1T++r+neQTLxezCJudBGAybIBXTOakutOI7r35zdwrJ+pATNhwcJH7vve
-         lTUCJHhbuTnxNb321BM+veoBqA9E4zYgBWClEVNWiYh9Cs3Xd2LBUeV0rhag33btNQa5
-         IPdQe3D5E0RR2RShDm58EmcgJAjy/0mh4kvUgbSdNwjI8uauKrLyu3qC/WbbgMsGIBEW
-         PEng==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BGmrF9cwRFx/ekg5o1tXG7IAo6MkGr2rLUfXCXbPNWg=;
+        b=EikgWl43z2EuCVPR7/KZSG7p8FS4QT/l/Hkaj0YvcngHVVLlAagy+XBCKUyTYYeScV
+         pvcGnfLwTS9ihiPbEZ9aUJC3VzdOMtSaKpgPfcDakGVT33RC/NctZotklUnHV65yFPRe
+         /6SVTg5FecazqgSHVemCs8FqPevY1APZp+NYd9E3z01dLKUnKcCoe6nUtIE3pTOtS530
+         mN7MTG8O/A1Hve0Xv6b6c17sRXC60f4S/3OS4l1upeRABSHk+IqWyBr+Z4nXF2T6Grvg
+         Gv/S7SOYBlUGHzD8ryM+QxdIS7vMW+MTHZj9K3JY3L64WJWeoFc7gvs2Q241OcMPZiwd
+         9CPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=iKC4hUumct3pxUwmjgmSJNjxXRqd8oGfxFxIXzBZz9A=;
-        b=aadg0kgT615NDcANHfT3jaJvgK5JVq3Jv9Xw8fHGoV2P6oJOkbJ8nMMCXb2owFLrU3
-         O8eWTbJfAKiEBW0ih44eIImJkWykWFEmiSpOWYHuvl5rjcTWUF5reEfVOgr6yQAOwsP+
-         8Z01kxqDGtZCd2fRsGL05kTRs8mYB/OTMM1CCDyirCplHZ3yBRCYvWFLzP3ggXBPPn2R
-         00NciF1o3HT4XynyN+CPPL1x4AZpJsEzn15/wwtMmz+rxi71I85Xk8xFx8ODRaVqS1Yn
-         ZLCsB+r7W0P/ncKkmEpkl/ngPNkD8oDew46GotUqy45qcz2KU7Za7ZV/SYsIJ8At97VQ
-         sG/g==
-X-Gm-Message-State: AOAM532KzaEBNxM8OuFD0MdGyQLs9cwUzs/BCPFvv2encW9yxUP/J9E/
-        EdguflGwcEa4BL2EU1SknSPV+Nwo6EvGtRHS
-X-Google-Smtp-Source: ABdhPJzEvC7kB+t3hQOWBWDPgTM5mLm685F6wHsPQZredtMjFMW2M3njgQ3yZaS3bGMNT/cjiiawTg==
-X-Received: by 2002:aa7:95b8:: with SMTP id a24mr5475470pfk.219.1598308957422;
-        Mon, 24 Aug 2020 15:42:37 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id r14sm5024200pgn.83.2020.08.24.15.42.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Aug 2020 15:42:36 -0700 (PDT)
-To:     stable@vger.kernel.org
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: 5.8 stable inclusion request
-Message-ID: <eac5cc64-641f-58b9-5f58-7bc1c4393bbb@kernel.dk>
-Date:   Mon, 24 Aug 2020 16:42:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BGmrF9cwRFx/ekg5o1tXG7IAo6MkGr2rLUfXCXbPNWg=;
+        b=blYUl6hOpT+mPwqTF3VW0rbFnSrARnq0jmhwKMNZUzhXEY7aMeL43p0FHitoG0aA8s
+         ekEN6X+Ho9B3uVZb5rl8bIBYPgndH87tEC9jPbZtU/QeFcM3Co9qkI06kbxROSuX3BQ5
+         UYKbZQlo730LXvQmO6eStF1YXIZZrqD9eyo4AQJCHnxuT85r8JS0c++A89KW2eZuA59K
+         nJHRw3JofuL8UHWD/Ii6HJ7ndfxyUsY3EhQ71g5By+zyQeRud8nr+7u/XLsgT5OZ13Gt
+         O7dniiANPTl3ndkvHFsqBqdW9FctRjzsIAcahpbCQXjonHcnvb9wAEHwtQLIIu2P7nN+
+         pC/Q==
+X-Gm-Message-State: AOAM5311tQzkyBIyKlMt/K5YOLrkgU3UMXct+f1fbGepeZ2Dc31n9/9A
+        ha2GwjrWzCprBqirxyM1xcI=
+X-Google-Smtp-Source: ABdhPJzAK53ztKymKoKiDhV5B+S78kl9c18zGIO6zB2DoaxXJvsIyUxMSWYDD7Md7Y69pmna/KDmMw==
+X-Received: by 2002:a17:902:b205:: with SMTP id t5mr6146283plr.7.1598324661111;
+        Mon, 24 Aug 2020 20:04:21 -0700 (PDT)
+Received: from localhost.localdomain.com ([2605:e000:160b:911f:722f:a74:437d:fd3c])
+        by smtp.gmail.com with ESMTPSA id q2sm11526062pgs.90.2020.08.24.20.04.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2020 20:04:20 -0700 (PDT)
+From:   Chris Healy <cphealy@gmail.com>
+X-Google-Original-From: Chris Healy <cphealy@gmail.com
+To:     srinivas.kandagatla@linaro.org, robh+dt@kernel.org,
+        gregkh@linuxfoundation.org, maitysanchayan@gmail.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        shawnguo@kernel.org, stefan@agner.ch, festevam@gmail.com,
+        stable@vger.kernel.org, andrew.smirnov@gmail.com
+Cc:     Chris Healy <cphealy@gmail.com>
+Subject: [PATCH v4] dt-bindings: nvmem: Add syscon to Vybrid OCOTP driver
+Date:   Mon, 24 Aug 2020 20:04:06 -0700
+Message-Id: <20200825030406.373623-1-cphealy@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Chris Healy <cphealy@gmail.com>
 
-Can I get this patch queued up for 5.8? It's a backport of two
-commits from upstream. Thanks!
+Add syscon compatibility with Vybrid OCOTP driver binding. This is
+required to access the UID.
 
-From: Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.8] io_uring: fix missing ->mm on exit
-
-Upstream commits:
-
-8eb06d7e8dd85 ("io_uring: fix missing ->mm on exit")
-cbcf72148da4a ("io_uring: return locked and pinned page accounting")
-
-do_exit() first drops current->mm and then runs task_work, from where
-io_sq_thread_acquire_mm() would try to set mm for a user dying process.
-
-[  208.004249] WARNING: CPU: 2 PID: 1854 at
-	kernel/kthread.c:1238 kthread_use_mm+0x244/0x270
-[  208.004287]  kthread_use_mm+0x244/0x270
-[  208.004288]  io_sq_thread_acquire_mm.part.0+0x54/0x80
-[  208.004290]  io_async_task_func+0x258/0x2ac
-[  208.004291]  task_work_run+0xc8/0x210
-[  208.004294]  do_exit+0x1b8/0x430
-[  208.004295]  do_group_exit+0x44/0xac
-[  208.004296]  get_signal+0x164/0x69c
-[  208.004298]  do_signal+0x94/0x1d0
-[  208.004299]  do_notify_resume+0x18c/0x340
-[  208.004300]  work_pending+0x8/0x3d4
-
-Reported-by: Roman Gershman <romange@gmail.com>
-Tested-by: Roman Gershman <romange@gmail.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Fixes: 623069946952 ("nvmem: Add DT binding documentation for Vybrid
+OCOTP driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chris Healy <cphealy@gmail.com>
 ---
- fs/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Changes in v4:
+ - Point to the appropriate commit for the Fixes: line
+ - Update the Required Properties to add the "syscon" compatible
+---
+ Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 493e5047e67c..a8b3a608c553 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4313,7 +4313,8 @@ static int io_sq_thread_acquire_mm(struct io_ring_ctx *ctx,
- 				   struct io_kiocb *req)
- {
- 	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
--		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
-+		if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
-+			     !mmget_not_zero(ctx->sqo_mm)))
- 			return -EFAULT;
- 		kthread_use_mm(ctx->sqo_mm);
- 	}
+diff --git a/Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt b/Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt
+index 56ed481c3e26..72ba628f6d0b 100644
+--- a/Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt
++++ b/Documentation/devicetree/bindings/nvmem/vf610-ocotp.txt
+@@ -2,7 +2,7 @@ On-Chip OTP Memory for Freescale Vybrid
+ 
+ Required Properties:
+   compatible:
+-  - "fsl,vf610-ocotp" for VF5xx/VF6xx
++  - "fsl,vf610-ocotp", "syscon" for VF5xx/VF6xx
+   #address-cells : Should be 1
+   #size-cells : Should be 1
+   reg : Address and length of OTP controller and fuse map registers
+@@ -11,7 +11,7 @@ Required Properties:
+ Example for Vybrid VF5xx/VF6xx:
+ 
+ 	ocotp: ocotp@400a5000 {
+-		compatible = "fsl,vf610-ocotp";
++		compatible = "fsl,vf610-ocotp", "syscon";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		reg = <0x400a5000 0xCF0>;
 -- 
-2.24.0
-
-
--- 
-Jens Axboe
+2.26.2
 
