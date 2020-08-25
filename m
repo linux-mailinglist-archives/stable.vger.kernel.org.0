@@ -2,113 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B841A2510B4
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 06:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8641E25116C
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 07:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbgHYEZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 00:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
+        id S1726166AbgHYFT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 01:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbgHYEZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 00:25:20 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7FDC061574
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 21:25:20 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id v15so5918458pgh.6
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 21:25:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=+YsbixkNJbHl3U/j4h1R2QFBhRmHgyNCld/y8hVT0zM=;
-        b=SqHJZ4q68uvHJEj1tqtBAPUefNUjIw5M1sYWPucazBAvrgMHSzQCgFi2hVNEBLGF1B
-         rhntEosFuLtf8eCkSZzKxzNVAsgpAMkwL1JUJJhUdpGufg1LkkcjjWeGyhS+3DJSsn7/
-         vWmfC093A/lLXKu1pDHpU9Ez4WXoU3YoHk8RFEilg48Ed3AyiTNtbbjYYaEg25OrUaPB
-         eoSqKC61b1e3jx4rY23vbx91PYuEyuIl7Yfm5wZ85X42KVXxCppeDg4VFToGnTMWD7Of
-         rTCPLanfINM95d5c1kbLayG0NFf3Pt7u9YEzItir7CC3miWHu2tB/8wWdrrt34zbjn2p
-         XyxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=+YsbixkNJbHl3U/j4h1R2QFBhRmHgyNCld/y8hVT0zM=;
-        b=GprAOECTYuLcjmpUK7Fa81ffeSAbwFL6OSXNp/EwemWv9Ypup0DK4ImptV6l317HrE
-         Qq2+Uj1trd/q6VenqlpB08xLgvRSddst87CiAQ3czLy6RtLxUmdqONNpU3tSeLGKtv3y
-         BbVch3d/3k6GH331aV/OOldalSg7xeeNDwydzO19WONbRrQ697zWumrNv28CDwOTmiz8
-         njNUXbb4zDDXz4hpDJ32tUcui5AN5MyCDB35vddN7gTLWn3bDAk1Nv1mMAq0mTPYeEt+
-         6b4HPYrGPax/L7nrs8tsLTfUvZWaTnvndFegFS/dUGouxyYUi6YHtSYjx4uI3F8p+SUH
-         6stg==
-X-Gm-Message-State: AOAM531lXfo4nqpcoJplu1DleBCnPEanxpbRKacHt3B74UBU+5/JRhbN
-        P57JxjhN3IiKNGnggDWSs8bZjQ==
-X-Google-Smtp-Source: ABdhPJxUihmxgAUmEVRqbbCBcdXaWxS2Z8oQCFSsEy4g0DkFtCAJSO6hXu7wEkWdKXJS3+vV31qosQ==
-X-Received: by 2002:a63:413:: with SMTP id 19mr5627102pge.310.1598329519767;
-        Mon, 24 Aug 2020 21:25:19 -0700 (PDT)
-Received: from localhost ([122.172.43.13])
-        by smtp.gmail.com with ESMTPSA id r14sm5581804pgn.83.2020.08.24.21.25.18
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Aug 2020 21:25:19 -0700 (PDT)
-Date:   Tue, 25 Aug 2020 09:55:17 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Viresh Kumar <vireshk@kernel.org>,
-        Nishanth Menon <nm@ti.com>, Stephen Boyd <sboyd@kernel.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Sajida Bhanu <sbhanu@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Matthias Kaehlcke <mka@chromium.org>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH - stable v5.4 and v5.7] opp: Enable resources again if
- they were disabled earlier
-Message-ID: <20200825042517.gui4kovio4xcu2w5@vireshk-i7>
-References: <31f315cf2b0c4afd60b07b7121058dcaa6e4afa1.1598260882.git.viresh.kumar@linaro.org>
- <20200824161049.GE435319@kroah.com>
+        with ESMTP id S1726149AbgHYFT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 01:19:56 -0400
+Received: from ozlabs.org (ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12FEEC061574;
+        Mon, 24 Aug 2020 22:19:56 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BbHP51BCKz9sR4;
+        Tue, 25 Aug 2020 15:19:53 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=popple.id.au;
+        s=202006; t=1598332793;
+        bh=MTpbfNAqvTkG6db77/xvLASym21B8CMhGSXqP1HtlLQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vVvt4BaZ4udfjy1JvLdr5LEsLneBTrDH7xEb+XK7APb2XjAbB3c/sxw7XDM9pqRCB
+         PKkRSiXGt+ltunZg2XsWCDZsOL0mQ4I10rvltxgYyzVPCrimigfHxhSRbSalPomE57
+         f4PiBC++1UnPlyf/iyNxfa1+wjQQZENoxbWKsCislDZ287zE01dHlPq95Tmq22c+KR
+         4D5MH7aMnsbiSC14g0F3rhy/erRARyVv6MVgiezViwp9QBarQ4B8Go/CjI9tAhiUr/
+         KnvTIt287HS4LMzX/yhsLGwqG35AeBoWdd+xt5eUc2fMm8Z4Yr2ryznl+xUFmQbY0F
+         MHJv+ae/xyu1Q==
+From:   Alistair Popple <alistair@popple.id.au>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?ISO-8859-1?Q?J=E9r=F4me?= Glisse <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] mm/rmap: Fixup copying of soft dirty and uffd ptes
+Date:   Tue, 25 Aug 2020 15:19:50 +1000
+Message-ID: <1650521.I2r5EI4MMx@cleo>
+In-Reply-To: <20200824154359.GA8605@xz-x1>
+References: <20200824083128.12684-1-alistair@popple.id.au> <20200824083128.12684-2-alistair@popple.id.au> <20200824154359.GA8605@xz-x1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200824161049.GE435319@kroah.com>
-User-Agent: NeoMutt/20180716-391-311a52
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24-08-20, 18:10, Greg KH wrote:
-> On Mon, Aug 24, 2020 at 02:52:23PM +0530, Viresh Kumar wrote:
-> > From: Rajendra Nayak <rnayak@codeaurora.org>
+On Tuesday, 25 August 2020 1:43:59 AM AEST Peter Xu wrote:
+> > --- a/mm/migrate.c
+> > +++ b/mm/migrate.c
+> > @@ -2427,9 +2427,11 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
 > > 
-> > commit a4501bac0e553bed117b7e1b166d49731caf7260 upstream.
+> >  			entry = make_migration_entry(page, mpfn &
+> >  			
+> >  						     MIGRATE_PFN_WRITE);
+> >  			
+> >  			swp_pte = swp_entry_to_pte(entry);
 > > 
-> > dev_pm_opp_set_rate() can now be called with freq = 0 in order
-> > to either drop performance or bandwidth votes or to disable
-> > regulators on platforms which support them.
+> > -			if (pte_soft_dirty(pte))
+> > +			if ((is_swap_pte(pte) && pte_swp_soft_dirty(pte))
+> > +				|| (!is_swap_pte(pte) && pte_soft_dirty(pte)))
 > > 
-> > In such cases, a subsequent call to dev_pm_opp_set_rate() with
-> > the same frequency ends up returning early because 'old_freq == freq'
+> >  				swp_pte = pte_swp_mksoft_dirty(swp_pte);
 > > 
-> > Instead make it fall through and put back the dropped performance
-> > and bandwidth votes and/or enable back the regulators.
+> > -			if (pte_uffd_wp(pte))
+> > +			if ((is_swap_pte(pte) && pte_swp_uffd_wp(pte))
+> > +				|| (!is_swap_pte(pte) && pte_uffd_wp(pte)))
 > > 
-> > Cc: v5.3+ <stable@vger.kernel.org> # v5.3+
-> > Fixes: cd7ea582866f ("opp: Make dev_pm_opp_set_rate() handle freq = 0 to drop performance votes")
-> > Reported-by: Sajida Bhanu <sbhanu@codeaurora.org>
-> > Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-> > Reported-by: Matthias Kaehlcke <mka@chromium.org>
-> > Tested-by: Matthias Kaehlcke <mka@chromium.org>
-> > Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-> > Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-> > [ Viresh: Don't skip clk_set_rate() and massaged changelog ]
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > [ Viresh: Updated the patch to apply to v5.4 ]
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > ---
-> >  drivers/opp/core.c | 10 ++++++----
-> >  1 file changed, 6 insertions(+), 4 deletions(-)
+> >  				swp_pte = pte_swp_mkuffd_wp(swp_pte);
+> >  			
+> >  			set_pte_at(mm, addr, ptep, swp_pte);
 > 
-> This too is already in the 5.7 and 5.4 queues, why add it again?
+> The worst case is we'll call is_swap_pte() four times for each entry. Also
+> considering we know it's not a pte_none() when reach here, how about:
+> 
+>   if (pte_present(pte)) {
+>     // pte handling of both soft dirty and uffd-wp
+>   } else {
+>     // swap handling of both soft dirty and uffd-wp
+>   }
+> 
+> ?
 
-Same here, your bot reported that patch failed to apply for 5.4 and 5.7, again
-rightly so as I was required to modify the patch a little bit and so I have
-added another signed-off and details.
+Works for me, I'd missed we knew it was not a pte_none() so will respin. 
+Thanks!
 
--- 
-viresh
+ - Alistair
+ 
+> Thanks,
+
+
+
+
