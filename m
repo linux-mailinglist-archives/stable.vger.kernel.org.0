@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4931D25123F
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 08:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D3F825131C
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 09:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729160AbgHYGoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 02:44:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44682 "EHLO
+        id S1728828AbgHYHZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 03:25:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729122AbgHYGom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 02:44:42 -0400
-Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93871C061574
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 23:44:42 -0700 (PDT)
-Received: by mail-ua1-x943.google.com with SMTP id 68so1212459ual.3
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 23:44:42 -0700 (PDT)
+        with ESMTP id S1729322AbgHYHZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 03:25:29 -0400
+Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946A4C061755
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 00:25:28 -0700 (PDT)
+Received: by mail-vk1-xa44.google.com with SMTP id x142so2597883vke.0
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 00:25:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=IncfRTMkyY0Ndn61cCsSb/vz7XZW8P5xUH2QUoEMtgI=;
-        b=U2f+9EwwPmBj3o5AyuANCbeyeA6nErHxI92w+QHd3pX1gHtveBh1OVMeE3/FP0drV3
-         gL4XiOWIkRuuNfo1aT/QV+aff8bAD81+qobtYuTKcPyWIn6KnMtI6QYB9HuwsQYpjj7d
-         L1eVGSyro5f4XGF9JvTEgVDWwHF5nlMwtjBMVKlaB/5bgN0/5GGfkGncTMewoD+mpybM
-         OG74JX7vohFsKqeYoz073lYV5val0dGQWXba2o6BECMzuuFc4yQIZSdS9mc2HgAy4LkQ
-         58KJz668ZOHZv6J1XkfF2YjDG4H/0zVX21l3v8sH2pK1GBLLgZlW/I+6CpJ7gQYBUDJi
-         mXXw==
+        bh=LsQ6Z/LSlEgnBzqN/u/Za51QKnSSVHsOYfBbNiqX3qg=;
+        b=fSG7xuI6hdvN9UXnyV88cpSYsVzi1RFc7p6vE4JsflwoBdDSiC51GbPTdj2ORvgrA3
+         zg4m8Z0TJfeAP7x38kCewNBMCkKmwklZrJuyNgWwpyFRTRybln44fZmAWlJzrl5Qa73m
+         CR4LkaBtWd/uJ0KE4lCfng3m9orLljEEhh0vWZruot7sI7wbV9aSisF3vSbJ8MVjTcxV
+         QUf0mi4+LQAiLGvS8ZhveA2qZIOOcBCHii3lewL0Fx57k0ZXH85DhvyW/VrW89CF6Z+A
+         UBipNu9ucoCeVtRCQ5xKdoOKUAiL+8u60LAOpTgwA4QA+mPLefXYyK4rvFebZ+wBdKwH
+         rf2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=IncfRTMkyY0Ndn61cCsSb/vz7XZW8P5xUH2QUoEMtgI=;
-        b=QFEqz1DdSHe0BZdOqmpizq6CkqqZJY9SuG6bctMaQ3D6WUA5dtYAmr9yPoEFduGMXL
-         aAR5pBRBLLSUWrgMySm6aRvSLenv6GKLTI1L4ktGXhp5+8frHOK7kcb0zXaxFcBEoxZr
-         FTLJ/VgvcPNykdSfundz3Ck4VGIK5eRqVzhGSMOBgvI0L8EIzYaBQiSuq1mH08hJMOCq
-         4/NpVlOeMV2NAHQWL6nhMpSGeCJaPyuEmvsbDQyz3AmrRljGFAzSdsaxfGrDcYbDx8q3
-         p3r8Xqfk3Rlf3IARFffZ8KivHxOiV9FViaBWioBjR+eMJCV+JULvNfyUIabz9UqH3Psk
-         Rj5g==
-X-Gm-Message-State: AOAM531nhsdeV4yE3qM1+nimL1o2h0TcB2am5vvDTH9+O4C5envldEGS
-        SxWKAAzj+QzaVoQ89YQ0YMTKP+gKqBlftURdL3ZIDw==
-X-Google-Smtp-Source: ABdhPJzSz7OrpNQSzxREytVBAgzWqJ2Cr4oVVqRcGsgwpHSSppfWRl6QRRrQcg/AwholOhVUmldkPYSvTalodxxvHM8=
-X-Received: by 2002:ab0:462:: with SMTP id 89mr4715989uav.34.1598337881688;
- Mon, 24 Aug 2020 23:44:41 -0700 (PDT)
+        bh=LsQ6Z/LSlEgnBzqN/u/Za51QKnSSVHsOYfBbNiqX3qg=;
+        b=BI1qpZL6+TGC+4iHCcDtyC+9mJeBx8dAVVDIjRuDc2O9g0JcVfbFscGvGjAp9Jxwnk
+         QsKa+0OJSvWvAbKI4ZU7QlzQ+bJov6ync1Kxnf9JAgW5skmehM9EqANBdyFKuc28IJ8F
+         yNTT7qdYoKZhtXxETHnaWpsIDi0O4E68CHIjlykkdZjCLyciwb7+FF1DuuMhkGQzgJjk
+         yEL3Xk96dE2VXIwZFJlP2OQbNSOBBFji8iNp8yzzvDCV5IxLNz+Ifme2XwpyeUQLbde0
+         +6/wkZlxGeXYH2WjTpfGdEbtsW08ruadpFMFag/RLiYM1EK/MNd87C3CaYftYvlXxz3N
+         4KuA==
+X-Gm-Message-State: AOAM5313b/E1yjtXHbZL4eBdTBpk1RJRuq0LwakNtV/FKSvK5WLlOLSt
+        R40LTiOJvQztch3mWmaNmmPuX2xJ2RwqLKOaZ/RKSg==
+X-Google-Smtp-Source: ABdhPJxtywMh569OxMwZBZzpjAUTN1NycbW1Pwsi6XOVn+c1MAXVI47ivNPmnt2UBDB11mIEnwPeouEU7C2LveKfoEk=
+X-Received: by 2002:a1f:2fc1:: with SMTP id v184mr4873982vkv.42.1598340326172;
+ Tue, 25 Aug 2020 00:25:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200824164729.443078729@linuxfoundation.org>
-In-Reply-To: <20200824164729.443078729@linuxfoundation.org>
+References: <20200824164724.981131044@linuxfoundation.org>
+In-Reply-To: <20200824164724.981131044@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Aug 2020 12:14:29 +0530
-Message-ID: <CA+G9fYshbGAyaX20O0kM9teYqD9nHHfGpjTYH_sB81=6oCrbhg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/73] 4.19.142-rc2 review
+Date:   Tue, 25 Aug 2020 12:55:14 +0530
+Message-ID: <CA+G9fYvRpqKnMUGQXMZ+QBSrwD6AjGx8cuvzxSYo7r7kdPoRTg@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/51] 4.14.195-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Aug 2020 at 22:20, Greg Kroah-Hartman
+On Mon, 24 Aug 2020 at 22:19, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.142 release.
-> There are 73 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.14.195 release.
+> There are 51 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Mon, 24 Aug 2020 at 22:20, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.142-rc2.gz
+4.14.195-rc2.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
+-rc.git linux-4.14.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -96,21 +96,21 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.19.142-rc2
+kernel: 4.14.195-rc2
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.19.y
-git commit: d06cb8bccfe117b0d29cf8960e38a41911a945ed
-git describe: v4.19.141-74-gd06cb8bccfe1
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.141-74-gd06cb8bccfe1
+git branch: linux-4.14.y
+git commit: 376e60828efba537a502fdb54d35e2805852dbb4
+git describe: v4.14.194-52-g376e60828efb
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.194-52-g376e60828efb
 
-No regressions (compared to build v4.19.141)
+No regressions (compared to build v4.14.194)
 
-No fixes (compared to build v4.19.141)
+No fixes (compared to build v4.14.194)
 
 
-Ran 33301 total tests in the following environments and test suites.
+Ran 26317 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -118,9 +118,6 @@ Environments
 - hi6220-hikey - arm64
 - i386
 - juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
 - qemu_arm
 - qemu_arm64
 - qemu_i386
@@ -141,16 +138,20 @@ Test Suites
 * libhugetlbfs
 * linux-log-parser
 * ltp-cap_bounds-tests
-* ltp-commands-tests
 * ltp-containers-tests
+* ltp-controllers-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
 * ltp-cve-tests
 * ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
-* ltp-math-tests
 * ltp-mm-tests
 * ltp-nptl-tests
 * ltp-pty-tests
@@ -159,17 +160,12 @@ Test Suites
 * ltp-syscalls-tests
 * perf
 * v4l2-compliance
-* ltp-controllers-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
+* ltp-commands-tests
 * ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
+* ltp-math-tests
+* ltp-tracing-tests
 * network-basic-tests
 * ltp-open-posix-tests
-* ltp-tracing-tests
-* ssuite
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-native/drivers
 * kselftest-vsyscall-mode-native/filesystems
