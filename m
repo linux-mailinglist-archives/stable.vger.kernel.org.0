@@ -2,176 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB1F2514DD
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 11:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FEE2514E8
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 11:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729681AbgHYI7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 04:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37420 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729612AbgHYI7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 04:59:22 -0400
-Received: from mail-vk1-xa31.google.com (mail-vk1-xa31.google.com [IPv6:2607:f8b0:4864:20::a31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78328C061574
-        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 01:59:22 -0700 (PDT)
-Received: by mail-vk1-xa31.google.com with SMTP id s81so2653225vkb.3
-        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 01:59:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=uzg01uDRjZSL1zQZLuUMIirKoxGve7i+aoN9VUy7JS4=;
-        b=aLOCULakRAaAe6JDEgBcire0KjQVWBkRmQqQ+RV8N2jugN0WqgwHnvWW/6nI0R/Mpa
-         Ltckmq6bdWA2O7QXu/sSFNfzNlllUr6nQNMlxG4vXK7v6XO8+9/1JAhYuphMYSYL+QDy
-         GLHsBGeBInMQVKAyIA+PXWBurYEN4NuXyu5v9Gg81GVQ4b+cOoIKLYsfu/nh8yAAigNB
-         ykx/78LT3UqyKcxW/X6ayoNq7xCNdKbFjszx7cv5EhoWCbq314I3osRdFSB+u5+AFDAw
-         4Zo34Kq0xamXrkt9ZmaUag1maAbRUDNXWHmURhxHu7QUlf427GKAK/RNQuYurbOhW0D5
-         YbqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=uzg01uDRjZSL1zQZLuUMIirKoxGve7i+aoN9VUy7JS4=;
-        b=iMvvgqz5iGjqg5HtSOLFuvAKE0cZTve+gq7+Qow/4btGlSV+PtSuzpbzXgL5Vj5Led
-         7DdfewVDURqWj2qXu0OxBOl1tg6lbcqIA9lQYUktRsWT6vP8d64lbyDLYe28KKB5BYi6
-         2qLhrsOYg5kD1JlPTYRVxU1tS5NYg6drhjomnfwolhP2BbXxefA6nQ4N7qgHKQKig6jI
-         nXQSAilSFRttFvMmBBbutSPiyGBe7twv6G1T9RUpZUpBwa47SaEuUt9ZD4Jf+bT70p/Z
-         0Vlq+weIeCK0ZswHcwIVo7q9ncUaNSTs4HW7RsEj/oAGm3vQoFKyn/FemX6STgGOy65s
-         723A==
-X-Gm-Message-State: AOAM532ODE+4eJ70EI/uOTidDG9DjpJjdZbKgWCICtP9L6xfwX6jsSUi
-        ReBkpRmkTkP4hIsUv1dLB9Xpd1BYYMSiOvcZ5Gb7kk/0OIi7IKOx
-X-Google-Smtp-Source: ABdhPJxzS6E4QzGD1XT5F6g1gi702DSH0TQnEh7jGTIjRGOZqid86wvIrN6bsHSowGZ8T1rZKzEX5IXZGUq3NLFmM3s=
-X-Received: by 2002:a1f:6282:: with SMTP id w124mr4825767vkb.46.1598345960893;
- Tue, 25 Aug 2020 01:59:20 -0700 (PDT)
-MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Aug 2020 14:29:08 +0530
-Message-ID: <CA+G9fYvi6KSGcZMr4ejFfHee2_NBdXBkYvMm=sVyb174qQ9Dtg@mail.gmail.com>
-Subject: arm64: Unable to handle kernel paging request at virtual address 800036ac1000
-To:     open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Leo Yan <leo.yan@linaro.org>
+        id S1726090AbgHYJB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 05:01:58 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:4688 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726045AbgHYJB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 05:01:58 -0400
+X-UUID: d2bf482b4b75414b83c1fe20da4d041c-20200825
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=nircHIE2dwGwS6cH9noiwjPrOfmBo/K1gHtgpxbEFhY=;
+        b=MDmsC9GX5O60Ehsaz4adg6HCWVrg4EFAEe1oxyJ7tSIMJmJmDbINK6yMtUxtOyf9EX0qjtI6SHvMp6PNojYLYM4/QtsREmMCvHk9ZiSwRt7HBonv7pNodFuNoFHkxtxccbLPJ5/WIObUJRGIWFctszHbfZj3OtWWlg5vatBbQOs=;
+X-UUID: d2bf482b4b75414b83c1fe20da4d041c-20200825
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        (envelope-from <stanley.chu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 74264485; Tue, 25 Aug 2020 17:01:43 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 25 Aug 2020 17:01:41 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by mtkcas07.mediatek.inc
+ (172.21.101.84) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 25 Aug
+ 2020 17:01:41 +0800
+Received: from [172.21.77.33] (172.21.77.33) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 25 Aug 2020 17:01:41 +0800
+Message-ID: <1598346102.10649.7.camel@mtkswgap22>
+Subject: Re: [PATCH] block: Fix a race in the runtime power management code
+From:   Stanley Chu <stanley.chu@mediatek.com>
+To:     Bart Van Assche <bvanassche@acm.org>
+CC:     Jens Axboe <axboe@kernel.dk>, <linux-block@vger.kernel.org>,
+        "Christoph Hellwig" <hch@lst.de>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Ming Lei <ming.lei@redhat.com>,
+        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
+Date:   Tue, 25 Aug 2020 17:01:42 +0800
+In-Reply-To: <20200824030607.19357-1-bvanassche@acm.org>
+References: <20200824030607.19357-1-bvanassche@acm.org>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
+MIME-Version: 1.0
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While running LTP tracing ftrace-stress-test kernel on arm64 dragonboard
-bd410c got panic on stable rc 4.14 branch. I will run git bisect
-starting from 4.14
-and get back to you on this email thread.
+SGkgQmFydCwNCg0KT24gU3VuLCAyMDIwLTA4LTIzIGF0IDIwOjA2IC0wNzAwLCBCYXJ0IFZhbiBB
+c3NjaGUgd3JvdGU6DQo+IFdpdGggdGhlIGN1cnJlbnQgaW1wbGVtZW50YXRpb24gdGhlIGZvbGxv
+d2luZyByYWNlIGNhbiBoYXBwZW46DQo+ICogYmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoKSBjYWxs
+cyBibGtfZnJlZXplX3F1ZXVlX3N0YXJ0KCkgYW5kDQo+ICAgYmxrX21xX3VuZnJlZXplX3F1ZXVl
+KCkuDQo+ICogYmxrX3F1ZXVlX2VudGVyKCkgY2FsbHMgYmxrX3F1ZXVlX3BtX29ubHkoKSBhbmQg
+dGhhdCBmdW5jdGlvbiByZXR1cm5zDQo+ICAgdHJ1ZS4NCj4gKiBibGtfcXVldWVfZW50ZXIoKSBj
+YWxscyBibGtfcG1fcmVxdWVzdF9yZXN1bWUoKSBhbmQgdGhhdCBmdW5jdGlvbiBkb2VzDQo+ICAg
+bm90IGNhbGwgcG1fcmVxdWVzdF9yZXN1bWUoKSBiZWNhdXNlIHRoZSBxdWV1ZSBydW50aW1lIHN0
+YXR1cyBpcw0KPiAgIFJQTV9BQ1RJVkUuDQo+ICogYmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoKSBj
+aGFuZ2VzIHRoZSBxdWV1ZSBzdGF0dXMgaW50byBSUE1fU1VTUEVORElORy4NCj4gDQo+IEZpeCB0
+aGlzIHJhY2UgYnkgY2hhbmdpbmcgdGhlIHF1ZXVlIHJ1bnRpbWUgc3RhdHVzIGludG8gUlBNX1NV
+U1BFTkRJTkcNCj4gYmVmb3JlIHN3aXRjaGluZyBxX3VzYWdlX2NvdW50ZXIgdG8gYXRvbWljIG1v
+ZGUuDQo+IA0KPiBDYzogQWxhbiBTdGVybiA8c3Rlcm5Acm93bGFuZC5oYXJ2YXJkLmVkdT4NCj4g
+Q2M6IFN0YW5sZXkgQ2h1IDxzdGFubGV5LmNodUBtZWRpYXRlay5jb20+DQo+IENjOiBNaW5nIExl
+aSA8bWluZy5sZWlAcmVkaGF0LmNvbT4NCj4gQ2M6IHN0YWJsZSA8c3RhYmxlQHZnZXIua2VybmVs
+Lm9yZz4NCj4gRml4ZXM6IDk4NmQ0MTNiN2MxNSAoImJsay1tcTogRW5hYmxlIHN1cHBvcnQgZm9y
+IHJ1bnRpbWUgcG93ZXIgbWFuYWdlbWVudCIpDQo+IFNpZ25lZC1vZmYtYnk6IENhbiBHdW8gPGNh
+bmdAY29kZWF1cm9yYS5vcmc+DQo+IFNpZ25lZC1vZmYtYnk6IEJhcnQgVmFuIEFzc2NoZSA8YnZh
+bmFzc2NoZUBhY20ub3JnPg0KPiAtLS0NCj4gIGJsb2NrL2Jsay1wbS5jIHwgMTUgKysrKysrKysr
+LS0tLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygt
+KQ0KPiANCj4gZGlmZiAtLWdpdCBhL2Jsb2NrL2Jsay1wbS5jIGIvYmxvY2svYmxrLXBtLmMNCj4g
+aW5kZXggYjg1MjM0ZDc1OGY3Li4xN2JkMDIwMjY4ZDQgMTAwNjQ0DQo+IC0tLSBhL2Jsb2NrL2Js
+ay1wbS5jDQo+ICsrKyBiL2Jsb2NrL2Jsay1wbS5jDQo+IEBAIC02Nyw2ICs2NywxMCBAQCBpbnQg
+YmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoc3RydWN0IHJlcXVlc3RfcXVldWUgKnEpDQo+ICANCj4g
+IAlXQVJOX09OX09OQ0UocS0+cnBtX3N0YXR1cyAhPSBSUE1fQUNUSVZFKTsNCj4gIA0KPiArCXNw
+aW5fbG9ja19pcnEoJnEtPnF1ZXVlX2xvY2spOw0KPiArCXEtPnJwbV9zdGF0dXMgPSBSUE1fU1VT
+UEVORElORzsNCj4gKwlzcGluX3VubG9ja19pcnEoJnEtPnF1ZXVlX2xvY2spOw0KPiArDQoNCkhh
+cyBiZWxvdyBhbHRlcm5hdGl2ZSB3YXkgYmVlbiBjb25zaWRlcmVkIHRoYXQgUlBNX1NVU1BFTkRJ
+TkcgaXMgc2V0DQphZnRlciBibGtfbXFfdW5mcmVlemVfcXVldWUoKT8NCg0KCWJsa19mcmVlemVf
+cXVldWVfc3RhcnQocSk7DQoNCisJc3Bpbl9sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQorCXEt
+PnJwbV9zdGF0dXMgPSBSUE1fU1VTUEVORElORzsNCisJc3Bpbl91bmxvY2tfaXJxKCZxLT5xdWV1
+ZV9sb2NrKTsNCg0KDQpPdGhlcndpc2UgcmVxdWVzdHMgY2FuIGVudGVyIHF1ZXVlIHdoaWxlIHJw
+bV9zdGF0dXMgaXMgUlBNX1NVU1BFTkRJTkcNCmR1cmluZyBhIHNtYWxsIHdpbmRvdywgaS5lLiwg
+YmVmb3JlIGJsa19zZXRfcG1fb25seSgpIGlzIGludm9rZWQuIFRoaXMNCndvdWxkIG1ha2UgdGhl
+IGRlZmluaXRpb24gb2YgcnBtX3N0YXR1cyBhbWJpZ3VvdXMuDQoNCkluIHRoaXMgd2F5LCB0aGUg
+cmFjaW5nIGNvdWxkIGJlIGFsc28gc29sdmVkOg0KDQotIEJlZm9yZSBibGtfZnJlZXplX3F1ZXVl
+X3N0YXJ0KCksIGFueSByZXF1ZXN0cyBzaGFsbCBiZSBhbGxvd2VkIHRvDQplbnRlciBxdWV1ZQ0K
+LSBibGtfZnJlZXplX3F1ZXVlX3N0YXJ0KCkgZnJlZXplcyB0aGUgcXVldWUgYW5kIGJsb2NrcyBh
+bGwgdXBjb21pbmcNCnJlcXVlc3RzIChtYWtlIHRoZW0gd2FpdF9ldmVudChxLT5tcV9mcmVlemVf
+d3EpKQ0KLSBycG1fc3RhdHVzIGlzIHNldCBhcyBSUE1fU1VTUEVORElORw0KLSBibGtfbXFfdW5m
+cmVlemVfcXVldWUoKSB3YWtlcyB1cCBxLT5tcV9mcmVlemVfd3EgYW5kIHRoZW4NCmJsa19wbV9y
+ZXF1ZXN0X3Jlc3VtZSgpIGNhbiBiZSBleGVjdXRlZA0KDQpUaGFua3MsDQoNClN0YW5sZXkgQ2h1
+DQoNCg0KPiAgCS8qDQo+ICAJICogSW5jcmVhc2UgdGhlIHBtX29ubHkgY291bnRlciBiZWZvcmUg
+Y2hlY2tpbmcgd2hldGhlciBhbnkNCj4gIAkgKiBub24tUE0gYmxrX3F1ZXVlX2VudGVyKCkgY2Fs
+bHMgYXJlIGluIHByb2dyZXNzIHRvIGF2b2lkIHRoYXQgYW55DQo+IEBAIC04OSwxNSArOTMsMTQg
+QEAgaW50IGJsa19wcmVfcnVudGltZV9zdXNwZW5kKHN0cnVjdCByZXF1ZXN0X3F1ZXVlICpxKQ0K
+PiAgCS8qIFN3aXRjaCBxX3VzYWdlX2NvdW50ZXIgYmFjayB0byBwZXItY3B1IG1vZGUuICovDQo+
+ICAJYmxrX21xX3VuZnJlZXplX3F1ZXVlKHEpOw0KPiAgDQo+IC0Jc3Bpbl9sb2NrX2lycSgmcS0+
+cXVldWVfbG9jayk7DQo+IC0JaWYgKHJldCA8IDApDQo+ICsJaWYgKHJldCA8IDApIHsNCj4gKwkJ
+c3Bpbl9sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQo+ICsJCXEtPnJwbV9zdGF0dXMgPSBSUE1f
+QUNUSVZFOw0KPiAgCQlwbV9ydW50aW1lX21hcmtfbGFzdF9idXN5KHEtPmRldik7DQo+IC0JZWxz
+ZQ0KPiAtCQlxLT5ycG1fc3RhdHVzID0gUlBNX1NVU1BFTkRJTkc7DQo+IC0Jc3Bpbl91bmxvY2tf
+aXJxKCZxLT5xdWV1ZV9sb2NrKTsNCj4gKwkJc3Bpbl91bmxvY2tfaXJxKCZxLT5xdWV1ZV9sb2Nr
+KTsNCj4gIA0KPiAtCWlmIChyZXQpDQo+ICAJCWJsa19jbGVhcl9wbV9vbmx5KHEpOw0KPiArCX0N
+Cj4gIA0KPiAgCXJldHVybiByZXQ7DQo+ICB9DQoNCg0KDQoNCg==
 
-metadata:
-  git branch: linux-4.14.y
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  kernel-config:
-https://builds.tuxbuild.com/ia1EnWmxGbTrk8uPt4w3tA/kernel.config
-
-steps to reproduce:
-# Boot arm64 db410c with trace configs enabled.
-# cd /opt/ltp
-# ./runltp -f tracing
-
-ftrace_buffer_size_kb.sh: line 33: echo: write error: Cannot allocate memory
-ftrace_buffer_size_kb.sh: line 33: echo: write error: Cannot allocate memory
-[   55.868262] Unable to handle kernel paging request at virtual
-address 800036ac1000
-[   55.868317] Mem abort info:
-[   55.874729]   Exception class = DABT (current EL), IL = 32 bits
-[   55.877427]   SET = 0, FnV = 0
-[   55.883323]   EA = 0, S1PTW = 0
-[   55.886445] Data abort info:
-[   55.889487]   ISV = 0, ISS = 0x00000004
-[   55.892613]   CM = 0, WnR = 0
-[   55.896173] user pgtable: 4k pages, 48-bit VAs, pgd = ffff8000248f1000
-[   55.899307] [0000800036ac1000] *pgd=0000000000000000
-[   55.905730] Internal error: Oops: 96000004 [#2] PREEMPT SMP
-[   55.910849] Modules linked in: rfkill snd_soc_hdmi_codec crc32_ce
-adv7511 msm mdt_loader drm_kms_helper snd_soc_lpass_apq8016
-snd_soc_msm8916_analog snd_soc_lpass_cpu snd_soc_apq8016_sbc
-snd_soc_msm8916_digital snd_soc_lpass_platform msm_rng rng_core drm
-fuse
-[   55.916860] Process sh (pid: 3279, stack limit = 0xffff00000f648000)
-[   55.939065] CPU: 2 PID: 3279 Comm: sh Tainted: G      D
-4.14.195-rc2 #1
-[   55.945662] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[   55.952690] task: ffff80003b6e5400 task.stack: ffff00000f648000
-[   55.959636] pc : get_trace_buf+0x14/0x40
-[   55.965274] lr : __trace_array_vprintk+0x84/0x298
-[   55.969436] sp : ffff000008013cc0 pstate : 000001c5
-[   55.974039] x29: ffff000008013cc0 x28: 0000000000000104
-[   55.978726] x27: ffff00000960bb40 x26: ffff0000093c7000
-[   55.984282] x25: 0000000000000105 x24: ffff000008081c74
-[   55.989577] x23: ffff0000081be314 x22: ffff0000093f3000
-[   55.994873] x21: ffff80003b6e5400 x20: ffff80000eb05200
-[   56.000167] x19: 0000000000000000 x18: 0000ffffa14fca70
-[   56.005462] x17: 0000ffffa146ec18 x16: ffff00000829a3d8
-[   56.010758] x15: 0000000000000040 x14: ffff0000081ccb34
-[   56.016053] x13: ffff0000081cc8d4 x12: ffff0000081cc6d0
-[   56.021348] x11: ffff0000081a8b88 x10: ffff0000081a8ae4
-[   56.026643] x9 : ffff0000081fc3bc x8 : ffff0000093f3000
-[   56.031938] x7 : ffff800009f33404 x6 : ffff0000090810d0
-[   56.037234] x5 : ffff000008013d50 x4 : 0000800036ac1000
-[   56.042528] x3 : ffff000008013d50 x2 : 0000800036ac1000
-[   56.047823] x1 : 0000000000000000 x0 : ffff000009609000
-[   56.053119] Call trace:
-[   56.058410]  get_trace_buf+0x14/0x40
-[   56.060583]  trace_array_printk_buf+0x60/0x68
-[   56.064404]  update_max_tr_single.part.0+0xfc/0x128
-[   56.068657]  update_max_tr_single+0x14/0x20
-[   56.073346]  check_critical_timing+0x188/0x198
-[   56.077512]  stop_critical_timings.part.0+0xf0/0x110
-[   56.082026]  trace_hardirqs_on+0x34/0x40
-[   56.087145]  __do_softirq+0xf4/0x3f4
-[   56.091051]  irq_exit+0xdc/0x120
-[   56.094612]  __handle_domain_irq+0x70/0xc0
-[   56.097822]  gic_handle_irq+0x58/0xb0
-[   56.101728]  el1_irq+0xb4/0x12c
-[   56.105458]  rb_commit+0x38/0x270
-[   56.108412]  ftrace_trace_userstack+0x150/0x200
-[   56.111886]  trace_buffer_unlock_commit_regs+0xcc/0x150
-[   56.116229]  trace_event_buffer_commit+0x6c/0x238
-[   56.121436]  trace_event_raw_event_ipi_raise+0x64/0x98
-[   56.126299]  smp_cross_call+0xc0/0xf0
-[   56.131329]  arch_send_call_function_ipi_mask+0x24/0x30
-[   56.135066]  smp_call_function_many+0x2ac/0x348
-[   56.140098]  smp_call_function+0x48/0x90
-[   56.144610]  kick_all_cpus_sync+0x28/0x30
-[   56.148779]  aarch64_insn_patch_text+0xb0/0xc0
-[   56.152688]  arch_jump_label_transform+0x70/0x80
-[   56.157029]  __jump_label_update+0x84/0xa0
-[   56.161800]  jump_label_update+0xdc/0x110
-[   56.165706]  static_key_slow_inc_cpuslocked+0xbc/0xe8
-[   56.169788]  static_key_slow_inc+0x24/0x38
-[   56.174821]  tracepoint_probe_register_prio+0x20c/0x278
-[   56.178816]  tracepoint_probe_register+0x38/0x48
-[   56.183938]  trace_event_reg+0x88/0x98
-[   56.188795]  __ftrace_event_enable_disable+0x15c/0x2e8
-[   56.192358]  __ftrace_set_clr_event_nolock+0xd4/0x130
-[   56.197478]  system_enable_write+0xac/0xf0
-[   56.202600]  __vfs_write+0x48/0x130
-[   56.206589]  vfs_write+0xb0/0x1b8
-[   56.209974]  SyS_write+0x5c/0xc8
-[   56.213446]  __sys_trace_return+0x0/0x4
-[   56.216751] Code: d538d082 f944d401 ab020024 54000140 (b8626823)
-[   56.220326] ---[ end trace 32d8a6bcfff49065 ]---
-[   56.226558] Kernel panic - not syncing: Fatal exception in interrupt
-[   56.231256] SMP: stopping secondary CPUs
-[   57.331332] SMP: failed to stop secondary CPUs 0-3
-[   57.331366] Kernel Offset: disabled
-[   57.335011] CPU features: 0x0002005
-[   57.338396] Memory Limit: none
-[   57.341888] ---[ end Kernel panic - not syncing: Fatal exception in interrupt
-
-ref:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.194-52-g376e60828efb/testrun/3114304/suite/linux-log-parser/test/check-kernel-oops-1705703/log
-
-https://lkft.validation.linaro.org/scheduler/job/1705703#L2155
-
--- 
-Linaro LKFT
-https://lkft.linaro.org
