@@ -2,186 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA2725173E
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 13:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84ADA25182C
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 14:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729873AbgHYLQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 07:16:07 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:34679 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbgHYLQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 07:16:06 -0400
-Received: from ip5f5af70b.dynamic.kabel-deutschland.de ([95.90.247.11] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kAWvG-0006HZ-5h; Tue, 25 Aug 2020 11:15:26 +0000
-Date:   Tue, 25 Aug 2020 13:15:24 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     mhocko@suse.com, mingo@kernel.org, peterz@infradead.org,
-        tglx@linutronix.de, esyr@redhat.com, christian@kellner.me,
-        areber@redhat.com, shakeelb@google.com, cyphar@cyphar.com,
-        oleg@redhat.com, adobriyan@gmail.com, akpm@linux-foundation.org,
-        ebiederm@xmission.com, gladkov.alexey@gmail.com, walken@google.com,
-        daniel.m.jordan@oracle.com, avagin@gmail.com,
-        bernd.edlinger@hotmail.de, john.johansen@canonical.com,
-        laoar.shao@gmail.com, timmurray@google.com, minchan@kernel.org,
-        kernel-team@android.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-mm@kvack.org, Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v2 1/1] mm, oom_adj: don't loop through tasks in
- __set_oom_adj when not necessary
-Message-ID: <20200825111524.v2bnoya35spde3zt@wittgenstein>
-References: <20200824153036.3201505-1-surenb@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200824153036.3201505-1-surenb@google.com>
+        id S1729436AbgHYMGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 08:06:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42086 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729188AbgHYMGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Aug 2020 08:06:05 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 8810DAFC5;
+        Tue, 25 Aug 2020 12:06:34 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 19F9E1E06E9; Tue, 25 Aug 2020 14:05:59 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     yebin <yebin10@huawei.com>, Christoph Hellwig <hch@infradead.org>,
+        <linux-block@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: [PATCH RFC 1/2] fs: Don't invalidate page buffers in block_write_full_page()
+Date:   Tue, 25 Aug 2020 14:05:53 +0200
+Message-Id: <20200825120554.13070-2-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200825120554.13070-1-jack@suse.cz>
+References: <20200825120554.13070-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 08:30:36AM -0700, Suren Baghdasaryan wrote:
-> Currently __set_oom_adj loops through all processes in the system to
-> keep oom_score_adj and oom_score_adj_min in sync between processes
-> sharing their mm. This is done for any task with more that one mm_users,
-> which includes processes with multiple threads (sharing mm and signals).
-> However for such processes the loop is unnecessary because their signal
-> structure is shared as well.
-> Android updates oom_score_adj whenever a tasks changes its role
-> (background/foreground/...) or binds to/unbinds from a service, making
-> it more/less important. Such operation can happen frequently.
-> We noticed that updates to oom_score_adj became more expensive and after
-> further investigation found out that the patch mentioned in "Fixes"
-> introduced a regression. Using Pixel 4 with a typical Android workload,
-> write time to oom_score_adj increased from ~3.57us to ~362us. Moreover
-> this regression linearly depends on the number of multi-threaded
-> processes running on the system.
-> Mark the mm with a new MMF_PROC_SHARED flag bit when task is created with
-> (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK). Change __set_oom_adj to use
-> MMF_PROC_SHARED instead of mm_users to decide whether oom_score_adj
-> update should be synchronized between multiple processes. To prevent
-> races between clone() and __set_oom_adj(), when oom_score_adj of the
-> process being cloned might be modified from userspace, we use
-> oom_adj_mutex. Its scope is changed to global and it is renamed into
-> oom_adj_lock for naming consistency with oom_lock. The combination of
-> (CLONE_VM && !CLONE_THREAD) is rarely used except for the case of vfork().
-> To prevent performance regressions of vfork(), we skip taking oom_adj_lock
-> and setting MMF_PROC_SHARED when CLONE_VFORK is specified. Clearing the
-> MMF_PROC_SHARED flag (when the last process sharing the mm exits) is left
-> out of this patch to keep it simple and because it is believed that this
-> threading model is rare. Should there ever be a need for optimizing that
-> case as well, it can be done by hooking into the exit path, likely
-> following the mm_update_next_owner pattern.
-> With the combination of (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK) being
-> quite rare, the regression is gone after the change is applied.
-> 
-> Fixes: 44a70adec910 ("mm, oom_adj: make sure processes sharing mm have same view of oom_score_adj")
-> Reported-by: Tim Murray <timmurray@google.com>
-> Debugged-by: Minchan Kim <minchan@kernel.org>
-> Suggested-by: Michal Hocko <mhocko@kernel.org>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> ---
-> 
-> v2:
-> - Implemented proposal from Michal Hocko in:
-> https://lore.kernel.org/linux-fsdevel/20200820124109.GI5033@dhcp22.suse.cz/
-> - Updated description to reflect the change
-> 
-> v1:
-> - https://lore.kernel.org/linux-mm/20200820002053.1424000-1-surenb@google.com/
-> 
->  fs/proc/base.c                 |  7 +++----
->  include/linux/oom.h            |  1 +
->  include/linux/sched/coredump.h |  1 +
->  kernel/fork.c                  | 21 +++++++++++++++++++++
->  mm/oom_kill.c                  |  2 ++
->  5 files changed, 28 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index 617db4e0faa0..cff1a58a236c 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -1055,7 +1055,6 @@ static ssize_t oom_adj_read(struct file *file, char __user *buf, size_t count,
->  
->  static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
->  {
-> -	static DEFINE_MUTEX(oom_adj_mutex);
->  	struct mm_struct *mm = NULL;
->  	struct task_struct *task;
->  	int err = 0;
-> @@ -1064,7 +1063,7 @@ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
->  	if (!task)
->  		return -ESRCH;
->  
-> -	mutex_lock(&oom_adj_mutex);
-> +	mutex_lock(&oom_adj_lock);
->  	if (legacy) {
->  		if (oom_adj < task->signal->oom_score_adj &&
->  				!capable(CAP_SYS_RESOURCE)) {
-> @@ -1095,7 +1094,7 @@ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
->  		struct task_struct *p = find_lock_task_mm(task);
->  
->  		if (p) {
-> -			if (atomic_read(&p->mm->mm_users) > 1) {
-> +			if (test_bit(MMF_PROC_SHARED, &p->mm->flags)) {
->  				mm = p->mm;
->  				mmgrab(mm);
->  			}
-> @@ -1132,7 +1131,7 @@ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
->  		mmdrop(mm);
->  	}
->  err_unlock:
-> -	mutex_unlock(&oom_adj_mutex);
-> +	mutex_unlock(&oom_adj_lock);
->  	put_task_struct(task);
->  	return err;
->  }
-> diff --git a/include/linux/oom.h b/include/linux/oom.h
-> index f022f581ac29..861f22bd4706 100644
-> --- a/include/linux/oom.h
-> +++ b/include/linux/oom.h
-> @@ -55,6 +55,7 @@ struct oom_control {
->  };
->  
->  extern struct mutex oom_lock;
-> +extern struct mutex oom_adj_lock;
->  
->  static inline void set_current_oom_origin(void)
->  {
-> diff --git a/include/linux/sched/coredump.h b/include/linux/sched/coredump.h
-> index ecdc6542070f..070629b722df 100644
-> --- a/include/linux/sched/coredump.h
-> +++ b/include/linux/sched/coredump.h
-> @@ -72,6 +72,7 @@ static inline int get_dumpable(struct mm_struct *mm)
->  #define MMF_DISABLE_THP		24	/* disable THP for all VMAs */
->  #define MMF_OOM_VICTIM		25	/* mm is the oom victim */
->  #define MMF_OOM_REAP_QUEUED	26	/* mm was queued for oom_reaper */
-> +#define MMF_PROC_SHARED	27	/* mm is shared while sighand is not */
->  #define MMF_DISABLE_THP_MASK	(1 << MMF_DISABLE_THP)
->  
->  #define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
-> diff --git a/kernel/fork.c b/kernel/fork.c
-> index 4d32190861bd..6fce8ffa9b8b 100644
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -1809,6 +1809,25 @@ static __always_inline void delayed_free_task(struct task_struct *tsk)
->  		free_task(tsk);
->  }
->  
-> +static void copy_oom_score_adj(u64 clone_flags, struct task_struct *tsk)
-> +{
-> +	/* Skip if kernel thread */
-> +	if (!tsk->mm)
-> +		return;
+If block_write_full_page() is called for a page that is beyond current
+inode size, it will truncate page buffers for the page and return 0.
+This logic has been added in 2.5.62 in commit 81eb69062588 ("fix ext3
+BUG due to race with truncate") in history.git tree to fix a problem
+with ext3 in data=ordered mode. This particular problem doesn't exist
+anymore because ext3 is long gone and ext4 handles ordered data
+differently. Also normally buffers are invalidated by truncate code and
+there's no need to specially handle this in ->writepage() code.
 
-Hm, wouldn't 
+This invalidation of page buffers in block_write_full_page() is causing
+issues to filesystems (e.g. ext4 or ocfs2) when block device is shrunk
+under filesystem's hands and metadata buffers get discarded while being
+tracked by the journalling layer. Although it is obviously "not
+supported" it can cause kernel crashes like:
 
-	if (tsk->flags & PF_KTHREAD)
-		return;
+[ 7986.689400] BUG: unable to handle kernel NULL pointer dereference at
++0000000000000008
+[ 7986.697197] PGD 0 P4D 0
+[ 7986.699724] Oops: 0002 [#1] SMP PTI
+[ 7986.703200] CPU: 4 PID: 203778 Comm: jbd2/dm-3-8 Kdump: loaded Tainted: G
++O     --------- -  - 4.18.0-147.5.0.5.h126.eulerosv2r9.x86_64 #1
+[ 7986.716438] Hardware name: Huawei RH2288H V3/BC11HGSA0, BIOS 1.57 08/11/2015
+[ 7986.723462] RIP: 0010:jbd2_journal_grab_journal_head+0x1b/0x40 [jbd2]
+...
+[ 7986.810150] Call Trace:
+[ 7986.812595]  __jbd2_journal_insert_checkpoint+0x23/0x70 [jbd2]
+[ 7986.818408]  jbd2_journal_commit_transaction+0x155f/0x1b60 [jbd2]
+[ 7986.836467]  kjournald2+0xbd/0x270 [jbd2]
 
-be clearer and more future proof?
+which is not great. The crash happens because bh->b_private is suddently
+NULL although BH_JBD flag is still set (this is because
+block_invalidatepage() cleared BH_Mapped flag and subsequent bh lookup
+found buffer without BH_Mapped set, called init_page_buffers() which has
+rewritten bh->b_private). So just remove the invalidation in
+block_write_full_page().
 
-Christian
+Note that the buffer cache invalidation when block device changes size
+is already careful to avoid similar problems by using
+invalidate_mapping_pages() which skips busy buffers so it was only this
+odd block_write_full_page() behavior that could tear down bdev buffers
+under filesystem's hands.
+
+Reported-by: Ye Bin <yebin10@huawei.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/buffer.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
+
+diff --git a/fs/buffer.c b/fs/buffer.c
+index 061dd202979d..163c2c0b9aa3 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2771,16 +2771,6 @@ int nobh_writepage(struct page *page, get_block_t *get_block,
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-#if 0
+-		/* Not really sure about this  - do we need this ? */
+-		if (page->mapping->a_ops->invalidatepage)
+-			page->mapping->a_ops->invalidatepage(page, offset);
+-#endif
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
+@@ -2975,12 +2965,6 @@ int block_write_full_page(struct page *page, get_block_t *get_block,
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-		do_invalidatepage(page, 0, PAGE_SIZE);
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
+-- 
+2.16.4
+
