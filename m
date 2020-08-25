@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACD5251A57
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 16:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297E1251A5C
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 16:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726599AbgHYN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 09:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57088 "EHLO
+        id S1726504AbgHYOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 10:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726241AbgHYN64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 09:58:56 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1EAC061755
-        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 06:58:56 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id gf6so1868159pjb.6
-        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 06:58:56 -0700 (PDT)
+        with ESMTP id S1726631AbgHYOAR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 10:00:17 -0400
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784DCC061574
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 07:00:17 -0700 (PDT)
+Received: by mail-pj1-x1049.google.com with SMTP id lx6so1887633pjb.9
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 07:00:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:message-id:mime-version:subject:from:to:cc;
         bh=Us+zKhWOc0nF2Stw/sjqwIYhi1P3cVkrUO+fKBNUwt4=;
-        b=kChPl54dn9ymEmCalokFzgP0MuYBhYIUai4sfhGRDTh7cmSDYrE9/f2w2wlzy79P1U
-         odUElDEA6bydiFE9ZvHxHgUU1DeCZfPfixc+QnXh6sqh3mCROa7cWR80GWycaCUfb4IF
-         UBKXlwIVApSR31H2zG7ZxWF6WxQTdY9nQlI9tLzJ7tq7xXyPlCbj3ruaO4VmIFc2t8FP
-         u5EoeZ4mdLG9kegCOTiKILj3FbecfJPwMC/TsHIbN2mbiBeuIHnoLEgj58tO1/iziyT3
-         ZHyFWI96H8MuXgxec7wRTEFCpZDQz1eBjJcUj1sj21HyfKjhnsCK5NAQONRKGgGjyfaK
-         ImQw==
+        b=aKhnLnCz8EWY/O9EwQPxzUF7jffQUPREucAEu/8yKU3QJT4H7vWbyhQ79WNhCjEevC
+         EWdjs6sr3iSqinEvLhq3LQjeiCyov9YbtBKKZdSDwNMNa01kfboS+9K1y9YJBIDd7/3b
+         DcfN94LhoDlCUDPYrhKYXqRX/KEyuLJnzYMRpqotPiVTboFLvnuKf4Vy2Bwr5fkLVSX4
+         QRftCpolQAJIyqqfLeDkCj2PVgFBxu2bTT/WQhuoS+HZ5+4PUMI9Vl1XUUCmD4QCipG9
+         OgJ/KdWNJBMVquN4Gm5pJpD16KJvtnAB2fsC1H/gpgTZ3Dnz/I7ucCh9Uxr7yUC3LBtl
+         517A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
          :to:cc;
         bh=Us+zKhWOc0nF2Stw/sjqwIYhi1P3cVkrUO+fKBNUwt4=;
-        b=Qo4U42FKaxTn+ZE4yJSNcbLewUDyIXg3L2hEj9XKg3MYxTLimadU5xkgL8Ns7cUj9K
-         rkEVJOPA5fvKX4nQ5H2OVrLofpkHWtfjzDFZi7vvnsQn0eW4xl0sZJaJfZAFoZQ2M5b9
-         WNG+HNWBiA5F6LYmyGqPjc5eD2BYjAhTTYYcz1DyDZkN0nasOcTzJsYDzIteNj+Rju/0
-         K2fwxyI7gwKKPNUh8mFRqfE/E4ERqsVL8Znn4Wnp0K3y56liYVJcrqq6+h3iMvhNYtFu
-         JlnfJZ0KZkauwSyUwjWeuTJqgaWVbWC3WE+Ip39BZJDYHbjQPKA2E3ezmMU6LoPtW4mM
-         LgLA==
-X-Gm-Message-State: AOAM533WgGBeBLCRQISNzfGwvQjoDICrIdFIEniRlXYVFnnn6hh/bGnZ
-        Dl4LpVDJ2QQL+JwoUltrJfaqPJZnBZmVktfDMf8=
-X-Google-Smtp-Source: ABdhPJyZgdjJcZNgecDr3UiTzEn5aQy+0LYKn3Ej4qIsX1xwC3PrG7l2IDzKFUt1pE1eWuX67nXFBj1sKlB/v8+4iqU=
+        b=eiScTsEX/aiiV2KSLT0vtI951df5G9i1Zzn/JRkTpWG0+LRktdvDHwG33lL2BgmR4a
+         qWjOCTLxe4keXW95fof0XdGhQgxiBorIWyIcOmsrO8IDVSifvmvI21PPZwViyq9vN22/
+         r7CZQsioI8r6B9HjZZOWVVByK+u8XLTOkSO4Dx3hCjOQgva6zrihPJ8DQ9iBmgvUzjJX
+         274HkUHfsOeVVo00NmOC5T7a91JwgmD6rW8LAXnPFLREaS9NoF7LjhNAmLL9AtCwLbYN
+         j1Ce/KtpfvbtNO4eODolo0rEAYsggEOSGqqeItrywsHTSpRhcClh5sKwjBc71GBdap8H
+         wKKw==
+X-Gm-Message-State: AOAM531tjCzi2sOnCCj5rfHDA6A1jZuEOCI14aCLADYQyd+rJhOwudCX
+        SosSvQsfFcfFxLqkknk3NPNGUTdDJ3yxR2x1Zsc=
+X-Google-Smtp-Source: ABdhPJzkO3H/IKD862kuXcVEH4xOvXmWJhAuD7nBvOpcRiMMFVRvYMEB2L86b1PuOaKUQ16K1EJg5SgYQUqKJi9hpgE=
 X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:4d25])
- (user=ndesaulniers job=sendgmr) by 2002:a62:7c97:: with SMTP id
- x145mr8231879pfc.155.1598363935586; Tue, 25 Aug 2020 06:58:55 -0700 (PDT)
-Date:   Tue, 25 Aug 2020 06:58:36 -0700
-Message-Id: <20200825135838.2938771-1-ndesaulniers@google.com>
+ (user=ndesaulniers job=sendgmr) by 2002:a17:902:8f82:: with SMTP id
+ z2mr7778537plo.177.1598364016898; Tue, 25 Aug 2020 07:00:16 -0700 (PDT)
+Date:   Tue, 25 Aug 2020 07:00:00 -0700
+Message-Id: <20200825140001.2941001-1-ndesaulniers@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
 Subject: [PATCH v3] lib/string.c: implement stpcpy
@@ -58,10 +58,11 @@ Cc:     clang-built-linux@googlegroups.com,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Sami Tolvanen <samitolvanen@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Yury Norov <yury.norov@gmail.com>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
