@@ -2,74 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA00251FB2
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 21:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82634251FB8
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 21:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726497AbgHYTTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 15:19:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50504 "EHLO
+        id S1726541AbgHYTT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 15:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726066AbgHYTTd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 15:19:33 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8669BC061574;
-        Tue, 25 Aug 2020 12:19:33 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id m34so7492999pgl.11;
-        Tue, 25 Aug 2020 12:19:33 -0700 (PDT)
+        with ESMTP id S1726066AbgHYTT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 15:19:59 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE91DC061574;
+        Tue, 25 Aug 2020 12:19:58 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id g6so1608pjl.0;
+        Tue, 25 Aug 2020 12:19:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=cQlHqlc1tK1iEWmUufJf/eq4OirISs+gpFvJgf67QNk=;
-        b=CD9OUsxdm52u8bG5e7uJkt+eG6cUJzOAB/gaE8afwN/Aa2Pad22Jm2uESi55wrAhYu
-         karNaAW9Qk8Cqcw54T7D/y9ZFzvqeZFxnxutSkR4PGGFXUKhPnC0/Y5WAnDeKhEkQF5w
-         ckKZrJrg6LHPQCnUN2yWpDdQoBbNRE0VInc7dx7jril0IBNT/OJATwLFz6941Mh5DqzC
-         nW1iK7ZYxObFMOJ+Y9cK5K3FElueeEzkkgDRDYW6GnNpjYHli/e8Nxi7VKBaVuPp/yfo
-         4Sdsor15HCVnUWrJlq8ksM6r3DNh/8Khah7V8eJZmBKxGLExxhYFnULe4Pi3bBt/OoRV
-         T2dQ==
+        bh=rWYYUp5MIu9wxm0/9CIouQbFT3sbCMmmwTmM85UmO7M=;
+        b=OQTa3JdDGa9zFrl8O6pglwnWEeTaJfULQoAR/r8xVHGN51o9aJW2BSE3YbDqXn9StV
+         rz2GesZ3Q8G+n+nNxN63aSXeS6ZHCUHnSeyde2qpS5DuY6uxmRIN9f1qDO7fY4IvFMQw
+         aujz4hEoT6OqjwSULL6KJN6+/DqPlI8aV6T08ZNOB7QluX77/lhuWkwZ3pcM8Zq4AECQ
+         bAa0lz/yVNld8Dy5Vcc5nuYZ85imrowxsnqEJ5b66+uXdMhmX4UpS7gi9Rh10Rkp6SpB
+         y0e4HybtHvqXl0qGQNipo4FnhLhVnZut5/6pJG9+iCG4cA9E02OQARU0Nf2APLDcg8dx
+         9EyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=cQlHqlc1tK1iEWmUufJf/eq4OirISs+gpFvJgf67QNk=;
-        b=Tv4dbEq+8dFVDZxhVqy8baFaGnKPbRz8BD3FteyVxrxp3sB0+VhVQdjPRncPK/Rh9D
-         cNlAWiVV7OCMa403Wyr283rYadbBAsCI/q4NIRf6fn6CRvPAg336hOXVRKGnMd6DAsWm
-         I2sJX4sM7NBAIn+gh+PcA10KASlMvwe5qpfBDY14WgHo9I88FgPK9s+ja7rVPjlWquoJ
-         PL0RSF7tAGvGyJkcsqWskLQJPSIwdUR/92fA/N7EVs/+DPT6MwFNHvBzATKWuiSY2kKN
-         7CHbFEVlJkjiAvmZODL4/gHWzwxCo++q+2sQ2jgsOT65HyJwbZAxjh06TbELLdTp7dVi
-         6Kqg==
-X-Gm-Message-State: AOAM533YZxpOvk7u3IqlvC8cvgX1XPulCb3aNuFIGNavwq63RMKd9qEU
-        9FaTsH/zjXa0nQAzbLsFW5DfGTMyc+M=
-X-Google-Smtp-Source: ABdhPJzNcNP7Ayh6nnN0MrZn1K7s3rdVQ3AMbrAXAC9/UWLHkQgBgjscMiu+JeAxYpR5fROGay1VVA==
-X-Received: by 2002:a63:31d0:: with SMTP id x199mr7184877pgx.99.1598383173141;
-        Tue, 25 Aug 2020 12:19:33 -0700 (PDT)
+        bh=rWYYUp5MIu9wxm0/9CIouQbFT3sbCMmmwTmM85UmO7M=;
+        b=NU/ltu9P2L4/AN4FxnKWMV4oqMNpOdZhZ85Pmaj5RhETOGRid/Nvk2DI5pwEjl95cP
+         A4V+mp9f9QNqAxs2/xQjFmP5yddJMdib8od4k3H6msIuZ8I3DDdYAiDMIPfh05JwHo/Y
+         glqlxAeOPHH89544vURLM0bZkSUO4XzQq177q/srrTi73RyLoqRloVMIhCedPz4+a4oS
+         SIIriXPvqrxzq66iYYGDlorKcTL3u2Bsp52Oy3B/rHroHhwP8O8bBeYqqBdMv5X6+Z+b
+         VIhZRLy37zHZxVyVpdZDeSuPi4j0uq7DRxFSi149OkkE5l1+Iv/pY6VXF54i8GiN4Zao
+         V/NQ==
+X-Gm-Message-State: AOAM532eRXBNdO/JIc0R1zHnSAzjIwdOX5kQaMabCmF/Ro6Xun4IvsWm
+        yJ8RJmZhf+m4a2q94Nf2aiE=
+X-Google-Smtp-Source: ABdhPJziQA6MAQFl8DfhoKgZaQp+FDbr+PbXFbWGMBem+hDjIkAqCDTAkdNgWl9g1nmLxWyx3zPSGw==
+X-Received: by 2002:a17:90a:bb81:: with SMTP id v1mr2681062pjr.220.1598383198507;
+        Tue, 25 Aug 2020 12:19:58 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id b20sm16156232pfp.140.2020.08.25.12.19.32
+        by smtp.gmail.com with ESMTPSA id j20sm9204829pfi.122.2020.08.25.12.19.57
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 25 Aug 2020 12:19:32 -0700 (PDT)
-Date:   Tue, 25 Aug 2020 12:19:31 -0700
+        Tue, 25 Aug 2020 12:19:57 -0700 (PDT)
+Date:   Tue, 25 Aug 2020 12:19:56 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/39] 4.9.234-rc2 review
-Message-ID: <20200825191931.GB36661@roeck-us.net>
-References: <20200824164720.742523552@linuxfoundation.org>
+Subject: Re: [PATCH 4.14 00/51] 4.14.195-rc2 review
+Message-ID: <20200825191956.GC36661@roeck-us.net>
+References: <20200824164724.981131044@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200824164720.742523552@linuxfoundation.org>
+In-Reply-To: <20200824164724.981131044@linuxfoundation.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 06:49:12PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.234 release.
-> There are 39 patches in this series, all will be posted as a response
+On Mon, Aug 24, 2020 at 06:49:24PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.195 release.
+> There are 51 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -80,7 +80,7 @@ On Mon, Aug 24, 2020 at 06:49:12PM +0200, Greg Kroah-Hartman wrote:
 Build results:
 	total: 171 pass: 171 fail: 0
 Qemu test results:
-	total: 386 pass: 386 fail: 0
+	total: 408 pass: 408 fail: 0
 
 Tested-by: Guenter Roeck <linux@roeck-us.net>
 
