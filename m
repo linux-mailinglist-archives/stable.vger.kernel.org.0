@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E4D5251195
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 07:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCAC12511C0
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 07:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728789AbgHYFet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 01:34:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33874 "EHLO
+        id S1728904AbgHYFwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 01:52:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728598AbgHYFes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 01:34:48 -0400
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92595C061574
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 22:34:48 -0700 (PDT)
-Received: by mail-ua1-x942.google.com with SMTP id h19so1859396ual.10
-        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 22:34:48 -0700 (PDT)
+        with ESMTP id S1728861AbgHYFw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 01:52:29 -0400
+Received: from mail-vk1-xa43.google.com (mail-vk1-xa43.google.com [IPv6:2607:f8b0:4864:20::a43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FB5C061755
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 22:52:28 -0700 (PDT)
+Received: by mail-vk1-xa43.google.com with SMTP id o2so2543400vkn.9
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 22:52:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=PaekePd+GUMlAPVeDLs32NXzFqhLDy3um0wCpNnWIqQ=;
-        b=gLMvKV5VUClmPRVowS/5lsoz9LOpypjox+UFD9WhekvZBf1f0VOCcATYQdO4k6Jfty
-         vJwYK98syVOt/EOi1qB4DHItS8lG5NZXg3z6GMNjanP487OOdFAn5W6YlZewySLirD77
-         PpU9Gi2GjKWwJGE4s5Lm8//UpqHRoYeWQ79LAA8+suOKrzQW6CGHpulLzsMzgzR7byr3
-         oQ34XmCXBb97I1LPVisYPRWb6f5l5rTryHNpNf9u3n6y9hJNBJQWHYOhMisUePnqrNBT
-         eCHxpksSlIGenkyY1lHq9D1fEjuBnt3x0S7+RJxlqvuEp7lz/w1RtuD7075zwpzk4ztH
-         joKA==
+        bh=M7XsooAFuHGHi3D3V0DX30y9bL0P0cmujAiQdt5pyvk=;
+        b=gL/syhdAGBBcGdIdbtXPT1t60LAH98hYc36gXrkjtycE/sDFAmczB9X0gWxvo517R1
+         sz0MN2T1y2dSGtS3fuwu7plCdEwko7Ob3bYzFzIXTtOtk+o0HGZRqOAWsUS9BXze5qgJ
+         qQnUXylr/jEGboVLqrS/+YH2Wzkpf9DqWp+D1+W8qnvBe1tgHDqEolim3uTHbi7LNLaZ
+         uBig9RtB9UFxPMP9EKqkPFlUDP01FTcj3ru8hZy+eH5oolaP44elR+3q4WuS+9iroM8s
+         EwxwKHl/kyYM/55LA1b2r+/BGv3pEIPYfM7A0oCxY5EXm7dGw2lr/kEXkXSPugA4C1QV
+         3+7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PaekePd+GUMlAPVeDLs32NXzFqhLDy3um0wCpNnWIqQ=;
-        b=e/Cm8TMrCT/mruAuCvxBOarOQaNtRbDdgpX32NZqWo0vzZMZNVwS/eUeg10XlulqEx
-         bFb90Fr3o13F8EnYsl13iOAykzz8RjpsrR+baHUnDkxOrKVmObjh84DWrjCcMl3jjta9
-         6YBL0EqdHMqWJDUXWahxHY+g4Bl4oXRfq5VZIi5dm7hvXilFJcDx1tixovFCH4YntaGz
-         v4r912W0sQBDJ2w/isu7UY9pLYRcC7Mg6HvaThSKdUXJBB/VjAt9WrDM8x32yDtBeyZP
-         nJNdhBnNFmE6/j+G9Qax7HfaGmKXfOXX16lNFQ8Enj8Hm2hk0YSNBSZsfLGCl0+g2gwS
-         5FOg==
-X-Gm-Message-State: AOAM532t0LyMcmLZSqScu4MgKBLpEp5B71F+kg9EA4BIaVncCI4iMTGl
-        uQ4QYKQfBpY7kecspThGtkGgVTt35EUx3DbbbZQO7g==
-X-Google-Smtp-Source: ABdhPJzx9GhGTvLBPcfcsQiEXUwWu2GR2Cn1ZLdwtFitn7xbwXKBkM4XuFLoESC4Cp5edBA4JKh8Til1FTjjgl1a27o=
-X-Received: by 2002:ab0:142e:: with SMTP id b43mr4640459uae.7.1598333687686;
- Mon, 24 Aug 2020 22:34:47 -0700 (PDT)
+        bh=M7XsooAFuHGHi3D3V0DX30y9bL0P0cmujAiQdt5pyvk=;
+        b=psML5XRUmFiGmUvezYT/qFAwoGLa5tYWYlGsJbo+aKhF7UiHrHZdJtSkMrES1GLz34
+         2ui5Jr9xSJe5jEtQuYlZKKkxjDHjXs9tfBL1Hrz22F56VMFfNJ/TIxrI0CdQ+sks1WVb
+         lEHQ2uJDZuMSbjmY4dazqKg55n3Fd5o4N0P5C8zODAEPzrAAyiwahbBgJZZCuj2CaD+c
+         Os7FRlfGpA8FS5Cf68QeEEVLt1gI8iO2q8cFLG1ohVkgOidjsLWBs1Az0X2iuYXKELwO
+         cNOTlynMH4xQlzuWUT0S/6DRoIDagAVKTTb3fmZDK76xlImoa5klXHCcXTkijzPoyre2
+         14Qw==
+X-Gm-Message-State: AOAM530eMc4FSBQxVsS8XargzhalsbMBV0MQNtjYI8UMwZyClt0ME9rg
+        avIG7bKvoVJnZMdYkiTe7VoQQQHuSdU0iFmClmE8gw==
+X-Google-Smtp-Source: ABdhPJyQ208O7MAlUBfz9+NVG8ImFQwisVQrPUl0rUjQUurqJzeS/28Syl8UyLGYyB5/ubAXEePM3Uv/VQXWn+ndhzI=
+X-Received: by 2002:a1f:2fc1:: with SMTP id v184mr4748425vkv.42.1598334746920;
+ Mon, 24 Aug 2020 22:52:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200824164741.748994020@linuxfoundation.org>
-In-Reply-To: <20200824164741.748994020@linuxfoundation.org>
+References: <20200824164737.830839404@linuxfoundation.org>
+In-Reply-To: <20200824164737.830839404@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Aug 2020 11:04:36 +0530
-Message-ID: <CA+G9fYtCtXBXmUBBdy1kWa_fcs3jPVQm4UWwx=JTA8oVL1XdtQ@mail.gmail.com>
-Subject: Re: [PATCH 5.7 000/127] 5.7.18-rc2 review
+Date:   Tue, 25 Aug 2020 11:22:14 +0530
+Message-ID: <CA+G9fYuodyaEJdGG75fQCrp9+WDZaj8W-V6uSgOaJLfGxQDJ7w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/109] 5.4.61-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Aug 2020 at 22:18, Greg Kroah-Hartman
+On Mon, 24 Aug 2020 at 22:19, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.7.18 release.
-> There are 127 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.61 release.
+> There are 109 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Mon, 24 Aug 2020 at 22:18, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.7.18-rc2.gz
+5.4.61-rc2.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.7.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -90,26 +90,28 @@ On Mon, 24 Aug 2020 at 22:18, Greg Kroah-Hartman
 > greg k-h
 >
 
+
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
 
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.7.18-rc2
+kernel: 5.4.61-rc2
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.7.y
-git commit: f16d132bb2de3adb5e9470242c50c83b6d5d9a54
-git describe: v5.7.17-128-gf16d132bb2de
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/bui=
-ld/v5.7.17-128-gf16d132bb2de
+git branch: linux-5.4.y
+git commit: d3dbec480949413c968365e6f8c25b1e7847e4dd
+git describe: v5.4.60-110-gd3dbec480949
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.60-110-gd3dbec480949
 
-No regressions (compared to build v5.7.17)
+No regressions (compared to build v5.4.60)
 
-No fixes (compared to build v5.7.17)
+No fixes (compared to build v5.4.60)
 
-Ran 34887 total tests in the following environments and test suites.
+
+Ran 36416 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -133,42 +135,41 @@ Test Suites
 * build
 * igt-gpu-tools
 * install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
 * linux-log-parser
-* ltp-cap_bounds-tests
 * ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
 * ltp-cve-tests
 * ltp-dio-tests
+* ltp-fs-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
 * ltp-mm-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-math-tests
 * ltp-nptl-tests
 * ltp-pty-tests
 * ltp-sched-tests
 * ltp-securebits-tests
-* ltp-tracing-tests
-* v4l2-compliance
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* ltp-commands-tests
+* network-basic-tests
 * ltp-controllers-tests
-* ltp-math-tests
-* perf
-* kselftest/net
-* libhugetlbfs
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
-* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
 * ltp-open-posix-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ssuite
+* ltp-tracing-tests
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-native/drivers
 * kselftest-vsyscall-mode-native/filesystems
@@ -177,6 +178,7 @@ Test Suites
 * kselftest-vsyscall-mode-none/drivers
 * kselftest-vsyscall-mode-none/filesystems
 * kselftest-vsyscall-mode-none/net
+* ssuite
 
 --=20
 Linaro LKFT
