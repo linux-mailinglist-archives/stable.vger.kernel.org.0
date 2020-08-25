@@ -2,157 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DB9251BCC
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 17:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31096251BE4
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 17:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726457AbgHYPFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 11:05:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:53514 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726096AbgHYPFS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Aug 2020 11:05:18 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id F2602AEBB;
-        Tue, 25 Aug 2020 15:05:47 +0000 (UTC)
-Date:   Tue, 25 Aug 2020 17:05:16 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     christian.brauner@ubuntu.com, mingo@kernel.org,
-        peterz@infradead.org, tglx@linutronix.de, esyr@redhat.com,
-        christian@kellner.me, areber@redhat.com, shakeelb@google.com,
-        cyphar@cyphar.com, oleg@redhat.com, adobriyan@gmail.com,
-        akpm@linux-foundation.org, ebiederm@xmission.com,
-        gladkov.alexey@gmail.com, walken@google.com,
-        daniel.m.jordan@oracle.com, avagin@gmail.com,
-        bernd.edlinger@hotmail.de, john.johansen@canonical.com,
-        laoar.shao@gmail.com, timmurray@google.com, minchan@kernel.org,
-        kernel-team@android.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH v2 1/1] mm, oom_adj: don't loop through tasks in
- __set_oom_adj when not necessary
-Message-ID: <20200825150516.GJ22869@dhcp22.suse.cz>
-References: <20200824153036.3201505-1-surenb@google.com>
+        id S1726191AbgHYPLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 11:11:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40122 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726096AbgHYPLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 11:11:04 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA292C061574;
+        Tue, 25 Aug 2020 08:11:03 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id 2so1915839wrj.10;
+        Tue, 25 Aug 2020 08:11:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=message-id:subject:from:reply-to:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=zGwmmwPw3Le2wH1Emc9uaafD9ZICagjL8Io08HFMTg0=;
+        b=kmIa3bGpCHQR9WehyCp7+1HD5BfIVmwhr7LEWscMsQYHBD/EgJwjdITfG/wmcw3M6F
+         fAk5xFqYrAeIe5BsW5GS1XYU/+Zusmtr/JS8kzZnk8JyW030xuHZxwrBbaExW89LIbxU
+         AQe4qPT1a5/UD+ZuoUUCkybUarwVq4QMRPAeiRHzR7USA6Osi9rZZ3YmggTHDwesXS5y
+         biZA+TN+kQ1yrU9WbagW3BaNygWBCIvr4ECuc4Ds4vaaA0H7oWqHV90i8kvSKy11YTaz
+         LGGKsX1Ii/hEzDx9iSVKYoDEsYa1E+7/JReAaicezSotN/TtuGe0w4Vy5N8bAFBEwK9m
+         zfpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
+         :in-reply-to:references:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=zGwmmwPw3Le2wH1Emc9uaafD9ZICagjL8Io08HFMTg0=;
+        b=Q06W/8+UQjFIigGBKu+iwHtiwIK2guAg+88vG7asyqILGJjwbzmghl5i+pbtPcKLLj
+         wB4kEh1ANgJBWEKkj5k095QlF81e1YJLVrDRlm5ozLysnCEqHEhURLVjkVi75A0TvSs+
+         Gn5jwxilqdp4qyfcaFV2N+h5PSxsgk+9bzJTxvHjh5YbE61L6zPOjLwvCWMAXBXyIwHo
+         fQCEhGmhqOcAbLY5EWtnQe2ENsVgEJzOrVhFwgOr7UmZPAMt4pCNxVFBPHJYMAb+4+oi
+         FyEdcMXJhQoDOwO+7KIs2qgd7JXDVIgc5cXZUa4j05VcmtUHwCneckeRtGjxo0BWKzTe
+         CbnA==
+X-Gm-Message-State: AOAM530cxdiDe8XTCyJTYr/5+3oWvqUt2G/JkMSYQ7ssVk9tVZ0jTEsk
+        2deI6Xofpge6je04Uva6k11PwFpc7+s=
+X-Google-Smtp-Source: ABdhPJwgBnGNu33aGEgjIVktAH11ksdR/aOlw+gqj6vInGkZPyORLyPKDOh+Vo+kPXgG9fTRRxmKsw==
+X-Received: by 2002:adf:de8d:: with SMTP id w13mr10928850wrl.129.1598368262506;
+        Tue, 25 Aug 2020 08:11:02 -0700 (PDT)
+Received: from ?IPv6:2a02:8070:bb9:bc00::fc? ([2a02:8070:bb9:bc00::fc])
+        by smtp.gmail.com with ESMTPSA id j11sm30262625wrq.69.2020.08.25.08.11.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2020 08:11:01 -0700 (PDT)
+Message-ID: <c8915d7b91035e15dc87a4540a6dcfc5c4c0bf1a.camel@googlemail.com>
+Subject: Re: v4.19.132: r8169: possible bug during load
+From:   Christoph Fritz <chf.fritz@googlemail.com>
+Reply-To: chf.fritz@googlemail.com
+To:     Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, netdev@vger.kernel.org
+Date:   Tue, 25 Aug 2020 17:11:01 +0200
+In-Reply-To: <eab4f025-fabf-63fc-6bde-0a936cf2731b@gmail.com>
+References: <c3193408e36e762a53a13867c0ea8e253147edf2.camel@googlemail.com>
+         <eab4f025-fabf-63fc-6bde-0a936cf2731b@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200824153036.3201505-1-surenb@google.com>
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 24-08-20 08:30:36, Suren Baghdasaryan wrote:
-> Currently __set_oom_adj loops through all processes in the system to
-> keep oom_score_adj and oom_score_adj_min in sync between processes
-> sharing their mm. This is done for any task with more that one mm_users,
-> which includes processes with multiple threads (sharing mm and signals).
-> However for such processes the loop is unnecessary because their signal
-> structure is shared as well.
-> Android updates oom_score_adj whenever a tasks changes its role
-> (background/foreground/...) or binds to/unbinds from a service, making
-> it more/less important. Such operation can happen frequently.
-> We noticed that updates to oom_score_adj became more expensive and after
-> further investigation found out that the patch mentioned in "Fixes"
-> introduced a regression. Using Pixel 4 with a typical Android workload,
-> write time to oom_score_adj increased from ~3.57us to ~362us. Moreover
-> this regression linearly depends on the number of multi-threaded
-> processes running on the system.
-> Mark the mm with a new MMF_PROC_SHARED flag bit when task is created with
-> (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK). Change __set_oom_adj to use
-> MMF_PROC_SHARED instead of mm_users to decide whether oom_score_adj
-> update should be synchronized between multiple processes. To prevent
-> races between clone() and __set_oom_adj(), when oom_score_adj of the
-> process being cloned might be modified from userspace, we use
-> oom_adj_mutex. Its scope is changed to global and it is renamed into
-> oom_adj_lock for naming consistency with oom_lock. The combination of
-> (CLONE_VM && !CLONE_THREAD) is rarely used except for the case of vfork().
-> To prevent performance regressions of vfork(), we skip taking oom_adj_lock
-> and setting MMF_PROC_SHARED when CLONE_VFORK is specified. Clearing the
-> MMF_PROC_SHARED flag (when the last process sharing the mm exits) is left
-> out of this patch to keep it simple and because it is believed that this
-> threading model is rare. Should there ever be a need for optimizing that
-> case as well, it can be done by hooking into the exit path, likely
-> following the mm_update_next_owner pattern.
-> With the combination of (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK) being
-> quite rare, the regression is gone after the change is applied.
+On Tue, 2020-08-25 at 13:06 +0200, Heiner Kallweit wrote:
+> I don't see how the improvement to the r8169 driver and the issues deep
+> in the network stack should be related. Was the referenced r8169 commit
+> result of a bisect?
+
+Nope, just a best guess.
+
+It takes some hours to hit the issue and most of the time there is no
+trace, just a frozen OS.
+
+> The Debian kernel may include additional Distro-specific patches.
+> I'd recommend re-testing with mainline kernels.
 > 
-> Fixes: 44a70adec910 ("mm, oom_adj: make sure processes sharing mm have same view of oom_score_adj")
-> Reported-by: Tim Murray <timmurray@google.com>
-> Debugged-by: Minchan Kim <minchan@kernel.org>
-> Suggested-by: Michal Hocko <mhocko@kernel.org>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> Also 4.19 has been out for quite some time and boards with r8169-driven
+> chips are very common (basically every consumer mainboard). In case of a
+> general driver issue I'd expect to have received more such reports.
+> Do you use any special network features on your system?
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+mhm, ... maybe a bit unusual load: a lot of tftp, NFS and KVM.
 
-I hope we can build on top of this and move oom_core* stuff to the
-mm_struct to remove all this cruft but I still think that this is
-conceptually easier to backport to older kernels than a completely new
-approach.
+That's the first time I'm using a distro kernel. I guess I'll just dial
+back and stick to backing mainline again.
 
-Btw. now that the flag is in place we can optimize __oom_kill_process as
-well. Not that this particular path is performance sensitive. But it
-could show up in group oom killing in memcgs. It should be as simple as
-(I can prepare an official patch unless somebody beat me to it)
+Thanks
+  -- Christoph
 
-diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-index c22f07c986cb..04cf958d0c29 100644
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -906,29 +906,31 @@ static void __oom_kill_process(struct task_struct *victim, const char *message)
- 	 * That thread will now get access to memory reserves since it has a
- 	 * pending fatal signal.
- 	 */
--	rcu_read_lock();
--	for_each_process(p) {
--		if (!process_shares_mm(p, mm))
--			continue;
--		if (same_thread_group(p, victim))
--			continue;
--		if (is_global_init(p)) {
--			can_oom_reap = false;
--			set_bit(MMF_OOM_SKIP, &mm->flags);
--			pr_info("oom killer %d (%s) has mm pinned by %d (%s)\n",
--					task_pid_nr(victim), victim->comm,
--					task_pid_nr(p), p->comm);
--			continue;
-+	if (test_bit(MMF_PROC_SHARED, &p->mm->flags)) {
-+		rcu_read_lock();
-+		for_each_process(p) {
-+			if (!process_shares_mm(p, mm))
-+				continue;
-+			if (same_thread_group(p, victim))
-+				continue;
-+			if (is_global_init(p)) {
-+				can_oom_reap = false;
-+				set_bit(MMF_OOM_SKIP, &mm->flags);
-+				pr_info("oom killer %d (%s) has mm pinned by %d (%s)\n",
-+						task_pid_nr(victim), victim->comm,
-+						task_pid_nr(p), p->comm);
-+				continue;
-+			}
-+			/*
-+			 * No kthead_use_mm() user needs to read from the userspace so
-+			 * we are ok to reap it.
-+			 */
-+			if (unlikely(p->flags & PF_KTHREAD))
-+				continue;
-+			do_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_TGID);
- 		}
--		/*
--		 * No kthead_use_mm() user needs to read from the userspace so
--		 * we are ok to reap it.
--		 */
--		if (unlikely(p->flags & PF_KTHREAD))
--			continue;
--		do_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_TGID);
-+		rcu_read_unlock();
- 	}
--	rcu_read_unlock();
- 
- 	if (can_oom_reap)
- 		wake_oom_reaper(victim);
--- 
-Michal Hocko
-SUSE Labs
