@@ -2,107 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F181B25150C
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 11:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5D325150E
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 11:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726015AbgHYJL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 05:11:29 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:17546 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725947AbgHYJL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 05:11:27 -0400
-X-UUID: 6cbc9302bf5a43d297398539dbe21ee1-20200825
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=PZgvhtmBXbDNGHwDLxYVc6k3rDXTzjehSINrEt1I3V4=;
-        b=BL8iCtBL8zByAV6wMHdmeVwKb7BOf7ZfCYn6td3xdvo4qdvFaLjvc89HpRqtqYoWLT4nkk6FrnfJLExif3Ebg4RDHgI2pssZsS2Tsi8K+xZcLGIaEYJ39rGgZ5tN1kf//voFLqHjV6ZIRMua5nLCBtHIkt+vs2GopbyTXUwg6cI=;
-X-UUID: 6cbc9302bf5a43d297398539dbe21ee1-20200825
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
-        (envelope-from <stanley.chu@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1189287998; Tue, 25 Aug 2020 17:11:23 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 25 Aug 2020 17:11:19 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 25 Aug 2020 17:11:19 +0800
-Message-ID: <1598346681.10649.8.camel@mtkswgap22>
-Subject: Re: [PATCH] block: Fix a race in the runtime power management code
-From:   Stanley Chu <stanley.chu@mediatek.com>
-To:     Bart Van Assche <bvanassche@acm.org>
-CC:     Jens Axboe <axboe@kernel.dk>, <linux-block@vger.kernel.org>,
-        "Christoph Hellwig" <hch@lst.de>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Ming Lei <ming.lei@redhat.com>,
-        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
-Date:   Tue, 25 Aug 2020 17:11:21 +0800
-In-Reply-To: <20200824030607.19357-1-bvanassche@acm.org>
-References: <20200824030607.19357-1-bvanassche@acm.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1726905AbgHYJMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 05:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39412 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725947AbgHYJMR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 05:12:17 -0400
+Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400C4C061574
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 02:12:17 -0700 (PDT)
+Received: by mail-ua1-x942.google.com with SMTP id d20so3497419ual.13
+        for <stable@vger.kernel.org>; Tue, 25 Aug 2020 02:12:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=jE7fyxXiyeD/zjyIffJDN6llP2shlXse+KQvtM4Zc3c=;
+        b=U33AZncdoe7pC60BjfBybyA4VCU9xkfxbfTh1DJzFO/j7jnlex2b7MYcwaFTV0gCJE
+         OOu0aXt7jG3bNfrMJl8MZg16mGO0RjsBxIh7NU7TV9Q86eDv0X5ovj/zVrlVAXVq3z5Q
+         ESSjPrVUK73a3yuSr2dBiajlhv6ZXX/a61IqAGL3D1p7biF7NSDmiFnfhT4NJQYTCTrt
+         TWdNbwCUa6CmSB/U/eg3hv7B71gCd0HS10L87/0lqQQ+/apzYMSfgHg7dHqUM1CYFTE3
+         CtcsB+wqz2bWJqeTPB8kJJ2jYan5tjgqgdzyiHR7SP8XDRJfvsBLYnxKyWMUqsKLb4d2
+         KDAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=jE7fyxXiyeD/zjyIffJDN6llP2shlXse+KQvtM4Zc3c=;
+        b=p8vWOn8VR9Wj1akUopZVB1xVN8aM6qrProLzn7FppaYo0zc17iqOhUiZnQF27IcSxW
+         +y23N8HspbQHf447/6qsjsNpgcB9l90Fgt3375rB7FJgNSKaeG9ydFPFXVdaAhEwFDC2
+         m4S8vYUyf+Q7D05y308RBeCvnN+TYQ+lTHHqFNIGtSCuK7XejZB+0ldElx7pPMegQu+K
+         /xMHN1aK9Uxh0ftGC+2QC8q+yKj+LFiK7f63t8jyvaSTwX3vML308E6ocpOiWgc+EZRS
+         Bo/elorohw2zpRd9XM1JpkiL3IjfLbxOMTM4IihKtYbp1EflMQpnTjT11KpWmkW+pciG
+         uoUQ==
+X-Gm-Message-State: AOAM533nhK7sEq2xkwA/M2/V+jKr98mXK4koKJCNcDg0dSXXgaJZC1Sk
+        v1gAFc3Vo/wNIGToNt9dBMQCKP4Pc1DAOeO+MnHb7A==
+X-Google-Smtp-Source: ABdhPJzMiocbUNDCG4J3XaVWkUb9eExScfYJdhJxXpw9YL8Fi3wrOF1wnwitFoO1uajv2KpjUJTpXWf5v0BSu1rDwks=
+X-Received: by 2002:a9f:35d0:: with SMTP id u16mr4584256uad.113.1598346736185;
+ Tue, 25 Aug 2020 02:12:16 -0700 (PDT)
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 1415DBB965B67A0D6C9019982BE5298E896319063BC075E2D19CCADCCF26DD522000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+References: <20200824164720.742523552@linuxfoundation.org>
+In-Reply-To: <20200824164720.742523552@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 25 Aug 2020 14:42:04 +0530
+Message-ID: <CA+G9fYs-iJh6wNPetu=61=TnU4pRTLROY3p7qTxdAh9F3nBhcQ@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/39] 4.9.234-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-U29ycnksIHJlc2VuZCB0byBmaXggdHlwby4NCg0KSGkgQmFydCwNCg0KT24gU3VuLCAyMDIwLTA4
-LTIzIGF0IDIwOjA2IC0wNzAwLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6DQo+IFdpdGggdGhlIGN1
-cnJlbnQgaW1wbGVtZW50YXRpb24gdGhlIGZvbGxvd2luZyByYWNlIGNhbiBoYXBwZW46DQo+ICog
-YmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoKSBjYWxscyBibGtfZnJlZXplX3F1ZXVlX3N0YXJ0KCkg
-YW5kDQo+ICAgYmxrX21xX3VuZnJlZXplX3F1ZXVlKCkuDQo+ICogYmxrX3F1ZXVlX2VudGVyKCkg
-Y2FsbHMgYmxrX3F1ZXVlX3BtX29ubHkoKSBhbmQgdGhhdCBmdW5jdGlvbiByZXR1cm5zDQo+ICAg
-dHJ1ZS4NCj4gKiBibGtfcXVldWVfZW50ZXIoKSBjYWxscyBibGtfcG1fcmVxdWVzdF9yZXN1bWUo
-KSBhbmQgdGhhdCBmdW5jdGlvbiBkb2VzDQo+ICAgbm90IGNhbGwgcG1fcmVxdWVzdF9yZXN1bWUo
-KSBiZWNhdXNlIHRoZSBxdWV1ZSBydW50aW1lIHN0YXR1cyBpcw0KPiAgIFJQTV9BQ1RJVkUuDQo+
-ICogYmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoKSBjaGFuZ2VzIHRoZSBxdWV1ZSBzdGF0dXMgaW50
-byBSUE1fU1VTUEVORElORy4NCj4gDQo+IEZpeCB0aGlzIHJhY2UgYnkgY2hhbmdpbmcgdGhlIHF1
-ZXVlIHJ1bnRpbWUgc3RhdHVzIGludG8gUlBNX1NVU1BFTkRJTkcNCj4gYmVmb3JlIHN3aXRjaGlu
-ZyBxX3VzYWdlX2NvdW50ZXIgdG8gYXRvbWljIG1vZGUuDQo+IA0KPiBDYzogQWxhbiBTdGVybiA8
-c3Rlcm5Acm93bGFuZC5oYXJ2YXJkLmVkdT4NCj4gQ2M6IFN0YW5sZXkgQ2h1IDxzdGFubGV5LmNo
-dUBtZWRpYXRlay5jb20+DQo+IENjOiBNaW5nIExlaSA8bWluZy5sZWlAcmVkaGF0LmNvbT4NCj4g
-Q2M6IHN0YWJsZSA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NCj4gRml4ZXM6IDk4NmQ0MTNiN2Mx
-NSAoImJsay1tcTogRW5hYmxlIHN1cHBvcnQgZm9yIHJ1bnRpbWUgcG93ZXIgbWFuYWdlbWVudCIp
-DQo+IFNpZ25lZC1vZmYtYnk6IENhbiBHdW8gPGNhbmdAY29kZWF1cm9yYS5vcmc+DQo+IFNpZ25l
-ZC1vZmYtYnk6IEJhcnQgVmFuIEFzc2NoZSA8YnZhbmFzc2NoZUBhY20ub3JnPg0KPiAtLS0NCj4g
-IGJsb2NrL2Jsay1wbS5jIHwgMTUgKysrKysrKysrLS0tLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwg
-OSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2Jsb2Nr
-L2Jsay1wbS5jIGIvYmxvY2svYmxrLXBtLmMNCj4gaW5kZXggYjg1MjM0ZDc1OGY3Li4xN2JkMDIw
-MjY4ZDQgMTAwNjQ0DQo+IC0tLSBhL2Jsb2NrL2Jsay1wbS5jDQo+ICsrKyBiL2Jsb2NrL2Jsay1w
-bS5jDQo+IEBAIC02Nyw2ICs2NywxMCBAQCBpbnQgYmxrX3ByZV9ydW50aW1lX3N1c3BlbmQoc3Ry
-dWN0IHJlcXVlc3RfcXVldWUgKnEpDQo+ICANCj4gIAlXQVJOX09OX09OQ0UocS0+cnBtX3N0YXR1
-cyAhPSBSUE1fQUNUSVZFKTsNCj4gIA0KPiArCXNwaW5fbG9ja19pcnEoJnEtPnF1ZXVlX2xvY2sp
-Ow0KPiArCXEtPnJwbV9zdGF0dXMgPSBSUE1fU1VTUEVORElORzsNCj4gKwlzcGluX3VubG9ja19p
-cnEoJnEtPnF1ZXVlX2xvY2spOw0KPiArDQoNCkhhcyBiZWxvdyBhbHRlcm5hdGl2ZSB3YXkgYmVl
-biBjb25zaWRlcmVkIHRoYXQgUlBNX1NVU1BFTkRJTkcgaXMgc2V0DQphZnRlciBibGtfZnJlZXpl
-X3F1ZXVlX3N0YXJ0KCk/DQoNCglibGtfZnJlZXplX3F1ZXVlX3N0YXJ0KHEpOw0KDQorCXNwaW5f
-bG9ja19pcnEoJnEtPnF1ZXVlX2xvY2spOw0KKwlxLT5ycG1fc3RhdHVzID0gUlBNX1NVU1BFTkRJ
-Tkc7DQorCXNwaW5fdW5sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQoNCg0KT3RoZXJ3aXNlIHJl
-cXVlc3RzIGNhbiBlbnRlciBxdWV1ZSB3aGlsZSBycG1fc3RhdHVzIGlzIFJQTV9TVVNQRU5ESU5H
-DQpkdXJpbmcgYSBzbWFsbCB3aW5kb3csIGkuZS4sIGJlZm9yZSBibGtfc2V0X3BtX29ubHkoKSBp
-cyBpbnZva2VkLiBUaGlzDQp3b3VsZCBtYWtlIHRoZSBkZWZpbml0aW9uIG9mIHJwbV9zdGF0dXMg
-YW1iaWd1b3VzLg0KDQpJbiB0aGlzIHdheSwgdGhlIHJhY2luZyBjb3VsZCBiZSBhbHNvIHNvbHZl
-ZDoNCg0KLSBCZWZvcmUgYmxrX2ZyZWV6ZV9xdWV1ZV9zdGFydCgpLCBhbnkgcmVxdWVzdHMgc2hh
-bGwgYmUgYWxsb3dlZCB0bw0KZW50ZXIgcXVldWUNCi0gYmxrX2ZyZWV6ZV9xdWV1ZV9zdGFydCgp
-IGZyZWV6ZXMgdGhlIHF1ZXVlIGFuZCBibG9ja3MgYWxsIHVwY29taW5nDQpyZXF1ZXN0cyAobWFr
-ZSB0aGVtIHdhaXRfZXZlbnQocS0+bXFfZnJlZXplX3dxKSkNCi0gcnBtX3N0YXR1cyBpcyBzZXQg
-YXMgUlBNX1NVU1BFTkRJTkcNCi0gYmxrX21xX3VuZnJlZXplX3F1ZXVlKCkgd2FrZXMgdXAgcS0+
-bXFfZnJlZXplX3dxIGFuZCB0aGVuDQpibGtfcG1fcmVxdWVzdF9yZXN1bWUoKSBjYW4gYmUgZXhl
-Y3V0ZWQNCg0KVGhhbmtzLA0KDQpTdGFubGV5IENodQ0KDQoNCj4gIAkvKg0KPiAgCSAqIEluY3Jl
-YXNlIHRoZSBwbV9vbmx5IGNvdW50ZXIgYmVmb3JlIGNoZWNraW5nIHdoZXRoZXIgYW55DQo+ICAJ
-ICogbm9uLVBNIGJsa19xdWV1ZV9lbnRlcigpIGNhbGxzIGFyZSBpbiBwcm9ncmVzcyB0byBhdm9p
-ZCB0aGF0IGFueQ0KPiBAQCAtODksMTUgKzkzLDE0IEBAIGludCBibGtfcHJlX3J1bnRpbWVfc3Vz
-cGVuZChzdHJ1Y3QgcmVxdWVzdF9xdWV1ZSAqcSkNCj4gIAkvKiBTd2l0Y2ggcV91c2FnZV9jb3Vu
-dGVyIGJhY2sgdG8gcGVyLWNwdSBtb2RlLiAqLw0KPiAgCWJsa19tcV91bmZyZWV6ZV9xdWV1ZShx
-KTsNCj4gIA0KPiAtCXNwaW5fbG9ja19pcnEoJnEtPnF1ZXVlX2xvY2spOw0KPiAtCWlmIChyZXQg
-PCAwKQ0KPiArCWlmIChyZXQgPCAwKSB7DQo+ICsJCXNwaW5fbG9ja19pcnEoJnEtPnF1ZXVlX2xv
-Y2spOw0KPiArCQlxLT5ycG1fc3RhdHVzID0gUlBNX0FDVElWRTsNCj4gIAkJcG1fcnVudGltZV9t
-YXJrX2xhc3RfYnVzeShxLT5kZXYpOw0KPiAtCWVsc2UNCj4gLQkJcS0+cnBtX3N0YXR1cyA9IFJQ
-TV9TVVNQRU5ESU5HOw0KPiAtCXNwaW5fdW5sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQo+ICsJ
-CXNwaW5fdW5sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQo+ICANCj4gLQlpZiAocmV0KQ0KPiAg
-CQlibGtfY2xlYXJfcG1fb25seShxKTsNCj4gKwl9DQo+ICANCj4gIAlyZXR1cm4gcmV0Ow0KPiAg
-fQ0KDQoNCg0KDQoNCg==
+On Mon, 24 Aug 2020 at 22:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.234 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 26 Aug 2020 16:47:07 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.234-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.9.234-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 306b4f399ede253cce971b4320fa85046846fc70
+git describe: v4.9.233-40-g306b4f399ede
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.233-40-g306b4f399ede
+
+
+No regressions (compared to build v4.9.233)
+
+No fixes (compared to build v4.9.233)
+
+
+Ran 25581 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* network-basic-tests
+* ltp-open-posix-tests
+* kselftest/net
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
