@@ -2,86 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF62B251FCC
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 21:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 101AC2520E2
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 21:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726884AbgHYTWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 15:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726066AbgHYTWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 15:22:03 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECF2C061574;
-        Tue, 25 Aug 2020 12:22:03 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id 2so27552pjx.5;
-        Tue, 25 Aug 2020 12:22:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=H1K0vP9nnvM8ipz58LmpQfXWuzhTiZiUGcFErIU3e5g=;
-        b=acoXreXhdqH9kcY3UeIpin/j1KQvtYKJn/Rvv1bMXnZqM9y3a+gKnArABxh47MqoSL
-         /fft5MW2C/GthCzheItacM1L+nusF3xt6l8MDQYfRtckUa1+VazPyb/j3GEO4E0j8wEs
-         sCfOTQBLIqxxrCsUApnADSrnjSnlZ7Yu+SwJiNxi66PnTkciyOrNg3be59WE8wBHTu0H
-         A0ZT9ybupLI2cyvlUyKCWSVzYhhDI5o7vEEZvbb7VQ47XprCSfU8gWYbQttL9N6bCHQP
-         /t5TIZIDadjbCrZTYG2LhFtM+v6j5Q6g6MHhSfhwneFR/24wzCE7wdlYBWwwDF9WWQ7M
-         2PMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=H1K0vP9nnvM8ipz58LmpQfXWuzhTiZiUGcFErIU3e5g=;
-        b=f4sUUnSPesnm13M222I7E66ZZwdETQRJ9n8Kkjgt5IX2ODT9DpydYhw/gEzqJEvFfZ
-         dRQewkKjdqeuOSqKBWE7/5BqBZqEYV3y3KU/B1Lvsy39oS+zth8HYY1/eblsciq6p6KL
-         ULTAqpvCThssTCYYHHrqcrG9noam5xEH1FYFDcpmNxN6vF7Fo7q7dV/RQbzof2EEDDIW
-         PebqJUoVFLhLGLr1z+FnsyF7RxelDtPaTKWl0OcEsbc9gC5UOPtbgGKTPwc6drXOSQcJ
-         H0i72KHi5YtnFDJDhDSrFANH24RJTOXVWAFlGp5D/X1uXzrwszh80hBDUm+2m7tEClP0
-         x1RA==
-X-Gm-Message-State: AOAM533FFk2YRNBRomVeRHcW7KRF+JESE6+FyW54/1mnzVEZR0k5pU30
-        AIw1YVva+sg9AGKLA4GJHBs=
-X-Google-Smtp-Source: ABdhPJx+qEUa/ALZZGb26XpqNTQikNdn04BRNGABf8B4aVQZ3mc74BKCies3aE4yAe/IDaXDEoyqsw==
-X-Received: by 2002:a17:90b:1a84:: with SMTP id ng4mr2753617pjb.224.1598383322801;
-        Tue, 25 Aug 2020 12:22:02 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y13sm522807pfn.214.2020.08.25.12.22.02
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 25 Aug 2020 12:22:02 -0700 (PDT)
-Date:   Tue, 25 Aug 2020 12:22:01 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
+        id S1726593AbgHYTqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 15:46:24 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47524 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726090AbgHYTqX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 15:46:23 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7BCE71C0BB9; Tue, 25 Aug 2020 21:46:21 +0200 (CEST)
+Date:   Tue, 25 Aug 2020 21:46:21 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/149] 5.8.4-rc2 review
-Message-ID: <20200825192201.GG36661@roeck-us.net>
-References: <20200824164745.715432380@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        JiangYu <lnsyyj@hotmail.com>,
+        Daniel Meyerholt <dxm523@gmail.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 22/71] scsi: target: tcmu: Fix crash in
+ tcmu_flush_dcache_range on ARM
+Message-ID: <20200825194621.GA27453@duo.ucw.cz>
+References: <20200824082355.848475917@linuxfoundation.org>
+ <20200824082356.994960635@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
 Content-Disposition: inline
-In-Reply-To: <20200824164745.715432380@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200824082356.994960635@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 06:48:20PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.4 release.
-> There are 149 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 Aug 2020 16:47:07 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 430 pass: 430 fail: 0
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Hi!
 
-Guenter
+> From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+>=20
+> [ Upstream commit 3145550a7f8b08356c8ff29feaa6c56aca12901d ]
+>=20
+> This patch fixes the following crash (see
+> https://bugzilla.kernel.org/show_bug.cgi?id=3D208045)
+>=20
+>  Process iscsi_trx (pid: 7496, stack limit =3D 0x0000000010dd111a)
+>  CPU: 0 PID: 7496 Comm: iscsi_trx Not tainted 4.19.118-0419118-generic
+>         #202004230533
+>  Hardware name: Greatwall QingTian DF720/F601, BIOS 601FBE20 Sep 26 2019
+>  pstate: 80400005 (Nzcv daif +PAN -UAO)
+=2E..
+> The solution is based on patch:
+>=20
+>   "scsi: target: tcmu: Optimize use of flush_dcache_page"
+>=20
+> which restricts the use of tcmu_flush_dcache_range() to addresses from
+> vmalloc'ed areas only.
+
+Yeah, but the patch mentioned is not queued for 4.19, so we should not
+be simply applying this to 4.19. Does it need to be cherry-picked,
+too?
+
+commit 3c58f737231e2c8cbf543a09d84d8c8e80e05e43
+Author: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+
+    scsi: target: tcmu: Optimize use of flush_dcache_page
+   =20
+    (scatter|gather)_data_area() need to flush dcache after writing data to=
+ or
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX0VqjQAKCRAw5/Bqldv6
+8vu/AJ9YX4Il9EcjOVNDspPm4O+tbFt5CgCgjktotSacjmX7kU0hdJ1wf/l4LM8=
+=+yPH
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--
