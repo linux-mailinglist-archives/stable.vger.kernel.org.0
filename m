@@ -2,127 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC20B250FE2
-	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 05:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E96A251085
+	for <lists+stable@lfdr.de>; Tue, 25 Aug 2020 06:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728210AbgHYDTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Aug 2020 23:19:03 -0400
-Received: from mga05.intel.com ([192.55.52.43]:27238 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726532AbgHYDTB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Aug 2020 23:19:01 -0400
-IronPort-SDR: it/ebiSq6isHv/T9++5Be13HfsqHY4+WtVkvvzgcv91FsFNGvyk2LZLQliwhyevTswuiKo6hAX
- 1nYp7a0QzJOA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9723"; a="240850053"
-X-IronPort-AV: E=Sophos;i="5.76,351,1592895600"; 
-   d="scan'208";a="240850053"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2020 20:18:59 -0700
-IronPort-SDR: /QQMVKdVSaKxgnc2FhLKHODbI95P99e0htrtIEtX0rYLu784bzeG0YZ2Uy7MRBuJMq1MsMeW2u
- gqCAEPXk6YHw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,351,1592895600"; 
-   d="scan'208";a="322591122"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.139]) ([10.239.159.139])
-  by fmsmga004.fm.intel.com with ESMTP; 24 Aug 2020 20:18:59 -0700
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH] iommu/intel: Handle 36b addressing for x86-32
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        iommu@lists.linux-foundation.org
-Cc:     baolu.lu@linux.intel.com, intel-gfx@lists.freedesktop.org,
-        James Sewart <jamessewart@arista.com>,
-        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org
-References: <20200822160209.28512-1-chris@chris-wilson.co.uk>
-Message-ID: <98c34926-6085-81f2-dce2-53ef1ce1edc8@linux.intel.com>
-Date:   Tue, 25 Aug 2020 11:13:31 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728804AbgHYEYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 00:24:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728496AbgHYEYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 00:24:19 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4C0C0613ED
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 21:24:18 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id n3so229222pjq.1
+        for <stable@vger.kernel.org>; Mon, 24 Aug 2020 21:24:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=WNoNA5qagjn+hJHDWLEGAUu86F/mgyZHandDYgbafhI=;
+        b=FG/dbJ6dM9yY2ydqIONvW8BgEZMsFL4E9bpkccz3xeRS5M923Sf/kGBCx3JsoZUQ8Y
+         va6T/pyrvWsQeHBUxm+pLVb1zk4+V0dOPkwDRGcHnv6jQxhD6g6APHIujd5/IdLw/uMk
+         cMk2Gz1C3IjRyDxcQz5WN+qopA8XnV2/cq6xCERBd/HB+zT774YuHii2kf1uOTiE+p6V
+         yA29ngza4Anx/CcLR2zVEg/1te9BN/sxcXs4Q/h0drLAIKDkY8LlTq1A5qwXe6UZGg72
+         tbcAHynJuYGKE6dhrAnZezMrVRDvJIPwV2/gTGkP36KNzU1WTC+x+MYebMAkM0sVMxbd
+         ZLxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=WNoNA5qagjn+hJHDWLEGAUu86F/mgyZHandDYgbafhI=;
+        b=fB62i/0OWhMZRs8NvzhQz16cEi7NlStu0Mud8zP2mSK6U/aB/M+0PGM1N1twukNnxu
+         Ve3vjc7RSg0zYhW8ZH3DnflchCUd0qakqeS6QdwWt+b9Bij6l5mlMuGm3os3mR+o/flZ
+         9zk5lXrHgN+oMlqWRG5XBCC8D3r2G72qIfsZclGkskfEJ9Z/gczIcVAeOFyjhO70fXuH
+         eXAupoBvyhWbYc/UWLtH6CPHoCB1A7XZYDqBCuDA6SYRif/2WbMwB1vATSgOr8lR+hew
+         AhSYO6wpvETWHBIrea0dfK432+KqadENmZrLyGqzc6xCeiss3t0UTIizzpOccm4ZNCn4
+         dBOQ==
+X-Gm-Message-State: AOAM532zcN/au1pkch73zyiW1t9+HuOsgdGRT0+UV0Fu/5vXq8iRVEX4
+        qrJFRzt2D4otCuU4V4hy8CioxA==
+X-Google-Smtp-Source: ABdhPJz1C07dDr73P9yjNL0m73i3bg1BovXril3uSAZ4HQAGSqR1SqwiW6VLTGUkobN948gWSJC4Tg==
+X-Received: by 2002:a17:90a:9288:: with SMTP id n8mr43088pjo.137.1598329458005;
+        Mon, 24 Aug 2020 21:24:18 -0700 (PDT)
+Received: from localhost ([122.172.43.13])
+        by smtp.gmail.com with ESMTPSA id f195sm12741963pfa.96.2020.08.24.21.24.16
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Aug 2020 21:24:16 -0700 (PDT)
+Date:   Tue, 25 Aug 2020 09:54:14 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Viresh Kumar <vireshk@kernel.org>,
+        Nishanth Menon <nm@ti.com>, Stephen Boyd <sboyd@kernel.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - for v5.7 stable] opp: Put opp table in
+ dev_pm_opp_set_rate() for empty tables
+Message-ID: <20200825042414.n2hoahplhjdhwmgy@vireshk-i7>
+References: <e7e9f887328c06800a79f3b48feb623fd15aa3d5.1598261323.git.viresh.kumar@linaro.org>
+ <20200824161021.GD435319@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200822160209.28512-1-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200824161021.GD435319@kroah.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chris,
-
-On 2020/8/23 0:02, Chris Wilson wrote:
-> Beware that the address size for x86-32 may exceed unsigned long.
+On 24-08-20, 18:10, Greg KH wrote:
+> On Mon, Aug 24, 2020 at 03:00:03PM +0530, Viresh Kumar wrote:
+> > From: Stephen Boyd <swboyd@chromium.org>
+> > 
+> > commit 8979ef70850eb469e1094279259d1ef393ffe85f upstream.
+> > 
+> > We get the opp_table pointer at the top of the function and so we should
+> > put the pointer at the end of the function like all other exit paths
+> > from this function do.
+> > 
+> > Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
+> > Fixes: aca48b61f963 ("opp: Manage empty OPP tables with clk handle")
+> > Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
+> > Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> > [ Viresh: Split the patch into two ]
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > [ Viresh: Update the code for v5.7-stable ]
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > ---
+> >  drivers/opp/core.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> [    0.368971] UBSAN: shift-out-of-bounds in drivers/iommu/intel/iommu.c:128:14
-> [    0.369055] shift exponent 36 is too large for 32-bit type 'long unsigned int'
+> This is already in the 5.7-stable queue, why add it again?
 > 
-> If we don't handle the wide addresses, the pages are mismapped and the
-> device read/writes go astray, detected as DMAR faults and leading to
-> device failure. The behaviour changed (from working to broken) in commit
-> fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer"), but
-commit <fa954e683178> ("iommu/vt-d: Delegate the dma domain to upper layer")
+> confused,
 
-and adjust the title as "iommu/vt-d: Handle 36bit addressing for x86-32"
+Because I received an email from your bot that it failed to apply to 5.7 stable,
+rightly so as the patch was required to be modified.
 
-with above two changes,
-
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-
-Best regards,
-baolu
-
-> the error looks older.
-> 
-> Fixes: fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: James Sewart <jamessewart@arista.com>
-> Cc: Lu Baolu <baolu.lu@linux.intel.com>
-> Cc: Joerg Roedel <jroedel@suse.de>
-> Cc: <stable@vger.kernel.org> # v5.3+
-> ---
->   drivers/iommu/intel/iommu.c | 14 +++++++-------
->   1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-> index 2e9c8c3d0da4..ba78a2e854f9 100644
-> --- a/drivers/iommu/intel/iommu.c
-> +++ b/drivers/iommu/intel/iommu.c
-> @@ -123,29 +123,29 @@ static inline unsigned int level_to_offset_bits(int level)
->   	return (level - 1) * LEVEL_STRIDE;
->   }
->   
-> -static inline int pfn_level_offset(unsigned long pfn, int level)
-> +static inline int pfn_level_offset(u64 pfn, int level)
->   {
->   	return (pfn >> level_to_offset_bits(level)) & LEVEL_MASK;
->   }
->   
-> -static inline unsigned long level_mask(int level)
-> +static inline u64 level_mask(int level)
->   {
-> -	return -1UL << level_to_offset_bits(level);
-> +	return -1ULL << level_to_offset_bits(level);
->   }
->   
-> -static inline unsigned long level_size(int level)
-> +static inline u64 level_size(int level)
->   {
-> -	return 1UL << level_to_offset_bits(level);
-> +	return 1ULL << level_to_offset_bits(level);
->   }
->   
-> -static inline unsigned long align_to_level(unsigned long pfn, int level)
-> +static inline u64 align_to_level(u64 pfn, int level)
->   {
->   	return (pfn + level_size(level) - 1) & level_mask(level);
->   }
->   
->   static inline unsigned long lvl_to_nr_pages(unsigned int lvl)
->   {
-> -	return  1 << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
-> +	return 1UL << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
->   }
->   
->   /* VT-d pages must always be _smaller_ than MM pages. Otherwise things
-> 
+-- 
+viresh
