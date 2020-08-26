@@ -2,95 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 362582539EA
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 23:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C6A2539EC
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 23:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbgHZVq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 17:46:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57798 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726753AbgHZVq0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 17:46:26 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9E07207CD;
-        Wed, 26 Aug 2020 21:46:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598478385;
-        bh=82XFB/7i5TWDnH2NxU3bR3A631fDgBFkAC19Mgw+OY8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vqXJv4v1YCOLauAMozdqLGzCgS3oF04KpHz9NsIYaaM25ZXF64qsdozlmhltkEl2H
-         lw5W8BCURLWLfebqIopHt8cMEaqlf3g+qUJgQpILZ8tbZDBUND5vwWcoG6WrKGtM0H
-         dlA7RIfwaDvZrcH10l6jwM6WI9cx5FDFASrbDNxs=
-Date:   Wed, 26 Aug 2020 17:46:23 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, aarcange@redhat.com,
-        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
-        mike.kravetz@oracle.com, songliubraving@fb.com,
-        torvalds@linux-foundation.org, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: Patch "khugepaged: khugepaged_test_exit() check
- mmget_still_valid()" has been added to the 5.8-stable tree
-Message-ID: <20200826214623.GM8670@sasha-vm>
-References: <1597841669128213@kroah.com>
- <alpine.LSU.2.11.2008190625060.24442@eggly.anvils>
- <20200819135306.GA3311904@kroah.com>
- <alpine.LSU.2.11.2008211739460.9564@eggly.anvils>
- <20200822212053.GE8670@sasha-vm>
- <alpine.LSU.2.11.2008221900570.11463@eggly.anvils>
- <alpine.LSU.2.11.2008240758110.2486@eggly.anvils>
- <alpine.LSU.2.11.2008261148000.1479@eggly.anvils>
+        id S1726784AbgHZVra convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Aug 2020 17:47:30 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:22380 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726765AbgHZVra (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 17:47:30 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-257-g12td2zPN3C-gOdetsRJcQ-1; Wed, 26 Aug 2020 22:47:25 +0100
+X-MC-Unique: g12td2zPN3C-gOdetsRJcQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Wed, 26 Aug 2020 22:47:24 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Wed, 26 Aug 2020 22:47:24 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Thomas Gleixner' <tglx@linutronix.de>,
+        'Alexander Graf' <graf@amazon.com>, 'X86 ML' <x86@kernel.org>
+CC:     'Andy Lutomirski' <luto@kernel.org>,
+        'LKML' <linux-kernel@vger.kernel.org>,
+        'Andrew Cooper' <andrew.cooper3@citrix.com>,
+        "'Paul E. McKenney'" <paulmck@kernel.org>,
+        'Alexandre Chartre' <alexandre.chartre@oracle.com>,
+        'Frederic Weisbecker' <frederic@kernel.org>,
+        'Paolo Bonzini' <pbonzini@redhat.com>,
+        'Sean Christopherson' <sean.j.christopherson@intel.com>,
+        'Masami Hiramatsu' <mhiramat@kernel.org>,
+        'Petr Mladek' <pmladek@suse.com>,
+        'Steven Rostedt' <rostedt@goodmis.org>,
+        'Joel Fernandes' <joel@joelfernandes.org>,
+        'Boris Ostrovsky' <boris.ostrovsky@oracle.com>,
+        'Juergen Gross' <jgross@suse.com>,
+        "'Mathieu Desnoyers'" <mathieu.desnoyers@efficios.com>,
+        'Josh Poimboeuf' <jpoimboe@redhat.com>,
+        'Will Deacon' <will@kernel.org>,
+        'Tom Lendacky' <thomas.lendacky@amd.com>,
+        'Wei Liu' <wei.liu@kernel.org>,
+        'Michael Kelley' <mikelley@microsoft.com>,
+        'Jason Chen CJ' <jason.cj.chen@intel.com>,
+        "'Zhao Yakui'" <yakui.zhao@intel.com>,
+        "'Peter Zijlstra (Intel)'" <peterz@infradead.org>,
+        'Avi Kivity' <avi@scylladb.com>,
+        "'Herrenschmidt, Benjamin'" <benh@amazon.com>,
+        "'robketr@amazon.de'" <robketr@amazon.de>,
+        "'amos@scylladb.com'" <amos@scylladb.com>,
+        'Brian Gerst' <brgerst@gmail.com>,
+        "'stable@vger.kernel.org'" <stable@vger.kernel.org>,
+        'Alex bykov' <alex.bykov@scylladb.com>
+Subject: RE: x86/irq: Unbreak interrupt affinity setting
+Thread-Topic: x86/irq: Unbreak interrupt affinity setting
+Thread-Index: AQHWe+aKb+AhwM2rPkq6/MK3Hcp5nKlK5iEAgAAGXqA=
+Date:   Wed, 26 Aug 2020 21:47:23 +0000
+Message-ID: <42ae8716e425495c964ae7372bd7ff52@AcuMS.aculab.com>
+References: <20200826115357.3049-1-graf@amazon.com>
+ <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
+ <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com>
+ <87blixuuny.fsf@nanos.tec.linutronix.de>
+ <873649utm4.fsf@nanos.tec.linutronix.de>
+ <87wo1ltaxz.fsf@nanos.tec.linutronix.de>
+ <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
+In-Reply-To: <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.11.2008261148000.1479@eggly.anvils>
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0.001
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 11:53:24AM -0700, Hugh Dickins wrote:
->On Mon, 24 Aug 2020, Hugh Dickins wrote:
->> On Sat, 22 Aug 2020, Hugh Dickins wrote:
->> > On Sat, 22 Aug 2020, Sasha Levin wrote:
->> > >
->> > > I've followed your instructions and backported the patches:
->> > >
->> > > bbe98f9cadff ("khugepaged: khugepaged_test_exit() check
->> > > mmget_still_valid()") - to all branches.
->> > > f3f99d63a815 ("khugepaged: adjust VM_BUG_ON_MM() in
->> > > __khugepaged_enter()") - to all branches.
->> > > 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page()
->> > > and core dumping") - for 4.4.
->> >
->> > That's saved me time, thanks a lot for doing that work, Sasha.
->> >
->> > I've checked the results (haha, read on) and they're all fine,
->> > but one minor flaw in bisectability: the added 4.4 backport of
->> > "coredump: fix race condition..." adds a line (deleted by the next commit)
->> > 	result = SCAN_ANY_PROCESS;
->> > but neither "result" nor "SCAN_ANY_PROCESS" is defined in that tree,
->> > so that intermediate step would generate an easily fixed build error.
->> >
->> > FWIW - I don't know whether that's something to care about or not.
->>
->> Ah, but I missed that this one that we originally held back from 5.8,
->> did not in fact get re-added to 5.8: all the backport series have it,
->> but today's 5.8.4-rc1 does not have it.
->>
->> That's not a disaster - the series builds without it, and having its
->> fix without the fixed commit is just odd, no more unsafe than before;
->> but it should be re-added for a 5.8.4-rc2 or 5.8.5.
->
->I see 5.8 is at 5.8.5-rc1 today, but the commit below still missing:
->please re-add it, then we can all forget about it at last - thanks!
+From: David Laight
+> Sent: 26 August 2020 22:37
+> 
+> From: Thomas Gleixner
+> > Sent: 26 August 2020 21:22
+> ...
+> > Moving interrupts on x86 happens in several steps. A new vector on a
+> > different CPU is allocated and the relevant interrupt source is
+> > reprogrammed to that. But that's racy and there might be an interrupt
+> > already in flight to the old vector. So the old vector is preserved until
+> > the first interrupt arrives on the new vector and the new target CPU. Once
+> > that happens the old vector is cleaned up, but this cleanup still depends
+> > on the vector number being stored in pt_regs::orig_ax, which is now -1.
+> 
+> I suspect that it is much more 'racy' than that for PCI-X interrupts.
+> On the hardware side there is an interrupt disable bit, and address
+> and a value.
+> To raise an interrupt the hardware must write the value to the address.
+> 
+> If the cpu needs to move an interrupt both the address and value
+> need changing, but the cpu wont write the address and value using
+> the same TLP, so the hardware could potentially write a value to
+> the wrong address.
+> Worse than that, the hardware could easily only look at the address
+> and value in the clocks after checking the interrupt is enabled.
+> So masking the interrupt immediately prior to changing the vector
+> info may not be enough.
+> 
+> It is likely that a read-back of the mask before updating the vector
+> is enough.
 
-Greg went for a fast release cycle and I didn't have time to queue it
-up, sorry. But don't worry - this patch isn't forgotten, I'll queue it
-for the next release on Friday/Saturday.
+But not enough to assume you won't receive an interrupt after reading
+back that interrupts are masked.
 
--- 
-Thanks,
-Sasha
+(I've implemented the hardware side for an fpga ...)
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
