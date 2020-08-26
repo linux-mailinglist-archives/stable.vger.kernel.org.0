@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594D12538EC
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 22:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E08125390D
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 22:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726753AbgHZUK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 16:10:26 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:22674 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726734AbgHZUKZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 16:10:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1598472625; x=1630008625;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=aU2RaGMPuG6AQMjQ4p0fBBiz8S4VHOimEKgTasXFcpE=;
-  b=qT+TAY8lOvnJVPkPOB+gIcwNForgvxyIpJkLbdAlp/rzo5IdjdnqxfXL
-   KwfCmPeSch9YzDociQMBGiCdTiPPj+H3vR4feVwz0bW37zpmXi1v18eaS
-   p+YTS2awMwTPtHqyo73IpXPUXoDAMYv0lr4ciBVdz3jXBMSFlEpg1rw/d
-   g=;
-X-IronPort-AV: E=Sophos;i="5.76,356,1592870400"; 
-   d="scan'208";a="50106232"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-baacba05.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 26 Aug 2020 20:10:10 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
-        by email-inbound-relay-2b-baacba05.us-west-2.amazon.com (Postfix) with ESMTPS id B320AA239C;
-        Wed, 26 Aug 2020 20:10:01 +0000 (UTC)
-Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 26 Aug 2020 20:09:59 +0000
-Received: from vpn-10-85-95-61.fra53.corp.amazon.com (10.43.161.85) by
- EX13D20UWC001.ant.amazon.com (10.43.162.244) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 26 Aug 2020 20:09:52 +0000
-Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
-To:     Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>
-CC:     Andy Lutomirski <luto@kernel.org>,
+        id S1726876AbgHZUVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 16:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726241AbgHZUVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 16:21:48 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BE5C061574;
+        Wed, 26 Aug 2020 13:21:47 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1598473304;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=4Gx2C3ZUcKyZNb4xGzlZpmhk1STR769KFOAc3dj+CHM=;
+        b=jf1otqlj4EWIHhczPrAZqfb1pfsbG9Uka55qqs7Evh3UX8kO+R/QLpKIL2Aq295LgbrCjV
+        Hng3bxzADPluLhtSHaIEFN+io28sJE960ACYJI1CAzEpIh1K5myB/MBr4pg68i0FvqScjJ
+        3mYV5/cTKTroAr2dvC517qctXN1Uv2mEs92jDrx+U/tI93NPtPe5iSqQSvrfHiQByyl6sf
+        gdqwxpS/lzA2zo2jtTSHvlUGISfiBZRXPCoWkfOrHa4c0ZwvfePMoCqXXWlXnDgrc+Xz5W
+        JVceU1RjPJVaF1jArqvPBzEuNNOsKNog35QTvry+egZ2ifuR1kVxq6oq+YDTlg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1598473304;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=4Gx2C3ZUcKyZNb4xGzlZpmhk1STR769KFOAc3dj+CHM=;
+        b=cfxuptz1Bb2FJUAzBJutTGUCmnDt5kbGxLSpXhRrYrmbYw5kKdVhMa7kfVsgmgx2fyMeAu
+        THII0DICWYk/tjDA==
+To:     Alexander Graf <graf@amazon.com>, X86 ML <x86@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Andrew Cooper <andrew.cooper3@citrix.com>,
         "Paul E. McKenney" <paulmck@kernel.org>,
@@ -52,135 +51,137 @@ CC:     Andy Lutomirski <luto@kernel.org>,
         Juergen Gross <jgross@suse.com>,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Will Deacon" <will@kernel.org>,
+        Will Deacon <will@kernel.org>,
         Tom Lendacky <thomas.lendacky@amd.com>,
         Wei Liu <wei.liu@kernel.org>,
         Michael Kelley <mikelley@microsoft.com>,
         Jason Chen CJ <jason.cj.chen@intel.com>,
         Zhao Yakui <yakui.zhao@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
         Avi Kivity <avi@scylladb.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>, <robketr@amazon.de>,
-        <amos@scylladb.com>, Brian Gerst <brgerst@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20200826115357.3049-1-graf@amazon.com>
- <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
- <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com>
- <87blixuuny.fsf@nanos.tec.linutronix.de>
- <873649utm4.fsf@nanos.tec.linutronix.de>
-From:   Alexander Graf <graf@amazon.com>
-Message-ID: <9f351750-f652-f9c5-ca79-fc90273ee3c8@amazon.com>
-Date:   Wed, 26 Aug 2020 22:09:49 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
- Gecko/20100101 Thunderbird/78.1.1
-MIME-Version: 1.0
+        "Herrenschmidt\, Benjamin" <benh@amazon.com>, robketr@amazon.de,
+        amos@scylladb.com, Brian Gerst <brgerst@gmail.com>,
+        stable@vger.kernel.org, Alex bykov <alex.bykov@scylladb.com>
+Subject: x86/irq: Unbreak interrupt affinity setting
 In-Reply-To: <873649utm4.fsf@nanos.tec.linutronix.de>
-Content-Language: en-US
-X-Originating-IP: [10.43.161.85]
-X-ClientProxiedBy: EX13D15UWB004.ant.amazon.com (10.43.161.61) To
- EX13D20UWC001.ant.amazon.com (10.43.162.244)
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+References: <20200826115357.3049-1-graf@amazon.com> <87k0xlv5w5.fsf@nanos.tec.linutronix.de> <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com> <87blixuuny.fsf@nanos.tec.linutronix.de> <873649utm4.fsf@nanos.tec.linutronix.de>
+Date:   Wed, 26 Aug 2020 22:21:44 +0200
+Message-ID: <87wo1ltaxz.fsf@nanos.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Several people reported that 5.8 broke the interrupt affinity setting
+mechanism.
 
+The consolidation of the entry code reused the regular exception entry code
+for device interrupts and changed the way how the vector number is conveyed
+from ptregs->orig_ax to a function argument.
 
-On 26.08.20 20:53, Thomas Gleixner wrote:
-> =
+The low level entry uses the hardware error code slot to push the vector
+number onto the stack which is retrieved from there into a function
+argument and the slot on stack is set to -1.
 
-> =
+The reason for setting it to -1 is that the error code slot is at the
+position where pt_regs::orig_ax is. A positive value in pt_regs::orig_ax
+indicates that the entry came via a syscall. If it's not set to a negative
+value then a signal delivery on return to userspace would try to restart a
+syscall. But there are other places which rely on pt_regs::orig_ax being a
+valid indicator for syscall entry.
 
-> On Wed, Aug 26 2020 at 20:30, Thomas Gleixner wrote:
->> And it does not solve the issue that we abuse orig_ax which Andy
->> mentioned.
-> =
+But setting pt_regs::orig_ax to -1 has a nasty side effect vs. the
+interrupt affinity setting mechanism, which was overlooked when this change
+was made.
 
-> Ha! After staring some more, it's not required at all, which is the most
-> elegant solution.
-> =
+Moving interrupts on x86 happens in several steps. A new vector on a
+different CPU is allocated and the relevant interrupt source is
+reprogrammed to that. But that's racy and there might be an interrupt
+already in flight to the old vector. So the old vector is preserved until
+the first interrupt arrives on the new vector and the new target CPU. Once
+that happens the old vector is cleaned up, but this cleanup still depends
+on the vector number being stored in pt_regs::orig_ax, which is now -1.
 
-> The vector check is pointless in that condition because there is never a
-> condition where an interrupt is moved from vector A to vector B on the
-> same CPU.
-> =
+That -1 makes the check for cleanup: pt_regs::orig_ax == new_vector
+always false. As a consequence the interrupt is moved once, but then it
+cannot be moved anymore because the cleanup of the old vector never
+happens.
 
-> That's a left over from the old allocation model which supported
-> multi-cpu affinities, but this was removed as it just created trouble
-> for no real benefit.
-> =
+There would be several ways to convey the vector information to that place
+in the guts of the interrupt handling, but on deeper inspection it turned
+out that this check is pointless and a leftover from the old affinity model
+of X86 which supported multi-CPU affinities. Under this model it was
+possible that an interrupt had an old and a new vector on the same CPU, so
+the vector match was required.
 
-> Today the effective affinity which is a single CPU out of the requested
-> affinity. If an affinity mask change still contains the current target
-> CPU then there is no move happening at all. It just stays on that vector
-> on that CPU.
-> =
+Under the new model the effective affinity of an interrupt is always a
+single CPU from the requested affinity mask. If the affinity mask changes
+then either the interrupt stays on the CPU and on the same vector when that
+CPU is still in the new affinity mask or it is moved to a different CPU, but
+it is never moved to a different vector on the same CPU.
 
-> Thanks,
-> =
+Ergo the cleanup check for the matching vector number is not required and
+can be removed which makes the dependency on pt_regs:orig_ax go away.
 
->          tglx
-> ---
-> =
+The remaining check for new_cpu == smp_processsor_id() is completely
+sufficient. If it matches then the interrupt was successfully migrated and
+the cleanup can proceed.
 
-> --- a/arch/x86/kernel/apic/vector.c
-> +++ b/arch/x86/kernel/apic/vector.c
-> @@ -909,7 +909,7 @@ void send_cleanup_vector(struct irq_cfg
->                  __send_cleanup_vector(apicd);
->   }
-> =
+For paranoia sake add a warning into the vector assignment code to
+validate that the assumption of never moving to a different vector on
+the same CPU holds.
 
-> -static void __irq_complete_move(struct irq_cfg *cfg, unsigned vector)
-> +void irq_complete_move(struct irq_cfg *cfg)
->   {
->          struct apic_chip_data *apicd;
-> =
+Reported-by: Alex bykov <alex.bykov@scylladb.com>
+Reported-by: Avi Kivity <avi@scylladb.com>
+Reported-by: Alexander Graf <graf@amazon.com>
+Fixes: 633260fa143 ("x86/irq: Convey vector as argument and not in ptregs")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/kernel/apic/vector.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-> @@ -917,15 +917,10 @@ static void __irq_complete_move(struct i
->          if (likely(!apicd->move_in_progress))
->                  return;
-> =
-
-> -       if (vector =3D=3D apicd->vector && apicd->cpu =3D=3D smp_processo=
-r_id())
-> +       if (apicd->cpu =3D=3D smp_processor_id())
->                  __send_cleanup_vector(apicd);
->   }
-> =
-
-> -void irq_complete_move(struct irq_cfg *cfg)
-> -{
-> -       __irq_complete_move(cfg, ~get_irq_regs()->orig_ax);
-> -}
-> -
->   /*
->    * Called from fixup_irqs() with @desc->lock held and interrupts disabl=
-ed.
->    */
-> =
-
-
-
-As expected, this also fixes the issue at hand. Do you want to send a =
-
-real patch? :)
-
-Tested-by: Alexander Graf <graf@amazon.com>
-
-
-Alex
-
-
-
-Amazon Development Center Germany GmbH
-Krausenstr. 38
-10117 Berlin
-Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-Sitz: Berlin
-Ust-ID: DE 289 237 879
-
-
-
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -161,6 +161,7 @@ static void apic_update_vector(struct ir
+ 		apicd->move_in_progress = true;
+ 		apicd->prev_vector = apicd->vector;
+ 		apicd->prev_cpu = apicd->cpu;
++		WARN_ON_ONCE(apicd->cpu == newcpu);
+ 	} else {
+ 		irq_matrix_free(vector_matrix, apicd->cpu, apicd->vector,
+ 				managed);
+@@ -909,7 +910,7 @@ void send_cleanup_vector(struct irq_cfg
+ 		__send_cleanup_vector(apicd);
+ }
+ 
+-static void __irq_complete_move(struct irq_cfg *cfg, unsigned vector)
++void irq_complete_move(struct irq_cfg *cfg)
+ {
+ 	struct apic_chip_data *apicd;
+ 
+@@ -917,15 +918,16 @@ static void __irq_complete_move(struct i
+ 	if (likely(!apicd->move_in_progress))
+ 		return;
+ 
+-	if (vector == apicd->vector && apicd->cpu == smp_processor_id())
++	/*
++	 * If the interrupt arrived on the new target CPU, cleanup the
++	 * vector on the old target CPU. A vector check is not required
++	 * because an interrupt can never move from one vector to another
++	 * on the same CPU.
++	 */
++	if (apicd->cpu == smp_processor_id())
+ 		__send_cleanup_vector(apicd);
+ }
+ 
+-void irq_complete_move(struct irq_cfg *cfg)
+-{
+-	__irq_complete_move(cfg, ~get_irq_regs()->orig_ax);
+-}
+-
+ /*
+  * Called from fixup_irqs() with @desc->lock held and interrupts disabled.
+  */
