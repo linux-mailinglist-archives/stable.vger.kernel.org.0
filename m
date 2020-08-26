@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30AF6252DA4
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DC7252D99
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729574AbgHZMD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
+        id S1729324AbgHZMDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729279AbgHZMD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:03:56 -0400
+        id S1729522AbgHZMDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:03:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1627B20838;
-        Wed, 26 Aug 2020 12:03:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D0F20786;
+        Wed, 26 Aug 2020 12:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443435;
-        bh=RmXL/1u0VAWNbKLafrCpKWutDzDTHZH6Cc5wbc73xbs=;
+        s=default; t=1598443400;
+        bh=bagVmKbsKAl//B1ZYj3lLiy78iYpzZFKgKvgMeb7XwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOD/bVFbCjj5ue2r2Mmcof0YL5pLwpfNJUe2MRsu1S7XJC9IrMQe3qJcW8ghb51uJ
-         mVtJp/BmOFrexI2Px7kYCKTbiJMR6TdPOPMuEEeexUOQWc9GqvG8At5kR0vIn5DLq4
-         PtIx3ONtfd9mqMK4+2Nzs5HWlMd2kXR26nbnQNZo=
+        b=EaCZ4WZ1EdByYAYPwivPaC1wvdlzTxVXQ3bCaTJiALDaiFkYYVSWo4NuFL1A3c7b9
+         UYj8MA8HUoe3kFTZOO+N+0Qz0w+Sk13ZmJ4H3lDg25WmVlPJ+Wc3Ac8AqcVBl63ayH
+         ge9i1EXWHvKRaU+gJkMPO53O014Nkmja139f94KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Richard Alpe <richard.alpe@ericsson.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
-Subject: [PATCH 5.8 09/16] tipc: fix uninit skb->data in tipc_nl_compat_dumpit()
-Date:   Wed, 26 Aug 2020 14:02:46 +0200
-Message-Id: <20200826114911.681967861@linuxfoundation.org>
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 10/16] net: ena: Make missed_tx stat incremental
+Date:   Wed, 26 Aug 2020 14:02:47 +0200
+Message-Id: <20200826114911.730686894@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200826114911.216745274@linuxfoundation.org>
 References: <20200826114911.216745274@linuxfoundation.org>
@@ -47,67 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit 47733f9daf4fe4f7e0eb9e273f21ad3a19130487 ]
+[ Upstream commit ccd143e5150f24b9ba15145c7221b61dd9e41021 ]
 
-__tipc_nl_compat_dumpit() has two callers, and it expects them to
-pass a valid nlmsghdr via arg->data. This header is artificial and
-crafted just for __tipc_nl_compat_dumpit().
+Most statistics in ena driver are incremented, meaning that a stat's
+value is a sum of all increases done to it since driver/queue
+initialization.
 
-tipc_nl_compat_publ_dump() does so by putting a genlmsghdr as well
-as some nested attribute, TIPC_NLA_SOCK. But the other caller
-tipc_nl_compat_dumpit() does not, this leaves arg->data uninitialized
-on this call path.
+This patch makes all statistics this way, effectively making missed_tx
+statistic incremental.
+Also added a comment regarding rx_drops and tx_drops to make it
+clearer how these counters are calculated.
 
-Fix this by just adding a similar nlmsghdr without any payload in
-tipc_nl_compat_dumpit().
-
-This bug exists since day 1, but the recent commit 6ea67769ff33
-("net: tipc: prepare attrs in __tipc_nl_compat_dumpit()") makes it
-easier to appear.
-
-Reported-and-tested-by: syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
-Fixes: d0796d1ef63d ("tipc: convert legacy nl bearer dump to nl compat")
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: Ying Xue <ying.xue@windriver.com>
-Cc: Richard Alpe <richard.alpe@ericsson.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Ying Xue <ying.xue@windriver.com>
+Fixes: 11095fdb712b ("net: ena: add statistics for missed tx packets")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/netlink_compat.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -275,8 +275,9 @@ err_out:
- static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
- 				 struct tipc_nl_compat_msg *msg)
- {
--	int err;
-+	struct nlmsghdr *nlh;
- 	struct sk_buff *arg;
-+	int err;
- 
- 	if (msg->req_type && (!msg->req_size ||
- 			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
-@@ -305,6 +306,15 @@ static int tipc_nl_compat_dumpit(struct
- 		return -ENOMEM;
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -3609,7 +3609,7 @@ static int check_missing_comp_in_tx_queu
  	}
  
-+	nlh = nlmsg_put(arg, 0, 0, tipc_genl_family.id, 0, NLM_F_MULTI);
-+	if (!nlh) {
-+		kfree_skb(arg);
-+		kfree_skb(msg->rep);
-+		msg->rep = NULL;
-+		return -EMSGSIZE;
-+	}
-+	nlmsg_end(arg, nlh);
-+
- 	err = __tipc_nl_compat_dumpit(cmd, msg, arg);
- 	if (err) {
- 		kfree_skb(msg->rep);
+ 	u64_stats_update_begin(&tx_ring->syncp);
+-	tx_ring->tx_stats.missed_tx = missed_tx;
++	tx_ring->tx_stats.missed_tx += missed_tx;
+ 	u64_stats_update_end(&tx_ring->syncp);
+ 
+ 	return rc;
+@@ -4537,6 +4537,9 @@ static void ena_keep_alive_wd(void *adap
+ 	tx_drops = ((u64)desc->tx_drops_high << 32) | desc->tx_drops_low;
+ 
+ 	u64_stats_update_begin(&adapter->syncp);
++	/* These stats are accumulated by the device, so the counters indicate
++	 * all drops since last reset.
++	 */
+ 	adapter->dev_stats.rx_drops = rx_drops;
+ 	adapter->dev_stats.tx_drops = tx_drops;
+ 	u64_stats_update_end(&adapter->syncp);
 
 
