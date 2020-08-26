@@ -2,83 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CAC252FEE
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F38253000
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730051AbgHZNbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:31:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730286AbgHZNam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:30:42 -0400
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35CE9C061574
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 06:30:05 -0700 (PDT)
-Received: by mail-io1-xd36.google.com with SMTP id v6so2058653iow.11
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 06:30:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=poM+lQtBssF0aCZYnLKRKD9hwY5qDrWsSm+NnhHcPRw=;
-        b=cINWcGp9t2KbrOFsjuqECoqJ3ZfToCOJYxDz0I0yIwUEdeBp6O1NWoUwgCeaMcPNi4
-         gVzqnjXeYVgfb4nS9VZpqxA0KEBQVXEoxcx7umJXd+vHsZZm9IqkOAhYovwXmdIpYkGL
-         7Kppd1t9IJM6Bj0/Ad9SNroaJPtQ2FukCXyT3yTOeqzjpWWAtfB2TbfsIzRcKzJoDizJ
-         r9P1ckAraARWpULu/uSr0PybiQHONXjpdXSgL1fZuXKJV+XQ9SNvAxPPnJmCqfehN8mC
-         HrvwyGkHRLj7s6Cmxmgslw4cMGw+SstCmQdyXNpDEWHPwryT3Or9jzFBK0bMOw/rofOR
-         BK4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=poM+lQtBssF0aCZYnLKRKD9hwY5qDrWsSm+NnhHcPRw=;
-        b=OFx6lKJaUZfuH4xgoNEP+Oaiv7eQQKk4DH7PLaX1/s+lGhXaHnm1E0+0z3YXVzvbEr
-         VNSAc9lE8vgOG3enFpDY0H7rhVHt5L1OWuul8yKYYYq1B5fvHbg9y13EauXY7440vRF7
-         FuC0tnbob30PTYi3Zn4h82szFp1PYAu748vnQCCwerd6SckHeqJwbrfyrQudSeTaGJo2
-         wBOmevY1/yN76tJ0JyF8mczXzQELjSIcKwrtLV9hLtzH2yeH9QhX7viToVAZ1OBtB0jI
-         pti/Y9hPDBqPW289X3l31u75zDYzQIbsG7PM6RQuVrYCDPpaiHB8kKS7wfdkl18TpjYT
-         Ghqg==
-X-Gm-Message-State: AOAM531cNnyIu0/yvh9qRz0jK6oYyLi24Uif5Vwf0+vm0EFQoc9XXRex
-        SvfMu6Z/Mr0OYLfxiyP5lk9gg+7e7JsJuXUF
-X-Google-Smtp-Source: ABdhPJxXqlbcm1stLYb2MWb0BzMWoBK0fWjAA9XDtMGiNF38yxEYnqxjmfjn5s/+55wf5/z51yLyMA==
-X-Received: by 2002:a6b:6e07:: with SMTP id d7mr12301228ioh.35.1598448603548;
-        Wed, 26 Aug 2020 06:30:03 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id b23sm1150043ios.39.2020.08.26.06.30.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Aug 2020 06:30:03 -0700 (PDT)
-Subject: Re: 5.8 stable inclusion request
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <eac5cc64-641f-58b9-5f58-7bc1c4393bbb@kernel.dk>
- <20200826103041.GB3356257@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <de9539b3-2ac5-6664-3121-24977401ceea@kernel.dk>
-Date:   Wed, 26 Aug 2020 07:30:02 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1730335AbgHZNcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:32:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730289AbgHZNcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 09:32:41 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 656F2208E4;
+        Wed, 26 Aug 2020 13:32:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598448760;
+        bh=b1nmyfPK5FQ7cjqNh+7j1qIyG/iexxlz9aw19IXSc24=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=tL+y8cFx68cVj/yVRenvmIZEEKy9hGzoiqxQdyuSQZ+isFRgrSnJXt0VWCkLRp8iR
+         ZHAsWilvx7FAxEBcpf2aXVgBsK+TolYL3TYHW44mW4q8bkqk/V6OAtFJBNzh/gEFeW
+         0lucH461F4WvGvITYPOsZwVziOE4hG8PHrScxR88=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kAvXa-006rI6-9y; Wed, 26 Aug 2020 14:32:38 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200826103041.GB3356257@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+Date:   Wed, 26 Aug 2020 14:32:38 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] Input; Sanitize event code before modifying bitmaps
+In-Reply-To: <20200824195102.GY1665100@dtor-ws>
+References: <20200817112700.468743-1-maz@kernel.org>
+ <20200817112700.468743-2-maz@kernel.org> <20200824195102.GY1665100@dtor-ws>
+User-Agent: Roundcube Webmail/1.4.8
+Message-ID: <bcf65dce766d0376027e80bf205b095d@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/26/20 4:30 AM, Greg KH wrote:
-> On Mon, Aug 24, 2020 at 04:42:35PM -0600, Jens Axboe wrote:
->> Hi,
->>
->> Can I get this patch queued up for 5.8? It's a backport of two
->> commits from upstream. Thanks!
+Hi Dmitry,
+
+On 2020-08-24 20:51, Dmitry Torokhov wrote:
+> Hi Marc,
 > 
-> Now queued up, thanks!
+> On Mon, Aug 17, 2020 at 12:26:59PM +0100, Marc Zyngier wrote:
+>> When calling into input_set_capability(), the passed event code is
+>> blindly used to set a bit in a number of bitmaps, without checking
+>> whether this actually fits the expected size of the bitmap.
+>> 
+>> This event code can come from a variety of sources, including devices
+>> masquerading as input devices, only a bit more "programmable".
+>> 
+>> Instead of taking the raw event code, sanitize it to the actual bitmap
+>> size and output a warning to let the user know.
+>> 
+>> These checks are, at least in spirit, in keeping with cb222aed03d7
+>> ("Input: add safety guards to input_set_keycode()").
+>> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+>> ---
+>>  drivers/input/input.c | 16 +++++++++++++++-
+>>  1 file changed, 15 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/drivers/input/input.c b/drivers/input/input.c
+>> index 3cfd2c18eebd..1e77cf47aa44 100644
+>> --- a/drivers/input/input.c
+>> +++ b/drivers/input/input.c
+>> @@ -1974,14 +1974,18 @@ EXPORT_SYMBOL(input_get_timestamp);
+>>   * In addition to setting up corresponding bit in appropriate 
+>> capability
+>>   * bitmap the function also adjusts dev->evbit.
+>>   */
+>> -void input_set_capability(struct input_dev *dev, unsigned int type, 
+>> unsigned int code)
+>> +void input_set_capability(struct input_dev *dev, unsigned int type, 
+>> unsigned int raw_code)
+>>  {
+>> +	unsigned int code = raw_code;
+>> +
+>>  	switch (type) {
+>>  	case EV_KEY:
+>> +		code &= KEY_MAX;
+>>  		__set_bit(code, dev->keybit);
+> 
+> 
+> I would much rather prefer we did not simply set some random bits in
+> this case, but instead complained loudly and refused to alter anything.
+> 
+> The function is not exported directly to userspace, so we expect 
+> callers
+> to give us sane inputs, and I believe WARN() splash in case of bad
+> inputs would be the best solution here.
 
-Thanks Greg!
+Fair enough. I've moved the checking to the HID layer (using
+hid_map_usage() as the validation primitive), which makes
+changing input_set_capability() irrelevant.
 
+I'll post v2 shortly in the form of a single patch.
+
+Thanks,
+
+         M.
 -- 
-Jens Axboe
-
+Jazz is not dead. It just smells funny...
