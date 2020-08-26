@@ -2,94 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF622525F0
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 06:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 619122526C2
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 08:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725294AbgHZEAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 00:00:15 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:23678 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725267AbgHZEAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 00:00:14 -0400
-X-UUID: 2128476f42c14117bbdba1fb17b194aa-20200826
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=RBEX1ExJEO1XdJLmf9rWy6KHd2buj+9SjY2A9V9tzWs=;
-        b=dfoiU5roNF+25w0/NUxV9IQ5G1jz4TyrCy6pPAfvGFsXRj8IBDKfi9maXnJuqzrtsE9z15vDDO0h3s8lnFEu7EP6owu5crHnvFWB6Kd5d/1wPaDPBhzwSW25Tpp6KQH5Nz1SpOUJhJhyIkeESvoMUTQRBkSnexTJYKdQ7tTqEFc=;
-X-UUID: 2128476f42c14117bbdba1fb17b194aa-20200826
-Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw01.mediatek.com
-        (envelope-from <stanley.chu@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1255619686; Wed, 26 Aug 2020 12:00:08 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs06n2.mediatek.inc (172.21.101.130) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 26 Aug 2020 12:00:07 +0800
-Received: from [172.21.77.33] (172.21.77.33) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 26 Aug 2020 12:00:06 +0800
-Message-ID: <1598414407.10649.19.camel@mtkswgap22>
-Subject: Re: [PATCH] block: Fix a race in the runtime power management code
-From:   Stanley Chu <stanley.chu@mediatek.com>
-To:     Bart Van Assche <bvanassche@acm.org>
-CC:     Jens Axboe <axboe@kernel.dk>, <linux-block@vger.kernel.org>,
-        "Christoph Hellwig" <hch@lst.de>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Ming Lei <ming.lei@redhat.com>,
-        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
-Date:   Wed, 26 Aug 2020 12:00:07 +0800
-In-Reply-To: <ee6b4ab1-d118-ef5d-a075-e13dfdb678a7@acm.org>
-References: <20200824030607.19357-1-bvanassche@acm.org>
-         <1598346681.10649.8.camel@mtkswgap22>
-         <ee6b4ab1-d118-ef5d-a075-e13dfdb678a7@acm.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1726034AbgHZGSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 02:18:24 -0400
+Received: from mx3.molgen.mpg.de ([141.14.17.11]:44431 "EHLO mx1.molgen.mpg.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725786AbgHZGSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 02:18:21 -0400
+Received: from [192.168.0.2] (ip5f5af678.dynamic.kabel-deutschland.de [95.90.246.120])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id C3F7320225BDA;
+        Wed, 26 Aug 2020 08:18:17 +0200 (CEST)
+Subject: Re: Issue with iwd + Linux 5.8.3 + WPA Enterprise
+To:     Caleb Jorden <caljorden@hotmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+References: <20200826055150.2753.90553@ml01.vlan13.01.org>
+Cc:     iwd@lists.01.org, stable@vger.kernel.org,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+Message-ID: <b34f7644-a495-4845-0a00-0aebf4b9db52@molgen.mpg.de>
+Date:   Wed, 26 Aug 2020 08:18:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: E4EE1D1EAAA63A3BDDCA5D4EE31564099D04AA995584F311E8BB4F1DEA09422A2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+In-Reply-To: <20200826055150.2753.90553@ml01.vlan13.01.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgQmFydCwNCg0KT24gVHVlLCAyMDIwLTA4LTI1IGF0IDE5OjU4IC0wNzAwLCBCYXJ0IFZhbiBB
-c3NjaGUgd3JvdGU6DQo+IE9uIDIwMjAtMDgtMjUgMDI6MTEsIFN0YW5sZXkgQ2h1IHdyb3RlOg0K
-PiA+PiBkaWZmIC0tZ2l0IGEvYmxvY2svYmxrLXBtLmMgYi9ibG9jay9ibGstcG0uYw0KPiA+PiBp
-bmRleCBiODUyMzRkNzU4ZjcuLjE3YmQwMjAyNjhkNCAxMDA2NDQNCj4gPj4gLS0tIGEvYmxvY2sv
-YmxrLXBtLmMNCj4gPj4gKysrIGIvYmxvY2svYmxrLXBtLmMNCj4gPj4gQEAgLTY3LDYgKzY3LDEw
-IEBAIGludCBibGtfcHJlX3J1bnRpbWVfc3VzcGVuZChzdHJ1Y3QgcmVxdWVzdF9xdWV1ZSAqcSkN
-Cj4gPj4gIA0KPiA+PiAgCVdBUk5fT05fT05DRShxLT5ycG1fc3RhdHVzICE9IFJQTV9BQ1RJVkUp
-Ow0KPiA+PiAgDQo+ID4+ICsJc3Bpbl9sb2NrX2lycSgmcS0+cXVldWVfbG9jayk7DQo+ID4+ICsJ
-cS0+cnBtX3N0YXR1cyA9IFJQTV9TVVNQRU5ESU5HOw0KPiA+PiArCXNwaW5fdW5sb2NrX2lycSgm
-cS0+cXVldWVfbG9jayk7DQo+ID4+ICsNCj4gPiANCj4gPiBIYXMgYmVsb3cgYWx0ZXJuYXRpdmUg
-d2F5IGJlZW4gY29uc2lkZXJlZCB0aGF0IFJQTV9TVVNQRU5ESU5HIGlzIHNldA0KPiA+IGFmdGVy
-IGJsa19mcmVlemVfcXVldWVfc3RhcnQoKT8NCj4gPiANCj4gPiAJYmxrX2ZyZWV6ZV9xdWV1ZV9z
-dGFydChxKTsNCj4gPiANCj4gPiArCXNwaW5fbG9ja19pcnEoJnEtPnF1ZXVlX2xvY2spOw0KPiA+
-ICsJcS0+cnBtX3N0YXR1cyA9IFJQTV9TVVNQRU5ESU5HOw0KPiA+ICsJc3Bpbl91bmxvY2tfaXJx
-KCZxLT5xdWV1ZV9sb2NrKTsNCj4gPiANCj4gPiANCj4gPiBPdGhlcndpc2UgcmVxdWVzdHMgY2Fu
-IGVudGVyIHF1ZXVlIHdoaWxlIHJwbV9zdGF0dXMgaXMgUlBNX1NVU1BFTkRJTkcNCj4gPiBkdXJp
-bmcgYSBzbWFsbCB3aW5kb3csIGkuZS4sIGJlZm9yZSBibGtfc2V0X3BtX29ubHkoKSBpcyBpbnZv
-a2VkLiBUaGlzDQo+ID4gd291bGQgbWFrZSB0aGUgZGVmaW5pdGlvbiBvZiBycG1fc3RhdHVzIGFt
-YmlndW91cy4NCj4gPiANCj4gPiBJbiB0aGlzIHdheSwgdGhlIHJhY2luZyBjb3VsZCBiZSBhbHNv
-IHNvbHZlZDoNCj4gPiANCj4gPiAtIEJlZm9yZSBibGtfZnJlZXplX3F1ZXVlX3N0YXJ0KCksIGFu
-eSByZXF1ZXN0cyBzaGFsbCBiZSBhbGxvd2VkIHRvDQo+ID4gZW50ZXIgcXVldWUNCj4gPiAtIGJs
-a19mcmVlemVfcXVldWVfc3RhcnQoKSBmcmVlemVzIHRoZSBxdWV1ZSBhbmQgYmxvY2tzIGFsbCB1
-cGNvbWluZw0KPiA+IHJlcXVlc3RzIChtYWtlIHRoZW0gd2FpdF9ldmVudChxLT5tcV9mcmVlemVf
-d3EpKQ0KPiA+IC0gcnBtX3N0YXR1cyBpcyBzZXQgYXMgUlBNX1NVU1BFTkRJTkcNCj4gPiAtIGJs
-a19tcV91bmZyZWV6ZV9xdWV1ZSgpIHdha2VzIHVwIHEtPm1xX2ZyZWV6ZV93cSBhbmQgdGhlbg0K
-PiA+IGJsa19wbV9yZXF1ZXN0X3Jlc3VtZSgpIGNhbiBiZSBleGVjdXRlZA0KPiANCj4gSGkgU3Rh
-bmxleSwNCj4gDQo+IEkgcHJlZmVyIHRoZSBvcmRlciBmcm9tIHRoZSBwYXRjaC4gSSB0aGluayBp
-dCBpcyBpbXBvcnRhbnQgdG8gY2hhbmdlDQo+IHEtPnJwbV9zdGF0dXMgaW50byBSUE1fU1VTUEVO
-RElORyBiZWZvcmUgYmxrX3F1ZXVlX2VudGVyKCkgY2FsbHMNCj4gYmxrX3F1ZXVlX3BtX29ubHko
-KS4gT3RoZXJ3aXNlIGl0IGNvdWxkIGhhcHBlbiB0aGF0IGJsa19xdWV1ZV9lbnRlcigpDQo+IGNh
-bGxzIGJsa19wbV9yZXF1ZXN0X3Jlc3VtZSgpIHdoaWxlIHEtPnJwbV9zdGF0dXMgPT0gUlBNX0FD
-VElWRSwgcmVzdWx0aW5nDQo+IGluIGJsa19xdWV1ZV9lbnRlcigpIG5vdCByZXN1bWluZyBhIHF1
-ZXVlIGFsdGhvdWdoIHRoYXQgcXVldWUgc2hvdWxkIGJlDQo+IHJlc3VtZWQuDQoNCkkgc2VlLiBU
-aGFua3MgZm9yIHRoZSBleHBsYW5hdGlvbi4NCg0KQnkgdGhlIG9yZGVyIGZyb20gdGhlIHBhdGNo
-LCBpdCBpcyBndWFyYW50ZWVkIHRoYXQNCmJsa19wbV9yZXF1ZXN0X3Jlc3VtZSgpIHdpbGwgYWx3
-YXlzIHRyaWdnZXIgcnVudGltZSByZXN1bWUgZmxvdyBkdXJpbmcNCmJsa19xdWV1ZV9lbnRlcigp
-IGFmdGVyIGJsa19zZXRfcG1fb25seSgpIGlzIGNhbGxlZCBieSBjb25jdXJyZW50DQpzdXNwZW5k
-IGZsb3csIGkuZS4sIGJsa19wcmVfcnVudGltZV9zdXNwZW5kKCkuDQoNCkhvd2V2ZXIgaXQgd291
-bGQgaGF2ZSBhbiBhbWJpZ3VvdXMgUlBNX1NVU1BFTkRJTkcgcnBtX3N0YXR1cyBldmVuIHRob3Vn
-aA0KaXQgbWF5IG5vdCBjYXVzZSBpc3N1ZXMgb2J2aW91c2x5Lg0KDQpBY2tlZC1CeTogU3Rhbmxl
-eSBDaHUgPHN0YW5sZXkuY2h1QG1lZGlhdGVrLmNvbT4NCg0KDQo=
 
+Dear Caleb,
+
+
+Thank you for the report. Linux has a no regression policy, so the 
+correct forum to report this to is the Linux kernel folks. I am adding 
+the crypto and stable folks to the receiver list.
+
+Am 26.08.20 um 07:51 schrieb caljorden@hotmail.com:
+
+> I wanted to note an issue that I have hit with iwd when I upgraded to
+> the Linux 5.8.3 stable kernel.  My office network uses WPA Enterprise
+> with EAP-PEAPv0 + MSCHAPv2.  When using this office network,
+> upgrading to Linux 5.8.3 caused my system to refuse to associate
+> successfully to the network.  I get the following in my dmesg logs:
+> 
+> [   40.846535] wlan0: authenticate with <redacted>:60
+> [   40.850570] wlan0: send auth to <redacted>:60 (try 1/3)
+> [   40.854627] wlan0: authenticated
+> [   40.855992] wlan0: associate with <redacted>:60 (try 1/3)
+> [   40.860450] wlan0: RX AssocResp from <redacted>:60 (capab=0x411 status=0 aid=11)
+> [   40.861620] wlan0: associated
+> [   41.886503] wlan0: deauthenticating from <redacted>:60 by local choice (Reason: 23=IEEE8021X_FAILED)
+> [   42.360127] wlan0: authenticate with <redacted>:22
+> [   42.364584] wlan0: send auth to <redacted>:22 (try 1/3)
+> [   42.370821] wlan0: authenticated
+> [   42.372658] wlan0: associate with <redacted>:22 (try 1/3)
+> [   42.377426] wlan0: RX AssocResp from <redacted>:22 (capab=0x411 status=0 aid=15)
+> [   42.378607] wlan0: associated
+> [   43.402009] wlan0: deauthenticating from <redacted>:22 by local choice (Reason: 23=IEEE8021X_FAILED)
+> [   43.875921] wlan0: authenticate with <redacted>:60
+> [   43.879988] wlan0: send auth to <redacted>:60 (try 1/3)
+> [   43.886244] wlan0: authenticated
+> [   43.889273] wlan0: associate with <redacted>:60 (try 1/3)
+> [   43.894586] wlan0: RX AssocResp from <redacted>:60 (capab=0x411 status=0 aid=11)
+> [   43.896077] wlan0: associated
+> [   44.918504] wlan0: deauthenticating from <redacted>:60 by local choice (Reason: 23=IEEE8021X_FAILED)
+> 
+> This continues as long as I let iwd run.
+> 
+> I downgraded back to Linux 5.8.2, and verified that everything works
+> as expected.  I also tried using Linux 5.8.3 on a different system at
+> my home, which uses WPA2-PSK.  It worked fine (though it uses an
+> Atheros wireless card instead of an Intel card - but I assume that is
+> irrelevant).
+> 
+> I decided to try to figure out what caused the issue in the changes
+> for Linux 5.8.3.  I assumed that it was something that changed in the
+> crypto interface, which limited my bisection to a very few commits.
+> Sure enough, I found that if I revert commit
+> e91d82703ad0bc68942a7d91c1c3d993e3ad87f0 (crypto: algif_aead - Only
+> wake up when ctx->more is zero), the problem goes away and I am able
+> to associate to my WPA Enterprise network successfully, and use it.
+> I found that in order to revert this commit, I also first had to
+> revert 465c03e999102bddac9b1e132266c232c5456440 (crypto: af_alg - Fix
+> regression on empty requests), because the two commits have coupled
+> changes.
+> 
+> I normally would have assumed that this should be sent to the kernel
+> list, but I thought I would first mention it here because of what I
+> found in some email threads on the Linux-Crypto list about the crypto
+> interfaces to the kernel being sub-optimal and needing to be fixed.
+> The changes in these commits look like they are just trying to fix
+> what could be broken interfaces, so I thought that it would make
+> sense to see what the iwd team thinks about the situation first.
+> 
+> The wireless card I was using during this testing is an Intel
+> Wireless 3165 (rev 81).  If there is any additional information I
+> could help provide, please let me know.
+
+It’d be great, if you verified, if the problem occurs with Linus’ master 
+branch too.
+
+
+Kind regards,
+
+Paul
