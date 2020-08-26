@@ -2,165 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2873A25379F
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 20:53:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F8A82537C7
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 21:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727020AbgHZSxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 14:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
+        id S1726798AbgHZTDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 15:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726929AbgHZSxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 14:53:41 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD479C061756
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 11:53:40 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id o196so2538587qke.8
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 11:53:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=hofyzpzgPe6AYTMkXmGCIt7SJEPq1dqJSmC0pd8RYng=;
-        b=aU0Kri5n8aFkcXK+SQzd5OU4CjKAmgL4rxQIn4UIuUnfi8K9cEbaSz4xOCk9LRuV8M
-         +yV8PEnLsO1fSiOWy09dm63vft0ehH+PUcugAekq3u6WGXbWJ3GjX5wHPC9Lw0Ibis4o
-         b6Um/VuS9LQmSvz+dL2ByDqX5IYeKihp1nXqnMSIXI10UyRI2DFdZS1ciKvF8u2OLoSu
-         AzEV5M6NWSM1H2aPwjDMrXDWdmrDW+Ecw+i1W5nlaQ6sr3XvBI/C98hoByHvUWA6Y9XB
-         J3ZvZhGCMLCP9JjsYtEHC3XGdbwfQNpOHoxxV5IqGElGyLBun2TP1p6wVJhefViQlrDa
-         +Ytw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=hofyzpzgPe6AYTMkXmGCIt7SJEPq1dqJSmC0pd8RYng=;
-        b=jZx8n8DI7ap8LZEqsUWeppTDbG7NzoMSZy36b/BCJb6TcWpvyVc05vQal8gTWclFIp
-         VbSdfDeucjs+e0NhRsjXldxIFqHxKVHg28AB2ynXG/DCqZ5yTbuQnVQSmZbedmfwhkWF
-         7U+hOISAvXUITLxsAK2qM94I5cYOGxIo0/vlKufmC4tEhuTjizZwnxLvZtIJ3yuDd2A8
-         0ahGWC2SVZah9dxS6beFe9UNRa4hJYO4XsyiBYry2bVEWD1PqlE7CRGy4V/DPanfn3bS
-         8fOX/BfBXTt+Q3YqBXOmKsWFLTUAjiKav46EfHdIOxpnIE/ONMjarr75L0MmoAZm/r7D
-         crjQ==
-X-Gm-Message-State: AOAM533tHU8E+9Tr0WfvUOR5IBf+VifahnMnVrM12QWPBk873b8p8Yei
-        KTjcm8jx2JFNpVjwhaAv3ldD5g==
-X-Google-Smtp-Source: ABdhPJwR8f9dJmrLly/o2/CVh6ljbU6xxAvQkWz5TxpfkH6VjiBgj7vgJ5iLte/89vItVJQsYTGU4A==
-X-Received: by 2002:a05:620a:957:: with SMTP id w23mr15316943qkw.399.1598468019450;
-        Wed, 26 Aug 2020 11:53:39 -0700 (PDT)
-Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id m26sm2846638qtc.83.2020.08.26.11.53.37
-        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
-        Wed, 26 Aug 2020 11:53:38 -0700 (PDT)
-Date:   Wed, 26 Aug 2020 11:53:24 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@eggly.anvils
-To:     Greg KH <gregkh@linuxfoundation.org>
-cc:     Hugh Dickins <hughd@google.com>, Sasha Levin <sashal@kernel.org>,
-        aarcange@redhat.com, akpm@linux-foundation.org,
-        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
-        songliubraving@fb.com, torvalds@linux-foundation.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Patch "khugepaged: khugepaged_test_exit() check mmget_still_valid()"
- has been added to the 5.8-stable tree
-In-Reply-To: <alpine.LSU.2.11.2008240758110.2486@eggly.anvils>
-Message-ID: <alpine.LSU.2.11.2008261148000.1479@eggly.anvils>
-References: <1597841669128213@kroah.com> <alpine.LSU.2.11.2008190625060.24442@eggly.anvils> <20200819135306.GA3311904@kroah.com> <alpine.LSU.2.11.2008211739460.9564@eggly.anvils> <20200822212053.GE8670@sasha-vm> <alpine.LSU.2.11.2008221900570.11463@eggly.anvils>
- <alpine.LSU.2.11.2008240758110.2486@eggly.anvils>
-User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
+        with ESMTP id S1726734AbgHZTDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 15:03:00 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2ADC061574;
+        Wed, 26 Aug 2020 12:03:00 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 19:02:57 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1598468578;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RJrpPCcKjLqXf0wZytcbv1zXOaX1uadoyDCrO/SFY7s=;
+        b=EVNqWmfYyP1DpYc8OYUX3Nn+5GF65B4vOmk3SOtTZIkfnClQZCdDErOz1E6lVFtdSPt3/y
+        mhORedqVLTIeGUWAYUMxi/nZp75xYSWUycmc3DZgeK0rLFpkjxZ+aPEytFmGr5zsNiuYbs
+        oL/8LPg2uSemZXQloZZ+RBVTZAYqSd7gFIa1cYVy2j94qM9Q1jivgXojuXpf61Ik1jtEbk
+        eTkVqKi/pS4zzmzxT9dXPhCGoXnRrU/f+b4zEUKajUol7txjlmIfRjRxZ0LvXKqxAORO4n
+        BvIzcr6xm0e9bdPt+XHImeeqAR5lowDU0Hti5FhK83VX0FzoFrS7oE76eNUV9w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1598468578;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RJrpPCcKjLqXf0wZytcbv1zXOaX1uadoyDCrO/SFY7s=;
+        b=EzDtDF0/AQsKODFiw32RLnCa6D1VN8prUgwkjl8nI620ELnxnk5GXzLDabg/I8HeKroVKc
+        N0RxL6wAhJBF4dCg==
+From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/fsgsbase] selftests/x86/fsgsbase: Test PTRACE_PEEKUSER for
+ GSBASE with invalid LDT GS
+Cc:     Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <c618ae86d1f757e01b1a8e79869f553cb88acf9a.1598461151.git.luto@kernel.org>
+References: <c618ae86d1f757e01b1a8e79869f553cb88acf9a.1598461151.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <159846857768.389.6578227698972431779.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Aug 2020, Hugh Dickins wrote:
-> On Sat, 22 Aug 2020, Hugh Dickins wrote:
-> > On Sat, 22 Aug 2020, Sasha Levin wrote:
-> > > 
-> > > I've followed your instructions and backported the patches:
-> > > 
-> > > bbe98f9cadff ("khugepaged: khugepaged_test_exit() check
-> > > mmget_still_valid()") - to all branches.
-> > > f3f99d63a815 ("khugepaged: adjust VM_BUG_ON_MM() in
-> > > __khugepaged_enter()") - to all branches.
-> > > 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page()
-> > > and core dumping") - for 4.4.
-> > 
-> > That's saved me time, thanks a lot for doing that work, Sasha.
-> > 
-> > I've checked the results (haha, read on) and they're all fine,
-> > but one minor flaw in bisectability: the added 4.4 backport of
-> > "coredump: fix race condition..." adds a line (deleted by the next commit)
-> > 	result = SCAN_ANY_PROCESS;
-> > but neither "result" nor "SCAN_ANY_PROCESS" is defined in that tree,
-> > so that intermediate step would generate an easily fixed build error.
-> > 
-> > FWIW - I don't know whether that's something to care about or not.
-> 
-> Ah, but I missed that this one that we originally held back from 5.8,
-> did not in fact get re-added to 5.8: all the backport series have it,
-> but today's 5.8.4-rc1 does not have it.
-> 
-> That's not a disaster - the series builds without it, and having its
-> fix without the fixed commit is just odd, no more unsafe than before;
-> but it should be re-added for a 5.8.4-rc2 or 5.8.5.
+The following commit has been merged into the x86/fsgsbase branch of tip:
 
-I see 5.8 is at 5.8.5-rc1 today, but the commit below still missing:
-please re-add it, then we can all forget about it at last - thanks!
+Commit-ID:     1b9abd1755ad947d7c9913e92e7837b533124c90
+Gitweb:        https://git.kernel.org/tip/1b9abd1755ad947d7c9913e92e7837b533124c90
+Author:        Andy Lutomirski <luto@kernel.org>
+AuthorDate:    Wed, 26 Aug 2020 10:00:46 -07:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Wed, 26 Aug 2020 20:54:18 +02:00
 
-Hugh
+selftests/x86/fsgsbase: Test PTRACE_PEEKUSER for GSBASE with invalid LDT GS
 
-From bbe98f9cadff58cdd6a4acaeba0efa8565dabe65 Mon Sep 17 00:00:00 2001
-From: Hugh Dickins <hughd@google.com>
-Date: Thu, 6 Aug 2020 23:26:25 -0700
-Subject: khugepaged: khugepaged_test_exit() check mmget_still_valid()
+This tests commit:
 
-From: Hugh Dickins <hughd@google.com>
+  8ab49526b53d ("x86/fsgsbase/64: Fix NULL deref in 86_fsgsbase_read_task")
 
-commit bbe98f9cadff58cdd6a4acaeba0efa8565dabe65 upstream.
+Unpatched kernels will OOPS.
 
-Move collapse_huge_page()'s mmget_still_valid() check into
-khugepaged_test_exit() itself.  collapse_huge_page() is used for anon THP
-only, and earned its mmget_still_valid() check because it inserts a huge
-pmd entry in place of the page table's pmd entry; whereas
-collapse_file()'s retract_page_tables() or collapse_pte_mapped_thp()
-merely clears the page table's pmd entry.  But core dumping without mmap
-lock must have been as open to mistaking a racily cleared pmd entry for a
-page table at physical page 0, as exit_mmap() was.  And we certainly have
-no interest in mapping as a THP once dumping core.
-
-Fixes: 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page() and core dumping")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021217020.27773@eggly.anvils
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/c618ae86d1f757e01b1a8e79869f553cb88acf9a.1598461151.git.luto@kernel.org
 ---
- mm/khugepaged.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ tools/testing/selftests/x86/fsgsbase.c | 65 +++++++++++++++++++++++++-
+ 1 file changed, 65 insertions(+)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -431,7 +431,7 @@ static void insert_to_mm_slots_hash(stru
+diff --git a/tools/testing/selftests/x86/fsgsbase.c b/tools/testing/selftests/x86/fsgsbase.c
+index 0056e25..7161cfc 100644
+--- a/tools/testing/selftests/x86/fsgsbase.c
++++ b/tools/testing/selftests/x86/fsgsbase.c
+@@ -443,6 +443,68 @@ static void test_unexpected_base(void)
  
- static inline int khugepaged_test_exit(struct mm_struct *mm)
+ #define USER_REGS_OFFSET(r) offsetof(struct user_regs_struct, r)
+ 
++static void test_ptrace_write_gs_read_base(void)
++{
++	int status;
++	pid_t child = fork();
++
++	if (child < 0)
++		err(1, "fork");
++
++	if (child == 0) {
++		printf("[RUN]\tPTRACE_POKE GS, read GSBASE back\n");
++
++		printf("[RUN]\tARCH_SET_GS to 1\n");
++		if (syscall(SYS_arch_prctl, ARCH_SET_GS, 1) != 0)
++			err(1, "ARCH_SET_GS");
++
++		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) != 0)
++			err(1, "PTRACE_TRACEME");
++
++		raise(SIGTRAP);
++		_exit(0);
++	}
++
++	wait(&status);
++
++	if (WSTOPSIG(status) == SIGTRAP) {
++		unsigned long base;
++		unsigned long gs_offset = USER_REGS_OFFSET(gs);
++		unsigned long base_offset = USER_REGS_OFFSET(gs_base);
++
++		/* Read the initial base.  It should be 1. */
++		base = ptrace(PTRACE_PEEKUSER, child, base_offset, NULL);
++		if (base == 1) {
++			printf("[OK]\tGSBASE started at 1\n");
++		} else {
++			nerrs++;
++			printf("[FAIL]\tGSBASE started at 0x%lx\n", base);
++		}
++
++		printf("[RUN]\tSet GS = 0x7, read GSBASE\n");
++
++		/* Poke an LDT selector into GS. */
++		if (ptrace(PTRACE_POKEUSER, child, gs_offset, 0x7) != 0)
++			err(1, "PTRACE_POKEUSER");
++
++		/* And read the base. */
++		base = ptrace(PTRACE_PEEKUSER, child, base_offset, NULL);
++
++		if (base == 0 || base == 1) {
++			printf("[OK]\tGSBASE reads as 0x%lx with invalid GS\n", base);
++		} else {
++			nerrs++;
++			printf("[FAIL]\tGSBASE=0x%lx (should be 0 or 1)\n", base);
++		}
++	}
++
++	ptrace(PTRACE_CONT, child, NULL, NULL);
++
++	wait(&status);
++	if (!WIFEXITED(status))
++		printf("[WARN]\tChild didn't exit cleanly.\n");
++}
++
+ static void test_ptrace_write_gsbase(void)
  {
--	return atomic_read(&mm->mm_users) == 0;
-+	return atomic_read(&mm->mm_users) == 0 || !mmget_still_valid(mm);
- }
+ 	int status;
+@@ -529,6 +591,9 @@ int main()
+ 	shared_scratch = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
+ 			      MAP_ANONYMOUS | MAP_SHARED, -1, 0);
  
- static bool hugepage_vma_check(struct vm_area_struct *vma,
-@@ -1100,9 +1100,6 @@ static void collapse_huge_page(struct mm
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	mmap_write_lock(mm);
--	result = SCAN_ANY_PROCESS;
--	if (!mmget_still_valid(mm))
--		goto out;
- 	result = hugepage_vma_revalidate(mm, address, &vma);
- 	if (result)
- 		goto out;
-
++	/* Do these tests before we have an LDT. */
++	test_ptrace_write_gs_read_base();
++
+ 	/* Probe FSGSBASE */
+ 	sethandler(SIGILL, sigill, 0);
+ 	if (sigsetjmp(jmpbuf, 1) == 0) {
