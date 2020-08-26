@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30B2253093
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346CC25308E
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730538AbgHZNy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33268 "EHLO mail.kernel.org"
+        id S1730416AbgHZNy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:54:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730485AbgHZNyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:54:16 -0400
+        id S1730527AbgHZNyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 09:54:17 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADB5922BEA;
-        Wed, 26 Aug 2020 13:54:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A6BF22BED;
+        Wed, 26 Aug 2020 13:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598450055;
-        bh=u85ko2OuVP6wGKE15YFhjeSNQhFhMt3mvPfJj8qAAl8=;
-        h=Date:From:To:To:To:CC:Cc:Subject:In-Reply-To:References:From;
-        b=q5DJdtp4hijWYe6ekaUag0OWXYyzvVb/cJ2iXwUWb3A501XhRsn2732n5Ib8PDS1B
-         QNC14cJG2X4RvZXf8QRnSiej50S0ROqRzoPS0IbEI7Fybwyv8SWwwZlJzHbbvYN1BR
-         3WY1hv7RTQxDgmN96lt/LvTGRV6xHeDCP03Voe9Q=
-Date:   Wed, 26 Aug 2020 13:54:15 +0000
+        s=default; t=1598450056;
+        bh=n/6d2UUED3wg06etiyVMGNSdggwuojSvWn37LraJKfE=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
+         References:From;
+        b=ArXWnIy1bud6x43tADjM1MznKdIVoDXwbTghf0/b73J5Npko9ZJqt6dvTztkks41v
+         9uxhICBnfFhVEOLnCwzkShBPoIilrqV4b+xaEwTkqYZJbi5TTddiJLQzsUYuHroQvQ
+         Oxr2Pm0jyW8571vxkdfSBJbvspO4dmSbcJKdf/ag=
+Date:   Wed, 26 Aug 2020 13:54:16 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <adrian.hunter@intel.com>, <ulf.hansson@linaro.org>
-CC:     <skomatineni@nvidia.com>, <linux-tegra@vger.kernel.org>
+To:     Will Deacon <will@kernel.org>
+To:     kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org
+Cc:     Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
+Cc:     <stable@vger.kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     James Morse <james.morse@arm.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 5/6] arm64: tegra: Add missing timeout clock to Tegra194 SDMMC nodes
-In-Reply-To: <1596673949-1571-6-git-send-email-skomatineni@nvidia.com>
-References: <1596673949-1571-6-git-send-email-skomatineni@nvidia.com>
-Message-Id: <20200826135415.ADB5922BEA@mail.kernel.org>
+Subject: Re: [PATCH 1/2] KVM: Pass MMU notifier range flags to kvm_unmap_hva_range()
+In-Reply-To: <20200811102725.7121-2-will@kernel.org>
+References: <20200811102725.7121-2-will@kernel.org>
+Message-Id: <20200826135416.9A6BF22BED@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,35 +48,78 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140.
+The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140, v4.14.193, v4.9.232, v4.4.232.
 
 v5.8.2: Build OK!
 v5.7.16: Build OK!
 v5.4.59: Build OK!
 v4.19.140: Failed to apply! Possible dependencies:
-    1ea067183d8a ("arm64: dts: tegra210: Add sdmmc pad auto calibration offsets")
-    22248e91bee0 ("arm64: dts: tegra186: Add SDMMC4 DQS trim value")
-    24005fd1b3b4 ("arm64: dts: Add Tegra186 sdmmc pinctrl voltage states")
-    2602c32f15e7 ("arm64: tegra: Add P2U and PCIe controller nodes to Tegra194 DT")
-    2c3578b3f309 ("arm64: tegra: Remove extra compatible for Tegra194 SDHCI")
-    351648d0cc6d ("arm64: tegra: Support 200 MHz for SDMMC on Tegra194")
-    3db6d3ba0863 ("arm64: tegra: Add display support on Tegra194")
-    41408c215ab7 ("arm64: dts: tegra186: Add sdmmc pad auto calibration offsets")
-    4e0f12299194 ("arm64: tegra: Add SDMMC auto-calibration settings")
-    5d2249dda08e ("arm64: tegra: Add ACONNECT, ADMA and AGIC nodes")
-    63af8bcd23a6 ("arm64: dts: tegra210: Add SDHCI tap and trim values")
-    6641af7e1fa7 ("arm64: dts: Add Tegra210 sdmmc pinctrl voltage states")
-    686ba00900bb ("arm64: tegra: Add thermal zones on Tegra194")
-    6a574ec70c52 ("arm64: tegra: Add PWM controllers on Tegra194")
-    6f90c6f0db83 ("arm64: dts: tegra186: Add SDHCI tap and trim values")
-    a38570c22e9d ("arm64: tegra: Add nodes for TCU on Tegra194")
-    badb80bed041 ("arm64: tegra: Add CEC controller on Tegra194")
-    be9b887f3bba ("arm64: tegra: Add the memory subsystem on Tegra194")
-    d5237c7c9bbe ("arm64: tegra: Describe interconnect paths on Tegra194")
-    dbb72e2c305b ("arm64: tegra: Add configuration for PCIe C5 sideband signals")
+    18fc7bf8e041 ("arm64: KVM: Allow for direct call of HYP functions when using VHE")
+    208243c752a7 ("KVM: arm64: Move hyp-init.S to nVHE")
+    25357de01b95 ("KVM: arm64: Clean up kvm makefiles")
+    33e45234987e ("arm64: initialize and switch ptrauth kernel keys")
+    396244692232 ("arm64: preempt: Provide our own implementation of asm/preempt.h")
+    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
+    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    750319756256 ("arm64: add basic pointer authentication support")
+    7621712918ad ("KVM: arm64: Add build rules for separate VHE/nVHE object files")
+    7aa8d1464165 ("arm/arm64: KVM: Introduce kvm_call_hyp_ret()")
+    86d0dd34eaff ("arm64: cpufeature: add feature for CRC32 instructions")
+    90776dd1c427 ("arm64/efi: Move variable assignments after SECTIONS")
+    95b861a4a6d9 ("arm64: arch_timer: Add workaround for ARM erratum 1188873")
+    a0e50aa3f4a8 ("KVM: arm64: Factor out stage 2 page table data from struct kvm")
+    b877e9849d41 ("KVM: arm64: Build hyp-entry.S separately for VHE/nVHE")
+    bd4fb6d270bc ("arm64: Add support for SB barrier and patch in over DSB; ISB sequences")
+    be1298425665 ("arm64: install user ptrauth keys at kernel exit time")
+    d82755b2e781 ("KVM: arm64: Kill off CONFIG_KVM_ARM_HOST")
+    f50b6f6ae131 ("KVM: arm64: Handle calls to prefixed hyp functions")
+    f56063c51f9f ("arm64: add image head flag definitions")
+    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
+
+v4.14.193: Failed to apply! Possible dependencies:
+    0db9dd8a0fbd ("KVM: arm/arm64: Stop using the kernel's {pmd,pud,pgd}_populate helpers")
+    17ab9d57deba ("KVM: arm/arm64: Drop vcpu parameter from guest cache maintenance operartions")
+    3f58bf634555 ("KVM: arm/arm64: Share common code in user_mem_abort()")
+    6396b852e46e ("KVM: arm/arm64: Re-factor setting the Stage 2 entry to exec on fault")
+    694556d54f35 ("KVM: arm/arm64: Clean dcache to PoC when changing PTE due to CoW")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    88dc25e8ea7c ("KVM: arm/arm64: Consolidate page-table accessors")
+    91c703e0382a ("arm: KVM: Add optimized PIPT icache flushing")
+    a15f693935a9 ("KVM: arm/arm64: Split dcache/icache flushing")
+    a9c0e12ebee5 ("KVM: arm/arm64: Only clean the dcache on translation fault")
+    d0e22b4ac3ba ("KVM: arm/arm64: Limit icache invalidation to prefetch aborts")
+    f8df73388ee2 ("KVM: arm/arm64: Introduce helpers to manipulate page table entries")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    1534b3964901 ("KVM: MIPS/MMU: Simplify ASID restoration")
+    1581ff3dbf69 ("KVM: MIPS/MMU: Move preempt/ASID handling to implementation")
+    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
+    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    91cdee5710d5 ("KVM: MIPS/T&E: Restore host asid on return to host")
+    a2c046e40ff1 ("KVM: MIPS: Add vcpu_run() & vcpu_reenter() callbacks")
+    a31b50d741bd ("KVM: MIPS/MMU: Invalidate GVA PTs on ASID changes")
+    a60b8438bdba ("KVM: MIPS: Convert get/set_regs -> vcpu_load/put")
+    a7ebb2e410f8 ("KVM: MIPS/T&E: active_mm = init_mm in guest context")
+    aba8592950f1 ("KVM: MIPS/MMU: Invalidate stale GVA PTEs on TLBW")
+    c550d53934d8 ("KVM: MIPS: Remove duplicated ASIDs from vcpu")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    16d100db245a ("MIPS: Move Cause.ExcCode trap codes to mipsregs.h")
+    1880afd6057f ("KVM: MIPS/T&E: Add lockless GVA access helpers")
+    19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
+    411740f5422a ("KVM: MIPS/MMU: Implement KVM_CAP_SYNC_MMU")
+    748c0e312fce ("KVM: Make kvm_set_spte_hva() return int")
+    8cffd1974851 ("MIPS: KVM: Convert code to kernel sized types")
+    9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
+    ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
+    bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
+    ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
+    caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
