@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A9925307D
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D8825307A
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730440AbgHZNx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60458 "EHLO mail.kernel.org"
+        id S1730445AbgHZNxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbgHZNxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730440AbgHZNxw (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 26 Aug 2020 09:53:52 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7800522B4E;
-        Wed, 26 Aug 2020 13:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6293B221E2;
+        Wed, 26 Aug 2020 13:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598450031;
-        bh=J5KtpRMkbNUjnLL2pKnUVWNS7nc5nfO7xShHrpdYIaY=;
+        s=default; t=1598450032;
+        bh=vuJsA/5vkSfWIWnZi44llxtKQWiglSfxgoAlIGL8uPw=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=yxbfrKBKjq9RDi3Boc7e0Ul3ESYtkuFizi8x7sjCrNlgQtLg5PwHREjizJZYbsuGB
-         kLyvIWMQ3YVRtS4bobqiotSKFR4uJ/LErbjclLPR6YgGsUMfxBdmtqLBJT0GUG2piq
-         ETfFIE2/g9A3dIVW54rr31x18epzzwuzktKbvC04=
-Date:   Wed, 26 Aug 2020 13:53:50 +0000
+        b=yCQD5QrgLQjIfJftaJkLwH4EIdj0R9D5cN+MZwHSlxRyuScaOizFgu20zP/y0OdCC
+         5uwOZic6McKOHPynaXUZjjhkKWoCJqlUytlg9GCzA6P335QyNfOwKb07uD675mOGY4
+         8ysBbI/waU+N26eiPKWhPuCquCJw51b4RmkMQ8Es=
+Date:   Wed, 26 Aug 2020 13:53:51 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2] HID: i2c-hid: Always sleep 1ms after I2C_HID_PWR_ON commands
-In-Reply-To: <20200811125900.338705-1-hdegoede@redhat.com>
-References: <20200811125900.338705-1-hdegoede@redhat.com>
-Message-Id: <20200826135351.7800522B4E@mail.kernel.org>
+Subject: Re: [PATCH 1/3] usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
+In-Reply-To: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
+References: <febe1ba310b638f5013e64835c1cc4210e0b799a.1596151437.git.thinhn@synopsys.com>
+Message-Id: <20200826135352.6293B221E2@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,20 +44,25 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)").
 
-The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140, v4.14.193, v4.9.232, v4.4.232.
+The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59.
 
 v5.8.2: Build OK!
-v5.7.16: Build OK!
-v5.4.59: Build OK!
-v4.19.140: Build OK!
-v4.14.193: Build OK!
-v4.9.232: Build OK!
-v4.4.232: Failed to apply! Possible dependencies:
-    71af01a8c85a ("HID: i2c-hid: add a simple quirk to fix device defects")
-    9a327405014f ("HID: i2c-hid: Prevent sending reports from racing with device reset")
+v5.7.16: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+
+v5.4.59: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
