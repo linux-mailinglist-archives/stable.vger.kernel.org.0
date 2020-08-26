@@ -2,162 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FDD825331C
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 17:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C41F2253382
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 17:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbgHZPMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 11:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
+        id S1726947AbgHZPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 11:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726988AbgHZPMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 11:12:39 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCEAC061574
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 08:12:39 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id x143so1144170pfc.4
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 08:12:39 -0700 (PDT)
+        with ESMTP id S1727902AbgHZPWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 11:22:12 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A24C061756
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 08:22:11 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id 17so1148018pfw.9
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 08:22:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=897PdjDMocdd2SoADGcqePpQI1CRTcxzWAe9vM7Ay2I=;
-        b=KqxWlonNZeycg5EsbxOfcWIqcwWxYeuhPaaxrsKsncqsqTgO7LN0H2JAsvaaQZqTKT
-         7O2Ibz6b6tOZlu/+Q+++y2fMYZd2KGUqDeTmmxSyKm/b30ib2635KFcl3vvOeVaHa7bC
-         WEfZwTI4ew4JY7Cw8ertgRHjVBEYUNxibkTImwGZlTdlKaszgL/MsQjBaitQLW4u+sZ+
-         0ASda5ScYF1Btsbg9MzzixAwR3hcSq7BtmmTwbJp2UWTB34Q6H9PBGxzFNTaluCG+ee8
-         RR4kChYIwaNOIVc54uVLovuIUYkGD8rCDfF6B2bhdbKl9/2CMEkxaJ8BvOvqKlFbXwOf
-         BJfw==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=vtJDwZCH/3FF1e3t+ULJa3AUehUyh5L1H4fEzIfmn4o=;
+        b=GIGN8wX3pyjKhCF0wAkRfMN1el9RjJWFj8wzMB0EPBzLhBY51FePhM2oaxSjBktdec
+         RDZDUzX5TFXl/ymZSVgMFbtiqSqjXdFJv0OmSwVPBuLjXNQaSaxW/gsV3N3KUXtHSpXZ
+         MIPBqbugEmDk8K+4S4vugfFpV7QHbzMIaOO1g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=897PdjDMocdd2SoADGcqePpQI1CRTcxzWAe9vM7Ay2I=;
-        b=XMK0Ejn1a+ftIvfkBibO0wy7e+hRq/UqSo+1OFARjpyxZLVEJgJ+xyORnro5vKV9kr
-         IwnCgiX669fXMFnoMIS0iIGenCzt2415Ktb7S/d2V64PeHWqN7Rm3Fs0SLT6Ki8KXlhE
-         y+nZGdk7cuXJ7g5kfde208ORXWddshSd8/CaOZshD9j9WGEHwnw/TXIb/0RPQgifYy6Q
-         T3DAOc6Vd3iBY6SsYMPyy9sCjjZ+VQz3kQ/h3TuYMs5rhxYz+Ej8BuLMo/oMaN0AbDrB
-         G1CjHa+rPvptQGn6CJkidMuEXEWEf/+/bAD15HCO6M/SZk9x3fehch6ujFcZ7epyrFE0
-         Sv6w==
-X-Gm-Message-State: AOAM531XAAAxcPvVps1NtbfcKv+q4UlWbcyvAFchJaYQ1O3oIuhnGIcD
-        sfsSlcYF79IYclXHY3xh1nNUhh1WvIixIQ==
-X-Google-Smtp-Source: ABdhPJzNN4U+lJVusFpLZCUFtIdxLnPaHl77d0szmRxrqvXHZblTQh4/SEr0yc/Zaw6RByTTq4mH6Q==
-X-Received: by 2002:a63:651:: with SMTP id 78mr11271418pgg.344.1598454758196;
-        Wed, 26 Aug 2020 08:12:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k88sm2646253pjk.19.2020.08.26.08.12.36
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=vtJDwZCH/3FF1e3t+ULJa3AUehUyh5L1H4fEzIfmn4o=;
+        b=QE3MoFiUQua4V2R/NMRziBAibUDJziqyGGnPPKUpl4skGHP8BCwe4NFsfuBnQI8aBE
+         fU0T4cO7EwYL9V516aMFydx24noEZA/H/DvxVrvVjDFmkfqZRhaBGWj+tWJmsp4eUGdA
+         Z2paAhgeNaCneGXXvW0tP/GXKsvB4OR+XXmOv3jyZbL3lJQUnwdKjeW3hUOdtv5IrQ95
+         88B6xpFgdp69K8wkIkPD5/s9a7AUEnJ8g1oyn1xFgsjILi0Do4MU1GvB7K/sC54tPhUf
+         t3A92doQTIYij6TIaisGjFf3nTX9eCcFcnONghYKnIoWTO681QlVnFUg5B+B4FbcTUJy
+         YzkA==
+X-Gm-Message-State: AOAM530DiXKFE9z/VSE4tBidP+UoSPerW5zhBTPyx3OzrFziXCurN4yS
+        xCFH5urzp3VwdMJsIfcQVz2Inw==
+X-Google-Smtp-Source: ABdhPJzLyHWcSj7Vm+MuzdkYBxrO9j5DgXJEwOBbTsbHaZtpPhDC5bH383FmCZxfzvk8bd4r7nwv+A==
+X-Received: by 2002:a63:330c:: with SMTP id z12mr11048145pgz.46.1598455331205;
+        Wed, 26 Aug 2020 08:22:11 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id ck3sm2319962pjb.20.2020.08.26.08.22.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Aug 2020 08:12:37 -0700 (PDT)
-Message-ID: <5f467be5.1c69fb81.4cc7c.5941@mx.google.com>
-Date:   Wed, 26 Aug 2020 08:12:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 26 Aug 2020 08:22:10 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 08:22:09 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        clang-built-linux@googlegroups.com, stable@vger.kernel.org,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Joe Perches <joe@perches.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] lib/string.c: implement stpcpy
+Message-ID: <202008260821.CF6D817B36@keescook>
+References: <20200825140001.2941001-1-ndesaulniers@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.142
-Subject: stable/linux-4.19.y baseline: 175 runs, 2 regressions (v4.19.142)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200825140001.2941001-1-ndesaulniers@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 175 runs, 2 regressions (v4.19.142)
+On Tue, Aug 25, 2020 at 07:00:00AM -0700, Nick Desaulniers wrote:
+> LLVM implemented a recent "libcall optimization" that lowers calls to
+> `sprintf(dest, "%s", str)` where the return value is used to
+> `stpcpy(dest, str) - dest`. This generally avoids the machinery involved
+> in parsing format strings.  `stpcpy` is just like `strcpy` except it
+> returns the pointer to the new tail of `dest`.  This optimization was
+> introduced into clang-12.
+> 
+> Implement this so that we don't observe linkage failures due to missing
+> symbol definitions for `stpcpy`.
+> 
+> Similar to last year's fire drill with:
+> commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+> 
+> The kernel is somewhere between a "freestanding" environment (no full libc)
+> and "hosted" environment (many symbols from libc exist with the same
+> type, function signature, and semantics).
+> 
+> As H. Peter Anvin notes, there's not really a great way to inform the
+> compiler that you're targeting a freestanding environment but would like
+> to opt-in to some libcall optimizations (see pr/47280 below), rather than
+> opt-out.
+> 
+> Arvind notes, -fno-builtin-* behaves slightly differently between GCC
+> and Clang, and Clang is missing many __builtin_* definitions, which I
+> consider a bug in Clang and am working on fixing.
+> 
+> Masahiro summarizes the subtle distinction between compilers justly:
+>   To prevent transformation from foo() into bar(), there are two ways in
+>   Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
+>   only one in GCC; -fno-buitin-foo.
+> 
+> (Any difference in that behavior in Clang is likely a bug from a missing
+> __builtin_* definition.)
+> 
+> Masahiro also notes:
+>   We want to disable optimization from foo() to bar(),
+>   but we may still benefit from the optimization from
+>   foo() into something else. If GCC implements the same transform, we
+>   would run into a problem because it is not -fno-builtin-bar, but
+>   -fno-builtin-foo that disables that optimization.
+> 
+>   In this regard, -fno-builtin-foo would be more future-proof than
+>   -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
+>   may want to prevent calls from foo() being optimized into calls to
+>   bar(), but we still may want other optimization on calls to foo().
+> 
+> It seems that compilers today don't quite provide the fine grain control
+> over which libcall optimizations pseudo-freestanding environments would
+> prefer.
+> 
+> Finally, Kees notes that this interface is unsafe, so we should not
+> encourage its use.  As such, I've removed the declaration from any
+> header, but it still needs to be exported to avoid linkage errors in
+> modules.
+> 
+> Cc: stable@vger.kernel.org
+> Link: https://bugs.llvm.org/show_bug.cgi?id=47162
+> Link: https://bugs.llvm.org/show_bug.cgi?id=47280
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+> Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
+> Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
+> Link: https://reviews.llvm.org/D85963
+> Suggested-by: Andy Lavr <andy.lavr@gmail.com>
+> Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+> Suggested-by: Joe Perches <joe@perches.com>
+> Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+> Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Reported-by: Sami Tolvanen <samitolvanen@google.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 
-Regressions Summary
--------------------
+Acked-by: Kees Cook <keescook@chromium.org>
 
-platform        | arch  | lab          | compiler | defconfig      | results
-----------------+-------+--------------+----------+----------------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig      | 3/4    =
-
-hsdk            | arc   | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.142/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.142
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      f6d5cb9e2c06f7d583dd9f4f7cca21d13d78c32a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig      | results
-----------------+-------+--------------+----------+----------------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig      | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f4647a791035b0e019fb435
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.142/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.142/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f4647a791035b0e=
-019fb439
-      new failure (last pass: v4.19.141)
-      1 lines
-
-    2020-08-26 11:27:41.262000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-08-26 11:27:41.262000  (user:khilman) is already connected
-    2020-08-26 11:27:57.429000  =00
-    2020-08-26 11:27:57.429000  =
-
-    2020-08-26 11:27:57.430000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-08-26 11:27:57.430000  =
-
-    2020-08-26 11:27:57.431000  DRAM:  948 MiB
-    2020-08-26 11:27:57.444000  RPI 3 Model B (0xa02082)
-    2020-08-26 11:27:57.532000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-08-26 11:27:57.563000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (369 line(s) more)
-      =
-
-
-
-platform        | arch  | lab          | compiler | defconfig      | results
-----------------+-------+--------------+----------+----------------+--------
-hsdk            | arc   | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f464b9f3e7ae296d79fb45f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: hsdk_defconfig
-  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
-19.03-rc1) 8.3.1 20190225)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.142/=
-arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.142/=
-arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arc/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f464b9f3e7ae296d79fb=
-460
-      failing since 41 days (last pass: v4.19.124, first fail: v4.19.133)  =
-=20
+-- 
+Kees Cook
