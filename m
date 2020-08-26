@@ -2,159 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DC11253483
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 18:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 283E52534E0
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 18:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbgHZQOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 12:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44752 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727099AbgHZQOF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 12:14:05 -0400
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13D4222B49
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 16:14:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598458444;
-        bh=oKZFw6OKcCRaJR4UDthOfPIs8jXcSZfT0W9tTH84ZMU=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=1lCAAob2AtBQ+GkYXC2zSZLe2Ta+bNQhiTBczPtVTrHqtM0sfM1EMwc4JPVmVqY4g
-         yR9jjuBalhv5c+rvfluAyPkV4Kl4bUqgDaPQSTwuFc/jO7w2Igjwxw/aBzJKrhUOmF
-         /abNVtgvy2wCV4V2kll0lR31mFW9eFX0amTa4KS0=
-Received: by mail-lf1-f51.google.com with SMTP id k10so1298133lfm.5
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:14:04 -0700 (PDT)
-X-Gm-Message-State: AOAM530FCjbaIlLu1mm6b7KVUQASgKfB4qJHVWtnr0sTPqy3Zv1sfTRB
-        W4cxIVoUrohRRQO33ch98XXbV/C6pVDgYEQ0lsSiKg==
-X-Google-Smtp-Source: ABdhPJwAbzxxlNHiuVxEKmNVT3p/k5xoMod3W+X/CpF95phFRbTBDJNyJX7NjguSFEFJNVQgYBihhImtDD3p/yTOrHE=
-X-Received: by 2002:adf:f442:: with SMTP id f2mr5729898wrp.184.1598458441777;
- Wed, 26 Aug 2020 09:14:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200826115357.3049-1-graf@amazon.com> <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
-In-Reply-To: <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Wed, 26 Aug 2020 09:13:49 -0700
-X-Gmail-Original-Message-ID: <CALCETrX-8a61k03+XJop=k11-TkE+7JOiGTH=81sHXPmXsA+Tw@mail.gmail.com>
-Message-ID: <CALCETrX-8a61k03+XJop=k11-TkE+7JOiGTH=81sHXPmXsA+Tw@mail.gmail.com>
-Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Alexander Graf <graf@amazon.com>, X86 ML <x86@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Jason Chen CJ <jason.cj.chen@intel.com>,
-        Zhao Yakui <yakui.zhao@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Avi Kivity <avi@scylladb.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>, robketr@amazon.de,
-        Amos Kong <amos@scylladb.com>, Brian Gerst <brgerst@gmail.com>,
-        stable <stable@vger.kernel.org>
+        id S1727774AbgHZQ2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 12:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726864AbgHZQ2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 12:28:37 -0400
+Received: from mail-wr1-x449.google.com (mail-wr1-x449.google.com [IPv6:2a00:1450:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05754C061574
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:37 -0700 (PDT)
+Received: by mail-wr1-x449.google.com with SMTP id i6so692114wru.23
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=QZ7W+T4QF0YUCetjd1HtO/LKCNojLSEIhVHn9HwR0a0=;
+        b=htX2o67mV8ck0A9HgmM1ua4ytwnzztLRuTCBqYnqrKoNCkkJLQRdC2xavCtwM+HFdy
+         M7CEjkg5CzlycXMEoqoAnaExzsa6LEdr/xT2k3q4SNDNjE3UBmq5eBsG6qVYqcpRcj4u
+         VX4rkYHxuMCFN2oxWnbgcy18MuO4ZSDcE+E9v3P94grffWa48nAQAoGM5oLEdCs3UVMK
+         c1t7jZSCajMS/glJM1lA1OebKemFakV9DNn8xpeKKU6UWwu2lg6PSjGgx6W1pv6WCh8y
+         F1NzZa3bhBiKAHENXPS6aN4ZA+PEsMj2JaEya8ly9itWKp1MQczHNjixYULjsxUPx52D
+         glcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=QZ7W+T4QF0YUCetjd1HtO/LKCNojLSEIhVHn9HwR0a0=;
+        b=oZAS4MzmAe8qjL977J4SMud50qQXCVThy989eomh0IuIfyTai8ODe+g9SfZQd8Dzpf
+         wJqhScCsHHwdyQj6Hhv6aNFu4ea3EmJpT0yACkzzEhhofi4QepNMOqdJ0a3v17o/PVZO
+         gMPLVHTy/aWMPXOO5Oc0M72c8SzYfGAtVLUQyPADRE9Un0E3PFOMGHc8sChJWEcK6NP8
+         TOQhgLYIhkKHHJlWj9AawgqJG78I6Nc5ykklpdJFX0RLfdHvOg8rqwbYvMEHkYAc1UCs
+         ka0pfxjpSddCb3S/QgWUPv8mI7v72nrZ4ZdOn/gnTlIg/ioxIHS588N2nQhco7Fgjz8R
+         bL+A==
+X-Gm-Message-State: AOAM533ZmR2MA/JDOkGWx69hz41UAHNfhc2hHtuIlQmcT0P9ocE4+vY1
+        by7DtXv4haWO7P8iyv6qtUDcNkVIkOwqanzIJ0aEwpIaTbqwds2Cg3AADIohcO4jGlcKTblDwMG
+        RARRN+l/5KSIc5pde47RH1trL4tYytuPIeFmUfKqgwD8bhfXXKb1Ww+4h21b6MCJENKw=
+X-Google-Smtp-Source: ABdhPJyLbrbxxusUnK7wJ8w0zr3FJy5sfTjrcdMecBjH42S9OfHWw/iBVu2dOt3y/w55KxqdxI5lm6jJPSrzdw==
+X-Received: from lux.lon.corp.google.com ([2a00:79e0:d:110:7220:84ff:fe09:a3aa])
+ (user=maennich job=sendgmr) by 2002:a7b:c74b:: with SMTP id
+ w11mr7472090wmk.81.1598459314703; Wed, 26 Aug 2020 09:28:34 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 17:28:22 +0100
+Message-Id: <20200826162828.3330007-1-maennich@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
+Subject: [PATCH v5.4 0/6] Build time improvements
+From:   Matthias Maennich <maennich@google.com>
+To:     stable@vger.kernel.org
+Cc:     kernel-team@android.com, maennich@google.com,
+        Denis Efremov <efremov@linux.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 7:27 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> On Wed, Aug 26 2020 at 13:53, Alexander Graf wrote:
-> > Commit 633260fa143 ("x86/irq: Convey vector as argument and not in ptregs")
-> > changed the handover logic of the vector identifier from ~vector in orig_ax
-> > to purely register based. Unfortunately, this field has another consumer
-> > in the APIC code which the commit did not touch. The net result was that
-> > IRQ balancing did not work and instead resulted in interrupt storms, slowing
-> > down the system.
->
-> The net result is an observationof the symptom but that does not explain
-> what the underlying technical issue is.
->
-> > This patch restores the original semantics that orig_ax contains the vector.
-> > When we receive an interrupt now, the actual vector number stays stored in
-> > the orig_ax field which then gets consumed by the APIC code.
-> >
-> > To ensure that nobody else trips over this in the future, the patch also adds
-> > comments at strategic places to warn anyone who would refactor the code that
-> > there is another consumer of the field.
-> >
-> > With this patch in place, IRQ balancing works as expected and performance
-> > levels are restored to previous levels.
->
-> There's a lot of 'This patch and we' in that changelog. Care to grep
-> for 'This patch' in Documentation/process/ ?
->
-> > diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-> > index df8c017..22e829c 100644
-> > --- a/arch/x86/entry/entry_32.S
-> > +++ b/arch/x86/entry/entry_32.S
-> > @@ -727,7 +727,7 @@ SYM_CODE_START_LOCAL(asm_\cfunc)
-> >       ENCODE_FRAME_POINTER
-> >       movl    %esp, %eax
-> >       movl    PT_ORIG_EAX(%esp), %edx         /* get the vector from stack */
-> > -     movl    $-1, PT_ORIG_EAX(%esp)          /* no syscall to restart */
-> > +     /* keep vector on stack for APIC's irq_complete_move() */
->
-> Yes that's fixing your observed wreckage, but it introduces a worse one.
->
-> user space
->   -> interrupt
->        push vector into orig_ax (values are in the ranges of 0-127 and -128 - 255
->                                  except for the system vectors which do
->                                  not go through this code)
->       handle()
->       ...
->       exit_to_user_mode_loop()
->          arch_do_signal()
->             /* Did we come from a system call? */
->             if (syscall_get_nr(current, regs) >= 0) {
->
->                ---> BOOM for any vector 0-127 because syscall_get_nr()
->                          resolves to regs->orig_ax
->
-> Going to be fun to debug.
->
-> The below nasty hack cures it, but I hate it with a passion. I'll look
-> deeper for a sane variant.
->
+Hi,
 
-Fundamentally, the way we overload orig_ax is problematic.  I have a
-half-written series to improve it, but my series is broken.  I think
-it's fixable, though.
+please pick up the following patches for 5.4.
 
-First is this patch to use some __csh bits to indicate the entry type.
-As far as I know, this patch is correct:
+Those are build time optimizations for kernel/gen_kheaders.sh, and - by
+removing bashisms - dropping the dependency to /bin/bash.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/entry&id=dfff54208072a27909ae97ebce644c251a233ff2
+In addition, this enables build time improvements across the tree by optionally
+allowing to use alternative implementations for various compression tools, e.g.
+GZIP=pigz.
 
-Then I wrote this incorrect patch:
+The documentation-only change is not strictly necessary, but keeps
+kernel/gen_kheaders.sh in sync with mainline.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/entry&id=3a5087acb8a2cc1e88b1a55fa36c2f8bef370572
+Cheers,
+Matthias
 
-That one is wrong because the orig_ax wreckage seems to have leaked
-into user ABI -- user programs think that orig_ax has certain
-semantics on user-visible entries.
+Cc: Denis Efremov <efremov@linux.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-But I think that the problem in this thread could be fixed quite
-nicely by the first patch, plus a new CS_ENTRY_IRQ and allocating
-eight bits of __csh to store the vector.  Then we could read out the
-vector.
+Denis Efremov (1):
+  kbuild: add variables for compression tools
 
+Masahiro Yamada (5):
+  kheaders: remove unneeded 'cat' command piped to 'head' / 'tail'
+  kheaders: optimize md5sum calculation for in-tree builds
+  kheaders: optimize header copy for in-tree builds
+  kheaders: remove the last bashism to allow sh to run it
+  kheaders: explain why include/config/autoconf.h is excluded from
+    md5sum
 
---Andy
+ Makefile                          | 25 +++++++++++-
+ arch/arm/boot/deflate_xip_data.sh |  2 +-
+ arch/ia64/Makefile                |  2 +-
+ arch/m68k/Makefile                |  8 ++--
+ arch/parisc/Makefile              |  2 +-
+ kernel/Makefile                   |  2 +-
+ kernel/gen_kheaders.sh            | 66 ++++++++++++++++++-------------
+ scripts/Makefile.lib              | 12 +++---
+ scripts/Makefile.package          |  8 ++--
+ scripts/package/buildtar          |  6 +--
+ scripts/xz_wrap.sh                |  2 +-
+ 11 files changed, 83 insertions(+), 52 deletions(-)
+
+-- 
+2.28.0.297.g1956fa8f8d-goog
+
