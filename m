@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49819252DF0
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54646252D8F
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbgHZMCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:02:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37278 "EHLO mail.kernel.org"
+        id S1729481AbgHZMC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729464AbgHZMCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:02:50 -0400
+        id S1729349AbgHZMCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:02:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02B40208E4;
-        Wed, 26 Aug 2020 12:02:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59AAC20786;
+        Wed, 26 Aug 2020 12:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443370;
-        bh=lHjVCNb+Y24qQJ+20TP7JRBp6qoTPqc/m8f2Ri154yw=;
+        s=default; t=1598443372;
+        bh=qEUBPgWgjWF0Gc0SRUEsBtJRhQzYGp9MrUrb9t2w3r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCrCc9KwTQJ1l+wWGttjwuTdzmqhHmwnB/wUOTC376FIxqc1nUHl6uMv6+KFwvUKj
-         xoy/cJXF+mybIp1Av17kXUSbexAADxuJIdcTeenxdIAQtxFb4M9tFLSIcLlRGNEN0Y
-         0NVtJGEwPbO+81MjV8rNUR2jL4AUgeL9+kgef5Rg=
+        b=mdXR0QHWMAZuKqCX45Fmmi3k/vcOqGFpxxuvXCxqYLg3x9oTQR3g6sGKo3cvCScv4
+         xxJhqHvLnDgFHoB91oW0tQKXEjyBKsbdkSF3gurgGZf9YitsdrhZfJRB18yrS9f9sb
+         U/leYHv3QZfTCy5hoVJWubcVYeqv37VG4k8zlaWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Laight <david.laight@aculab.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Ursula Braun <ubraun@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 06/15] net: sctp: Fix negotiation of the number of data streams.
-Date:   Wed, 26 Aug 2020 14:02:34 +0200
-Message-Id: <20200826114849.605704029@linuxfoundation.org>
+Subject: [PATCH 5.7 07/15] net/smc: Prevent kernel-infoleak in __smc_diag_dump()
+Date:   Wed, 26 Aug 2020 14:02:35 +0200
+Message-Id: <20200826114849.652742739@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200826114849.295321031@linuxfoundation.org>
 References: <20200826114849.295321031@linuxfoundation.org>
@@ -44,55 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Laight <David.Laight@ACULAB.COM>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit ab921f3cdbec01c68705a7ade8bec628d541fc2b ]
+[ Upstream commit ce51f63e63c52a4e1eee4dd040fb0ba0af3b43ab ]
 
-The number of output and input streams was never being reduced, eg when
-processing received INIT or INIT_ACK chunks.
-The effect is that DATA chunks can be sent with invalid stream ids
-and then discarded by the remote system.
+__smc_diag_dump() is potentially copying uninitialized kernel stack memory
+into socket buffers, since the compiler may leave a 4-byte hole near the
+beginning of `struct smcd_diag_dmbinfo`. Fix it by initializing `dinfo`
+with memset().
 
-Fixes: 2075e50caf5ea ("sctp: convert to genradix")
-Signed-off-by: David Laight <david.laight@aculab.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 4b1b7d3b30a6 ("net/smc: add SMC-D diag support")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/stream.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/smc/smc_diag.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -88,12 +88,13 @@ static int sctp_stream_alloc_out(struct
- 	int ret;
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -170,13 +170,15 @@ static int __smc_diag_dump(struct sock *
+ 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
+ 	    !list_empty(&smc->conn.lgr->list)) {
+ 		struct smc_connection *conn = &smc->conn;
+-		struct smcd_diag_dmbinfo dinfo = {
+-			.linkid = *((u32 *)conn->lgr->id),
+-			.peer_gid = conn->lgr->peer_gid,
+-			.my_gid = conn->lgr->smcd->local_gid,
+-			.token = conn->rmb_desc->token,
+-			.peer_token = conn->peer_token
+-		};
++		struct smcd_diag_dmbinfo dinfo;
++
++		memset(&dinfo, 0, sizeof(dinfo));
++
++		dinfo.linkid = *((u32 *)conn->lgr->id);
++		dinfo.peer_gid = conn->lgr->peer_gid;
++		dinfo.my_gid = conn->lgr->smcd->local_gid;
++		dinfo.token = conn->rmb_desc->token;
++		dinfo.peer_token = conn->peer_token;
  
- 	if (outcnt <= stream->outcnt)
--		return 0;
-+		goto out;
- 
- 	ret = genradix_prealloc(&stream->out, outcnt, gfp);
- 	if (ret)
- 		return ret;
- 
-+out:
- 	stream->outcnt = outcnt;
- 	return 0;
- }
-@@ -104,12 +105,13 @@ static int sctp_stream_alloc_in(struct s
- 	int ret;
- 
- 	if (incnt <= stream->incnt)
--		return 0;
-+		goto out;
- 
- 	ret = genradix_prealloc(&stream->in, incnt, gfp);
- 	if (ret)
- 		return ret;
- 
-+out:
- 	stream->incnt = incnt;
- 	return 0;
- }
+ 		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
+ 			goto errout;
 
 
