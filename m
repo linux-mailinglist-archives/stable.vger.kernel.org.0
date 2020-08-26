@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 249002530A4
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F1A2530A0
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730552AbgHZNyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:54:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
+        id S1730446AbgHZNyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:54:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730446AbgHZNyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:54:07 -0400
+        id S1730422AbgHZNyG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 09:54:06 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81E1F22B47;
-        Wed, 26 Aug 2020 13:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95CD022BED;
+        Wed, 26 Aug 2020 13:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598450046;
-        bh=J5KtpRMkbNUjnLL2pKnUVWNS7nc5nfO7xShHrpdYIaY=;
+        s=default; t=1598450045;
+        bh=rpDS05GVPnAi0eSmJw74ZfwYOldB0wJCXJElHz95lQ8=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=dCQdrGVsWHF1xJyELMuAnWc7ogUaMbX9ZYDqb6OLftXiald+dAcrDjUgPv4aie0Bu
-         xEqILZ6cjGjyEdK0NL248vN/OxDfZrLlcfBmmoOfuiptQ2doiwbO8S4m6Z8xJjIyft
-         hukOmBX1y8OFbxAAmkaClv2YgQjghsH+kDQ46ego=
+        b=fiusMC4EjRjHHkOclLw0pwZlGwSM4dpumQNlsyt20X50/B4cTG5bA0RcSUHsgForp
+         KiCd1eEy8WOI9U1tWQwQYcIgWCPX0pV6/TbDUDGWSITuP9Yx94njSSkyowkMhmHuks
+         mWvmiwN16NnlojXKFtuJV5dZ2MFwVuiA/A8R2NlI=
 Date:   Wed, 26 Aug 2020 13:54:05 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3] HID: i2c-hid: Always sleep 60ms after I2C_HID_PWR_ON commands
-In-Reply-To: <20200811133958.355760-1-hdegoede@redhat.com>
-References: <20200811133958.355760-1-hdegoede@redhat.com>
-Message-Id: <20200826135406.81E1F22B47@mail.kernel.org>
+Subject: Re: [PATCH v2 1/7] usb: dwc3: gadget: Don't setup more than requested
+In-Reply-To: <c279d8bdbe0f18cdd6944a6b71265e2309c96059.1596767991.git.thinhn@synopsys.com>
+References: <c279d8bdbe0f18cdd6944a6b71265e2309c96059.1596767991.git.thinhn@synopsys.com>
+Message-Id: <20200826135405.95CD022BED@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,20 +44,35 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: a31e63b608ff ("usb: dwc3: gadget: Correct handling of scattergather lists").
 
-The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140, v4.14.193, v4.9.232, v4.4.232.
+The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140.
 
 v5.8.2: Build OK!
-v5.7.16: Build OK!
-v5.4.59: Build OK!
-v4.19.140: Build OK!
-v4.14.193: Build OK!
-v4.9.232: Build OK!
-v4.4.232: Failed to apply! Possible dependencies:
-    71af01a8c85a ("HID: i2c-hid: add a simple quirk to fix device defects")
-    9a327405014f ("HID: i2c-hid: Prevent sending reports from racing with device reset")
+v5.7.16: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+
+v5.4.59: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+
+v4.19.140: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3aec99154db3 ("usb: dwc3: gadget: remove DWC3_EP_END_TRANSFER_PENDING")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    974a1368c33e ("usb: dwc3: gadget: don't use resource_index as a flag")
+    a3af5e3ad3f1 ("usb: dwc3: gadget: add dwc3_request status tracking")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    c58d8bfc77a2 ("usb: dwc3: gadget: Check END_TRANSFER completion")
+    d3abda5a98a1 ("usb: dwc3: gadget: Clear started flag for non-IOC")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    da10bcdd6f70 ("usb: dwc3: gadget: Delay starting transfer")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
