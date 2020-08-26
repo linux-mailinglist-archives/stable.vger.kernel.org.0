@@ -2,107 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDEA253A1B
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 00:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94912253A36
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 00:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726939AbgHZWH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 18:07:59 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:33814 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726836AbgHZWH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 18:07:58 -0400
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1598479675;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4utsE2QnYLTwl7fFsiKLdj2uLDQ8VVZxXiuVQb2kEpw=;
-        b=sRBRcIPcojSh91o3SVSNtR9BZjT/ERarAeteZurQB8clmaozva95uXsZnerPHQIaUJ2bCf
-        2V4LkENb+OOoqPHwDREL5YNcGUyY+O4JE9iu7ReWTkWJMDW+bCpWEa7Kxtrp6mAIxNvWDK
-        ZXCAIzJz6ZZPVVJS1hIiPo5ryCeVOSUc105c72syPlRg2KyAIBO87N5nhtx9Duega2fnmX
-        qFLWSY8o0h+0OV8bUdMloYebDCRGlIyMGkjeHPlsvNXg0qcvPRTKPFYzOg1VsPm4hzAHP7
-        5+Zyk7BVUMHvNsg3oQVwTI6XsAtb5yYknFQ5eTJHb1k+tJb1x11zFz44ScF7dw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1598479675;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4utsE2QnYLTwl7fFsiKLdj2uLDQ8VVZxXiuVQb2kEpw=;
-        b=XlvoNOGDvY6g0zKRImvQ46z5lE62vPkFVn4F20bQCs9QuFc75x28/28A2X0OXjQbJLMT2o
-        jMU+gEVelqOOzDAw==
-To:     David Laight <David.Laight@ACULAB.COM>,
-        Alexander Graf <graf@amazon.com>, X86 ML <x86@kernel.org>
-Cc:     Andy Lutomirski <luto@kernel.org>,
+        id S1726790AbgHZWTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 18:19:39 -0400
+Received: from helcar.hmeau.com ([216.24.177.18]:33496 "EHLO fornost.hmeau.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726753AbgHZWTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 18:19:39 -0400
+Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
+        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
+        id 1kB3lB-0006pS-LL; Thu, 27 Aug 2020 08:19:14 +1000
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Thu, 27 Aug 2020 08:19:13 +1000
+Date:   Thu, 27 Aug 2020 08:19:13 +1000
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Denis Kenzior <denkenz@gmail.com>,
+        Andrew Zaborowski <andrew.zaborowski@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Caleb Jorden <caljorden@hotmail.com>,
+        Sasha Levin <sashal@kernel.org>, iwd@lists.01.org,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Jason Chen CJ <jason.cj.chen@intel.com>,
-        Zhao Yakui <yakui.zhao@intel.com>,
-        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
-        Avi Kivity <avi@scylladb.com>,
-        "Herrenschmidt\, Benjamin" <benh@amazon.com>,
-        "robketr\@amazon.de" <robketr@amazon.de>,
-        "amos\@scylladb.com" <amos@scylladb.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        Alex bykov <alex.bykov@scylladb.com>
-Subject: RE: x86/irq: Unbreak interrupt affinity setting
-In-Reply-To: <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
-References: <20200826115357.3049-1-graf@amazon.com> <87k0xlv5w5.fsf@nanos.tec.linutronix.de> <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com> <87blixuuny.fsf@nanos.tec.linutronix.de> <873649utm4.fsf@nanos.tec.linutronix.de> <87wo1ltaxz.fsf@nanos.tec.linutronix.de> <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
-Date:   Thu, 27 Aug 2020 00:07:54 +0200
-Message-ID: <87ft89kqmd.fsf@nanos.tec.linutronix.de>
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Subject: Re: Issue with iwd + Linux 5.8.3 + WPA Enterprise
+Message-ID: <20200826221913.GA16175@gondor.apana.org.au>
+References: <CAMj1kXEUQdmQDCDXPBNb3hRrbui=HVyDjCDoiFwDr+mDSjP43A@mail.gmail.com>
+ <20200826114952.GA2375@gondor.apana.org.au>
+ <CAMj1kXGjytfJEbLMbz50it3okQfiLScHB5YK2FMqR5CsmFEBbg@mail.gmail.com>
+ <20200826120832.GA2996@gondor.apana.org.au>
+ <CAOq732JaP=4X9Yh_KjER5_ctQWoauxzXTZqyFP9KsLSxvVH8=w@mail.gmail.com>
+ <20200826130010.GA3232@gondor.apana.org.au>
+ <c27e5303-48d9-04a4-4e73-cfea5470f357@gmail.com>
+ <20200826141907.GA5111@gondor.apana.org.au>
+ <4bb6d926-a249-8183-b3d9-05b8e1b7808a@gmail.com>
+ <CAMj1kXEn507bEt+eT6q7MpCwNH=oAZsTkFRz0t=kPEV0QxFsOQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEn507bEt+eT6q7MpCwNH=oAZsTkFRz0t=kPEV0QxFsOQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 26 2020 at 21:37, David Laight wrote:
-> From: Thomas Gleixner
->> Sent: 26 August 2020 21:22
-> ...
->> Moving interrupts on x86 happens in several steps. A new vector on a
->> different CPU is allocated and the relevant interrupt source is
->> reprogrammed to that. But that's racy and there might be an interrupt
->> already in flight to the old vector. So the old vector is preserved until
->> the first interrupt arrives on the new vector and the new target CPU. Once
->> that happens the old vector is cleaned up, but this cleanup still depends
->> on the vector number being stored in pt_regs::orig_ax, which is now -1.
+On Wed, Aug 26, 2020 at 05:42:27PM +0200, Ard Biesheuvel wrote:
 >
-> I suspect that it is much more 'racy' than that for PCI-X interrupts.
-> On the hardware side there is an interrupt disable bit, and address
-> and a value.
-> To raise an interrupt the hardware must write the value to the
-> address.
+> I still get a failure in aes_siv_encrypt(), which does not occur with
+> the kernel side fix applied.
 
-Really?
+Where is this test from? I can't find it in the ell git tree.
 
-> If the cpu needs to move an interrupt both the address and value
-> need changing, but the cpu wont write the address and value using
-> the same TLP, so the hardware could potentially write a value to
-> the wrong address.
-
-Now I understand finally why msi_set_affinity() in x86 has to be so
-convoluted.
-
-Thanks a lot for the enlightment!
-
-       tglx
+Thanks,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
