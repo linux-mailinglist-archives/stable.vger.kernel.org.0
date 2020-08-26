@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E03D253074
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D6F72530B7
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbgHZNxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
+        id S1730591AbgHZNzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:55:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730308AbgHZNxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:53:43 -0400
+        id S1730374AbgHZNxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 09:53:44 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3CEE208E4;
-        Wed, 26 Aug 2020 13:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2A5F221E2;
+        Wed, 26 Aug 2020 13:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598450023;
-        bh=Rj4Ua/+GZI4fqLHD2x5UsMtOLBJ1hsOVZa5hnctYvXk=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=wp1Nst1+/AVkTr5PSUD6v1NNBjuTXKMfixcQY5ZAIZQN54oGlmvBaCcxh+rhkUMp+
-         7m9w+Mo8YrNs0ZdFXLejvVa27ZwwtAyRdUV3ATUOWsbxbjXWyLd0cNWrn5L6Di3cgE
-         AMWI1h3rE2W7t6o34hi+LU4ypJ3D/KgVPufUX9p4=
-Date:   Wed, 26 Aug 2020 13:53:42 +0000
+        s=default; t=1598450024;
+        bh=9r0UyxcqD3hPCtXTukSv5qYR6x4V9Iox9AKO8igKiNo=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=HnCPWtYmIgO6ztFlGuVt64hJvja7waWWxGWJWwmXqT1nUkRktpr1svdT9mp7fUq7z
+         AkUI8/yrBcXVJmLaWi18c3+Fx9VIEs6tLfgsdO/u2TofL3DmwEkJHEFxd6nknzqC0c
+         7YrvM0qer+P1DDEu7JiWOgbQVnts+5hVyFXMZPaY=
+Date:   Wed, 26 Aug 2020 13:53:43 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+To:     Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 3/3] drm/i915/gem: Always test execution status on closing the context
-In-Reply-To: <20200812223621.22292-3-chris@chris-wilson.co.uk>
-References: <20200812223621.22292-3-chris@chris-wilson.co.uk>
-Message-Id: <20200826135342.E3CEE208E4@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] usb: typec: ucsi: Fix 2 unlocked ucsi_run_command calls
+In-Reply-To: <20200809141904.4317-3-hdegoede@redhat.com>
+References: <20200809141904.4317-3-hdegoede@redhat.com>
+Message-Id: <20200826135343.D2A5F221E2@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,29 +44,93 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.8.2, v5.7.16.
+The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140, v4.14.193, v4.9.232, v4.4.232.
 
-v5.8.2: Failed to apply! Possible dependencies:
-    1b90e4a43b74 ("drm/i915/selftests: Enable selftesting of busy-stats")
-    2d3879950f8a ("drm/i915: Add psr_safest_params")
-    4fe13f28d66a ("drm/i915/selftests: Add tests for timeslicing virtual engines")
-    67a64e51ba92 ("drm/i915/selftests: Refactor sibling selection")
-    8a25c4be583d ("drm/i915/params: switch to device specific parameters")
-    9199c070cdde ("drm/i915/selftests: Exercise far preemption rollbacks")
-    ad6586850b6d ("drm/i915/selftests: Change priority overflow detection")
-    d4b02a4c613e ("drm/i915/selftests: Trim execlists runtime")
-    f4bb45f72734 ("drm/i915: Trim set_timer_ms() intervals")
-
+v5.8.2: Build OK!
 v5.7.16: Failed to apply! Possible dependencies:
-    0c1abaa7fbfb ("drm: Constify adjusted_mode a bit")
-    13ea6db2cf24 ("drm/i915/edp: Ignore short pulse when panel powered off")
-    3dfd8d710419 ("drm/i915/display: use struct drm_device based logging")
-    81b55ef1f47b ("drm/i915: drop a bunch of superfluous inlines")
-    8a25c4be583d ("drm/i915/params: switch to device specific parameters")
-    af67009c1439 ("drm/i915/dp: use struct drm_device based logging")
+    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
+
+v5.4.59: Failed to apply! Possible dependencies:
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    3cf657f07918 ("usb: typec: ucsi: Remove all bit-fields")
+    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
+    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
+    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
+    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+
+v4.19.140: Failed to apply! Possible dependencies:
+    247c554a14aa ("usb: typec: ucsi: add support for Cypress CCGx")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
+    5c9ae5a87573 ("usb: typec: ucsi: ccg: add firmware flashing support")
+    5d438e200215 ("usb: typec: ucsi: ccg: add get_fw_info function")
+    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
+    81534d5fa973 ("usb: typec: ucsi: Remove debug.h file")
+    a94ecde41f7e ("usb: typec: ucsi: ccg: enable runtime pm support")
+    ad74b8649bea ("usb: typec: ucsi: Preliminary support for alternate modes")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+    f2372b87c386 ("usb: typec: ucsi: displayport: Fix for the mode entering routine")
+
+v4.14.193: Failed to apply! Possible dependencies:
+    0a4c005bd171 ("usb: typec: driver for TI TPS6598x USB Power Delivery controllers")
+    247c554a14aa ("usb: typec: ucsi: add support for Cypress CCGx")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
+    44262fad12a7 ("staging: typec: tcpm: Drop commented out code")
+    4b4e02c83167 ("typec: tcpm: Move out of staging")
+    70cd90be3300 ("staging: typec: pd: Document struct pd_message")
+    76f0c53d08b9 ("usb: typec: fusb302: Move out of staging")
+    81534d5fa973 ("usb: typec: ucsi: Remove debug.h file")
+    956c36c297a2 ("USB: typec: add SPDX identifiers to some files")
+    98076fa64a05 ("staging: typec: tcpm: Document data structures")
+    ad74b8649bea ("usb: typec: ucsi: Preliminary support for alternate modes")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    cf6e06cddf29 ("usb: typec: Start using ERR_PTR")
+
+v4.9.232: Failed to apply! Possible dependencies:
+    0c744ea4f77d ("Linux 4.10-rc2")
+    2bd6bf03f4c1 ("Linux 4.14-rc1")
+    2ea659a9ef48 ("Linux 4.12-rc1")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    49def1853334 ("Linux 4.10-rc4")
+    566cf877a1fc ("Linux 4.10-rc6")
+    5771a8c08880 ("Linux v4.13-rc1")
+    7089db84e356 ("Linux 4.10-rc8")
+    7a308bb3016f ("Linux 4.10-rc5")
+    7ce7d89f4883 ("Linux 4.10-rc1")
+    a121103c9228 ("Linux 4.10-rc3")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+    c1ae3cfa0e89 ("Linux 4.11-rc1")
+    c470abd4fde4 ("Linux 4.10")
+    d5adbfcd5f7b ("Linux 4.10-rc7")
+
+v4.4.232: Failed to apply! Possible dependencies:
+    1001354ca341 ("Linux 4.9-rc1")
+    18558cae0272 ("Linux 4.5-rc4")
+    1a695a905c18 ("Linux 4.7-rc1")
+    29b4817d4018 ("Linux 4.8-rc1")
+    2bd6bf03f4c1 ("Linux 4.14-rc1")
+    2dcd0af568b0 ("Linux 4.6")
+    2ea659a9ef48 ("Linux 4.12-rc1")
+    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
+    36f90b0a2ddd ("Linux 4.5-rc2")
+    388f7b1d6e8c ("Linux 4.5-rc3")
+    5771a8c08880 ("Linux v4.13-rc1")
+    7ce7d89f4883 ("Linux 4.10-rc1")
+    81f70ba233d5 ("Linux 4.5-rc5")
+    92e963f50fc7 ("Linux 4.5-rc1")
+    af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+    b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+    b562e44f507e ("Linux 4.5")
+    c1ae3cfa0e89 ("Linux 4.11-rc1")
+    f55532a0c0b8 ("Linux 4.6-rc1")
+    f6cede5b49e8 ("Linux 4.5-rc7")
+    fc77dbd34c5c ("Linux 4.5-rc6")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
