@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96DC7252D99
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 667AE252DEF
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbgHZMDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:03:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38258 "EHLO mail.kernel.org"
+        id S1729338AbgHZMHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:07:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729522AbgHZMDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:03:20 -0400
+        id S1729355AbgHZMDX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:03:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2D0F20786;
-        Wed, 26 Aug 2020 12:03:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76F5120838;
+        Wed, 26 Aug 2020 12:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443400;
-        bh=bagVmKbsKAl//B1ZYj3lLiy78iYpzZFKgKvgMeb7XwU=;
+        s=default; t=1598443403;
+        bh=rG3PYJLfKC9NUtVeihfVocRKM2NrWLJZSdMjvohnzyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EaCZ4WZ1EdByYAYPwivPaC1wvdlzTxVXQ3bCaTJiALDaiFkYYVSWo4NuFL1A3c7b9
-         UYj8MA8HUoe3kFTZOO+N+0Qz0w+Sk13ZmJ4H3lDg25WmVlPJ+Wc3Ac8AqcVBl63ayH
-         ge9i1EXWHvKRaU+gJkMPO53O014Nkmja139f94KY=
+        b=aUB3dddZYVTp01gX1vOza9QVyp4HMj6ihHqhziIvGV5H9nkRtuQ/LlwzGBjUczwhr
+         Txa6xNs88OhxoN8XpNQjHgStv2UhLM+Qxp2VrU6114CNfc04WV0DIoGl2b3qIFiSco
+         GnQtQ1/jJ0ED7aODnl4dJihZg9+7YX4sOtyyBqpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 10/16] net: ena: Make missed_tx stat incremental
-Date:   Wed, 26 Aug 2020 14:02:47 +0200
-Message-Id: <20200826114911.730686894@linuxfoundation.org>
+Subject: [PATCH 5.8 11/16] ethtool: Fix preserving of wanted feature bits in netlink interface
+Date:   Wed, 26 Aug 2020 14:02:48 +0200
+Message-Id: <20200826114911.779469995@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200826114911.216745274@linuxfoundation.org>
 References: <20200826114911.216745274@linuxfoundation.org>
@@ -43,47 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit ccd143e5150f24b9ba15145c7221b61dd9e41021 ]
+[ Upstream commit 840110a4eae190dcbb9907d68216d5d1d9f25839 ]
 
-Most statistics in ena driver are incremented, meaning that a stat's
-value is a sum of all increases done to it since driver/queue
-initialization.
+Currently, ethtool-netlink calculates new wanted bits as:
+(req_wanted & req_mask) | (old_active & ~req_mask)
 
-This patch makes all statistics this way, effectively making missed_tx
-statistic incremental.
-Also added a comment regarding rx_drops and tx_drops to make it
-clearer how these counters are calculated.
+It completely discards the old wanted bits, so they are forgotten with
+the next ethtool command. Sample steps to reproduce:
 
-Fixes: 11095fdb712b ("net: ena: add statistics for missed tx packets")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+1. ethtool -k eth0
+   tx-tcp-segmentation: on # TSO is on from the beginning
+2. ethtool -K eth0 tx off
+   tx-tcp-segmentation: off [not requested]
+3. ethtool -k eth0
+   tx-tcp-segmentation: off [requested on]
+4. ethtool -K eth0 rx off # Some change unrelated to TSO
+5. ethtool -k eth0
+   tx-tcp-segmentation: off # "Wanted on" is forgotten
+
+This commit fixes it by changing the formula to:
+(req_wanted & req_mask) | (old_wanted & ~req_mask),
+where old_active was replaced by old_wanted to account for the wanted
+bits.
+
+The shortcut condition for the case where nothing was changed now
+compares wanted bitmasks, instead of wanted to active.
+
+Fixes: 0980bfcd6954 ("ethtool: set netdev features with FEATURES_SET request")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ethtool/features.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -3609,7 +3609,7 @@ static int check_missing_comp_in_tx_queu
+--- a/net/ethtool/features.c
++++ b/net/ethtool/features.c
+@@ -224,7 +224,9 @@ int ethnl_set_features(struct sk_buff *s
+ 	DECLARE_BITMAP(wanted_diff_mask, NETDEV_FEATURE_COUNT);
+ 	DECLARE_BITMAP(active_diff_mask, NETDEV_FEATURE_COUNT);
+ 	DECLARE_BITMAP(old_active, NETDEV_FEATURE_COUNT);
++	DECLARE_BITMAP(old_wanted, NETDEV_FEATURE_COUNT);
+ 	DECLARE_BITMAP(new_active, NETDEV_FEATURE_COUNT);
++	DECLARE_BITMAP(new_wanted, NETDEV_FEATURE_COUNT);
+ 	DECLARE_BITMAP(req_wanted, NETDEV_FEATURE_COUNT);
+ 	DECLARE_BITMAP(req_mask, NETDEV_FEATURE_COUNT);
+ 	struct nlattr *tb[ETHTOOL_A_FEATURES_MAX + 1];
+@@ -250,6 +252,7 @@ int ethnl_set_features(struct sk_buff *s
+ 
+ 	rtnl_lock();
+ 	ethnl_features_to_bitmap(old_active, dev->features);
++	ethnl_features_to_bitmap(old_wanted, dev->wanted_features);
+ 	ret = ethnl_parse_bitset(req_wanted, req_mask, NETDEV_FEATURE_COUNT,
+ 				 tb[ETHTOOL_A_FEATURES_WANTED],
+ 				 netdev_features_strings, info->extack);
+@@ -261,11 +264,11 @@ int ethnl_set_features(struct sk_buff *s
+ 		goto out_rtnl;
  	}
  
- 	u64_stats_update_begin(&tx_ring->syncp);
--	tx_ring->tx_stats.missed_tx = missed_tx;
-+	tx_ring->tx_stats.missed_tx += missed_tx;
- 	u64_stats_update_end(&tx_ring->syncp);
- 
- 	return rc;
-@@ -4537,6 +4537,9 @@ static void ena_keep_alive_wd(void *adap
- 	tx_drops = ((u64)desc->tx_drops_high << 32) | desc->tx_drops_low;
- 
- 	u64_stats_update_begin(&adapter->syncp);
-+	/* These stats are accumulated by the device, so the counters indicate
-+	 * all drops since last reset.
-+	 */
- 	adapter->dev_stats.rx_drops = rx_drops;
- 	adapter->dev_stats.tx_drops = tx_drops;
- 	u64_stats_update_end(&adapter->syncp);
+-	/* set req_wanted bits not in req_mask from old_active */
++	/* set req_wanted bits not in req_mask from old_wanted */
+ 	bitmap_and(req_wanted, req_wanted, req_mask, NETDEV_FEATURE_COUNT);
+-	bitmap_andnot(new_active, old_active, req_mask, NETDEV_FEATURE_COUNT);
+-	bitmap_or(req_wanted, new_active, req_wanted, NETDEV_FEATURE_COUNT);
+-	if (bitmap_equal(req_wanted, old_active, NETDEV_FEATURE_COUNT)) {
++	bitmap_andnot(new_wanted, old_wanted, req_mask, NETDEV_FEATURE_COUNT);
++	bitmap_or(req_wanted, new_wanted, req_wanted, NETDEV_FEATURE_COUNT);
++	if (bitmap_equal(req_wanted, old_wanted, NETDEV_FEATURE_COUNT)) {
+ 		ret = 0;
+ 		goto out_rtnl;
+ 	}
 
 
