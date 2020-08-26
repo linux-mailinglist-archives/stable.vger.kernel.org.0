@@ -2,155 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D212524C4
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 02:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299412524C7
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 02:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726551AbgHZAik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 20:38:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51308 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726483AbgHZAik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Aug 2020 20:38:40 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F168E20737;
-        Wed, 26 Aug 2020 00:38:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598402319;
-        bh=FTTpw/iHR2T6EVlznk4a/o+pDus8FlyY5Z0rM0R5LNw=;
-        h=Date:From:To:Subject:From;
-        b=ARIyR3mqRSOkOvi6FFK+kIvWHs3wNzeWwtPgnPWpJNtn7OtItxRvzraz3yl3W84lg
-         3ZRgIJ7ci0wXv6ybymQhQXuLMZM2wrO1SBbXs7TK1zrs+CHCLcKkDFOaZkKpTxVXfm
-         AEz5+13SMHvHEQMeT6vJ0V1lcYLY/gxUVKpRHyd8=
-Date:   Tue, 25 Aug 2020 17:38:38 -0700
-From:   akpm@linux-foundation.org
-To:     alistair@popple.id.au, jglisse@redhat.com, jhubbard@nvidia.com,
-        mm-commits@vger.kernel.org, peterx@redhat.com,
-        rcampbell@nvidia.com, stable@vger.kernel.org
-Subject:  + mm-rmap-fixup-copying-of-soft-dirty-and-uffd-ptes.patch
- added to -mm tree
-Message-ID: <20200826003838.aqAgh1Wow%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726593AbgHZAks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 20:40:48 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:53680 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726541AbgHZAks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 20:40:48 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1598402446;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HaO5x8/tx8/TEeeBdOIpPppICl91lELHJsr2/I9eQcY=;
+        b=AC8EL9XKyi6CLE1Xbltikg0JVYhPusspSySFRJ/n1/rTROjJe+xoci2RSwdjc5dA1ieKij
+        NkIXwIGltidHm3JqidLy12dfo6vFG490kM2KXIiANr5SQSCM8cU619VDbsoVkNFWSoIGve
+        mT8PndcyS/UMVcfhloz6tf3DFBY2XwHC+fYav0+pAWnTrixFb0jiD+xM7jyPWOd3IIbZ08
+        IyKhe0EMOkNEUhh+DkpBj21hrqPTaXF4RhTFBoVBCiaI9aXUqbFGOqLUMMptklMBrpWqI6
+        kRGG9M2Ow7pBjDADiTr6pnv8o7oNA1f/dRt65xmRdGo1/YJr3w3pt5AMbgbs9w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1598402446;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HaO5x8/tx8/TEeeBdOIpPppICl91lELHJsr2/I9eQcY=;
+        b=HcP8s3gaJehpKU/8ojIwFwBR9YDG31Rb8SAhDver5CXJwj9FH/O/ddbvXEX7NxgP6/xeRM
+        8UDtfi6/dv01JiAA==
+To:     Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org
+Cc:     Ashok Raj <ashok.raj@intel.com>,
+        Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
+        Evan Green <evgreen@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] x86/hotplug: Silence APIC only after all irq's are migrated
+In-Reply-To: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
+References: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
+Date:   Wed, 26 Aug 2020 02:40:45 +0200
+Message-ID: <87mu2iw86q.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Ashok,
 
-The patch titled
-     Subject: mm/rmap: fixup copying of soft dirty and uffd ptes
-has been added to the -mm tree.  Its filename is
-     mm-rmap-fixup-copying-of-soft-dirty-and-uffd-ptes.patch
+On Thu, Aug 20 2020 at 17:42, Ashok Raj wrote:
+> When offlining CPUs, fixup_irqs() migrates all interrupts away from the
+> outgoing CPU to an online CPU. It's always possible the device sent an
+> interrupt to the previous CPU destination. Pending interrupt bit in IRR in
+> LAPIC identifies such interrupts. apic_soft_disable() will not capture any
+> new interrupts in IRR. This causes interrupts from device to be lost during
+> CPU offline. The issue was found when explicitly setting MSI affinity to a
+> CPU and immediately offlining it. It was simple to recreate with a USB
+> ethernet device and doing I/O to it while the CPU is offlined. Lost
+> interrupts happen even when Interrupt Remapping is enabled.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-rmap-fixup-copying-of-soft=
--dirty-and-uffd-ptes.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-rmap-fixup-copying-of-soft=
--dirty-and-uffd-ptes.patch
+New lines exist for a reason. They help to structure information. For
+the content, please see below.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+> Current code does apic_soft_disable() before migrating interrupts.
+>
+> native_cpu_disable()
+> {
+> 	...
+> 	apic_soft_disable();
+> 	cpu_disable_common();
+> 	  --> fixup_irqs(); // Too late to capture anything in IRR.
+> }
+>
+> Just flipping the above call sequence seems to hit the IRR checks
+> and the lost interrupt is fixed for both legacy MSI and when
+> interrupt remapping is enabled.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
+Seems to hit? Come on, we really want changelogs which are based on
+facts and not on assumptions.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Aside of that, yes that's a really subtle one and thanks for tracking it
+down! For some reason I never looked at that ordering, but now that you
+stick it in front of me, it's pretty clear that this is the root cause.
 
-------------------------------------------------------
-=46rom: Alistair Popple <alistair@popple.id.au>
-Subject: mm/rmap: fixup copying of soft dirty and uffd ptes
+>  	/*
+>  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+>  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+> -	 * messages.
+> +	 * messages. It's important to do apic_soft_disable() after
+> +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
+> +	 * depends on IRR being set.
 
-During memory migration a pte is temporarily replaced with a migration
-swap pte.  Some pte bits from the existing mapping such as the soft-dirty
-and uffd write-protect bits are preserved by copying these to the
-temporary migration swap pte.
+That sentence does not make sense to me.
 
-However these bits are not stored at the same location for swap and
-non-swap ptes.  Therefore testing these bits requires using the
-appropriate helper function for the given pte type.
+> +       .... After apic_soft_disable() CPU preserves
+> +	 * currently set IRR/ISR but new interrupts will not set IRR.
 
-Unfortunately several code locations were found where the wrong helper
-function is being used to test soft_dirty and uffd_wp bits which leads to
-them getting incorrectly set or cleared during page-migration.
+I agree with the IRR part, but ISR is simply impossible to be set in
+this situation.
 
-Fix these by using the correct tests based on pte type.
+> +	 * This causes interrupts sent to outgoing CPU before completion
+> +	 * of IRQ migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
+> +	 * APIC State after It Has been Software Disabled" section for more
+> +	 * details.
 
-Link: https://lkml.kernel.org/r/20200825064232.10023-2-alistair@popple.id.au
-Fixes: a5430dda8a3a ("mm/migrate: support un-addressable ZONE_DEVICE page i=
-n migration")
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while c=
-ollecting pages")
-Fixes: f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration")
-Signed-off-by: Alistair Popple <alistair@popple.id.au>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Alistair Popple <alistair@popple.id.au>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Please do not use the SDM chapter number of today. It's going to be a
+different one with the next version.
 
- mm/migrate.c |   15 +++++++++++----
- mm/rmap.c    |    9 +++++++--
- 2 files changed, 18 insertions(+), 6 deletions(-)
+Something like this perhaps?
 
---- a/mm/migrate.c~mm-rmap-fixup-copying-of-soft-dirty-and-uffd-ptes
-+++ a/mm/migrate.c
-@@ -2427,10 +2427,17 @@ again:
- 			entry =3D make_migration_entry(page, mpfn &
- 						     MIGRATE_PFN_WRITE);
- 			swp_pte =3D swp_entry_to_pte(entry);
--			if (pte_soft_dirty(pte))
--				swp_pte =3D pte_swp_mksoft_dirty(swp_pte);
--			if (pte_uffd_wp(pte))
--				swp_pte =3D pte_swp_mkuffd_wp(swp_pte);
-+			if (pte_present(pte)) {
-+				if (pte_soft_dirty(pte))
-+					swp_pte =3D pte_swp_mksoft_dirty(swp_pte);
-+				if (pte_uffd_wp(pte))
-+					swp_pte =3D pte_swp_mkuffd_wp(swp_pte);
-+			} else {
-+				if (pte_swp_soft_dirty(pte))
-+					swp_pte =3D pte_swp_mksoft_dirty(swp_pte);
-+				if (pte_swp_uffd_wp(pte))
-+					swp_pte =3D pte_swp_mkuffd_wp(swp_pte);
-+			}
- 			set_pte_at(mm, addr, ptep, swp_pte);
-=20
- 			/*
---- a/mm/rmap.c~mm-rmap-fixup-copying-of-soft-dirty-and-uffd-ptes
-+++ a/mm/rmap.c
-@@ -1511,9 +1511,14 @@ static bool try_to_unmap_one(struct page
- 			 */
- 			entry =3D make_migration_entry(page, 0);
- 			swp_pte =3D swp_entry_to_pte(entry);
--			if (pte_soft_dirty(pteval))
-+
-+			/*
-+			 * pteval maps a zone device page and is therefore
-+			 * a swap pte.
-+			 */
-+			if (pte_swp_soft_dirty(pteval))
- 				swp_pte =3D pte_swp_mksoft_dirty(swp_pte);
--			if (pte_uffd_wp(pteval))
-+			if (pte_swp_uffd_wp(pteval))
- 				swp_pte =3D pte_swp_mkuffd_wp(swp_pte);
- 			set_pte_at(mm, pvmw.address, pvmw.pte, swp_pte);
- 			/*
-_
+  	/*
+  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+ 	 * messages.
+         *
+         * Disabling the APIC must happen after cpu_disable_common()
+  	 * which invokes fixup_irqs().
+         *
+         * Disabling the APIC preserves already set bits in IRR, but
+         * an interrupt arriving after disabling the local APIC does not
+         * set the corresponding IRR bit.
+         *
+         * fixup_irqs() scans IRR for set bits so it can raise a not
+  	 * yet handled interrupt on the new destination CPU via an IPI
+         * but obviously it can't do so for IRR bits which are not set.
+         * IOW, interrupts arriving after disabling the local APIC will
+         * be lost.
+         */
 
-Patches currently in -mm which might be from alistair@popple.id.au are
+Hmm?
 
-mm-migrate-fixup-setting-uffd_wp-flag.patch
-mm-rmap-fixup-copying-of-soft-dirty-and-uffd-ptes.patch
+The changelog wants to have a corresponding update.
 
+Thanks,
+
+        tglx
