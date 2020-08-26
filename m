@@ -2,39 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 998892530AD
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6738F2530AB
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730539AbgHZNzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60714 "EHLO mail.kernel.org"
+        id S1730455AbgHZNzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730451AbgHZNx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:53:58 -0400
+        id S1730453AbgHZNx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 09:53:59 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D676222B47;
-        Wed, 26 Aug 2020 13:53:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4D4C22B4B;
+        Wed, 26 Aug 2020 13:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598450038;
-        bh=XN/7xbmRyQzQM4W35vuJM4kB/IMClTtMi1Bbda7wrU4=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=S5SIw+6w+SEbZKsxoHj+A5KA64jL+7pd8ziJQM+l6uM12f84NAlsYNE573Oa9lLB6
-         4JX49cHFAAT18Q57cQ/dU8qht5cRQyN65N+D7+yf7bCDa8HVRbfQpLdc380CfrCoNG
-         51Q3lR3l1GZzl4okDLUP7BkFGqsCIQK2dEYJjKSk=
-Date:   Wed, 26 Aug 2020 13:53:57 +0000
+        s=default; t=1598450039;
+        bh=K5QLd/X1fnK2BhaLCj1T0f0LtdugxVd+h+B5AjNrEw4=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:
+         Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=d9t+9O/5L1pVr1cn+LCeNjQnxckoIX4KWNn9hhvwRA9015CapL+hwvn8aRci0zkC7
+         9eRPuvnVVzxHNSdsjyrcW0BFEOemmwwv99edARWoGrSC4cIH7Z3eZ+nNIqiKAK4KbV
+         3lAt67YzGUbOvaFIcGgkbj5NwbXMV4oSg/XtdACs=
+Date:   Wed, 26 Aug 2020 13:53:58 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org
+To:     Kim Phillips <kim.phillips@amd.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Stephane Eranian <eranian@google.com>
+Cc:     Stephane Eranian <eranian@google.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Ingo Molnar <mingo@kernel.org>
+Cc:     Ingo Molnar <mingo@redhat.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Borislav Petkov <bp@alien8.de>
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>
+Cc:     Jiri Olsa <jolsa@redhat.com>
+Cc:     Mark Rutland <mark.rutland@arm.com>
+Cc:     Michael Petlan <mpetlan@redhat.com>
+Cc:     Namhyung Kim <namhyung@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>
+Cc:     x86 <x86@kernel.org>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4/4] usb: typec: ucsi: Hold con->lock for the entire duration of ucsi_register_port()
-In-Reply-To: <20200809141904.4317-5-hdegoede@redhat.com>
-References: <20200809141904.4317-5-hdegoede@redhat.com>
-Message-Id: <20200826135357.D676222B47@mail.kernel.org>
+Subject: Re: [PATCH 1/7 RESEND] perf/amd/uncore: Set all slices and threads to restore perf stat -a behaviour
+In-Reply-To: <20200817220628.7604-1-kim.phillips@amd.com>
+References: <20200817220628.7604-1-kim.phillips@amd.com>
+Message-Id: <20200826135358.C4D4C22B4B@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,23 +61,28 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race during registration").
+fixing commit: 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for F17h L3 PMCs").
 
-The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59.
+The bot has tested the following trees: v5.8.2, v5.7.16, v5.4.59, v4.19.140, v4.14.193.
 
 v5.8.2: Build OK!
-v5.7.16: Failed to apply! Possible dependencies:
-    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
-    992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
-
+v5.7.16: Build OK!
 v5.4.59: Failed to apply! Possible dependencies:
-    2ede55468ca8 ("usb: typec: ucsi: Remove the old API")
-    3cf657f07918 ("usb: typec: ucsi: Remove all bit-fields")
-    470ce43a1a81 ("usb: typec: ucsi: Remove struct ucsi_control")
-    4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
-    6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
-    992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
-    bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+    4dcc3df82573 ("perf/amd/uncore: Prepare L3 thread mask code for Family 19h")
+    9689dbbeaea8 ("perf/amd/uncore: Make L3 thread mask code more readable")
+    e48667b86548 ("perf/amd/uncore: Add support for Family 19h L3 PMU")
+
+v4.19.140: Failed to apply! Possible dependencies:
+    4dcc3df82573 ("perf/amd/uncore: Prepare L3 thread mask code for Family 19h")
+    6d0ef316b9f8 ("x86/events: Add Hygon Dhyana support to PMU infrastructure")
+    9689dbbeaea8 ("perf/amd/uncore: Make L3 thread mask code more readable")
+    e48667b86548 ("perf/amd/uncore: Add support for Family 19h L3 PMU")
+
+v4.14.193: Failed to apply! Possible dependencies:
+    4dcc3df82573 ("perf/amd/uncore: Prepare L3 thread mask code for Family 19h")
+    6d0ef316b9f8 ("x86/events: Add Hygon Dhyana support to PMU infrastructure")
+    9689dbbeaea8 ("perf/amd/uncore: Make L3 thread mask code more readable")
+    e48667b86548 ("perf/amd/uncore: Add support for Family 19h L3 PMU")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
