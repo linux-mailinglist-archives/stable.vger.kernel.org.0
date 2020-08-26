@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BA68252FCE
+	by mail.lfdr.de (Postfix) with ESMTP id A8C8B252FD0
 	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:28:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730131AbgHZN2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:28:37 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:54219 "EHLO
+        id S1730225AbgHZN2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:28:43 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:54218 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730250AbgHZN2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:28:32 -0400
+        with ESMTP id S1730232AbgHZN21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:28:27 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22244730-1500050 
-        for multiple; Wed, 26 Aug 2020 14:28:13 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22244734-1500050 
+        for multiple; Wed, 26 Aug 2020 14:28:14 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Bruce Chang <yu.bruce.chang@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 06/39] drm/i915/gt: Wait for CSB entries on Tigerlake
-Date:   Wed, 26 Aug 2020 14:27:38 +0100
-Message-Id: <20200826132811.17577-6-chris@chris-wilson.co.uk>
+Subject: [PATCH 10/39] drm/i915: Cancel outstanding work after disabling heartbeats on an engine
+Date:   Wed, 26 Aug 2020 14:27:42 +0100
+Message-Id: <20200826132811.17577-10-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200826132811.17577-1-chris@chris-wilson.co.uk>
 References: <20200826132811.17577-1-chris@chris-wilson.co.uk>
@@ -34,72 +33,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tigerlake, we are seeing a repeat of commit d8f505311717 ("drm/i915/icl:
-Forcibly evict stale csb entries") where, presumably, due to a missing
-Global Observation Point synchronisation, the write pointer of the CSB
-ringbuffer is updated _prior_ to the contents of the ringbuffer. That is
-we see the GPU report more context-switch entries for us to parse, but
-those entries have not been written, leading us to process stale events,
-and eventually report a hung GPU.
+We only allow persistent requests to remain on the GPU past the closure
+of their containing context (and process) so long as they are continuously
+checked for hangs or allow other requests to preempt them, as we need to
+ensure forward progress of the system. If we allow persistent contexts
+to remain on the system after the the hangcheck mechanism is disabled,
+the system may grind to a halt. On disabling the mechanism, we sent a
+pulse along the engine to remove all executing contexts from the engine
+which would check for hung contexts -- but we did not prevent those
+contexts from being resubmitted if they survived the final hangcheck.
 
-However, this effect appears to be much more severe than we previously
-saw on Icelake (though it might be best if we try the same approach
-there as well and measure), and Bruce suggested the good idea of resetting
-the CSB entry after use so that we can detect when it has been updated by
-the GPU. By instrumenting how long that may be, we can set a reliable
-upper bound for how long we should wait for:
-
-    513 late, avg of 61 retries (590 ns), max of 1061 retries (10099 ns)
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2045
-References: d8f505311717 ("drm/i915/icl: Forcibly evict stale csb entries")
-Suggested-by: Bruce Chang <yu.bruce.chang@intel.com>
+Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_ctx_persistence/heartbeat-stop
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Bruce Chang <yu.bruce.chang@intel.com>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.4
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.7+
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_engine.h | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c    | 5 +++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index d6e0f62337b4..d75712a503b7 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -2498,9 +2498,22 @@ invalidate_csb_entries(const u64 *first, const u64 *last)
-  */
- static inline bool gen12_csb_parse(const u64 *csb)
- {
--	u64 entry = READ_ONCE(*csb);
--	bool ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
--	bool new_queue =
-+	bool ctx_away_valid;
-+	bool new_queue;
-+	u64 entry;
-+
-+	/* HSD#22011248461 */
-+	entry = READ_ONCE(*csb);
-+	if (unlikely(entry == -1)) {
-+		preempt_disable();
-+		if (wait_for_atomic_us((entry = READ_ONCE(*csb)) != -1, 50))
-+			GEM_WARN_ON("50us CSB timeout");
-+		preempt_enable();
-+	}
-+	WRITE_ONCE(*(u64 *)csb, -1);
-+
-+	ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
-+	new_queue =
- 		lower_32_bits(entry) & GEN12_CTX_STATUS_SWITCHED_TO_NEW_QUEUE;
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
+index 08e2c000dcc3..7c3a1012e702 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+@@ -337,4 +337,13 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
+ 	return intel_engine_has_preemption(engine);
+ }
  
- 	/*
-@@ -4004,6 +4017,8 @@ static void reset_csb_pointers(struct intel_engine_cs *engine)
- 	WRITE_ONCE(*execlists->csb_write, reset_value);
- 	wmb(); /* Make sure this is visible to HW (paranoia?) */
++static inline bool
++intel_engine_has_heartbeat(const struct intel_engine_cs *engine)
++{
++	if (!IS_ACTIVE(CONFIG_DRM_I915_HEARTBEAT_INTERVAL))
++		return false;
++
++	return READ_ONCE(engine->props.heartbeat_interval_ms);
++}
++
+ #endif /* _INTEL_RINGBUFFER_H_ */
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index a931b8b571d1..c187e1ec0278 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -542,8 +542,13 @@ bool __i915_request_submit(struct i915_request *request)
+ 	if (i915_request_completed(request))
+ 		goto xfer;
  
-+	/* Check that the GPU does indeed update the CSB entries! */
-+	memset(execlists->csb_status, -1, (reset_value + 1) * sizeof(u64));
- 	invalidate_csb_entries(&execlists->csb_status[0],
- 			       &execlists->csb_status[reset_value]);
++	if (unlikely(intel_context_is_closed(request->context) &&
++		     !intel_engine_has_heartbeat(engine)))
++		intel_context_set_banned(request->context);
++
+ 	if (unlikely(intel_context_is_banned(request->context)))
+ 		i915_request_set_error_once(request, -EIO);
++
+ 	if (unlikely(fatal_error(request->fence.error)))
+ 		__i915_request_skip(request);
  
 -- 
 2.20.1
