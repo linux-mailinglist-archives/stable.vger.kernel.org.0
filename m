@@ -2,241 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A6E2538D5
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 22:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 594D12538EC
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 22:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbgHZUGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 16:06:01 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:15666 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727017AbgHZUFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 16:05:42 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f46c0880001>; Wed, 26 Aug 2020 13:05:28 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Wed, 26 Aug 2020 13:05:42 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Wed, 26 Aug 2020 13:05:42 -0700
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 26 Aug
- 2020 20:05:37 +0000
-Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 26 Aug 2020 20:05:37 +0000
-Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.174.186]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f46c0900001>; Wed, 26 Aug 2020 13:05:37 -0700
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <adrian.hunter@intel.com>, <ulf.hansson@linaro.org>,
-        <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
-        <robh+dt@kernel.org>
-CC:     <skomatineni@nvidia.com>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH v5 7/7] sdhci: tegra: Add missing TMCLK for data timeout
-Date:   Wed, 26 Aug 2020 13:05:14 -0700
-Message-ID: <1598472314-30235-8-git-send-email-skomatineni@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1598472314-30235-1-git-send-email-skomatineni@nvidia.com>
-References: <1598472314-30235-1-git-send-email-skomatineni@nvidia.com>
-X-NVConfidentiality: public
+        id S1726753AbgHZUK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 16:10:26 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:22674 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726734AbgHZUKZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 16:10:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1598472625; x=1630008625;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=aU2RaGMPuG6AQMjQ4p0fBBiz8S4VHOimEKgTasXFcpE=;
+  b=qT+TAY8lOvnJVPkPOB+gIcwNForgvxyIpJkLbdAlp/rzo5IdjdnqxfXL
+   KwfCmPeSch9YzDociQMBGiCdTiPPj+H3vR4feVwz0bW37zpmXi1v18eaS
+   p+YTS2awMwTPtHqyo73IpXPUXoDAMYv0lr4ciBVdz3jXBMSFlEpg1rw/d
+   g=;
+X-IronPort-AV: E=Sophos;i="5.76,356,1592870400"; 
+   d="scan'208";a="50106232"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-baacba05.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 26 Aug 2020 20:10:10 +0000
+Received: from EX13MTAUWC002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
+        by email-inbound-relay-2b-baacba05.us-west-2.amazon.com (Postfix) with ESMTPS id B320AA239C;
+        Wed, 26 Aug 2020 20:10:01 +0000 (UTC)
+Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
+ EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 26 Aug 2020 20:09:59 +0000
+Received: from vpn-10-85-95-61.fra53.corp.amazon.com (10.43.161.85) by
+ EX13D20UWC001.ant.amazon.com (10.43.162.244) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 26 Aug 2020 20:09:52 +0000
+Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
+To:     Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>
+CC:     Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Will Deacon" <will@kernel.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Jason Chen CJ <jason.cj.chen@intel.com>,
+        Zhao Yakui <yakui.zhao@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Avi Kivity <avi@scylladb.com>,
+        "Herrenschmidt, Benjamin" <benh@amazon.com>, <robketr@amazon.de>,
+        <amos@scylladb.com>, Brian Gerst <brgerst@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20200826115357.3049-1-graf@amazon.com>
+ <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
+ <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com>
+ <87blixuuny.fsf@nanos.tec.linutronix.de>
+ <873649utm4.fsf@nanos.tec.linutronix.de>
+From:   Alexander Graf <graf@amazon.com>
+Message-ID: <9f351750-f652-f9c5-ca79-fc90273ee3c8@amazon.com>
+Date:   Wed, 26 Aug 2020 22:09:49 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.1.1
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1598472328; bh=vcuUzoxEHPbJpZEaocSnEvUTr24rjXRhVAsiKgIaQag=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=HAHQnHNSonkUsxHy9HM40Qw6VEDyECywYulvO7xvfKPTl8P8/4IMIhyZ68ULPDbge
-         Sl2ELf0DPwBgwZZ4Yf8DM4HsxFV1M+o6I62whbKkim9LhgQ+37FVNcnXaL0+u4RuEJ
-         uP9+1oztKOPYfQIX56/6VPRNCkIOpPoQ5FA1l0oHDqM1CvEIfzz3raR8nkVMs5ueLb
-         62jWbEuajxovsGu2keEu381X0d5fITiZiyzQV6MoGCFs+yuVFGmf+8SGEWNqULUPfJ
-         4WKkXX4Gbe/4e0iizZOl0DbWkUY4Qwet+mMS87FhvIdpfi+pOjHanwAISJ2RhYp3xu
-         RxKlkBK3Lf2xg==
+In-Reply-To: <873649utm4.fsf@nanos.tec.linutronix.de>
+Content-Language: en-US
+X-Originating-IP: [10.43.161.85]
+X-ClientProxiedBy: EX13D15UWB004.ant.amazon.com (10.43.161.61) To
+ EX13D20UWC001.ant.amazon.com (10.43.162.244)
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
 
-Tegra210 and later has a separate sdmmc_legacy_tm (TMCLK) used by Tegra
-SDMMC hawdware for data timeout to achive better timeout than using
-SDCLK and using TMCLK is recommended.
 
-USE_TMCLK_FOR_DATA_TIMEOUT bit in Tegra SDMMC register
-SDHCI_TEGRA_VENDOR_SYS_SW_CTRL can be used to choose either TMCLK or
-SDCLK for data timeout.
+On 26.08.20 20:53, Thomas Gleixner wrote:
+> =
 
-Default USE_TMCLK_FOR_DATA_TIMEOUT bit is set to 1 and TMCLK is used
-for data timeout by Tegra SDMMC hardware and having TMCLK not enabled
-is not recommended.
+> =
 
-So, this patch adds quirk NVQUIRK_HAS_TMCLK for SoC having separate
-timeout clock and keeps TMCLK enabled all the time.
+> On Wed, Aug 26 2020 at 20:30, Thomas Gleixner wrote:
+>> And it does not solve the issue that we abuse orig_ax which Andy
+>> mentioned.
+> =
 
-Fixes: b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
-Cc: stable <stable@vger.kernel.org> # 5.4
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/mmc/host/sdhci-tegra.c | 89 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 81 insertions(+), 8 deletions(-)
+> Ha! After staring some more, it's not required at all, which is the most
+> elegant solution.
+> =
 
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 31ed321..9bcd532 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -110,6 +110,12 @@
- #define NVQUIRK_DIS_CARD_CLK_CONFIG_TAP			BIT(8)
- #define NVQUIRK_CQHCI_DCMD_R1B_CMD_TIMING		BIT(9)
- 
-+/*
-+ * NVQUIRK_HAS_TMCLK is for SoC's having separate timeout clock for Tegra
-+ * SDMMC hardware data timeout.
-+ */
-+#define NVQUIRK_HAS_TMCLK				BIT(10)
-+
- /* SDMMC CQE Base Address for Tegra Host Ver 4.1 and Higher */
- #define SDHCI_TEGRA_CQE_BASE_ADDR			0xF000
- 
-@@ -140,6 +146,7 @@ struct sdhci_tegra_autocal_offsets {
- struct sdhci_tegra {
- 	const struct sdhci_tegra_soc_data *soc_data;
- 	struct gpio_desc *power_gpio;
-+	struct clk *tmclk;
- 	bool ddr_signaling;
- 	bool pad_calib_required;
- 	bool pad_control_available;
-@@ -1433,7 +1440,8 @@ static const struct sdhci_tegra_soc_data soc_data_tegra210 = {
- 		    NVQUIRK_HAS_PADCALIB |
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
--		    NVQUIRK_ENABLE_SDR104,
-+		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK,
- 	.min_tap_delay = 106,
- 	.max_tap_delay = 185,
- };
-@@ -1471,6 +1479,7 @@ static const struct sdhci_tegra_soc_data soc_data_tegra186 = {
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
- 		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK |
- 		    NVQUIRK_CQHCI_DCMD_R1B_CMD_TIMING,
- 	.min_tap_delay = 84,
- 	.max_tap_delay = 136,
-@@ -1483,7 +1492,8 @@ static const struct sdhci_tegra_soc_data soc_data_tegra194 = {
- 		    NVQUIRK_HAS_PADCALIB |
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
--		    NVQUIRK_ENABLE_SDR104,
-+		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK;
- 	.min_tap_delay = 96,
- 	.max_tap_delay = 139,
- };
-@@ -1611,15 +1621,76 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 		goto err_power_req;
- 	}
- 
--	clk = devm_clk_get(mmc_dev(host->mmc), NULL);
--	if (IS_ERR(clk)) {
--		rc = PTR_ERR(clk);
-+	/*
-+	 * Tegra210 and later has separate SDMMC_LEGACY_TM clock used for
-+	 * hardware data timeout clock and SW can choose TMCLK or SDCLK for
-+	 * hardware data timeout through the bit USE_TMCLK_FOR_DATA_TIMEOUT
-+	 * of the register SDHCI_TEGRA_VENDOR_SYS_SW_CTRL.
-+	 *
-+	 * USE_TMCLK_FOR_DATA_TIMEOUT bit default is set to 1 and SDMMC uses
-+	 * 12Mhz TMCLK which is advertised in host capability register.
-+	 * With TMCLK of 12Mhz provides maximum data timeout period that can
-+	 * be achieved is 11s better than using SDCLK for data timeout.
-+	 *
-+	 * So, TMCLK is set to 12Mhz and kept enabled all the time on SoC's
-+	 * supporting separate TMCLK.
-+	 *
-+	 * Old device tree has single sdhci clock. So with addition of TMCLK,
-+	 * retrieving sdhci clock by "sdhci" clock name based on number of
-+	 * clocks in sdhci device node.
-+	 */
-+
-+	if (of_clk_get_parent_count(&pdev->dev) == 1) {
-+		if (soc_data->nvquirks & NVQUIRK_HAS_TMCLK)
-+			dev_warn(&pdev->dev,
-+				 "missing tmclk in the device tree\n");
-+
-+		clk = devm_clk_get(dev, NULL)
-+		if (IS_ERR(clk)) {
-+			rc = PTR_ERR(clk);
- 
--		if (rc != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "failed to get clock: %d\n", rc);
-+			if (rc != -EPROBE_DEFER)
-+				dev_err(&pdev->dev,
-+					"failed to get sdhci clock: %d\n", rc);
- 
--		goto err_clk_get;
-+			goto err_power_req;
-+		}
-+	} else {
-+		if (soc_data->nvquirks & NVQUIRK_HAS_TMCLK) {
-+			clk = devm_clk_get(&pdev->dev, "tmclk");
-+			if (IS_ERR(clk)) {
-+				rc = PTR_ERR(clk);
-+				if (rc == -EPROBE_DEFER)
-+					goto err_power_req;
-+
-+				dev_warn(&pdev->dev,
-+					 "failed to get tmclk: %d\n", rc);
-+				clk = NULL;
-+			}
-+
-+			clk_set_rate(clk, 12000000);
-+			rc = clk_prepare_enable(clk);
-+			if (rc) {
-+				dev_err(&pdev->dev,
-+					"failed to enable tmclk: %d\n", rc);
-+				goto err_power_req;
-+			}
-+
-+			tegra_host->tmclk = clk;
-+		}
-+
-+		clk = devm_clk_get(dev, "sdhci")
-+		if (IS_ERR(clk)) {
-+			rc = PTR_ERR(clk);
-+
-+			if (rc != -EPROBE_DEFER)
-+				dev_err(&pdev->dev,
-+					"failed to get sdhci clock: %d\n", rc);
-+
-+			goto err_clk_get;
-+		}
- 	}
-+
- 	clk_prepare_enable(clk);
- 	pltfm_host->clk = clk;
- 
-@@ -1654,6 +1725,7 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- err_rst_get:
- 	clk_disable_unprepare(pltfm_host->clk);
- err_clk_get:
-+	clk_disable_unprepare(tegra_host->tmclk);
- err_power_req:
- err_parse_dt:
- 	sdhci_pltfm_free(pdev);
-@@ -1671,6 +1743,7 @@ static int sdhci_tegra_remove(struct platform_device *pdev)
- 	reset_control_assert(tegra_host->rst);
- 	usleep_range(2000, 4000);
- 	clk_disable_unprepare(pltfm_host->clk);
-+	clk_disable_unprepare(tegra_host->tmclk);
- 
- 	sdhci_pltfm_free(pdev);
- 
--- 
-2.7.4
+> The vector check is pointless in that condition because there is never a
+> condition where an interrupt is moved from vector A to vector B on the
+> same CPU.
+> =
+
+> That's a left over from the old allocation model which supported
+> multi-cpu affinities, but this was removed as it just created trouble
+> for no real benefit.
+> =
+
+> Today the effective affinity which is a single CPU out of the requested
+> affinity. If an affinity mask change still contains the current target
+> CPU then there is no move happening at all. It just stays on that vector
+> on that CPU.
+> =
+
+> Thanks,
+> =
+
+>          tglx
+> ---
+> =
+
+> --- a/arch/x86/kernel/apic/vector.c
+> +++ b/arch/x86/kernel/apic/vector.c
+> @@ -909,7 +909,7 @@ void send_cleanup_vector(struct irq_cfg
+>                  __send_cleanup_vector(apicd);
+>   }
+> =
+
+> -static void __irq_complete_move(struct irq_cfg *cfg, unsigned vector)
+> +void irq_complete_move(struct irq_cfg *cfg)
+>   {
+>          struct apic_chip_data *apicd;
+> =
+
+> @@ -917,15 +917,10 @@ static void __irq_complete_move(struct i
+>          if (likely(!apicd->move_in_progress))
+>                  return;
+> =
+
+> -       if (vector =3D=3D apicd->vector && apicd->cpu =3D=3D smp_processo=
+r_id())
+> +       if (apicd->cpu =3D=3D smp_processor_id())
+>                  __send_cleanup_vector(apicd);
+>   }
+> =
+
+> -void irq_complete_move(struct irq_cfg *cfg)
+> -{
+> -       __irq_complete_move(cfg, ~get_irq_regs()->orig_ax);
+> -}
+> -
+>   /*
+>    * Called from fixup_irqs() with @desc->lock held and interrupts disabl=
+ed.
+>    */
+> =
+
+
+
+As expected, this also fixes the issue at hand. Do you want to send a =
+
+real patch? :)
+
+Tested-by: Alexander Graf <graf@amazon.com>
+
+
+Alex
+
+
+
+Amazon Development Center Germany GmbH
+Krausenstr. 38
+10117 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
+Sitz: Berlin
+Ust-ID: DE 289 237 879
+
+
 
