@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EF5252D9E
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBEF0252DEE
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729551AbgHZMDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:03:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38872 "EHLO mail.kernel.org"
+        id S1729508AbgHZMDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729540AbgHZMDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:03:39 -0400
+        id S1729496AbgHZMDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:03:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16D0F2087D;
-        Wed, 26 Aug 2020 12:03:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D65420838;
+        Wed, 26 Aug 2020 12:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443418;
-        bh=268SyRW2LjOUz1K0Vc7S6DfSleEt1KbRqIhXwdRmC7Q=;
+        s=default; t=1598443382;
+        bh=O8ZwRVfglmC1HCV5rl0wMfnoGxS661gLxObTPdOyfoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VAXYYgGdjNiJonNkv5cJWAnUQVFXU+8+CV5NJioSJNVBgSup5lIpItiMbVQm9LvOa
-         rIX1Pcc5Sh84sMPk/S7eQczF8hPhFNCSAankosOwf5qJogRMQGyVXpgu4y8nCEBmxi
-         yx/iyAFQ3Wboc/py1S9KTvCu7Qs+4BdbgieU/w5Q=
+        b=zYluZ/NuCv/MliwDnMie7fwWN3Vzdw+PagAvBHjb1ww24omVpgxnRxfr4eNRPfhgT
+         I3BgQr72xqfQa0IpaZmlgb06XhnImSDB2LtejSQkThxUsZPTTQkdf9mZIDYA15Lq/B
+         ucxvI/GyCaP1s/qVvI4BQOU1l/JqHSFTYPGpLtzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        syzbot+a61aa19b0c14c8770bd9@syzkaller.appspotmail.com,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 03/16] net: nexthop: dont allow empty NHA_GROUP
-Date:   Wed, 26 Aug 2020 14:02:40 +0200
-Message-Id: <20200826114911.387511300@linuxfoundation.org>
+Subject: [PATCH 5.7 13/15] ethtool: Dont omit the netlink reply if no features were changed
+Date:   Wed, 26 Aug 2020 14:02:41 +0200
+Message-Id: <20200826114849.943950651@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200826114911.216745274@linuxfoundation.org>
-References: <20200826114911.216745274@linuxfoundation.org>
+In-Reply-To: <20200826114849.295321031@linuxfoundation.org>
+References: <20200826114849.295321031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit eeaac3634ee0e3f35548be35275efeca888e9b23 ]
+[ Upstream commit f01204ec8be7ea5e8f0230a7d4200e338d563bde ]
 
-Currently the nexthop code will use an empty NHA_GROUP attribute, but it
-requires at least 1 entry in order to function properly. Otherwise we
-end up derefencing null or random pointers all over the place due to not
-having any nh_grp_entry members allocated, nexthop code relies on having at
-least the first member present. Empty NHA_GROUP doesn't make any sense so
-just disallow it.
-Also add a WARN_ON for any future users of nexthop_create_group().
+The legacy ethtool userspace tool shows an error when no features could
+be changed. It's useful to have a netlink reply to be able to show this
+error when __netdev_update_features wasn't called, for example:
 
- BUG: kernel NULL pointer dereference, address: 0000000000000080
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP
- CPU: 0 PID: 558 Comm: ip Not tainted 5.9.0-rc1+ #93
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
- RIP: 0010:fib_check_nexthop+0x4a/0xaa
- Code: 0f 84 83 00 00 00 48 c7 02 80 03 f7 81 c3 40 80 fe fe 75 12 b8 ea ff ff ff 48 85 d2 74 6b 48 c7 02 40 03 f7 81 c3 48 8b 40 10 <48> 8b 80 80 00 00 00 eb 36 80 78 1a 00 74 12 b8 ea ff ff ff 48 85
- RSP: 0018:ffff88807983ba00 EFLAGS: 00010213
- RAX: 0000000000000000 RBX: ffff88807983bc00 RCX: 0000000000000000
- RDX: ffff88807983bc00 RSI: 0000000000000000 RDI: ffff88807bdd0a80
- RBP: ffff88807983baf8 R08: 0000000000000dc0 R09: 000000000000040a
- R10: 0000000000000000 R11: ffff88807bdd0ae8 R12: 0000000000000000
- R13: 0000000000000000 R14: ffff88807bea3100 R15: 0000000000000001
- FS:  00007f10db393700(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000080 CR3: 000000007bd0f004 CR4: 00000000003706f0
- Call Trace:
-  fib_create_info+0x64d/0xaf7
-  fib_table_insert+0xf6/0x581
-  ? __vma_adjust+0x3b6/0x4d4
-  inet_rtm_newroute+0x56/0x70
-  rtnetlink_rcv_msg+0x1e3/0x20d
-  ? rtnl_calcit.isra.0+0xb8/0xb8
-  netlink_rcv_skb+0x5b/0xac
-  netlink_unicast+0xfa/0x17b
-  netlink_sendmsg+0x334/0x353
-  sock_sendmsg_nosec+0xf/0x3f
-  ____sys_sendmsg+0x1a0/0x1fc
-  ? copy_msghdr_from_user+0x4c/0x61
-  ___sys_sendmsg+0x63/0x84
-  ? handle_mm_fault+0xa39/0x11b5
-  ? sockfd_lookup_light+0x72/0x9a
-  __sys_sendmsg+0x50/0x6e
-  do_syscall_64+0x54/0xbe
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7f10dacc0bb7
- Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb cd 66 0f 1f 44 00 00 8b 05 9a 4b 2b 00 85 c0 75 2e 48 63 ff 48 63 d2 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 01 c3 48 8b 15 b1 f2 2a 00 f7 d8 64 89 02 48
- RSP: 002b:00007ffcbe628bf8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 00007ffcbe628f80 RCX: 00007f10dacc0bb7
- RDX: 0000000000000000 RSI: 00007ffcbe628c60 RDI: 0000000000000003
- RBP: 000000005f41099c R08: 0000000000000001 R09: 0000000000000008
- R10: 00000000000005e9 R11: 0000000000000246 R12: 0000000000000000
- R13: 0000000000000000 R14: 00007ffcbe628d70 R15: 0000563a86c6e440
- Modules linked in:
- CR2: 0000000000000080
+1. ethtool -k eth0
+   large-receive-offload: off
+2. ethtool -K eth0 rx-fcs on
+3. ethtool -K eth0 lro on
+   Could not change any device features
+   rx-lro: off [requested on]
+4. ethtool -K eth0 lro on
+   # The output should be the same, but without this patch the kernel
+   # doesn't send the reply, and ethtool is unable to detect the error.
 
-CC: David Ahern <dsahern@gmail.com>
-Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
-Reported-by: syzbot+a61aa19b0c14c8770bd9@syzkaller.appspotmail.com
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+This commit makes ethtool-netlink always return a reply when requested,
+and it still avoids unnecessary calls to __netdev_update_features if the
+wanted features haven't changed.
+
+Fixes: 0980bfcd6954 ("ethtool: set netdev features with FEATURES_SET request")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ethtool/features.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -446,7 +446,7 @@ static int nh_check_attr_group(struct ne
- 	unsigned int i, j;
- 	u8 nhg_fdb = 0;
+--- a/net/ethtool/features.c
++++ b/net/ethtool/features.c
+@@ -268,14 +268,11 @@ int ethnl_set_features(struct sk_buff *s
+ 	bitmap_and(req_wanted, req_wanted, req_mask, NETDEV_FEATURE_COUNT);
+ 	bitmap_andnot(new_wanted, old_wanted, req_mask, NETDEV_FEATURE_COUNT);
+ 	bitmap_or(req_wanted, new_wanted, req_wanted, NETDEV_FEATURE_COUNT);
+-	if (bitmap_equal(req_wanted, old_wanted, NETDEV_FEATURE_COUNT)) {
+-		ret = 0;
+-		goto out_rtnl;
++	if (!bitmap_equal(req_wanted, old_wanted, NETDEV_FEATURE_COUNT)) {
++		dev->wanted_features &= ~dev->hw_features;
++		dev->wanted_features |= ethnl_bitmap_to_features(req_wanted) & dev->hw_features;
++		__netdev_update_features(dev);
+ 	}
+-
+-	dev->wanted_features &= ~dev->hw_features;
+-	dev->wanted_features |= ethnl_bitmap_to_features(req_wanted) & dev->hw_features;
+-	__netdev_update_features(dev);
+ 	ethnl_features_to_bitmap(new_active, dev->features);
+ 	mod = !bitmap_equal(old_active, new_active, NETDEV_FEATURE_COUNT);
  
--	if (len & (sizeof(struct nexthop_grp) - 1)) {
-+	if (!len || len & (sizeof(struct nexthop_grp) - 1)) {
- 		NL_SET_ERR_MSG(extack,
- 			       "Invalid length for nexthop group attribute");
- 		return -EINVAL;
-@@ -1187,6 +1187,9 @@ static struct nexthop *nexthop_create_gr
- 	struct nexthop *nh;
- 	int i;
- 
-+	if (WARN_ON(!num_nh))
-+		return ERR_PTR(-EINVAL);
-+
- 	nh = nexthop_alloc();
- 	if (!nh)
- 		return ERR_PTR(-ENOMEM);
 
 
