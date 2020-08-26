@@ -2,129 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BAC52532AA
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 17:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE5B253200
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 16:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726793AbgHZPAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 11:00:31 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:45382 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726700AbgHZO76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 10:59:58 -0400
-X-Greylist: delayed 1436 seconds by postgrey-1.27 at vger.kernel.org; Wed, 26 Aug 2020 10:59:57 EDT
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1kAwRD-002M7D-9O; Wed, 26 Aug 2020 14:30:07 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Wed, 26 Aug 2020 14:29:36 +0000
-Subject: [git:media_tree/fixes] media: media/v4l2-core: Fix kernel-infoleak in video_put_user()
-To:     linuxtv-commits@linuxtv.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        syzbot+79d751604cb6f29fbf59@syzkaller.appspotmail.com
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1kAwRD-002M7D-9O@www.linuxtv.org>
+        id S1727950AbgHZOvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 10:51:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726950AbgHZOvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 10:51:22 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5A5C061574
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 07:51:21 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id q3so1002357pls.11
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 07:51:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=X/qIputJLyqFNsdje+h8GZz0qfux+R7UEhXLHJ/Rw5M=;
+        b=Ss43Vx1wkqp0wNZjC8SZKm56T0zaS9XwEMEa6RRhXgYg0BCTowtYzrtyiT5e/qy8qg
+         lS63QOD3Dp6HjkZmdnl7e7TX2XnG/UD3/IHlR3pLhQZrpQVakvaGBaXEx2uhc9q0Eyrv
+         WrOqxIDp9xdLCftkBwiRrkJBR1DUvjzASzQRtpjWLCOHB3CWFO+8uz5qWiCHSlTxUEV9
+         c5QtQNuXTZY2htKnEiI7S5oxKQKqbKskd21lhJ2sbfOKxee+TMvrBaLlysqh6onUUd15
+         jixUK5I8S2SJTzTRpu8Zkk11SH/KTlWWth9bX3Fcxrl3TAjGzo8ubE2eUCyYsAe68ahN
+         22yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=X/qIputJLyqFNsdje+h8GZz0qfux+R7UEhXLHJ/Rw5M=;
+        b=ob0fNSVg6AbFql/RxANe0Dt4HgdO3uXf60ylOqhsUJTnxjeoa9ThIS3+xjPSOsqcLN
+         P216ofVqHL074rPbtTmuM93Hx+veZ7sTTjyK8fVypU8LKNZoJbL1YCzYYb9MwBKsGyEe
+         qpO8FuEunb0bHzLbKWB3r9klMRqvx3bhEnvycz6PIWXNRXkPf3gqonYrpHjGgQ1L1pTw
+         r7bRW4KsbRwDNsEr6TBsjlTIay6buiYcVhhfjJYFlWHem5xqPuuo8q/3Q3TXLCy1+jZ+
+         x9Enj118BQXZMqfp5yVhjSAKbIdi+0+EXkVCUfYAPQiIP1yGi9AVS5kPW8vI0ZbJReuA
+         ky4A==
+X-Gm-Message-State: AOAM533gxQOHgkAKF9V6kqRHTDmfxFMcSd6TlH/rwdDkGBvH01JUqmjX
+        pnTctLx7TXJvEvozG2O9J70tEMsDJz9FEA==
+X-Google-Smtp-Source: ABdhPJxz+WEs266JjFnosho0+6jhWf49RB7LmDx2E7UtWFlGBXf8Z1Pq3hPm8dcHu6ZDg2YOLFB8zQ==
+X-Received: by 2002:a17:90b:c97:: with SMTP id o23mr6572048pjz.216.1598453479630;
+        Wed, 26 Aug 2020 07:51:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t11sm2441319pjy.40.2020.08.26.07.51.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2020 07:51:18 -0700 (PDT)
+Message-ID: <5f4676e6.1c69fb81.52a27.5325@mx.google.com>
+Date:   Wed, 26 Aug 2020 07:51:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.195
+Subject: stable/linux-4.14.y baseline: 156 runs, 1 regressions (v4.14.195)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+stable/linux-4.14.y baseline: 156 runs, 1 regressions (v4.14.195)
 
-Subject: media: media/v4l2-core: Fix kernel-infoleak in video_put_user()
-Author:  Peilin Ye <yepeilin.cs@gmail.com>
-Date:    Mon Jul 27 10:00:02 2020 +0200
+Regressions Summary
+-------------------
 
-video_put_user() is copying uninitialized stack memory to userspace due
-to the compiler not initializing holes in the structures declared on the
-stack. Fix it by initializing `ev32` and `vb32` using memset().
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
 
-Reported-and-tested-by: syzbot+79d751604cb6f29fbf59@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=79d751604cb6f29fbf59
 
-Cc: stable@vger.kernel.org
-Fixes: 1a6c0b36dd19 ("media: v4l2-core: fix VIDIOC_DQEVENT for time64 ABI")
-Fixes: 577c89b0ce72 ("media: v4l2-core: fix v4l2_buffer handling for time64 ABI")
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.195/plan/baseline/
 
- drivers/media/v4l2-core/v4l2-ioctl.c | 50 +++++++++++++++++++-----------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.195
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      d7e78d08fa77acdea351c8f628f49ca9a0e1029a =
 
----
 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index a556880f225a..e3a25ea913ac 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -3189,14 +3189,16 @@ static int video_put_user(void __user *arg, void *parg, unsigned int cmd)
- #ifdef CONFIG_COMPAT_32BIT_TIME
- 	case VIDIOC_DQEVENT_TIME32: {
- 		struct v4l2_event *ev = parg;
--		struct v4l2_event_time32 ev32 = {
--			.type		= ev->type,
--			.pending	= ev->pending,
--			.sequence	= ev->sequence,
--			.timestamp.tv_sec  = ev->timestamp.tv_sec,
--			.timestamp.tv_nsec = ev->timestamp.tv_nsec,
--			.id		= ev->id,
--		};
-+		struct v4l2_event_time32 ev32;
-+
-+		memset(&ev32, 0, sizeof(ev32));
-+
-+		ev32.type	= ev->type;
-+		ev32.pending	= ev->pending;
-+		ev32.sequence	= ev->sequence;
-+		ev32.timestamp.tv_sec	= ev->timestamp.tv_sec;
-+		ev32.timestamp.tv_nsec	= ev->timestamp.tv_nsec;
-+		ev32.id		= ev->id;
- 
- 		memcpy(&ev32.u, &ev->u, sizeof(ev->u));
- 		memcpy(&ev32.reserved, &ev->reserved, sizeof(ev->reserved));
-@@ -3210,21 +3212,23 @@ static int video_put_user(void __user *arg, void *parg, unsigned int cmd)
- 	case VIDIOC_DQBUF_TIME32:
- 	case VIDIOC_PREPARE_BUF_TIME32: {
- 		struct v4l2_buffer *vb = parg;
--		struct v4l2_buffer_time32 vb32 = {
--			.index		= vb->index,
--			.type		= vb->type,
--			.bytesused	= vb->bytesused,
--			.flags		= vb->flags,
--			.field		= vb->field,
--			.timestamp.tv_sec	= vb->timestamp.tv_sec,
--			.timestamp.tv_usec	= vb->timestamp.tv_usec,
--			.timecode	= vb->timecode,
--			.sequence	= vb->sequence,
--			.memory		= vb->memory,
--			.m.userptr	= vb->m.userptr,
--			.length		= vb->length,
--			.request_fd	= vb->request_fd,
--		};
-+		struct v4l2_buffer_time32 vb32;
-+
-+		memset(&vb32, 0, sizeof(vb32));
-+
-+		vb32.index	= vb->index;
-+		vb32.type	= vb->type;
-+		vb32.bytesused	= vb->bytesused;
-+		vb32.flags	= vb->flags;
-+		vb32.field	= vb->field;
-+		vb32.timestamp.tv_sec	= vb->timestamp.tv_sec;
-+		vb32.timestamp.tv_usec	= vb->timestamp.tv_usec;
-+		vb32.timecode	= vb->timecode;
-+		vb32.sequence	= vb->sequence;
-+		vb32.memory	= vb->memory;
-+		vb32.m.userptr	= vb->m.userptr;
-+		vb32.length	= vb->length;
-+		vb32.request_fd	= vb->request_fd;
- 
- 		if (copy_to_user(arg, &vb32, sizeof(vb32)))
- 			return -EFAULT;
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f46421132a542a8ca9fb45f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.195/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.195/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f46421132a542a8ca9fb=
+460
+      failing since 145 days (last pass: v4.14.172, first fail: v4.14.175) =
+ =20
