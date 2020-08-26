@@ -2,168 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B30C82525A0
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 04:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7C42525AA
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 04:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbgHZCuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 22:50:25 -0400
-Received: from mga05.intel.com ([192.55.52.43]:43488 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726664AbgHZCuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Aug 2020 22:50:25 -0400
-IronPort-SDR: AD3rC23vJSXTCTdY/qmhmzqSj6y31LaVsL+uRoLWBWF3+TdENYaP8XdabuNjXjZYicbccjwXU/
- 4rlWSKE4YE9A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9724"; a="241042416"
-X-IronPort-AV: E=Sophos;i="5.76,354,1592895600"; 
-   d="scan'208";a="241042416"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Aug 2020 19:50:24 -0700
-IronPort-SDR: FaxD9fawf0eT3/3ggGueIVqhNP/8d9Yz0iZS5Nb5dppbghNmvSF2YVOiYKS/G5zxn1hjjU3vpD
- NNbf45X9y1Cg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,354,1592895600"; 
-   d="scan'208";a="373243623"
-Received: from otc-nc-03.jf.intel.com (HELO otc-nc-03) ([10.54.39.36])
-  by orsmga001.jf.intel.com with ESMTP; 25 Aug 2020 19:50:24 -0700
-Date:   Tue, 25 Aug 2020 19:50:24 -0700
-From:   "Raj, Ashok" <ashok.raj@intel.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-kernel@vger.kernel.org,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
-        Evan Green <evgreen@chromium.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Ashok Raj <ashok.raj@intel.com>
-Subject: Re: [PATCH v2] x86/hotplug: Silence APIC only after all irq's are
- migrated
-Message-ID: <20200826025024.GB40407@otc-nc-03>
-References: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
- <87mu2iw86q.fsf@nanos.tec.linutronix.de>
+        id S1726700AbgHZC6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 22:58:16 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:33645 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726664AbgHZC6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 22:58:15 -0400
+Received: by mail-pl1-f195.google.com with SMTP id h2so204044plr.0;
+        Tue, 25 Aug 2020 19:58:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=T59q79yyURdGZxxwN54BfP5lytwNSmSa/FUiPL5dqk8=;
+        b=a32rQd4ub+sFLjdLzcAMbwlnPr6df8Lq7C6wcvg18PeI8zPAWcL3Y3OLQS3IoJPnwO
+         ZAzgInwmsk4vZI2wPo1pmS2wSiJcNm0zpFDx4IdZhp8d8cBqeFo0MeUYH/KiEAnifVg6
+         2azkG71Qvqy7iFK5JJxuInjS1MXwPQglPaGdmN6Sk7PrGSRSVPYi2iMWx8wIy2M5epxj
+         xoAAjbu7uJtcyMG46K+cvdQp2wKhNlXCEekikwZ8SKiKBDhW00BRaIXzVPrZCxw89vDS
+         CKuUyxh10KPs1ZTkgW5UNY9GXnrotN4Pcjtrvr3ns0Su6ud27R1w4yOJNU3jL4JUtQP4
+         DCFA==
+X-Gm-Message-State: AOAM533Q6H+lrARhK8VMrjCEWc7ilheoFFw0p2CJRUoyYetpqSabzRRJ
+        Km4sfG9bECAHa5lc0aciaJA=
+X-Google-Smtp-Source: ABdhPJxtkSfzqUM3KCQIzDdUi2/mb/cJsGU0X1pkb/GeKZbGwJ/yfb+ErIx5cbtZ9AFCWXVJEHeZ8g==
+X-Received: by 2002:a17:902:be0f:: with SMTP id r15mr10494261pls.84.1598410694753;
+        Tue, 25 Aug 2020 19:58:14 -0700 (PDT)
+Received: from [192.168.3.217] (c-73-241-217-19.hsd1.ca.comcast.net. [73.241.217.19])
+        by smtp.gmail.com with ESMTPSA id fs12sm403898pjb.21.2020.08.25.19.58.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Aug 2020 19:58:13 -0700 (PDT)
+Subject: Re: [PATCH] block: Fix a race in the runtime power management code
+To:     Stanley Chu <stanley.chu@mediatek.com>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Ming Lei <ming.lei@redhat.com>,
+        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
+References: <20200824030607.19357-1-bvanassche@acm.org>
+ <1598346681.10649.8.camel@mtkswgap22>
+From:   Bart Van Assche <bvanassche@acm.org>
+Autocrypt: addr=bvanassche@acm.org; prefer-encrypt=mutual; keydata=
+ mQENBFSOu4oBCADcRWxVUvkkvRmmwTwIjIJvZOu6wNm+dz5AF4z0FHW2KNZL3oheO3P8UZWr
+ LQOrCfRcK8e/sIs2Y2D3Lg/SL7qqbMehGEYcJptu6mKkywBfoYbtBkVoJ/jQsi2H0vBiiCOy
+ fmxMHIPcYxaJdXxrOG2UO4B60Y/BzE6OrPDT44w4cZA9DH5xialliWU447Bts8TJNa3lZKS1
+ AvW1ZklbvJfAJJAwzDih35LxU2fcWbmhPa7EO2DCv/LM1B10GBB/oQB5kvlq4aA2PSIWkqz4
+ 3SI5kCPSsygD6wKnbRsvNn2mIACva6VHdm62A7xel5dJRfpQjXj2snd1F/YNoNc66UUTABEB
+ AAG0JEJhcnQgVmFuIEFzc2NoZSA8YnZhbmFzc2NoZUBhY20ub3JnPokBOQQTAQIAIwUCVI67
+ igIbAwcLCQgHAwIBBhUIAgkKCwQWAgMBAh4BAheAAAoJEHFcPTXFzhAJ8QkH/1AdXblKL65M
+ Y1Zk1bYKnkAb4a98LxCPm/pJBilvci6boefwlBDZ2NZuuYWYgyrehMB5H+q+Kq4P0IBbTqTa
+ jTPAANn62A6jwJ0FnCn6YaM9TZQjM1F7LoDX3v+oAkaoXuq0dQ4hnxQNu792bi6QyVdZUvKc
+ macVFVgfK9n04mL7RzjO3f+X4midKt/s+G+IPr4DGlrq+WH27eDbpUR3aYRk8EgbgGKvQFdD
+ CEBFJi+5ZKOArmJVBSk21RHDpqyz6Vit3rjep7c1SN8s7NhVi9cjkKmMDM7KYhXkWc10lKx2
+ RTkFI30rkDm4U+JpdAd2+tP3tjGf9AyGGinpzE2XY1K5AQ0EVI67igEIAKiSyd0nECrgz+H5
+ PcFDGYQpGDMTl8MOPCKw/F3diXPuj2eql4xSbAdbUCJzk2ETif5s3twT2ER8cUTEVOaCEUY3
+ eOiaFgQ+nGLx4BXqqGewikPJCe+UBjFnH1m2/IFn4T9jPZkV8xlkKmDUqMK5EV9n3eQLkn5g
+ lco+FepTtmbkSCCjd91EfThVbNYpVQ5ZjdBCXN66CKyJDMJ85HVr5rmXG/nqriTh6cv1l1Js
+ T7AFvvPjUPknS6d+BETMhTkbGzoyS+sywEsQAgA+BMCxBH4LvUmHYhpS+W6CiZ3ZMxjO8Hgc
+ ++w1mLeRUvda3i4/U8wDT3SWuHcB3DWlcppECLkAEQEAAYkBHwQYAQIACQUCVI67igIbDAAK
+ CRBxXD01xc4QCZ4dB/0QrnEasxjM0PGeXK5hcZMT9Eo998alUfn5XU0RQDYdwp6/kMEXMdmT
+ oH0F0xB3SQ8WVSXA9rrc4EBvZruWQ+5/zjVrhhfUAx12CzL4oQ9Ro2k45daYaonKTANYG22y
+ //x8dLe2Fv1By4SKGhmzwH87uXxbTJAUxiWIi1np0z3/RDnoVyfmfbbL1DY7zf2hYXLLzsJR
+ mSsED/1nlJ9Oq5fALdNEPgDyPUerqHxcmIub+pF0AzJoYHK5punqpqfGmqPbjxrJLPJfHVKy
+ goMj5DlBMoYqEgpbwdUYkH6QdizJJCur4icy8GUNbisFYABeoJ91pnD4IGei3MTdvINSZI5e
+Message-ID: <ee6b4ab1-d118-ef5d-a075-e13dfdb678a7@acm.org>
+Date:   Tue, 25 Aug 2020 19:58:11 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mu2iw86q.fsf@nanos.tec.linutronix.de>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <1598346681.10649.8.camel@mtkswgap22>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Thomas,
+On 2020-08-25 02:11, Stanley Chu wrote:
+>> diff --git a/block/blk-pm.c b/block/blk-pm.c
+>> index b85234d758f7..17bd020268d4 100644
+>> --- a/block/blk-pm.c
+>> +++ b/block/blk-pm.c
+>> @@ -67,6 +67,10 @@ int blk_pre_runtime_suspend(struct request_queue *q)
+>>  
+>>  	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
+>>  
+>> +	spin_lock_irq(&q->queue_lock);
+>> +	q->rpm_status = RPM_SUSPENDING;
+>> +	spin_unlock_irq(&q->queue_lock);
+>> +
+> 
+> Has below alternative way been considered that RPM_SUSPENDING is set
+> after blk_freeze_queue_start()?
+> 
+> 	blk_freeze_queue_start(q);
+> 
+> +	spin_lock_irq(&q->queue_lock);
+> +	q->rpm_status = RPM_SUSPENDING;
+> +	spin_unlock_irq(&q->queue_lock);
+> 
+> 
+> Otherwise requests can enter queue while rpm_status is RPM_SUSPENDING
+> during a small window, i.e., before blk_set_pm_only() is invoked. This
+> would make the definition of rpm_status ambiguous.
+> 
+> In this way, the racing could be also solved:
+> 
+> - Before blk_freeze_queue_start(), any requests shall be allowed to
+> enter queue
+> - blk_freeze_queue_start() freezes the queue and blocks all upcoming
+> requests (make them wait_event(q->mq_freeze_wq))
+> - rpm_status is set as RPM_SUSPENDING
+> - blk_mq_unfreeze_queue() wakes up q->mq_freeze_wq and then
+> blk_pm_request_resume() can be executed
 
-On Wed, Aug 26, 2020 at 02:40:45AM +0200, Thomas Gleixner wrote:
-> Ashok,
-> 
-> On Thu, Aug 20 2020 at 17:42, Ashok Raj wrote:
-> > When offlining CPUs, fixup_irqs() migrates all interrupts away from the
-> > outgoing CPU to an online CPU. It's always possible the device sent an
-> > interrupt to the previous CPU destination. Pending interrupt bit in IRR in
-> > LAPIC identifies such interrupts. apic_soft_disable() will not capture any
-> > new interrupts in IRR. This causes interrupts from device to be lost during
-> > CPU offline. The issue was found when explicitly setting MSI affinity to a
-> > CPU and immediately offlining it. It was simple to recreate with a USB
-> > ethernet device and doing I/O to it while the CPU is offlined. Lost
-> > interrupts happen even when Interrupt Remapping is enabled.
-> 
-> New lines exist for a reason. They help to structure information. For
-> the content, please see below.
+Hi Stanley,
 
-Will work on that :-)
+I prefer the order from the patch. I think it is important to change
+q->rpm_status into RPM_SUSPENDING before blk_queue_enter() calls
+blk_queue_pm_only(). Otherwise it could happen that blk_queue_enter()
+calls blk_pm_request_resume() while q->rpm_status == RPM_ACTIVE, resulting
+in blk_queue_enter() not resuming a queue although that queue should be
+resumed.
 
-> 
-> > Current code does apic_soft_disable() before migrating interrupts.
-> >
-> > native_cpu_disable()
-> > {
-> > 	...
-> > 	apic_soft_disable();
-> > 	cpu_disable_common();
-> > 	  --> fixup_irqs(); // Too late to capture anything in IRR.
-> > }
-> >
-> > Just flipping the above call sequence seems to hit the IRR checks
-> > and the lost interrupt is fixed for both legacy MSI and when
-> > interrupt remapping is enabled.
-> 
-> Seems to hit? Come on, we really want changelogs which are based on
-> facts and not on assumptions.
+Thanks,
 
-What I intended to convay was by placing a debug trace_printk() at
-fixup_irqs(), it was *indeed* observed. Before the change I never noticed
-that path being covered.
-
-Just my Inglish (Indian English) tricking you :-).
-Will make them sensible in the next update.
-
-> 
-> Aside of that, yes that's a really subtle one and thanks for tracking it
-> down! For some reason I never looked at that ordering, but now that you
-> stick it in front of me, it's pretty clear that this is the root cause.
-> 
-> >  	/*
-> >  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
-> >  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
-> > -	 * messages.
-> > +	 * messages. It's important to do apic_soft_disable() after
-> > +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
-> > +	 * depends on IRR being set.
-> 
-> That sentence does not make sense to me.
-
-Right, I was just stating the obvious. Since fixup_irqs() isn't called
-right in that function, it was suggested to make that connection explicit.
-
-Your writeup below is crystal.. so will replace with what you have below.
-
-
-> 
-> > +       .... After apic_soft_disable() CPU preserves
-> > +	 * currently set IRR/ISR but new interrupts will not set IRR.
-> 
-> I agree with the IRR part, but ISR is simply impossible to be set in
-> this situation. 
-
-You are correct. I was trying to convey what the SDM said, but its probably
-irrelavant for this discussion. 
-
-> 
-> > +	 * This causes interrupts sent to outgoing CPU before completion
-> > +	 * of IRQ migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
-> > +	 * APIC State after It Has been Software Disabled" section for more
-> > +	 * details.
-> 
-> Please do not use the SDM chapter number of today. It's going to be a
-> different one with the next version.
-> 
-> Something like this perhaps?
-> 
->   	/*
->   	 * Disable the local APIC. Otherwise IPI broadcasts will reach
->   	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
->  	 * messages.
->          *
->          * Disabling the APIC must happen after cpu_disable_common()
->   	 * which invokes fixup_irqs().
->          *
->          * Disabling the APIC preserves already set bits in IRR, but
->          * an interrupt arriving after disabling the local APIC does not
->          * set the corresponding IRR bit.
->          *
->          * fixup_irqs() scans IRR for set bits so it can raise a not
->   	 * yet handled interrupt on the new destination CPU via an IPI
->          * but obviously it can't do so for IRR bits which are not set.
->          * IOW, interrupts arriving after disabling the local APIC will
->          * be lost.
->          */
-> 
-> Hmm?
-> 
-> The changelog wants to have a corresponding update.
-
-Will do ...
-
-Cheers,
-Ashok
+Bart.
