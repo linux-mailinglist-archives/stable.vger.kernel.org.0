@@ -2,97 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 929D3252FFA
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CAC252FEE
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730321AbgHZNc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:32:27 -0400
-Received: from helcar.hmeau.com ([216.24.177.18]:33154 "EHLO fornost.hmeau.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730289AbgHZNa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:30:57 -0400
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
-        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
-        id 1kAvUu-00052u-Ib; Wed, 26 Aug 2020 23:29:53 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Wed, 26 Aug 2020 23:29:52 +1000
-Date:   Wed, 26 Aug 2020 23:29:52 +1000
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Andrew Zaborowski <andrew.zaborowski@intel.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Caleb Jorden <caljorden@hotmail.com>,
-        Sasha Levin <sashal@kernel.org>, iwd@lists.01.org,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: [PATCH] crypto: af_alg - Work around empty control messages without
- MSG_MORE
-Message-ID: <20200826132952.GA4752@gondor.apana.org.au>
-References: <20200826055150.2753.90553@ml01.vlan13.01.org>
- <b34f7644-a495-4845-0a00-0aebf4b9db52@molgen.mpg.de>
- <CAMj1kXEUQdmQDCDXPBNb3hRrbui=HVyDjCDoiFwDr+mDSjP43A@mail.gmail.com>
- <20200826114952.GA2375@gondor.apana.org.au>
- <CAMj1kXGjytfJEbLMbz50it3okQfiLScHB5YK2FMqR5CsmFEBbg@mail.gmail.com>
- <20200826120832.GA2996@gondor.apana.org.au>
- <CAOq732JaP=4X9Yh_KjER5_ctQWoauxzXTZqyFP9KsLSxvVH8=w@mail.gmail.com>
+        id S1730051AbgHZNbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730286AbgHZNam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:30:42 -0400
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35CE9C061574
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 06:30:05 -0700 (PDT)
+Received: by mail-io1-xd36.google.com with SMTP id v6so2058653iow.11
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 06:30:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=poM+lQtBssF0aCZYnLKRKD9hwY5qDrWsSm+NnhHcPRw=;
+        b=cINWcGp9t2KbrOFsjuqECoqJ3ZfToCOJYxDz0I0yIwUEdeBp6O1NWoUwgCeaMcPNi4
+         gVzqnjXeYVgfb4nS9VZpqxA0KEBQVXEoxcx7umJXd+vHsZZm9IqkOAhYovwXmdIpYkGL
+         7Kppd1t9IJM6Bj0/Ad9SNroaJPtQ2FukCXyT3yTOeqzjpWWAtfB2TbfsIzRcKzJoDizJ
+         r9P1ckAraARWpULu/uSr0PybiQHONXjpdXSgL1fZuXKJV+XQ9SNvAxPPnJmCqfehN8mC
+         HrvwyGkHRLj7s6Cmxmgslw4cMGw+SstCmQdyXNpDEWHPwryT3Or9jzFBK0bMOw/rofOR
+         BK4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=poM+lQtBssF0aCZYnLKRKD9hwY5qDrWsSm+NnhHcPRw=;
+        b=OFx6lKJaUZfuH4xgoNEP+Oaiv7eQQKk4DH7PLaX1/s+lGhXaHnm1E0+0z3YXVzvbEr
+         VNSAc9lE8vgOG3enFpDY0H7rhVHt5L1OWuul8yKYYYq1B5fvHbg9y13EauXY7440vRF7
+         FuC0tnbob30PTYi3Zn4h82szFp1PYAu748vnQCCwerd6SckHeqJwbrfyrQudSeTaGJo2
+         wBOmevY1/yN76tJ0JyF8mczXzQELjSIcKwrtLV9hLtzH2yeH9QhX7viToVAZ1OBtB0jI
+         pti/Y9hPDBqPW289X3l31u75zDYzQIbsG7PM6RQuVrYCDPpaiHB8kKS7wfdkl18TpjYT
+         Ghqg==
+X-Gm-Message-State: AOAM531cNnyIu0/yvh9qRz0jK6oYyLi24Uif5Vwf0+vm0EFQoc9XXRex
+        SvfMu6Z/Mr0OYLfxiyP5lk9gg+7e7JsJuXUF
+X-Google-Smtp-Source: ABdhPJxXqlbcm1stLYb2MWb0BzMWoBK0fWjAA9XDtMGiNF38yxEYnqxjmfjn5s/+55wf5/z51yLyMA==
+X-Received: by 2002:a6b:6e07:: with SMTP id d7mr12301228ioh.35.1598448603548;
+        Wed, 26 Aug 2020 06:30:03 -0700 (PDT)
+Received: from [192.168.1.58] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id b23sm1150043ios.39.2020.08.26.06.30.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 26 Aug 2020 06:30:03 -0700 (PDT)
+Subject: Re: 5.8 stable inclusion request
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <eac5cc64-641f-58b9-5f58-7bc1c4393bbb@kernel.dk>
+ <20200826103041.GB3356257@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <de9539b3-2ac5-6664-3121-24977401ceea@kernel.dk>
+Date:   Wed, 26 Aug 2020 07:30:02 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOq732JaP=4X9Yh_KjER5_ctQWoauxzXTZqyFP9KsLSxvVH8=w@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200826103041.GB3356257@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The iwd daemon uses libell which sets up the skcipher operation with
-two separate control messages.  This is fine by itself but the first
-control message is sent without MSG_MORE.  This means that the first
-control message is interpreted as an empty request.
+On 8/26/20 4:30 AM, Greg KH wrote:
+> On Mon, Aug 24, 2020 at 04:42:35PM -0600, Jens Axboe wrote:
+>> Hi,
+>>
+>> Can I get this patch queued up for 5.8? It's a backport of two
+>> commits from upstream. Thanks!
+> 
+> Now queued up, thanks!
 
-While libell should be fixed to use MSG_MORE where appropriate, this
-patch works around the bug in the kernel so that existing binaries
-continue to work.
+Thanks Greg!
 
-We will print a warning however.
-
-Reported-by: Caleb Jorden <caljorden@hotmail.com>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index a6f581ab200c..3da21cadc326 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -16,6 +16,7 @@
- #include <linux/module.h>
- #include <linux/net.h>
- #include <linux/rwsem.h>
-+#include <linux/sched.h>
- #include <linux/sched/signal.h>
- #include <linux/security.h>
- 
-@@ -846,8 +847,14 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 
- 	lock_sock(sk);
- 	if (ctx->init && (init || !ctx->more)) {
--		err = -EINVAL;
--		goto unlock;
-+		if (ctx->used) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
-+
-+		pr_info_once(
-+			"%s sent an empty control message without MSG_MORE.\n",
-+			current->comm);
- 	}
- 	ctx->init = true;
- 
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Jens Axboe
+
