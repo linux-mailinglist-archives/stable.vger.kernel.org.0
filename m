@@ -2,185 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3809A253051
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D68825306B
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730499AbgHZNuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:50:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56802 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730428AbgHZNrN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 09:47:13 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 592E322BEA;
-        Wed, 26 Aug 2020 13:47:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598449630;
-        bh=2c7kLmBWxeG5b+bZP/Vwev5mREKep9OqRfHbzY3d2IQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZYWMzWcjXOiK1J4w+5K7nZTegwvyJ6ASu9e/dnz7EEs8bJI7SZvMBA5GO5F6lynkN
-         ZK3UHThXzWZhEdJKFpBBhdvZGJ3+TLWLn0Qa4QwXQJ3COlancfyzsx8Ws+mFeB2IRB
-         OSv6/FLZ2W09njvsgDsKnrdErU7jx1mRMgQ9puvI=
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1kAvlc-006rUp-Qw; Wed, 26 Aug 2020 14:47:09 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] HID: core: Sanitize event code and type when mapping input
-Date:   Wed, 26 Aug 2020 14:46:58 +0100
-Message-Id: <20200826134658.1046338-1-maz@kernel.org>
-X-Mailer: git-send-email 2.27.0
+        id S1730542AbgHZNwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:52:02 -0400
+Received: from smtp-fw-9101.amazon.com ([207.171.184.25]:49099 "EHLO
+        smtp-fw-9101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730450AbgHZNwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:52:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1598449920; x=1629985920;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=R/UiUNzpRC6vnoctXzbPpJl22XZf2dpsVm7NtJe6n4g=;
+  b=Yo6TpDWroOZFM2I+bbzqxKo9c/mokN76clVs9lbB/f+VzQhXTMj0O5EN
+   CqDvexjrjm6aT2gT574AcjeVyySF5U+6BZLV0VuQpXNGWYsD0wfNWzbNs
+   IrrWAndZG7KprioUdxjRcFpszFR+sCsTk3RKGr1AbIH0YDKTSZGzgkkvR
+   E=;
+X-IronPort-AV: E=Sophos;i="5.76,355,1592870400"; 
+   d="scan'208";a="62901837"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2a-f14f4a47.us-west-2.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-9101.sea19.amazon.com with ESMTP; 26 Aug 2020 13:51:24 +0000
+Received: from EX13MTAUWC002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
+        by email-inbound-relay-2a-f14f4a47.us-west-2.amazon.com (Postfix) with ESMTPS id 0362BA2204;
+        Wed, 26 Aug 2020 13:51:15 +0000 (UTC)
+Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
+ EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 26 Aug 2020 13:51:15 +0000
+Received: from edge-m2-r3-214.e-iad50.amazon.com (10.43.160.229) by
+ EX13D20UWC001.ant.amazon.com (10.43.162.244) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 26 Aug 2020 13:51:07 +0000
+Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
+To:     Josh Poimboeuf <jpoimboe@redhat.com>
+CC:     X86 ML <x86@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Andrew Cooper" <andrew.cooper3@citrix.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "Sean Christopherson" <sean.j.christopherson@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Boris Ostrovsky" <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Will Deacon <will@kernel.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Jason Chen CJ <jason.cj.chen@intel.com>,
+        Zhao Yakui <yakui.zhao@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Avi Kivity <avi@scylladb.com>,
+        "Herrenschmidt, Benjamin" <benh@amazon.com>, <robketr@amazon.de>,
+        <amos@scylladb.com>, Brian Gerst <brgerst@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20200826115357.3049-1-graf@amazon.com>
+ <20200826132210.k4pxphxvxuvb2fe6@treble>
+From:   Alexander Graf <graf@amazon.com>
+Message-ID: <19292905-9cfc-ff36-217b-73b944e41442@amazon.com>
+Date:   Wed, 26 Aug 2020 15:51:05 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.1.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+In-Reply-To: <20200826132210.k4pxphxvxuvb2fe6@treble>
+Content-Language: en-US
+X-Originating-IP: [10.43.160.229]
+X-ClientProxiedBy: EX13D44UWB001.ant.amazon.com (10.43.161.32) To
+ EX13D20UWC001.ant.amazon.com (10.43.162.244)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When calling into hid_map_usage(), the passed event code is
-blindly stored as is, even if it doesn't fit in the associated bitmap.
-
-This event code can come from a variety of sources, including devices
-masquerading as input devices, only a bit more "programmable".
-
-Instead of taking the event code at face value, check that it actually
-fits the corresponding bitmap, and if it doesn't:
-- spit out a warning so that we know which device is acting up
-- NULLify the bitmap pointer so that we catch unexpected uses
-
-Code paths that can make use of untrusted inputs can now check
-that the mapping was indeed correct and bail out if not.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
----
-* From v1:
-  - Dropped the input.c changes, and turned hid_map_usage() into
-    the validation primitive.
-  - Handle mapping failures in hidinput_configure_usage() and
-    mt_touch_input_mapping() (on top of hid_map_usage_clear() which
-    was already handled)
-
- drivers/hid/hid-input.c      |  4 ++++
- drivers/hid/hid-multitouch.c |  2 ++
- include/linux/hid.h          | 40 +++++++++++++++++++++++++-----------
- 3 files changed, 34 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index b8eabf206e74..88e19996427e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1132,6 +1132,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 	}
- 
- mapped:
-+	/* Mapping failed, bail out */
-+	if (!bit)
-+		return;
-+
- 	if (device->driver->input_mapped &&
- 	    device->driver->input_mapped(device, hidinput, field, usage,
- 					 &bit, &max) < 0) {
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3f94b4954225..e3152155c4b8 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -856,6 +856,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
- 
- 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-+		if (!*bit)
-+			return -1;
- 		input_set_capability(hi->input, EV_KEY, code);
- 		return 1;
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 875f71132b14..ff4ccf7ba694 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -959,34 +959,49 @@ static inline void hid_device_io_stop(struct hid_device *hid) {
-  * @max: maximal valid usage->code to consider later (out parameter)
-  * @type: input event type (EV_KEY, EV_REL, ...)
-  * @c: code which corresponds to this usage and type
-+ *
-+ * The value pointed to by @bit will be set to NULL if either @type is
-+ * an unhandled event type, or if @c is out of range for @type. This
-+ * can be used as an error condition.
-  */
- static inline void hid_map_usage(struct hid_input *hidinput,
- 		struct hid_usage *usage, unsigned long **bit, int *max,
- 		__u8 type, __u16 c)
- {
- 	struct input_dev *input = hidinput->input;
--
--	usage->type = type;
--	usage->code = c;
-+	unsigned long *bmap = NULL;
-+	u16 limit = 0;
- 
- 	switch (type) {
- 	case EV_ABS:
--		*bit = input->absbit;
--		*max = ABS_MAX;
-+		bmap = input->absbit;
-+		limit = ABS_MAX;
- 		break;
- 	case EV_REL:
--		*bit = input->relbit;
--		*max = REL_MAX;
-+		bmap = input->relbit;
-+		limit = REL_MAX;
- 		break;
- 	case EV_KEY:
--		*bit = input->keybit;
--		*max = KEY_MAX;
-+		bmap = input->keybit;
-+		limit = KEY_MAX;
- 		break;
- 	case EV_LED:
--		*bit = input->ledbit;
--		*max = LED_MAX;
-+		bmap = input->ledbit;
-+		limit = LED_MAX;
- 		break;
- 	}
-+
-+	if (unlikely(c > limit || !bmap)) {
-+		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
-+				    input->name, c, type);
-+		*bit = NULL;
-+		return;
-+	}
-+
-+	usage->type = type;
-+	usage->code = c;
-+	*max = limit;
-+	*bit = bmap;
- }
- 
- /**
-@@ -1000,7 +1015,8 @@ static inline void hid_map_usage_clear(struct hid_input *hidinput,
- 		__u8 type, __u16 c)
- {
- 	hid_map_usage(hidinput, usage, bit, max, type, c);
--	clear_bit(c, *bit);
-+	if (*bit)
-+		clear_bit(usage->code, *bit);
- }
- 
- /**
--- 
-2.27.0
+CgpPbiAyNi4wOC4yMCAxNToyMiwgSm9zaCBQb2ltYm9ldWYgd3JvdGU6Cj4gCj4gT24gV2VkLCBB
+dWcgMjYsIDIwMjAgYXQgMDE6NTM6NTdQTSArMDIwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+
+IC0ubWFjcm8gaWR0ZW50cnlfYm9keSBjZnVuYyBoYXNfZXJyb3JfY29kZTpyZXEKPj4gKy5tYWNy
+byBpZHRlbnRyeV9ib2R5IGNmdW5jIGhhc19lcnJvcl9jb2RlOnJlcSBwcmVzZXJ2ZV9lcnJvcl9j
+b2RlOnJlcQo+Pgo+PiAgICAgICAgY2FsbCAgICBlcnJvcl9lbnRyeQo+PiAgICAgICAgVU5XSU5E
+X0hJTlRfUkVHUwo+PiBAQCAtMzI4LDcgKzMyOCw5IEBAIFNZTV9DT0RFX0VORChyZXRfZnJvbV9m
+b3JrKQo+Pgo+PiAgICAgICAgLmlmIFxoYXNfZXJyb3JfY29kZSA9PSAxCj4+ICAgICAgICAgICAg
+ICAgIG1vdnEgICAgT1JJR19SQVgoJXJzcCksICVyc2kgICAgLyogZ2V0IGVycm9yIGNvZGUgaW50
+byAybmQgYXJndW1lbnQqLwo+PiAtICAgICAgICAgICAgIG1vdnEgICAgJC0xLCBPUklHX1JBWCgl
+cnNwKSAgICAgLyogbm8gc3lzY2FsbCB0byByZXN0YXJ0ICovCj4+ICsgICAgICAgICAgICAgLmlm
+IFxwcmVzZXJ2ZV9lcnJvcl9jb2RlID09IDAKPj4gKyAgICAgICAgICAgICAgICAgICAgIG1vdnEg
+ICAgJC0xLCBPUklHX1JBWCglcnNwKSAgICAgLyogbm8gc3lzY2FsbCB0byByZXN0YXJ0ICovCj4+
+ICsgICAgICAgICAgICAgLmVuZGlmCj4gCj4gV2hlbiBkb2VzIHRoaXMgaGFwcGVuIChoYXNfZXJy
+b3JfY29kZT0xICYmIHByZXNlcnZlX2Vycm9yX2NvZGU9MCk/ICBJCj4gZG9uJ3Qgc2VlIGFueSB1
+c2VycyBvZiB0aGlzIG1hY3JvIChvciBpZHRlbnRyeSkgd2l0aCB0aGlzIGNvbWJpbmF0aW9uLgoK
+SXQncyB3ZWxsIGhpZGRlbiBpbiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9pZHRlbnRyeS5oOgoKI2Rl
+ZmluZSBERUNMQVJFX0lEVEVOVFJZX0VSUk9SQ09ERSh2ZWN0b3IsIGZ1bmMpICAgICAgICAgICAg
+ICAgICAgICAgICAgXAogICAgICAgICBpZHRlbnRyeSB2ZWN0b3IgYXNtXyMjZnVuYyBmdW5jIGhh
+c19lcnJvcl9jb2RlPTEKCi8qIFNpbXBsZSBleGNlcHRpb24gZW50cmllcyB3aXRoIGVycm9yIGNv
+ZGUgcHVzaGVkIGJ5IGhhcmR3YXJlICovCkRFQ0xBUkVfSURURU5UUllfRVJST1JDT0RFKFg4Nl9U
+UkFQX1RTLCBleGNfaW52YWxpZF90c3MpOwpERUNMQVJFX0lEVEVOVFJZX0VSUk9SQ09ERShYODZf
+VFJBUF9OUCwgZXhjX3NlZ21lbnRfbm90X3ByZXNlbnQpOwpERUNMQVJFX0lEVEVOVFJZX0VSUk9S
+Q09ERShYODZfVFJBUF9TUywgZXhjX3N0YWNrX3NlZ21lbnQpOwpERUNMQVJFX0lEVEVOVFJZX0VS
+Uk9SQ09ERShYODZfVFJBUF9HUCwgZXhjX2dlbmVyYWxfcHJvdGVjdGlvbik7CkRFQ0xBUkVfSURU
+RU5UUllfRVJST1JDT0RFKFg4Nl9UUkFQX0FDLCBleGNfYWxpZ25tZW50X2NoZWNrKTsKWy4uLl0K
+REVDTEFSRV9JRFRFTlRSWV9SQVdfRVJST1JDT0RFKFg4Nl9UUkFQX1BGLCAgICAgZXhjX3BhZ2Vf
+ZmF1bHQpOwoKCkFsZXgKCgoKQW1hem9uIERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdtYkgK
+S3JhdXNlbnN0ci4gMzgKMTAxMTcgQmVybGluCkdlc2NoYWVmdHNmdWVocnVuZzogQ2hyaXN0aWFu
+IFNjaGxhZWdlciwgSm9uYXRoYW4gV2Vpc3MKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQgQ2hh
+cmxvdHRlbmJ1cmcgdW50ZXIgSFJCIDE0OTE3MyBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERFIDI4
+OSAyMzcgODc5CgoK
 
