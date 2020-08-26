@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667AE252DEF
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:07:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1F6252DE8
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729338AbgHZMHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38354 "EHLO mail.kernel.org"
+        id S1729525AbgHZMHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729355AbgHZMDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:03:23 -0400
+        id S1729523AbgHZMD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:03:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76F5120838;
-        Wed, 26 Aug 2020 12:03:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 944C02087D;
+        Wed, 26 Aug 2020 12:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443403;
-        bh=rG3PYJLfKC9NUtVeihfVocRKM2NrWLJZSdMjvohnzyM=;
+        s=default; t=1598443406;
+        bh=m70pihujtOzNrITCAtsjJHbDditmk7OXkxxp0kaa41g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUB3dddZYVTp01gX1vOza9QVyp4HMj6ihHqhziIvGV5H9nkRtuQ/LlwzGBjUczwhr
-         Txa6xNs88OhxoN8XpNQjHgStv2UhLM+Qxp2VrU6114CNfc04WV0DIoGl2b3qIFiSco
-         GnQtQ1/jJ0ED7aODnl4dJihZg9+7YX4sOtyyBqpw=
+        b=zLLE8wOJe9H09p/7RbVS1aJEF/11RNCOvBqjYCiVw5xeyUPqR8tc1TavBy69vGfgy
+         IQTGxq3KQPYqvBcN+ixuyA5UaokQvz8vVJdSU5cJmp21kxPEprfeTp/tcEj/M+OTqU
+         3JheqQ/o+Jbhmkhdwo1mCPv7FuRmMOX38dkZOjOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
         Michal Kubecek <mkubecek@suse.cz>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 11/16] ethtool: Fix preserving of wanted feature bits in netlink interface
-Date:   Wed, 26 Aug 2020 14:02:48 +0200
-Message-Id: <20200826114911.779469995@linuxfoundation.org>
+Subject: [PATCH 5.8 12/16] ethtool: Account for hw_features in netlink interface
+Date:   Wed, 26 Aug 2020 14:02:49 +0200
+Message-Id: <20200826114911.820605430@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200826114911.216745274@linuxfoundation.org>
 References: <20200826114911.216745274@linuxfoundation.org>
@@ -46,31 +46,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit 840110a4eae190dcbb9907d68216d5d1d9f25839 ]
+[ Upstream commit 2847bfed888fbb8bf4c8e8067fd6127538c2c700 ]
 
-Currently, ethtool-netlink calculates new wanted bits as:
-(req_wanted & req_mask) | (old_active & ~req_mask)
-
-It completely discards the old wanted bits, so they are forgotten with
-the next ethtool command. Sample steps to reproduce:
+ethtool-netlink ignores dev->hw_features and may confuse the drivers by
+asking them to enable features not in the hw_features bitmask. For
+example:
 
 1. ethtool -k eth0
-   tx-tcp-segmentation: on # TSO is on from the beginning
-2. ethtool -K eth0 tx off
-   tx-tcp-segmentation: off [not requested]
+   tls-hw-tx-offload: off [fixed]
+2. ethtool -K eth0 tls-hw-tx-offload on
+   tls-hw-tx-offload: on
 3. ethtool -k eth0
-   tx-tcp-segmentation: off [requested on]
-4. ethtool -K eth0 rx off # Some change unrelated to TSO
-5. ethtool -k eth0
-   tx-tcp-segmentation: off # "Wanted on" is forgotten
+   tls-hw-tx-offload: on [fixed]
 
-This commit fixes it by changing the formula to:
-(req_wanted & req_mask) | (old_wanted & ~req_mask),
-where old_active was replaced by old_wanted to account for the wanted
-bits.
-
-The shortcut condition for the case where nothing was changed now
-compares wanted bitmasks, instead of wanted to active.
+Fitler out dev->hw_features from req_wanted to fix it and to resemble
+the legacy ethtool behavior.
 
 Fixes: 0980bfcd6954 ("ethtool: set netdev features with FEATURES_SET request")
 Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
@@ -78,44 +68,20 @@ Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ethtool/features.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/ethtool/features.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/net/ethtool/features.c
 +++ b/net/ethtool/features.c
-@@ -224,7 +224,9 @@ int ethnl_set_features(struct sk_buff *s
- 	DECLARE_BITMAP(wanted_diff_mask, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(active_diff_mask, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(old_active, NETDEV_FEATURE_COUNT);
-+	DECLARE_BITMAP(old_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(new_active, NETDEV_FEATURE_COUNT);
-+	DECLARE_BITMAP(new_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(req_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(req_mask, NETDEV_FEATURE_COUNT);
- 	struct nlattr *tb[ETHTOOL_A_FEATURES_MAX + 1];
-@@ -250,6 +252,7 @@ int ethnl_set_features(struct sk_buff *s
- 
- 	rtnl_lock();
- 	ethnl_features_to_bitmap(old_active, dev->features);
-+	ethnl_features_to_bitmap(old_wanted, dev->wanted_features);
- 	ret = ethnl_parse_bitset(req_wanted, req_mask, NETDEV_FEATURE_COUNT,
- 				 tb[ETHTOOL_A_FEATURES_WANTED],
- 				 netdev_features_strings, info->extack);
-@@ -261,11 +264,11 @@ int ethnl_set_features(struct sk_buff *s
+@@ -273,7 +273,8 @@ int ethnl_set_features(struct sk_buff *s
  		goto out_rtnl;
  	}
  
--	/* set req_wanted bits not in req_mask from old_active */
-+	/* set req_wanted bits not in req_mask from old_wanted */
- 	bitmap_and(req_wanted, req_wanted, req_mask, NETDEV_FEATURE_COUNT);
--	bitmap_andnot(new_active, old_active, req_mask, NETDEV_FEATURE_COUNT);
--	bitmap_or(req_wanted, new_active, req_wanted, NETDEV_FEATURE_COUNT);
--	if (bitmap_equal(req_wanted, old_active, NETDEV_FEATURE_COUNT)) {
-+	bitmap_andnot(new_wanted, old_wanted, req_mask, NETDEV_FEATURE_COUNT);
-+	bitmap_or(req_wanted, new_wanted, req_wanted, NETDEV_FEATURE_COUNT);
-+	if (bitmap_equal(req_wanted, old_wanted, NETDEV_FEATURE_COUNT)) {
- 		ret = 0;
- 		goto out_rtnl;
- 	}
+-	dev->wanted_features = ethnl_bitmap_to_features(req_wanted);
++	dev->wanted_features &= ~dev->hw_features;
++	dev->wanted_features |= ethnl_bitmap_to_features(req_wanted) & dev->hw_features;
+ 	__netdev_update_features(dev);
+ 	ethnl_features_to_bitmap(new_active, dev->features);
+ 	mod = !bitmap_equal(old_active, new_active, NETDEV_FEATURE_COUNT);
 
 
