@@ -2,16 +2,16 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A842532F4
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 17:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7874A2532FC
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 17:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbgHZPJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 11:09:05 -0400
-Received: from sonic303-20.consmr.mail.ir2.yahoo.com ([77.238.178.201]:34612
+        id S1728018AbgHZPJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 11:09:38 -0400
+Received: from sonic303-20.consmr.mail.ir2.yahoo.com ([77.238.178.201]:35746
         "EHLO sonic303-20.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726739AbgHZPJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 11:09:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1598454541; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=JzlwIA5q24GKow+o96FNmmnarYWvF2/ZPrwNO5f9+thnDSa8t0mZRIPS/rtK7ajq8jqRY2y6wg+0DFG2Gr9XEQcB8WiO4zfhgk9/C2Npnv9lRVWoIC6QPLeOKQnhT9e7BheZViNd2X72IB8REvcum6loYROYAA1nnZ6Enqj2/D/5unT7fAGYHpwRHxZp0BjY1AbbyKVNggwhnCIp7rM6WSZEY7H4tF+2dNqpTewiNnwv4tda+y8FkucubJehNDgSG2oEewvbPbyEsjuKG+xAQfWD50/LaaA3fjDBPQmM2FITc4RIUnonj/+WijlhvWvZupFxCOsEjzbSZlabDY4EIw==
+        by vger.kernel.org with ESMTP id S1727116AbgHZPJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 11:09:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1598454575; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Vq2Ool3ICYtSx3U5mwhsRu9wv2NftIue2C/hQREtUclp/+FjCXhbN+VWK4vIiEhBBV4jsOeGsfucCQTA6gTuvmwSptgNI6duKXoHxSllejGagVAgX0zlnlk9vcRLHCzT62y8nUzMlN+Y24hu2JORO2tksRFElYdVt6OmAmvivlObLuvVHYWvPW0FCf2XoSXUqmMdLfiCY3iqbXLeNw0OFzcel8fjwH2N4J163rPZZR4tm8szJqX5h6dzvBVAD0cATU+BRx8metjkLschXd2SGKsrEGRUlQPAicDctoseHrTBbDPZI9jcnXGEoIgIUKG4NTvjf5yOyWboKlF5SQXYHw==
 X-YMail-OSG: iwBqoo0VM1mg8RAJvYOzwBCMgH6eCWZRVPsFPpuNAF63s4FlN2lpWDi1GH9Kwkq
  J4VOUcei38igFJMHmTf7V.WQeFoQWjJEZlh4x5AsRyC5TFGlLOsaQUJEWU3GtYVG4yXmxy2qN.Ko
  zPjtFHVGXu_Qb._D05QpGxcRydkuofFxhTY1eiz9rZzIk0u4ILDMsJ.OXZnpZr9yQJwm3H1T7mI0
@@ -32,7 +32,7 @@ X-YMail-OSG: iwBqoo0VM1mg8RAJvYOzwBCMgH6eCWZRVPsFPpuNAF63s4FlN2lpWDi1GH9Kwkq
  XEPDZZxh2HqOLYOaO.vnUB.YY6FljRYaVZbvJBEn2lKSgZqzyAh08mVddlyuP.MZukJNE7es3vL1
  O80XKpZvaWXtxFjbfMMzpbGKi0kR0aGTBPz_ynlY2aBVCkFZWHky3cGLGuMQ8HMzasCwfp9huH2j
  Lhw7dnQU2hsiVAgxtyOaUOcesSEM9.9CsWDQXfqDBSjhtrwBi5Q--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ir2.yahoo.com with HTTP; Wed, 26 Aug 2020 15:09:01 +0000
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ir2.yahoo.com with HTTP; Wed, 26 Aug 2020 15:09:35 +0000
 Date:   Wed, 26 Aug 2020 15:08:56 +0000 (UTC)
 From:   "Mrs. Mina A. Brunel" <mbrunel896@aol.com>
 Reply-To: mrsminaabrunel@myself.com
