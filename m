@@ -2,80 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF6325311D
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 16:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5124A253146
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 16:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbgHZOUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 10:20:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728050AbgHZOUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 10:20:35 -0400
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F7CC061574
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 07:20:34 -0700 (PDT)
-Received: by mail-ua1-x942.google.com with SMTP id b12so599875uae.9
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 07:20:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sjSOraiR4FbGG6Ur2UAs6+vtqCNJ1lx1JCgkMDPitTk=;
-        b=qYue+NH8i/tJVUCVEI+sdB9jN4sluLwOQTwn3irlruHy2HpMFXOsBpCYc/Tgeyy5yH
-         oSg9162QKzEbGZLczKXME7pZuJmWluphLspCvFuBtLcgbM+9gPVPZnonhwNp0dsvDPCE
-         B78Z8OX4PRggahWB8DtA/TkU+zVZhJ1o9Ydw2iGMapErf0pMB1sjf8LK0CKc+Ve7BHVc
-         V1eshEuRFWHmt3DH8OctSKkSHmTyDJL26AvoRPUtX03END81DrT9jqg7x0gZ7SHIOZub
-         rjyueVimwAGawJD/kbqy4eNyP2Cl2K4d2fIlIEhl24W45vJpHvFyzRi4om4floqHTLMM
-         eGLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sjSOraiR4FbGG6Ur2UAs6+vtqCNJ1lx1JCgkMDPitTk=;
-        b=mAlFzHQFoGaTnuN+opSwpABT6RHV+FUKEy29SAOADg/Ja4U3kQthmX/28q684uU6Me
-         grXoH1P53JiHbnkibC/+YvJNrGfPANMBhPWXKq4T7LYGeu41DhWVS187419/o5j2eNG9
-         zDsrUHOZ3CeRSrGoOFo14LVGvzKI2vUuEvAtRGmHF6ZeFBZt//QdlI7e4Rw5dFao35tE
-         Chr9q+T4fzxZut0osE1J+dHGVU7H0ciwPyRlETLfJp6CDDOmTiKtfCkf3Hb4ZSgTzGHk
-         DE3kWZIvfiCA59MUVM9AGpm8Kj+O5m9DZboZpd1sX0Xp91Uo3qXX+iQHrNgq3hMsDVsV
-         YkKg==
-X-Gm-Message-State: AOAM531YlW/zgehaN4FBRr4rcvKvPi+mqeaFbYrLkyYOuV4hSQdivodD
-        l7eRAHtGgp5umdij/gpyT9nyxekOUQvJ5HoO+5OMA9+litc=
-X-Google-Smtp-Source: ABdhPJxDqVMfk7ziG4e8i8XJU3zSsypVAXFKQYM2rdK1GF+a2S6Pl1Y5mpPV4XCaVjJUOW8bVQczn2r+UlJUU3NQqOY=
-X-Received: by 2002:ab0:64c3:: with SMTP id j3mr8755084uaq.129.1598451631838;
- Wed, 26 Aug 2020 07:20:31 -0700 (PDT)
+        id S1726767AbgHZO17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 10:27:59 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:59268 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726698AbgHZO16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 10:27:58 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1598452074;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=yLI1JliWBimG+ivF3z1VwX50dlgm/KDIAccbPnUPwJQ=;
+        b=vZ0MQN940VxAwJgiVL2fdMU4aOCDK0uKAR4ZMl+9P6Z0aFtKL2WYTOlvB7xg/AcGx54knW
+        DCypEonnJIWdlmkSc/Upao1amR5z/yCXLBIV9o8pt2NpbY5iu4v2qXkSZeIpxomOvoR5UJ
+        uH5SxaU31UHt+7Ejm27bDJ3zDdQ404IEcyysrsIbpfLIV7wb0fqfy969+LupFf8nSMmV1U
+        r8SBVxsgG5Ss5TQWEdRhAHzKyw0CL71P0IxXJWkThpU7WOWzJaOF/Yf2r38ZTkAE8CnPQZ
+        s4n0xwsEag78WIHr3rWDNxJFiMFK8krl85qGhK+USJ+TC3auLk+vvu4d1nYmAw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1598452074;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=yLI1JliWBimG+ivF3z1VwX50dlgm/KDIAccbPnUPwJQ=;
+        b=jkPC6xofKbboBQ68bXnjzKaQ0LzRqWIsS332zGOxhvCZcTte8FT5JrpCObaEYbOPtY3c61
+        DM0S4JkSJMaxUYDg==
+To:     Alexander Graf <graf@amazon.com>, X86 ML <x86@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Jason Chen CJ <jason.cj.chen@intel.com>,
+        Zhao Yakui <yakui.zhao@intel.com>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
+        Avi Kivity <avi@scylladb.com>,
+        "Herrenschmidt\, Benjamin" <benh@amazon.com>, robketr@amazon.de,
+        amos@scylladb.com, Brian Gerst <brgerst@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
+In-Reply-To: <20200826115357.3049-1-graf@amazon.com>
+References: <20200826115357.3049-1-graf@amazon.com>
+Date:   Wed, 26 Aug 2020 16:27:54 +0200
+Message-ID: <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-References: <20200826132811.17577-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200826132811.17577-1-chris@chris-wilson.co.uk>
-From:   Matthew Auld <matthew.william.auld@gmail.com>
-Date:   Wed, 26 Aug 2020 15:20:05 +0100
-Message-ID: <CAM0jSHNx0vL2y617r1xSdY3UnwBcCjuTmkz8nJjaEahqWM6WJQ@mail.gmail.com>
-Subject: Re: [Intel-gfx] [PATCH 01/39] drm/i915/gem: Avoid implicit vmap for
- highmem on x86-32
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Harald Arnesen <harald@skogtun.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 26 Aug 2020 at 14:29, Chris Wilson <chris@chris-wilson.co.uk> wrote:
+On Wed, Aug 26 2020 at 13:53, Alexander Graf wrote:
+> Commit 633260fa143 ("x86/irq: Convey vector as argument and not in ptregs")
+> changed the handover logic of the vector identifier from ~vector in orig_ax
+> to purely register based. Unfortunately, this field has another consumer
+> in the APIC code which the commit did not touch. The net result was that
+> IRQ balancing did not work and instead resulted in interrupt storms, slowing
+> down the system.
+
+The net result is an observationof the symptom but that does not explain
+what the underlying technical issue is.
+
+> This patch restores the original semantics that orig_ax contains the vector.
+> When we receive an interrupt now, the actual vector number stays stored in
+> the orig_ax field which then gets consumed by the APIC code.
 >
-> On 32b, highmem uses a finite set of indirect PTE (i.e. vmap) to provide
-> virtual mappings of the high pages. As these are finite, map_new_virtual()
-> must wait for some other kmap() to finish when it runs out. If we map a
-> large number of objects, there is no method for it to tell us to release
-> the mappings, and we deadlock.
+> To ensure that nobody else trips over this in the future, the patch also adds
+> comments at strategic places to warn anyone who would refactor the code that
+> there is another consumer of the field.
 >
-> However, if we make an explicit vmap of the page, that uses a larger
-> vmalloc arena, and also has the ability to tell us to release unwanted
-> mappings. Most importantly, it will fail and propagate an error instead
-> of waiting forever.
->
-> Fixes: fb8621d3bee8 ("drm/i915: Avoid allocating a vmap arena for a single page") #x86-32
-> References: e87666b52f00 ("drm/i915/shrinker: Hook up vmap allocation failure notifier")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Harald Arnesen <harald@skogtun.org>
-> Cc: <stable@vger.kernel.org> # v4.7+
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+> With this patch in place, IRQ balancing works as expected and performance
+> levels are restored to previous levels.
+
+There's a lot of 'This patch and we' in that changelog. Care to grep
+for 'This patch' in Documentation/process/ ?
+
+> diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+> index df8c017..22e829c 100644
+> --- a/arch/x86/entry/entry_32.S
+> +++ b/arch/x86/entry/entry_32.S
+> @@ -727,7 +727,7 @@ SYM_CODE_START_LOCAL(asm_\cfunc)
+>  	ENCODE_FRAME_POINTER
+>  	movl	%esp, %eax
+>  	movl	PT_ORIG_EAX(%esp), %edx		/* get the vector from stack */
+> -	movl	$-1, PT_ORIG_EAX(%esp)		/* no syscall to restart */
+> +	/* keep vector on stack for APIC's irq_complete_move() */
+
+Yes that's fixing your observed wreckage, but it introduces a worse one.
+
+user space
+  -> interrupt
+       push vector into orig_ax (values are in the ranges of 0-127 and -128 - 255
+                                 except for the system vectors which do
+                                 not go through this code)
+      handle()
+      ...
+      exit_to_user_mode_loop()
+         arch_do_signal()
+            /* Did we come from a system call? */
+	    if (syscall_get_nr(current, regs) >= 0) {
+
+               ---> BOOM for any vector 0-127 because syscall_get_nr()
+                         resolves to regs->orig_ax
+
+Going to be fun to debug.
+
+The below nasty hack cures it, but I hate it with a passion. I'll look
+deeper for a sane variant.
+
+Thanks,
+
+        tglx
+---
+--- a/arch/x86/kernel/irq.c
++++ b/arch/x86/kernel/irq.c
+@@ -246,7 +246,9 @@ DEFINE_IDTENTRY_IRQ(common_interrupt)
+ 
+ 	desc = __this_cpu_read(vector_irq[vector]);
+ 	if (likely(!IS_ERR_OR_NULL(desc))) {
++		regs->orig_ax = (unsigned long)vector;
+ 		handle_irq(desc, regs);
++		regs->orig_ax = -1;
+ 	} else {
+ 		ack_APIC_irq();
