@@ -2,128 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA5E253799
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 20:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2873A25379F
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 20:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726836AbgHZSxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 14:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43758 "EHLO
+        id S1727020AbgHZSxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 14:53:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726809AbgHZSxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 14:53:10 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45787C061574;
-        Wed, 26 Aug 2020 11:53:10 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1598467987;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NgmNT6e9V972BbRaGJi5LACq7q2882bivAeuxcsKlO8=;
-        b=txtxpwlTPw0jyfbR6Wiwaf/MnCH0LQaemD8NHmqb8jwV/n8e83wQGwVlZN/5YtETRzcuXZ
-        zobHrmUVBsKUeqClsNcZNmVELkb/AuBn1dxtoGbmOLQ4e/pEIdkCCz/HvMI2JdHzeXXaRk
-        v3s3C5xGpuocoMwRt9poUfu7wx9CWkWafhdufLtxK39PD37gTIKDINn6oNUHE8F41h+vjF
-        b4Wy/DGWk0XZ2CwKzpxY5q+cZ5XtnbsEaSSnVPihfmseDcfrfBV8yTzB6jdfj0fQZL82T4
-        8ybbClqKwpsxDKncqYPxaQ1qjT8AZ/PAJYVxMnM3nt8hkLNbgZjjI+vzdsbMog==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1598467987;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NgmNT6e9V972BbRaGJi5LACq7q2882bivAeuxcsKlO8=;
-        b=7/Vp+Kz8ctFKwZep8/fQNgT+OtdZU27B9OYyNQ/p8MeJLMRs8EHZV/AafwciXjGV88amMB
-        22AAeVUm1HAt9kDA==
-To:     Alexander Graf <graf@amazon.com>, X86 ML <x86@kernel.org>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Jason Chen CJ <jason.cj.chen@intel.com>,
-        Zhao Yakui <yakui.zhao@intel.com>,
-        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
-        Avi Kivity <avi@scylladb.com>,
-        "Herrenschmidt\, Benjamin" <benh@amazon.com>, robketr@amazon.de,
-        amos@scylladb.com, Brian Gerst <brgerst@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/irq: Preserve vector in orig_ax for APIC code
-In-Reply-To: <87blixuuny.fsf@nanos.tec.linutronix.de>
-References: <20200826115357.3049-1-graf@amazon.com> <87k0xlv5w5.fsf@nanos.tec.linutronix.de> <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com> <87blixuuny.fsf@nanos.tec.linutronix.de>
-Date:   Wed, 26 Aug 2020 20:53:07 +0200
-Message-ID: <873649utm4.fsf@nanos.tec.linutronix.de>
+        with ESMTP id S1726929AbgHZSxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 14:53:41 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD479C061756
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 11:53:40 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id o196so2538587qke.8
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 11:53:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=hofyzpzgPe6AYTMkXmGCIt7SJEPq1dqJSmC0pd8RYng=;
+        b=aU0Kri5n8aFkcXK+SQzd5OU4CjKAmgL4rxQIn4UIuUnfi8K9cEbaSz4xOCk9LRuV8M
+         +yV8PEnLsO1fSiOWy09dm63vft0ehH+PUcugAekq3u6WGXbWJ3GjX5wHPC9Lw0Ibis4o
+         b6Um/VuS9LQmSvz+dL2ByDqX5IYeKihp1nXqnMSIXI10UyRI2DFdZS1ciKvF8u2OLoSu
+         AzEV5M6NWSM1H2aPwjDMrXDWdmrDW+Ecw+i1W5nlaQ6sr3XvBI/C98hoByHvUWA6Y9XB
+         J3ZvZhGCMLCP9JjsYtEHC3XGdbwfQNpOHoxxV5IqGElGyLBun2TP1p6wVJhefViQlrDa
+         +Ytw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=hofyzpzgPe6AYTMkXmGCIt7SJEPq1dqJSmC0pd8RYng=;
+        b=jZx8n8DI7ap8LZEqsUWeppTDbG7NzoMSZy36b/BCJb6TcWpvyVc05vQal8gTWclFIp
+         VbSdfDeucjs+e0NhRsjXldxIFqHxKVHg28AB2ynXG/DCqZ5yTbuQnVQSmZbedmfwhkWF
+         7U+hOISAvXUITLxsAK2qM94I5cYOGxIo0/vlKufmC4tEhuTjizZwnxLvZtIJ3yuDd2A8
+         0ahGWC2SVZah9dxS6beFe9UNRa4hJYO4XsyiBYry2bVEWD1PqlE7CRGy4V/DPanfn3bS
+         8fOX/BfBXTt+Q3YqBXOmKsWFLTUAjiKav46EfHdIOxpnIE/ONMjarr75L0MmoAZm/r7D
+         crjQ==
+X-Gm-Message-State: AOAM533tHU8E+9Tr0WfvUOR5IBf+VifahnMnVrM12QWPBk873b8p8Yei
+        KTjcm8jx2JFNpVjwhaAv3ldD5g==
+X-Google-Smtp-Source: ABdhPJwR8f9dJmrLly/o2/CVh6ljbU6xxAvQkWz5TxpfkH6VjiBgj7vgJ5iLte/89vItVJQsYTGU4A==
+X-Received: by 2002:a05:620a:957:: with SMTP id w23mr15316943qkw.399.1598468019450;
+        Wed, 26 Aug 2020 11:53:39 -0700 (PDT)
+Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id m26sm2846638qtc.83.2020.08.26.11.53.37
+        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
+        Wed, 26 Aug 2020 11:53:38 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 11:53:24 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@eggly.anvils
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     Hugh Dickins <hughd@google.com>, Sasha Levin <sashal@kernel.org>,
+        aarcange@redhat.com, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
+        songliubraving@fb.com, torvalds@linux-foundation.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Patch "khugepaged: khugepaged_test_exit() check mmget_still_valid()"
+ has been added to the 5.8-stable tree
+In-Reply-To: <alpine.LSU.2.11.2008240758110.2486@eggly.anvils>
+Message-ID: <alpine.LSU.2.11.2008261148000.1479@eggly.anvils>
+References: <1597841669128213@kroah.com> <alpine.LSU.2.11.2008190625060.24442@eggly.anvils> <20200819135306.GA3311904@kroah.com> <alpine.LSU.2.11.2008211739460.9564@eggly.anvils> <20200822212053.GE8670@sasha-vm> <alpine.LSU.2.11.2008221900570.11463@eggly.anvils>
+ <alpine.LSU.2.11.2008240758110.2486@eggly.anvils>
+User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 26 2020 at 20:30, Thomas Gleixner wrote:
-> And it does not solve the issue that we abuse orig_ax which Andy
-> mentioned.
+On Mon, 24 Aug 2020, Hugh Dickins wrote:
+> On Sat, 22 Aug 2020, Hugh Dickins wrote:
+> > On Sat, 22 Aug 2020, Sasha Levin wrote:
+> > > 
+> > > I've followed your instructions and backported the patches:
+> > > 
+> > > bbe98f9cadff ("khugepaged: khugepaged_test_exit() check
+> > > mmget_still_valid()") - to all branches.
+> > > f3f99d63a815 ("khugepaged: adjust VM_BUG_ON_MM() in
+> > > __khugepaged_enter()") - to all branches.
+> > > 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page()
+> > > and core dumping") - for 4.4.
+> > 
+> > That's saved me time, thanks a lot for doing that work, Sasha.
+> > 
+> > I've checked the results (haha, read on) and they're all fine,
+> > but one minor flaw in bisectability: the added 4.4 backport of
+> > "coredump: fix race condition..." adds a line (deleted by the next commit)
+> > 	result = SCAN_ANY_PROCESS;
+> > but neither "result" nor "SCAN_ANY_PROCESS" is defined in that tree,
+> > so that intermediate step would generate an easily fixed build error.
+> > 
+> > FWIW - I don't know whether that's something to care about or not.
+> 
+> Ah, but I missed that this one that we originally held back from 5.8,
+> did not in fact get re-added to 5.8: all the backport series have it,
+> but today's 5.8.4-rc1 does not have it.
+> 
+> That's not a disaster - the series builds without it, and having its
+> fix without the fixed commit is just odd, no more unsafe than before;
+> but it should be re-added for a 5.8.4-rc2 or 5.8.5.
 
-Ha! After staring some more, it's not required at all, which is the most
-elegant solution.
+I see 5.8 is at 5.8.5-rc1 today, but the commit below still missing:
+please re-add it, then we can all forget about it at last - thanks!
 
-The vector check is pointless in that condition because there is never a
-condition where an interrupt is moved from vector A to vector B on the
-same CPU.
+Hugh
 
-That's a left over from the old allocation model which supported
-multi-cpu affinities, but this was removed as it just created trouble
-for no real benefit.
+From bbe98f9cadff58cdd6a4acaeba0efa8565dabe65 Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 6 Aug 2020 23:26:25 -0700
+Subject: khugepaged: khugepaged_test_exit() check mmget_still_valid()
 
-Today the effective affinity which is a single CPU out of the requested
-affinity. If an affinity mask change still contains the current target
-CPU then there is no move happening at all. It just stays on that vector
-on that CPU.
+From: Hugh Dickins <hughd@google.com>
 
-Thanks,
+commit bbe98f9cadff58cdd6a4acaeba0efa8565dabe65 upstream.
 
-        tglx
----       
+Move collapse_huge_page()'s mmget_still_valid() check into
+khugepaged_test_exit() itself.  collapse_huge_page() is used for anon THP
+only, and earned its mmget_still_valid() check because it inserts a huge
+pmd entry in place of the page table's pmd entry; whereas
+collapse_file()'s retract_page_tables() or collapse_pte_mapped_thp()
+merely clears the page table's pmd entry.  But core dumping without mmap
+lock must have been as open to mistaking a racily cleared pmd entry for a
+page table at physical page 0, as exit_mmap() was.  And we certainly have
+no interest in mapping as a THP once dumping core.
 
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -909,7 +909,7 @@ void send_cleanup_vector(struct irq_cfg
- 		__send_cleanup_vector(apicd);
- }
+Fixes: 59ea6d06cfa9 ("coredump: fix race condition between collapse_huge_page() and core dumping")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008021217020.27773@eggly.anvils
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ mm/khugepaged.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -431,7 +431,7 @@ static void insert_to_mm_slots_hash(stru
  
--static void __irq_complete_move(struct irq_cfg *cfg, unsigned vector)
-+void irq_complete_move(struct irq_cfg *cfg)
+ static inline int khugepaged_test_exit(struct mm_struct *mm)
  {
- 	struct apic_chip_data *apicd;
- 
-@@ -917,15 +917,10 @@ static void __irq_complete_move(struct i
- 	if (likely(!apicd->move_in_progress))
- 		return;
- 
--	if (vector == apicd->vector && apicd->cpu == smp_processor_id())
-+	if (apicd->cpu == smp_processor_id())
- 		__send_cleanup_vector(apicd);
+-	return atomic_read(&mm->mm_users) == 0;
++	return atomic_read(&mm->mm_users) == 0 || !mmget_still_valid(mm);
  }
  
--void irq_complete_move(struct irq_cfg *cfg)
--{
--	__irq_complete_move(cfg, ~get_irq_regs()->orig_ax);
--}
--
- /*
-  * Called from fixup_irqs() with @desc->lock held and interrupts disabled.
-  */
+ static bool hugepage_vma_check(struct vm_area_struct *vma,
+@@ -1100,9 +1100,6 @@ static void collapse_huge_page(struct mm
+ 	 * handled by the anon_vma lock + PG_lock.
+ 	 */
+ 	mmap_write_lock(mm);
+-	result = SCAN_ANY_PROCESS;
+-	if (!mmget_still_valid(mm))
+-		goto out;
+ 	result = hugepage_vma_revalidate(mm, address, &vma);
+ 	if (result)
+ 		goto out;
+
