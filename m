@@ -2,76 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 055AD252556
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 03:52:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30C82525A0
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 04:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbgHZBwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Aug 2020 21:52:02 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:45335 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1727013AbgHZBwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Aug 2020 21:52:01 -0400
-Received: (qmail 387936 invoked by uid 1000); 25 Aug 2020 21:51:59 -0400
-Date:   Tue, 25 Aug 2020 21:51:59 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     Stanley Chu <stanley.chu@mediatek.com>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
-Subject: Re: [PATCH] block: Fix a race in the runtime power management code
-Message-ID: <20200826015159.GA387575@rowland.harvard.edu>
-References: <20200824030607.19357-1-bvanassche@acm.org>
- <1598346681.10649.8.camel@mtkswgap22>
- <20200825182423.GB375466@rowland.harvard.edu>
- <1f798c21-241f-59f8-5298-a32fffe2ff01@acm.org>
+        id S1726711AbgHZCuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Aug 2020 22:50:25 -0400
+Received: from mga05.intel.com ([192.55.52.43]:43488 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726664AbgHZCuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Aug 2020 22:50:25 -0400
+IronPort-SDR: AD3rC23vJSXTCTdY/qmhmzqSj6y31LaVsL+uRoLWBWF3+TdENYaP8XdabuNjXjZYicbccjwXU/
+ 4rlWSKE4YE9A==
+X-IronPort-AV: E=McAfee;i="6000,8403,9724"; a="241042416"
+X-IronPort-AV: E=Sophos;i="5.76,354,1592895600"; 
+   d="scan'208";a="241042416"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Aug 2020 19:50:24 -0700
+IronPort-SDR: FaxD9fawf0eT3/3ggGueIVqhNP/8d9Yz0iZS5Nb5dppbghNmvSF2YVOiYKS/G5zxn1hjjU3vpD
+ NNbf45X9y1Cg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,354,1592895600"; 
+   d="scan'208";a="373243623"
+Received: from otc-nc-03.jf.intel.com (HELO otc-nc-03) ([10.54.39.36])
+  by orsmga001.jf.intel.com with ESMTP; 25 Aug 2020 19:50:24 -0700
+Date:   Tue, 25 Aug 2020 19:50:24 -0700
+From:   "Raj, Ashok" <ashok.raj@intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org,
+        Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
+        Evan Green <evgreen@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
+        Ashok Raj <ashok.raj@intel.com>
+Subject: Re: [PATCH v2] x86/hotplug: Silence APIC only after all irq's are
+ migrated
+Message-ID: <20200826025024.GB40407@otc-nc-03>
+References: <1597970523-24797-1-git-send-email-ashok.raj@intel.com>
+ <87mu2iw86q.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1f798c21-241f-59f8-5298-a32fffe2ff01@acm.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <87mu2iw86q.fsf@nanos.tec.linutronix.de>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 03:22:03PM -0700, Bart Van Assche wrote:
-> On 2020-08-25 11:24, Alan Stern wrote:
-> > A related question concerns the BLK_MQ_REQ_PREEMPT flag.  If it is set 
-> > then the request is allowed while rpm_status is RPM_SUSPENDING.  But in 
-> > fact, the only requests which should be allowed at that time are those 
-> > created by the lower-layer driver as part of its runtime-suspend 
-> > handling; all other requests should be deferred.  The BLK_MQ_REQ_PREEMPT 
-> > flag doesn't seem like the right way to achieve this.  Should we be 
-> > using a different flag?
+Hi Thomas,
+
+On Wed, Aug 26, 2020 at 02:40:45AM +0200, Thomas Gleixner wrote:
+> Ashok,
 > 
-> I think there is already a flag that is used to mark power management
-> commands, namely RQF_PM.
+> On Thu, Aug 20 2020 at 17:42, Ashok Raj wrote:
+> > When offlining CPUs, fixup_irqs() migrates all interrupts away from the
+> > outgoing CPU to an online CPU. It's always possible the device sent an
+> > interrupt to the previous CPU destination. Pending interrupt bit in IRR in
+> > LAPIC identifies such interrupts. apic_soft_disable() will not capture any
+> > new interrupts in IRR. This causes interrupts from device to be lost during
+> > CPU offline. The issue was found when explicitly setting MSI affinity to a
+> > CPU and immediately offlining it. It was simple to recreate with a USB
+> > ethernet device and doing I/O to it while the CPU is offlined. Lost
+> > interrupts happen even when Interrupt Remapping is enabled.
 > 
-> My understanding is that the BLK_MQ_REQ_PREEMPT/RQF_PREEMPT flags are used
-> for the following purposes:
-> * In the SCSI core, scsi_execute() sets the BLK_MQ_PREEMPT flag. As a
->   result, SCSI commands submitted with scsi_execute() are processed in
->   the SDEV_QUIESCE SCSI device state. Since scsi_execute() is only used
->   to submit other than medium access commands, in the SDEV_QUIESCE state
->   medium access commands are paused and commands that do not access the
->   storage medium (e.g. START/STOP commands) are processed.
-> * In the IDE-driver, for making one request preempt another request. From
->   an old IDE commit (not sure if this is still relevant):
->   + * If action is ide_preempt, then the rq is queued at the head of
->   + * the request queue, displacing the currently-being-processed
->   + * request and this function returns immediately without waiting
->   + * for the new rq to be completed.  This is VERY DANGEROUS, and is
->   + * intended for careful use by the ATAPI tape/cdrom driver code.
+> New lines exist for a reason. They help to structure information. For
+> the content, please see below.
 
-Ah, perfect.  So in blk_queue_enter(), pm should be defined in terms of 
-RQF_PM rather than BLK_MQ_REQ_PREEMPT.
+Will work on that :-)
 
-The difficulty is that the flags argument is the wrong type; RQF_PM is 
-defined as req_flags_t, not blk_mq_req_flags_t.  It is associated with a 
-particular request after the request has been created, so after 
-blk_queue_enter() has been called.
+> 
+> > Current code does apic_soft_disable() before migrating interrupts.
+> >
+> > native_cpu_disable()
+> > {
+> > 	...
+> > 	apic_soft_disable();
+> > 	cpu_disable_common();
+> > 	  --> fixup_irqs(); // Too late to capture anything in IRR.
+> > }
+> >
+> > Just flipping the above call sequence seems to hit the IRR checks
+> > and the lost interrupt is fixed for both legacy MSI and when
+> > interrupt remapping is enabled.
+> 
+> Seems to hit? Come on, we really want changelogs which are based on
+> facts and not on assumptions.
 
-How can we solve this?
+What I intended to convay was by placing a debug trace_printk() at
+fixup_irqs(), it was *indeed* observed. Before the change I never noticed
+that path being covered.
 
-Alan Stern
+Just my Inglish (Indian English) tricking you :-).
+Will make them sensible in the next update.
+
+> 
+> Aside of that, yes that's a really subtle one and thanks for tracking it
+> down! For some reason I never looked at that ordering, but now that you
+> stick it in front of me, it's pretty clear that this is the root cause.
+> 
+> >  	/*
+> >  	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+> >  	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+> > -	 * messages.
+> > +	 * messages. It's important to do apic_soft_disable() after
+> > +	 * fixup_irqs(), because fixup_irqs() called from cpu_disable_common()
+> > +	 * depends on IRR being set.
+> 
+> That sentence does not make sense to me.
+
+Right, I was just stating the obvious. Since fixup_irqs() isn't called
+right in that function, it was suggested to make that connection explicit.
+
+Your writeup below is crystal.. so will replace with what you have below.
+
+
+> 
+> > +       .... After apic_soft_disable() CPU preserves
+> > +	 * currently set IRR/ISR but new interrupts will not set IRR.
+> 
+> I agree with the IRR part, but ISR is simply impossible to be set in
+> this situation. 
+
+You are correct. I was trying to convey what the SDM said, but its probably
+irrelavant for this discussion. 
+
+> 
+> > +	 * This causes interrupts sent to outgoing CPU before completion
+> > +	 * of IRQ migration to be lost. Check SDM Vol 3 "10.4.7.2 Local
+> > +	 * APIC State after It Has been Software Disabled" section for more
+> > +	 * details.
+> 
+> Please do not use the SDM chapter number of today. It's going to be a
+> different one with the next version.
+> 
+> Something like this perhaps?
+> 
+>   	/*
+>   	 * Disable the local APIC. Otherwise IPI broadcasts will reach
+>   	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
+>  	 * messages.
+>          *
+>          * Disabling the APIC must happen after cpu_disable_common()
+>   	 * which invokes fixup_irqs().
+>          *
+>          * Disabling the APIC preserves already set bits in IRR, but
+>          * an interrupt arriving after disabling the local APIC does not
+>          * set the corresponding IRR bit.
+>          *
+>          * fixup_irqs() scans IRR for set bits so it can raise a not
+>   	 * yet handled interrupt on the new destination CPU via an IPI
+>          * but obviously it can't do so for IRR bits which are not set.
+>          * IOW, interrupts arriving after disabling the local APIC will
+>          * be lost.
+>          */
+> 
+> Hmm?
+> 
+> The changelog wants to have a corresponding update.
+
+Will do ...
+
+Cheers,
+Ashok
