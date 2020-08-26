@@ -2,128 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C6A2539EC
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 23:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 977DD2539F4
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 23:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbgHZVra convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 26 Aug 2020 17:47:30 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:22380 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726765AbgHZVra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 17:47:30 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-257-g12td2zPN3C-gOdetsRJcQ-1; Wed, 26 Aug 2020 22:47:25 +0100
-X-MC-Unique: g12td2zPN3C-gOdetsRJcQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 26 Aug 2020 22:47:24 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 26 Aug 2020 22:47:24 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Thomas Gleixner' <tglx@linutronix.de>,
-        'Alexander Graf' <graf@amazon.com>, 'X86 ML' <x86@kernel.org>
-CC:     'Andy Lutomirski' <luto@kernel.org>,
-        'LKML' <linux-kernel@vger.kernel.org>,
-        'Andrew Cooper' <andrew.cooper3@citrix.com>,
-        "'Paul E. McKenney'" <paulmck@kernel.org>,
-        'Alexandre Chartre' <alexandre.chartre@oracle.com>,
-        'Frederic Weisbecker' <frederic@kernel.org>,
-        'Paolo Bonzini' <pbonzini@redhat.com>,
-        'Sean Christopherson' <sean.j.christopherson@intel.com>,
-        'Masami Hiramatsu' <mhiramat@kernel.org>,
-        'Petr Mladek' <pmladek@suse.com>,
-        'Steven Rostedt' <rostedt@goodmis.org>,
-        'Joel Fernandes' <joel@joelfernandes.org>,
-        'Boris Ostrovsky' <boris.ostrovsky@oracle.com>,
-        'Juergen Gross' <jgross@suse.com>,
-        "'Mathieu Desnoyers'" <mathieu.desnoyers@efficios.com>,
-        'Josh Poimboeuf' <jpoimboe@redhat.com>,
-        'Will Deacon' <will@kernel.org>,
-        'Tom Lendacky' <thomas.lendacky@amd.com>,
-        'Wei Liu' <wei.liu@kernel.org>,
-        'Michael Kelley' <mikelley@microsoft.com>,
-        'Jason Chen CJ' <jason.cj.chen@intel.com>,
-        "'Zhao Yakui'" <yakui.zhao@intel.com>,
-        "'Peter Zijlstra (Intel)'" <peterz@infradead.org>,
-        'Avi Kivity' <avi@scylladb.com>,
-        "'Herrenschmidt, Benjamin'" <benh@amazon.com>,
-        "'robketr@amazon.de'" <robketr@amazon.de>,
-        "'amos@scylladb.com'" <amos@scylladb.com>,
-        'Brian Gerst' <brgerst@gmail.com>,
-        "'stable@vger.kernel.org'" <stable@vger.kernel.org>,
-        'Alex bykov' <alex.bykov@scylladb.com>
-Subject: RE: x86/irq: Unbreak interrupt affinity setting
-Thread-Topic: x86/irq: Unbreak interrupt affinity setting
-Thread-Index: AQHWe+aKb+AhwM2rPkq6/MK3Hcp5nKlK5iEAgAAGXqA=
-Date:   Wed, 26 Aug 2020 21:47:23 +0000
-Message-ID: <42ae8716e425495c964ae7372bd7ff52@AcuMS.aculab.com>
-References: <20200826115357.3049-1-graf@amazon.com>
- <87k0xlv5w5.fsf@nanos.tec.linutronix.de>
- <fd87a87d-7d8a-9959-6c81-f49003a43c21@amazon.com>
- <87blixuuny.fsf@nanos.tec.linutronix.de>
- <873649utm4.fsf@nanos.tec.linutronix.de>
- <87wo1ltaxz.fsf@nanos.tec.linutronix.de>
- <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
-In-Reply-To: <db3e28b59d404f55aff83120c077d6f6@AcuMS.aculab.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726783AbgHZVyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 17:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726753AbgHZVyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 17:54:49 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCA3C061574
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 14:54:48 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id p4so3973484qkf.0
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 14:54:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=jw7Kyg7fHulcOKqx+s05R6rdxT47EVNO2nxbzCeqXR0=;
+        b=EQjKtUzXujJtw1hRT8+MiesIjVJBWY5i+EQQQLcsa4cTzC3aCRCNAGhVyoeFQdQFdv
+         BuCzjQv5BSAtGNfEaAqdyESzAP5L04CdnUc5NKbMFXz1wJ30Wz6QFQyM3U+C6GPlI6xF
+         ruD/j4nEeVDVwB4fhUjmBC/dSheF2h29txDUhy1hju8YP+cPTA+xQUn3Zinmqk97aq+1
+         9SZr5B/Fa9bCO72YjwRu/ZoVo03+IgIKFx/16STYNQEtKoEg8r26Ujc+iK72/dpUl8jx
+         wALpDqShCew3XisXAfgpBue4ncy1FPzjx5I6hGdklJAc5veLTBGGnkOi3ugvF6RcicKJ
+         VSDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=jw7Kyg7fHulcOKqx+s05R6rdxT47EVNO2nxbzCeqXR0=;
+        b=Nq+tR+V7j+bPT6rMolNW8xs//Vmi/QRHIv2fQuRNxpJTzGyZmi1SkpKedTsLaZrQEL
+         vr/wur3uliFDp1xGsDybNq0ml8LBDzNWQ7XicmMvLW5FY7Q9KF20lOdJ+rAhyLEwNZi+
+         0kxxuQ/1jlp3oB0m7kkeGVKjMoVrDPE6P7SZ//yrwsyo0U5xiW1eQPwm42gTc7XNdeTL
+         1c1eGVhynWgMo5ANrpoacIBdZRJpEQnWV+GPi4YASmEn4xiXxiQhHc1Pwptul9cazYEr
+         hLA7lZOq3UrkYVSsuWD8iIGq+uO4r/XOKAhuzE17q/aOe34cTPNnDN6WxQOOtzsLjm5v
+         NWIQ==
+X-Gm-Message-State: AOAM531sLD1qHpbuAO8XSMcYLy7EKGrhnMSW81EMT7rRxKNWTKYQenTo
+        GaKDNLXwjjD6DPdTpTV8zoB1tg==
+X-Google-Smtp-Source: ABdhPJw361DJrHAaD9chC7zQt3BWkWfPT8MLKg31lHiY8eb370BP0SJniWqeMrcuPHpiZhefLXD6gA==
+X-Received: by 2002:a37:44e:: with SMTP id 75mr2823653qke.330.1598478886837;
+        Wed, 26 Aug 2020 14:54:46 -0700 (PDT)
+Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id o21sm256449qkk.94.2020.08.26.14.54.44
+        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
+        Wed, 26 Aug 2020 14:54:45 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 14:54:31 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@eggly.anvils
+To:     Sasha Levin <sashal@kernel.org>
+cc:     Hugh Dickins <hughd@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>, aarcange@redhat.com,
+        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
+        mike.kravetz@oracle.com, songliubraving@fb.com,
+        torvalds@linux-foundation.org, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: Patch "khugepaged: khugepaged_test_exit() check mmget_still_valid()"
+ has been added to the 5.8-stable tree
+In-Reply-To: <20200826214623.GM8670@sasha-vm>
+Message-ID: <alpine.LSU.2.11.2008261453350.2508@eggly.anvils>
+References: <1597841669128213@kroah.com> <alpine.LSU.2.11.2008190625060.24442@eggly.anvils> <20200819135306.GA3311904@kroah.com> <alpine.LSU.2.11.2008211739460.9564@eggly.anvils> <20200822212053.GE8670@sasha-vm> <alpine.LSU.2.11.2008221900570.11463@eggly.anvils>
+ <alpine.LSU.2.11.2008240758110.2486@eggly.anvils> <alpine.LSU.2.11.2008261148000.1479@eggly.anvils> <20200826214623.GM8670@sasha-vm>
+User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0.001
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Laight
-> Sent: 26 August 2020 22:37
+On Wed, 26 Aug 2020, Sasha Levin wrote:
+> On Wed, Aug 26, 2020 at 11:53:24AM -0700, Hugh Dickins wrote:
+> > 
+> > I see 5.8 is at 5.8.5-rc1 today, but the commit below still missing:
+> > please re-add it, then we can all forget about it at last - thanks!
 > 
-> From: Thomas Gleixner
-> > Sent: 26 August 2020 21:22
-> ...
-> > Moving interrupts on x86 happens in several steps. A new vector on a
-> > different CPU is allocated and the relevant interrupt source is
-> > reprogrammed to that. But that's racy and there might be an interrupt
-> > already in flight to the old vector. So the old vector is preserved until
-> > the first interrupt arrives on the new vector and the new target CPU. Once
-> > that happens the old vector is cleaned up, but this cleanup still depends
-> > on the vector number being stored in pt_regs::orig_ax, which is now -1.
-> 
-> I suspect that it is much more 'racy' than that for PCI-X interrupts.
-> On the hardware side there is an interrupt disable bit, and address
-> and a value.
-> To raise an interrupt the hardware must write the value to the address.
-> 
-> If the cpu needs to move an interrupt both the address and value
-> need changing, but the cpu wont write the address and value using
-> the same TLP, so the hardware could potentially write a value to
-> the wrong address.
-> Worse than that, the hardware could easily only look at the address
-> and value in the clocks after checking the interrupt is enabled.
-> So masking the interrupt immediately prior to changing the vector
-> info may not be enough.
-> 
-> It is likely that a read-back of the mask before updating the vector
-> is enough.
+> Greg went for a fast release cycle and I didn't have time to queue it
+> up, sorry. But don't worry - this patch isn't forgotten, I'll queue it
+> for the next release on Friday/Saturday.
 
-But not enough to assume you won't receive an interrupt after reading
-back that interrupts are masked.
+Great, thanks for the reassurance, I'll relax now.
 
-(I've implemented the hardware side for an fpga ...)
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+Hugh
