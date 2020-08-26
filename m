@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305962534E4
+	by mail.lfdr.de (Postfix) with ESMTP id F2CC02534E5
 	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 18:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728052AbgHZQ24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728010AbgHZQ24 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 26 Aug 2020 12:28:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728010AbgHZQ2p (ORCPT
+        with ESMTP id S1728047AbgHZQ2p (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 12:28:45 -0400
-Received: from mail-wm1-x34a.google.com (mail-wm1-x34a.google.com [IPv6:2a00:1450:4864:20::34a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7ABC061574
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:44 -0700 (PDT)
-Received: by mail-wm1-x34a.google.com with SMTP id q23so972642wmj.0
-        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:44 -0700 (PDT)
+Received: from mail-wm1-x349.google.com (mail-wm1-x349.google.com [IPv6:2a00:1450:4864:20::349])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F6F0C061756
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:45 -0700 (PDT)
+Received: by mail-wm1-x349.google.com with SMTP id p23so967198wmc.2
+        for <stable@vger.kernel.org>; Wed, 26 Aug 2020 09:28:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=wC5wqDfuf+saZxph+SX8sbdo9xJEXrFL2V59EV+AaBQ=;
-        b=g4qQ3iTG32xCzJKBJ2zbBeDT7UAk4pTAauSx2VxMxdWkJeLVY51KaKnfU9QssWDN7S
-         F3DV2W1qNSH6UgH6HPpe+SYILOv4lU/RSCG99tZ9tlnfspTEhpd3gEsLxwaM2UmC0RhC
-         9bD4mATXtZicirrXW+a1Bl4fnqzeOCJe8jHJRg5ExGFYirtAnWmaxC1mPzAZv0aT/aHp
-         ZMIEvRRvOfOIquOmBPr+A9asz/KY1+IjTxdb+Ir5IcVFy7Qb2ITW0scyZcOgtFsycfRU
-         UWcuNMs2qg+h5QtN85y8MEigLEHFmunQB7hnUIOeOSWtT8ogipGXVV7hix4fX+IK5Gxw
-         qwpQ==
+        bh=ktgwgtEcDnGHDubc6AjOIa3QJevlYyX2Xfy7+GppRf0=;
+        b=pR+ftzKgbzQBiJkPHA17spJ9YB2ynvQyURBHLX2DqwfOyvhUW9KBer14jJHl6NwdD2
+         F2x7plHLT0OQFzWU1eDIb2X5YpzBvRFVKIA00mEW2IxnWg6wgvQhFzH46kS6zTaLL0KY
+         qxXesZTHhQWZj5QrqQrFuqyInw4nqDbhXrf4sWNIUrY+d9HdkKyVKxGBvrslX8wqobV2
+         xZN1hth76CVuh+mxaKC+ec6iCCoLIq9YpHX/XqTP3BJBeSQ+aoDZ0q4iP9Z4VF8kSSpX
+         z1BSVNWYTD8STbaHVkK+yjaMaFcRarJ4+iw6F/2U06DYjPXwTJk8es0dTZnruwPXkbQI
+         NOeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=wC5wqDfuf+saZxph+SX8sbdo9xJEXrFL2V59EV+AaBQ=;
-        b=RaxqDIeQzM3BefaKTNdD7Wx4kIz97UqQkmAcDFN6wqijURfl7L6Iz+LAP5zTyIXthv
-         EnpkU4sfKsD3sjpITlFg1aQTJScFgoAffwHkthLdbTOnEOhwa6IcSWgFxvQVd/6staFw
-         rj6dGWoqFDlTUGbD3NbKLs74kskDTvyYODS8s4JqVdRHLi1DUAH09Fs5tvKsoYNlIJOD
-         4AT/ukbF1txT9GybpRkKto98fhXbUn3QBuyJSZF9o6MRm9rzPnicNtYu/XXqJYwALIJ2
-         uccElZHbRHeyk+YdkkyeJRVLJ2BfAuz7n25y0WkJbPD3OdVbgD9NOOl21Us7uXjnbVNY
-         zWgQ==
-X-Gm-Message-State: AOAM532SVL7Tpthw3WxtkCkVdw2PyPaad+Ot3kmH1FVhds38zMiHWJQk
-        3flsciIsbD/8rEpnDvBo8+XFGRs6zBMyiPdPy15X683KskHNAcGYvIxK/JylRmmZTTgcQsdKqYt
-        KMfj5lH1ip2ccCmOQKOkeIjTRrh0n6LH2p9CzCd1D5qKgHhdlWcwrWJ+goL3fjKIWwsI=
-X-Google-Smtp-Source: ABdhPJwbYy5bXjNnlxDWzHhcEVzoXrgKUSTxy6H8IQyMJ4DWZhMAaDHyfyHWpfNSBYG4Kskic4yABLeGNPMFug==
+        bh=ktgwgtEcDnGHDubc6AjOIa3QJevlYyX2Xfy7+GppRf0=;
+        b=opBZrwrbV4DuLwR8Vp9/CAvoGGKWoz8iDnoJqOay+6ivjSCaQeej3cWRMTdU8hmPyK
+         +u4ycN84rBwdH6KGhG38UstWTayTfCH2FhAZvCdDrQRh5PuBGBsrSKnRMnnJQsP7t7JB
+         3zKwCgwpS3tKIW6uppK/gbsrzYJnbo6Kwae2wQNeQd68RoYBJkSTDCqLrZ8nNBcIbQTM
+         i4kTefIGfYhYm/owBFtbhUCYMiHBUHnzCR5ES3mIYfMBYGLusWAvi+LwRCFuKXCAaf20
+         29CTg7ujAqEakXVbIHPKgzfBkSmuVyX/jOGTv4zD8hv6lIPDmPPOY5z7lCEKXvdtauFE
+         GuMQ==
+X-Gm-Message-State: AOAM532GCdBB0YQQjVZAsLTnioF1Ol5O1guC1RQm25ZDxkxStHuS2HHf
+        IYdQ+ML8pBZM5+cTHRlCo30f46HGBksX7JQEMmPn1z00evEgrdSD2Oo8IzqOi9x/LMLngCOwaAi
+        1vlne6q7JVT5pMdC9m2EAR+4zsEdgviaRBMtSZb8Pd2sNjwVqychnCgGknQRSJeLny7I=
+X-Google-Smtp-Source: ABdhPJyURleKkvyYNZ5T3/ot4msLuzD0r2TgY2KngOdo/atyENDLT9vCW73c4CrCNH++0dEcztaiN0gQKZuGwg==
 X-Received: from lux.lon.corp.google.com ([2a00:79e0:d:110:7220:84ff:fe09:a3aa])
- (user=maennich job=sendgmr) by 2002:a7b:c019:: with SMTP id
- c25mr210876wmb.0.1598459321617; Wed, 26 Aug 2020 09:28:41 -0700 (PDT)
-Date:   Wed, 26 Aug 2020 17:28:25 +0100
+ (user=maennich job=sendgmr) by 2002:a5d:540f:: with SMTP id
+ g15mr8472392wrv.130.1598459324001; Wed, 26 Aug 2020 09:28:44 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 17:28:26 +0100
 In-Reply-To: <20200826162828.3330007-1-maennich@google.com>
-Message-Id: <20200826162828.3330007-4-maennich@google.com>
+Message-Id: <20200826162828.3330007-5-maennich@google.com>
 Mime-Version: 1.0
 References: <20200826162828.3330007-1-maennich@google.com>
 X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
-Subject: [PATCH v5.4 3/6] kheaders: optimize header copy for in-tree builds
+Subject: [PATCH v5.4 4/6] kheaders: remove the last bashism to allow sh to run it
 From:   Matthias Maennich <maennich@google.com>
 To:     stable@vger.kernel.org
 Cc:     kernel-team@android.com, maennich@google.com,
@@ -66,48 +66,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-This script copies headers by the cpio command twice; first from
-srctree, and then from objtree. However, when we building in-tree,
-we know the srctree and the objtree are the same. That is, all the
-headers copied by the first cpio are overwritten by the second one.
+'pushd' ... 'popd' is the last bash-specific code in this script.
+One way to avoid it is to run the code in a sub-shell.
 
-Skip the first cpio when we are building in-tree.
+With that addressed, you can run this script with sh.
+
+I replaced $(BASH) with $(CONFIG_SHELL), and I changed the hashbang
+to #!/bin/sh.
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-(cherry picked from commit ea79e5168be644fdaf7d4e6a73eceaf07b3da76a)
+(cherry picked from commit 1463f74f492eea7191f0178e01f3d38371a48210)
 Signed-off-by: Matthias Maennich <maennich@google.com>
 ---
- kernel/gen_kheaders.sh | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ kernel/Makefile        |  2 +-
+ kernel/gen_kheaders.sh | 13 +++++++------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
+diff --git a/kernel/Makefile b/kernel/Makefile
+index daad787fb795..42557f251fea 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -128,7 +128,7 @@ $(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
+ $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
+ 
+ quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
+-      cmd_genikh = $(BASH) $(srctree)/kernel/gen_kheaders.sh $@
++      cmd_genikh = $(CONFIG_SHELL) $(srctree)/kernel/gen_kheaders.sh $@
+ $(obj)/kheaders_data.tar.xz: FORCE
+ 	$(call cmd,genikh)
+ 
 diff --git a/kernel/gen_kheaders.sh b/kernel/gen_kheaders.sh
-index 6ff86e62787f..0f7752dd93a6 100755
+index 0f7752dd93a6..dc5744b93f8c 100755
 --- a/kernel/gen_kheaders.sh
 +++ b/kernel/gen_kheaders.sh
-@@ -56,14 +56,16 @@ fi
- rm -rf $cpio_dir
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+ 
+ # This script generates an archive consisting of kernel headers
+@@ -57,11 +57,12 @@ rm -rf $cpio_dir
  mkdir $cpio_dir
  
--pushd $srctree > /dev/null
--for f in $dir_list;
--	do find "$f" -name "*.h";
--done | cpio --quiet -pd $cpio_dir
--popd > /dev/null
-+if [ "$building_out_of_srctree" ]; then
-+	pushd $srctree > /dev/null
-+	for f in $dir_list
-+		do find "$f" -name "*.h";
-+	done | cpio --quiet -pd $cpio_dir
-+	popd > /dev/null
-+fi
+ if [ "$building_out_of_srctree" ]; then
+-	pushd $srctree > /dev/null
+-	for f in $dir_list
+-		do find "$f" -name "*.h";
+-	done | cpio --quiet -pd $cpio_dir
+-	popd > /dev/null
++	(
++		cd $srctree
++		for f in $dir_list
++			do find "$f" -name "*.h";
++		done | cpio --quiet -pd $cpio_dir
++	)
+ fi
  
--# The second CPIO can complain if files already exist which can
--# happen with out of tree builds. Just silence CPIO for now.
-+# The second CPIO can complain if files already exist which can happen with out
-+# of tree builds having stale headers in srctree. Just silence CPIO for now.
- for f in $dir_list;
- 	do find "$f" -name "*.h";
- done | cpio --quiet -pd $cpio_dir >/dev/null 2>&1
+ # The second CPIO can complain if files already exist which can happen with out
 -- 
 2.28.0.297.g1956fa8f8d-goog
 
