@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0327E252FC6
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB6D252FD1
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 15:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730243AbgHZN2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 09:28:25 -0400
+        id S1730261AbgHZN2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 09:28:43 -0400
 Received: from mail.fireflyinternet.com ([77.68.26.236]:54219 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729646AbgHZN2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:28:20 -0400
+        with ESMTP id S1728276AbgHZN20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 09:28:26 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22244736-1500050 
-        for multiple; Wed, 26 Aug 2020 14:28:15 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22244765-1500050 
+        for multiple; Wed, 26 Aug 2020 14:28:19 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 12/39] drm/i915/gem: Always test execution status on closing the context
-Date:   Wed, 26 Aug 2020 14:27:44 +0100
-Message-Id: <20200826132811.17577-12-chris@chris-wilson.co.uk>
+Subject: [PATCH 38/39] drm/i915: Break up error capture compression loops with cond_resched()
+Date:   Wed, 26 Aug 2020 14:28:10 +0100
+Message-Id: <20200826132811.17577-38-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200826132811.17577-1-chris@chris-wilson.co.uk>
 References: <20200826132811.17577-1-chris@chris-wilson.co.uk>
@@ -33,141 +33,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Verify that if a context is active at the time it is closed, that it is
-either persistent and preemptible (with hangcheck running) or it shall
-be removed from execution.
+As the error capture will compress user buffers as directed to by the
+user, it can take an arbitrary amount of time and space. Break up the
+compression loops with a call to cond_resched(), that will allow other
+processes to schedule (avoiding the soft lockups) and also serve as a
+warning should we try to make this loop atomic in the future.
 
-Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
-Testcase: igt/gem_ctx_persistence/heartbeat-close
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.7+
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_context.c | 48 +++++----------------
- 1 file changed, 10 insertions(+), 38 deletions(-)
+ drivers/gpu/drm/i915/i915_gpu_error.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index a548626fa8bc..4fd38101bb56 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -390,24 +390,6 @@ __context_engines_static(const struct i915_gem_context *ctx)
- 	return rcu_dereference_protected(ctx->engines, true);
- }
+diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
+index 2d76f3ddc571..70274fa0664d 100644
+--- a/drivers/gpu/drm/i915/i915_gpu_error.c
++++ b/drivers/gpu/drm/i915/i915_gpu_error.c
+@@ -311,6 +311,8 @@ static int compress_page(struct i915_vma_compress *c,
  
--static bool __reset_engine(struct intel_engine_cs *engine)
--{
--	struct intel_gt *gt = engine->gt;
--	bool success = false;
--
--	if (!intel_has_reset_engine(gt))
--		return false;
--
--	if (!test_and_set_bit(I915_RESET_ENGINE + engine->id,
--			      &gt->reset.flags)) {
--		success = intel_engine_reset(engine, NULL) == 0;
--		clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id,
--				      &gt->reset.flags);
--	}
--
--	return success;
--}
--
- static void __reset_context(struct i915_gem_context *ctx,
- 			    struct intel_engine_cs *engine)
- {
-@@ -431,12 +413,7 @@ static bool __cancel_engine(struct intel_engine_cs *engine)
- 	 * kill the banned context, we fallback to doing a local reset
- 	 * instead.
- 	 */
--	if (IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT) &&
--	    !intel_engine_pulse(engine))
--		return true;
--
--	/* If we are unable to send a pulse, try resetting this engine. */
--	return __reset_engine(engine);
-+	return intel_engine_pulse(engine) == 0;
- }
+ 		if (zlib_deflate(zstream, Z_NO_FLUSH) != Z_OK)
+ 			return -EIO;
++
++		cond_resched();
+ 	} while (zstream->avail_in);
  
- static bool
-@@ -506,7 +483,7 @@ static struct intel_engine_cs *active_engine(struct intel_context *ce)
- 	return engine;
- }
+ 	/* Fallback to uncompressed if we increase size? */
+@@ -397,6 +399,7 @@ static int compress_page(struct i915_vma_compress *c,
+ 	if (!(wc && i915_memcpy_from_wc(ptr, src, PAGE_SIZE)))
+ 		memcpy(ptr, src, PAGE_SIZE);
+ 	dst->pages[dst->page_count++] = ptr;
++	cond_resched();
  
--static void kill_engines(struct i915_gem_engines *engines)
-+static void kill_engines(struct i915_gem_engines *engines, bool ban)
- {
- 	struct i915_gem_engines_iter it;
- 	struct intel_context *ce;
-@@ -521,7 +498,7 @@ static void kill_engines(struct i915_gem_engines *engines)
- 	for_each_gem_engine(ce, engines, it) {
- 		struct intel_engine_cs *engine;
- 
--		if (intel_context_set_banned(ce))
-+		if (ban && intel_context_set_banned(ce))
- 			continue;
- 
- 		/*
-@@ -534,7 +511,7 @@ static void kill_engines(struct i915_gem_engines *engines)
- 		engine = active_engine(ce);
- 
- 		/* First attempt to gracefully cancel the context */
--		if (engine && !__cancel_engine(engine))
-+		if (engine && !__cancel_engine(engine) && ban)
- 			/*
- 			 * If we are unable to send a preemptive pulse to bump
- 			 * the context from the GPU, we have to resort to a full
-@@ -544,8 +521,10 @@ static void kill_engines(struct i915_gem_engines *engines)
- 	}
- }
- 
--static void kill_stale_engines(struct i915_gem_context *ctx)
-+static void kill_context(struct i915_gem_context *ctx)
- {
-+	bool ban = (!i915_gem_context_is_persistent(ctx) ||
-+		    !ctx->i915->params.enable_hangcheck);
- 	struct i915_gem_engines *pos, *next;
- 
- 	spin_lock_irq(&ctx->stale.lock);
-@@ -558,7 +537,7 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
- 
- 		spin_unlock_irq(&ctx->stale.lock);
- 
--		kill_engines(pos);
-+		kill_engines(pos, ban);
- 
- 		spin_lock_irq(&ctx->stale.lock);
- 		GEM_BUG_ON(i915_sw_fence_signaled(&pos->fence));
-@@ -570,11 +549,6 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
- 	spin_unlock_irq(&ctx->stale.lock);
- }
- 
--static void kill_context(struct i915_gem_context *ctx)
--{
--	kill_stale_engines(ctx);
--}
--
- static void engines_idle_release(struct i915_gem_context *ctx,
- 				 struct i915_gem_engines *engines)
- {
-@@ -609,7 +583,7 @@ static void engines_idle_release(struct i915_gem_context *ctx,
- 
- kill:
- 	if (list_empty(&engines->link)) /* raced, already closed */
--		kill_engines(engines);
-+		kill_engines(engines, true);
- 
- 	i915_sw_fence_commit(&engines->fence);
- }
-@@ -667,9 +641,7 @@ static void context_close(struct i915_gem_context *ctx)
- 	 * case we opt to forcibly kill off all remaining requests on
- 	 * context close.
- 	 */
--	if (!i915_gem_context_is_persistent(ctx) ||
--	    !ctx->i915->params.enable_hangcheck)
--		kill_context(ctx);
-+	kill_context(ctx);
- 
- 	i915_gem_context_put(ctx);
+ 	return 0;
  }
 -- 
 2.20.1
