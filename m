@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09370252DA1
-	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B801A252DA3
+	for <lists+stable@lfdr.de>; Wed, 26 Aug 2020 14:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbgHZMDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 08:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39274 "EHLO mail.kernel.org"
+        id S1729573AbgHZMD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 08:03:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729561AbgHZMDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Aug 2020 08:03:50 -0400
+        id S1729568AbgHZMDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Aug 2020 08:03:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F4892087D;
-        Wed, 26 Aug 2020 12:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C5EE20838;
+        Wed, 26 Aug 2020 12:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598443429;
-        bh=qEUBPgWgjWF0Gc0SRUEsBtJRhQzYGp9MrUrb9t2w3r0=;
+        s=default; t=1598443432;
+        bh=5U+tmU2juCn60do5qpSxUDlrHl9vpMadgZ7NJ3teTpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1amu0VfyW0LpwkF0b+cY39pYJv6ihV5k+X0c7da7cWyQrtC8/ZQh4MxkPyvNve3Po
-         CsoBYNS6TJS34vC9YS7xpmyAXy2ev5t3bXafcWQxk6f4Tfsm7gO+QTCC14VwwDxWbi
-         TLMw2pIzpgjegF3obyAh3gutvbeylU+IqhzWx2Nw=
+        b=y72geNk0tivsoxj6aznK3FHVT3zEvW1GEn6MfqbiXWW3mJEAIq/d994taq72Y2t/j
+         eF4hF8aZIznq/goytEx3AXsCyHYCUtxtGtkJ2TNmQYvrvmtPKI4UwtBWhU4PjX+U17
+         6/6qWPfrlCvW/pl5elHihT5FPrNRoG7nnHP8C1o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
+        stable@vger.kernel.org,
+        syzbot+47bbc6b678d317cccbe0@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 07/16] net/smc: Prevent kernel-infoleak in __smc_diag_dump()
-Date:   Wed, 26 Aug 2020 14:02:44 +0200
-Message-Id: <20200826114911.583260809@linuxfoundation.org>
+Subject: [PATCH 5.8 08/16] tipc: call rcu_read_lock() in tipc_aead_encrypt_done()
+Date:   Wed, 26 Aug 2020 14:02:45 +0200
+Message-Id: <20200826114911.633044442@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200826114911.216745274@linuxfoundation.org>
 References: <20200826114911.216745274@linuxfoundation.org>
@@ -45,49 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit ce51f63e63c52a4e1eee4dd040fb0ba0af3b43ab ]
+[ Upstream commit f6db9096416209474090d64d8284e7c16c3d8873 ]
 
-__smc_diag_dump() is potentially copying uninitialized kernel stack memory
-into socket buffers, since the compiler may leave a 4-byte hole near the
-beginning of `struct smcd_diag_dmbinfo`. Fix it by initializing `dinfo`
-with memset().
+b->media->send_msg() requires rcu_read_lock(), as we can see
+elsewhere in tipc,  tipc_bearer_xmit, tipc_bearer_xmit_skb
+and tipc_bearer_bc_xmit().
 
-Fixes: 4b1b7d3b30a6 ("net/smc: add SMC-D diag support")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Syzbot has reported this issue as:
+
+  net/tipc/bearer.c:466 suspicious rcu_dereference_check() usage!
+  Workqueue: cryptd cryptd_queue_worker
+  Call Trace:
+   tipc_l2_send_msg+0x354/0x420 net/tipc/bearer.c:466
+   tipc_aead_encrypt_done+0x204/0x3a0 net/tipc/crypto.c:761
+   cryptd_aead_crypt+0xe8/0x1d0 crypto/cryptd.c:739
+   cryptd_queue_worker+0x118/0x1b0 crypto/cryptd.c:181
+   process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
+   worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
+   kthread+0x3b5/0x4a0 kernel/kthread.c:291
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:293
+
+So fix it by calling rcu_read_lock() in tipc_aead_encrypt_done()
+for b->media->send_msg().
+
+Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
+Reported-by: syzbot+47bbc6b678d317cccbe0@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/smc_diag.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/tipc/crypto.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -170,13 +170,15 @@ static int __smc_diag_dump(struct sock *
- 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_connection *conn = &smc->conn;
--		struct smcd_diag_dmbinfo dinfo = {
--			.linkid = *((u32 *)conn->lgr->id),
--			.peer_gid = conn->lgr->peer_gid,
--			.my_gid = conn->lgr->smcd->local_gid,
--			.token = conn->rmb_desc->token,
--			.peer_token = conn->peer_token
--		};
-+		struct smcd_diag_dmbinfo dinfo;
-+
-+		memset(&dinfo, 0, sizeof(dinfo));
-+
-+		dinfo.linkid = *((u32 *)conn->lgr->id);
-+		dinfo.peer_gid = conn->lgr->peer_gid;
-+		dinfo.my_gid = conn->lgr->smcd->local_gid;
-+		dinfo.token = conn->rmb_desc->token;
-+		dinfo.peer_token = conn->peer_token;
- 
- 		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
- 			goto errout;
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -757,10 +757,12 @@ static void tipc_aead_encrypt_done(struc
+ 	switch (err) {
+ 	case 0:
+ 		this_cpu_inc(tx->stats->stat[STAT_ASYNC_OK]);
++		rcu_read_lock();
+ 		if (likely(test_bit(0, &b->up)))
+ 			b->media->send_msg(net, skb, b, &tx_ctx->dst);
+ 		else
+ 			kfree_skb(skb);
++		rcu_read_unlock();
+ 		break;
+ 	case -EINPROGRESS:
+ 		return;
 
 
