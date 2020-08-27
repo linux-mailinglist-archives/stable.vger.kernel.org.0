@@ -2,75 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D28253EC5
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03133253EC0
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgH0HPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 03:15:33 -0400
-Received: from mga18.intel.com ([134.134.136.126]:5671 "EHLO mga18.intel.com"
+        id S1726826AbgH0HPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 03:15:05 -0400
+Received: from helcar.hmeau.com ([216.24.177.18]:34218 "EHLO fornost.hmeau.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726123AbgH0HPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Aug 2020 03:15:31 -0400
-IronPort-SDR: 35a89xmw2/zUbdVn6bqvbMxHewMwvfQsdWnfgvoDWklKNa3DKvyQwbctyHprr+XKbhTDK6xbfD
- aEoPgAQ32g/g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9725"; a="144112349"
-X-IronPort-AV: E=Sophos;i="5.76,358,1592895600"; 
-   d="scan'208";a="144112349"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2020 00:15:30 -0700
-IronPort-SDR: Zpm+ya4u91Zk+HFTnzEsfMZuveriW7ix0fFcTT2Hv0fvJEotLVmqf+NbcQu3eYwsPY142coxyd
- IiJ2JnYxKqDQ==
-X-IronPort-AV: E=Sophos;i="5.76,358,1592895600"; 
-   d="scan'208";a="475094944"
-Received: from eliteleevi.tm.intel.com ([10.237.54.20])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2020 00:15:28 -0700
-Date:   Thu, 27 Aug 2020 10:14:18 +0300 (EEST)
-From:   Kai Vehmanen <kai.vehmanen@linux.intel.com>
-X-X-Sender: kvehmane@eliteleevi.tm.intel.com
-To:     Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
-cc:     alsa-devel@alsa-project.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        ranjani.sridharan@linux.intel.com,
-        Rander Wang <rander.wang@linux.intel.com>,
-        kuninori.morimoto.gx@renesas.com,
-        pierre-louis.bossart@linux.intel.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] ASoC: intel/skl/hda - fix probe regression on systems
- without i915
-In-Reply-To: <159542547442.19620.11983281044239009101.b4-ty@kernel.org>
-Message-ID: <alpine.DEB.2.22.394.2008271002260.3186@eliteleevi.tm.intel.com>
-References: <20200714132804.3638221-1-kai.vehmanen@linux.intel.com> <159542547442.19620.11983281044239009101.b4-ty@kernel.org>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7 02160 Espoo
+        id S1726123AbgH0HPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Aug 2020 03:15:05 -0400
+Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
+        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
+        id 1kBC7I-0004FM-7A; Thu, 27 Aug 2020 17:14:37 +1000
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Thu, 27 Aug 2020 17:14:36 +1000
+Date:   Thu, 27 Aug 2020 17:14:36 +1000
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Denis Kenzior <denkenz@gmail.com>,
+        Andrew Zaborowski <andrew.zaborowski@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Caleb Jorden <caljorden@hotmail.com>,
+        Sasha Levin <sashal@kernel.org>, iwd@lists.01.org,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Subject: [v2 PATCH] crypto: af_alg - Work around empty control messages
+ without MSG_MORE
+Message-ID: <20200827071436.GA30281@gondor.apana.org.au>
+References: <CAMj1kXGjytfJEbLMbz50it3okQfiLScHB5YK2FMqR5CsmFEBbg@mail.gmail.com>
+ <20200826120832.GA2996@gondor.apana.org.au>
+ <CAOq732JaP=4X9Yh_KjER5_ctQWoauxzXTZqyFP9KsLSxvVH8=w@mail.gmail.com>
+ <20200826130010.GA3232@gondor.apana.org.au>
+ <c27e5303-48d9-04a4-4e73-cfea5470f357@gmail.com>
+ <20200826141907.GA5111@gondor.apana.org.au>
+ <4bb6d926-a249-8183-b3d9-05b8e1b7808a@gmail.com>
+ <CAMj1kXEn507bEt+eT6q7MpCwNH=oAZsTkFRz0t=kPEV0QxFsOQ@mail.gmail.com>
+ <20200826221913.GA16175@gondor.apana.org.au>
+ <CAMj1kXH-qZZhw5D5sBEVFP9=Z04pU+xCnQ78sDDw6WuSM-pRGQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXH-qZZhw5D5sBEVFP9=Z04pU+xCnQ78sDDw6WuSM-pRGQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-+stable
-
-On Wed, 22 Jul 2020, Mark Brown wrote:
-> Applied to
+On Thu, Aug 27, 2020 at 08:40:01AM +0200, Ard Biesheuvel wrote:
+>
+> It is part of iwd - just build that and run 'make check'
 > 
->    https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
-[...]
-> 
-> [1/1] ASoC: intel/skl/hda - fix probe regression on systems without i915
->       commit: ffc6d45d96f07a32700cb6b7be2d3459e63c255a
+> With your patch applied, the occurrence of sendmsg() in
+> operate_cipher() triggers the warn_once(), but if I add MSG_MORE
+> there, the test hangs.
 
-please apply this to stable kernels as well. Without the patch, audio is 
-broken with 5.8.x on many laptops (with Intel audio and non-Intel 
-graphics). One more recent bug filed:
-https://github.com/thesofproject/sof/issues/3345
+I see.  This is a different issue.  The original kernel change
+was a bit too strict here and it is barfing at the fact that two
+successive sendmsg's of the same request both contain a control
+message.
 
-This does _not_ affect 5.7.x and older, plus already fixed in 5.9-rc.
+Here's an updated patch to allow this.
 
-Br, Kai
+---8<---
+The iwd daemon uses libell which sets up the skcipher operation with
+two separate control messages.  As the first control message is sent
+without MSG_MORE, it is interpreted as an empty request.
 
+While libell should be fixed to use MSG_MORE where appropriate, this
+patch works around the bug in the kernel so that existing binaries
+continue to work.
+
+We will print a warning however.
+
+A separate issue is that the new kernel code no longer allows the
+control message to be sent twice within the same request.  This
+restriction is obviously incompatible with what iwd was doing (first
+setting an IV and then sending the real control message).  This
+patch changes the kernel so that this is explicitly allowed.
+
+Reported-by: Caleb Jorden <caljorden@hotmail.com>
+Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index a6f581ab200c..8be8bec07cdd 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -16,6 +16,7 @@
+ #include <linux/module.h>
+ #include <linux/net.h>
+ #include <linux/rwsem.h>
++#include <linux/sched.h>
+ #include <linux/sched/signal.h>
+ #include <linux/security.h>
+ 
+@@ -845,9 +846,15 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 	}
+ 
+ 	lock_sock(sk);
+-	if (ctx->init && (init || !ctx->more)) {
+-		err = -EINVAL;
+-		goto unlock;
++	if (ctx->init && !ctx->more) {
++		if (ctx->used) {
++			err = -EINVAL;
++			goto unlock;
++		}
++
++		pr_info_once(
++			"%s sent an empty control message without MSG_MORE.\n",
++			current->comm);
+ 	}
+ 	ctx->init = true;
+ 
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
