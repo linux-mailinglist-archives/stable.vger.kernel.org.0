@@ -2,124 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03133253EC0
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:15:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672A3253F0A
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726826AbgH0HPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 03:15:05 -0400
-Received: from helcar.hmeau.com ([216.24.177.18]:34218 "EHLO fornost.hmeau.com"
+        id S1727970AbgH0HZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 03:25:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726123AbgH0HPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Aug 2020 03:15:05 -0400
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
-        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
-        id 1kBC7I-0004FM-7A; Thu, 27 Aug 2020 17:14:37 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Thu, 27 Aug 2020 17:14:36 +1000
-Date:   Thu, 27 Aug 2020 17:14:36 +1000
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Denis Kenzior <denkenz@gmail.com>,
-        Andrew Zaborowski <andrew.zaborowski@intel.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Caleb Jorden <caljorden@hotmail.com>,
-        Sasha Levin <sashal@kernel.org>, iwd@lists.01.org,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: [v2 PATCH] crypto: af_alg - Work around empty control messages
- without MSG_MORE
-Message-ID: <20200827071436.GA30281@gondor.apana.org.au>
-References: <CAMj1kXGjytfJEbLMbz50it3okQfiLScHB5YK2FMqR5CsmFEBbg@mail.gmail.com>
- <20200826120832.GA2996@gondor.apana.org.au>
- <CAOq732JaP=4X9Yh_KjER5_ctQWoauxzXTZqyFP9KsLSxvVH8=w@mail.gmail.com>
- <20200826130010.GA3232@gondor.apana.org.au>
- <c27e5303-48d9-04a4-4e73-cfea5470f357@gmail.com>
- <20200826141907.GA5111@gondor.apana.org.au>
- <4bb6d926-a249-8183-b3d9-05b8e1b7808a@gmail.com>
- <CAMj1kXEn507bEt+eT6q7MpCwNH=oAZsTkFRz0t=kPEV0QxFsOQ@mail.gmail.com>
- <20200826221913.GA16175@gondor.apana.org.au>
- <CAMj1kXH-qZZhw5D5sBEVFP9=Z04pU+xCnQ78sDDw6WuSM-pRGQ@mail.gmail.com>
+        id S1727792AbgH0HZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Aug 2020 03:25:02 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3DE722BEA;
+        Thu, 27 Aug 2020 07:25:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598513102;
+        bh=/8HS1pz1I8NVSB3l27g387m1jYKubxzNOwgQDMh2NoM=;
+        h=Subject:To:From:Date:From;
+        b=u++omP4WRmm6+h/l2tsgg/JnB1wQnEUzhh0zkorl5dMRNiZXTb8ehazAQV0VSf7gW
+         ZcKmKGoNPSJkCLs5+PMi0qodRDkbe7203zDMyLOo76bCwh89pvVxuC+k0oIYxjmQaH
+         CMjIaK6SsOqDgJlFErdIfpBSzxSVcYI+IELY44m8=
+Subject: patch "USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        jcbarnoud@gmail.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 27 Aug 2020 09:25:16 +0200
+Message-ID: <159851311682184@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXH-qZZhw5D5sBEVFP9=Z04pU+xCnQ78sDDw6WuSM-pRGQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 08:40:01AM +0200, Ard Biesheuvel wrote:
->
-> It is part of iwd - just build that and run 'make check'
-> 
-> With your patch applied, the occurrence of sendmsg() in
-> operate_cipher() triggers the warn_once(), but if I add MSG_MORE
-> there, the test hangs.
 
-I see.  This is a different issue.  The original kernel change
-was a bit too strict here and it is barfing at the fact that two
-successive sendmsg's of the same request both contain a control
-message.
+This is a note to let you know that I've just added the patch titled
 
-Here's an updated patch to allow this.
+    USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D
 
----8<---
-The iwd daemon uses libell which sets up the skcipher operation with
-two separate control messages.  As the first control message is sent
-without MSG_MORE, it is interpreted as an empty request.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-While libell should be fixed to use MSG_MORE where appropriate, this
-patch works around the bug in the kernel so that existing binaries
-continue to work.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-We will print a warning however.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-A separate issue is that the new kernel code no longer allows the
-control message to be sent twice within the same request.  This
-restriction is obviously incompatible with what iwd was doing (first
-setting an IV and then sending the real control message).  This
-patch changes the kernel so that this is explicitly allowed.
+If you have any questions about this process, please let me know.
 
-Reported-by: Caleb Jorden <caljorden@hotmail.com>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index a6f581ab200c..8be8bec07cdd 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -16,6 +16,7 @@
- #include <linux/module.h>
- #include <linux/net.h>
- #include <linux/rwsem.h>
-+#include <linux/sched.h>
- #include <linux/sched/signal.h>
- #include <linux/security.h>
+From 068834a2773b6a12805105cfadbb3d4229fc6e0a Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Wed, 26 Aug 2020 15:46:24 -0400
+Subject: USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D
+
+The Sound Devices MixPre-D audio card suffers from the same defect
+as the Sound Devices USBPre2: an endpoint shared between a normal
+audio interface and a vendor-specific interface, in violation of the
+USB spec.  Since the USB core now treats duplicated endpoints as bugs
+and ignores them, the audio endpoint isn't available and the card
+can't be used for audio capture.
+
+Along the same lines as commit bdd1b147b802 ("USB: quirks: blacklist
+duplicate ep on Sound Devices USBPre2"), this patch adds a quirks
+entry saying to ignore ep5in for interface 1, leaving it available for
+use with standard audio interface 2.
+
+Reported-and-tested-by: Jean-Christophe Barnoud <jcbarnoud@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+Link: https://lore.kernel.org/r/20200826194624.GA412633@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/quirks.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index d1f38956b210..f232914de5fd 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -370,6 +370,10 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x0926, 0x0202), .driver_info =
+ 			USB_QUIRK_ENDPOINT_IGNORE },
  
-@@ -845,9 +846,15 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	}
- 
- 	lock_sock(sk);
--	if (ctx->init && (init || !ctx->more)) {
--		err = -EINVAL;
--		goto unlock;
-+	if (ctx->init && !ctx->more) {
-+		if (ctx->used) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
++	/* Sound Devices MixPre-D */
++	{ USB_DEVICE(0x0926, 0x0208), .driver_info =
++			USB_QUIRK_ENDPOINT_IGNORE },
 +
-+		pr_info_once(
-+			"%s sent an empty control message without MSG_MORE.\n",
-+			current->comm);
- 	}
- 	ctx->init = true;
+ 	/* Keytouch QWERTY Panel keyboard */
+ 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
+@@ -511,6 +515,7 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
+  */
+ static const struct usb_device_id usb_endpoint_ignore[] = {
+ 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
++	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
+ 	{ }
+ };
  
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.28.0
+
+
