@@ -2,158 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1F4254159
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 10:59:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB08825418B
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 11:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728046AbgH0I7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 04:59:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34486 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726851AbgH0I7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 04:59:41 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CDAC061264;
-        Thu, 27 Aug 2020 01:59:40 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id kx11so2254402pjb.5;
-        Thu, 27 Aug 2020 01:59:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=knuyGrcnDNfBLfuI860cvzWQlaN7tR5tqLC2/Iy3p5w=;
-        b=ofPoQ+whIY+/DjQfkemlCBdXvPWQTU8raav3CrNeAYExt1VYUk8aJd7ejP4zzCnby6
-         WPGWGLCLXDHdgRtNIeX2XQyzu2ocY3HPjwKeWiIKZPAEsMpb3hRNbkTcKUPnUQTejHCV
-         8yXMt2AyxvGM68hd9YLpKpp784mQKMsZmOeovBLluEuFc3tgk3jmNvB4GYZZfvBdQ6NM
-         WTJ0PI2d+CGvc9ZHTbWsmnMJkEzRhSpOsSBpGbsaism1CIH10jOwTjGsHFjgaEwXHSeT
-         dSbyjFfSK+Hh1j5QqgjcOSKOVX0MXsdNul+VEHCSHejecYs9bKwQsouQvpGg0yDp047G
-         hSxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=knuyGrcnDNfBLfuI860cvzWQlaN7tR5tqLC2/Iy3p5w=;
-        b=ZMdKw6rGLdR/oogvgPdl0tf1Ki433QPEX0NOOz7fMIS/HjOt1ye66LeVFBLGuvaNND
-         MfW1jtm0pDocEzI9azC/inXMTzEAmSz79Y6mw8eKot/LOUVbsiQqDfy6wDXnoKrwku0N
-         +y4uePck2jHcr5iqSSlLiXzTDQgDs4BASkZEdsophU65EZsRN9362sPLZq5cO8m4khMM
-         TH3tXzcV7jL2lieDT5EDC9llcRqz7iO6cb6+BxI0Wf45tlxzx7W/MbRuBEWXCJxi7kP3
-         F0uLDFR0Gaaw6jSkOZWk3Tl5AbiWJdzPHD4cGHNgNMsIwzxYYNyLJZD7euVsKi84LLln
-         q8eA==
-X-Gm-Message-State: AOAM531cZKXujFOtLz3/jycXvhR3AHih5gs4MdmobpLfaPKBRm8t10/E
-        daNkGdPBhxtKQCCB4kekW2OgtmvMN6C+99xCEPY=
-X-Google-Smtp-Source: ABdhPJy7h7WBhdI26SwG260T0djY4/8Ef5iftULOB0OMZ64TrwMD0uf7c3K2CJDKKTZF6Bc2Ow1XW8d5cUdgagiDZh8=
-X-Received: by 2002:a17:90b:509:: with SMTP id r9mr10116299pjz.228.1598518780491;
- Thu, 27 Aug 2020 01:59:40 -0700 (PDT)
+        id S1726938AbgH0JKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 05:10:30 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48126 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726882AbgH0JKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Aug 2020 05:10:30 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 38918AF8D;
+        Thu, 27 Aug 2020 09:11:00 +0000 (UTC)
+Subject: Re: [PATCH v1 1/4] drm/ast: Only set format registers if primary
+ plane's format changes
+To:     Sasha Levin <sashal@kernel.org>, airlied@redhat.com,
+        daniel@ffwll.ch, sam@ravnborg.org
+Cc:     dri-devel@lists.freedesktop.org, Gerd Hoffmann <kraxel@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        "Y.C. Chen" <yc_chen@aspeedtech.com>, stable@vger.kernel.org
+References: <20200805105428.2590-2-tzimmermann@suse.de>
+ <20200826135412.04FE8208E4@mail.kernel.org>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <24cf62a4-2d96-e749-bd7a-e0c71764d837@suse.de>
+Date:   Thu, 27 Aug 2020 11:10:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-References: <20200825135838.2938771-1-ndesaulniers@google.com>
- <CAK7LNAQXo5-5W6hvNMEVPBPf3tRWaf-pQdSR-0OHyi4RCGhjsQ@mail.gmail.com>
- <d56bf7b93f7a28c4a90e4e16fd412e6934704346.camel@perches.com>
- <CAKwvOd=YrVtPsB7HYPO0N=K7QJm9KstayqqeYQERSaGtGy2Bjg@mail.gmail.com>
- <CAK7LNAQKwOo=Oas+7Du9+neSm=Ev6pxdPV7ges7eEEpW+jh8Ug@mail.gmail.com> <202008261627.7B2B02A@keescook>
-In-Reply-To: <202008261627.7B2B02A@keescook>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 27 Aug 2020 11:59:24 +0300
-Message-ID: <CAHp75VfniSw3AFTyyDk2OoAChGx7S6wF7sZKpJXNHmk97BoRXA@mail.gmail.com>
-Subject: Re: [PATCH v3] lib/string.c: implement stpcpy
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Joe Perches <joe@perches.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Andy Lavr <andy.lavr@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200826135412.04FE8208E4@mail.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="y4LC9cr7BphkHjszmouyMEklYrJnF9dxf"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 2:40 AM Kees Cook <keescook@chromium.org> wrote:
-> On Thu, Aug 27, 2020 at 07:59:45AM +0900, Masahiro Yamada wrote:
-> > On Thu, Aug 27, 2020 at 1:58 AM Nick Desaulniers
-> > <ndesaulniers@google.com> wrote:
-> > > On Wed, Aug 26, 2020 at 9:57 AM Joe Perches <joe@perches.com> wrote:
-> > > > On Thu, 2020-08-27 at 01:49 +0900, Masahiro Yamada wrote:
-> > > > > I do not have time to keep track of the discussion fully,
-> > > > > but could you give me a little more context why
-> > > > > the usage of stpcpy() is not recommended ?
-> > > > >
-> > > > > The implementation of strcpy() is almost the same.
-> > > > > It is unclear to me what makes stpcpy() unsafe..
-> > >
-> > > https://lore.kernel.org/lkml/202008150921.B70721A359@keescook/
-> > >
-> > > >
-> > > > It's the same thing that makes strcpy unsafe:
-> > > >
-> > > > Unchecked buffer lengths with no guarantee src is terminated.
-> > >
-> >
-> >
-> > OK, then stpcpy(), strcpy() and sprintf()
-> > have the same level of unsafety.
->
-> Yes. And even snprintf() is dangerous because its return value is how
-> much it WOULD have written, which when (commonly) used as an offset for
-> further pointer writes, causes OOB writes too. :(
-> https://github.com/KSPP/linux/issues/105
->
-> > strcpy() is used everywhere.
->
-> Yes. It's very frustrating, but it's not an excuse to continue
-> using it nor introducing more bad APIs.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--y4LC9cr7BphkHjszmouyMEklYrJnF9dxf
+Content-Type: multipart/mixed; boundary="Zt44v4g4ecOJG11sowl5w7ydTd6HXX0nj";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Sasha Levin <sashal@kernel.org>, airlied@redhat.com, daniel@ffwll.ch,
+ sam@ravnborg.org
+Cc: dri-devel@lists.freedesktop.org, Gerd Hoffmann <kraxel@redhat.com>,
+ Daniel Vetter <daniel.vetter@ffwll.ch>,
+ Emil Velikov <emil.l.velikov@gmail.com>, "Y.C. Chen"
+ <yc_chen@aspeedtech.com>, stable@vger.kernel.org
+Message-ID: <24cf62a4-2d96-e749-bd7a-e0c71764d837@suse.de>
+Subject: Re: [PATCH v1 1/4] drm/ast: Only set format registers if primary
+ plane's format changes
+References: <20200805105428.2590-2-tzimmermann@suse.de>
+ <20200826135412.04FE8208E4@mail.kernel.org>
+In-Reply-To: <20200826135412.04FE8208E4@mail.kernel.org>
 
-strcpy() is not a bad API for the cases when you know what you are
-doing. A problem that most of the developers do not know what they are
-doing.
-No need to split everything to bad and good by its name or semantics,
-each API has its own pros and cons and programmers must use their
-brains.
+--Zt44v4g4ecOJG11sowl5w7ydTd6HXX0nj
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
->
-> $ git grep '\bstrcpy\b' | wc -l
-> 2212
-> $ git grep '\bstrncpy\b' | wc -l
-> 751
-> $ git grep '\bstrlcpy\b' | wc -l
-> 1712
->
-> $ git grep '\bstrscpy\b' | wc -l
-> 1066
->
-> https://www.kernel.org/doc/html/latest/process/deprecated.html#strcpy
-> https://github.com/KSPP/linux/issues/88
->
-> https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
-> https://github.com/KSPP/linux/issues/89
->
-> https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
-> https://github.com/KSPP/linux/issues/90
->
-> We have no way right now to block the addition of deprecated API usage,
-> which makes ever catching up on this replacement very challenging. The
-> only way we caught up with VLA removal was because of -Wvla on sfr's
-> -next builds.
->
-> I guess we could set up a robot to just watch -next commits and yell
-> about new instances, but patches come and go -- I worry it'd be noisy...
->
-> > I am not convinced why only stpcpy() should be hidden.
->
-> Because nothing uses it right now. It's only the compiler suddenly now
-> trying to use it directly...
->
-> --
-> Kees Cook
+Hi
+
+Am 26.08.20 um 15:54 schrieb Sasha Levin:
+> Hi
+>=20
+> [This is an automated email]
+>=20
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: 4961eb60f145 ("drm/ast: Enable atomic modesetting").
+>=20
+> The bot has tested the following trees: v5.8.2, v5.7.16.
+>=20
+> v5.8.2: Failed to apply! Possible dependencies:
+>     05f13f5b5996 ("drm/ast: Remove unused code paths for AST 1180")
+>     fa7dbd768884 ("drm/ast: Upcast from DRM device to ast structure via=
+ to_ast_private()")
+>=20
+> v5.7.16: Failed to apply! Possible dependencies:
+>     05f13f5b5996 ("drm/ast: Remove unused code paths for AST 1180")
+>     3a53230e1c4b ("drm/ast: Make ast_primary_plane_helper_atomic_update=
+ static")
+>     fa7dbd768884 ("drm/ast: Upcast from DRM device to ast structure via=
+ to_ast_private()")
+>=20
+>=20
+> NOTE: The patch will not be queued to stable trees until it is upstream=
+=2E
+>=20
+> How should we proceed with this patch?
+
+Please drop this patch and the rest of the series.
+
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
+--Zt44v4g4ecOJG11sowl5w7ydTd6HXX0nj--
 
--- 
-With Best Regards,
-Andy Shevchenko
+--y4LC9cr7BphkHjszmouyMEklYrJnF9dxf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFIBAEBCAAyFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl9HeIMUHHR6aW1tZXJt
+YW5uQHN1c2UuZGUACgkQaA3BHVMLeiPkugf+Iy0jrGL45qBXPXUTH6dtBHjXwkf/
+sUHsYFSaLJ6O8SAIGdJh/QfUvk6KmxzXiH/+p2If/ehNrUxSFKLZ4hBD7fvY6Nol
+y0jBL2KC08FU6FwG88vLTY2nrqnwCvC0fLS/mq2G/rxK8K9xHIQys3v+4UIHmToC
+07Vk4k4ZoSidfVBUh6vX5BmMNpZufjKN0s1gXz1hEIearsM9avfx7U/FNHPwx7O1
+RT+lOZJet+j92BX+JhS7Ri15s+9JtZajHtSGjtw+g/E9BTULp+o2LhvCynRkGtQs
+RAzcuyCPF7CFap0FAaVd4kaY3x8avxyIETTLf4jtm2IjHCMRCHgOkZ281Q==
+=Zs+e
+-----END PGP SIGNATURE-----
+
+--y4LC9cr7BphkHjszmouyMEklYrJnF9dxf--
