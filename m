@@ -2,143 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DE0253BED
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 04:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C9F253BFF
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 04:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726794AbgH0CmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Aug 2020 22:42:22 -0400
-Received: from smtprelay0147.hostedemail.com ([216.40.44.147]:51240 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726790AbgH0CmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 22:42:22 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay04.hostedemail.com (Postfix) with ESMTP id CFED71801DBD7;
-        Thu, 27 Aug 2020 02:42:20 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 50,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:69:355:379:599:960:967:973:982:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1535:1543:1593:1594:1605:1711:1730:1747:1777:1792:2194:2199:2393:2525:2553:2568:2629:2682:2685:2693:2828:2859:2898:2933:2937:2939:2942:2945:2947:2951:2954:3022:3138:3139:3140:3141:3142:3622:3653:3865:3866:3867:3868:3870:3871:3872:3874:3934:3936:3938:3941:3944:3947:3950:3953:3956:3959:4250:4321:5007:6119:6742:7903:8603:9010:9025:10004:10400:10848:11026:11232:11658:11914:12043:12296:12297:12438:12555:12683:12740:12760:12895:13149:13230:13439:14181:14659:14721:21080:21451:21627:21990:30054:30060:30070:30090:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
-X-HE-Tag: actor37_421792427069
-X-Filterd-Recvd-Size: 5155
-Received: from XPS-9350.home (unknown [47.151.133.149])
-        (Authenticated sender: joe@perches.com)
-        by omf13.hostedemail.com (Postfix) with ESMTPA;
-        Thu, 27 Aug 2020 02:42:18 +0000 (UTC)
-Message-ID: <e84ea9d311fe082af8a1afe2aba48303ffbb1bf1.camel@perches.com>
-Subject: Re: [PATCH v3] lib/string.c: implement stpcpy
-From:   Joe Perches <joe@perches.com>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Andy Lavr <andy.lavr@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date:   Wed, 26 Aug 2020 19:42:17 -0700
-In-Reply-To: <202008261932.FF4E5C0@keescook>
-References: <20200825135838.2938771-1-ndesaulniers@google.com>
-         <CAK7LNAQXo5-5W6hvNMEVPBPf3tRWaf-pQdSR-0OHyi4RCGhjsQ@mail.gmail.com>
-         <d56bf7b93f7a28c4a90e4e16fd412e6934704346.camel@perches.com>
-         <CAKwvOd=YrVtPsB7HYPO0N=K7QJm9KstayqqeYQERSaGtGy2Bjg@mail.gmail.com>
-         <CAK7LNAQKwOo=Oas+7Du9+neSm=Ev6pxdPV7ges7eEEpW+jh8Ug@mail.gmail.com>
-         <202008261627.7B2B02A@keescook>
-         <77428f28620d4e5ecad1556396f2b0f8f0daef41.camel@perches.com>
-         <202008261932.FF4E5C0@keescook>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.36.4-0ubuntu1 
+        id S1726851AbgH0C6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Aug 2020 22:58:42 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:19985 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726794AbgH0C6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Aug 2020 22:58:41 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f4720e70001>; Wed, 26 Aug 2020 19:56:39 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 26 Aug 2020 19:58:40 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 26 Aug 2020 19:58:40 -0700
+Received: from [10.2.174.186] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 27 Aug
+ 2020 02:58:39 +0000
+Subject: Re: [PATCH v5 0/7] Fix timeout clock used by hardware data timeout
+To:     <adrian.hunter@intel.com>, <ulf.hansson@linaro.org>,
+        <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
+        <robh+dt@kernel.org>
+CC:     <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-mmc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <1598472314-30235-1-git-send-email-skomatineni@nvidia.com>
+From:   Sowjanya Komatineni <skomatineni@nvidia.com>
+Message-ID: <2cdf3627-19cc-eca0-7872-d1a2d4f070f5@nvidia.com>
+Date:   Wed, 26 Aug 2020 19:58:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <1598472314-30235-1-git-send-email-skomatineni@nvidia.com>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1598496999; bh=evzB4FoRprFPYV5hVd/oisQBSOdob+Bb6961eYXLFo4=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
+         Content-Language;
+        b=O5cTArAVrnw8dzzc1QbD7sLMasLA9j4u/Zu3kT12wNZxMiSfAsOwuRNEtq0jTf/JU
+         46zX8GCF+8E9ePFv8/cPKz5vS4JHL/JurOVg0LZK/Jc+NtTMCI8PaQBOluB/qbFN4O
+         kFxcHeA2Fh55r35Ih66NvL/iWGV6GfZ9L7+0+xnnCO/FBaDUoqyJHhLKN2xzeklvx6
+         F9WqBGXzNws1A1ZQjBOTcRNoQb7FARJZM8tRq544hAoeQitXB/XzTcuo/50+oukxUw
+         h9IRyPR2AsIrM85I3vL1OtjmCFyItGkjbHhRH13z+5DGf+JnW6JdcQuG/thtH1RNTi
+         TTsEHHFc7VF5A==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-08-26 at 19:33 -0700, Kees Cook wrote:
-> On Wed, Aug 26, 2020 at 04:57:41PM -0700, Joe Perches wrote:
-> > On Wed, 2020-08-26 at 16:38 -0700, Kees Cook wrote:
-> > > On Thu, Aug 27, 2020 at 07:59:45AM +0900, Masahiro Yamada wrote:
-> > []
-> > > > OK, then stpcpy(), strcpy() and sprintf()
-> > > > have the same level of unsafety.
-> > > 
-> > > Yes. And even snprintf() is dangerous because its return value is how
-> > > much it WOULD have written, which when (commonly) used as an offset for
-> > > further pointer writes, causes OOB writes too. :(
-> > > https://github.com/KSPP/linux/issues/105
-> > > 
-> > > > strcpy() is used everywhere.
-> > > 
-> > > Yes. It's very frustrating, but it's not an excuse to continue
-> > > using it nor introducing more bad APIs.
-> > > 
-> > > $ git grep '\bstrcpy\b' | wc -l
-> > > 2212
-> > > $ git grep '\bstrncpy\b' | wc -l
-> > > 751
-> > > $ git grep '\bstrlcpy\b' | wc -l
-> > > 1712
-> > > 
-> > > $ git grep '\bstrscpy\b' | wc -l
-> > > 1066
-> > > 
-> > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strcpy
-> > > https://github.com/KSPP/linux/issues/88
-> > > 
-> > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
-> > > https://github.com/KSPP/linux/issues/89
-> > > 
-> > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
-> > > https://github.com/KSPP/linux/issues/90
-> > > 
-> > > We have no way right now to block the addition of deprecated API usage,
-> > > which makes ever catching up on this replacement very challenging.
-> > 
-> > These could be added to checkpatch's deprecated_api test.
-> > ---
-> >  scripts/checkpatch.pl | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-> > index 149518d2a6a7..f9ccb2a63a95 100755
-> > --- a/scripts/checkpatch.pl
-> > +++ b/scripts/checkpatch.pl
-> > @@ -605,6 +605,9 @@ foreach my $entry (@mode_permission_funcs) {
-> >  $mode_perms_search = "(?:${mode_perms_search})";
-> >  
-> >  our %deprecated_apis = (
-> > +	"strcpy"				=> "strscpy",
-> > +	"strncpy"				=> "strscpy",
-> > +	"strlcpy"				=> "strscpy",
-> >  	"synchronize_rcu_bh"			=> "synchronize_rcu",
-> >  	"synchronize_rcu_bh_expedited"		=> "synchronize_rcu_expedited",
-> >  	"call_rcu_bh"				=> "call_rcu",
-> > 
-> > 
-> 
-> Good idea, yeah. We, unfortunately, need to leave strncpy() off this
-> list for now because it's not *strictly* deprecated (see the notes in
-> bug report[1]), but the others can be.
+Sorry please ignore this series.
 
-OK, but it is in Documentation/process/deprecated.rst
+Wrong patches from my system went out.
 
-strncpy() on NUL-terminated strings
------------------------------------
-Use of strncpy() does not guarantee that the destination buffer
-will be NUL terminated. This can lead to various linear read overflows
-and other misbehavior due to the missing termination. It also NUL-pads the
-destination buffer if the source contents are shorter than the destination
-buffer size, which may be a needless performance penalty for callers using
-only NUL-terminated strings. The safe replacement is strscpy().
-(Users of strscpy() still needing NUL-padding should instead
-use strscpy_pad().)
+Will send as v6.
 
-If a caller is using non-NUL-terminated strings, strncpy() can
-still be used, but destinations should be marked with the `__nonstring
-<https://gcc.gnu.org/onlinedocs/gcc/Common-Variable-Attributes.html>`_
-attribute to avoid future compiler warnings.
+Thanks
 
+Sowjanya
 
+On 8/26/20 1:05 PM, Sowjanya Komatineni wrote:
+> Tegra210/Tegra186/Tegra194 has incorrectly enabled
+> SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK from the beginning of their support.
+>
+> Tegra210 and later SDMMC hardware default uses sdmmc_legacy_tm (TMCLK)
+> all the time for hardware data timeout instead of SDCLK and this TMCLK
+> need to be kept enabled by Tegra sdmmc driver.
+>
+> This series includes patches to fix this for Tegra210/Tegra186/Tegra194.
+>
+> These patches need to be manually backported for 4.9, 4.14 and 4.19.
+>
+> Will send patches to backport separately once these patches are ack'd.
+>
+> Delta between patch versions:
+> [v5]:	Include below changes based on v4 feedback
+> 	- updated dt-binding doc to be more clear
+> 	- updated Tegra sdhci driver to retrieve sdhci and tmclk clocks
+> 	  based on no. of clocks in sdhci device node as old device trees
+> 	  do not use sdhci clock name and this allows proper clock retrival
+> 	  irrespective of sdhci and tmclk clocks order in device tree.	
+> 	- Added separate quirk for identifying SoC's supporting separate
+> 	  timeout clock to be more clear.
+>
+> [v4]:	Include additional dt-binding patch
+>
+> [v3]:	Same as v2 with fixes tag
+>
+> [v2]:	Includes minor fix
+> 	- Patch-0006: parentheses around operand of '!'
+>
+> Sowjanya Komatineni (7):
+>    sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra210
+>    sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra186
+>    dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later
+>    arm64: tegra: Add missing timeout clock to Tegra210 SDMMC
+>    arm64: tegra: Add missing timeout clock to Tegra186 SDMMC nodes
+>    arm64: tegra: Add missing timeout clock to Tegra194 SDMMC nodes
+>    sdhci: tegra: Add missing TMCLK for data timeout
+>
+>   .../bindings/mmc/nvidia,tegra20-sdhci.txt          | 32 +++++++-
+>   arch/arm64/boot/dts/nvidia/tegra186.dtsi           | 20 +++--
+>   arch/arm64/boot/dts/nvidia/tegra194.dtsi           | 15 ++--
+>   arch/arm64/boot/dts/nvidia/tegra210.dtsi           | 20 +++--
+>   drivers/mmc/host/sdhci-tegra.c                     | 91 +++++++++++++++++++---
+>   5 files changed, 143 insertions(+), 35 deletions(-)
+>
