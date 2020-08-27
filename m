@@ -2,84 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94752253DA9
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 08:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6BA253DB0
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 08:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgH0GXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 02:23:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
+        id S1726939AbgH0G1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 02:27:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725909AbgH0GXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 02:23:46 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BEAC06125E;
-        Wed, 26 Aug 2020 23:23:46 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id f24so3852014edw.10;
-        Wed, 26 Aug 2020 23:23:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3zWlNNLcebc5+UDnlwc66ao5mF5z9QibVWSnplcPmXs=;
-        b=IXXgjsgW0GMVWya7DBLaF21KfvO3EMysGfU6BSrKcTom85rkgWY2rRZygdk3/wF8Rg
-         bbCjDkIsHEEwXiKBKZO3BDHCPI11l8rpJr88H8UZRq9xE6H1t8zcJ8dXFkhFCgTELuAG
-         aF1fgkOtIa88AShMeEZ5ifluHtj/RlFDSvJAZpLuK1Kvjgj10i72Ff4ozn2hYP32q+VN
-         jg64PhVTq53pnurJBaHHBG93lP9sqjC5g/5gZTQlVKMEabX5lLzlB3Sv7kwai7F7H4fR
-         yBTbTsJ8suxI5vJz3emnJa5Uibqp97gJ8L5I8K8ZLLVbskdRqX7SEaEUtxu3LuMPtUxc
-         /3IA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3zWlNNLcebc5+UDnlwc66ao5mF5z9QibVWSnplcPmXs=;
-        b=lFDR36F2tFOHbUmPmhzMx5jSvxFanOshJN4LqN8DkZGOmALTh4K4uYdNJsQWYs3Vck
-         KuVFb62TneNj+ZEZ7Z2Tim6nV6SCpa2fQD1hz9i7ZclGWFqql+J+d4GugWlgmvzoR/Vi
-         6OfgkV1ju7XR5S9D8guOG/6zCgNqoiM/pOx8+wINXcVEKOM51Qlk2e+AFdTyYCMJUNJu
-         A+osZ5VDgyOf/xzfl3ELi44C2fKKuUcWXy2IM1bfDC/swI0UURoCaIPgsewdhMv+Ni5l
-         lv21Jp6qMlzmaULSL69IRnfihjVnCmhvEgGpLEiv7FBCYliBdR8HYD7Xz13PGgpynxB4
-         5ZyA==
-X-Gm-Message-State: AOAM532ohRSlx9hdxxDKkLSYsVNlyl2+ZE48MSeZIM3y6g5JeYMEalZQ
-        EvoSuUVPwjUiqGzkBctQhXTx5eYuHVQu+MIesY4=
-X-Google-Smtp-Source: ABdhPJzGyoszCyB1gP7s9vg+kvlr7AQo49xluw5D8n9lmc5iQ3GKoMjOhpZO/cbm7xAU5c8+0f1zDgQ3Da/SQKbb/jw=
-X-Received: by 2002:a05:6402:3da:: with SMTP id t26mr13402854edw.213.1598509424857;
- Wed, 26 Aug 2020 23:23:44 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200825052532.15301-1-xiangxia.m.yue@gmail.com> <20200826103137.GC3356257@kroah.com>
-In-Reply-To: <20200826103137.GC3356257@kroah.com>
-From:   Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Date:   Thu, 27 Aug 2020 14:21:19 +0800
-Message-ID: <CAMDZJNWWXm_9VtCEJZJ_OWQbbeu_yJhdyf8-0iibTe9aqJ4eXw@mail.gmail.com>
-Subject: Re: [PATCH net backport 5.6.14-5.8.3 v1] net: openvswitch: introduce
- common code for flushing flows
-To:     Greg KH <greg@kroah.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        David Miller <davem@davemloft.net>,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        =?UTF-8?B?Sm9oYW4gS27DtsO2cw==?= <jknoos@google.com>
+        with ESMTP id S1726199AbgH0G1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 02:27:10 -0400
+Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE0DDC061260;
+        Wed, 26 Aug 2020 23:27:09 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BcXnj6RYlz9sRK;
+        Thu, 27 Aug 2020 16:27:05 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ozlabs.org; s=201707;
+        t=1598509627; bh=0jnmw3HItILjj9al39tdUW1/oczaOCF9us3o3EFIRyE=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=sYG/O8pKqds8ULQ32y2auj0Zciks1xfx3dVbQeRTF7cjRTkoSIt1zXXstER+ujk6a
+         TmlvFvJLcUp/AthOhwI63LKUOZ7Z4c9KjCqCAzx5EXXjYisZrCbCxLm7opDRwyydol
+         jz3awI+osTZzEzcDSO34es+ULJ3tNylQXHZBH9i6zGKh+BjVvUCrqZxezP1y7FlObA
+         6AZgRQXoGoRuiMRQefnnknFjYKV/KcPi41Y9DlyxBesT0YV6t8h+LCtnPVp+85eAP9
+         l5w1VZSJTKATH3C9+ZZxG5Rnkcd7aFHJpob7FekhwGO1F6uIFthS0arUnbhvWECEkU
+         p+vJp0SSpEf7w==
+Message-ID: <1e56af7945b93a22e31ba6d81da82cbdb1b237b6.camel@ozlabs.org>
+Subject: Re: [PATCH] ARM: aspeed: g5: Do not set sirq polarity
+From:   Jeremy Kerr <jk@ozlabs.org>
+To:     Joel Stanley <joel@jms.id.au>, Oskar Senft <osk@google.com>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Thu, 27 Aug 2020 14:27:02 +0800
+In-Reply-To: <20200812112400.2406734-1-joel@jms.id.au>
+References: <20200812112400.2406734-1-joel@jms.id.au>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-2 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 6:31 PM Greg KH <greg@kroah.com> wrote:
->
-> On Tue, Aug 25, 2020 at 01:25:32PM +0800, xiangxia.m.yue@gmail.com wrote:
-> > From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> >
-> > [ Upstream commit 77b981c82c1df7c7ad32a046f17f007450b46954 ]
->
-> That is not what this commit is :(
->
-> Please fix up and resend with the correct commit.
-Sorry for that. v2 is sent, please review.
-http://patchwork.ozlabs.org/project/netdev/patch/20200827061952.5789-1-xiangxia.m.yue@gmail.com/
-> thanks,
->
-> greg k-h
+Hi Joel,
+
+> A feature was added to the aspeed vuart driver to configure the vuart
+> interrupt (sirq) polarity according to the LPC/eSPI strapping register.
+> 
+> Systems that depend on a active low behaviour (sirq_polarity set to 0)
+> such as OpenPower boxes also use LPC, so this relationship does not
+> hold.
+> 
+> The property was added for a Tyan S7106 system which is not supported
+> in the kernel tree. Should this or other systems wish to use this
+> feature of the driver they should add it to the machine specific device
+> tree.
+> 
+> Fixes: c791fc76bc72 ("arm: dts: aspeed: Add vuart aspeed,sirq-polarity-sense...")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+
+LGTM. I've tested this on the s2600st, which is strapped for eSPI. All
+good there too, as expected.
+
+Tested-by: Jeremy Kerr <jk@ozlabs.org>
+
+and/or:
+
+Reviewed-by: Jeremy Kerr <jk@ozlabs.org>
+
+Cheers,
 
 
+Jeremy
 
--- 
-Best regards, Tonghao
