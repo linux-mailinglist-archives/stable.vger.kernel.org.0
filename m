@@ -2,202 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 761B4254C1B
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 19:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DDA254D03
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 20:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgH0RWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 13:22:10 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:3045 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727884AbgH0RV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 13:21:28 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f47eb1d0004>; Thu, 27 Aug 2020 10:19:25 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 27 Aug 2020 10:21:27 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 27 Aug 2020 10:21:27 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 27 Aug
- 2020 17:21:27 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 27 Aug 2020 17:21:27 +0000
-Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.174.186]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f47eb960002>; Thu, 27 Aug 2020 10:21:26 -0700
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <adrian.hunter@intel.com>, <ulf.hansson@linaro.org>,
-        <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
-        <robh+dt@kernel.org>
-CC:     <skomatineni@nvidia.com>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH v7 7/7] sdhci: tegra: Add missing TMCLK for data timeout
-Date:   Thu, 27 Aug 2020 10:21:01 -0700
-Message-ID: <1598548861-32373-8-git-send-email-skomatineni@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1598548861-32373-1-git-send-email-skomatineni@nvidia.com>
-References: <1598548861-32373-1-git-send-email-skomatineni@nvidia.com>
-X-NVConfidentiality: public
+        id S1727048AbgH0S0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 14:26:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38730 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726968AbgH0S0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 14:26:06 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A355C06121B
+        for <stable@vger.kernel.org>; Thu, 27 Aug 2020 11:26:06 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id q1so3032234pjd.1
+        for <stable@vger.kernel.org>; Thu, 27 Aug 2020 11:26:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=6BMddBDrBrgDUNUGomrW0m42cqLSjUvpHNc8p74VZyA=;
+        b=FXdPBAw9pl5olpn9n/EuSa1Q6dDDnRWXMgUGfWwLqiAYTjNRr5LcjcwGH1PD32Ch7f
+         pMVoRLLABmJLdweawfmYq3DhOwNyN7VkRzr9UrHC//O8xNk1JqPEA84vLqQOEJASA8xx
+         3sOafGdHa03NSgi6z9D8xEgwX6FDGJauD148M=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=6BMddBDrBrgDUNUGomrW0m42cqLSjUvpHNc8p74VZyA=;
+        b=Gro8lSLfFBzKqDMzVyR7AtR+TKaF3KHdBkn2D/5ElqORSd+IqQ1MSoJFK3wpi8myE8
+         Ftq6VAV83UQrUGK8nxJFvrmGR9Lip6uNszwM088U/ClnxCvlE89MwrVN35QDS1Yi7V8U
+         tl7BoCvmUl+DPcsPmF6Xx7WFHL86PQ0Eoe9HLsw4BOjDqHlIEclTw0wEx7jZsTCP0K/A
+         pZ5uSeo2cTg9A5cJzB/rfICcRwIOj3j4xDqfpST5OXNnqb5cIyJeYFkQiGB4viJNNQOV
+         JnzXhBqNf90xUiwxPXlkf/JoIuaeTJspORhKoZlfPmMSUEt/rM1TV0TYtfpwUsH1kurt
+         Pg9A==
+X-Gm-Message-State: AOAM533lTCwzurLnfs18scC/bX5ts7pThVYP/jNLds51ONSOOohYgPa5
+        rX02wKl5p0thLkeQtxG/PaFSvw==
+X-Google-Smtp-Source: ABdhPJzu9HB96VpOGD+toJHHY5zOKqYeaeMpM3VyoTlj+93xXg4m4tB8ChYdxW0vmq2yKtIttIKfaQ==
+X-Received: by 2002:a17:90a:fb4e:: with SMTP id iq14mr103434pjb.133.1598552766044;
+        Thu, 27 Aug 2020 11:26:06 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id a25sm3370253pfk.151.2020.08.27.11.26.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2020 11:26:05 -0700 (PDT)
+Date:   Thu, 27 Aug 2020 11:26:04 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        stable <stable@vger.kernel.org>, Andy Lavr <andy.lavr@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] lib/string.c: implement stpcpy
+Message-ID: <202008271124.37242A14@keescook>
+References: <20200825135838.2938771-1-ndesaulniers@google.com>
+ <CAK7LNAQXo5-5W6hvNMEVPBPf3tRWaf-pQdSR-0OHyi4RCGhjsQ@mail.gmail.com>
+ <d56bf7b93f7a28c4a90e4e16fd412e6934704346.camel@perches.com>
+ <CAKwvOd=YrVtPsB7HYPO0N=K7QJm9KstayqqeYQERSaGtGy2Bjg@mail.gmail.com>
+ <CAK7LNAQKwOo=Oas+7Du9+neSm=Ev6pxdPV7ges7eEEpW+jh8Ug@mail.gmail.com>
+ <202008261627.7B2B02A@keescook>
+ <77428f28620d4e5ecad1556396f2b0f8f0daef41.camel@perches.com>
+ <202008261932.FF4E5C0@keescook>
+ <e84ea9d311fe082af8a1afe2aba48303ffbb1bf1.camel@perches.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1598548765; bh=tjotC2T52Q6aN9v1RhNQ817xoX6eCGpWnGkexId3YdM=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=ejjAdHLu/VEVyL3si4NTYUEauYJiBkQ640BUyTV5U5GYmig1kyMrZBms6tZawG8rG
-         lSZ0+6AhVTobZ7Qm2G0c5ELmWDGLJoL3fVAPS3+qawkApqaePyNq+J21xtWlHexgKN
-         ns02mffxxX6qPdKmu+lBlcegBBZlRh2GbBlKaRh/Q9pbtcng4BMtKF/NhLl2VX1pjc
-         PkIBjDkg7uz3WCt98cjX4R0r0G9NKy8QG8aQ8UiC6stM+KJU1jp3pUUFvBki90X9Rm
-         cTzsfdMJjv62sH6sBsGPnn4o3be7uNSaz+BKvn9lJ4X/5msBBgdcqbtLAf8FsfU0hj
-         Z5sNd4Knbt+Qw==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e84ea9d311fe082af8a1afe2aba48303ffbb1bf1.camel@perches.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+On Wed, Aug 26, 2020 at 07:42:17PM -0700, Joe Perches wrote:
+> On Wed, 2020-08-26 at 19:33 -0700, Kees Cook wrote:
+> > On Wed, Aug 26, 2020 at 04:57:41PM -0700, Joe Perches wrote:
+> > > On Wed, 2020-08-26 at 16:38 -0700, Kees Cook wrote:
+> > > > On Thu, Aug 27, 2020 at 07:59:45AM +0900, Masahiro Yamada wrote:
+> > > []
+> > > > > OK, then stpcpy(), strcpy() and sprintf()
+> > > > > have the same level of unsafety.
+> > > > 
+> > > > Yes. And even snprintf() is dangerous because its return value is how
+> > > > much it WOULD have written, which when (commonly) used as an offset for
+> > > > further pointer writes, causes OOB writes too. :(
+> > > > https://github.com/KSPP/linux/issues/105
+> > > > 
+> > > > > strcpy() is used everywhere.
+> > > > 
+> > > > Yes. It's very frustrating, but it's not an excuse to continue
+> > > > using it nor introducing more bad APIs.
+> > > > 
+> > > > $ git grep '\bstrcpy\b' | wc -l
+> > > > 2212
+> > > > $ git grep '\bstrncpy\b' | wc -l
+> > > > 751
+> > > > $ git grep '\bstrlcpy\b' | wc -l
+> > > > 1712
+> > > > 
+> > > > $ git grep '\bstrscpy\b' | wc -l
+> > > > 1066
+> > > > 
+> > > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strcpy
+> > > > https://github.com/KSPP/linux/issues/88
+> > > > 
+> > > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
+> > > > https://github.com/KSPP/linux/issues/89
+> > > > 
+> > > > https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
+> > > > https://github.com/KSPP/linux/issues/90
+> > > > 
+> > > > We have no way right now to block the addition of deprecated API usage,
+> > > > which makes ever catching up on this replacement very challenging.
+> > > 
+> > > These could be added to checkpatch's deprecated_api test.
+> > > ---
+> > >  scripts/checkpatch.pl | 3 +++
+> > >  1 file changed, 3 insertions(+)
+> > > 
+> > > diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+> > > index 149518d2a6a7..f9ccb2a63a95 100755
+> > > --- a/scripts/checkpatch.pl
+> > > +++ b/scripts/checkpatch.pl
+> > > @@ -605,6 +605,9 @@ foreach my $entry (@mode_permission_funcs) {
+> > >  $mode_perms_search = "(?:${mode_perms_search})";
+> > >  
+> > >  our %deprecated_apis = (
+> > > +	"strcpy"				=> "strscpy",
+> > > +	"strncpy"				=> "strscpy",
+> > > +	"strlcpy"				=> "strscpy",
+> > >  	"synchronize_rcu_bh"			=> "synchronize_rcu",
+> > >  	"synchronize_rcu_bh_expedited"		=> "synchronize_rcu_expedited",
+> > >  	"call_rcu_bh"				=> "call_rcu",
+> > > 
+> > > 
+> > 
+> > Good idea, yeah. We, unfortunately, need to leave strncpy() off this
+> > list for now because it's not *strictly* deprecated (see the notes in
+> > bug report[1]), but the others can be.
+> 
+> OK, but it is in Documentation/process/deprecated.rst
+> 
+> strncpy() on NUL-terminated strings
 
-Tegra210 and later has a separate sdmmc_legacy_tm (TMCLK) used by Tegra
-SDMMC hawdware for data timeout to achive better timeout than using
-SDCLK and using TMCLK is recommended.
+"... on NUL-terminated strings". It's "valid" to use it on known-size
+(either external or by definition) NUL-padded buffers (e.g. NLA_STRING).
 
-USE_TMCLK_FOR_DATA_TIMEOUT bit in Tegra SDMMC register
-SDHCI_TEGRA_VENDOR_SYS_SW_CTRL can be used to choose either TMCLK or
-SDCLK for data timeout.
-
-Default USE_TMCLK_FOR_DATA_TIMEOUT bit is set to 1 and TMCLK is used
-for data timeout by Tegra SDMMC hardware and having TMCLK not enabled
-is not recommended.
-
-So, this patch adds quirk NVQUIRK_HAS_TMCLK for SoC having separate
-timeout clock and keeps TMCLK enabled all the time.
-
-Fixes: b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
-Cc: stable <stable@vger.kernel.org> # 5.4
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/mmc/host/sdhci-tegra.c | 53 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 51 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 31ed321..13fbf70 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -110,6 +110,12 @@
- #define NVQUIRK_DIS_CARD_CLK_CONFIG_TAP			BIT(8)
- #define NVQUIRK_CQHCI_DCMD_R1B_CMD_TIMING		BIT(9)
- 
-+/*
-+ * NVQUIRK_HAS_TMCLK is for SoC's having separate timeout clock for Tegra
-+ * SDMMC hardware data timeout.
-+ */
-+#define NVQUIRK_HAS_TMCLK				BIT(10)
-+
- /* SDMMC CQE Base Address for Tegra Host Ver 4.1 and Higher */
- #define SDHCI_TEGRA_CQE_BASE_ADDR			0xF000
- 
-@@ -140,6 +146,7 @@ struct sdhci_tegra_autocal_offsets {
- struct sdhci_tegra {
- 	const struct sdhci_tegra_soc_data *soc_data;
- 	struct gpio_desc *power_gpio;
-+	struct clk *tmclk;
- 	bool ddr_signaling;
- 	bool pad_calib_required;
- 	bool pad_control_available;
-@@ -1433,7 +1440,8 @@ static const struct sdhci_tegra_soc_data soc_data_tegra210 = {
- 		    NVQUIRK_HAS_PADCALIB |
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
--		    NVQUIRK_ENABLE_SDR104,
-+		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK,
- 	.min_tap_delay = 106,
- 	.max_tap_delay = 185,
- };
-@@ -1471,6 +1479,7 @@ static const struct sdhci_tegra_soc_data soc_data_tegra186 = {
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
- 		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK |
- 		    NVQUIRK_CQHCI_DCMD_R1B_CMD_TIMING,
- 	.min_tap_delay = 84,
- 	.max_tap_delay = 136,
-@@ -1483,7 +1492,8 @@ static const struct sdhci_tegra_soc_data soc_data_tegra194 = {
- 		    NVQUIRK_HAS_PADCALIB |
- 		    NVQUIRK_DIS_CARD_CLK_CONFIG_TAP |
- 		    NVQUIRK_ENABLE_SDR50 |
--		    NVQUIRK_ENABLE_SDR104,
-+		    NVQUIRK_ENABLE_SDR104 |
-+		    NVQUIRK_HAS_TMCLK,
- 	.min_tap_delay = 96,
- 	.max_tap_delay = 139,
- };
-@@ -1611,6 +1621,43 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 		goto err_power_req;
- 	}
- 
-+	/*
-+	 * Tegra210 has a separate SDMMC_LEGACY_TM clock used for host
-+	 * timeout clock and SW can choose TMCLK or SDCLK for hardware
-+	 * data timeout through the bit USE_TMCLK_FOR_DATA_TIMEOUT of
-+	 * the register SDHCI_TEGRA_VENDOR_SYS_SW_CTRL.
-+	 *
-+	 * USE_TMCLK_FOR_DATA_TIMEOUT bit default is set to 1 and SDMMC uses
-+	 * 12Mhz TMCLK which is advertised in host capability register.
-+	 * With TMCLK of 12Mhz provides maximum data timeout period that can
-+	 * be achieved is 11s better than using SDCLK for data timeout.
-+	 *
-+	 * So, TMCLK is set to 12Mhz and kept enabled all the time on SoC's
-+	 * supporting separate TMCLK.
-+	 */
-+
-+	if (soc_data->nvquirks & NVQUIRK_HAS_TMCLK) {
-+		clk = devm_clk_get(&pdev->dev, "tmclk");
-+		if (IS_ERR(clk)) {
-+			rc = PTR_ERR(clk);
-+			if (rc == -EPROBE_DEFER)
-+				goto err_power_req;
-+
-+			dev_warn(&pdev->dev, "failed to get tmclk: %d\n", rc);
-+			clk = NULL;
-+		}
-+
-+		clk_set_rate(clk, 12000000);
-+		rc = clk_prepare_enable(clk);
-+		if (rc) {
-+			dev_err(&pdev->dev,
-+				"failed to enable tmclk: %d\n", rc);
-+			goto err_power_req;
-+		}
-+
-+		tegra_host->tmclk = clk;
-+	}
-+
- 	clk = devm_clk_get(mmc_dev(host->mmc), NULL);
- 	if (IS_ERR(clk)) {
- 		rc = PTR_ERR(clk);
-@@ -1654,6 +1701,7 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- err_rst_get:
- 	clk_disable_unprepare(pltfm_host->clk);
- err_clk_get:
-+	clk_disable_unprepare(tegra_host->tmclk);
- err_power_req:
- err_parse_dt:
- 	sdhci_pltfm_free(pdev);
-@@ -1671,6 +1719,7 @@ static int sdhci_tegra_remove(struct platform_device *pdev)
- 	reset_control_assert(tegra_host->rst);
- 	usleep_range(2000, 4000);
- 	clk_disable_unprepare(pltfm_host->clk);
-+	clk_disable_unprepare(tegra_host->tmclk);
- 
- 	sdhci_pltfm_free(pdev);
- 
 -- 
-2.7.4
-
+Kees Cook
