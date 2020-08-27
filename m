@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E78F4253F4A
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5D3253F4F
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728246AbgH0HfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 03:35:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
+        id S1727839AbgH0HgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 03:36:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728148AbgH0HfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Aug 2020 03:35:19 -0400
+        id S1727105AbgH0HgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Aug 2020 03:36:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FF45207DF;
-        Thu, 27 Aug 2020 07:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 134D9207DF;
+        Thu, 27 Aug 2020 07:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598513717;
-        bh=IP8OLbCvr7z4iHkOm7/fM2Kat3SeuBzjYRmMIZLAfKQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8LBrsbUS8lPH/Ze92H4repmnbY32JpkJJ6sgvcOCWDLDIgJvjplnEvFyJk9U6t5E
-         9ShlyX6kmIUtuA8pFQqMAdVqttQ6trVf+2EIjGfqJ0ZLUpUmdbQJt9FqylJFvm4NtU
-         9oytuOH16cX1DJ9aSBrhReDLNWmBk3RdfRbMlkZM=
+        s=default; t=1598513784;
+        bh=50PWRBRXLcjIwvP2C1Woq0/TcnUPo5Chd796qxCpnVk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ADEiGVrTJWFjNSIgQVIGqw5ZS8Kwpb8WOqE+N1XlF0b5P1kOya+ztwEjcNnktCSsF
+         JQT9pHReyvcSfV6IVRAr9NIrHv79PuwFuPYa2jgtnk1k2YpY3Q7gAAN2JYiWAiq+Qi
+         kls5j5bygriD4QPy2vh6JJ//36NfMA8PFfyrXe7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.8.5
-Date:   Thu, 27 Aug 2020 09:35:23 +0200
-Message-Id: <159851372156137@kroah.com>
+Subject: Linux 5.7.19
+Date:   Thu, 27 Aug 2020 09:36:34 +0200
+Message-Id: <15985137402037@kroah.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <1598513721250116@kroah.com>
-References: <1598513721250116@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -41,400 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 9a7a416f2d84..f47073a3b474 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 8
--SUBLEVEL = 4
-+SUBLEVEL = 5
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 000f57198352..9f2c697ba0ac 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -3609,7 +3609,7 @@ static int check_missing_comp_in_tx_queue(struct ena_adapter *adapter,
- 	}
- 
- 	u64_stats_update_begin(&tx_ring->syncp);
--	tx_ring->tx_stats.missed_tx = missed_tx;
-+	tx_ring->tx_stats.missed_tx += missed_tx;
- 	u64_stats_update_end(&tx_ring->syncp);
- 
- 	return rc;
-@@ -4537,6 +4537,9 @@ static void ena_keep_alive_wd(void *adapter_data,
- 	tx_drops = ((u64)desc->tx_drops_high << 32) | desc->tx_drops_low;
- 
- 	u64_stats_update_begin(&adapter->syncp);
-+	/* These stats are accumulated by the device, so the counters indicate
-+	 * all drops since last reset.
-+	 */
- 	adapter->dev_stats.rx_drops = rx_drops;
- 	adapter->dev_stats.tx_drops = tx_drops;
- 	u64_stats_update_end(&adapter->syncp);
-diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
-index f2f9086ebe98..b9c658e0548e 100644
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -576,7 +576,7 @@ static int load_flat_file(struct linux_binprm *bprm,
- 			goto err;
- 		}
- 
--		len = data_len + extra;
-+		len = data_len + extra + MAX_SHARED_LIBS * sizeof(unsigned long);
- 		len = PAGE_ALIGN(len);
- 		realdatastart = vm_mmap(NULL, 0, len,
- 			PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 0);
-@@ -590,7 +590,9 @@ static int load_flat_file(struct linux_binprm *bprm,
- 			vm_munmap(textpos, text_len);
- 			goto err;
- 		}
--		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
-+		datapos = ALIGN(realdatastart +
-+				MAX_SHARED_LIBS * sizeof(unsigned long),
-+				FLAT_DATA_ALIGN);
- 
- 		pr_debug("Allocated data+bss+stack (%u bytes): %lx\n",
- 			 data_len + bss_len + stack_len, datapos);
-@@ -620,7 +622,7 @@ static int load_flat_file(struct linux_binprm *bprm,
- 		memp_size = len;
- 	} else {
- 
--		len = text_len + data_len + extra;
-+		len = text_len + data_len + extra + MAX_SHARED_LIBS * sizeof(u32);
- 		len = PAGE_ALIGN(len);
- 		textpos = vm_mmap(NULL, 0, len,
- 			PROT_READ | PROT_EXEC | PROT_WRITE, MAP_PRIVATE, 0);
-@@ -635,7 +637,9 @@ static int load_flat_file(struct linux_binprm *bprm,
- 		}
- 
- 		realdatastart = textpos + ntohl(hdr->data_start);
--		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
-+		datapos = ALIGN(realdatastart +
-+				MAX_SHARED_LIBS * sizeof(u32),
-+				FLAT_DATA_ALIGN);
- 
- 		reloc = (__be32 __user *)
- 			(datapos + (ntohl(hdr->reloc_start) - text_len));
-@@ -652,9 +656,8 @@ static int load_flat_file(struct linux_binprm *bprm,
- 					 (text_len + full_data
- 						  - sizeof(struct flat_hdr)),
- 					 0);
--			if (datapos != realdatastart)
--				memmove((void *)datapos, (void *)realdatastart,
--						full_data);
-+			memmove((void *) datapos, (void *) realdatastart,
-+					full_data);
- #else
- 			/*
- 			 * This is used on MMU systems mainly for testing.
-@@ -710,7 +713,8 @@ static int load_flat_file(struct linux_binprm *bprm,
- 		if (IS_ERR_VALUE(result)) {
- 			ret = result;
- 			pr_err("Unable to read code+data+bss, errno %d\n", ret);
--			vm_munmap(textpos, text_len + data_len + extra);
-+			vm_munmap(textpos, text_len + data_len + extra +
-+				MAX_SHARED_LIBS * sizeof(u32));
- 			goto err;
- 		}
- 	}
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index dd8ad87540ef..26978630378e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4363,7 +4363,8 @@ static int io_sq_thread_acquire_mm(struct io_ring_ctx *ctx,
- 				   struct io_kiocb *req)
- {
- 	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
--		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
-+		if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
-+			     !mmget_not_zero(ctx->sqo_mm)))
- 			return -EFAULT;
- 		kthread_use_mm(ctx->sqo_mm);
- 	}
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index b8afefe6f6b6..7afe52bd038b 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5419,8 +5419,8 @@ struct sk_buff *skb_vlan_untag(struct sk_buff *skb)
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (unlikely(!skb))
- 		goto err_free;
--
--	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
-+	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
-+	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
- 		goto err_free;
- 
- 	vhdr = (struct vlan_hdr *)skb->data;
-diff --git a/net/ethtool/features.c b/net/ethtool/features.c
-index 4e632dc987d8..495635f152ba 100644
---- a/net/ethtool/features.c
-+++ b/net/ethtool/features.c
-@@ -224,7 +224,9 @@ int ethnl_set_features(struct sk_buff *skb, struct genl_info *info)
- 	DECLARE_BITMAP(wanted_diff_mask, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(active_diff_mask, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(old_active, NETDEV_FEATURE_COUNT);
-+	DECLARE_BITMAP(old_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(new_active, NETDEV_FEATURE_COUNT);
-+	DECLARE_BITMAP(new_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(req_wanted, NETDEV_FEATURE_COUNT);
- 	DECLARE_BITMAP(req_mask, NETDEV_FEATURE_COUNT);
- 	struct nlattr *tb[ETHTOOL_A_FEATURES_MAX + 1];
-@@ -250,6 +252,7 @@ int ethnl_set_features(struct sk_buff *skb, struct genl_info *info)
- 
- 	rtnl_lock();
- 	ethnl_features_to_bitmap(old_active, dev->features);
-+	ethnl_features_to_bitmap(old_wanted, dev->wanted_features);
- 	ret = ethnl_parse_bitset(req_wanted, req_mask, NETDEV_FEATURE_COUNT,
- 				 tb[ETHTOOL_A_FEATURES_WANTED],
- 				 netdev_features_strings, info->extack);
-@@ -261,17 +264,15 @@ int ethnl_set_features(struct sk_buff *skb, struct genl_info *info)
- 		goto out_rtnl;
- 	}
- 
--	/* set req_wanted bits not in req_mask from old_active */
-+	/* set req_wanted bits not in req_mask from old_wanted */
- 	bitmap_and(req_wanted, req_wanted, req_mask, NETDEV_FEATURE_COUNT);
--	bitmap_andnot(new_active, old_active, req_mask, NETDEV_FEATURE_COUNT);
--	bitmap_or(req_wanted, new_active, req_wanted, NETDEV_FEATURE_COUNT);
--	if (bitmap_equal(req_wanted, old_active, NETDEV_FEATURE_COUNT)) {
--		ret = 0;
--		goto out_rtnl;
-+	bitmap_andnot(new_wanted, old_wanted, req_mask, NETDEV_FEATURE_COUNT);
-+	bitmap_or(req_wanted, new_wanted, req_wanted, NETDEV_FEATURE_COUNT);
-+	if (!bitmap_equal(req_wanted, old_wanted, NETDEV_FEATURE_COUNT)) {
-+		dev->wanted_features &= ~dev->hw_features;
-+		dev->wanted_features |= ethnl_bitmap_to_features(req_wanted) & dev->hw_features;
-+		__netdev_update_features(dev);
- 	}
--
--	dev->wanted_features = ethnl_bitmap_to_features(req_wanted);
--	__netdev_update_features(dev);
- 	ethnl_features_to_bitmap(new_active, dev->features);
- 	mod = !bitmap_equal(old_active, new_active, NETDEV_FEATURE_COUNT);
- 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index cc8049b100b2..134e92382275 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -446,7 +446,7 @@ static int nh_check_attr_group(struct net *net, struct nlattr *tb[],
- 	unsigned int i, j;
- 	u8 nhg_fdb = 0;
- 
--	if (len & (sizeof(struct nexthop_grp) - 1)) {
-+	if (!len || len & (sizeof(struct nexthop_grp) - 1)) {
- 		NL_SET_ERR_MSG(extack,
- 			       "Invalid length for nexthop group attribute");
- 		return -EINVAL;
-@@ -1187,6 +1187,9 @@ static struct nexthop *nexthop_create_group(struct net *net,
- 	struct nexthop *nh;
- 	int i;
- 
-+	if (WARN_ON(!num_nh))
-+		return ERR_PTR(-EINVAL);
-+
- 	nh = nexthop_alloc();
- 	if (!nh)
- 		return ERR_PTR(-ENOMEM);
-diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-index a18c378ca5f4..d8f0102cec94 100644
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -913,7 +913,15 @@ int ip6_tnl_rcv(struct ip6_tnl *t, struct sk_buff *skb,
- 		struct metadata_dst *tun_dst,
- 		bool log_ecn_err)
- {
--	return __ip6_tnl_rcv(t, skb, tpi, tun_dst, ip6ip6_dscp_ecn_decapsulate,
-+	int (*dscp_ecn_decapsulate)(const struct ip6_tnl *t,
-+				    const struct ipv6hdr *ipv6h,
-+				    struct sk_buff *skb);
-+
-+	dscp_ecn_decapsulate = ip6ip6_dscp_ecn_decapsulate;
-+	if (tpi->proto == htons(ETH_P_IP))
-+		dscp_ecn_decapsulate = ip4ip6_dscp_ecn_decapsulate;
-+
-+	return __ip6_tnl_rcv(t, skb, tpi, tun_dst, dscp_ecn_decapsulate,
- 			     log_ecn_err);
- }
- EXPORT_SYMBOL(ip6_tnl_rcv);
-diff --git a/net/netlink/policy.c b/net/netlink/policy.c
-index f6491853c797..2b3e26f7496f 100644
---- a/net/netlink/policy.c
-+++ b/net/netlink/policy.c
-@@ -51,6 +51,9 @@ static int add_policy(struct nl_policy_dump **statep,
- 	if (!state)
- 		return -ENOMEM;
- 
-+	memset(&state->policies[state->n_alloc], 0,
-+	       flex_array_size(state, policies, n_alloc - state->n_alloc));
-+
- 	state->policies[state->n_alloc].policy = policy;
- 	state->policies[state->n_alloc].maxtype = maxtype;
- 	state->n_alloc = n_alloc;
-diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
-index 300a104b9a0f..85ab4559f057 100644
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -692,23 +692,25 @@ static void qrtr_port_remove(struct qrtr_sock *ipc)
-  */
- static int qrtr_port_assign(struct qrtr_sock *ipc, int *port)
- {
-+	u32 min_port;
- 	int rc;
- 
- 	mutex_lock(&qrtr_port_lock);
- 	if (!*port) {
--		rc = idr_alloc(&qrtr_ports, ipc,
--			       QRTR_MIN_EPH_SOCKET, QRTR_MAX_EPH_SOCKET + 1,
--			       GFP_ATOMIC);
--		if (rc >= 0)
--			*port = rc;
-+		min_port = QRTR_MIN_EPH_SOCKET;
-+		rc = idr_alloc_u32(&qrtr_ports, ipc, &min_port, QRTR_MAX_EPH_SOCKET, GFP_ATOMIC);
-+		if (!rc)
-+			*port = min_port;
- 	} else if (*port < QRTR_MIN_EPH_SOCKET && !capable(CAP_NET_ADMIN)) {
- 		rc = -EACCES;
- 	} else if (*port == QRTR_PORT_CTRL) {
--		rc = idr_alloc(&qrtr_ports, ipc, 0, 1, GFP_ATOMIC);
-+		min_port = 0;
-+		rc = idr_alloc_u32(&qrtr_ports, ipc, &min_port, 0, GFP_ATOMIC);
- 	} else {
--		rc = idr_alloc(&qrtr_ports, ipc, *port, *port + 1, GFP_ATOMIC);
--		if (rc >= 0)
--			*port = rc;
-+		min_port = *port;
-+		rc = idr_alloc_u32(&qrtr_ports, ipc, &min_port, *port, GFP_ATOMIC);
-+		if (!rc)
-+			*port = min_port;
- 	}
- 	mutex_unlock(&qrtr_port_lock);
- 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 6ed1652d1e26..41d8440deaf1 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -704,7 +704,7 @@ static int tcf_ct_handle_fragments(struct net *net, struct sk_buff *skb,
- 		err = ip_defrag(net, skb, user);
- 		local_bh_enable();
- 		if (err && err != -EINPROGRESS)
--			goto out_free;
-+			return err;
- 
- 		if (!err)
- 			*defrag = true;
-diff --git a/net/sctp/stream.c b/net/sctp/stream.c
-index bda2536dd740..6dc95dcc0ff4 100644
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -88,12 +88,13 @@ static int sctp_stream_alloc_out(struct sctp_stream *stream, __u16 outcnt,
- 	int ret;
- 
- 	if (outcnt <= stream->outcnt)
--		return 0;
-+		goto out;
- 
- 	ret = genradix_prealloc(&stream->out, outcnt, gfp);
- 	if (ret)
- 		return ret;
- 
-+out:
- 	stream->outcnt = outcnt;
- 	return 0;
- }
-@@ -104,12 +105,13 @@ static int sctp_stream_alloc_in(struct sctp_stream *stream, __u16 incnt,
- 	int ret;
- 
- 	if (incnt <= stream->incnt)
--		return 0;
-+		goto out;
- 
- 	ret = genradix_prealloc(&stream->in, incnt, gfp);
- 	if (ret)
- 		return ret;
- 
-+out:
- 	stream->incnt = incnt;
- 	return 0;
- }
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index e1f64f4ba236..da9ba6d1679b 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -170,13 +170,15 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_connection *conn = &smc->conn;
--		struct smcd_diag_dmbinfo dinfo = {
--			.linkid = *((u32 *)conn->lgr->id),
--			.peer_gid = conn->lgr->peer_gid,
--			.my_gid = conn->lgr->smcd->local_gid,
--			.token = conn->rmb_desc->token,
--			.peer_token = conn->peer_token
--		};
-+		struct smcd_diag_dmbinfo dinfo;
-+
-+		memset(&dinfo, 0, sizeof(dinfo));
-+
-+		dinfo.linkid = *((u32 *)conn->lgr->id);
-+		dinfo.peer_gid = conn->lgr->peer_gid;
-+		dinfo.my_gid = conn->lgr->smcd->local_gid;
-+		dinfo.token = conn->rmb_desc->token;
-+		dinfo.peer_token = conn->peer_token;
- 
- 		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
- 			goto errout;
-diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
-index c8c47fc72653..d6426b6cc9c5 100644
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -757,10 +757,12 @@ static void tipc_aead_encrypt_done(struct crypto_async_request *base, int err)
- 	switch (err) {
- 	case 0:
- 		this_cpu_inc(tx->stats->stat[STAT_ASYNC_OK]);
-+		rcu_read_lock();
- 		if (likely(test_bit(0, &b->up)))
- 			b->media->send_msg(net, skb, b, &tx_ctx->dst);
- 		else
- 			kfree_skb(skb);
-+		rcu_read_unlock();
- 		break;
- 	case -EINPROGRESS:
- 		return;
-diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
-index 217516357ef2..90e3c70a91ad 100644
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -275,8 +275,9 @@ static int __tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
- static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
- 				 struct tipc_nl_compat_msg *msg)
- {
--	int err;
-+	struct nlmsghdr *nlh;
- 	struct sk_buff *arg;
-+	int err;
- 
- 	if (msg->req_type && (!msg->req_size ||
- 			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
-@@ -305,6 +306,15 @@ static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
- 		return -ENOMEM;
- 	}
- 
-+	nlh = nlmsg_put(arg, 0, 0, tipc_genl_family.id, 0, NLM_F_MULTI);
-+	if (!nlh) {
-+		kfree_skb(arg);
-+		kfree_skb(msg->rep);
-+		msg->rep = NULL;
-+		return -EMSGSIZE;
-+	}
-+	nlmsg_end(arg, nlh);
-+
- 	err = __tipc_nl_compat_dumpit(cmd, msg, arg);
- 	if (err) {
- 		kfree_skb(msg->rep);
+----------
+Note, this is the LAST 5.7.y kernel to be released.  This release series
+is now end-of-life, please move to 5.8.y at this point in time.
+------------
+
+I'm announcing the release of the 5.7.19 kernel.
+
+All users of the 5.7 kernel series must upgrade.
+
+The updated 5.7.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.7.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                     |    2 +-
+ arch/powerpc/kernel/cpu_setup_power.S        |    2 +-
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |    5 ++++-
+ fs/binfmt_flat.c                             |   20 ++++++++++++--------
+ net/core/skbuff.c                            |    4 ++--
+ net/ethtool/features.c                       |   19 ++++++++++---------
+ net/ipv4/nexthop.c                           |    5 ++++-
+ net/ipv6/ip6_tunnel.c                        |   10 +++++++++-
+ net/qrtr/qrtr.c                              |   20 +++++++++++---------
+ net/sched/act_ct.c                           |    2 +-
+ net/sctp/stream.c                            |    6 ++++--
+ net/smc/smc_diag.c                           |   16 +++++++++-------
+ net/tipc/crypto.c                            |    2 ++
+ net/tipc/netlink_compat.c                    |   12 +++++++++++-
+ 14 files changed, 81 insertions(+), 44 deletions(-)
+
+Alaa Hleihel (1):
+      net/sched: act_ct: Fix skb double-free in tcf_ct_handle_fragments() error flow
+
+Cong Wang (1):
+      tipc: fix uninit skb->data in tipc_nl_compat_dumpit()
+
+David Laight (1):
+      net: sctp: Fix negotiation of the number of data streams.
+
+Greg Kroah-Hartman (1):
+      Linux 5.7.19
+
+Mark Tomlinson (1):
+      gre6: Fix reception with IP6_TNL_F_RCV_DSCP_COPY
+
+Max Filippov (1):
+      binfmt_flat: revert "binfmt_flat: don't offset the data start"
+
+Maxim Mikityanskiy (3):
+      ethtool: Fix preserving of wanted feature bits in netlink interface
+      ethtool: Account for hw_features in netlink interface
+      ethtool: Don't omit the netlink reply if no features were changed
+
+Miaohe Lin (1):
+      net: Fix potential wrong skb->protocol in skb_vlan_untag()
+
+Michael Ellerman (1):
+      powerpc/64s: Don't init FSCR_DSCR in __init_FSCR()
+
+Necip Fazil Yildiran (1):
+      net: qrtr: fix usage of idr in port assignment to socket
+
+Nikolay Aleksandrov (1):
+      net: nexthop: don't allow empty NHA_GROUP
+
+Peilin Ye (1):
+      net/smc: Prevent kernel-infoleak in __smc_diag_dump()
+
+Shay Agroskin (1):
+      net: ena: Make missed_tx stat incremental
+
+Xin Long (1):
+      tipc: call rcu_read_lock() in tipc_aead_encrypt_done()
+
