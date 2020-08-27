@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 672A3253F0A
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB871253F16
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 09:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbgH0HZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 03:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
+        id S1727969AbgH0H0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 03:26:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727792AbgH0HZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Aug 2020 03:25:02 -0400
+        id S1728161AbgH0H0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Aug 2020 03:26:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3DE722BEA;
-        Thu, 27 Aug 2020 07:25:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BAD522BEA;
+        Thu, 27 Aug 2020 07:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598513102;
-        bh=/8HS1pz1I8NVSB3l27g387m1jYKubxzNOwgQDMh2NoM=;
+        s=default; t=1598513168;
+        bh=SnCOdHsKwEIfQtaPsexVEvCmcHEdRTChMP3fSW18jgQ=;
         h=Subject:To:From:Date:From;
-        b=u++omP4WRmm6+h/l2tsgg/JnB1wQnEUzhh0zkorl5dMRNiZXTb8ehazAQV0VSf7gW
-         ZcKmKGoNPSJkCLs5+PMi0qodRDkbe7203zDMyLOo76bCwh89pvVxuC+k0oIYxjmQaH
-         CMjIaK6SsOqDgJlFErdIfpBSzxSVcYI+IELY44m8=
-Subject: patch "USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D" added to usb-linus
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        jcbarnoud@gmail.com, stable@vger.kernel.org
+        b=QG8hRcnml3C/imrpty4rBOCXBhE+ok3NXmWs+BC/X/uMvrJjMHu2Inah/kOlD0j1G
+         bajJKs6ZvJ+NKjcbke7oLVjHXo/mJt91mwPNkxSflgz4YF9hRs4GRbSXfsILS855TO
+         ZutDvMfRJLxv2/MYDJ5fzHCCpq9hsQkH8KyF8zjg=
+Subject: patch "usb: host: ohci-exynos: Fix error handling in exynos_ohci_probe()" added to usb-linus
+To:     tangbin@cmss.chinamobile.com, gregkh@linuxfoundation.org,
+        krzk@kernel.org, stable@vger.kernel.org,
+        zhangshengju@cmss.chinamobile.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Aug 2020 09:25:16 +0200
-Message-ID: <159851311682184@kroah.com>
+Date:   Thu, 27 Aug 2020 09:26:22 +0200
+Message-ID: <159851318218131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D
+    usb: host: ohci-exynos: Fix error handling in exynos_ohci_probe()
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,55 +56,43 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 068834a2773b6a12805105cfadbb3d4229fc6e0a Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 26 Aug 2020 15:46:24 -0400
-Subject: USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D
+From 1d4169834628d18b2392a2da92b7fbf5e8e2ce89 Mon Sep 17 00:00:00 2001
+From: Tang Bin <tangbin@cmss.chinamobile.com>
+Date: Wed, 26 Aug 2020 22:49:31 +0800
+Subject: usb: host: ohci-exynos: Fix error handling in exynos_ohci_probe()
 
-The Sound Devices MixPre-D audio card suffers from the same defect
-as the Sound Devices USBPre2: an endpoint shared between a normal
-audio interface and a vendor-specific interface, in violation of the
-USB spec.  Since the USB core now treats duplicated endpoints as bugs
-and ignores them, the audio endpoint isn't available and the card
-can't be used for audio capture.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+exynos_ohci_probe(). And when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant
+message here.
 
-Along the same lines as commit bdd1b147b802 ("USB: quirks: blacklist
-duplicate ep on Sound Devices USBPre2"), this patch adds a quirks
-entry saying to ignore ep5in for interface 1, leaving it available for
-use with standard audio interface 2.
-
-Reported-and-tested-by: Jean-Christophe Barnoud <jcbarnoud@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
-Link: https://lore.kernel.org/r/20200826194624.GA412633@rowland.harvard.edu
+Fixes: 62194244cf87 ("USB: Add Samsung Exynos OHCI diver")
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200826144931.1828-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/host/ohci-exynos.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index d1f38956b210..f232914de5fd 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -370,6 +370,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x0926, 0x0202), .driver_info =
- 			USB_QUIRK_ENDPOINT_IGNORE },
+diff --git a/drivers/usb/host/ohci-exynos.c b/drivers/usb/host/ohci-exynos.c
+index bd40e597f256..5f5e8a64c8e2 100644
+--- a/drivers/usb/host/ohci-exynos.c
++++ b/drivers/usb/host/ohci-exynos.c
+@@ -171,9 +171,8 @@ static int exynos_ohci_probe(struct platform_device *pdev)
+ 	hcd->rsrc_len = resource_size(res);
  
-+	/* Sound Devices MixPre-D */
-+	{ USB_DEVICE(0x0926, 0x0208), .driver_info =
-+			USB_QUIRK_ENDPOINT_IGNORE },
-+
- 	/* Keytouch QWERTY Panel keyboard */
- 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
- 			USB_QUIRK_CONFIG_INTF_STRINGS },
-@@ -511,6 +515,7 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
-  */
- static const struct usb_device_id usb_endpoint_ignore[] = {
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
- 	{ }
- };
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		dev_err(&pdev->dev, "Failed to get IRQ\n");
+-		err = -ENODEV;
++	if (irq < 0) {
++		err = irq;
+ 		goto fail_io;
+ 	}
  
 -- 
 2.28.0
