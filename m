@@ -2,101 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B1C253D17
-	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 07:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5736A253DA4
+	for <lists+stable@lfdr.de>; Thu, 27 Aug 2020 08:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726123AbgH0FKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Aug 2020 01:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726028AbgH0FKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Aug 2020 01:10:53 -0400
-Received: from localhost (unknown [122.171.38.130])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A55020639;
-        Thu, 27 Aug 2020 05:10:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598505052;
-        bh=tX7GZOO7LfjDunkhw2PIoOqNvJKif05ZX2TOPHyhupM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FjjbDbdsYHnLDl0CQ5pU+jRifCcfbvDbCxZFXrsq6A7zq688yS/KXlrt6oLhr1nsU
-         tmr9cfHpiy6ZjRuoYtpIHTEqzEBFIF0+9SEbtR7nACEMY8K+X3iAe8g3KYfYV2I89B
-         xKmpPIPBuqOGBs91wRWxCAjUXtuv853Utx4BE1Ww=
-Date:   Thu, 27 Aug 2020 10:40:48 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Gustavo Pimentel <Gustavo.Pimentel@synopsys.com>
-Cc:     "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
-        Joao Pinto <Joao.Pinto@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] dmaengine: dw-edma: Fix linked list physical address
- calculation on non-64 bits architectures
-Message-ID: <20200827051048.GH2639@vkoul-mobl>
-References: <9d92b3c0f9304e3f2892833a70c726b911b29fd8.1597327637.git.gustavo.pimentel@synopsys.com>
- <20200825110937.GI2639@vkoul-mobl>
- <DM5PR12MB127696E920BD51BA1788CDE0DA540@DM5PR12MB1276.namprd12.prod.outlook.com>
+        id S1726093AbgH0GWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Aug 2020 02:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725909AbgH0GWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Aug 2020 02:22:05 -0400
+Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B962C06125E;
+        Wed, 26 Aug 2020 23:21:56 -0700 (PDT)
+Received: by mail-qv1-xf41.google.com with SMTP id cs12so2172137qvb.2;
+        Wed, 26 Aug 2020 23:21:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Epu5LMMnzcXJyXxIxmqqE2Un3GzqSZHgAZfFnavRrqA=;
+        b=rAbKI83yqP0ZA7NP/tDKWnJU+DHWyMqTRzR6f+Pzu+GmVHTi9rEo9fDX4sKdObZAdp
+         hxukX8Toy7Z3h4L5ON4yJB8RSmDR/sHb68+mNNVzYNL202z3PoRp3j9eSDD4ZxEh1q+E
+         /wTPTA0dK4qyBeVi5IKFZKsDT+gHu1BWjZtFwpeCvYOQyqYHJsTZL1Zy9kxPGpBVLOqU
+         JymJS4GrI0TFzbsOP2TpyG6FARte8dxHqhdyM9HxFsIRb+rIsbHkEhcNFRqU2dXFAQff
+         JDkIfIAwDJ5zHCS89NPYKn6dsJ82KT+CSuIj7ITE1X3Dz3kOjg7ZJfq1feJu9eRWwohd
+         TFRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Epu5LMMnzcXJyXxIxmqqE2Un3GzqSZHgAZfFnavRrqA=;
+        b=Q7UzsyPXcXDz6pmPSXb1MdXOsQoW1KXUfjJsbUEsm55YWN6iidUi095MUkWJOUgxf2
+         YJbu57+QkLAk2GGF4GDW0T0xbxelF7cUrlOkqFAEx/nbWkyFjUQ0GLMnHD5DXHuMN5Yd
+         PuCmCb+7ZzZCYW8/u8fhpLUl+2CcB/5fvMzTWSE3Hg5LYkCTrW3UNOjx27XsbJ1mRO9z
+         9s/E7snya4oMK6mCX8BzRyTYzVHadjVer2PFJG5horsJ/NgLLp3HNiEZZU/+D2V7s1WD
+         fs+rWK7L3Is9Gd6hqxTDbc8VBKp7WWMkL2H0lUkN031cAYj1N6RZaDNPUqE+AQYLFj5z
+         YC8g==
+X-Gm-Message-State: AOAM531FdzaZHzezzoYGj6sHUkQRGrQRidLS5Dhs/WOSW1EAe1lPvsJN
+        57cbkvLnt/reSs/N+PCOXHFJFpTMJqY=
+X-Google-Smtp-Source: ABdhPJy/5QPXrFEUP8b1kDdDCDWnDRvuEWTQqNEn3iYxVg8XOa5ZUpX00yykfPR+piIyTFRs5QJF4g==
+X-Received: by 2002:ad4:50a6:: with SMTP id d6mr16945786qvq.173.1598509315365;
+        Wed, 26 Aug 2020 23:21:55 -0700 (PDT)
+Received: from localhost.localdomain ([50.236.19.102])
+        by smtp.gmail.com with ESMTPSA id f7sm1186117qkj.32.2020.08.26.23.21.49
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 26 Aug 2020 23:21:54 -0700 (PDT)
+From:   xiangxia.m.yue@gmail.com
+To:     greg@kroah.com, sashal@kernel.org, davem@davemloft.net
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, jknoos@google.com,
+        Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: [PATCH net backport to 5.5 - 5.8.3 v2] net: openvswitch: introduce common code for flushing flows
+Date:   Thu, 27 Aug 2020 14:19:52 +0800
+Message-Id: <20200827061952.5789-1-xiangxia.m.yue@gmail.com>
+X-Mailer: git-send-email 2.15.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DM5PR12MB127696E920BD51BA1788CDE0DA540@DM5PR12MB1276.namprd12.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26-08-20, 12:31, Gustavo Pimentel wrote:
-> On Tue, Aug 25, 2020 at 12:9:37, Vinod Koul <vkoul@kernel.org> wrote:
-> 
-> > On 13-08-20, 16:13, Gustavo Pimentel wrote:
-> > > Fix linked list physical address calculation on non-64 bits architectures.
-> > > 
-> > > The paddr variable is phys_addr_t type, which can assume a different
-> > > type (u64 or u32) depending on the conditional compilation flag
-> > > CONFIG_PHYS_ADDR_T_64BIT.
-> > > 
-> > > Since this variable is used in with upper_32 bits() macro to get the
-> > > value from 32 to 63 bits, on a non-64 bits architecture this variable
-> > > will assume a u32 type, it can cause a compilation warning.
-> > > 
-> > > This issue was reported by a Coverity analysis.
-> > > 
-> > > Fixes: 7e4b8a4fbe2c ("dmaengine: Add Synopsys eDMA IP version 0 support")
-> > > 
-> > > Cc: Joao Pinto <jpinto@synopsys.com>
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-> > > ---
-> > >  drivers/dma/dw-edma/dw-edma-v0-core.c | 23 +++++++++++++++++------
-> > >  1 file changed, 17 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/drivers/dma/dw-edma/dw-edma-v0-core.c b/drivers/dma/dw-edma/dw-edma-v0-core.c
-> > > index 692de47..cfabbf5 100644
-> > > --- a/drivers/dma/dw-edma/dw-edma-v0-core.c
-> > > +++ b/drivers/dma/dw-edma/dw-edma-v0-core.c
-> > > @@ -229,8 +229,13 @@ static void dw_edma_v0_core_write_chunk(struct dw_edma_chunk *chunk)
-> > >  	/* Channel control */
-> > >  	SET_LL(&llp->control, control);
-> > >  	/* Linked list  - low, high */
-> > > -	SET_LL(&llp->llp_low, lower_32_bits(chunk->ll_region.paddr));
-> > > -	SET_LL(&llp->llp_high, upper_32_bits(chunk->ll_region.paddr));
-> > > +	#ifdef CONFIG_PHYS_ADDR_T_64BIT
-> > > +		SET_LL(&llp->llp_low, lower_32_bits(chunk->ll_region.paddr));
-> > > +		SET_LL(&llp->llp_high, upper_32_bits(chunk->ll_region.paddr));
-> > > +	#else /* CONFIG_PHYS_ADDR_T_64BIT */
-> > > +		SET_LL(&llp->llp_low, chunk->ll_region.paddr);
-> > > +		SET_LL(&llp->llp_high, 0x0);
-> > 
-> > Shouldn't upper_32_bits(chunk->ll_region.paddr) return zero for non
-> > 64bit archs?
-> 
-> At the time when I made this patch, I got a compiler warning about the 
-> u32 vs u64 type mixing (phys_addr_t) and the macro usage upper_32 bits() 
-> on non-64 bits architectures. That's why I made this patch, but now I 
-> don't see this warning anymore.
-> 
-> Vinod, please disregard this patch.
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-Ok dropped
+[ Upstream commit 1f3a090b9033f69de380c03db3ea1a1015c850cf ]
 
+Backport this commit to 5.5 - 5.8.3.
+
+To avoid some issues, for example RCU usage warning and double free,
+we should flush the flows under ovs_lock. This patch refactors
+table_instance_destroy and introduces table_instance_flow_flush
+which can be invoked by __dp_destroy or ovs_flow_tbl_flush.
+
+Fixes: 50b0e61b32ee ("net: openvswitch: fix possible memleak on destroy flow-table")
+Reported-by: Johan Knöös <jknoos@google.com>
+Reported-at: https://mail.openvswitch.org/pipermail/ovs-discuss/2020-August/050489.html
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ net/openvswitch/datapath.c   | 10 +++++++++-
+ net/openvswitch/flow_table.c | 35 +++++++++++++++--------------------
+ net/openvswitch/flow_table.h |  3 +++
+ 3 files changed, 27 insertions(+), 21 deletions(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index e3a37d22539c..15615cae4c89 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1737,6 +1737,7 @@ static int ovs_dp_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ /* Called with ovs_mutex. */
+ static void __dp_destroy(struct datapath *dp)
+ {
++	struct flow_table *table = &dp->table;
+ 	int i;
+ 
+ 	for (i = 0; i < DP_VPORT_HASH_BUCKETS; i++) {
+@@ -1755,7 +1756,14 @@ static void __dp_destroy(struct datapath *dp)
+ 	 */
+ 	ovs_dp_detach_port(ovs_vport_ovsl(dp, OVSP_LOCAL));
+ 
+-	/* RCU destroy the flow table */
++	/* Flush sw_flow in the tables. RCU cb only releases resource
++	 * such as dp, ports and tables. That may avoid some issues
++	 * such as RCU usage warning.
++	 */
++	table_instance_flow_flush(table, ovsl_dereference(table->ti),
++				  ovsl_dereference(table->ufid_ti));
++
++	/* RCU destroy the ports, meters and flow tables. */
+ 	call_rcu(&dp->rcu, destroy_dp_rcu);
+ }
+ 
+diff --git a/net/openvswitch/flow_table.c b/net/openvswitch/flow_table.c
+index 5904e93e5765..1c4fbac53fbd 100644
+--- a/net/openvswitch/flow_table.c
++++ b/net/openvswitch/flow_table.c
+@@ -345,19 +345,15 @@ static void table_instance_flow_free(struct flow_table *table,
+ 	flow_mask_remove(table, flow->mask);
+ }
+ 
+-static void table_instance_destroy(struct flow_table *table,
+-				   struct table_instance *ti,
+-				   struct table_instance *ufid_ti,
+-				   bool deferred)
++/* Must be called with OVS mutex held. */
++void table_instance_flow_flush(struct flow_table *table,
++			       struct table_instance *ti,
++			       struct table_instance *ufid_ti)
+ {
+ 	int i;
+ 
+-	if (!ti)
+-		return;
+-
+-	BUG_ON(!ufid_ti);
+ 	if (ti->keep_flows)
+-		goto skip_flows;
++		return;
+ 
+ 	for (i = 0; i < ti->n_buckets; i++) {
+ 		struct sw_flow *flow;
+@@ -369,18 +365,16 @@ static void table_instance_destroy(struct flow_table *table,
+ 
+ 			table_instance_flow_free(table, ti, ufid_ti,
+ 						 flow, false);
+-			ovs_flow_free(flow, deferred);
++			ovs_flow_free(flow, true);
+ 		}
+ 	}
++}
+ 
+-skip_flows:
+-	if (deferred) {
+-		call_rcu(&ti->rcu, flow_tbl_destroy_rcu_cb);
+-		call_rcu(&ufid_ti->rcu, flow_tbl_destroy_rcu_cb);
+-	} else {
+-		__table_instance_destroy(ti);
+-		__table_instance_destroy(ufid_ti);
+-	}
++static void table_instance_destroy(struct table_instance *ti,
++				   struct table_instance *ufid_ti)
++{
++	call_rcu(&ti->rcu, flow_tbl_destroy_rcu_cb);
++	call_rcu(&ufid_ti->rcu, flow_tbl_destroy_rcu_cb);
+ }
+ 
+ /* No need for locking this function is called from RCU callback or
+@@ -393,7 +387,7 @@ void ovs_flow_tbl_destroy(struct flow_table *table)
+ 
+ 	free_percpu(table->mask_cache);
+ 	kfree_rcu(rcu_dereference_raw(table->mask_array), rcu);
+-	table_instance_destroy(table, ti, ufid_ti, false);
++	table_instance_destroy(ti, ufid_ti);
+ }
+ 
+ struct sw_flow *ovs_flow_tbl_dump_next(struct table_instance *ti,
+@@ -509,7 +503,8 @@ int ovs_flow_tbl_flush(struct flow_table *flow_table)
+ 	flow_table->count = 0;
+ 	flow_table->ufid_count = 0;
+ 
+-	table_instance_destroy(flow_table, old_ti, old_ufid_ti, true);
++	table_instance_flow_flush(flow_table, old_ti, old_ufid_ti);
++	table_instance_destroy(old_ti, old_ufid_ti);
+ 	return 0;
+ 
+ err_free_ti:
+diff --git a/net/openvswitch/flow_table.h b/net/openvswitch/flow_table.h
+index 8a5cea6ae111..8ea8fc957377 100644
+--- a/net/openvswitch/flow_table.h
++++ b/net/openvswitch/flow_table.h
+@@ -86,4 +86,7 @@ bool ovs_flow_cmp(const struct sw_flow *, const struct sw_flow_match *);
+ 
+ void ovs_flow_mask_key(struct sw_flow_key *dst, const struct sw_flow_key *src,
+ 		       bool full, const struct sw_flow_mask *mask);
++void table_instance_flow_flush(struct flow_table *table,
++			       struct table_instance *ti,
++			       struct table_instance *ufid_ti);
+ #endif /* flow_table.h */
 -- 
-~Vinod
+2.23.0
+
