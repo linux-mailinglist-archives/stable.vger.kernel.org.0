@@ -2,52 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2AA255ECD
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 18:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F98255ED8
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 18:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbgH1Qc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 12:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39888 "EHLO mail.kernel.org"
+        id S1726677AbgH1Qgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 12:36:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726649AbgH1Qc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Aug 2020 12:32:28 -0400
+        id S1726524AbgH1Qgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Aug 2020 12:36:51 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BE1B20872;
-        Fri, 28 Aug 2020 16:32:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7039320872;
+        Fri, 28 Aug 2020 16:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598632347;
-        bh=ik1jdm0/k/hfJpI7vq1Y3jymD5JY0rhXamGXtK4dhJc=;
+        s=default; t=1598632610;
+        bh=S3K11L2Ws9RoFoiHF2dBKgkGk5nN5svUjIexK0Dyb/I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HimxpczdifWE/KJ1+13eGdHfs76DiVclA3FELfO0Rbvtm+3Cj+HVsZyUTSBqgPx8E
-         ku8YY6zHvNfw4/qtiTgZpKnCEpkJjTTuWIjeFiMB4JC+YioJfmn6KG0ma8CrO2aSw8
-         lKOMAtSyPmuXz0Z3AA2bBkgmgCy7H9xad+MGCnAs=
-Date:   Fri, 28 Aug 2020 12:32:26 -0400
+        b=NfnNo6sj6MMVNZRgJ/BiW190PvetzDwBcw+02YugifzNxy+vfuSxKxHih7iPtvNBM
+         B18v+mmC0zTzlM46vXttCFXexfGOB2KY2GPxlHNj/lvwBgddFcO3XzplJXiSgeL13B
+         VSAcpfRA84OYwmbLZPAo1+fZiH5PM+I5itV11nYc=
+Date:   Fri, 28 Aug 2020 12:36:49 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Nick Lowe <nick.lowe@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Stable inclusion request: Revert "ath10k: fix DMA related
- firmware crashes on multiple devices" for 4.4, 4.9, 4.14, 4.19 and 5.4
-Message-ID: <20200828163226.GS8670@sasha-vm>
-References: <CADSoG1tJ5sujd17zZ2CV4gNLKwVrGkRxw09qvfB24MOLOr0_oQ@mail.gmail.com>
+To:     Qais Yousef <qais.yousef@arm.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>
+Subject: Re: [PATCH 0/2] Backport uclamp static key to 5.4.y stable
+Message-ID: <20200828163649.GT8670@sasha-vm>
+References: <20200828125610.30943-1-qais.yousef@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CADSoG1tJ5sujd17zZ2CV4gNLKwVrGkRxw09qvfB24MOLOr0_oQ@mail.gmail.com>
+In-Reply-To: <20200828125610.30943-1-qais.yousef@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 28, 2020 at 04:07:24PM +0100, Nick Lowe wrote:
->Hi,
+On Fri, Aug 28, 2020 at 01:56:08PM +0100, Qais Yousef wrote:
+>Hi Greg/Sasha
 >
->Please can commit a1769bb68a850508a492e3674ab1e5e479b11254 be back
->merged to the 4.4, 4.9, 4.14, 4.19 and 5.4 LTS kernels to resolve a
->PCIe hang with Wave 2-generation 802.11ac QCA chips?
+>The following 2 patches are backports of
+>
+>	46609ce22703: ("sched/uclamp: Protect uclamp fast path code with static key")
+>	e65855a52b47: ("sched/uclamp: Fix a deadlock when enabling uclamp static key")
+>
+>into 5.4.y stable tree. The conflict was trivial and due to:
+>
+>	1. uclamp_rq_util_with() was renamed from util_util_with()
+>	2. 2 local variables were converted to unsigned long from unsigned int.
+>
+>I did do compile test on aarch64 and x86_64 and both looked fine. Beside I ran
+>a quick and short mmtest to verify the functionality and got the following
+>results which is inline with what's expected.
 
-I've queued it up to the kernel trees listed above, thanks!
+I've queued it up, thanks!
 
 -- 
 Thanks,
