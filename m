@@ -2,166 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C50B9255F7C
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 19:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9AF25600C
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 19:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726904AbgH1RLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 13:11:31 -0400
-Received: from correo.us.es ([193.147.175.20]:52248 "EHLO mail.us.es"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726873AbgH1RL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Aug 2020 13:11:29 -0400
-Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
-        by mail.us.es (Postfix) with ESMTP id 920D419190C
-        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 19:11:27 +0200 (CEST)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id 7D5CBE1518
-        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 19:11:27 +0200 (CEST)
-Received: by antivirus1-rhel7.int (Postfix, from userid 99)
-        id 782A2E1505; Fri, 28 Aug 2020 19:11:27 +0200 (CEST)
-X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
-X-Spam-Level: 
-X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
-        SMTPAUTH_US2,URIBL_BLOCKED,USER_IN_WELCOMELIST,USER_IN_WHITELIST
-        autolearn=disabled version=3.4.1
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id BFC21DA84B;
-        Fri, 28 Aug 2020 19:11:07 +0200 (CEST)
-Received: from 192.168.1.97 (192.168.1.97)
- by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
- Fri, 28 Aug 2020 19:11:06 +0200 (CEST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
-Received: from us.es (unknown [90.77.255.23])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: 1984lsi)
-        by entrada.int (Postfix) with ESMTPSA id 8658342EF4E4;
-        Fri, 28 Aug 2020 19:11:07 +0200 (CEST)
-Date:   Fri, 28 Aug 2020 19:11:07 +0200
-X-SMTPAUTHUS: auth mail.us.es
-From:   Pablo Neira Ayuso <pablo@netfilter.org>
-To:     Florian Westphal <fw@strlen.de>
-Cc:     Will McVicker <willmcvicker@google.com>, stable@vger.kernel.org,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [PATCH v3 1/1] netfilter: nat: add a range check for l3/l4
- protonum
-Message-ID: <20200828171107.GA32573@salvia>
-References: <20200804113711.GA20988@salvia>
- <20200824193832.853621-1-willmcvicker@google.com>
- <20200824193832.853621-2-willmcvicker@google.com>
- <20200828164234.GA30990@salvia>
- <20200828164551.GG7319@breakpoint.cc>
+        id S1726771AbgH1RxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 13:53:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726677AbgH1RxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Aug 2020 13:53:00 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8640C061264
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 10:52:59 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id mt12so73325pjb.4
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 10:52:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=TaLyrMTePWVx74K5m0rdCA2b0TFlH+5Xa8M4cBzzyq0=;
+        b=bBf0smygn5B750CNCE6aEw4sTSJvpJcC4XmjR91NRPmt913oj9IXessLnrX4d8iity
+         97chqNZaCfGLJ6GxdM0tAxCLjb16pTovK6QX6c4BpOPb+1VeDn4tkpb7DzTuThVDsgrP
+         frdAW4RVzcB+gZN5Q9NT7+0dJ3wSvhYpZ62V4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=TaLyrMTePWVx74K5m0rdCA2b0TFlH+5Xa8M4cBzzyq0=;
+        b=Ku3EzDvVyvXcA+5BkyPaPFCh4yLfORylyPuyIN9dFhxKazal5ggDUxkdIBDhuulZ9I
+         pAf62ecW78legqe4hEGmQmaiktM5+ejKLu0ZLwvR2YtUhYl3immeUiAeXE7HA8SEJM1Y
+         3VpoA9WNGwELKhT2RxGhpqkL+hZ7aFSEV2AHA8u9gcQGTk4FIstAbnoWQb2Pz2Wx/zgP
+         cFes3GDxBtDGqVHBESn1jz77TMa2WQn/tujQWpEpz9qnhAz/96k6kpKOUeVyXQtq2GXr
+         i6GVVGGm/P4RXCH4ZzQvEs1lw8gKyGahK80HUw9Z+26zW7MX1zBbDQb10YQ00DQDmGhG
+         UDPg==
+X-Gm-Message-State: AOAM531V52wjeW5XV9gFqRYZo2Y4jmz0Lh23BnO+fVkpaQq1ttHCJ7mr
+        eBbDoeZQV0znhvcCF1q5mkFAfQ==
+X-Google-Smtp-Source: ABdhPJxgbw+whp2PM9JQ9X/3HtyrZZyrGDzS5/zqgFF1v5EHZtWcbZRIqaBqlBeZP6L7HyBh1zdRMw==
+X-Received: by 2002:a17:90a:ca0e:: with SMTP id x14mr133668pjt.217.1598637178963;
+        Fri, 28 Aug 2020 10:52:58 -0700 (PDT)
+Received: from localhost.localdomain ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id a7sm28195pfd.194.2020.08.28.10.52.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Aug 2020 10:52:58 -0700 (PDT)
+From:   James Smart <james.smart@broadcom.com>
+To:     james.smart@broadcom.com
+Cc:     stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>
+Subject: [PATCH 1/4] lpfc: Fix setting irq affinity with an empty cpu mask.
+Date:   Fri, 28 Aug 2020 10:52:47 -0700
+Message-Id: <20200828175250.130249-2-james.smart@broadcom.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200828175250.130249-1-james.smart@broadcom.com>
+References: <20200828175250.130249-1-james.smart@broadcom.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-In-Reply-To: <20200828164551.GG7319@breakpoint.cc>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Some systems are reporting the following log message during driver
+unload or system shutdown:
+  ics_rtas_set_affinity: No online cpus in the mask
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+A prior commit introduced the writing of an empty affinity mask in calls
+to irq_set_affinity_hint() when disabling interrupts or when there are
+no remaining online cpus to service an eq interrupt. At least some ppc64
+systems are checking whether affinity masks are empty or not.
 
-On Fri, Aug 28, 2020 at 06:45:51PM +0200, Florian Westphal wrote:
-> Pablo Neira Ayuso <pablo@netfilter.org> wrote:
-> > Hi Will,
-> > 
-> > Given this is for -stable maintainers only, I'd suggest:
-> > 
-> > 1) Specify what -stable kernel versions this patch applies to.
-> >    Explain that this problem is gone since what kernel version.
-> > 
-> > 2) Maybe clarify that this is only for stable in the patch subject,
-> >    e.g. [PATCH -stable v3] netfilter: nat: add a range check for l3/l4
-> 
-> Hmm, we silently accept a tuple that we can't really deal with, no?
+Fix: Do not call irq_set_affinity_hint() with an empty cpu mask.
 
-Oh, I overlook, existing kernels are affected. You're right.
+Fixes: dcaa21367938 ("scsi: lpfc: Change default IRQ model on AMD architectures")
+Cc: <stable@vger.kernel.org> # v5.5+
 
-> > > +	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
-> > > +		return -EOPNOTSUPP;
-> 
-> I vote to apply this to nf.git
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
 
-I have rebased this patch on top of nf.git, attached what I'll apply
-to nf.git.
-
-
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/x-diff; charset=utf-8
-Content-Disposition: attachment; filename="0001-netfilter-ctnetlink-add-a-range-check-for-l3-l4-prot.patch"
-
-From 4d3426b91eba6eb28f38a2b06ee024aff861aa16 Mon Sep 17 00:00:00 2001
-From: Will McVicker <willmcvicker@google.com>
-Date: Mon, 24 Aug 2020 19:38:32 +0000
-Subject: [PATCH] netfilter: ctnetlink: add a range check for l3/l4 protonum
-
-The indexes to the nf_nat_l[34]protos arrays come from userspace. So
-check the tuple's family, e.g. l3num, when creating the conntrack in
-order to prevent an OOB memory access during setup.  Here is an example
-kernel panic on 4.14.180 when userspace passes in an index greater than
-NFPROTO_NUMPROTO.
-
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-Modules linked in:...
-Process poc (pid: 5614, stack limit = 0x00000000a3933121)
-CPU: 4 PID: 5614 Comm: poc Tainted: G S      W  O    4.14.180-g051355490483
-Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150 Google Inc. MSM
-task: 000000002a3dfffe task.stack: 00000000a3933121
-pc : __cfi_check_fail+0x1c/0x24
-lr : __cfi_check_fail+0x1c/0x24
-...
-Call trace:
-__cfi_check_fail+0x1c/0x24
-name_to_dev_t+0x0/0x468
-nfnetlink_parse_nat_setup+0x234/0x258
-ctnetlink_parse_nat_setup+0x4c/0x228
-ctnetlink_new_conntrack+0x590/0xc40
-nfnetlink_rcv_msg+0x31c/0x4d4
-netlink_rcv_skb+0x100/0x184
-nfnetlink_rcv+0xf4/0x180
-netlink_unicast+0x360/0x770
-netlink_sendmsg+0x5a0/0x6a4
-___sys_sendmsg+0x314/0x46c
-SyS_sendmsg+0xb4/0x108
-el0_svc_naked+0x34/0x38
-
-Fixes: c1d10adb4a521 ("[NETFILTER]: Add ctnetlink port for nf_conntrack")
-Signed-off-by: Will McVicker <willmcvicker@google.com>
-[pablo@netfilter.org: rebased original patch on top of nf.git]
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_init.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 832eabecfbdd..d65846aa8059 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1404,7 +1404,8 @@ ctnetlink_parse_tuple_filter(const struct nlattr * const cda[],
- 	if (err < 0)
- 		return err;
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 05ace6916b66..89c3ba0a0df9 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -11376,7 +11376,6 @@ lpfc_irq_clear_aff(struct lpfc_hba_eq_hdl *eqhdl)
+ {
+ 	cpumask_clear(&eqhdl->aff_mask);
+ 	irq_clear_status_flags(eqhdl->irq, IRQ_NO_BALANCING);
+-	irq_set_affinity_hint(eqhdl->irq, &eqhdl->aff_mask);
+ }
  
--
-+	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
-+		return -EOPNOTSUPP;
- 	tuple->src.l3num = l3num;
- 
- 	if (flags & CTA_FILTER_FLAG(CTA_IP_DST) ||
+ /**
 -- 
-2.20.1
+2.26.2
 
-
---Dxnq1zWXvFF0Q93v--
