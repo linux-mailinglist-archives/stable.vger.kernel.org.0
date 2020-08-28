@@ -2,90 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12EE3255AB0
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 14:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D85B255BED
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 16:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729483AbgH1M4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 08:56:46 -0400
-Received: from foss.arm.com ([217.140.110.172]:48520 "EHLO foss.arm.com"
+        id S1727116AbgH1OFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 10:05:46 -0400
+Received: from mga05.intel.com ([192.55.52.43]:52679 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729471AbgH1M4e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Aug 2020 08:56:34 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A4186D6E;
-        Fri, 28 Aug 2020 05:56:33 -0700 (PDT)
-Received: from e107158-lin.cambridge.arm.com (e107158-lin.cambridge.arm.com [10.1.195.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 89E183F66B;
-        Fri, 28 Aug 2020 05:56:32 -0700 (PDT)
-From:   Qais Yousef <qais.yousef@arm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH 2/2] sched/uclamp: Fix a deadlock when enabling uclamp static key
-Date:   Fri, 28 Aug 2020 13:56:10 +0100
-Message-Id: <20200828125610.30943-3-qais.yousef@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200828125610.30943-1-qais.yousef@arm.com>
-References: <20200828125610.30943-1-qais.yousef@arm.com>
+        id S1727036AbgH1OFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Aug 2020 10:05:23 -0400
+IronPort-SDR: iCR7KPxJ4SVDLsEzyKZvCGKn/UpDCJyl52FPm2NaqEXKZuiv1Sgj53onrZUIic0uPHhDTmPUp+
+ owRgT0XyG9TQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9726"; a="241482880"
+X-IronPort-AV: E=Sophos;i="5.76,364,1592895600"; 
+   d="scan'208";a="241482880"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2020 07:05:06 -0700
+IronPort-SDR: dK9gviBjKEnclbB16DwwGzSs9323lMVMwaGN1DL7jl4vI629FjdiNj/AQg35ASep+uAQrdg7EP
+ 6knmfqcfT0Wg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,363,1592895600"; 
+   d="scan'208";a="282409672"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by fmsmga008.fm.intel.com with ESMTP; 28 Aug 2020 07:05:07 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id F10495C277F; Fri, 28 Aug 2020 17:04:10 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Bruce Chang <yu.bruce.chang@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 06/39] drm/i915/gt: Wait for CSB entries on Tigerlake
+In-Reply-To: <20200826132811.17577-6-chris@chris-wilson.co.uk>
+References: <20200826132811.17577-1-chris@chris-wilson.co.uk> <20200826132811.17577-6-chris@chris-wilson.co.uk>
+Date:   Fri, 28 Aug 2020 17:04:10 +0300
+Message-ID: <87tuwmzx2d.fsf@gaia.fi.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following splat was caught when setting uclamp value of a task:
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-  BUG: sleeping function called from invalid context at ./include/linux/percpu-rwsem.h:49
+> On Tigerlake, we are seeing a repeat of commit d8f505311717 ("drm/i915/icl:
+> Forcibly evict stale csb entries") where, presumably, due to a missing
+> Global Observation Point synchronisation, the write pointer of the CSB
+> ringbuffer is updated _prior_ to the contents of the ringbuffer. That is
+> we see the GPU report more context-switch entries for us to parse, but
+> those entries have not been written, leading us to process stale events,
+> and eventually report a hung GPU.
+>
+> However, this effect appears to be much more severe than we previously
+> saw on Icelake (though it might be best if we try the same approach
+> there as well and measure), and Bruce suggested the good idea of resetting
+> the CSB entry after use so that we can detect when it has been updated by
+> the GPU. By instrumenting how long that may be, we can set a reliable
+> upper bound for how long we should wait for:
+>
+>     513 late, avg of 61 retries (590 ns), max of 1061 retries (10099 ns)
+>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2045
+> References: d8f505311717 ("drm/i915/icl: Forcibly evict stale csb entries")
 
-   cpus_read_lock+0x68/0x130
-   static_key_enable+0x1c/0x38
-   __sched_setscheduler+0x900/0xad8
+References: HSDES#1508287568
 
-Fix by ensuring we enable the key outside of the critical section in
-__sched_setscheduler()
+> Suggested-by: Bruce Chang <yu.bruce.chang@intel.com>
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Bruce Chang <yu.bruce.chang@intel.com>
+> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> Cc: stable@vger.kernel.org # v5.4
+> ---
+>  drivers/gpu/drm/i915/gt/intel_lrc.c | 21 ++++++++++++++++++---
+>  1 file changed, 18 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index d6e0f62337b4..d75712a503b7 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -2498,9 +2498,22 @@ invalidate_csb_entries(const u64 *first, const u64 *last)
+>   */
+>  static inline bool gen12_csb_parse(const u64 *csb)
+>  {
+> -	u64 entry = READ_ONCE(*csb);
+> -	bool ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
+> -	bool new_queue =
+> +	bool ctx_away_valid;
+> +	bool new_queue;
+> +	u64 entry;
+> +
+> +	/* HSD#22011248461 */
 
-Fixes: 46609ce22703 ("sched/uclamp: Protect uclamp fast path code with static key")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200716110347.19553-4-qais.yousef@arm.com
-(cherry picked from commit e65855a52b479f98674998cb23b21ef5a8144b04)
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
----
- kernel/sched/core.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+s/220011248461/1508287568
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index a8ab68aa189a..352239c411a4 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1249,6 +1249,15 @@ static int uclamp_validate(struct task_struct *p,
- 	if (upper_bound > SCHED_CAPACITY_SCALE)
- 		return -EINVAL;
- 
-+	/*
-+	 * We have valid uclamp attributes; make sure uclamp is enabled.
-+	 *
-+	 * We need to do that here, because enabling static branches is a
-+	 * blocking operation which obviously cannot be done while holding
-+	 * scheduler locks.
-+	 */
-+	static_branch_enable(&sched_uclamp_used);
-+
- 	return 0;
- }
- 
-@@ -1279,8 +1288,6 @@ static void __setscheduler_uclamp(struct task_struct *p,
- 	if (likely(!(attr->sched_flags & SCHED_FLAG_UTIL_CLAMP)))
- 		return;
- 
--	static_branch_enable(&sched_uclamp_used);
--
- 	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
- 		uclamp_se_set(&p->uclamp_req[UCLAMP_MIN],
- 			      attr->sched_util_min, true);
--- 
-2.17.1
+> +	entry = READ_ONCE(*csb);
+> +	if (unlikely(entry == -1)) {
+> +		preempt_disable();
 
+As this seems to rather rare, consider falling back to mmio read
+for this entry without the poll?
+
+-Mika
+
+> +		if (wait_for_atomic_us((entry = READ_ONCE(*csb)) != -1, 50))
+> +			GEM_WARN_ON("50us CSB timeout");
+> +		preempt_enable();
+> +	}
+> +	WRITE_ONCE(*(u64 *)csb, -1);
+> +
+> +	ctx_away_valid = GEN12_CSB_CTX_VALID(upper_32_bits(entry));
+> +	new_queue =
+>  		lower_32_bits(entry) & GEN12_CTX_STATUS_SWITCHED_TO_NEW_QUEUE;
+>  
+>  	/*
+> @@ -4004,6 +4017,8 @@ static void reset_csb_pointers(struct intel_engine_cs *engine)
+>  	WRITE_ONCE(*execlists->csb_write, reset_value);
+>  	wmb(); /* Make sure this is visible to HW (paranoia?) */
+>  
+> +	/* Check that the GPU does indeed update the CSB entries! */
+> +	memset(execlists->csb_status, -1, (reset_value + 1) * sizeof(u64));
+>  	invalidate_csb_entries(&execlists->csb_status[0],
+>  			       &execlists->csb_status[reset_value]);
+>  
+> -- 
+> 2.20.1
