@@ -2,103 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2047F255DF9
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 17:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11225255E48
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 17:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgH1Pht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 11:37:49 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:46701 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726033AbgH1Phr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Aug 2020 11:37:47 -0400
-Received: (qmail 472255 invoked by uid 1000); 28 Aug 2020 11:37:45 -0400
-Date:   Fri, 28 Aug 2020 11:37:45 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     Stanley Chu <stanley.chu@mediatek.com>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        SCSI development list <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] block: Fix a race in the runtime power management code
-Message-ID: <20200828153745.GB470612@rowland.harvard.edu>
-References: <20200824030607.19357-1-bvanassche@acm.org>
- <1598346681.10649.8.camel@mtkswgap22>
- <20200825182423.GB375466@rowland.harvard.edu>
- <1f798c21-241f-59f8-5298-a32fffe2ff01@acm.org>
- <20200826015159.GA387575@rowland.harvard.edu>
- <af1b1f57-59ff-0133-8108-0f3d1e1254e1@acm.org>
- <20200827203321.GB449067@rowland.harvard.edu>
- <5da883fe-b5ec-b98d-ae0c-bc053b6e22cb@acm.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5da883fe-b5ec-b98d-ae0c-bc053b6e22cb@acm.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1725911AbgH1P5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 11:57:38 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64892 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725814AbgH1P5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Aug 2020 11:57:36 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07SFWLnU196384
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 11:57:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id; s=pp1;
+ bh=xwaYSLoxmns2el18FYWD+ToqOB1XEL3eZs5vUHh0AQY=;
+ b=QpNvfhaXRX4ksqrl05//H1U7wVs1JlsVU+unAZ+d5uF98x8Bc3PJzcg8zBJvpL9oxsjz
+ quUZl3cX2Ae8v/kh69D9uckkk+fD6EgCYH0qQcXuqebuHU+MZIhnaZIev3q8eO8QRqAA
+ C2gpGhh5oJEGM2OkUvS7+YjsZh0TNSaK8Is/lAIX0mEhIaWYHNgdnOIWRe6bjX5j5UdE
+ IVkrL7YKqOCmhPth8lVCgmwbwh7cj/9Scs0EDKp3e32BRq6AAaka1AOhfo3OYLAQyyT7
+ Yu9PR4LTBx/Fd7A1kyFvcG94qbnP0kgt5wfzS483eiB5QSovKO9j6dlBtQBfGirPb7Vm QQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3374c9h8kj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 11:57:35 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07SFvRUD023249
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 15:57:34 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 335j271q7n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 15:57:33 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07SFvViq52822514
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Aug 2020 15:57:31 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E830DA4053;
+        Fri, 28 Aug 2020 15:57:30 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B3C8CA4040;
+        Fri, 28 Aug 2020 15:57:30 +0000 (GMT)
+Received: from oc3871087118.ibm.com (unknown [9.145.38.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 28 Aug 2020 15:57:30 +0000 (GMT)
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     hca@linux.ibm.com
+Subject: [PATCH] s390/numa: set node distance to LOCAL_DISTANCE
+Date:   Fri, 28 Aug 2020 17:57:29 +0200
+Message-Id: <1598630249-11057-1-git-send-email-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 1.8.3.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-28_09:2020-08-28,2020-08-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 mlxlogscore=772 impostorscore=0 adultscore=0 clxscore=1015
+ malwarescore=0 suspectscore=1 phishscore=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2008280116
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 08:27:49PM -0700, Bart Van Assche wrote:
-> On 2020-08-27 13:33, Alan Stern wrote:
-> > It may not need to be that complicated.  what about something like this?
+commit 535e4fc623fab2e09a0653fc3a3e17f382ad0251 upstream.
 
-> I think this patch will break SCSI domain validation. The SCSI domain
-> validation code calls scsi_device_quiesce() and that function in turn calls
-> blk_set_pm_only(). The SCSI domain validation code submits SCSI commands with
-> the BLK_MQ_REQ_PREEMPT flag. Since the above code postpones such requests
-> while blk_set_pm_only() is in effect, I think the above patch will cause the
-> SCSI domain validation code to deadlock.
+The original upstream commit applies only to 5.7 and 5.8
+stable trees. This is backport to 4.4, 4.9, 4.14, 4.19
+and 5.4 trees.
 
-Yes, you're right.
+The node distance is hardcoded to 0, which causes a trouble
+for some user-level applications. In particular, "libnuma"
+expects the distance of a node to itself as LOCAL_DISTANCE.
+This update removes the offending node distance override.
 
-There may be an even simpler solution: Ensure that SCSI domain 
-validation is mutually exclusive with runtime PM.  It's already mutually 
-exclusive with system PM, so this makes sense.
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 3a368f742da1 ("s390/numa: add core infrastructure")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ arch/s390/numa/numa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-What do you think of the patch below?
-
-Alan Stern
-
-
-Index: usb-devel/drivers/scsi/scsi_transport_spi.c
-===================================================================
---- usb-devel.orig/drivers/scsi/scsi_transport_spi.c
-+++ usb-devel/drivers/scsi/scsi_transport_spi.c
-@@ -1001,7 +1001,7 @@ spi_dv_device(struct scsi_device *sdev)
- 	 * Because this function and the power management code both call
- 	 * scsi_device_quiesce(), it is not safe to perform domain validation
- 	 * while suspend or resume is in progress. Hence the
--	 * lock/unlock_system_sleep() calls.
-+	 * lock/unlock_system_sleep() and scsi_autopm_get/put_device() calls.
- 	 */
- 	lock_system_sleep();
+diff --git a/arch/s390/numa/numa.c b/arch/s390/numa/numa.c
+index d2910fa..8f95db6 100644
+--- a/arch/s390/numa/numa.c
++++ b/arch/s390/numa/numa.c
+@@ -51,7 +51,7 @@ void numa_update_cpu_topology(void)
  
-@@ -1018,10 +1018,13 @@ spi_dv_device(struct scsi_device *sdev)
- 	if (unlikely(!buffer))
- 		goto out_put;
+ int __node_distance(int a, int b)
+ {
+-	return mode->distance ? mode->distance(a, b) : 0;
++	return mode->distance ? mode->distance(a, b) : LOCAL_DISTANCE;
+ }
+ EXPORT_SYMBOL(__node_distance);
  
-+	if (scsi_autopm_get_device(sdev))
-+		goto out_free;
-+
- 	/* We need to verify that the actual device will quiesce; the
- 	 * later target quiesce is just a nice to have */
- 	if (unlikely(scsi_device_quiesce(sdev)))
--		goto out_free;
-+		goto out_autopm_put;
- 
- 	scsi_target_quiesce(starget);
- 
-@@ -1041,6 +1044,8 @@ spi_dv_device(struct scsi_device *sdev)
- 
- 	spi_initial_dv(starget) = 1;
- 
-+ out_autopm_put:
-+	scsi_autopm_put_device(sdev);
-  out_free:
- 	kfree(buffer);
-  out_put:
-
+-- 
+1.8.3.1
 
