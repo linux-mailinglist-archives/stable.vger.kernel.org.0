@@ -2,100 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395D825589D
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 12:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DEFC2559A4
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 13:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729040AbgH1Kc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 06:32:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57430 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728362AbgH1Kc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Aug 2020 06:32:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B40B42086A;
-        Fri, 28 Aug 2020 10:32:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598610777;
-        bh=CNp/cFxI2LaBRZQxICDB2qLRK842hYKrHqEsEl/CtKA=;
-        h=Subject:To:From:Date:From;
-        b=PNiqdmo3N1TkWZ3igYkUm5VnROPZGbCL3vPYT1lhs6aHYqBdvXKuPCFEZP1J8DBTm
-         j/o3PRBE6OzlrpQghfyE2KvlMcj/UZic7JNCHIpiOjyXOKk1zxhxXgGPGCH0Xbypgz
-         F5x4jQPiGYYw0E7nWH/qG/Vqwz5ZiYLdUSrLEdfU=
-Subject: patch "kobject: Restore old behaviour of kobject_del(NULL)" added to driver-core-linus
-To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, quwenruo.btrfs@gmx.com,
-        stable@vger.kernel.org, wqu@suse.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 28 Aug 2020 12:33:09 +0200
-Message-ID: <1598610789203124@kroah.com>
+        id S1729040AbgH1Lv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 07:51:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729028AbgH1LvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Aug 2020 07:51:24 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2785BC061264
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 04:51:24 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id z22so570012oid.1
+        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 04:51:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=A4/Z06eFxBxl8b3rX3ckNrY/1kZu8MrvWtn/z+YvYC4=;
+        b=UZxc67+jvB7Qiy2wrkJibyaLi6Jp7XigHrb6mB0MNDrPOtoX+0sn21ofMKYMCJYPT+
+         g0qy7fUtcKzp8AxoWAZgbWca+n1ugo85klNKDbdTut3NPTgHX9eAaHOaLDWuUDH0ycl4
+         hN793O0seQLoEu6PNw3rFAaqG2Pb1mGVCHKCXvwCZoaPNM+/TJ+AVnuu2Ihq9ptmwI2b
+         qUWpIjI2KeE326yDZiEpIR+76fmmgv0I3MXHHyCoapV233SVYYbm4R0QmJ/Kl1WroQc6
+         r+CUBOlkYKlc9/xOpRoPYuCOs5KjrBRv7B3gyGlwSVWAQzy5FPK1XT14DBimvA+kjhli
+         kCEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=A4/Z06eFxBxl8b3rX3ckNrY/1kZu8MrvWtn/z+YvYC4=;
+        b=I16h92r5bZEJPEmPHWs768N+Z5lSpi1h28uzG1YDpOQhICGosVTduxVALaP1OcRRvW
+         /YylN/Bnv/c1dKvKUFJzs9ewsjFPtFLwMVuyrNOElRDVSMDgvNUIHd6FoQPBO1VPdcu/
+         /qrnUzVzUxgWqrHxXMPw0lML4n1sfgnCJh7Xl8gkF4HzWCJpYfrXro40IGPZIFtTCyLk
+         HknqC96iPVSOD6CkmxeBofuT6138YDuzrfOuLUOBknBTpD0g4hQpfngak+XKrSAJuPuu
+         ccos+KN+RqjdraQ2yDQyIDS6Hldh6RRLBhD0O4OLTFqIH+4B1T8IZvtkybf7CddfOEMf
+         2Osg==
+X-Gm-Message-State: AOAM530/IPa+vCsE9FN6tvn2XvPBQZ5o6FTr7HHn69SKSZfKEBBrGZmh
+        yWmEF3BfT5DVXlCo6sQfgbxTCUIBPFaw5DNljig=
+X-Google-Smtp-Source: ABdhPJz7IuNYdzj9jKxGUkiQuYIIn7IqbKOVC0s2Q7KHvIGlx7LLS1KPgBNfSeV6egEmNq1ngGDGkPOW2Xz8j0XsY48=
+X-Received: by 2002:aca:1807:: with SMTP id h7mr677524oih.91.1598615483371;
+ Fri, 28 Aug 2020 04:51:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Reply-To: mrahmedmuzashah@gmail.com
+Received: by 2002:a4a:2a13:0:0:0:0:0 with HTTP; Fri, 28 Aug 2020 04:51:22
+ -0700 (PDT)
+From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
+Date:   Fri, 28 Aug 2020 12:51:22 +0100
+X-Google-Sender-Auth: StyB935a7dRgL1By8A6CDJTliBc
+Message-ID: <CA+7TxUQnBZWwyTC-k1GyCqha3L=HtQeybjDWEjhFk5JmKDr3cA@mail.gmail.com>
+Subject: =?UTF-8?B?U2Now7ZuZW4gVGFn?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Sch=C3=B6nen Tag,
 
-This is a note to let you know that I've just added the patch titled
+Bitte entschuldigen Sie, dass Sie einen =C3=9Cberraschungsbrief geschrieben
+haben. Ich bin Herr Ahmed Muzashah, Account Manager bei einer
+Investmentbank hier in Burkina Faso. Ich habe ein sehr wichtiges
+Gesch=C3=A4ft, das ich mit Ihnen besprechen m=C3=B6chte. In meinem Konto is=
+t ein
+Kontoentwurf er=C3=B6ffnet Ich habe die M=C3=B6glichkeit, den verbleibenden
+Fonds (15,8 Millionen US-Dollar) von f=C3=BCnfzehn Millionen
+achthunderttausend US-Dollar eines meiner Bankkunden zu =C3=BCbertragen,
+der beim Zusammenbruch der Welt gestorben ist Handelszentrum in den
+Vereinigten Staaten am 11. September 2001.
 
-    kobject: Restore old behaviour of kobject_del(NULL)
+Ich m=C3=B6chte diese Mittel investieren und Sie unserer Bank f=C3=BCr dies=
+en
+Deal vorstellen. Alles, was ich ben=C3=B6tige, ist Ihre ehrliche
+Zusammenarbeit und ich garantiere Ihnen, dass dies unter einer
+legitimen Vereinbarung durchgef=C3=BChrt wird, die uns vor
+Gesetzesverst=C3=B6=C3=9Fen sch=C3=BCtzt Ich bin damit einverstanden, dass =
+40% dieses
+Geldes f=C3=BCr Sie als meinen ausl=C3=A4ndischen Partner, 50% f=C3=BCr mic=
+h und 10%
+f=C3=BCr die Schaffung der Grundlage f=C3=BCr die weniger Privilegien in Ih=
+rem
+Land bestimmt sind. Wenn Sie wirklich an meinem Vorschlag interessiert
+sind, werden weitere Einzelheiten der =C3=9Cbertragung ber=C3=BCcksichtigt =
+Sie
+werden an Sie weitergeleitet, sobald ich Ihre Bereitschaftsmail f=C3=BCr
+eine erfolgreiche =C3=9Cberweisung erhalte.
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 40b8b826a6998639dd1c26f0e127f18371e1058d Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Mon, 3 Aug 2020 11:27:06 +0300
-Subject: kobject: Restore old behaviour of kobject_del(NULL)
-
-The commit 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in
-kobject_cleanup()") inadvertently dropped a possibility to call kobject_del()
-with NULL pointer. Restore the old behaviour.
-
-Fixes: 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in kobject_cleanup()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Link: https://lore.kernel.org/r/20200803082706.65347-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- lib/kobject.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 3afb939f2a1c..9dce68c378e6 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -637,8 +637,12 @@ static void __kobject_del(struct kobject *kobj)
-  */
- void kobject_del(struct kobject *kobj)
- {
--	struct kobject *parent = kobj->parent;
-+	struct kobject *parent;
-+
-+	if (!kobj)
-+		return;
- 
-+	parent = kobj->parent;
- 	__kobject_del(kobj);
- 	kobject_put(parent);
- }
--- 
-2.28.0
-
-
+Dein,
+Mr. Ahmed Muzashah,
