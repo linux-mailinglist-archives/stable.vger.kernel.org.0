@@ -2,93 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DEFC2559A4
-	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 13:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1942C2559D2
+	for <lists+stable@lfdr.de>; Fri, 28 Aug 2020 14:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729040AbgH1Lv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Aug 2020 07:51:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729028AbgH1LvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Aug 2020 07:51:24 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2785BC061264
-        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 04:51:24 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id z22so570012oid.1
-        for <stable@vger.kernel.org>; Fri, 28 Aug 2020 04:51:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=A4/Z06eFxBxl8b3rX3ckNrY/1kZu8MrvWtn/z+YvYC4=;
-        b=UZxc67+jvB7Qiy2wrkJibyaLi6Jp7XigHrb6mB0MNDrPOtoX+0sn21ofMKYMCJYPT+
-         g0qy7fUtcKzp8AxoWAZgbWca+n1ugo85klNKDbdTut3NPTgHX9eAaHOaLDWuUDH0ycl4
-         hN793O0seQLoEu6PNw3rFAaqG2Pb1mGVCHKCXvwCZoaPNM+/TJ+AVnuu2Ihq9ptmwI2b
-         qUWpIjI2KeE326yDZiEpIR+76fmmgv0I3MXHHyCoapV233SVYYbm4R0QmJ/Kl1WroQc6
-         r+CUBOlkYKlc9/xOpRoPYuCOs5KjrBRv7B3gyGlwSVWAQzy5FPK1XT14DBimvA+kjhli
-         kCEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=A4/Z06eFxBxl8b3rX3ckNrY/1kZu8MrvWtn/z+YvYC4=;
-        b=I16h92r5bZEJPEmPHWs768N+Z5lSpi1h28uzG1YDpOQhICGosVTduxVALaP1OcRRvW
-         /YylN/Bnv/c1dKvKUFJzs9ewsjFPtFLwMVuyrNOElRDVSMDgvNUIHd6FoQPBO1VPdcu/
-         /qrnUzVzUxgWqrHxXMPw0lML4n1sfgnCJh7Xl8gkF4HzWCJpYfrXro40IGPZIFtTCyLk
-         HknqC96iPVSOD6CkmxeBofuT6138YDuzrfOuLUOBknBTpD0g4hQpfngak+XKrSAJuPuu
-         ccos+KN+RqjdraQ2yDQyIDS6Hldh6RRLBhD0O4OLTFqIH+4B1T8IZvtkybf7CddfOEMf
-         2Osg==
-X-Gm-Message-State: AOAM530/IPa+vCsE9FN6tvn2XvPBQZ5o6FTr7HHn69SKSZfKEBBrGZmh
-        yWmEF3BfT5DVXlCo6sQfgbxTCUIBPFaw5DNljig=
-X-Google-Smtp-Source: ABdhPJz7IuNYdzj9jKxGUkiQuYIIn7IqbKOVC0s2Q7KHvIGlx7LLS1KPgBNfSeV6egEmNq1ngGDGkPOW2Xz8j0XsY48=
-X-Received: by 2002:aca:1807:: with SMTP id h7mr677524oih.91.1598615483371;
- Fri, 28 Aug 2020 04:51:23 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: mrahmedmuzashah@gmail.com
-Received: by 2002:a4a:2a13:0:0:0:0:0 with HTTP; Fri, 28 Aug 2020 04:51:22
- -0700 (PDT)
-From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
-Date:   Fri, 28 Aug 2020 12:51:22 +0100
-X-Google-Sender-Auth: StyB935a7dRgL1By8A6CDJTliBc
-Message-ID: <CA+7TxUQnBZWwyTC-k1GyCqha3L=HtQeybjDWEjhFk5JmKDr3cA@mail.gmail.com>
-Subject: =?UTF-8?B?U2Now7ZuZW4gVGFn?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1729171AbgH1MHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Aug 2020 08:07:10 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:50754 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729175AbgH1MHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Aug 2020 08:07:07 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1kBd4F-0055dm-Lg; Fri, 28 Aug 2020 12:01:15 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Fri, 28 Aug 2020 12:06:35 +0000
+Subject: [git:media_tree/fixes] media: rc: uevent sysfs file races with rc_unregister_device()
+To:     linuxtv-commits@linuxtv.org
+Cc:     stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Hillf Danton <hdanton@sina.com>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1kBd4F-0055dm-Lg@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sch=C3=B6nen Tag,
+This is an automatic generated email to let you know that the following patch were queued:
 
-Bitte entschuldigen Sie, dass Sie einen =C3=9Cberraschungsbrief geschrieben
-haben. Ich bin Herr Ahmed Muzashah, Account Manager bei einer
-Investmentbank hier in Burkina Faso. Ich habe ein sehr wichtiges
-Gesch=C3=A4ft, das ich mit Ihnen besprechen m=C3=B6chte. In meinem Konto is=
-t ein
-Kontoentwurf er=C3=B6ffnet Ich habe die M=C3=B6glichkeit, den verbleibenden
-Fonds (15,8 Millionen US-Dollar) von f=C3=BCnfzehn Millionen
-achthunderttausend US-Dollar eines meiner Bankkunden zu =C3=BCbertragen,
-der beim Zusammenbruch der Welt gestorben ist Handelszentrum in den
-Vereinigten Staaten am 11. September 2001.
+Subject: media: rc: uevent sysfs file races with rc_unregister_device()
+Author:  Sean Young <sean@mess.org>
+Date:    Sat Aug 8 13:19:12 2020 +0200
 
-Ich m=C3=B6chte diese Mittel investieren und Sie unserer Bank f=C3=BCr dies=
-en
-Deal vorstellen. Alles, was ich ben=C3=B6tige, ist Ihre ehrliche
-Zusammenarbeit und ich garantiere Ihnen, dass dies unter einer
-legitimen Vereinbarung durchgef=C3=BChrt wird, die uns vor
-Gesetzesverst=C3=B6=C3=9Fen sch=C3=BCtzt Ich bin damit einverstanden, dass =
-40% dieses
-Geldes f=C3=BCr Sie als meinen ausl=C3=A4ndischen Partner, 50% f=C3=BCr mic=
-h und 10%
-f=C3=BCr die Schaffung der Grundlage f=C3=BCr die weniger Privilegien in Ih=
-rem
-Land bestimmt sind. Wenn Sie wirklich an meinem Vorschlag interessiert
-sind, werden weitere Einzelheiten der =C3=9Cbertragung ber=C3=BCcksichtigt =
-Sie
-werden an Sie weitergeleitet, sobald ich Ihre Bereitschaftsmail f=C3=BCr
-eine erfolgreiche =C3=9Cberweisung erhalte.
+Only report uevent file contents if device still registered, else we
+might read freed memory.
 
-Dein,
-Mr. Ahmed Muzashah,
+Reported-by: syzbot+ceef16277388d6f24898@syzkaller.appspotmail.com
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: <stable@vger.kernel.org> # 4.16+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/rc/rc-main.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+---
+
+diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+index 7b53066d9d07..e1cda80a4b25 100644
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -1601,25 +1601,25 @@ static void rc_dev_release(struct device *device)
+ 	kfree(dev);
+ }
+ 
+-#define ADD_HOTPLUG_VAR(fmt, val...)					\
+-	do {								\
+-		int err = add_uevent_var(env, fmt, val);		\
+-		if (err)						\
+-			return err;					\
+-	} while (0)
+-
+ static int rc_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ {
+ 	struct rc_dev *dev = to_rc_dev(device);
++	int ret = 0;
+ 
+-	if (dev->rc_map.name)
+-		ADD_HOTPLUG_VAR("NAME=%s", dev->rc_map.name);
+-	if (dev->driver_name)
+-		ADD_HOTPLUG_VAR("DRV_NAME=%s", dev->driver_name);
+-	if (dev->device_name)
+-		ADD_HOTPLUG_VAR("DEV_NAME=%s", dev->device_name);
++	mutex_lock(&dev->lock);
+ 
+-	return 0;
++	if (!dev->registered)
++		ret = -ENODEV;
++	if (ret == 0 && dev->rc_map.name)
++		ret = add_uevent_var(env, "NAME=%s", dev->rc_map.name);
++	if (ret == 0 && dev->driver_name)
++		ret = add_uevent_var(env, "DRV_NAME=%s", dev->driver_name);
++	if (ret == 0 && dev->device_name)
++		ret = add_uevent_var(env, "DEV_NAME=%s", dev->device_name);
++
++	mutex_unlock(&dev->lock);
++
++	return ret;
+ }
+ 
+ /*
+@@ -2011,14 +2011,14 @@ void rc_unregister_device(struct rc_dev *dev)
+ 	del_timer_sync(&dev->timer_keyup);
+ 	del_timer_sync(&dev->timer_repeat);
+ 
+-	rc_free_rx_device(dev);
+-
+ 	mutex_lock(&dev->lock);
+ 	if (dev->users && dev->close)
+ 		dev->close(dev);
+ 	dev->registered = false;
+ 	mutex_unlock(&dev->lock);
+ 
++	rc_free_rx_device(dev);
++
+ 	/*
+ 	 * lirc device should be freed with dev->registered = false, so
+ 	 * that userspace polling will get notified.
