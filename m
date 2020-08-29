@@ -2,59 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF6825693A
-	for <lists+stable@lfdr.de>; Sat, 29 Aug 2020 19:09:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0AD025694B
+	for <lists+stable@lfdr.de>; Sat, 29 Aug 2020 19:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728422AbgH2RJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Aug 2020 13:09:01 -0400
-Received: from sonic314-13.consmr.mail.bf2.yahoo.com ([74.6.132.123]:45733
-        "EHLO sonic314-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728410AbgH2RJA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Aug 2020 13:09:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598720939; bh=fiS559YMj0kiaG+UTAtmBO7yGCSFherXYbZ1I9WCe+8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=H/hNKqfWT/3mAjAcCGt2uRXj6SBneRwW6EdvAcGL10x29AhbVw/kuq/Z5ThFEMVEgubYM+noMo4923k7XWOVVxfnQZeODiDmlSerXZyQ4ASswaZu+zG3HKk+C0UTeUAtbGupGGNlpwULcql+1KwoUR0lxMMXNoZ5UgLjknAXzv2r27Vmjndm9YGFt+l2mPMOMPoux9494fzpPoKANkW/R6KLMDODMaW7Ame4zt0FnqGp0ET0413BmdFCFYFSBiPNsDpZT9n25kPLSK+PPXi1hTK+OZ9Onf5VsIPbTVgx34MH+z+cM1Wt2kYS0FboWzrN9py+ZMGGWwjKFyfE1UMy+g==
-X-YMail-OSG: o5sToTkVM1mpgmqbD36Mug_oeMs_T5Zf0q1FNN8xSqWx0xbhjQhWNnB9H6sbhNv
- Nu91CZCqw0m.ZzC3itwC9aC0S5qHz1SHYVnuFESJBunQ3M4ZcD4F.oNyifTvssTwmvrjloMwQnuT
- sb4OVKciaLk.5OjAk7uBf8C_lcBMhm0q.1CO1TBjagnW3yqCNIMsHBvfxznfGVbzHmm95p3LMGmv
- 8u8z_MHykLFWieUdFB67pxxXoQIQx7Vm3D2CUSzgobfevvZvRBUThYzOILdFlaDq1InZVqt3qmks
- S46NZAOtHGDNqnv5QwjPWLJQ3NcUIz.SPFo.WxOHKdww5_ZUqyu.EdfMKMt_SDnoWZTCwDgw.RFo
- 7B81zw20PynwXIrLW9_wJeI8uS3QYvO8QdK6lbLiEVcqkUZILhTg7VJdDIk4JU8m33ER3rGOvJe8
- JzbkLWF2CLzGzmiuz_4EwnS.198lhqqcVnnhtXCJN_ZqkIE7g8k63tjs1tl2xvv0AHz6MIpqndBx
- CnsiqbstVS1ues3wrY.R1pYNFvSaODKODxGEWZ8fFnnd6WvSHrAzGJrlhBWcr76ElujfuZUMd7di
- HjrAGftW1xfetOsr_deKxVEcGK9eivSSZ3Z0ZNT8jwCGaCWeT4uW6HE4vWtbgHxbmhhazR2BVKdd
- Rdqg6kjyREIe4lAn_Pwwa3rsa.awMmVYNpI7_776N00.Udc7z_gABbQw6FawGxrF.EnbuKZy_D9N
- HWnvim9YaEbq.NcXz0sOSzW2GjkaD1byXtIpEOe9D6dyFkz_mpd_XWllKPt4UT62z8kUsoEDkWmF
- xdRgbmrvT7CPJvKFjp4_5dD12gERUYnCxCZc.z2JuAijYxJErCtaua_71JNY51WQsj8SuOvyzWG6
- b1UUHbb_GUWmvE_jqjkikVn763SH4o8mhH8qih4bTDcAhhUsPTkTBMPClz3P4ZB8fsomnZ1wc4Gr
- e1SNWgrh810u4ncP_nVWyzgO2i8TT6mwJ55ATQqsi5O4XBUAn5fZukPKkikUd2KcHMJ6vKD3kEQt
- ZKbQW3qBkIdq0LaSDpRRRRbv9ybuHN9B5u4I_qJtVpok9OeW63tU0JWgTq14wK7L9T.5AGYIbZsY
- WvvSso1m6GpAiMDCtzz93NLkmqIDioOzBFV6lo9cznARE5Hw9mnWKuHcg4xBXm5mSZqqSQ2mA8dA
- pncjrWaCxI2b1Am7jkV4XY3i_Ql_gHuG2v1UgbUcGEcoHPsRDrACz23ZaHG5h_ZGxOzZPwa0AXYH
- nM2oRWDMw4tD7PjzYMhXmaNfaFxGhSkdz2sQdDfXgwFLj0tMyRN2IDzyZx1bH0GbMcZ_NGOBrxEs
- 2qjj1vRJe3pQ2TWd8n.gfWpHEQP_FyF8os3COF6XudYreO3CZjJCGoMKiQAr9e38I2nmYzEbM8ar
- QRL2RHoFMdkTqadF0U6ERhxPLN2aTK5O02gDpu561irJLacEdkVv2utxijerGLWpve9d6hc2Qhr.
- TX55jPWdZmQ9d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.bf2.yahoo.com with HTTP; Sat, 29 Aug 2020 17:08:59 +0000
-Date:   Sat, 29 Aug 2020 17:08:55 +0000 (UTC)
-From:   Sergeant Emad Alabbasi <mrschantal.sonian.kadi@gmail.com>
-Reply-To: sergeantemad.alabbasi@gmail.com
-Message-ID: <1258742841.157202.1598720935644@mail.yahoo.com>
-Subject: Hello,
+        id S1728258AbgH2RQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Aug 2020 13:16:24 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:34236 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728105AbgH2RQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Aug 2020 13:16:24 -0400
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 4A007303;
+        Sat, 29 Aug 2020 19:16:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1598721381;
+        bh=CU4taoOmDFFhxm8biPJdqxmXviSj+cJCy+kfWTx+v4Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eatXXiu/xs1ZWxxSvsVMx/+vF87ygwNUAh44oawI9uMl10KFjsicMvZRFIGTwAhpz
+         YtnW5N1YBXXWHfgFMfAiZH6wzmhQlxq0PpN6JMNVNJ4y155f9ed/IzRIXkI8Vebdmt
+         fcRB512voAIbAh6wmXQ1uz6O7a98B/QtmMS0hpcM=
+Date:   Sat, 29 Aug 2020 20:16:00 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 08/38] media: pci: ttpci: av7110: fix
+ possible buffer overflow caused by bad DMA value in debiirq()
+Message-ID: <20200829171600.GA7465@pendragon.ideasonboard.com>
+References: <20200821161807.348600-1-sashal@kernel.org>
+ <20200821161807.348600-8-sashal@kernel.org>
+ <20200829121020.GA20944@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1258742841.157202.1598720935644.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16565 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200829121020.GA20944@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
- Hope I can trust you with the huge money I recently shared with my colleague during our peace keeping mission recently in an Oil reach area in Lybia.
+On Sat, Aug 29, 2020 at 02:10:20PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > The value av7110->debi_virt is stored in DMA memory, and it is assigned
+> > to data, and thus data[0] can be modified at any time by malicious
+> > hardware. In this case, "if (data[0] < 2)" can be passed, but then
+> > data[0] can be changed into a large number, which may cause buffer
+> > overflow when the code "av7110->ci_slot[data[0]]" is used.
+> > 
+> > To fix this possible bug, data[0] is assigned to a local variable, which
+> > replaces the use of data[0].
+> 
+> I'm pretty sure hardware capable of manipulating memory can work
+> around any such checks, but...
+> 
+> > +++ b/drivers/media/pci/ttpci/av7110.c
+> > @@ -424,14 +424,15 @@ static void debiirq(unsigned long cookie)
+> >  	case DATA_CI_GET:
+> >  	{
+> >  		u8 *data = av7110->debi_virt;
+> > +		u8 data_0 = data[0];
+> >  
+> > -		if ((data[0] < 2) && data[2] == 0xff) {
+> > +		if (data_0 < 2 && data[2] == 0xff) {
+> >  			int flags = 0;
+> >  			if (data[5] > 0)
+> >  				flags |= CA_CI_MODULE_PRESENT;
+> >  			if (data[5] > 5)
+> >  				flags |= CA_CI_MODULE_READY;
+> > -			av7110->ci_slot[data[0]].flags = flags;
+> > +			av7110->ci_slot[data_0].flags = flags;
+> 
+> This does not even do what it says. Compiler is still free to access
+> data[0] multiple times. It needs READ_ONCE() to be effective.
 
-The sum of 18.5 USD is my share and already with the company that will bring it to you for us to share 50% for you and mine 50%. 
-Kindly reply for me to tell you everything directly [sergeantemad.alabbasi@gmail.com]
+Yes, it seems quite dubious to me. If we *really* want to guard against
+rogue hardware here, the whole DMA buffer should be copied. I don't
+think it's worth it, a rogue PCI device can do much more harm.
 
-Thanks,
-Sergeant Emad Alabbasi
+-- 
+Regards,
+
+Laurent Pinchart
