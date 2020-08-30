@@ -2,67 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 060EE256EC5
-	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 16:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9814256F79
+	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 19:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbgH3Oq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Aug 2020 10:46:56 -0400
-Received: from sonic307-9.consmr.mail.ne1.yahoo.com ([66.163.190.32]:33174
-        "EHLO sonic307-9.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725898AbgH3Oqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Aug 2020 10:46:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598798807; bh=Q/AmPmR0e9CXxQBYbB2SR9aRfA51ls0ZhJJ5ujjkgjM=; h=Date:From:Reply-To:Subject:References:From:Subject; b=YtM+9hSA7TXZeDZN7bCxDMRZw2TZH95Q/nRP9SvNR5QWl1/7tBWCoPaZ17Iu+k0Y5M+NNj1BE02oiuc72MggaGcLUj0bsdRh5h92rsO1248Ydp9lf/qhNc5wHB5ALtx1H48ebra8qgLUbL2yHl2LxXi0QcdmhX1+3zQZzV1S5eJieIaGSBy5KmlhB89xg/cVw9WfmEWzxh816dvvTpBXHsRjydPC7I3IDldQGgLTajYDjDN9eqwKUULJGvNOAAynO+pW6DGHAd8yL+AtA/6rz5EGgPTQ3xkmY5MPINB5S53QPfN+I+c4A9ZL8p1I1x2I2IgRNhgDCMugE5XtCf/X/g==
-X-YMail-OSG: PBvGQGAVM1m56trfAiaiJYrfxCvl61nfIiZQh.Qmj7k_XQyJKqE8Vbg7AauoaZu
- 2ogtY1ArfZLDwkLIRNirH6HivAQkt5FotFl0yvXfPvKp1HNNKWBTXvKruyQ0Dvb3WKPv.ISinpw4
- dmTxxIUaADri4b8vDdTmhzV7awS6dbYrtQ02SRQLJqASp_hKp7yKutjp8afv44JRg5yJpSE4s9lS
- AS5hDZupIHArq3jVAo8dnm9mU6KNwNMSoI5Zdclddh5Wr.ttVHdkdcHdZzUtdiuH7pStXG2BLSqA
- STs1iqqiKjie5rzqK_NmCv1k8FJmjiBefMI5FVKdu_NuYHKeoSvZJaLsxnj6z.o6fVvGgCDD6Zxr
- KFSQNzzJ4NQzyMy2UzUMGmiv.Ro4zqED7fu1NHZOidG12rikqJ_Zh1XO9hNnAr0Q6sifhsEeH_z2
- VLW5xqftjpJzsGKiOnwb3S.fLC262_evhmU7lWmYIGeoUjV1W8P_LH0grXVIQvDlga9U6kBTqJip
- 3SfKat2liEGcbmyIHCAFN1HTf0cZ3AYwWYk4nL75eBNM1HUbqsV_uRDB7Rhha7xcMnHuzwOfF6de
- FA1ElU_eHCkWHC00Rc6PtnPam0m6ZFu8dkgem_pzo.MVBrrxg4oJCHip0rSjCtpT21eVeT8VMXvt
- qiBa.e1sEdBbEXT9hUPX_UqgZprYpScPCE3eL2JsW4OyU_V11_fOMyCOrTYZGKUGg2rFFpc3o7U5
- 4Vy1Sq4YDsXE0h5FqhLizbitNoDdz5kVR6zqsdGiUSmuMEyAG.PS5Yc0P8F62oMu4HCpuFPkiLeP
- jepttwhoL_SOznYA6TNC_d3KsVJfz.CvzOuRXaR0Np8oralkNMCHQbj1uikziKV_c.dsXNVRamLV
- noDA6Qds9dztyEc_6V5B9woJBzjHXWpL7GTJFteYllYuBxMTigKSFkd4b10z0x0KdD.MC8_iSVcn
- DtMwzlWcwbygf6W50MZDUsPphprhpaC.mXDks0rVDnG3Z4z_f5jw6KxVMfXt6QoOj9rKk_gaumBV
- XzXutXjmFUu0sIS.Xc76qqWIuquOyZ95wZwNU_0GN2FKFVX0aIB0AuRTqz4NWMJZh9HGNirq08xc
- gPIauqX5stPWFwZgd3DIRTyq0tZaeCDybZqm_qoy.P8xFaEhTMQKUPL_WibeTms4k4RhKVN2C5o8
- HGOFBipyjSSTRZ30rRrp3OowdZlfF2BOzB3_xUEyAhV81cjHZbzVLIK2t44J_SIAc7i0cJQVzgRo
- g0h15BPGOJGf7ajg2JUMx_NRCacoUYr9zQngPg9iXdxPiegCPRu6tqhZgG7wqSgjGv_Le2H7pFeh
- r4wzi52lbTcvMRmIpnQQs5iATiqwrUf64PJmvYWj1NVoyLSy9RsTvqsoI.2QsjsoY6TzpnkIRU2z
- S.Z9NA1rTg3a9XCAai4.lp8WUNYMOoD9SqJFD3bIup4tonBqksnWCz30-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sun, 30 Aug 2020 14:46:47 +0000
-Date:   Sun, 30 Aug 2020 14:46:42 +0000 (UTC)
-From:   Mrs Aisha Al-Qaddafi <mrsashaalqaddfi147@gmail.com>
-Reply-To: mrsashaalqaddfi147@gmail.com
-Message-ID: <1106110041.435339.1598798802967@mail.yahoo.com>
-Subject: Dear I Need An Investment Partner
+        id S1726134AbgH3RWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Aug 2020 13:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47222 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725934AbgH3RWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Aug 2020 13:22:11 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C4BC061573;
+        Sun, 30 Aug 2020 10:22:10 -0700 (PDT)
+Date:   Sun, 30 Aug 2020 17:21:55 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1598808116;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=kxjzaFHv2FrCYmgeO7dK+Bq6890QjPkWk7t2pW/woHg=;
+        b=jlr40h3smz45wYwGUBsah83bWF2mophW6S/CQm1FZTlEZsXWQnIYkhv7+AIeX6T9FRTjwc
+        mU8TxEAjd7e4mFCoe6x/36RVJ6p54V9daOl28lTjss7NdA9m86l6j/iRRESHhO91CJwn7t
+        e6EjCtNRKNtl0W12GAN4NdJ1Adzg/ck6/9YJKKET/FvbDvoe5o780b4Yuk/HwD6t//RWIV
+        PPonBV+E56ORARADx9u6gwsjYoXLIQPf/XcTLVeRHnSeY62jshRh8on8bzxEqTKSfbhCuL
+        4zBYHLXjVF8IAuECAGvQlaNCBeCEKNQy/0MlIsOr849lBEwvHlG8NzwwsXrUmA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1598808116;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=kxjzaFHv2FrCYmgeO7dK+Bq6890QjPkWk7t2pW/woHg=;
+        b=YYMqeDlRw+ImYZGZDNm2fN/IN0p3yV3hFKvTC3i0hV+FJDPAQZlOI/LLn5uD8h9ARcQH4a
+        f6R9unvG10QB/yDw==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] genirq/matrix: Deal with the sillyness of
+ for_each_cpu() on UP
+Cc:     kernel test robot <rong.a.chen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <159880811534.20229.17365970881693987724.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-References: <1106110041.435339.1598798802967.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16565 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
+Commit-ID:     784a0830377d0761834e385975bc46861fea9fa0
+Gitweb:        https://git.kernel.org/tip/784a0830377d0761834e385975bc46861fea9fa0
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Sun, 30 Aug 2020 19:07:53 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sun, 30 Aug 2020 19:17:28 +02:00
 
-Dear I Need An Investment Partner
+genirq/matrix: Deal with the sillyness of for_each_cpu() on UP
 
-Assalamu Alaikum Wa Rahmatullahi Wa Barakatuh
+Most of the CPU mask operations behave the same way, but for_each_cpu() and
+it's variants ignore the cpumask argument and claim that CPU0 is always in
+the mask. This is historical, inconsistent and annoying behaviour.
 
-Dear Friend,
+The matrix allocator uses for_each_cpu() and can be called on UP with an
+empty cpumask. The calling code does not expect that this succeeds but
+until commit e027fffff799 ("x86/irq: Unbreak interrupt affinity setting")
+this went unnoticed. That commit added a WARN_ON() to catch cases which
+move an interrupt from one vector to another on the same CPU. The warning
+triggers on UP.
 
-I came across your e-mail contact prior to a private search while in need of your assistance. I am Aisha Al-Qaddafi, the only biological Daughter of Former President of Libya Col. Muammar Al-Qaddafi. Am a single Mother and a Widow with three Children.
+Add a check for the cpumask being empty to prevent this.
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand United State Dollar ($27.500.000.00 ) and i need a trusted investment Manager/Partner because of my current refugee status,
-however, I am interested in you for investment project assistance in your country, may be from there, we can build business relationship in the nearest future. I am willing to negotiate an investment/business profit sharing ratio with you based on the future investment earning profits.
+Fixes: 2f75d9e1c905 ("genirq: Implement bitmap matrix allocator")
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+---
+ kernel/irq/matrix.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-If you are willing to handle this project on my behalf kindly reply urgently to enable me to provide you more information about the investment funds. Your Urgent Reply Will Be Appreciated
-
-Best Regards
-Mrs Aisha Al-Qaddafi
+diff --git a/kernel/irq/matrix.c b/kernel/irq/matrix.c
+index 30cc217..651a4ad 100644
+--- a/kernel/irq/matrix.c
++++ b/kernel/irq/matrix.c
+@@ -380,6 +380,13 @@ int irq_matrix_alloc(struct irq_matrix *m, const struct cpumask *msk,
+ 	unsigned int cpu, bit;
+ 	struct cpumap *cm;
+ 
++	/*
++	 * Not required in theory, but matrix_find_best_cpu() uses
++	 * for_each_cpu() which ignores the cpumask on UP .
++	 */
++	if (cpumask_empty(msk))
++		return -EINVAL;
++
+ 	cpu = matrix_find_best_cpu(m, msk);
+ 	if (cpu == UINT_MAX)
+ 		return -ENOSPC;
