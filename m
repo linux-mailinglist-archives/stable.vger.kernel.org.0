@@ -2,49 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607EC256BD3
-	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 07:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BB6256C9A
+	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 09:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725845AbgH3FBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Aug 2020 01:01:01 -0400
-Received: from sonic305-35.consmr.mail.bf2.yahoo.com ([74.6.133.234]:34107
-        "EHLO sonic305-35.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgH3FBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Aug 2020 01:01:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598763659; bh=aQBm+9Bca4ejs9ftzYnk89bfX4ekoPZ6NeQWeQKD++E=; h=Date:From:Reply-To:Subject:References:From:Subject; b=hMiOt3pfjYbQIYL1vuGJGPsJrBElG4OFie/BGxr3oU95fRk/8SXwnSwPIbo36T5rkGKo+SpCOvLVOMlE6zfk406IwaI2DKE9wqYcOdEa95DwBJxNixR+AwHv+X9/hf+5cCA/88tBYs2HzPEGK5Bcu61K8ZIFfPoG7AcDEgcXDjygozIxRhRyaUb0e0l9roKrK0ZcEfkHa5h4Dp2Kv8yhIFsVrIuqUv2DbLMEgwDYDmVA1ep0OugLvpU6CdD2mq2yjxvr+0mcp91vVKXkJ9Qo8GJa/7GhAZJtPzBsDamCuks0a020qeiuNt1Sb6tYNp9O0DDT81Fh3gZiXfKVywMtRg==
-X-YMail-OSG: rm1Am_UVM1lznkkxlL0.LC1hcRfieqvUfh38pDhBxzNJgro_H2z_dh.2I.H2E.2
- 3ZsoJPyqcNRf5vWBVBSSINc7LT2scqL8hJ8JXsdxX39UqrINL17iVf_8WHYJDl3vMdEHpp05lvPU
- m4XxQ04dEDRb8yZbFDXuFny45jAwLIalwg8Bv_zbnQtgbcCS4rGDrOqJZf.GI_yG4E9LwAoAiAt6
- lIYje6GgQMDaSrEGoD_4qXFAjf_HZDm5ZnJu.3bJdoTQXMCrPUud47X_LMis2m1dS0GL06UtR4Ma
- LBvezibCLcFcO.uhTXEb.o4x8u1THvBFSx6XNcqXj7xbF_pm9so823ELCvHp1R8cU2h4N.qFoSY8
- 5baxN0CVhTOAhEM8plo4enzTHaHzizf2OPmPTYi84l_AehqC30t2wMFREmHD5GjTUZKy2fd__Cop
- baAuOYRdOgTzN3aP.LGKibuRIRVnbkbUWDbnOrybcHaAHY7bl9QEZZf0n2rBAx25iIFpE17ATmGs
- 9lad6lPP1KbU5LLjHbIbjjl1sK3rkb91ovNcvi7nS5IGRlUqDUDYS_kDoAWBx4qylQlNsz1Cgdas
- Jsyhq9ZBAOxBDyrvr4DfW9p2jsysZi0Aql5bBQo_XbPSc36ULjQAE5EBsNi1GmTPPMsG7VQy8I6w
- pOpRVQQR1xxFYNhDT5mfZz6ZZ2PknuEu1POVArWMRmz1bRJVaG0iyBf.WoMNUU3pbAVypK3Hol27
- MzZmgbvsdqm5cAZ8jPHWPvdBpEzFO9QttEm8lDNWkyV9iKrZLYA9sCQmylg4zLHItsy8nKr49R21
- CrGRzPwEGXBpe3lWqIcw3Pf9nBaYcp.NBvhpa1WgGnwQBTUMMu6AGukzkEmNSrFIl7qEX1HwofA0
- QNITZXscFClHRGjlCw2kwiQ8I.ACDMmYO4isOgI0MAo53CLrfEuhAZ09xzYyEj8u3gbytMYP8slC
- 8Tyo9u43r0v4x6x9_4_uAfjusu3uz5UiQcFLICK.MMfvvo3hWlTQpHmP_U8_h2K9gRqCaH0l_jc3
- S5IbdXaa7mG.tTa6gzBh3mWQTU9.aSMfjBJ_02070NxJNjkKHqrpwej6lZDEOQPXVUdJ54WSSAa1
- rp9c.KVS1QvCJz9hmuZ6yWVyDNtAQsl5KD39jhlYdUAi06Iikj7ZfRltKt0ZhKLF1iiurkZCGvZq
- NVjq8d922Af83kY5m.6ZyaH.sy4StkfBuaPRkJWBKN0.LPpBTIrAl72fgkXsbB_JVtwv3KxzBVQ0
- j6TSX1eNmAh.u_WkXQiaW2NULdyabkA8Lip8Usuyek3qImZohDoccd9KyfUeRO2_FDy1TrmysbRw
- BA_v0Ko2eQKRipUQ.tVkPTdXPebD3ZRT0LWf2NjGOGmeBezajTtmwCULqG5fRhwMhYJmK6.nfqK6
- pUS2QuUU_sqx9rSkfC11yLYSkqcOUuCogMMPvwQxBAXSTGnJshgco69IeGLOSEhsUGnTrga3tDtW
- wczXARA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.bf2.yahoo.com with HTTP; Sun, 30 Aug 2020 05:00:59 +0000
-Date:   Sun, 30 Aug 2020 04:58:58 +0000 (UTC)
-From:   "Mrs. Maureen Hinckley" <mau90@gcfta.in>
-Reply-To: maurhinck5@gmail.com
-Message-ID: <1156233307.262214.1598763538680@mail.yahoo.com>
-Subject: RE
+        id S1726078AbgH3HbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Aug 2020 03:31:24 -0400
+Received: from zg8tmtm5lju5ljm3lje2naaa.icoremail.net ([139.59.37.164]:57821
+        "HELO zg8tmtm5lju5ljm3lje2naaa.icoremail.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with SMTP id S1726013AbgH3HbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Aug 2020 03:31:23 -0400
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Sun, 30 Aug 2020 03:31:21 EDT
+Received: from [166.111.139.123] (unknown [166.111.139.123])
+        by app-3 (Coremail) with SMTP id EQQGZQCHOSYnVEtfzRnPAA--.24490S2;
+        Sun, 30 Aug 2020 15:24:23 +0800 (CST)
+Subject: Re: [PATCH AUTOSEL 4.19 08/38] media: pci: ttpci: av7110: fix
+ possible buffer overflow caused by bad DMA value in debiirq()
+To:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-media@vger.kernel.org
+References: <20200821161807.348600-1-sashal@kernel.org>
+ <20200821161807.348600-8-sashal@kernel.org>
+ <20200829121020.GA20944@duo.ucw.cz>
+From:   Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Message-ID: <a9c96d50-a4d1-29bf-3bb0-68c4f7cd4c10@tsinghua.edu.cn>
+Date:   Sun, 30 Aug 2020 15:24:24 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1156233307.262214.1598763538680.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16565 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <20200829121020.GA20944@duo.ucw.cz>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-CM-TRANSID: EQQGZQCHOSYnVEtfzRnPAA--.24490S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7ur4UWryrCFWkJr48tw1rCrg_yoW8Jw13pF
+        WIq3W0qFs5tF9IkrW2vrsFvaykAa4xJryDGwsrA34UArZ0gF1xCFWkJF4ru3ZYkF98ZayI
+        qF4Yq342gryqqaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUvFb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I2
+        0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+        A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xII
+        jxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I
+        8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
+        64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8Jw
+        Am72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzVAYIcxG8wCY
+        02Avz4vE14v_GF4l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxV
+        Aqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r12
+        6r1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6x
+        kF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJr1lIxAIcVC2z280aVAF
+        wI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvj
+        xU7LvtDUUUU
+X-CM-SenderInfo: xedlyxhdmxq3pvlqwxlxdovvfxof0/
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -52,10 +60,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-I am Maureen Hinckley and my foundation is donating (Five hundred and fifty=
- thousand USD) to you. Contact us via my email at (maurhinck5@gmail.com) fo=
-r further details.
+On 2020/8/29 20:10, Pavel Machek wrote:
+> Hi!
+>
+>> The value av7110->debi_virt is stored in DMA memory, and it is assigned
+>> to data, and thus data[0] can be modified at any time by malicious
+>> hardware. In this case, "if (data[0] < 2)" can be passed, but then
+>> data[0] can be changed into a large number, which may cause buffer
+>> overflow when the code "av7110->ci_slot[data[0]]" is used.
+>>
+>> To fix this possible bug, data[0] is assigned to a local variable, which
+>> replaces the use of data[0].
+> I'm pretty sure hardware capable of manipulating memory can work
+> around any such checks, but...
+>
+>> +++ b/drivers/media/pci/ttpci/av7110.c
+>> @@ -424,14 +424,15 @@ static void debiirq(unsigned long cookie)
+>>   	case DATA_CI_GET:
+>>   	{
+>>   		u8 *data = av7110->debi_virt;
+>> +		u8 data_0 = data[0];
+>>   
+>> -		if ((data[0] < 2) && data[2] == 0xff) {
+>> +		if (data_0 < 2 && data[2] == 0xff) {
+>>   			int flags = 0;
+>>   			if (data[5] > 0)
+>>   				flags |= CA_CI_MODULE_PRESENT;
+>>   			if (data[5] > 5)
+>>   				flags |= CA_CI_MODULE_READY;
+>> -			av7110->ci_slot[data[0]].flags = flags;
+>> +			av7110->ci_slot[data_0].flags = flags;
+> This does not even do what it says. Compiler is still free to access
+> data[0] multiple times. It needs READ_ONCE() to be effective.
+>
+>
 
-Best Regards,
-Mrs. Maureen Hinckley,
-Copyright =C2=A92020 The Maureen Hinckley Foundation All Rights Reserved.
+Thanks for this advice, I will submit a v2 patch soon.
+
+
+Best wishes,
+Jia-Ju Bai
+
