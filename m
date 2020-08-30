@@ -2,70 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F85256E98
-	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 16:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4241C256EC2
+	for <lists+stable@lfdr.de>; Sun, 30 Aug 2020 16:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726255AbgH3OXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Aug 2020 10:23:41 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:33592 "EHLO
-        mail.parknet.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726173AbgH3OXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Aug 2020 10:23:41 -0400
-X-Greylist: delayed 418 seconds by postgrey-1.27 at vger.kernel.org; Sun, 30 Aug 2020 10:23:40 EDT
-Received: from ibmpc.myhome.or.jp (server.parknet.ne.jp [210.171.168.39])
-        by mail.parknet.co.jp (Postfix) with ESMTPSA id C7EB31B44DF;
-        Sun, 30 Aug 2020 23:16:37 +0900 (JST)
-Received: from devron.myhome.or.jp (foobar@devron.myhome.or.jp [192.168.0.3])
-        by ibmpc.myhome.or.jp (8.15.2/8.15.2/Debian-20) with ESMTPS id 07UEGaSQ331653
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Sun, 30 Aug 2020 23:16:37 +0900
-Received: from devron.myhome.or.jp (foobar@localhost [127.0.0.1])
-        by devron.myhome.or.jp (8.15.2/8.15.2/Debian-20) with ESMTPS id 07UEGapa3170565
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Sun, 30 Aug 2020 23:16:36 +0900
-Received: (from hirofumi@localhost)
-        by devron.myhome.or.jp (8.15.2/8.15.2/Submit) id 07UEGaYE3170564;
-        Sun, 30 Aug 2020 23:16:36 +0900
-From:   OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH] fat: Avoid oops when bdi->io_pages==0
-References: <87ft85osn6.fsf@mail.parknet.co.jp>
-        <20200830140143.4332B206FA@mail.kernel.org>
-Date:   Sun, 30 Aug 2020 23:16:36 +0900
-In-Reply-To: <20200830140143.4332B206FA@mail.kernel.org> (Sasha Levin's
-        message of "Sun, 30 Aug 2020 14:01:42 +0000")
-Message-ID: <87v9h0nrqz.fsf@mail.parknet.co.jp>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        id S1726134AbgH3Oqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Aug 2020 10:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725898AbgH3Oqe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 30 Aug 2020 10:46:34 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2FBC2087D;
+        Sun, 30 Aug 2020 14:46:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598798794;
+        bh=U0oxIumzrar1JxnaRQFyP4U4DzbcRA+kUEXg1R8kxBo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=K1JwZ13c/x1oacuBew1ze9HEyy4RETXNJ52/lKHfkM8iLJO1lZWdbNSCdPHhcuNqR
+         0iJtU4EPgyJklusLudVn+7ivjFwwpEQSqQXbUdVsZv3VWJEXcfFua2LiLgCAo2TLmI
+         nOgl5yxGkf6rvQhZ0aiLLWlnWYXlqx+bafPq0yvg=
+Date:   Sun, 30 Aug 2020 10:46:32 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 34/38] btrfs: file: reserve qgroup space
+ after the hole punch range is locked
+Message-ID: <20200830144632.GZ8670@sasha-vm>
+References: <20200821161807.348600-1-sashal@kernel.org>
+ <20200821161807.348600-34-sashal@kernel.org>
+ <20200829121123.GB20944@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200829121123.GB20944@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin <sashal@kernel.org> writes:
-
-> Hi
+On Sat, Aug 29, 2020 at 02:11:23PM +0200, Pavel Machek wrote:
+>Hi!
 >
-> [This is an automated email]
+>> [ Upstream commit a7f8b1c2ac21bf081b41264c9cfd6260dffa6246 ]
+>>
+>> The incoming qgroup reserved space timing will move the data reservation
+>> to ordered extent completely.
+>>
+>> However in btrfs_punch_hole_lock_range() will call
+>> btrfs_invalidate_page(), which will clear QGROUP_RESERVED bit for the
+>> range.
+>>
+>> In current stage it's OK, but if we're making ordered extents handle the
+>> reserved space, then btrfs_punch_hole_lock_range() can clear the
+>> QGROUP_RESERVED bit before we submit ordered extent, leading to qgroup
+>> reserved space leakage.
+>>
+>> So here change the timing to make reserve data space after
+>> btrfs_punch_hole_lock_range().
+>> The new timing is fine for either current code or the new code.
 >
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.8.5, v5.4.61, v4.19.142, v4.14.195, v4.9.234, v4.4.234.
->
-> v5.8.5: Build OK!
+>I'm not sure why this is queued for -stable. It is preparation for
+>future work, and that work is not queued for -stable.
 
-[...]
+So you understand why it was queued: it's preparation for a fix that is
+relevant to 4.19 but didn't apply cleanly.
 
->
-> How should we proceed with this patch?
+I can look into what happened next week, or if you'd sent me a backport
+I'd be happy to take it.
 
-Only 5.8.x has to apply this patch.
-
-Thanks.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Thanks,
+Sasha
