@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E8B257D11
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 214CD257D12
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbgHaPdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728362AbgHaPdi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 Aug 2020 11:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728902AbgHaPbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:40 -0400
+        id S1728961AbgHaPbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08567214DB;
-        Mon, 31 Aug 2020 15:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FF66215A4;
+        Mon, 31 Aug 2020 15:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887899;
-        bh=GgYEUat4iC8wr6OouJqSNb+FzDajrjBsokpFliM5aSk=;
+        s=default; t=1598887901;
+        bh=CyQWGRvj67cqowJfDn4vuv/txn4szGizTTVBdxHOyvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITszLHoKNngoUhQwitbROwn5kBUTpX7HSWWVH/EW/lo1Z6NYpqqgZDE/AhW/wWEn9
-         yF3/AWM5UEufjh0MYj1XPWIldulsEXrtvn0P8NTO1QqqZU5P46/WPytti7NT9jQi8A
-         D6tvw7ri4bzJvc5CCuf48gQD97uMIX+Z3ddNDthY=
+        b=ICvfExpuUBGCPMar/Dq+tMnofW5BstnY6VlUJOWXA5d/aF74bHCVseLBwq+XTVu0n
+         kwAr+Gwjv4nitRWfDelDiCYAswpEXXypNT0d30cHsCjwOpF6ySK0vPm5dxaaJHvgIb
+         tcZmv0YzGvF6nx72MubEsgBS1mZKICoz5r7Veu38=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 2/9] speakup: Fix wait_for_xmitr for ttyio case
-Date:   Mon, 31 Aug 2020 11:31:29 -0400
-Message-Id: <20200831153136.1024676-2-sashal@kernel.org>
+Cc:     Krishna Manikandan <mkrishn@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 3/9] drm/msm: add shutdown support for display platform_driver
+Date:   Mon, 31 Aug 2020 11:31:30 -0400
+Message-Id: <20200831153136.1024676-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153136.1024676-1-sashal@kernel.org>
 References: <20200831153136.1024676-1-sashal@kernel.org>
@@ -43,145 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Krishna Manikandan <mkrishn@codeaurora.org>
 
-[ Upstream commit 2b86d9b8ec6efb86fc5ea44f2d49b1df17f699a1 ]
+[ Upstream commit 9d5cbf5fe46e350715389d89d0c350d83289a102 ]
 
-This was missed while introducing the tty-based serial access.
+Define shutdown callback for display drm driver,
+so as to disable all the CRTCS when shutdown
+notification is received by the driver.
 
-The only remaining use of wait_for_xmitr with tty-based access is in
-spk_synth_is_alive_restart to check whether the synth can be restarted.
-With tty-based this is up to the tty layer to cope with the buffering
-etc. so we can just say yes.
+This change will turn off the timing engine so
+that no display transactions are requested
+while mmu translations are getting disabled
+during reboot sequence.
 
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Link: https://lore.kernel.org/r/20200804160637.x3iycau5izywbgzl@function
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Krishna Manikandan <mkrishn@codeaurora.org>
+
+Changes in v2:
+	- Remove NULL check from msm_pdev_shutdown (Stephen Boyd)
+	- Change commit text to reflect when this issue
+	  was uncovered (Sai Prakash Ranjan)
+
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/speakup/serialio.c  | 8 +++++---
- drivers/staging/speakup/spk_priv.h  | 1 -
- drivers/staging/speakup/spk_ttyio.c | 7 +++++++
- drivers/staging/speakup/spk_types.h | 1 +
- drivers/staging/speakup/synth.c     | 2 +-
- 5 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/msm_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/staging/speakup/serialio.c b/drivers/staging/speakup/serialio.c
-index 9cfc8142a3187..f9ec8f1ac73be 100644
---- a/drivers/staging/speakup/serialio.c
-+++ b/drivers/staging/speakup/serialio.c
-@@ -31,6 +31,7 @@ static void spk_serial_tiocmset(unsigned int set, unsigned int clear);
- static unsigned char spk_serial_in(void);
- static unsigned char spk_serial_in_nowait(void);
- static void spk_serial_flush_buffer(void);
-+static int spk_serial_wait_for_xmitr(struct spk_synth *in_synth);
- 
- struct spk_io_ops spk_serial_io_ops = {
- 	.synth_out = spk_serial_out,
-@@ -39,6 +40,7 @@ struct spk_io_ops spk_serial_io_ops = {
- 	.synth_in = spk_serial_in,
- 	.synth_in_nowait = spk_serial_in_nowait,
- 	.flush_buffer = spk_serial_flush_buffer,
-+	.wait_for_xmitr = spk_serial_wait_for_xmitr,
- };
- EXPORT_SYMBOL_GPL(spk_serial_io_ops);
- 
-@@ -210,7 +212,7 @@ void spk_stop_serial_interrupt(void)
- }
- EXPORT_SYMBOL_GPL(spk_stop_serial_interrupt);
- 
--int spk_wait_for_xmitr(struct spk_synth *in_synth)
-+static int spk_serial_wait_for_xmitr(struct spk_synth *in_synth)
- {
- 	int tmout = SPK_XMITR_TIMEOUT;
- 
-@@ -279,7 +281,7 @@ static void spk_serial_flush_buffer(void)
- 
- static int spk_serial_out(struct spk_synth *in_synth, const char ch)
- {
--	if (in_synth->alive && spk_wait_for_xmitr(in_synth)) {
-+	if (in_synth->alive && spk_serial_wait_for_xmitr(in_synth)) {
- 		outb_p(ch, speakup_info.port_tts);
- 		return 1;
- 	}
-@@ -294,7 +296,7 @@ const char *spk_serial_synth_immediate(struct spk_synth *synth,
- 	while ((ch = *buff)) {
- 		if (ch == '\n')
- 			ch = synth->procspeech;
--		if (spk_wait_for_xmitr(synth))
-+		if (spk_serial_wait_for_xmitr(synth))
- 			outb(ch, speakup_info.port_tts);
- 		else
- 			return buff;
-diff --git a/drivers/staging/speakup/spk_priv.h b/drivers/staging/speakup/spk_priv.h
-index 046040ac074c6..8466c4c81ea84 100644
---- a/drivers/staging/speakup/spk_priv.h
-+++ b/drivers/staging/speakup/spk_priv.h
-@@ -45,7 +45,6 @@
- 
- const struct old_serial_port *spk_serial_init(int index);
- void spk_stop_serial_interrupt(void);
--int spk_wait_for_xmitr(struct spk_synth *in_synth);
- void spk_serial_release(void);
- void spk_ttyio_release(void);
- void spk_ttyio_register_ldisc(void);
-diff --git a/drivers/staging/speakup/spk_ttyio.c b/drivers/staging/speakup/spk_ttyio.c
-index 71edd3cfe6844..59cd966932c82 100644
---- a/drivers/staging/speakup/spk_ttyio.c
-+++ b/drivers/staging/speakup/spk_ttyio.c
-@@ -115,6 +115,7 @@ static void spk_ttyio_tiocmset(unsigned int set, unsigned int clear);
- static unsigned char spk_ttyio_in(void);
- static unsigned char spk_ttyio_in_nowait(void);
- static void spk_ttyio_flush_buffer(void);
-+static int spk_ttyio_wait_for_xmitr(struct spk_synth *in_synth);
- 
- struct spk_io_ops spk_ttyio_ops = {
- 	.synth_out = spk_ttyio_out,
-@@ -123,6 +124,7 @@ struct spk_io_ops spk_ttyio_ops = {
- 	.synth_in = spk_ttyio_in,
- 	.synth_in_nowait = spk_ttyio_in_nowait,
- 	.flush_buffer = spk_ttyio_flush_buffer,
-+	.wait_for_xmitr = spk_ttyio_wait_for_xmitr,
- };
- EXPORT_SYMBOL_GPL(spk_ttyio_ops);
- 
-@@ -264,6 +266,11 @@ static void spk_ttyio_tiocmset(unsigned int set, unsigned int clear)
- 	mutex_unlock(&speakup_tty_mutex);
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index d9c0687435a05..c59240b566d83 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1134,6 +1134,13 @@ static int msm_pdev_remove(struct platform_device *pdev)
+ 	return 0;
  }
  
-+static int spk_ttyio_wait_for_xmitr(struct spk_synth *in_synth)
++static void msm_pdev_shutdown(struct platform_device *pdev)
 +{
-+	return 1;
++	struct drm_device *drm = platform_get_drvdata(pdev);
++
++	drm_atomic_helper_shutdown(drm);
 +}
 +
- static unsigned char ttyio_in(int timeout)
- {
- 	struct spk_ldisc_data *ldisc_data = speakup_tty->disc_data;
-diff --git a/drivers/staging/speakup/spk_types.h b/drivers/staging/speakup/spk_types.h
-index c50de6035a9aa..bfbc09f760a94 100644
---- a/drivers/staging/speakup/spk_types.h
-+++ b/drivers/staging/speakup/spk_types.h
-@@ -156,6 +156,7 @@ struct spk_io_ops {
- 	unsigned char (*synth_in)(void);
- 	unsigned char (*synth_in_nowait)(void);
- 	void (*flush_buffer)(void);
-+	int (*wait_for_xmitr)(struct spk_synth *synth);
- };
- 
- struct spk_synth {
-diff --git a/drivers/staging/speakup/synth.c b/drivers/staging/speakup/synth.c
-index a1ca68c765792..7a137f8a5063c 100644
---- a/drivers/staging/speakup/synth.c
-+++ b/drivers/staging/speakup/synth.c
-@@ -142,7 +142,7 @@ int spk_synth_is_alive_restart(struct spk_synth *synth)
- {
- 	if (synth->alive)
- 		return 1;
--	if (spk_wait_for_xmitr(synth) > 0) {
-+	if (synth->io_ops->wait_for_xmitr(synth) > 0) {
- 		/* restart */
- 		synth->alive = 1;
- 		synth_printf("%s", synth->init);
+ static const struct of_device_id dt_match[] = {
+ 	{ .compatible = "qcom,mdp4", .data = (void *)4 },	/* MDP4 */
+ 	{ .compatible = "qcom,mdss", .data = (void *)5 },	/* MDP5 MDSS */
+@@ -1144,6 +1151,7 @@ MODULE_DEVICE_TABLE(of, dt_match);
+ static struct platform_driver msm_platform_driver = {
+ 	.probe      = msm_pdev_probe,
+ 	.remove     = msm_pdev_remove,
++	.shutdown   = msm_pdev_shutdown,
+ 	.driver     = {
+ 		.name   = "msm",
+ 		.of_match_table = dt_match,
 -- 
 2.25.1
 
