@@ -2,205 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73CC82578E4
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 14:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE296257920
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 14:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727046AbgHaMCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 08:02:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727044AbgHaMCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 08:02:35 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33BFFC061755
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 05:02:35 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id l191so480263pgd.5
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 05:02:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=a08AENI2DFUJOZiGvCRTg/GXwM7bPYe8BJ+rCJWtnl4=;
-        b=YOKtzczKXPTHUogmgXL30H3d8zUTN7PA3qH1/VNy/iIqfSR5XtUZyM07m1Joxg985J
-         VrNmTjEogNeVB1HiyJhuBpqLFF53UzSzSNwyuyuXB7jAinMQyKMdsBL6X0pdjsjdobc+
-         ewgM7hdO7Id5BLI7CG75ztKZ2HVgBH0LYm9IO7z85XLDzDN9IG4X0vJHZWBUNK1h4IAR
-         BBgh52YyXAHcZPc6rfS1u5wBtniJAjmpQulu6mHEtyeB73B3roqTuMs568SyhmBcrbKZ
-         7pqQSzhoMrZNBTGewkIv9tLosYbAgL8Jgnm/8x/NzaRG291HqSY4Bup7OP/P7r0cPfWh
-         36jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=a08AENI2DFUJOZiGvCRTg/GXwM7bPYe8BJ+rCJWtnl4=;
-        b=PBB3Gplvr6pQKXps+/PdFu8UOKHO5J/wE3VZcFMO7E8MQ4Y6mvvoYF5rm5aeIcHGu9
-         CtRJe2FPEiH6egB6xozT8DCzk5SpKyya3GE7FDQJ+o6iFezPVGAM2szCxnfVpAy+fWIy
-         v12qdNHUHdAasEDGAWOPKDd1G2UvuLAL4oy9AM96MjBPUhh9u/qJyzYWRaNWw37aTwNn
-         6WqOmNwNBlmIiS73jEpXEGSceuOfjEl/vJmf9o2o+lC5dw2HekqxwHl24W7Zu24MYWqt
-         +ZvwTjCbkqm/rEcJ/Oc7fHVkLY3CdMEENCaIaDgs/dPV1laKWvDjq/wpuqObwc+I+X41
-         dMhw==
-X-Gm-Message-State: AOAM532AEoLYwXQx3Cfk3q7n7rhSm8t+NyXT4qpBDmLTt7zNCj8tl9tL
-        L5iIKnGGsLBpufWtPqjIJEtwKBmoRJ4ewA==
-X-Google-Smtp-Source: ABdhPJyVcgDinpA+btaIb9dzZaKvDLDOFy3R9RZel/AFBg1k8y/YJWPQcqpdSx2jFCouDYNOHU0pag==
-X-Received: by 2002:a65:66c4:: with SMTP id c4mr1014869pgw.442.1598875354300;
-        Mon, 31 Aug 2020 05:02:34 -0700 (PDT)
-Received: from houpudeMacBook-Pro.local ([240e:b1:e401:1::d])
-        by smtp.gmail.com with ESMTPSA id q201sm7756648pfq.80.2020.08.31.05.02.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Aug 2020 05:02:33 -0700 (PDT)
-Subject: Re: [PATCH] iscsi-target: fix hang in iscsit_access_np() when getting
- tpg->np_login_sem
-To:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, michael.christie@oracle.com
-Cc:     stable@vger.kernel.org
-References: <20200729130343.24976-1-houpu@bytedance.com>
-From:   Hou Pu <houpu@bytedance.com>
-Message-ID: <01a58989-8777-3967-ebcd-f8c080e18a3c@bytedance.com>
-Date:   Mon, 31 Aug 2020 20:02:20 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.11.0
+        id S1726312AbgHaMY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 08:24:56 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:48439 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726121AbgHaMYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 08:24:55 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 87F70B25;
+        Mon, 31 Aug 2020 08:24:54 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 31 Aug 2020 08:24:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=iEdYRs
+        k1O2fXj79gEdqTK41aBLKqiM9+Qs+bFcAjBZs=; b=adPasgIN3u0++Naz/htujJ
+        GiL28G5bAKW+wk4mauQ5iXrO/VlztmnRQdpFStGUtOLnfzJGuT1O3PtrKvTQeY4n
+        SvKRPp5Zg1cHtTkB1I0ZFgTd580MXQmxwwrYgIBaNFYwF4j6VJzBRJeFwCYrIFqu
+        cCPep8y2Rs8RtPSc8KMbVq/RT8icBH3EuB5BkX2WqbVX1ZgA2+omSRCmyc9zAnV7
+        +Aw2q70Ki+VmudaJ8onH84HhwLH7c+SpUzObzOOb6qmlMoHltPUus3/OEcuWt3IH
+        5GeFSfoNsN4O6+3zS2o9CD0XZYaDqS7FP/PM/DweflkHqhjB4Ha/+gn6QPNzVmdQ
+        ==
+X-ME-Sender: <xms:FuxMX2usqf5K6rNVteLMLje_Vq_DJj66xJrV5D1kEbrmG0UbkBwqig>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefhedgheduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:FuxMX7enwOO1JpDKNT1YuB26RVK3hsbZhENWKz_2lrDDMJM7KkCpIw>
+    <xmx:FuxMXxwrylWrvRJqW7qXvdjT_p40N7jGIMYlGBtnMIXd9Yad2NcIPg>
+    <xmx:FuxMXxPvgnRc2gIJ_Jc0QaVuWYrf3dVWYC6ItdG-N4pj57OrgPZLmg>
+    <xmx:FuxMX7EPL2chQD2uL-axsRxpd7xNl30j3i8uMdQyhw09yIPzjb0_0MHqJug>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CC07E3060067;
+        Mon, 31 Aug 2020 08:24:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Don't setup more than requested" failed to apply to 5.4-stable tree
+To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
+        stable@vger.kernel.org, thinhn@synopsys.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 31 Aug 2020 14:24:54 +0200
+Message-ID: <1598876694219243@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200729130343.24976-1-houpu@bytedance.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hi,
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Could anyone help review this patch? It is an important
-fix.
+thanks,
 
-Login thread could hang __forever__ and only reboot could
-solve this. This happened several times in our production
-environment.
+greg k-h
 
-np->np_login_timer is shared by all TPGs of a portal.
-should be used carefully. If a connection to iqn-TPG A start
-login timer, It should not stop by another connection
-to iqn-TPG B.
+------------------ original commit in Linus's tree ------------------
 
-np->np_login_timer protect potential hangs in
-__iscsi_target_login_thread.
-should be used locally in this function. It should really
-not be used in iscsi_target_login_sess_out from workqueue
-context.
+From 5d187c0454ef4c5e046a81af36882d4d515922ec Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 6 Aug 2020 19:46:23 -0700
+Subject: [PATCH] usb: dwc3: gadget: Don't setup more than requested
 
-Thanks,
-Hou
+The SG list may be set up with entry size more than the requested
+length. Check the usb_request->length and make sure that we don't setup
+the TRBs to send/receive more than requested. This case may occur when
+the SG entry is allocated up to a certain minimum size, but the request
+length is less than that. It can also occur when the request is reused
+for a different request length.
 
-On 2020/7/29 9:03 PM, Hou Pu wrote:
-> The iscsi target login thread might stuck in following stack:
-> 
-> cat /proc/`pidof iscsi_np`/stack
-> [<0>] down_interruptible+0x42/0x50
-> [<0>] iscsit_access_np+0xe3/0x167
-> [<0>] iscsi_target_locate_portal+0x695/0x8ac
-> [<0>] __iscsi_target_login_thread+0x855/0xb82
-> [<0>] iscsi_target_login_thread+0x2f/0x5a
-> [<0>] kthread+0xfa/0x130
-> [<0>] ret_from_fork+0x1f/0x30
-> 
-> This could be reproduced by following steps:
-> 1. Initiator A try to login iqn1-tpg1 on port 3260. After finishing
->     PDU exchange in the login thread and before the negotiation is
->     finished, at this time the network link is down. In a production
->     environment, this could happen. I could emulated it by bring
->     the network card down in the initiator node by ifconfig eth0 down.
->     (Now A could never finish this login. And tpg->np_login_sem is
->     hold by it).
-> 2. Initiator B try to login iqn2-tpg1 on port 3260. After finishing
->     PDU exchange in the login thread. The target expect to process
->     remaining login PDUs in workqueue context.
-> 3. Initiator A' try to re-login to iqn1-tpg1 on port 3260 from
->     a new socket. It will wait for tpg->np_login_sem with
->     np->np_login_timer loaded to wait for at most 15 second.
->     (Because the lock is held by A. A never gets a change to
->     release tpg->np_login_sem. so A' should finally get timeout).
-> 4. Before A' got timeout. Initiator B gets negotiation failed and
->     calls iscsi_target_login_drop()->iscsi_target_login_sess_out().
->     The np->np_login_timer is canceled. And initiator A' will hang
->     there forever. Because A' is now in the login thread. All other
->     login requests could not be serviced.
-> 
-> Fix this by moving iscsi_stop_login_thread_timer() out of
-> iscsi_target_login_sess_out(). Also remove iscsi_np parameter
-> from iscsi_target_login_sess_out().
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hou Pu <houpu@bytedance.com>
-> ---
->   drivers/target/iscsi/iscsi_target_login.c | 6 +++---
->   drivers/target/iscsi/iscsi_target_login.h | 3 +--
->   drivers/target/iscsi/iscsi_target_nego.c  | 3 +--
->   3 files changed, 5 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/target/iscsi/iscsi_target_login.c b/drivers/target/iscsi/iscsi_target_login.c
-> index 85748e338858..893d1b406c29 100644
-> --- a/drivers/target/iscsi/iscsi_target_login.c
-> +++ b/drivers/target/iscsi/iscsi_target_login.c
-> @@ -1149,7 +1149,7 @@ void iscsit_free_conn(struct iscsi_conn *conn)
->   }
->   
->   void iscsi_target_login_sess_out(struct iscsi_conn *conn,
-> -		struct iscsi_np *np, bool zero_tsih, bool new_sess)
-> +				 bool zero_tsih, bool new_sess)
->   {
->   	if (!new_sess)
->   		goto old_sess_out;
-> @@ -1167,7 +1167,6 @@ void iscsi_target_login_sess_out(struct iscsi_conn *conn,
->   	conn->sess = NULL;
->   
->   old_sess_out:
-> -	iscsi_stop_login_thread_timer(np);
->   	/*
->   	 * If login negotiation fails check if the Time2Retain timer
->   	 * needs to be restarted.
-> @@ -1407,8 +1406,9 @@ static int __iscsi_target_login_thread(struct iscsi_np *np)
->   new_sess_out:
->   	new_sess = true;
->   old_sess_out:
-> +	iscsi_stop_login_thread_timer(np);
->   	tpg_np = conn->tpg_np;
-> -	iscsi_target_login_sess_out(conn, np, zero_tsih, new_sess);
-> +	iscsi_target_login_sess_out(conn, zero_tsih, new_sess);
->   	new_sess = false;
->   
->   	if (tpg) {
-> diff --git a/drivers/target/iscsi/iscsi_target_login.h b/drivers/target/iscsi/iscsi_target_login.h
-> index 3b8e3639ff5d..fc95e6150253 100644
-> --- a/drivers/target/iscsi/iscsi_target_login.h
-> +++ b/drivers/target/iscsi/iscsi_target_login.h
-> @@ -22,8 +22,7 @@ extern int iscsit_put_login_tx(struct iscsi_conn *, struct iscsi_login *, u32);
->   extern void iscsit_free_conn(struct iscsi_conn *);
->   extern int iscsit_start_kthreads(struct iscsi_conn *);
->   extern void iscsi_post_login_handler(struct iscsi_np *, struct iscsi_conn *, u8);
-> -extern void iscsi_target_login_sess_out(struct iscsi_conn *, struct iscsi_np *,
-> -				bool, bool);
-> +extern void iscsi_target_login_sess_out(struct iscsi_conn *, bool, bool);
->   extern int iscsi_target_login_thread(void *);
->   extern void iscsi_handle_login_thread_timeout(struct timer_list *t);
->   
-> diff --git a/drivers/target/iscsi/iscsi_target_nego.c b/drivers/target/iscsi/iscsi_target_nego.c
-> index 685d771b51d4..e32d93b92742 100644
-> --- a/drivers/target/iscsi/iscsi_target_nego.c
-> +++ b/drivers/target/iscsi/iscsi_target_nego.c
-> @@ -535,12 +535,11 @@ static bool iscsi_target_sk_check_and_clear(struct iscsi_conn *conn, unsigned in
->   
->   static void iscsi_target_login_drop(struct iscsi_conn *conn, struct iscsi_login *login)
->   {
-> -	struct iscsi_np *np = login->np;
->   	bool zero_tsih = login->zero_tsih;
->   
->   	iscsi_remove_failed_auth_entry(conn);
->   	iscsi_target_nego_release(conn);
-> -	iscsi_target_login_sess_out(conn, np, zero_tsih, true);
-> +	iscsi_target_login_sess_out(conn, zero_tsih, true);
->   }
->   
->   struct conn_timeout {
-> 
+Cc: <stable@vger.kernel.org> # v4.18+
+Fixes: a31e63b608ff ("usb: dwc3: gadget: Correct handling of scattergather lists")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index e44bfc3b5096..f9231253cbed 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1054,27 +1054,25 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+  * dwc3_prepare_one_trb - setup one TRB from one request
+  * @dep: endpoint for which this request is prepared
+  * @req: dwc3_request pointer
++ * @trb_length: buffer size of the TRB
+  * @chain: should this TRB be chained to the next?
+  * @node: only for isochronous endpoints. First TRB needs different type.
+  */
+ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+-		struct dwc3_request *req, unsigned chain, unsigned node)
++		struct dwc3_request *req, unsigned int trb_length,
++		unsigned chain, unsigned node)
+ {
+ 	struct dwc3_trb		*trb;
+-	unsigned int		length;
+ 	dma_addr_t		dma;
+ 	unsigned		stream_id = req->request.stream_id;
+ 	unsigned		short_not_ok = req->request.short_not_ok;
+ 	unsigned		no_interrupt = req->request.no_interrupt;
+ 	unsigned		is_last = req->request.is_last;
+ 
+-	if (req->request.num_sgs > 0) {
+-		length = sg_dma_len(req->start_sg);
++	if (req->request.num_sgs > 0)
+ 		dma = sg_dma_address(req->start_sg);
+-	} else {
+-		length = req->request.length;
++	else
+ 		dma = req->request.dma;
+-	}
+ 
+ 	trb = &dep->trb_pool[dep->trb_enqueue];
+ 
+@@ -1086,7 +1084,7 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+ 
+ 	req->num_trbs++;
+ 
+-	__dwc3_prepare_one_trb(dep, trb, dma, length, chain, node,
++	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
+ 			stream_id, short_not_ok, no_interrupt, is_last);
+ }
+ 
+@@ -1096,16 +1094,27 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 	struct scatterlist *sg = req->start_sg;
+ 	struct scatterlist *s;
+ 	int		i;
+-
++	unsigned int length = req->request.length;
+ 	unsigned int remaining = req->request.num_mapped_sgs
+ 		- req->num_queued_sgs;
+ 
++	/*
++	 * If we resume preparing the request, then get the remaining length of
++	 * the request and resume where we left off.
++	 */
++	for_each_sg(req->request.sg, s, req->num_queued_sgs, i)
++		length -= sg_dma_len(s);
++
+ 	for_each_sg(sg, s, remaining, i) {
+-		unsigned int length = req->request.length;
+ 		unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
+ 		unsigned int rem = length % maxp;
++		unsigned int trb_length;
+ 		unsigned chain = true;
+ 
++		trb_length = min_t(unsigned int, length, sg_dma_len(s));
++
++		length -= trb_length;
++
+ 		/*
+ 		 * IOMMU driver is coalescing the list of sgs which shares a
+ 		 * page boundary into one and giving it to USB driver. With
+@@ -1113,7 +1122,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 		 * sgs passed. So mark the chain bit to false if it isthe last
+ 		 * mapped sg.
+ 		 */
+-		if (i == remaining - 1)
++		if ((i == remaining - 1) || !length)
+ 			chain = false;
+ 
+ 		if (rem && usb_endpoint_dir_out(dep->endpoint.desc) && !chain) {
+@@ -1123,7 +1132,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 			req->needs_extra_trb = true;
+ 
+ 			/* prepare normal TRB */
+-			dwc3_prepare_one_trb(dep, req, true, i);
++			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
+ 
+ 			/* Now prepare one extra TRB to align transfer size */
+ 			trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1135,7 +1144,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 					req->request.no_interrupt,
+ 					req->request.is_last);
+ 		} else {
+-			dwc3_prepare_one_trb(dep, req, chain, i);
++			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
+ 		}
+ 
+ 		/*
+@@ -1150,6 +1159,16 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 
+ 		req->num_queued_sgs++;
+ 
++		/*
++		 * The number of pending SG entries may not correspond to the
++		 * number of mapped SG entries. If all the data are queued, then
++		 * don't include unused SG entries.
++		 */
++		if (length == 0) {
++			req->num_pending_sgs -= req->request.num_mapped_sgs - req->num_queued_sgs;
++			break;
++		}
++
+ 		if (!dwc3_calc_trbs_left(dep))
+ 			break;
+ 	}
+@@ -1169,7 +1188,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 		req->needs_extra_trb = true;
+ 
+ 		/* prepare normal TRB */
+-		dwc3_prepare_one_trb(dep, req, true, 0);
++		dwc3_prepare_one_trb(dep, req, length, true, 0);
+ 
+ 		/* Now prepare one extra TRB to align transfer size */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1187,7 +1206,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 		req->needs_extra_trb = true;
+ 
+ 		/* prepare normal TRB */
+-		dwc3_prepare_one_trb(dep, req, true, 0);
++		dwc3_prepare_one_trb(dep, req, length, true, 0);
+ 
+ 		/* Now prepare one extra TRB to handle ZLP */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1198,7 +1217,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 				req->request.no_interrupt,
+ 				req->request.is_last);
+ 	} else {
+-		dwc3_prepare_one_trb(dep, req, false, 0);
++		dwc3_prepare_one_trb(dep, req, length, false, 0);
+ 	}
+ }
+ 
+
