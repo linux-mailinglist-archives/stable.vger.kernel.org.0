@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 916D6257C4A
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6350E257C4D
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728129AbgHaP3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38144 "EHLO mail.kernel.org"
+        id S1728362AbgHaP3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:29:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726755AbgHaP3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:29:37 -0400
+        id S1726755AbgHaP3j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:29:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CA7420767;
-        Mon, 31 Aug 2020 15:29:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 884C02083E;
+        Mon, 31 Aug 2020 15:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887777;
-        bh=YMyeZdu9AK2XDZlChIpD6tD+lXjuHM/nRNxJfMP4bXk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=vCZnMO8HXIRovZkJewNRE+4TpmdeD6vq1a1GUQuI6aMPEQufBwfs5v03GJm3NmBJY
-         plOy3B9d8C8ZFFVP4Zc9RZqQZnvFav+EIIYRy7btgop1aN2IqYeBYeWlWFWFcNAELC
-         eJ7cUnerNS73fWiwgQZKg9Ys4gc8t8CzSWNOcH2s=
+        s=default; t=1598887778;
+        bh=heEBb8MpOxbMsYU7JsQ/L2aJhoEd8G5kwJWv4Ec04jY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=F6ZmBeHLBgQ0r/1TLiXD2NtwSZXx6yA6Gh/kfd47EvCin6ootJL29qcN2KTcvAguV
+         hps+xToWeKYl/cy97JkEuLjbU9YGYGETkMCJe37x6JEa5rhUkkV0d9SdHuBZFLf4UG
+         JxAgOZfe3IyxOoKsrB+14VpIPDAjEC55k88oD8L4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grant Peltier <grantpeltier93@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 01/42] hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_1 telemetry for RAA228228
-Date:   Mon, 31 Aug 2020 11:28:53 -0400
-Message-Id: <20200831152934.1023912-1-sashal@kernel.org>
+Cc:     Sebastian Parschauer <s.parschauer@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 02/42] HID: quirks: Always poll three more Lenovo PixArt mice
+Date:   Mon, 31 Aug 2020 11:28:54 -0400
+Message-Id: <20200831152934.1023912-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200831152934.1023912-1-sashal@kernel.org>
+References: <20200831152934.1023912-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,52 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Peltier <grantpeltier93@gmail.com>
+From: Sebastian Parschauer <s.parschauer@gmx.de>
 
-[ Upstream commit 51fb91ed5a6fa855a74731610cd5435d83d6e17f ]
+[ Upstream commit 627a49975bdc3220f360a8237603a6344ee6a588 ]
 
-Per the RAA228228 datasheet, READ_TEMPERATURE_1 is not a supported PMBus
-command.
+The PixArt OEM mice are known for disconnecting every minute in
+runlevel 1 or 3 if they are not always polled. One Lenovo PixArt
+mouse is already fixed. Got two references for 17ef:602e and three
+references for 17ef:6019 misbehaving like this. Got one direct bug
+report for 17ef:6093 from Wyatt Ward (wyatt8740). So add
+HID_QUIRK_ALWAYS_POLL for all of them.
 
-Signed-off-by: Grant Peltier <grantpeltier93@gmail.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://github.com/sriemer/fix-linux-mouse issue 22
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/isl68137.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hwmon/pmbus/isl68137.c b/drivers/hwmon/pmbus/isl68137.c
-index 0c622711ef7e0..58aa95a3c010c 100644
---- a/drivers/hwmon/pmbus/isl68137.c
-+++ b/drivers/hwmon/pmbus/isl68137.c
-@@ -67,6 +67,7 @@ enum variants {
- 	raa_dmpvr1_2rail,
- 	raa_dmpvr2_1rail,
- 	raa_dmpvr2_2rail,
-+	raa_dmpvr2_2rail_nontc,
- 	raa_dmpvr2_3rail,
- 	raa_dmpvr2_hv,
- };
-@@ -241,6 +242,10 @@ static int isl68137_probe(struct i2c_client *client,
- 		info->pages = 1;
- 		info->read_word_data = raa_dmpvr2_read_word_data;
- 		break;
-+	case raa_dmpvr2_2rail_nontc:
-+		info->func[0] &= ~PMBUS_HAVE_TEMP;
-+		info->func[1] &= ~PMBUS_HAVE_TEMP;
-+		fallthrough;
- 	case raa_dmpvr2_2rail:
- 		info->pages = 2;
- 		info->read_word_data = raa_dmpvr2_read_word_data;
-@@ -304,7 +309,7 @@ static const struct i2c_device_id raa_dmpvr_id[] = {
- 	{"raa228000", raa_dmpvr2_hv},
- 	{"raa228004", raa_dmpvr2_hv},
- 	{"raa228006", raa_dmpvr2_hv},
--	{"raa228228", raa_dmpvr2_2rail},
-+	{"raa228228", raa_dmpvr2_2rail_nontc},
- 	{"raa229001", raa_dmpvr2_2rail},
- 	{"raa229004", raa_dmpvr2_2rail},
- 	{}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6f370e020feb3..1f42318a137fb 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -727,6 +727,9 @@
+ #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
+ #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
++#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
++#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E	0x602e
++#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6093	0x6093
+ 
+ #define USB_VENDOR_ID_LG		0x1fd2
+ #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 934fc0a798d4d..87b57514b92e1 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -105,6 +105,9 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406XE), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6093), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS), HID_QUIRK_NOGET },
 -- 
 2.25.1
 
