@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2249E257DC9
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA941257DBD
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbgHaPlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38562 "EHLO mail.kernel.org"
+        id S1728969AbgHaPkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728441AbgHaP3t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:29:49 -0400
+        id S1728458AbgHaP3w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:29:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3548F20E65;
-        Mon, 31 Aug 2020 15:29:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A79BD2083E;
+        Mon, 31 Aug 2020 15:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887788;
-        bh=npfcU0pwyfPfRyU05fDUq1Zm5QXoTD0f+8A/EmwT2RA=;
+        s=default; t=1598887791;
+        bh=p/VXYwFUJB/kg5jcz4g7W6vjlMbDu0lvknVGLt7O638=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUDjw4B9VMPDd6brLGS/crNa5QA6sVBNgV5TbtX2MCzlBOKk2vR+dWGJoMapOU5ib
-         Oc660fWl1JqS4hrbz/y3CDg8v3j1HsoULV4B54SbiDe3BjffF6OuvKA6E9AIP3ia7H
-         ddl+yvb3QMjYm5iCSaTBk4Tap9F9AwFMps/0lMcc=
+        b=asB7YS/NcUF1o0uF3XRYy1mKRbLNez5wYOna2R7j1rvB6HV2YgwZ7l6NT97YxiBJY
+         APSJwz813oLjgWL4NyiCTYGLIe3IXkoq7Gu/LRlNYiwXnl6I3LIXo1QYqfwANuHN/C
+         lFtInZCDqxeuZ82XbVAJIa4v9L0GTBKKi89KGZh8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Stultz <john.stultz@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        Amit Pundir <amit.pundir@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 08/42] tty: serial: qcom_geni_serial: Drop __init from qcom_geni_console_setup
-Date:   Mon, 31 Aug 2020 11:29:00 -0400
-Message-Id: <20200831152934.1023912-8-sashal@kernel.org>
+Cc:     Tom Rix <trix@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.8 10/42] hwmon: (applesmc) check status earlier.
+Date:   Mon, 31 Aug 2020 11:29:02 -0400
+Message-Id: <20200831152934.1023912-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831152934.1023912-1-sashal@kernel.org>
 References: <20200831152934.1023912-1-sashal@kernel.org>
@@ -50,111 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 975efc66d4e654207c17f939eb737ac591ac38fe ]
+[ Upstream commit cecf7560f00a8419396a2ed0f6e5d245ccb4feac ]
 
-When booting with heavily modularized config, the serial console
-may not be able to load until after init when modules that
-satisfy needed dependencies have time to load.
+clang static analysis reports this representative problem
 
-Unfortunately, as qcom_geni_console_setup is marked as __init,
-the function may have been freed before we get to run it,
-causing boot time crashes such as:
+applesmc.c:758:10: warning: 1st function call argument is an
+  uninitialized value
+        left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[    6.469057] Unable to handle kernel paging request at virtual address ffffffe645d4e6cc
-[    6.481623] Mem abort info:
-[    6.484466]   ESR = 0x86000007
-[    6.487557]   EC = 0x21: IABT (current EL), IL = 32 bits
-[    6.492929]   SET = 0, FnV = 0g
-[    6.496016]   EA = 0, S1PTW = 0
-[    6.499202] swapper pgtable: 4k pages, 39-bit VAs, pgdp=000000008151e000
-[    6.501286] ufshcd-qcom 1d84000.ufshc: ufshcd_print_pwr_info:[RX, TX]: gear=[3, 3], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
-[    6.505977] [ffffffe645d4e6cc] pgd=000000017df9f003, p4d=000000017df9f003, pud=000000017df9f003, pmd=000000017df9c003, pte=0000000000000000
-[    6.505990] Internal error: Oops: 86000007 [#1] PREEMPT SMP
-[    6.505995] Modules linked in: zl10353 zl10039 zl10036 zd1301_demod xc5000 xc4000 ves1x93 ves1820 tuner_xc2028 tuner_simple tuner_types tua9001 tua6100 1
-[    6.506152]  isl6405
-[    6.518104] ufshcd-qcom 1d84000.ufshc: ufshcd_find_max_sup_active_icc_level: Regulator capability was not set, actvIccLevel=0
-[    6.530549]  horus3a helene fc2580 fc0013 fc0012 fc0011 ec100 e4000 dvb_pll ds3000 drxk drxd drx39xyj dib9000 dib8000 dib7000p dib7000m dib3000mc dibx003
-[    6.624271] CPU: 7 PID: 148 Comm: kworker/7:2 Tainted: G        W       5.8.0-mainline-12021-g6defd37ba1cd #3455
-[    6.624273] Hardware name: Thundercomm Dragonboard 845c (DT)
-[    6.624290] Workqueue: events deferred_probe_work_func
-[    6.624296] pstate: 40c00005 (nZcv daif +PAN +UAO BTYPE=--)
-[    6.624307] pc : qcom_geni_console_setup+0x0/0x110
-[    6.624316] lr : try_enable_new_console+0xa0/0x140
-[    6.624318] sp : ffffffc010843a30
-[    6.624320] x29: ffffffc010843a30 x28: ffffffe645c3e7d0
-[    6.624325] x27: ffffff80f8022180 x26: ffffffc010843b28
-[    6.637937] x25: 0000000000000000 x24: ffffffe6462a2000
-[    6.637941] x23: ffffffe646398000 x22: 0000000000000000
-[    6.637945] x21: 0000000000000000 x20: ffffffe6462a5ce8
-[    6.637952] x19: ffffffe646398e38 x18: ffffffffffffffff
-[    6.680296] x17: 0000000000000000 x16: ffffffe64492b900
-[    6.680300] x15: ffffffe6461e9d08 x14: 69202930203d2064
-[    6.680305] x13: 7561625f65736162 x12: 202c363331203d20
-[    6.696434] x11: 0000000000000030 x10: 0101010101010101
-[    6.696438] x9 : 4d4d20746120304d x8 : 7f7f7f7f7f7f7f7f
-[    6.707249] x7 : feff4c524c787373 x6 : 0000000000008080
-[    6.707253] x5 : 0000000000000000 x4 : 8080000000000000
-[    6.707257] x3 : 0000000000000000 x2 : ffffffe645d4e6cc
-[    6.744223] qcom_geni_serial 898000.serial: dev_pm_opp_set_rate: failed to find OPP for freq 102400000 (-34)
-[    6.744966] x1 : fffffffefe74e174 x0 : ffffffe6462a5ce8
-[    6.753580] qcom_geni_serial 898000.serial: dev_pm_opp_set_rate: failed to find OPP for freq 102400000 (-34)
-[    6.761634] Call trace:
-[    6.761639]  qcom_geni_console_setup+0x0/0x110
-[    6.761645]  register_console+0x29c/0x2f8
-[    6.767981] Bluetooth: hci0: Frame reassembly failed (-84)
-[    6.775252]  uart_add_one_port+0x438/0x500
-[    6.775258]  qcom_geni_serial_probe+0x2c4/0x4a8
-[    6.775266]  platform_drv_probe+0x58/0xa8
-[    6.855359]  really_probe+0xec/0x398
-[    6.855362]  driver_probe_device+0x5c/0xb8
-[    6.855367]  __device_attach_driver+0x98/0xb8
-[    7.184945]  bus_for_each_drv+0x74/0xd8
-[    7.188825]  __device_attach+0xec/0x148
-[    7.192705]  device_initial_probe+0x24/0x30
-[    7.196937]  bus_probe_device+0x9c/0xa8
-[    7.200816]  deferred_probe_work_func+0x7c/0xb8
-[    7.205398]  process_one_work+0x20c/0x4b0
-[    7.209456]  worker_thread+0x48/0x460
-[    7.213157]  kthread+0x14c/0x158
-[    7.216432]  ret_from_fork+0x10/0x18
-[    7.220049] Code: bad PC value
-[    7.223139] ---[ end trace 73f3b21e251d5a70 ]---
+buffer is filled by the earlier call
 
-Thus this patch removes the __init avoiding crash in such
-configs.
+	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, ...
 
-Cc: Andy Gross <agross@kernel.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Saravana Kannan <saravanak@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Amit Pundir <amit.pundir@linaro.org>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: linux-serial@vger.kernel.org
-Suggested-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200811025044.70626-1-john.stultz@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This problem is reported because a goto skips the status check.
+Other similar problems use data from applesmc_read_key before checking
+the status.  So move the checks to before the use.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Henrik Rydberg <rydberg@bitmath.org>
+Link: https://lore.kernel.org/r/20200820131932.10590-1-trix@redhat.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/qcom_geni_serial.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/applesmc.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index 457c0bf8cbf83..ffdf6da016c21 100644
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -1047,7 +1047,7 @@ static unsigned int qcom_geni_serial_tx_empty(struct uart_port *uport)
+diff --git a/drivers/hwmon/applesmc.c b/drivers/hwmon/applesmc.c
+index 3166184093157..a18887990f4a2 100644
+--- a/drivers/hwmon/applesmc.c
++++ b/drivers/hwmon/applesmc.c
+@@ -753,15 +753,18 @@ static ssize_t applesmc_light_show(struct device *dev,
+ 	}
+ 
+ 	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, buffer, data_length);
++	if (ret)
++		goto out;
+ 	/* newer macbooks report a single 10-bit bigendian value */
+ 	if (data_length == 10) {
+ 		left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
+ 		goto out;
+ 	}
+ 	left = buffer[2];
++
++	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
+ 	if (ret)
+ 		goto out;
+-	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
+ 	right = buffer[2];
+ 
+ out:
+@@ -810,12 +813,11 @@ static ssize_t applesmc_show_fan_speed(struct device *dev,
+ 		  to_index(attr));
+ 
+ 	ret = applesmc_read_key(newkey, buffer, 2);
+-	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
++
++	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
++	return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
  }
  
- #ifdef CONFIG_SERIAL_QCOM_GENI_CONSOLE
--static int __init qcom_geni_console_setup(struct console *co, char *options)
-+static int qcom_geni_console_setup(struct console *co, char *options)
- {
- 	struct uart_port *uport;
- 	struct qcom_geni_serial_port *port;
+ static ssize_t applesmc_store_fan_speed(struct device *dev,
+@@ -851,12 +853,11 @@ static ssize_t applesmc_show_fan_manual(struct device *dev,
+ 	u8 buffer[2];
+ 
+ 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
+-	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
++
++	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
++	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
+ }
+ 
+ static ssize_t applesmc_store_fan_manual(struct device *dev,
+@@ -872,10 +873,11 @@ static ssize_t applesmc_store_fan_manual(struct device *dev,
+ 		return -EINVAL;
+ 
+ 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
+-	val = (buffer[0] << 8 | buffer[1]);
+ 	if (ret)
+ 		goto out;
+ 
++	val = (buffer[0] << 8 | buffer[1]);
++
+ 	if (input)
+ 		val = val | (0x01 << to_index(attr));
+ 	else
+@@ -951,13 +953,12 @@ static ssize_t applesmc_key_count_show(struct device *dev,
+ 	u32 count;
+ 
+ 	ret = applesmc_read_key(KEY_COUNT_KEY, buffer, 4);
+-	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
+-						((u32)buffer[2]<<8) + buffer[3];
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
++
++	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
++						((u32)buffer[2]<<8) + buffer[3];
++	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
+ }
+ 
+ static ssize_t applesmc_key_at_index_read_show(struct device *dev,
 -- 
 2.25.1
 
