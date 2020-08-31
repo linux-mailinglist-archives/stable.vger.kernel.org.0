@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8E5257C9F
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9116F257CA3
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728774AbgHaPa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41098 "EHLO mail.kernel.org"
+        id S1728779AbgHaPbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:31:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728759AbgHaPa6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:30:58 -0400
+        id S1728771AbgHaPa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:30:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AD03214D8;
-        Mon, 31 Aug 2020 15:30:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BDD1215A4;
+        Mon, 31 Aug 2020 15:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887857;
-        bh=v4bypPfOHHDKcx4EgTafloiA7b16Xk5jkU7UZswiyRI=;
+        s=default; t=1598887859;
+        bh=0YfuMbFx9l4rztSMus9UB0yQ2JVVa35hHbGtP153sd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bg7yrAvqcZKHMdDJCaBSP18zD2Zv9RrclzVihc01lbKbfFplYt3xW/3T94bgYlBqj
-         3btYzMvDAO6UcA1t5odHDVrH35GucQ3ry78hS78QfvG3P2uk9OR7M0emcr3b8x5h9J
-         UYKwUqLSujjwXPUj2ElXNNS1wmUFWYtDFEJsMT4M=
+        b=LBy940Mb9kRYyKp8h5Per8VPjGsMkI1exngY5tFLKmi445TJRn/Lt4r6YIlxeNqGL
+         u8OcOO5lx2xFOZS0uxVKR01XegL+Drsio02hCnBqLCtr3gdjOf+NSZXNrN3lYKfpMa
+         GLnKWgex1mQKgH8MfD5R1CneljOtdgBgb3omsXuY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ofir Bitton <obitton@habana.ai>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 11/23] habanalabs: check correct vmalloc return code
-Date:   Mon, 31 Aug 2020 11:30:27 -0400
-Message-Id: <20200831153039.1024302-11-sashal@kernel.org>
+Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 12/23] drm/msm/a6xx: fix gmu start on newer firmware
+Date:   Mon, 31 Aug 2020 11:30:28 -0400
+Message-Id: <20200831153039.1024302-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153039.1024302-1-sashal@kernel.org>
 References: <20200831153039.1024302-1-sashal@kernel.org>
@@ -43,69 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0839152f8c1efc1cc2d515d1ff1e253ca9402ad3 ]
+[ Upstream commit f5749d6181fa7df5ae741788e5d96f593d3a60b6 ]
 
-vmalloc can return different return code than NULL and a valid
-pointer. We must validate it in order to dereference a non valid
-pointer.
+New Qualcomm firmware has changed a way it reports back the 'started'
+event. Support new register values.
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/memory.c | 9 +++++++--
- drivers/misc/habanalabs/mmu.c    | 2 +-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/memory.c b/drivers/misc/habanalabs/memory.c
-index 22566b75ca50c..acfccf32be6b9 100644
---- a/drivers/misc/habanalabs/memory.c
-+++ b/drivers/misc/habanalabs/memory.c
-@@ -67,6 +67,11 @@ static int alloc_device_memory(struct hl_ctx *ctx, struct hl_mem_in *args,
- 	num_pgs = (args->alloc.mem_size + (page_size - 1)) >> page_shift;
- 	total_size = num_pgs << page_shift;
- 
-+	if (!total_size) {
-+		dev_err(hdev->dev, "Cannot allocate 0 bytes\n");
-+		return -EINVAL;
-+	}
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+index 9ea748667fab0..40431a09dc97c 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+@@ -199,12 +199,22 @@ static int a6xx_gmu_start(struct a6xx_gmu *gmu)
+ {
+ 	int ret;
+ 	u32 val;
++	u32 mask, reset_val;
 +
- 	contiguous = args->flags & HL_MEM_CONTIGUOUS;
++	val = gmu_read(gmu, REG_A6XX_GMU_CM3_DTCM_START + 0xff8);
++	if (val <= 0x20010004) {
++		mask = 0xffffffff;
++		reset_val = 0xbabeface;
++	} else {
++		mask = 0x1ff;
++		reset_val = 0x100;
++	}
  
- 	if (contiguous) {
-@@ -94,7 +99,7 @@ static int alloc_device_memory(struct hl_ctx *ctx, struct hl_mem_in *args,
- 	phys_pg_pack->contiguous = contiguous;
+ 	gmu_write(gmu, REG_A6XX_GMU_CM3_SYSRESET, 1);
+ 	gmu_write(gmu, REG_A6XX_GMU_CM3_SYSRESET, 0);
  
- 	phys_pg_pack->pages = kvmalloc_array(num_pgs, sizeof(u64), GFP_KERNEL);
--	if (!phys_pg_pack->pages) {
-+	if (ZERO_OR_NULL_PTR(phys_pg_pack->pages)) {
- 		rc = -ENOMEM;
- 		goto pages_arr_err;
- 	}
-@@ -689,7 +694,7 @@ static int init_phys_pg_pack_from_userptr(struct hl_ctx *ctx,
+ 	ret = gmu_poll_timeout(gmu, REG_A6XX_GMU_CM3_FW_INIT_RESULT, val,
+-		val == 0xbabeface, 100, 10000);
++		(val & mask) == reset_val, 100, 10000);
  
- 	phys_pg_pack->pages = kvmalloc_array(total_npages, sizeof(u64),
- 						GFP_KERNEL);
--	if (!phys_pg_pack->pages) {
-+	if (ZERO_OR_NULL_PTR(phys_pg_pack->pages)) {
- 		rc = -ENOMEM;
- 		goto page_pack_arr_mem_err;
- 	}
-diff --git a/drivers/misc/habanalabs/mmu.c b/drivers/misc/habanalabs/mmu.c
-index 176c315836f12..d66e16de4cda3 100644
---- a/drivers/misc/habanalabs/mmu.c
-+++ b/drivers/misc/habanalabs/mmu.c
-@@ -422,7 +422,7 @@ int hl_mmu_init(struct hl_device *hdev)
- 	hdev->mmu_shadow_hop0 = kvmalloc_array(prop->max_asid,
- 					prop->mmu_hop_table_size,
- 					GFP_KERNEL | __GFP_ZERO);
--	if (!hdev->mmu_shadow_hop0) {
-+	if (ZERO_OR_NULL_PTR(hdev->mmu_shadow_hop0)) {
- 		rc = -ENOMEM;
- 		goto err_pool_add;
- 	}
+ 	if (ret)
+ 		DRM_DEV_ERROR(gmu->dev, "GMU firmware initialization timed out\n");
 -- 
 2.25.1
 
