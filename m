@@ -2,87 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F326257CF4
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1182D257D14
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728445AbgHaPcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43616 "EHLO mail.kernel.org"
+        id S1728514AbgHaPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:33:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729083AbgHaPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:32:09 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728421AbgHaPdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:33:38 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FA0021531;
-        Mon, 31 Aug 2020 15:32:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCD47207EA;
+        Mon, 31 Aug 2020 15:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887929;
-        bh=+FACLGKqlSwMrilGYEKodDj+1GCcMCrZAibjV4DcC8U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Efzz8R0u48Df8bBsUYp4N6hi4T3fAHN8mtjPG2G0gKpWzx0Gxf4ps8WD1Hp9VN52z
-         efhMFBbuuHMLQPTKSHbSYIt0g7nXrKsXhtWx49RuldWMg7mgl/6yq1R+POTxg7cqB3
-         GKaYDgu+FIOMfFmK7Fd+yKaf2bCT8Dan6ok+xRTg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Leiner <simon@leiner.me>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.4 5/5] xen/xenbus: Fix granting of vmalloc'd memory
-Date:   Mon, 31 Aug 2020 11:32:00 -0400
-Message-Id: <20200831153200.1024898-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200831153200.1024898-1-sashal@kernel.org>
-References: <20200831153200.1024898-1-sashal@kernel.org>
+        s=default; t=1598888018;
+        bh=otuaNmTFeR1cZEWlvlrN8JZo+5WGyGy52K7YN8szaGA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t7ji3dYkdFx/lhVBpAlgWVNUumcb97mLLmaULWc2HZF1SCNV+0vn8gB6/EX3Jesa0
+         TYQo9Cyw2WEX/5MQHBMHAI1qxLB9wZhvSOyYytxc0kSFEyY4+z712lYwzwrugn2wO7
+         r7awxU3mYrzFJXQB8ajSViBM8MuzGSlq9+NdMu7k=
+Date:   Mon, 31 Aug 2020 17:33:45 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        devel@driverdev.osuosl.org
+Subject: Re: [PATCH AUTOSEL 5.8 07/42] speakup: Fix wait_for_xmitr for ttyio
+ case
+Message-ID: <20200831153345.GA2525965@kroah.com>
+References: <20200831152934.1023912-1-sashal@kernel.org>
+ <20200831152934.1023912-7-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200831152934.1023912-7-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Leiner <simon@leiner.me>
+On Mon, Aug 31, 2020 at 11:28:59AM -0400, Sasha Levin wrote:
+> From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+> 
+> [ Upstream commit 2b86d9b8ec6efb86fc5ea44f2d49b1df17f699a1 ]
+> 
+> This was missed while introducing the tty-based serial access.
+> 
+> The only remaining use of wait_for_xmitr with tty-based access is in
+> spk_synth_is_alive_restart to check whether the synth can be restarted.
+> With tty-based this is up to the tty layer to cope with the buffering
+> etc. so we can just say yes.
+> 
+> Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+> Link: https://lore.kernel.org/r/20200804160637.x3iycau5izywbgzl@function
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/staging/speakup/serialio.c  | 8 +++++---
+>  drivers/staging/speakup/spk_priv.h  | 1 -
+>  drivers/staging/speakup/spk_ttyio.c | 7 +++++++
+>  drivers/staging/speakup/spk_types.h | 1 +
+>  drivers/staging/speakup/synth.c     | 2 +-
+>  5 files changed, 14 insertions(+), 5 deletions(-)
 
-[ Upstream commit d742db70033c745e410523e00522ee0cfe2aa416 ]
+Not needed for 5.8 or older, sorry, this was a 5.9-rc1+ issue only.
 
-On some architectures (like ARM), virt_to_gfn cannot be used for
-vmalloc'd memory because of its reliance on virt_to_phys. This patch
-introduces a check for vmalloc'd addresses and obtains the PFN using
-vmalloc_to_pfn in that case.
+thanks,
 
-Signed-off-by: Simon Leiner <simon@leiner.me>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20200825093153.35500-1-simon@leiner.me
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/xen/xenbus/xenbus_client.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index df27cefb2fa35..266f446ba331c 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -384,8 +384,14 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
- 	int i, j;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		err = gnttab_grant_foreign_access(dev->otherend_id,
--						  virt_to_gfn(vaddr), 0);
-+		unsigned long gfn;
-+
-+		if (is_vmalloc_addr(vaddr))
-+			gfn = pfn_to_gfn(vmalloc_to_pfn(vaddr));
-+		else
-+			gfn = virt_to_gfn(vaddr);
-+
-+		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
- 		if (err < 0) {
- 			xenbus_dev_fatal(dev, err,
- 					 "granting access to ring page");
--- 
-2.25.1
-
+greg k-h
