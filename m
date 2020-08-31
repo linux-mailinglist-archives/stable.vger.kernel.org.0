@@ -2,92 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53DB0257522
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 10:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22BD257540
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 10:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726198AbgHaIQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 04:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43904 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725978AbgHaIQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 04:16:41 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A377C061573
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 01:16:41 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id 67so195875pgd.12
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 01:16:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=U1qfomPrxBgrKrIyASypjd089pdAYsDMrimLHrAX4f8=;
-        b=mAw3pq/Wb0DauU7iT2L4herLH30KVkzgrOlx0nT8aWVxwO2tZVPjQAmJyrX91oJ4FJ
-         uNzffGfDelwQoAZKy84+hoWg0XD2F3VyqX43pPTPAdTpANt6YquFgtiQRUpykqjEqRJ3
-         K8Ye9a2sgggAew8FcYI3LZIFiXEpEmajUlcAePv4qs772W54rWgCBiMtobFDOvzsPqah
-         89M9X0JleJ8R1m+XTMgP4PDcy0wS4EtjmWT1kLsqnhbSNhQCoKTdVtm1BfA67qPRUp/I
-         Go1J10QTgqKIAbvGnDa9Ct0t7QBxPUaeS9Y279JMr/6e0imh65Kz6leDywpDyQ4DThpO
-         74yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=U1qfomPrxBgrKrIyASypjd089pdAYsDMrimLHrAX4f8=;
-        b=hF9yt656YVxxHnUA0Kzb9yN6OPpvE5a1IXuCrPqKsELYvinSL2QxRGKu15mcACDX/v
-         W8fizArl36hEzOJNau4arWcavj9FOJKbminx7MVWNaMC7jtZ5shnvaAyUYatjxeLIrkW
-         ioFeeLsQm3xMoeZnnhWXqaoBInbJEOkUJ7Ot2SnJyRnXCVAfLMzLBICX4T83Yz0nLb46
-         Wn4SjaBUh57kdHNXNUHBS6zl+6Og5gkAkqLowvuKfvoMGetQF7k7FEjLtG3pbcYX2r0B
-         hh98EzpTEA01Huh9iWorklXj3iTkQ5lf6E4ZPBUk0pe+J/ag8R1sliNq0lLopaRLEm4R
-         qwHw==
-X-Gm-Message-State: AOAM5311M7qW4xkQFXlNKepZy/Oj2icMgCtWlFibgzzkU5npYCgKdjMx
-        +3r+4L7mkUETeDFgVYAdMRHMHuiPDwOdmvOp8t3Nuw==
-X-Google-Smtp-Source: ABdhPJxocXyKBB0/m4xoOjhmzjbo1Jf/dKM0V9D6EKSKnWvfXlPxwoIphDqx7SHQxf6PN30dYmVYUZ9FBsB+JplMaXE=
-X-Received: by 2002:a63:9041:: with SMTP id a62mr376155pge.273.1598861800233;
- Mon, 31 Aug 2020 01:16:40 -0700 (PDT)
+        id S1728252AbgHaIY3 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 31 Aug 2020 04:24:29 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2709 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728240AbgHaIYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 04:24:14 -0400
+Received: from lhreml717-chm.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id F1F1CF6FF3E8EA4DA731;
+        Mon, 31 Aug 2020 09:24:09 +0100 (IST)
+Received: from fraeml704-chm.china.huawei.com (10.206.15.53) by
+ lhreml717-chm.china.huawei.com (10.201.108.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.1913.5; Mon, 31 Aug 2020 09:24:09 +0100
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml704-chm.china.huawei.com (10.206.15.53) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1913.5; Mon, 31 Aug 2020 10:24:08 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1913.007;
+ Mon, 31 Aug 2020 10:24:08 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        "mjg59@google.com" <mjg59@google.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>
+Subject: RE: [PATCH 03/11] evm: Refuse EVM_ALLOW_METADATA_WRITES only if the
+ HMAC key is loaded
+Thread-Topic: [PATCH 03/11] evm: Refuse EVM_ALLOW_METADATA_WRITES only if the
+ HMAC key is loaded
+Thread-Index: AQHWRYof9RvD1u4yLUW/etQ+7VmgjKlDQsYAgA8N9fA=
+Date:   Mon, 31 Aug 2020 08:24:08 +0000
+Message-ID: <0c1c8fb398c340d89531360be7e3418b@huawei.com>
+References: <20200618160133.937-1-roberto.sassu@huawei.com>
+         <20200618160133.937-3-roberto.sassu@huawei.com>
+ <caedd49bc2080a2fb8b16b9ecacab67d11e68fd7.camel@linux.ibm.com>
+In-Reply-To: <caedd49bc2080a2fb8b16b9ecacab67d11e68fd7.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.48.205.186]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20200828152745.10819-1-sjpark@amazon.com>
-In-Reply-To: <20200828152745.10819-1-sjpark@amazon.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Mon, 31 Aug 2020 16:16:03 +0800
-Message-ID: <CAMZfGtVFLQBG+2fDdcRaDDOd27Es4d3H2ADU7BBGaz6_XbvanA@mail.gmail.com>
-Subject: Re: [External] [5.4.y] Found 27 commits that might missed
-To:     SeongJae Park <sjpark@amazon.com>
-Cc:     Filipe Manana <fdmanana@suse.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Taehee Yoo <ap420073@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>, Jan Kara <jack@suse.cz>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
-        Adam Ford <aford173@gmail.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        sashal@kernel.org, amit@kernel.org, sj38.park@gmail.com,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 28, 2020 at 11:28 PM SeongJae Park <sjpark@amazon.com> wrote:
-> 10de795a5add ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
-> # commit date: 2020-08-06, author: Muchun Song <songmuchun@bytedance.com>
-> # fixes 'kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler'
->
+> From: Mimi Zohar [mailto:zohar@linux.ibm.com]
+> Sent: Friday, August 21, 2020 10:15 PM
+> Hi Roberto,
+> 
+> On Thu, 2020-06-18 at 18:01 +0200, Roberto Sassu wrote:
+> > Granting metadata write is safe if the HMAC key is not loaded, as it won't
+> > let an attacker obtain a valid HMAC from corrupted xattrs.
+> evm_write_key()
+> > however does not allow it if any key is loaded, including a public key,
+> > which should not be a problem.
+> >
+> 
+> Why is the existing hebavior a problem?  What is the problem being
+> solved?
 
-Just avoid compiler warnings, so it is not needed to backport.
+Hi Mimi
 
+currently it is not possible to set EVM_ALLOW_METADATA_WRITES when
+only a public key is loaded and the HMAC key is not. The patch removes
+this limitation.
 
--- 
-Yours,
-Muchun
+> > This patch allows setting EVM_ALLOW_METADATA_WRITES if the
+> EVM_INIT_HMAC
+> > flag is not set.
+> >
+> > Cc: stable@vger.kernel.org # 4.16.x
+> > Fixes: ae1ba1676b88e ("EVM: Allow userland to permit modification of
+> EVM-protected metadata")
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  security/integrity/evm/evm_secfs.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/security/integrity/evm/evm_secfs.c
+> b/security/integrity/evm/evm_secfs.c
+> > index cfc3075769bb..92fe26ace797 100644
+> > --- a/security/integrity/evm/evm_secfs.c
+> > +++ b/security/integrity/evm/evm_secfs.c
+> > @@ -84,7 +84,7 @@ static ssize_t evm_write_key(struct file *file, const
+> char __user *buf,
+> >  	 * keys are loaded.
+> >  	 */
+> >  	if ((i & EVM_ALLOW_METADATA_WRITES) &&
+> > -	    ((evm_initialized & EVM_KEY_MASK) != 0) &&
+> > +	    ((evm_initialized & EVM_INIT_HMAC) != 0) &&
+> >  	    !(evm_initialized & EVM_ALLOW_METADATA_WRITES))
+> >  		return -EPERM;
+> 
+> >
+> 
+> Documentation/ABI/testing/evm needs to be updated as well.
+
+Ok.
+
+Thanks
+
+Roberto
+
+HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
+Managing Director: Li Peng, Li Jian, Shi Yanli
+
+> thanks,
+> 
+> Mimi
+> 
+> 
+
