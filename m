@@ -2,217 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 135DC257936
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 14:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9725257A3D
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 15:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgHaM1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 08:27:41 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:42635 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726468AbgHaM1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 08:27:40 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 52024A17;
-        Mon, 31 Aug 2020 08:27:39 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 31 Aug 2020 08:27:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aU/Qno
-        TtzgU2LuNXwAN1aRVz6wDQ59t+TbfCMgX4Dr8=; b=B3kwue10gvTwNzEfVpY+mQ
-        hFT0aGZ/DPiXmqXwiETEghWJFIhiWUvbfdtTffhPRPXEtHSvix3V/hhhMPRi8SOe
-        STZ+b6bNMmjv5PmLlIJIVgAS/hjMxqJGGqvXSjO3OPe8FMKuzcySuJnPvVA/OwgP
-        kpD3WSq0865X6WM0P3fEngngLTjjZsCV3ROJm7h0hrZ0+XM9IvxFGO+NXkU40DX1
-        NYpcUyO6kJTIxehMsamT3C9zUrxWRoihnrtyvNdUeIcQVqmR3MKVOT+XdC0vkNM9
-        rgNycCUiuxA/ygz/y5/IOOx3YfQIx/VUN50L++vkA2DmW+RH/p7zs5TzzpKBCUVA
-        ==
-X-ME-Sender: <xms:uuxMX9Uu1lj0GwYRv62mNdjmYAUc23LXaNUrb3DFv2QZ6rsChvStHw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefhedghedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:uuxMX9lql2seTGUrVB8e59acfzTL0H-d3WhTtPre1D03N1UcLEJ-uA>
-    <xmx:uuxMX5bM436_WPeFB3nZ_SDEnerszIZqPRGqCes8WjTK_3cR3tq9hw>
-    <xmx:uuxMXwVM-KOH7FezWYsuGWZZdMDjMBnah9FCdmI1dmJdL4gp5fxIYQ>
-    <xmx:uuxMX_vySI3AuTUcewC1Q9NjZa6NnubgxmNP2E5-F6tsng1uuv2iTsVcMTs>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C2EC130600A9;
-        Mon, 31 Aug 2020 08:27:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Hold con->lock for the entire duration of" failed to apply to 5.4-stable tree
-To:     hdegoede@redhat.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Aug 2020 14:27:46 +0200
-Message-ID: <1598876866196148@kroah.com>
+        id S1726144AbgHaNR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 09:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34500 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726121AbgHaNRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 09:17:18 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39014C061573
+        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 06:17:17 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id e23so2952050eja.3
+        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 06:17:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=o69Nac3LLMj5CDhyPqLcnP7WGq46U4gQb9HzFdG/MvE=;
+        b=WBiqOAAy1agb5u13r6WxNvecsZhCLzYCv1hVDMRi0lizLwnbqOvR73CkHA7S3px5HP
+         1O9XhNKcLndLU1hbqakmBfWDt2xpuiBqSE4YB6t9AE9v12SQrCjGRMt77n0kPm/qZI+a
+         BZC2VoJsAIkARrj/4RgqG9uyi+l+z2gpI71ZM3li7Jymbtc+20VCKa6mT+bKtVkx07sN
+         SswGikG67rYmD8sE86ZgOzf6DW5BwYXQvNB9600T6mCoSWc7bv0GX8Lf7ETtJmDjvsWO
+         o1uejO3TiAAO2Cpi4DIK7UPUZqI986mTdoPsw8nKFrl1ElNhU4CAM4592AGmG9vqmVRd
+         oPQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=o69Nac3LLMj5CDhyPqLcnP7WGq46U4gQb9HzFdG/MvE=;
+        b=p3GeTr4fb0rYWJEFLOxKkn77HTA7FdlqKoWht28E8aJKfRd1w/VIO1vCEMuF5DS4mX
+         FHt6vHR52iSM4DaNfsT0huyjtsBa4znkIkPmbTd0OeuqfYXK+G1RboKbdNbIPqaEn9Bv
+         m+Jp64Yw0KhBY/bP8pTBCGE3iVkkHlQ8D2JvxvIJXGgNjnk7CqTBaexrYgIpTa7jDp7D
+         k0GoDdLSW2gYk2pnTBaOOL83isc7BI8BqNPlXCY9uSSTJfOZUkP1hY4NF8fsvP/YsbLP
+         p195xezt0HtZqNWdjES7vzsG47ZJvx8+u+SCbrhBfMR7w3XGB4wIBgdmldYea1VNvrGu
+         YRbA==
+X-Gm-Message-State: AOAM532wWV9s0D4IR9PyuT6Ap/yXLapYq2bnt6O1JSiAbiwdHmutqrss
+        q5d3X8FVBEehj9+dNJmWnIh0JZTkruV3GYEf2nI=
+X-Google-Smtp-Source: ABdhPJzf/+ItnVKkn2rJsbHDExb34JbQrx2zDk4M3BVaqJ+sqZG3wf5Jk4CYFjWexsFb7MIt7fYGoRyZn5PHdS0YMvY=
+X-Received: by 2002:a17:906:3e0a:: with SMTP id k10mr1201412eji.148.1598879835797;
+ Mon, 31 Aug 2020 06:17:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Reply-To: marie_avis12@yahoo.com
+Received: by 2002:a54:2e0c:0:0:0:0:0 with HTTP; Mon, 31 Aug 2020 06:17:14
+ -0700 (PDT)
+From:   Miss Maris Avis <marie.avis11@gmail.com>
+Date:   Mon, 31 Aug 2020 13:17:14 +0000
+X-Google-Sender-Auth: C_FDym8z0QzZsILX23xl0X5vMm0
+Message-ID: <CAE9qNUY0SauV7F9MvLCB9cTbdkKoY793r-X6DLmv+mq0Xd9zeQ@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+My Dear,
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+My name is Miss Marie Avis the only daughter of Mr. Gabriel Avis, my
+Father was dealing in Cocoa and Timber in this country before his
+death,  It is my pleasure to contact you for a business venture which
+I intend to establish in your country. Though I have not met with you
+before but I believe one has to risk confiding before you can succeed
+sometimes in life.
 
-thanks,
+I can confide in you for my brighter future since you are a human
+being like me. There is this huge amount of Ten Million five hundred
+thousand United States dollars. ($10.500.000.00) which my late Father
+kept for me in a suspense account with one of the bank here in Abidjan
+Cote d'Ivoire before he was assassinated by unknown persons, Now I
+have decided to invest these money in your country or anywhere safe
+enough for me.
 
-greg k-h
+I want you to help me claim this fund from the bank and have it
+transfer into your personal account in your country for investment
+purposes in your country in these areas:
 
------------------- original commit in Linus's tree ------------------
+1). Telecommunication
+2). The transport Industry
+3). Five Star Hotel
+4). Tourism
+5). Real Estate
 
-From bed97b30968ba354035a020989df0623e52b5536 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Sun, 9 Aug 2020 16:19:04 +0200
-Subject: [PATCH] usb: typec: ucsi: Hold con->lock for the entire duration of
- ucsi_register_port()
+If you can be of assistance to me I will be pleased to offer you 20%
+of the total fund.
 
-Commit 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race
-during registration") made the ucsi code hold con->lock in
-ucsi_register_displayport(). But we really don't want any interactions
-with the connector to run before the port-registration process is fully
-complete.
+I await your soonest response.
 
-This commit moves the taking of con->lock from ucsi_register_displayport()
-into ucsi_register_port() to achieve this.
-
-Cc: stable@vger.kernel.org
-Fixes: 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race during registration")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200809141904.4317-5-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/typec/ucsi/displayport.c b/drivers/usb/typec/ucsi/displayport.c
-index 048381c058a5..261131c9e37c 100644
---- a/drivers/usb/typec/ucsi/displayport.c
-+++ b/drivers/usb/typec/ucsi/displayport.c
-@@ -288,8 +288,6 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	struct typec_altmode *alt;
- 	struct ucsi_dp *dp;
- 
--	mutex_lock(&con->lock);
--
- 	/* We can't rely on the firmware with the capabilities. */
- 	desc->vdo |= DP_CAP_DP_SIGNALING | DP_CAP_RECEPTACLE;
- 
-@@ -298,15 +296,12 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	desc->vdo |= all_assignments << 16;
- 
- 	alt = typec_port_register_altmode(con->port, desc);
--	if (IS_ERR(alt)) {
--		mutex_unlock(&con->lock);
-+	if (IS_ERR(alt))
- 		return alt;
--	}
- 
- 	dp = devm_kzalloc(&alt->dev, sizeof(*dp), GFP_KERNEL);
- 	if (!dp) {
- 		typec_unregister_altmode(alt);
--		mutex_unlock(&con->lock);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-@@ -319,7 +314,5 @@ struct typec_altmode *ucsi_register_displayport(struct ucsi_connector *con,
- 	alt->ops = &ucsi_displayport_ops;
- 	typec_altmode_set_drvdata(alt, dp);
- 
--	mutex_unlock(&con->lock);
--
- 	return alt;
- }
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index 8a35144211e5..e680fcfdee60 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -898,12 +898,15 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 	con->num = index + 1;
- 	con->ucsi = ucsi;
- 
-+	/* Delay other interactions with the con until registration is complete */
-+	mutex_lock(&con->lock);
-+
- 	/* Get connector capability */
- 	command = UCSI_GET_CONNECTOR_CAPABILITY;
- 	command |= UCSI_CONNECTOR_NUMBER(con->num);
- 	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
- 	if (ret < 0)
--		return ret;
-+		goto out;
- 
- 	if (con->cap.op_mode & UCSI_CONCAP_OPMODE_DRP)
- 		cap->data = TYPEC_PORT_DRD;
-@@ -935,26 +938,32 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 
- 	ret = ucsi_register_port_psy(con);
- 	if (ret)
--		return ret;
-+		goto out;
- 
- 	/* Register the connector */
- 	con->port = typec_register_port(ucsi->dev, cap);
--	if (IS_ERR(con->port))
--		return PTR_ERR(con->port);
-+	if (IS_ERR(con->port)) {
-+		ret = PTR_ERR(con->port);
-+		goto out;
-+	}
- 
- 	/* Alternate modes */
- 	ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_CON);
--	if (ret)
-+	if (ret) {
- 		dev_err(ucsi->dev, "con%d: failed to register alt modes\n",
- 			con->num);
-+		goto out;
-+	}
- 
- 	/* Get the status */
- 	command = UCSI_GET_CONNECTOR_STATUS | UCSI_CONNECTOR_NUMBER(con->num);
- 	ret = ucsi_send_command(ucsi, command, &con->status, sizeof(con->status));
- 	if (ret < 0) {
- 		dev_err(ucsi->dev, "con%d: failed to get status\n", con->num);
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
-+	ret = 0; /* ucsi_send_command() returns length on success */
- 
- 	switch (UCSI_CONSTAT_PARTNER_TYPE(con->status.flags)) {
- 	case UCSI_CONSTAT_PARTNER_TYPE_UFP:
-@@ -979,17 +988,21 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 
- 	if (con->partner) {
- 		ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_SOP);
--		if (ret)
-+		if (ret) {
- 			dev_err(ucsi->dev,
- 				"con%d: failed to register alternate modes\n",
- 				con->num);
--		else
-+			ret = 0;
-+		} else {
- 			ucsi_altmode_update_active(con);
-+		}
- 	}
- 
- 	trace_ucsi_register_port(con->num, &con->status);
- 
--	return 0;
-+out:
-+	mutex_unlock(&con->lock);
-+	return ret;
- }
- 
- /**
-
+Respectfully yours,
+Miss Marie Evis
+Tel: +225597438528
