@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA3A257DA4
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CEF8257D93
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbgHaPjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39328 "EHLO mail.kernel.org"
+        id S1728796AbgHaPiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:38:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728531AbgHaPaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:30:08 -0400
+        id S1728536AbgHaPaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:30:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD863214D8;
-        Mon, 31 Aug 2020 15:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AAD421531;
+        Mon, 31 Aug 2020 15:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887807;
-        bh=EIDdbwiV7I3/UvfbBAlS1QNVUgyFXb53fT0NauxxnSQ=;
+        s=default; t=1598887809;
+        bh=hJ4CKVWnrnDzcY+E+SwF6btxG/3tO217+leRyRg10yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBDVHeU58ZlK3PWD/zPuCf+acmwQ/hysdo+5U5DMhrdXThNz/6ENZLjbgSL9F+x4z
-         /7iBtytC2OqLhYz95KBXpru+dexTn29ukpWi9YMv4FEfZ4PlB7S+L6/N85L1FI1OmI
-         mpVasiW9MbBcQz50WZvwmt1P4NSpp28OnLjOAGHI=
+        b=o8/3CVJ6Bx/ejsxnGeYz7XitWR6UzSq6/EzNqBiZQ8I3SI86fNMU6EH/vKSZkpp/z
+         Vv697R3J7zbwwoSEzWtdvH530r9/DnO8QkHZjAuN31Li3XA04mwpb0k8eouRqHs+lF
+         2o37GT/nuq6NXOUFbRAO/kKJgLCMTwTy870Soq00=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.8 22/42] gfs2: add some much needed cleanup for log flushes that fail
-Date:   Mon, 31 Aug 2020 11:29:14 -0400
-Message-Id: <20200831152934.1023912-22-sashal@kernel.org>
+Cc:     Vineeth Pillai <viremana@linux.microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 23/42] hv_utils: return error if host timesysnc update is stale
+Date:   Mon, 31 Aug 2020 11:29:15 -0400
+Message-Id: <20200831152934.1023912-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831152934.1023912-1-sashal@kernel.org>
 References: <20200831152934.1023912-1-sashal@kernel.org>
@@ -43,91 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Vineeth Pillai <viremana@linux.microsoft.com>
 
-[ Upstream commit 462582b99b6079a6fbcdfc65bac49f5c2a27cfff ]
+[ Upstream commit 90b125f4cd2697f949f5877df723a0b710693dd0 ]
 
-When a log flush fails due to io errors, it signals the failure but does
-not clean up after itself very well. This is because buffers are added to
-the transaction tr_buf and tr_databuf queue, but the io error causes
-gfs2_log_flush to bypass the "after_commit" functions responsible for
-dequeueing the bd elements. If the bd elements are added to the ail list
-before the error, function ail_drain takes care of dequeueing them.
-But if they haven't gotten that far, the elements are forgotten and
-make the transactions unable to be freed.
+If for any reason, host timesync messages were not processed by
+the guest, hv_ptp_gettime() returns a stale value and the
+caller (clock_gettime, PTP ioctl etc) has no means to know this
+now. Return an error so that the caller knows about this.
 
-This patch introduces new function trans_drain which drains the bd
-elements from the transaction so they can be freed properly.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Vineeth Pillai <viremana@linux.microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20200821152523.99364-1-viremana@linux.microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/log.c   | 31 +++++++++++++++++++++++++++++++
- fs/gfs2/trans.c |  1 +
- 2 files changed, 32 insertions(+)
+ drivers/hv/hv_util.c | 46 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 35 insertions(+), 11 deletions(-)
 
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index a76e55bc28ebf..27f467a0f008e 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -901,6 +901,36 @@ static void empty_ail1_list(struct gfs2_sbd *sdp)
- 	}
- }
+diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
+index 92ee0fe4c919e..1f86e8d9b018d 100644
+--- a/drivers/hv/hv_util.c
++++ b/drivers/hv/hv_util.c
+@@ -282,26 +282,52 @@ static struct {
+ 	spinlock_t			lock;
+ } host_ts;
  
-+/**
-+ * drain_bd - drain the buf and databuf queue for a failed transaction
-+ * @tr: the transaction to drain
-+ *
-+ * When this is called, we're taking an error exit for a log write that failed
-+ * but since we bypassed the after_commit functions, we need to remove the
-+ * items from the buf and databuf queue.
-+ */
-+static void trans_drain(struct gfs2_trans *tr)
-+{
-+	struct gfs2_bufdata *bd;
-+	struct list_head *head;
-+
-+	if (!tr)
-+		return;
-+
-+	head = &tr->tr_buf;
-+	while (!list_empty(head)) {
-+		bd = list_first_entry(head, struct gfs2_bufdata, bd_list);
-+		list_del_init(&bd->bd_list);
-+		kmem_cache_free(gfs2_bufdata_cachep, bd);
-+	}
-+	head = &tr->tr_databuf;
-+	while (!list_empty(head)) {
-+		bd = list_first_entry(head, struct gfs2_bufdata, bd_list);
-+		list_del_init(&bd->bd_list);
-+		kmem_cache_free(gfs2_bufdata_cachep, bd);
-+	}
+-static struct timespec64 hv_get_adj_host_time(void)
++static inline u64 reftime_to_ns(u64 reftime)
+ {
+-	struct timespec64 ts;
+-	u64 newtime, reftime;
++	return (reftime - WLTIMEDELTA) * 100;
 +}
 +
- /**
-  * gfs2_log_flush - flush incore transaction(s)
-  * @sdp: the filesystem
-@@ -1005,6 +1035,7 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl, u32 flags)
++/*
++ * Hard coded threshold for host timesync delay: 600 seconds
++ */
++static const u64 HOST_TIMESYNC_DELAY_THRESH = 600 * (u64)NSEC_PER_SEC;
++
++static int hv_get_adj_host_time(struct timespec64 *ts)
++{
++	u64 newtime, reftime, timediff_adj;
+ 	unsigned long flags;
++	int ret = 0;
  
- out:
- 	if (gfs2_withdrawn(sdp)) {
-+		trans_drain(tr);
- 		/**
- 		 * If the tr_list is empty, we're withdrawing during a log
- 		 * flush that targets a transaction, but the transaction was
-diff --git a/fs/gfs2/trans.c b/fs/gfs2/trans.c
-index a3dfa3aa87ad9..d897dd73c5999 100644
---- a/fs/gfs2/trans.c
-+++ b/fs/gfs2/trans.c
-@@ -52,6 +52,7 @@ int gfs2_trans_begin(struct gfs2_sbd *sdp, unsigned int blocks,
- 		tr->tr_reserved += gfs2_struct2blk(sdp, revokes);
- 	INIT_LIST_HEAD(&tr->tr_databuf);
- 	INIT_LIST_HEAD(&tr->tr_buf);
-+	INIT_LIST_HEAD(&tr->tr_list);
- 	INIT_LIST_HEAD(&tr->tr_ail1_list);
- 	INIT_LIST_HEAD(&tr->tr_ail2_list);
+ 	spin_lock_irqsave(&host_ts.lock, flags);
+ 	reftime = hv_read_reference_counter();
+-	newtime = host_ts.host_time + (reftime - host_ts.ref_time);
+-	ts = ns_to_timespec64((newtime - WLTIMEDELTA) * 100);
++
++	/*
++	 * We need to let the caller know that last update from host
++	 * is older than the max allowable threshold. clock_gettime()
++	 * and PTP ioctl do not have a documented error that we could
++	 * return for this specific case. Use ESTALE to report this.
++	 */
++	timediff_adj = reftime - host_ts.ref_time;
++	if (timediff_adj * 100 > HOST_TIMESYNC_DELAY_THRESH) {
++		pr_warn_once("TIMESYNC IC: Stale time stamp, %llu nsecs old\n",
++			     (timediff_adj * 100));
++		ret = -ESTALE;
++	}
++
++	newtime = host_ts.host_time + timediff_adj;
++	*ts = ns_to_timespec64(reftime_to_ns(newtime));
+ 	spin_unlock_irqrestore(&host_ts.lock, flags);
  
+-	return ts;
++	return ret;
+ }
+ 
+ static void hv_set_host_time(struct work_struct *work)
+ {
+-	struct timespec64 ts = hv_get_adj_host_time();
+ 
+-	do_settimeofday64(&ts);
++	struct timespec64 ts;
++
++	if (!hv_get_adj_host_time(&ts))
++		do_settimeofday64(&ts);
+ }
+ 
+ /*
+@@ -622,9 +648,7 @@ static int hv_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
+ 
+ static int hv_ptp_gettime(struct ptp_clock_info *info, struct timespec64 *ts)
+ {
+-	*ts = hv_get_adj_host_time();
+-
+-	return 0;
++	return hv_get_adj_host_time(ts);
+ }
+ 
+ static struct ptp_clock_info ptp_hyperv_info = {
 -- 
 2.25.1
 
