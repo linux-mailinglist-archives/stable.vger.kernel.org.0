@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2052B25773A
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 12:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A393A25773B
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 12:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726459AbgHaK0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 06:26:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
+        id S1726467AbgHaK0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 06:26:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726106AbgHaK0G (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 06:26:06 -0400
+        id S1726106AbgHaK0N (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 06:26:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B34120DD4;
-        Mon, 31 Aug 2020 10:26:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3D082072D;
+        Mon, 31 Aug 2020 10:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598869566;
-        bh=tGebCXJfYVlnAjrsDURbDfRzPdEnZcRgjugBqtiArGQ=;
+        s=default; t=1598869573;
+        bh=6HGkKHwIoe5pqhYyUqjtlQs01xPWXhehF1QlkAZvA8M=;
         h=Subject:To:From:Date:From;
-        b=mxbKsGAJyZK0PhFqhWukLPix/Zl+UXMCg3CeLRI5JOz7w5B8Zr8PgTIV/I11h2wcw
-         VUdV+EfoNk2eFH/4B7UzNoWo5zmKVOnzb6LNsuM5qe/Eoqmv3aiADL7kwnpb4zpNoE
-         +q9osenlf/lQLuZ6l1A51XsJdjegC08hM57CB2t4=
-Subject: patch "iio: adc: ti-ads1015: fix conversion when CONFIG_PM is not set" added to staging-linus
-To:     fido_max@inbox.ru, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andriy.shevchenko@linux.intel.com,
-        bigunclemax@gmail.com
+        b=2HP9Ha/4YvZvNVnxG6qtf7jQvVdei2s6ttYmKbNVD0mAyGuuVQiZ4LWdBbANsAcNv
+         XHX18RqO1+dIjVtGJugv+OlSoyfQleMKj6iT57MQrg/yP+y8eJrPjVSjS449ET+NZG
+         CCxZVjHy+r0dxVPNctPxI/bxLKXsfuoMdjE0nJDE=
+Subject: patch "iio: accel: kxsd9: Fix alignment of local buffer." added to staging-linus
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        andy.shevchenko@gmail.com, lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Aug 2020 12:26:12 +0200
-Message-ID: <1598869572476@kroah.com>
+Date:   Mon, 31 Aug 2020 12:26:14 +0200
+Message-ID: <1598869574174167@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: ti-ads1015: fix conversion when CONFIG_PM is not set
+    iio: accel: kxsd9: Fix alignment of local buffer.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -56,59 +55,66 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e71e6dbe96ac80ac2aebe71a6a942e7bd60e7596 Mon Sep 17 00:00:00 2001
-From: Maxim Kochetkov <fido_max@inbox.ru>
-Date: Mon, 3 Aug 2020 08:04:05 +0300
-Subject: iio: adc: ti-ads1015: fix conversion when CONFIG_PM is not set
+From 95ad67577de4ea08eb8e441394e698aa4addcc0b Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Wed, 22 Jul 2020 16:50:37 +0100
+Subject: iio: accel: kxsd9: Fix alignment of local buffer.
 
-To stop conversion ads1015_set_power_state() function call unimplemented
-function __pm_runtime_suspend() from pm_runtime_put_autosuspend()
-if CONFIG_PM is not set.
-In case of CONFIG_PM is not set: __pm_runtime_suspend() returns -ENOSYS,
-so ads1015_read_raw() failed because ads1015_set_power_state() returns an
-error.
+iio_push_to_buffers_with_timestamp assumes 8 byte alignment which
+is not guaranteed by an array of smaller elements.
 
-If CONFIG_PM is disabled, there is no need to start/stop conversion.
-Fix it by adding return 0 function variant if CONFIG_PM is not set.
+Note that whilst in this particular case the alignment forcing
+of the ts element is not strictly necessary it acts as good
+documentation.  Doing this where not necessary should cut
+down on the number of cut and paste introduced errors elsewhere.
 
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
-Tested-by: Maxim Kiselev <bigunclemax@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: <Stable@vger.kernel.org>
+Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
 ---
- drivers/iio/adc/ti-ads1015.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/iio/accel/kxsd9.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
-index f42ab112986e..9fef39bcf997 100644
---- a/drivers/iio/adc/ti-ads1015.c
-+++ b/drivers/iio/adc/ti-ads1015.c
-@@ -316,6 +316,7 @@ static const struct iio_chan_spec ads1115_channels[] = {
- 	IIO_CHAN_SOFT_TIMESTAMP(ADS1015_TIMESTAMP),
- };
- 
-+#ifdef CONFIG_PM
- static int ads1015_set_power_state(struct ads1015_data *data, bool on)
- {
+diff --git a/drivers/iio/accel/kxsd9.c b/drivers/iio/accel/kxsd9.c
+index 66b2e4cf24cf..0e18b92e2099 100644
+--- a/drivers/iio/accel/kxsd9.c
++++ b/drivers/iio/accel/kxsd9.c
+@@ -209,14 +209,20 @@ static irqreturn_t kxsd9_trigger_handler(int irq, void *p)
+ 	const struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct kxsd9_state *st = iio_priv(indio_dev);
++	/*
++	 * Ensure correct positioning and alignment of timestamp.
++	 * No need to zero initialize as all elements written.
++	 */
++	struct {
++		__be16 chan[4];
++		s64 ts __aligned(8);
++	} hw_values;
  	int ret;
-@@ -333,6 +334,15 @@ static int ads1015_set_power_state(struct ads1015_data *data, bool on)
- 	return ret < 0 ? ret : 0;
- }
+-	/* 4 * 16bit values AND timestamp */
+-	__be16 hw_values[8];
  
-+#else /* !CONFIG_PM */
-+
-+static int ads1015_set_power_state(struct ads1015_data *data, bool on)
-+{
-+	return 0;
-+}
-+
-+#endif /* !CONFIG_PM */
-+
- static
- int ads1015_get_adc_result(struct ads1015_data *data, int chan, int *val)
- {
+ 	ret = regmap_bulk_read(st->map,
+ 			       KXSD9_REG_X,
+-			       &hw_values,
+-			       8);
++			       hw_values.chan,
++			       sizeof(hw_values.chan));
+ 	if (ret) {
+ 		dev_err(st->dev,
+ 			"error reading data\n");
+@@ -224,7 +230,7 @@ static irqreturn_t kxsd9_trigger_handler(int irq, void *p)
+ 	}
+ 
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+-					   hw_values,
++					   &hw_values,
+ 					   iio_get_time_ns(indio_dev));
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 -- 
 2.28.0
 
