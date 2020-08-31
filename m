@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214CD257D12
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F086257CD8
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728362AbgHaPdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
+        id S1728980AbgHaPbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728961AbgHaPbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:41 -0400
+        id S1728965AbgHaPbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FF66215A4;
-        Mon, 31 Aug 2020 15:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0197214D8;
+        Mon, 31 Aug 2020 15:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887901;
-        bh=CyQWGRvj67cqowJfDn4vuv/txn4szGizTTVBdxHOyvM=;
+        s=default; t=1598887902;
+        bh=IQ4F+qoYkAzgMNeGwGj8KmuUX6Ix0afDmrRyS92ms8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICvfExpuUBGCPMar/Dq+tMnofW5BstnY6VlUJOWXA5d/aF74bHCVseLBwq+XTVu0n
-         kwAr+Gwjv4nitRWfDelDiCYAswpEXXypNT0d30cHsCjwOpF6ySK0vPm5dxaaJHvgIb
-         tcZmv0YzGvF6nx72MubEsgBS1mZKICoz5r7Veu38=
+        b=ybjpv7lVWLy63HmAMdmPHmEW3Yp5JRDpP10uaqWBhF6eg1yy9HEiWJKBE94qerQSD
+         ps5axUvyRVnd2saxf6yq8/1JN1ulbh4lHWA/m4FJGBBZyUxUKSomZGpW+USi2tVWdQ
+         lZzasH+JOzeacWClJDZ2Tx51kn37/WyVPOk+mpsc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krishna Manikandan <mkrishn@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 3/9] drm/msm: add shutdown support for display platform_driver
-Date:   Mon, 31 Aug 2020 11:31:30 -0400
-Message-Id: <20200831153136.1024676-3-sashal@kernel.org>
+Cc:     Tom Rix <trix@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 4/9] hwmon: (applesmc) check status earlier.
+Date:   Mon, 31 Aug 2020 11:31:31 -0400
+Message-Id: <20200831153136.1024676-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153136.1024676-1-sashal@kernel.org>
 References: <20200831153136.1024676-1-sashal@kernel.org>
@@ -44,58 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishna Manikandan <mkrishn@codeaurora.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 9d5cbf5fe46e350715389d89d0c350d83289a102 ]
+[ Upstream commit cecf7560f00a8419396a2ed0f6e5d245ccb4feac ]
 
-Define shutdown callback for display drm driver,
-so as to disable all the CRTCS when shutdown
-notification is received by the driver.
+clang static analysis reports this representative problem
 
-This change will turn off the timing engine so
-that no display transactions are requested
-while mmu translations are getting disabled
-during reboot sequence.
+applesmc.c:758:10: warning: 1st function call argument is an
+  uninitialized value
+        left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Krishna Manikandan <mkrishn@codeaurora.org>
+buffer is filled by the earlier call
 
-Changes in v2:
-	- Remove NULL check from msm_pdev_shutdown (Stephen Boyd)
-	- Change commit text to reflect when this issue
-	  was uncovered (Sai Prakash Ranjan)
+	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, ...
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+This problem is reported because a goto skips the status check.
+Other similar problems use data from applesmc_read_key before checking
+the status.  So move the checks to before the use.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Henrik Rydberg <rydberg@bitmath.org>
+Link: https://lore.kernel.org/r/20200820131932.10590-1-trix@redhat.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hwmon/applesmc.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index d9c0687435a05..c59240b566d83 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -1134,6 +1134,13 @@ static int msm_pdev_remove(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/hwmon/applesmc.c b/drivers/hwmon/applesmc.c
+index 5c677ba440143..b201129a9beae 100644
+--- a/drivers/hwmon/applesmc.c
++++ b/drivers/hwmon/applesmc.c
+@@ -760,15 +760,18 @@ static ssize_t applesmc_light_show(struct device *dev,
+ 	}
+ 
+ 	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, buffer, data_length);
++	if (ret)
++		goto out;
+ 	/* newer macbooks report a single 10-bit bigendian value */
+ 	if (data_length == 10) {
+ 		left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
+ 		goto out;
+ 	}
+ 	left = buffer[2];
++
++	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
+ 	if (ret)
+ 		goto out;
+-	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
+ 	right = buffer[2];
+ 
+ out:
+@@ -817,12 +820,11 @@ static ssize_t applesmc_show_fan_speed(struct device *dev,
+ 		  to_index(attr));
+ 
+ 	ret = applesmc_read_key(newkey, buffer, 2);
+-	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
++
++	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
++	return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
  }
  
-+static void msm_pdev_shutdown(struct platform_device *pdev)
-+{
-+	struct drm_device *drm = platform_get_drvdata(pdev);
+ static ssize_t applesmc_store_fan_speed(struct device *dev,
+@@ -858,12 +860,11 @@ static ssize_t applesmc_show_fan_manual(struct device *dev,
+ 	u8 buffer[2];
+ 
+ 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
+-	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
 +
-+	drm_atomic_helper_shutdown(drm);
-+}
++	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
++	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
+ }
+ 
+ static ssize_t applesmc_store_fan_manual(struct device *dev,
+@@ -879,10 +880,11 @@ static ssize_t applesmc_store_fan_manual(struct device *dev,
+ 		return -EINVAL;
+ 
+ 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
+-	val = (buffer[0] << 8 | buffer[1]);
+ 	if (ret)
+ 		goto out;
+ 
++	val = (buffer[0] << 8 | buffer[1]);
 +
- static const struct of_device_id dt_match[] = {
- 	{ .compatible = "qcom,mdp4", .data = (void *)4 },	/* MDP4 */
- 	{ .compatible = "qcom,mdss", .data = (void *)5 },	/* MDP5 MDSS */
-@@ -1144,6 +1151,7 @@ MODULE_DEVICE_TABLE(of, dt_match);
- static struct platform_driver msm_platform_driver = {
- 	.probe      = msm_pdev_probe,
- 	.remove     = msm_pdev_remove,
-+	.shutdown   = msm_pdev_shutdown,
- 	.driver     = {
- 		.name   = "msm",
- 		.of_match_table = dt_match,
+ 	if (input)
+ 		val = val | (0x01 << to_index(attr));
+ 	else
+@@ -958,13 +960,12 @@ static ssize_t applesmc_key_count_show(struct device *dev,
+ 	u32 count;
+ 
+ 	ret = applesmc_read_key(KEY_COUNT_KEY, buffer, 4);
+-	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
+-						((u32)buffer[2]<<8) + buffer[3];
+-
+ 	if (ret)
+ 		return ret;
+-	else
+-		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
++
++	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
++						((u32)buffer[2]<<8) + buffer[3];
++	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
+ }
+ 
+ static ssize_t applesmc_key_at_index_read_show(struct device *dev,
 -- 
 2.25.1
 
