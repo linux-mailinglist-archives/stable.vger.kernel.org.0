@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A97257D42
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B74257CA5
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728806AbgHaPft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:35:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41230 "EHLO mail.kernel.org"
+        id S1728792AbgHaPbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728782AbgHaPbB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:01 -0400
+        id S1728786AbgHaPbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1AEC207EA;
-        Mon, 31 Aug 2020 15:30:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73EF3214D8;
+        Mon, 31 Aug 2020 15:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887860;
-        bh=Dcf93mKEgs5Nb0juHs3Z+zzdewK0LmOFRf8HwPR6m0U=;
+        s=default; t=1598887862;
+        bh=C3CcciRVixUYp6L5MEomGa9r80COzfaklmvDwSBzuPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyZFp+OqcEkzumtQu17kvXxwjY/0SQAwHMRhGn4ai+oYaZyUC1NMVcUyxkbEGb/tr
-         YzIcFFXMW0c443jGDyy0o2IcOLp1nTyOsSgkShmd9irUSq3I3W013me7W/TglAMN8E
-         XzVD+uySuf7o2EJhCGhy4URa7BpZSw0OnL629Fds=
+        b=XzqdW5JQ9PNuP5KNC+ATpn8ZAhUROfhRAu5UeclTIgV5OJmPb1c09eBqG4dB088A1
+         PnpceeAQ18LrRmAhfmY5RyxsxIbgyyy3n2rAfBob1LjXYBqeBazbL5pRm1pSN8yeeC
+         Z5fMTMK268t1hrwJNIlep32YyZZZZ0vzYJbdArCY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/23] ceph: don't allow setlease on cephfs
-Date:   Mon, 31 Aug 2020 11:30:29 -0400
-Message-Id: <20200831153039.1024302-13-sashal@kernel.org>
+Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 14/23] drm/omap: fix incorrect lock state
+Date:   Mon, 31 Aug 2020 11:30:30 -0400
+Message-Id: <20200831153039.1024302-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153039.1024302-1-sashal@kernel.org>
 References: <20200831153039.1024302-1-sashal@kernel.org>
@@ -43,37 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit 496ceaf12432b3d136dcdec48424312e71359ea7 ]
+[ Upstream commit 7fd5b25499bcec157dd4de9a713425efcf4571cd ]
 
-Leases don't currently work correctly on kcephfs, as they are not broken
-when caps are revoked. They could eventually be implemented similarly to
-how we did them in libcephfs, but for now don't allow them.
+After commit 92cc68e35863c1c61c449efa2b2daef6e9926048 ("drm/vblank: Use
+spin_(un)lock_irq() in drm_crtc_vblank_on()") omapdrm locking is broken:
 
-[ idryomov: no need for simple_nosetlease() in ceph_dir_fops and
-  ceph_snapdir_fops ]
+WARNING: inconsistent lock state
+5.8.0-rc2-00483-g92cc68e35863 #13 Tainted: G        W
+--------------------------------
+inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-W} usage.
+swapper/0/0 [HC1[1]:SC0[0]:HE0:SE1] takes:
+ea98222c (&dev->event_lock#2){?.+.}-{2:2}, at: drm_handle_vblank+0x4c/0x520 [drm]
+{HARDIRQ-ON-W} state was registered at:
+  trace_hardirqs_on+0x9c/0x1ec
+  _raw_spin_unlock_irq+0x20/0x58
+  omap_crtc_atomic_enable+0x54/0xa0 [omapdrm]
+  drm_atomic_helper_commit_modeset_enables+0x218/0x270 [drm_kms_helper]
+  omap_atomic_commit_tail+0x48/0xc4 [omapdrm]
+  commit_tail+0x9c/0x190 [drm_kms_helper]
+  drm_atomic_helper_commit+0x154/0x188 [drm_kms_helper]
+  drm_client_modeset_commit_atomic+0x228/0x268 [drm]
+  drm_client_modeset_commit_locked+0x60/0x1d0 [drm]
+  drm_client_modeset_commit+0x24/0x40 [drm]
+  drm_fb_helper_restore_fbdev_mode_unlocked+0x54/0xa8 [drm_kms_helper]
+  drm_fb_helper_set_par+0x2c/0x5c [drm_kms_helper]
+  drm_fb_helper_hotplug_event.part.0+0xa0/0xbc [drm_kms_helper]
+  drm_kms_helper_hotplug_event+0x24/0x30 [drm_kms_helper]
+  output_poll_execute+0x1a8/0x1c0 [drm_kms_helper]
+  process_one_work+0x268/0x800
+  worker_thread+0x30/0x4e0
+  kthread+0x164/0x190
+  ret_from_fork+0x14/0x20
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+The reason for this is that omapdrm calls drm_crtc_vblank_on() while
+holding event_lock taken with spin_lock_irq().
+
+It is not clear why drm_crtc_vblank_on() and drm_crtc_vblank_get() are
+called while holding event_lock. I don't see any problem with moving
+those calls outside the lock, which is what this patch does.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200819103021.440288-1-tomi.valkeinen@ti.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/omapdrm/omap_crtc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index ce54a1b12819b..dc97a7fd81315 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -2197,6 +2197,7 @@ const struct file_operations ceph_file_fops = {
- 	.mmap = ceph_mmap,
- 	.fsync = ceph_fsync,
- 	.lock = ceph_lock,
-+	.setlease = simple_nosetlease,
- 	.flock = ceph_flock,
- 	.splice_read = generic_file_splice_read,
- 	.splice_write = iter_file_splice_write,
+diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
+index 3c5ddbf30e974..f5e18802e7bc6 100644
+--- a/drivers/gpu/drm/omapdrm/omap_crtc.c
++++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
+@@ -451,11 +451,12 @@ static void omap_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	if (omap_state->manually_updated)
+ 		return;
+ 
+-	spin_lock_irq(&crtc->dev->event_lock);
+ 	drm_crtc_vblank_on(crtc);
++
+ 	ret = drm_crtc_vblank_get(crtc);
+ 	WARN_ON(ret != 0);
+ 
++	spin_lock_irq(&crtc->dev->event_lock);
+ 	omap_crtc_arm_event(crtc);
+ 	spin_unlock_irq(&crtc->dev->event_lock);
+ }
 -- 
 2.25.1
 
