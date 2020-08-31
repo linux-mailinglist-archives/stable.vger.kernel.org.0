@@ -2,120 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54FB2257698
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 11:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8ADA2576B3
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 11:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726144AbgHaJg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 05:36:29 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:37907 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725915AbgHaJg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 05:36:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8FB6A5EE;
-        Mon, 31 Aug 2020 05:36:26 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 31 Aug 2020 05:36:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=z62dy+
-        pPFW88kgTnWHjNr6zwkmd33bHPAa7yovsYzLE=; b=gsT7Lugy+R44lge5baGM2A
-        Q2x++IOXmI0fR6PA3VkRhEiwWTPI/myrS1w2AuKx+3uafbNbMH9I6KYL+6AuhBv0
-        TWjnJPYfqOLuARB5Q8Jo2OAtjleAcbD4JHFG10wJmRRA8AZfGFylD5IJ0XMv+QVU
-        wo23STcIWXD8XJAXs2bknzt+74pseKYnbeivFkYqpWkBvkKANRuln13YDlahhvQW
-        UnlFNtaJ86vJKH/AGOXI/0c+A4jPO/oDteh78wB75DUZDNKPtp1SvmkGSIOcvZvk
-        aUQP+ntdv9uaXbNP7cuXXqULLKf2nFu79F1FYQJussjgXUEL4PNQdc/p9ALDapbQ
-        ==
-X-ME-Sender: <xms:msRMX7bZL3fR-1Ozhb3CTJE3NryJ_nwBVKUbiFhZo2c-WfABqQfIkw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefhedgudehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:msRMX6ZSt4yunWRfzHj0oiC4JLfyRos6eHHzNvRyCQleSl7Oe9jikg>
-    <xmx:msRMX9-st7qNqyFZjOI8nJpcARc47hkPsrv2VxHcJf4GSwEdXK1yUg>
-    <xmx:msRMXxph_Im-ZCZxzq3dsORp-D-KaO_YI5bb1iR5ghjZjH9wOI7aLQ>
-    <xmx:msRMX9Tmk8sWWKTANK2Yt0e1556b_gBOQGgG51XbJCQVitTxYmMc3U8dNEQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D10DD30600A9;
-        Mon, 31 Aug 2020 05:36:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: check the right error variable in" failed to apply to 4.19-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Aug 2020 11:36:29 +0200
-Message-ID: <159886658963111@kroah.com>
+        id S1726117AbgHaJkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 05:40:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54478 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726106AbgHaJkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 05:40:02 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 49735ACDB;
+        Mon, 31 Aug 2020 09:40:34 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 5CCC3DA840; Mon, 31 Aug 2020 11:38:48 +0200 (CEST)
+Date:   Mon, 31 Aug 2020 11:38:48 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Max Staudt <max@enpas.org>
+Cc:     David Sterba <dsterba@suse.com>, linux-fsdevel@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@vger.kernel.org, glaubitz@physik.fu-berlin.de,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] fs/affs: Fix basic permission bits to actually work
+Message-ID: <20200831093848.GS28318@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Max Staudt <max@enpas.org>,
+        David Sterba <dsterba@suse.com>, linux-fsdevel@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@vger.kernel.org, glaubitz@physik.fu-berlin.de,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20200827154900.28233-1-max@enpas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200827154900.28233-1-max@enpas.org>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Aug 27, 2020 at 05:49:00PM +0200, Max Staudt wrote:
+> The basic permission bits (protection bits in AmigaOS) have been broken
+> in Linux' affs - it would only set bits, but never delete them.
+> Also, contrary to the documentation, the Archived bit was not handled.
+> 
+> Let's fix this for good, and set the bits such that Linux and classic
+> AmigaOS can coexist in the most peaceful manner.
+> 
+> Also, update the documentation to represent the current state of things.
+> 
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Max Staudt <max@enpas.org>
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From fb2fecbad50964b9f27a3b182e74e437b40753ef Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Mon, 10 Aug 2020 17:31:16 -0400
-Subject: [PATCH] btrfs: check the right error variable in
- btrfs_del_dir_entries_in_log
-
-With my new locking code dbench is so much faster that I tripped over a
-transaction abort from ENOSPC.  This turned out to be because
-btrfs_del_dir_entries_in_log was checking for ret == -ENOSPC, but this
-function sets err on error, and returns err.  So instead of properly
-marking the inode as needing a full commit, we were returning -ENOSPC
-and aborting in __btrfs_unlink_inode.  Fix this by checking the proper
-variable so that we return the correct thing in the case of ENOSPC.
-
-The ENOENT needs to be checked, because btrfs_lookup_dir_item_index()
-can return -ENOENT if the dir item isn't in the tree log (which would
-happen if we hadn't fsync'ed this guy).  We actually handle that case in
-__btrfs_unlink_inode, so it's an expected error to get back.
-
-Fixes: 4a500fd178c8 ("Btrfs: Metadata ENOSPC handling for tree log")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note and comment about ENOENT ]
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 696dd861cc3c..39da9db35278 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3449,11 +3449,13 @@ int btrfs_del_dir_entries_in_log(struct btrfs_trans_handle *trans,
- 	btrfs_free_path(path);
- out_unlock:
- 	mutex_unlock(&dir->log_mutex);
--	if (ret == -ENOSPC) {
-+	if (err == -ENOSPC) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 0;
--	} else if (ret < 0)
--		btrfs_abort_transaction(trans, ret);
-+		err = 0;
-+	} else if (err < 0 && err != -ENOENT) {
-+		/* ENOENT can be returned if the entry hasn't been fsynced yet */
-+		btrfs_abort_transaction(trans, err);
-+	}
- 
- 	btrfs_end_log_trans(root);
- 
-
+Thanks, patch looks good to me, I'll send a pull request to Linus this
+week.
