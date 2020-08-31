@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF71925773E
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 12:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E99B25773F
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 12:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726106AbgHaK0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 06:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55276 "EHLO mail.kernel.org"
+        id S1726485AbgHaK0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 06:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726472AbgHaK0V (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 06:26:21 -0400
+        id S1726472AbgHaK0X (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 06:26:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 332FD2098B;
-        Mon, 31 Aug 2020 10:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9986420EDD;
+        Mon, 31 Aug 2020 10:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598869580;
-        bh=oN0MPWoJ7JCGhgFzZRbLIg0R5m6JGY24zMckJ47pW2E=;
+        s=default; t=1598869583;
+        bh=+6pr4hO1FSPCf6uP57t/2XukUjiJpyoQLlHnUvdsgRU=;
         h=Subject:To:From:Date:From;
-        b=j01jXnNsOuGpzokBmFRq+j5614xAmgoPIkkdA+i43xGLEk7jXRgD6+BCMBRVzN5Ax
-         swmuF1xMoR84r3MUh1kZURZ1BfJ9ZFlW/laYytG896mOSZvwAMX5DBTE+se80F4yic
-         KGh2xXCHwg3rCW8PtqoNK2NYaIM9ZxxLYWozhcqE=
-Subject: patch "iio:accel:mma7455: Fix timestamp alignment and prevent data leak." added to staging-linus
+        b=I7IUj6AbmP4iiq/EaVFM1mIKwSrQQLBi6dc+9E4T4hqx2uFQdv5p+hObp4pSvw0Ad
+         LmjXqCtVhLtXvyl/AbJEOLWBXNCHFRnN8m7kuJYXiHZPJVpaNA379/wFEikd/MtgqR
+         eT4aiX9WFfz1ZNxGQBVHdXCY9j06lpEAP3r1BE8c=
+Subject: patch "iio:proximity:mb1232: Fix timestamp alignment and prevent data leak." added to staging-linus
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        andy.shevchenko@gmail.com, lars@metafoo.de
+        ak@it-klinger.de, andy.shevchenko@gmail.com, lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Aug 2020 12:26:17 +0200
-Message-ID: <159886957725356@kroah.com>
+Date:   Mon, 31 Aug 2020 12:26:18 +0200
+Message-ID: <159886957817498@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:accel:mma7455: Fix timestamp alignment and prevent data leak.
+    iio:proximity:mb1232: Fix timestamp alignment and prevent data leak.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,76 +55,72 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 7e5ac1f2206eda414f90c698fe1820dee873394d Mon Sep 17 00:00:00 2001
+From f60e8bb84282b8e633956cfe74b4f0d64ca73cec Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:50:40 +0100
-Subject: iio:accel:mma7455: Fix timestamp alignment and prevent data leak.
+Date: Wed, 22 Jul 2020 16:50:42 +0100
+Subject: iio:proximity:mb1232: Fix timestamp alignment and prevent data leak.
 
 One of a class of bugs pointed out by Lars in a recent review.
 iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
 to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 16 byte u8 array on the stack   As Lars also noted
+this driver which uses a 16 byte s16 array on the stack   As Lars also noted
 this anti pattern can involve a leak of data to userspace and that
 indeed can happen here.  We close both issues by moving to
 a suitable structure in the iio_priv() data with alignment
 ensured by use of an explicit c structure.  This data is allocated
 with kzalloc so no data can leak appart from previous readings.
 
-The force alignment of ts is not strictly necessary in this particularly
-case but does make the code less fragile.
+In this case the forced alignment of the ts is necessary to ensure
+correct padding on x86_32 where the s64 would only be 4 byte aligned.
 
-Fixes: a84ef0d181d9 ("iio: accel: add Freescale MMA7455L/MMA7456L 3-axis accelerometer driver")
+Fixes: 16b05261537e ("mb1232.c: add distance iio sensor with i2c")
 Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Andreas Klinger <ak@it-klinger.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Cc: <Stable@vger.kernel.org>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/iio/accel/mma7455_core.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/iio/proximity/mb1232.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/iio/accel/mma7455_core.c b/drivers/iio/accel/mma7455_core.c
-index 7e99bcb3398d..922bd38ff6ea 100644
---- a/drivers/iio/accel/mma7455_core.c
-+++ b/drivers/iio/accel/mma7455_core.c
-@@ -52,6 +52,14 @@
- 
- struct mma7455_data {
- 	struct regmap *regmap;
-+	/*
-+	 * Used to reorganize data.  Will ensure correct alignment of
-+	 * the timestamp if present
-+	 */
+diff --git a/drivers/iio/proximity/mb1232.c b/drivers/iio/proximity/mb1232.c
+index 654564c45248..ad4b1fb2607a 100644
+--- a/drivers/iio/proximity/mb1232.c
++++ b/drivers/iio/proximity/mb1232.c
+@@ -40,6 +40,11 @@ struct mb1232_data {
+ 	 */
+ 	struct completion	ranging;
+ 	int			irqnr;
++	/* Ensure correct alignment of data to push to IIO buffer */
 +	struct {
-+		__le16 channels[3];
++		s16 distance;
 +		s64 ts __aligned(8);
 +	} scan;
  };
  
- static int mma7455_drdy(struct mma7455_data *mma7455)
-@@ -82,19 +90,19 @@ static irqreturn_t mma7455_trigger_handler(int irq, void *p)
+ static irqreturn_t mb1232_handle_irq(int irq, void *dev_id)
+@@ -113,17 +118,13 @@ static irqreturn_t mb1232_trigger_handler(int irq, void *p)
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mma7455_data *mma7455 = iio_priv(indio_dev);
--	u8 buf[16]; /* 3 x 16-bit channels + padding + ts */
- 	int ret;
+ 	struct mb1232_data *data = iio_priv(indio_dev);
+-	/*
+-	 * triggered buffer
+-	 * 16-bit channel + 48-bit padding + 64-bit timestamp
+-	 */
+-	s16 buffer[8] = { 0 };
  
- 	ret = mma7455_drdy(mma7455);
- 	if (ret)
- 		goto done;
+-	buffer[0] = mb1232_read_distance(data);
+-	if (buffer[0] < 0)
++	data->scan.distance = mb1232_read_distance(data);
++	if (data->scan.distance < 0)
+ 		goto err;
  
--	ret = regmap_bulk_read(mma7455->regmap, MMA7455_REG_XOUTL, buf,
--			       sizeof(__le16) * 3);
-+	ret = regmap_bulk_read(mma7455->regmap, MMA7455_REG_XOUTL,
-+			       mma7455->scan.channels,
-+			       sizeof(mma7455->scan.channels));
- 	if (ret)
- 		goto done;
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
++					   pf->timestamp);
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &mma7455->scan,
- 					   iio_get_time_ns(indio_dev));
- 
- done:
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.28.0
 
