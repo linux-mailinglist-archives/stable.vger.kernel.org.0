@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E70257704
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 11:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D65257707
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 11:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726081AbgHaJ6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 05:58:34 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41433 "EHLO
+        id S1726249AbgHaJ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 05:59:29 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:50285 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725972AbgHaJ6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 05:58:33 -0400
+        by vger.kernel.org with ESMTP id S1726081AbgHaJ7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 05:59:18 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id EEED5642;
-        Mon, 31 Aug 2020 05:58:32 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 31 Aug 2020 05:58:33 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 0CD5C69B;
+        Mon, 31 Aug 2020 05:59:16 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 31 Aug 2020 05:59:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=iAWQhq
-        snvIKOzgdkRsDgKDVOwg39kmR5cXQ9EPhJMA8=; b=LlWSEPe4tMuLna0rD1stVN
-        ZXE+ucVxS9Iu+MLxW9SZeeMI773RMZycHqQWus13xWTRlxH8QHRNN3JsLydQtgMB
-        GtARIdidYSoJ20UqXOBe3q6YerNaszAF3O360rkeh9RD1OrObON1u+ETXT/g1kWm
-        Ku7u9OrhwEksL5ZikZIQo+6dtCX7QL6LiTbkOkBwQlgQ6atXOQkK9oJ5MvO/bkTs
-        1EeIxsxgy6nONPVjMPAIeqYTIjjL0ZQ+T2n1aUKgJ8L6/WatZFpLFv2XvMos9Z24
-        264ruxu7Mpd7kKm+gKUBu2lmlfjLJ88zAW06XgygWdZr97itqF/C4yQgyKXp982A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kH4AB0
+        Mz95vAQaZoGgvE8jgRlPHAZIGLyWLAXm6i0PY=; b=NPBbFQs/C0hsa7bpxkQ/04
+        WGQmMWJbWx5c9JNXaD6ajYvIcAe4W6fuqkgAK9R9zCg+O3jtfgChDZh80tPF0+f1
+        zOShVAVAeuaQhK6q7akoIIBu8CD575wHTU7UqBUsE/p3BKupeWPJ7h0LrpOEXxYd
+        1PS2BzIAKAuxD9pHsRSzqQseZRNNGFU+An1gWtUcPUD6dflBPWoK/UDTbWZ0j1r1
+        qnIDQTT/Jh4MAaLtnqcjQmSGzwRnxw8HwGxEqn0n7jljjnnLkskDK8BMm2T1euZg
+        MAYuRsbqEEQxuouv9D15bf28/koobS1KpMltxidtDu/aumy6g7+4+58ptlxjI7dw
         ==
-X-ME-Sender: <xms:yMlMX_pQ7JD6_V6WQNW7UpzhGucP8pyysEjBUUMKBJtI0eGgqiYjTw>
+X-ME-Sender: <xms:9MlMX8p_FY9y-p3Qv1qkWS3SHFKFvS4VSu0Gaf25pY7sA4c-V3JJLA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefhedgvddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:yMlMX5oyzb82zYN6mIg2L9K1HWIMu3HCcU2gTaaLp8s9UL0WGIaFzw>
-    <xmx:yMlMX8M_LS8ppQNHW3jR3pEpjSCcIpoPq5TntzNatpxorWJeLkGvyg>
-    <xmx:yMlMXy7ENOSibjYzsiX6c-w2-ohErT5PqtibvN7syJ03etvYi1gQaw>
-    <xmx:yMlMX7Ve55HqM_Xxy2meqaGISaA29AAl7bl0PvKllw75CW2mu80oRcoSbK0>
+X-ME-Proxy: <xmx:9MlMXyoBJX_xXN2H_ayal1NhRtWYrSYuNv3fsIGZggluZ5nKQwgN6w>
+    <xmx:9MlMXxOT5deqbJm9mA4bxMSQjLX4dR3g-yGaH_jZTtZ12Vx0XndFtQ>
+    <xmx:9MlMXz4dSoMmmLID9EywF6LWPAP0EjhoVfhgu5BBH90XptH7-bWxkQ>
+    <xmx:9MlMX0VvVBCPzXNtJTRbnnbQwHULkwJOTrG9rGktVkcozCis_oOZ0rXbDxU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1ACA9306005E;
-        Mon, 31 Aug 2020 05:58:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: don't use poll handler if file can't be nonblocking" failed to apply to 5.8-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 34C7E3280064;
+        Mon, 31 Aug 2020 05:59:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: make offset == -1 consistent with preadv2/pwritev2" failed to apply to 5.8-stable tree
 To:     axboe@kernel.dk, wisp3rwind@posteo.eu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Aug 2020 11:58:41 +0200
-Message-ID: <159886792176158@kroah.com>
+Date:   Mon, 31 Aug 2020 11:59:25 +0200
+Message-ID: <1598867965216125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,45 +69,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9dab14b81807a40dab8e464ec87043935c562c2c Mon Sep 17 00:00:00 2001
+From 0fef948363f62494d779cf9dc3c0a86ea1e5f7cd Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 25 Aug 2020 12:27:50 -0600
-Subject: [PATCH] io_uring: don't use poll handler if file can't be nonblocking
- read/written
+Date: Wed, 26 Aug 2020 10:36:20 -0600
+Subject: [PATCH] io_uring: make offset == -1 consistent with preadv2/pwritev2
 
-There's no point in using the poll handler if we can't do a nonblocking
-IO attempt of the operation, since we'll need to go async anyway. In
-fact this is actively harmful, as reading from eg pipes won't return 0
-to indicate EOF.
+The man page for io_uring generally claims were consistent with what
+preadv2 and pwritev2 accept, but turns out there's a slight discrepancy
+in how offset == -1 is handled for pipes/streams. preadv doesn't allow
+it, but preadv2 does. This currently causes io_uring to return -EINVAL
+if that is attempted, but we should allow that as documented.
+
+This change makes us consistent with preadv2/pwritev2 for just passing
+in a NULL ppos for streams if the offset is -1.
 
 Cc: stable@vger.kernel.org # v5.7+
 Reported-by: Benedikt Ames <wisp3rwind@posteo.eu>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 384df86dfc69..d15139088e4c 100644
+index d9b88644d5e8..bd2d8de3f2e8 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4889,12 +4889,20 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	struct async_poll *apoll;
- 	struct io_poll_table ipt;
- 	__poll_t mask, ret;
-+	int rw;
+@@ -2866,6 +2866,11 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
+ 	return iov_iter_count(&req->io->rw.iter);
+ }
  
- 	if (!req->file || !file_can_poll(req->file))
- 		return false;
- 	if (req->flags & REQ_F_POLLED)
- 		return false;
--	if (!def->pollin && !def->pollout)
-+	if (def->pollin)
-+		rw = READ;
-+	else if (def->pollout)
-+		rw = WRITE;
-+	else
-+		return false;
-+	/* if we can't nonblock try, then no point in arming a poll handler */
-+	if (!io_file_supports_async(req->file, rw))
- 		return false;
++static inline loff_t *io_kiocb_ppos(struct kiocb *kiocb)
++{
++	return kiocb->ki_filp->f_mode & FMODE_STREAM ? NULL : &kiocb->ki_pos;
++}
++
+ /*
+  * For files that don't have ->read_iter() and ->write_iter(), handle them
+  * by looping over ->read() or ->write() manually.
+@@ -2901,10 +2906,10 @@ static ssize_t loop_rw_iter(int rw, struct file *file, struct kiocb *kiocb,
  
- 	apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
+ 		if (rw == READ) {
+ 			nr = file->f_op->read(file, iovec.iov_base,
+-					      iovec.iov_len, &kiocb->ki_pos);
++					      iovec.iov_len, io_kiocb_ppos(kiocb));
+ 		} else {
+ 			nr = file->f_op->write(file, iovec.iov_base,
+-					       iovec.iov_len, &kiocb->ki_pos);
++					       iovec.iov_len, io_kiocb_ppos(kiocb));
+ 		}
+ 
+ 		if (iov_iter_is_bvec(iter))
+@@ -3139,7 +3144,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		goto copy_iov;
+ 
+ 	iov_count = iov_iter_count(iter);
+-	ret = rw_verify_area(READ, req->file, &kiocb->ki_pos, iov_count);
++	ret = rw_verify_area(READ, req->file, io_kiocb_ppos(kiocb), iov_count);
+ 	if (unlikely(ret))
+ 		goto out_free;
+ 
+@@ -3262,7 +3267,7 @@ static int io_write(struct io_kiocb *req, bool force_nonblock,
+ 		goto copy_iov;
+ 
+ 	iov_count = iov_iter_count(iter);
+-	ret = rw_verify_area(WRITE, req->file, &kiocb->ki_pos, iov_count);
++	ret = rw_verify_area(WRITE, req->file, io_kiocb_ppos(kiocb), iov_count);
+ 	if (unlikely(ret))
+ 		goto out_free;
+ 
 
