@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D562257C58
+	by mail.lfdr.de (Postfix) with ESMTP id 1477C257C56
 	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbgHaP3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:29:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38234 "EHLO mail.kernel.org"
+        id S1728387AbgHaP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728356AbgHaP3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:29:40 -0400
+        id S1726755AbgHaP3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:29:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C31D20866;
-        Mon, 31 Aug 2020 15:29:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 383BA20936;
+        Mon, 31 Aug 2020 15:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887780;
-        bh=IUqMlpo21BBlXw7DHat6qPFNyPjNdosUchLhrYIjKO8=;
+        s=default; t=1598887783;
+        bh=VJ0G36w4AwGdWcGN89VVM6vkew7+G4ceTdRs1y5VBhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2R9OMzEH9saCy0+9iQJCg+jy8AFFda0tEk7MHwQLLgsj++4DLEcSP92UJGLr7CZty
-         vXPpCMu+5D2X9eRwyQhyAqn4tzEB2ZnjaNTZKCBK1arTPjRt/V5Ojn5d72nZIMP7+P
-         ldg/q1OcX0+5HwkYyRA2Dzszgxa+018SSYviHp4g=
+        b=rTCYaOD+E4TXIVTHBLu3t6ghmtVmEeDFVu50klulLG0fmuUDdJeMpI58nLps2uphO
+         x2VwfoaSmunnDvKDcfhCg1QDd47ykD9l/R0yc0fB8Jn/T1GyMRlgHpi70Zmrz/BJg6
+         PiFtARASpyRr4tWffLj3gRqEIketWh+ia6voXvd4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peilin Ye <yepeilin.cs@gmail.com>,
-        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 03/42] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
-Date:   Mon, 31 Aug 2020 11:28:55 -0400
-Message-Id: <20200831152934.1023912-3-sashal@kernel.org>
+Cc:     Kalyan Thota <kalyan_t@codeaurora.org>,
+        "Kristian H . Kristensen" <hoegsberg@google.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.8 05/42] drm/msm/dpu: Fix scale params in plane validation
+Date:   Mon, 31 Aug 2020 11:28:57 -0400
+Message-Id: <20200831152934.1023912-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831152934.1023912-1-sashal@kernel.org>
 References: <20200831152934.1023912-1-sashal@kernel.org>
@@ -45,44 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Kalyan Thota <kalyan_t@codeaurora.org>
 
-[ Upstream commit 25a097f5204675550afb879ee18238ca917cba7a ]
+[ Upstream commit 4c978caf08aa155bdeadd9e2d4b026d4ce97ebd0 ]
 
-`uref->usage_index` is not always being properly checked, causing
-hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
+Plane validation uses an API drm_calc_scale which will
+return src/dst value as a scale ratio.
 
-Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+when viewing the range on a scale the values should fall in as
+
+Upscale ratio < Unity scale < Downscale ratio for src/dst formula
+
+Fix the min and max scale ratios to suit the API accordingly.
+
+Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+Tested-by: Kristian H. Kristensen <hoegsberg@google.com>
+Reviewed-by: Kristian H. Kristensen <hoegsberg@google.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hiddev.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 4140dea693e90..4f97e6c120595 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -519,12 +519,16 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+index 3b9c33e694bf4..994d23bad3870 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+@@ -866,9 +866,9 @@ static int dpu_plane_atomic_check(struct drm_plane *plane,
+ 		crtc_state = drm_atomic_get_new_crtc_state(state->state,
+ 							   state->crtc);
  
- 		switch (cmd) {
- 		case HIDIOCGUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			uref->value = field->value[uref->usage_index];
- 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
- 				goto fault;
- 			goto goodreturn;
- 
- 		case HIDIOCSUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			field->value[uref->usage_index] = uref->value;
- 			goto goodreturn;
- 
+-	min_scale = FRAC_16_16(1, pdpu->pipe_sblk->maxdwnscale);
++	min_scale = FRAC_16_16(1, pdpu->pipe_sblk->maxupscale);
+ 	ret = drm_atomic_helper_check_plane_state(state, crtc_state, min_scale,
+-					  pdpu->pipe_sblk->maxupscale << 16,
++					  pdpu->pipe_sblk->maxdwnscale << 16,
+ 					  true, true);
+ 	if (ret) {
+ 		DPU_DEBUG_PLANE(pdpu, "Check plane state failed (%d)\n", ret);
 -- 
 2.25.1
 
