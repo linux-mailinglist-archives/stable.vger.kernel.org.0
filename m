@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35AC2257CC7
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27164257CCD
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728895AbgHaPb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
+        id S1728907AbgHaPbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:31:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgHaPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:28 -0400
+        id S1728857AbgHaPb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0A76207EA;
-        Mon, 31 Aug 2020 15:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46C5921531;
+        Mon, 31 Aug 2020 15:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887887;
-        bh=ObXwBHcpH2/Zv36wN1h9V35sVGYuyTclfNAs+hcl7B8=;
+        s=default; t=1598887889;
+        bh=P2MC/YP6p1guc9B/2z+SRDFbG5v6erQYKBki/Y+23eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g95JNU6285xSqpnoW3OxnU4R8HlnXEhxWhGGAdLY52KFoeugCj3P9vPQBuTQ2eolY
-         ypuaqrymgCrNGSkX6RbCoK0bTaxLaya0s5KA1YAfHgA2S1xH2vm8N/1/aCLy0KSUkO
-         GONKvt1enolcyJg1HbsFu8xvRryUV5HWwQ0/OUIo=
+        b=cKpOEQKmV0bxxyoTr4T/C/3ZZfjlUqJkQNoBQjYdB3CtaGi9R69Km3DwLSmQN3znj
+         vGP/gKv9i0R1IZZsRVQzZnSOvKPNw31lvYmpBA1a8mBj6ptXVkNBRwTrq8mZaWKD3O
+         xHLrDjq+lNIg0p0a8z0h8XBIK8VfiyTYHe+bde4Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amit Engel <amit.engel@dell.com>, Sagi Grimberg <sagi@grimberg.me>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 06/11] nvmet: Disable keep-alive timer when kato is cleared to 0h
-Date:   Mon, 31 Aug 2020 11:31:12 -0400
-Message-Id: <20200831153117.1024537-6-sashal@kernel.org>
+Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 07/11] drm/msm/a6xx: fix gmu start on newer firmware
+Date:   Mon, 31 Aug 2020 11:31:13 -0400
+Message-Id: <20200831153117.1024537-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153117.1024537-1-sashal@kernel.org>
 References: <20200831153117.1024537-1-sashal@kernel.org>
@@ -43,45 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <amit.engel@dell.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0d3b6a8d213a30387b5104b2fb25376d18636f23 ]
+[ Upstream commit f5749d6181fa7df5ae741788e5d96f593d3a60b6 ]
 
-Based on nvme spec, when keep alive timeout is set to zero
-the keep-alive timer should be disabled.
+New Qualcomm firmware has changed a way it reports back the 'started'
+event. Support new register values.
 
-Signed-off-by: Amit Engel <amit.engel@dell.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 776b7e9e23b9e..f28df233dfcd0 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -307,6 +307,9 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
- 
- static void nvmet_start_keep_alive_timer(struct nvmet_ctrl *ctrl)
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+index 9cde79a7335c8..739ca9c2081a6 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+@@ -117,12 +117,22 @@ static int a6xx_gmu_start(struct a6xx_gmu *gmu)
  {
-+	if (unlikely(ctrl->kato == 0))
-+		return;
+ 	int ret;
+ 	u32 val;
++	u32 mask, reset_val;
 +
- 	pr_debug("ctrl %d start keep-alive timer for %d secs\n",
- 		ctrl->cntlid, ctrl->kato);
++	val = gmu_read(gmu, REG_A6XX_GMU_CM3_DTCM_START + 0xff8);
++	if (val <= 0x20010004) {
++		mask = 0xffffffff;
++		reset_val = 0xbabeface;
++	} else {
++		mask = 0x1ff;
++		reset_val = 0x100;
++	}
  
-@@ -316,6 +319,9 @@ static void nvmet_start_keep_alive_timer(struct nvmet_ctrl *ctrl)
+ 	gmu_write(gmu, REG_A6XX_GMU_CM3_SYSRESET, 1);
+ 	gmu_write(gmu, REG_A6XX_GMU_CM3_SYSRESET, 0);
  
- static void nvmet_stop_keep_alive_timer(struct nvmet_ctrl *ctrl)
- {
-+	if (unlikely(ctrl->kato == 0))
-+		return;
-+
- 	pr_debug("ctrl %d stop keep-alive\n", ctrl->cntlid);
+ 	ret = gmu_poll_timeout(gmu, REG_A6XX_GMU_CM3_FW_INIT_RESULT, val,
+-		val == 0xbabeface, 100, 10000);
++		(val & mask) == reset_val, 100, 10000);
  
- 	cancel_delayed_work_sync(&ctrl->ka_work);
+ 	if (ret)
+ 		dev_err(gmu->dev, "GMU firmware initialization timed out\n");
 -- 
 2.25.1
 
