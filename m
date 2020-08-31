@@ -2,155 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E065F257AAF
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 15:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FED257AEB
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 15:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727852AbgHaNqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 09:46:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
+        id S1726384AbgHaNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 09:55:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726326AbgHaNqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 09:46:31 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4826C061573
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 06:46:27 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id g128so5866903iof.11
-        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 06:46:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ZBC32/BNL6RpeAIxE/WsM9Y7eaf+MsluqGnqgwVH+hw=;
-        b=R5JX0YR0phFKrVvi2VrxE/rYUngCqhiT2GOeJmvQ+a2AkFSqsFUyjqFVQgDi58riFX
-         WPWntgBRzfpKbb+kiSMJm8AqBxtHuoQ2YfS6izTTOm+TsOuyfW0WaTVKO0lmpsyef+l4
-         Mc9pERxLL+QRbE83TmgpGZCLDUghOMdAzC2vpO7P9TfawlCcW7vQZgYgCI30DvgbyaNO
-         r9VWzKq2wPw8jUGhFQ0RInx1qFPEXxojBLjU0PpiyGIMSOpQzNMxCF7kMRrCpPdeDlji
-         A8YCinlW+Xew5kBRn9/QH8qaC3pZ+s9MGCz1TNHZeibNAKobl/224bPnbXRlGz/5Hsbx
-         YwxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZBC32/BNL6RpeAIxE/WsM9Y7eaf+MsluqGnqgwVH+hw=;
-        b=Be0rwZwv7DLmzEerOKeGkSa5XPDFJ0RQz21JrvXXidswEF+rTjxju8uZylPP5foMKu
-         PcJcsHiHxniBvayYPeyM+GWRlWNLPTahzA5rDjQ6StwwJsu8ZdrkmcvRb0YBynkRsM9j
-         JxJoG5oDck4PuOv96HzGM0Z1M7rpNGhbr20y3ceapojXxMQx4WXg3mKIU26TRYzqreN2
-         2FcobVYj6M2udbed/rvCjWcQPfY43E7OgGdoWuiIoIW1/R1cEKuPYhsiL+BvacN2WeNz
-         GJ+7fw64GPzjeel41HaUSN3MCz4dIRD4Kas51yeupcpyCbhnRj7VSsSTQ/WIRFJDMfvA
-         YvHg==
-X-Gm-Message-State: AOAM533InnxUOfVEM9K8Jcc+cvedE+dlfkomVpshsWHQM42o8hRWtSNs
-        cCAdXLQcEmVfmoL7F5D3JDMiD7x/BYG0DHwI
-X-Google-Smtp-Source: ABdhPJy3sdSZMMP66M1Cda98l5KGhcdj3oTMalhZh6tqDIhFqMuLu71VbITSU0b2mJV4knc0ny+IQw==
-X-Received: by 2002:a05:6602:1343:: with SMTP id i3mr1324623iov.134.1598881584294;
-        Mon, 31 Aug 2020 06:46:24 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id 2sm1878911ilj.24.2020.08.31.06.46.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Aug 2020 06:46:23 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: make offset == -1 consistent
- with preadv2/pwritev2" failed to apply to 5.8-stable tree
-To:     gregkh@linuxfoundation.org, wisp3rwind@posteo.eu
-Cc:     stable@vger.kernel.org
-References: <1598867965216125@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <d993f42e-03e9-cd9c-6a2a-6a0c11989865@kernel.dk>
-Date:   Mon, 31 Aug 2020 07:46:23 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S1726292AbgHaNzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 09:55:49 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EEBC061573;
+        Mon, 31 Aug 2020 06:55:48 -0700 (PDT)
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 852DE277;
+        Mon, 31 Aug 2020 15:55:42 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1598882142;
+        bh=YjANQfU2PJKUK7bbJGGRHgkqFKMb/cIwpm/y1CxpPFo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TgaNE0U6odJlc+9i7YVK1k2SQkBoNtxo4hGNQlMmNAzKd4fUS5IuO3uR+9h5oDh3w
+         MnDSjQLm9AOe+luMB6ZBC9OciWwGpHUoydsPN04ThTSr6u5leAnX1QYC5y0hQwA+1H
+         Yye2SAgS6kd3fLDVPFXwlQFhtyDCagxbFLC+19k4=
+Date:   Mon, 31 Aug 2020 16:55:21 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Cc:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 08/38] media: pci: ttpci: av7110: fix
+ possible buffer overflow caused by bad DMA value in debiirq()
+Message-ID: <20200831135521.GB16155@pendragon.ideasonboard.com>
+References: <20200821161807.348600-1-sashal@kernel.org>
+ <20200821161807.348600-8-sashal@kernel.org>
+ <20200829121020.GA20944@duo.ucw.cz>
+ <20200829171600.GA7465@pendragon.ideasonboard.com>
+ <9e797c3a-033b-3473-ac03-1566d40e90d2@tsinghua.edu.cn>
+ <20200830222549.GD6043@pendragon.ideasonboard.com>
+ <665f2e2d-b133-05be-17d5-49b860474ce5@tsinghua.edu.cn>
 MIME-Version: 1.0
-In-Reply-To: <1598867965216125@kroah.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <665f2e2d-b133-05be-17d5-49b860474ce5@tsinghua.edu.cn>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/31/20 3:59 AM, gregkh@linuxfoundation.org wrote:
+Hi Jia-Ju,
+
+On Mon, Aug 31, 2020 at 09:45:14PM +0800, Jia-Ju Bai wrote:
+> On 2020/8/31 6:25, Laurent Pinchart wrote:
+> > On Sun, Aug 30, 2020 at 03:33:11PM +0800, Jia-Ju Bai wrote:
+> >> On 2020/8/30 1:16, Laurent Pinchart wrote:
+> >>> On Sat, Aug 29, 2020 at 02:10:20PM +0200, Pavel Machek wrote:
+> >>>> Hi!
+> >>>>
+> >>>>> The value av7110->debi_virt is stored in DMA memory, and it is assigned
+> >>>>> to data, and thus data[0] can be modified at any time by malicious
+> >>>>> hardware. In this case, "if (data[0] < 2)" can be passed, but then
+> >>>>> data[0] can be changed into a large number, which may cause buffer
+> >>>>> overflow when the code "av7110->ci_slot[data[0]]" is used.
+> >>>>>
+> >>>>> To fix this possible bug, data[0] is assigned to a local variable, which
+> >>>>> replaces the use of data[0].
+> >>>>
+> >>>> I'm pretty sure hardware capable of manipulating memory can work
+> >>>> around any such checks, but...
+> >>>>
+> >>>>> +++ b/drivers/media/pci/ttpci/av7110.c
+> >>>>> @@ -424,14 +424,15 @@ static void debiirq(unsigned long cookie)
+> >>>>>    	case DATA_CI_GET:
+> >>>>>    	{
+> >>>>>    		u8 *data = av7110->debi_virt;
+> >>>>> +		u8 data_0 = data[0];
+> >>>>>    
+> >>>>> -		if ((data[0] < 2) && data[2] == 0xff) {
+> >>>>> +		if (data_0 < 2 && data[2] == 0xff) {
+> >>>>>    			int flags = 0;
+> >>>>>    			if (data[5] > 0)
+> >>>>>    				flags |= CA_CI_MODULE_PRESENT;
+> >>>>>    			if (data[5] > 5)
+> >>>>>    				flags |= CA_CI_MODULE_READY;
+> >>>>> -			av7110->ci_slot[data[0]].flags = flags;
+> >>>>> +			av7110->ci_slot[data_0].flags = flags;
+> >>>>
+> >>>> This does not even do what it says. Compiler is still free to access
+> >>>> data[0] multiple times. It needs READ_ONCE() to be effective.
+> >>>
+> >>> Yes, it seems quite dubious to me. If we *really* want to guard against
+> >>> rogue hardware here, the whole DMA buffer should be copied. I don't
+> >>> think it's worth it, a rogue PCI device can do much more harm.
+> >>
+> >>  From the original driver code, data[0] is considered to be bad and thus
+> >> it should be checked, because the content of the DMA buffer may be
+> >> problematic.
+> >>
+> >> Based on this consideration, data[0] can be also modified to bypass the
+> >> check, and thus its value should be copied to a local variable for the
+> >> check and use.
+> >
+> > What makes you think the hardware would do that ?
 > 
-> The patch below does not apply to the 5.8-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Several recent papers show that the bad values from malicious or 
+> problematic hardware can cause security problems:
+> [NDSS'19] PeriScope: An Effective Probing and Fuzzing Framework for the 
+> Hardware-OS Boundary
+> [NDSS'19] Thunderclap: Exploring Vulnerabilities in Operating System 
+> IOMMU Protection via DMA from Untrustworthy Peripherals
+> [USENIX Security'20] USBFuzz: A Framework for Fuzzing USB Drivers by 
+> Device Emulation
+> 
+> In this case, the values from DMA can be bad, and the driver should 
+> carefully check these values to avoid security problems.
+> IOMMU is an effective method to prevent the hardware from accessing 
+> arbitrary memory address via DMA, but it does not check whether the 
+> values from DMA are safe.
+> 
+> I find that some drivers (including the av7110 driver) check (or try to 
+> check) the values from DMA, and thus I think these drivers have 
+> considered such security problems.
+> However, some of these checks are not rigorous, so that they can be 
+> bypassed in some cases. The problem that I reported is such an example.
 
-Here's a backport:
-
-
-From 0414a859ee85f9a6b7d692fac115594e19f872ee Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 26 Aug 2020 10:36:20 -0600
-Subject: [PATCH 3/3] io_uring: make offset == -1 consistent with
- preadv2/pwritev2
-
-The man page for io_uring generally claims were consistent with what
-preadv2 and pwritev2 accept, but turns out there's a slight discrepancy
-in how offset == -1 is handled for pipes/streams. preadv doesn't allow
-it, but preadv2 does. This currently causes io_uring to return -EINVAL
-if that is attempted, but we should allow that as documented.
-
-This change makes us consistent with preadv2/pwritev2 for just passing
-in a NULL ppos for streams if the offset is -1.
-
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Benedikt Ames <wisp3rwind@posteo.eu>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2b7018456091..4115bfedf15d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2518,6 +2518,11 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
- 	return import_iovec(rw, buf, sqe_len, UIO_FASTIOV, iovec, iter);
- }
- 
-+static inline loff_t *io_kiocb_ppos(struct kiocb *kiocb)
-+{
-+	return kiocb->ki_filp->f_mode & FMODE_STREAM ? NULL : &kiocb->ki_pos;
-+}
-+
- /*
-  * For files that don't have ->read_iter() and ->write_iter(), handle them
-  * by looping over ->read() or ->write() manually.
-@@ -2553,10 +2558,10 @@ static ssize_t loop_rw_iter(int rw, struct file *file, struct kiocb *kiocb,
- 
- 		if (rw == READ) {
- 			nr = file->f_op->read(file, iovec.iov_base,
--					      iovec.iov_len, &kiocb->ki_pos);
-+					      iovec.iov_len, io_kiocb_ppos(kiocb));
- 		} else {
- 			nr = file->f_op->write(file, iovec.iov_base,
--					       iovec.iov_len, &kiocb->ki_pos);
-+					       iovec.iov_len, io_kiocb_ppos(kiocb));
- 		}
- 
- 		if (iov_iter_is_bvec(iter))
-@@ -2681,7 +2686,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
- 		goto copy_iov;
- 
- 	iov_count = iov_iter_count(&iter);
--	ret = rw_verify_area(READ, req->file, &kiocb->ki_pos, iov_count);
-+	ret = rw_verify_area(READ, req->file, io_kiocb_ppos(kiocb), iov_count);
- 	if (!ret) {
- 		ssize_t ret2;
- 
-@@ -2780,7 +2785,7 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
- 		goto copy_iov;
- 
- 	iov_count = iov_iter_count(&iter);
--	ret = rw_verify_area(WRITE, req->file, &kiocb->ki_pos, iov_count);
-+	ret = rw_verify_area(WRITE, req->file, io_kiocb_ppos(kiocb), iov_count);
- 	if (!ret) {
- 		ssize_t ret2;
- 
--- 
-2.28.0
-
+The AV7110 is an old chip, I'm not even sure if it can be used with a
+modern system that supports IOMMUs for PCI devices. Without that, it's
+game over anyway. Before trying to address the issue of a malicious
+AV7110 playing with DMA and CPU races, I would ensure that it's worth
+it.
 
 -- 
-Jens Axboe
+Regards,
 
+Laurent Pinchart
