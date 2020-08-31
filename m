@@ -2,61 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C0C257D89
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCCF3257DF5
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729366AbgHaPi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:38:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50772 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728915AbgHaPiV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:38:21 -0400
-Received: from C02WT3WMHTD6 (unknown [199.255.45.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 587BC207EA;
-        Mon, 31 Aug 2020 15:38:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598888301;
-        bh=dRR9aUt1NjPXzfH/fGTX+Nj32yowbXOxYq5Ror+CR0s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CC7d46o+Pm+CkvVrOB6UW6BBM9rmOkPiQmp8VCMBWRsaDgBozGt3RQ+vaCsJaINAQ
-         vmjiHw+dZnpdKROSf2KSQFxMBL4ATQpUvXS0jVcvdSpzcMPrHlrRZ1iLDicQUA6cjr
-         tB91n7rcJZzyDW8n+usl9/e12mMS/7m/AaPHoiuU=
-Date:   Mon, 31 Aug 2020 09:38:18 -0600
-From:   Keith Busch <kbusch@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
-        linux-nvme@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.8 11/42] nvme: skip noiob for zoned devices
-Message-ID: <20200831153818.GA83475@C02WT3WMHTD6>
-References: <20200831152934.1023912-1-sashal@kernel.org>
- <20200831152934.1023912-11-sashal@kernel.org>
+        id S1728251AbgHaPuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:50:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727881AbgHaPuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Aug 2020 11:50:37 -0400
+Received: from mail-ua1-x92d.google.com (mail-ua1-x92d.google.com [IPv6:2607:f8b0:4864:20::92d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D05C061573
+        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 08:50:37 -0700 (PDT)
+Received: by mail-ua1-x92d.google.com with SMTP id e41so2155091uad.6
+        for <stable@vger.kernel.org>; Mon, 31 Aug 2020 08:50:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=KjLhRL9/9gCuUdlxr3nrBY8CBnWoqJaEBgjnNIftUOQ=;
+        b=hKAIspj/RqjlaOwEF4OWf6DykUHi4K8YLcRe4//+Hy0f5h6oicJ7BJV9+EVfgXQTX0
+         70jGHfqnpqVUAVa7uQ9vU7cCAt3hIS9V45EDq09Vl3GFb1EhlZaTGOZiSonuSFpZ6N/o
+         tvL9ZWxsyVPSwvw5CwYbuIAMC73hkmIi6VtaIQCx5ywZN471V2xLWnoBxpkmi31dGmj4
+         gP7nD4vYJfl1TbS2WY2uwIvxpIDbysOboITqL4jO+1W7h/BOEnmW9KVnVFM5yg1pBHGQ
+         Oipptz7hWQGpwYKVwqGqwuRYbaOxdGTrz0U1CHMeIIbeL59c1TgYIpepkPU1Cv5D248c
+         9Htw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=KjLhRL9/9gCuUdlxr3nrBY8CBnWoqJaEBgjnNIftUOQ=;
+        b=p+/jg7+PJxN87VwmKR73Z6LfOReEfvHgTIhj7dpmA7BB7gstQaz95ohlVKCjjw7xCS
+         wlqBM0OEuMqSUwMfmObASiIr3jmDsp3JOZ4X/5pBg7tvISN4T1VcvCVxawuXbTh5KyNu
+         z0au3jqjJqrE8kzdQKdd/4VJ3Dp2iHvkFsLPulU3tMKKJoBK6ydSwFJ4TFbpRwEv6VKQ
+         Wbq00Pb7y6eryHDx9fNRGqWeQJDK/s8A41/owoDjRVmTkieYwx5UmgydcYsCq0TQUcer
+         nPDWCjiEMzBOmfuxcew1ZJ9z+LIsrjqJQam9N9C/e/C0WC+vF+EtUpebHbF77wtOhKNm
+         noew==
+X-Gm-Message-State: AOAM532O0t1pQBzxFQX/4z5MKXwD4l7fSoAoMwq0khgIo+D6QHoTWTnY
+        iS2rROVXp7LAdZQy6jZkNCaBilqavI49hQjavRGfHQ==
+X-Google-Smtp-Source: ABdhPJzubWQJWcqfOHXItVehGNiyohKbaLVuzgG1YqV4RyT2cyL38XJS+fClfUXdKOvsoZHAbKi/lPmQsHIcAm1/p9Y=
+X-Received: by 2002:ab0:679a:: with SMTP id v26mr1459474uar.27.1598889035933;
+ Mon, 31 Aug 2020 08:50:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200831152934.1023912-11-sashal@kernel.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 31 Aug 2020 21:20:24 +0530
+Message-ID: <CA+G9fYvsNkxvs7hdCB3LC9W+rP8hBa3F1fG3951S+xHfiOJwNA@mail.gmail.com>
+Subject: perf: tools/include/linux/kernel.h:53:17: error: comparison of
+ distinct pointer types lacks a cast [-Werror]
+To:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 31, 2020 at 11:29:03AM -0400, Sasha Levin wrote:
-> From: Keith Busch <kbusch@kernel.org>
-> 
-> [ Upstream commit c41ad98bebb8f4f0335b3c50dbb7583a6149dce4 ]
-> 
-> Zoned block devices reuse the chunk_sectors queue limit to define zone
-> boundaries. If a such a device happens to also report an optimal
-> boundary, do not use that to define the chunk_sectors as that may
-> intermittently interfere with io splitting and zone size queries.
-> 
-> Signed-off-by: Keith Busch <kbusch@kernel.org>
-> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Building stable-rc 5.4 with gcc 7.3.0 perf build failed for x86_64
+and arm64 architectures.
 
-You can safely drop this from stable: nvme zoned devices were only introduced
-to linux in 5.9.
+In file included from btf_dump.c:16:0:
+btf_dump.c: In function 'btf_align_of':
+perf/1.0-r9/perf-1.0/tools/include/linux/kernel.h:53:17: error:
+comparison of distinct pointer types lacks a cast [-Werror]
+  (void) (&_min1 == &_min2);  \
+                 ^
+btf_dump.c:770:10: note: in expansion of macro 'min'
+   return min(sizeof(void *), t->size);
+          ^~~
+cc1: all warnings being treated as errors
+
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.4/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/263/consoleText
+
+- Naresh
