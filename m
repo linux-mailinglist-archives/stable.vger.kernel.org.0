@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F46F257CE1
+	by mail.lfdr.de (Postfix) with ESMTP id 9D5CF257CE2
 	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbgHaPbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729003AbgHaPbv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 Aug 2020 11:31:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728994AbgHaPbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:48 -0400
+        id S1728998AbgHaPbt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C91A21527;
-        Mon, 31 Aug 2020 15:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD8D21531;
+        Mon, 31 Aug 2020 15:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887907;
-        bh=yFj9wFJzRYj+I4nblJ/YqFf6MOl/OYX7fko2fanX+cE=;
+        s=default; t=1598887909;
+        bh=h6ks64jl06DbIv9dD4cgt72UfJdgdym0WvGOZh3FOfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q81ha4LIL8Ma5DEcpo0tcHLEXxB488GPVUnXX+/Gy0VnpA3dkMbaBHxAoi+8pAW4t
-         hyUBvNrqyQDk0QVrfQWL8xUFzOrIAX3yCM4z+Ebmq9P5ToJqV1uc6YaoiGJMYhYgdn
-         VfoPi7v2+GSbyS8DF79y5StiV7wCTIBnUshgG8ac=
+        b=N6gCBwhpOWA62Ey/iSK8xrpnVFNaOnZLxS0qaarGtMjH9VnLHN8nrKd5x40iNCOCx
+         n9u5eI2KdBRp0c0TI7u5Cpjb+jQ9wDi6vacv9++6F6c7gjjeFBN7idhMGYPXKNO7b+
+         PWWY9Kad6LsVqTm3JMhwdVOJGHVpxfm6bkY8SAi8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 8/9] s390: don't trace preemption in percpu macros
-Date:   Mon, 31 Aug 2020 11:31:35 -0400
-Message-Id: <20200831153136.1024676-8-sashal@kernel.org>
+Cc:     Simon Leiner <simon@leiner.me>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.14 9/9] xen/xenbus: Fix granting of vmalloc'd memory
+Date:   Mon, 31 Aug 2020 11:31:36 -0400
+Message-Id: <20200831153136.1024676-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200831153136.1024676-1-sashal@kernel.org>
 References: <20200831153136.1024676-1-sashal@kernel.org>
@@ -43,137 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Simon Leiner <simon@leiner.me>
 
-[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
+[ Upstream commit d742db70033c745e410523e00522ee0cfe2aa416 ]
 
-Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
-to per-cpu variables") the lockdep code itself uses percpu variables. This
-leads to recursions because the percpu macros are calling preempt_enable()
-which might call trace_preempt_on().
+On some architectures (like ARM), virt_to_gfn cannot be used for
+vmalloc'd memory because of its reliance on virt_to_phys. This patch
+introduces a check for vmalloc'd addresses and obtains the PFN using
+vmalloc_to_pfn in that case.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Simon Leiner <simon@leiner.me>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20200825093153.35500-1-simon@leiner.me
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 0095ddb58ff69..50f6661ba5664 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -29,7 +29,7 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ old__, new__, prev__;				\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	prev__ = *ptr__;						\
- 	do {								\
-@@ -37,7 +37,7 @@
- 		new__ = old__ op (val);					\
- 		prev__ = cmpxchg(ptr__, old__, new__);			\
- 	} while (prev__ != old__);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	new__;								\
- })
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index e94a61eaeceb0..f7b553faadb10 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -365,8 +365,14 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
+ 	int i, j;
  
-@@ -68,7 +68,7 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
- 	if (__builtin_constant_p(val__) &&				\
- 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
-@@ -84,7 +84,7 @@
- 			: [val__] "d" (val__)				\
- 			: "cc");					\
- 	}								\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
- 
- #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
-@@ -95,14 +95,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();						\
- 	old__ + val__;							\
- })
- 
-@@ -114,14 +114,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
- 
- #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
-@@ -136,10 +136,10 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ ret__;						\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = cmpxchg(ptr__, oval, nval);				\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -152,10 +152,10 @@
- ({									\
- 	typeof(pcp) *ptr__;						\
- 	typeof(pcp) ret__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = xchg(ptr__, nval);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -171,11 +171,11 @@
- 	typeof(pcp1) *p1__;						\
- 	typeof(pcp2) *p2__;						\
- 	int ret__;							\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	p1__ = raw_cpu_ptr(&(pcp1));					\
- 	p2__ = raw_cpu_ptr(&(pcp2));					\
- 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
+ 	for (i = 0; i < nr_pages; i++) {
+-		err = gnttab_grant_foreign_access(dev->otherend_id,
+-						  virt_to_gfn(vaddr), 0);
++		unsigned long gfn;
++
++		if (is_vmalloc_addr(vaddr))
++			gfn = pfn_to_gfn(vmalloc_to_pfn(vaddr));
++		else
++			gfn = virt_to_gfn(vaddr);
++
++		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
+ 		if (err < 0) {
+ 			xenbus_dev_fatal(dev, err,
+ 					 "granting access to ring page");
 -- 
 2.25.1
 
