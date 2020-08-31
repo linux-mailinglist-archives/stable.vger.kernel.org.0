@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3872257D32
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B65257D29
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 17:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726755AbgHaPfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 11:35:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
+        id S1729217AbgHaPel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 11:34:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728830AbgHaPbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:31:17 -0400
+        id S1728846AbgHaPbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 832A321707;
-        Mon, 31 Aug 2020 15:31:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 050DF21531;
+        Mon, 31 Aug 2020 15:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887876;
-        bh=ZjKWjBFa8jx2a1LkBVVi50zo2hxUJAg7OKt/hGAhRLg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuoAeAil8Y4zzuBODnsoaCqvLj2gf+B/QIn9aHT765aodtkdI4qsPZCYzNpS/CLIK
-         XwnwJQfhFlj8fmad0Ezh/ndlrX89SQrU9WHbvrixP6Y1jUCp0eWA+BdwMEOmDNjnxq
-         ubB40tarI7PmgTCzXQzb+UYVHt4ctZOeYYrb2hJ4=
+        s=default; t=1598887880;
+        bh=HWo7a+zaZDcLbM6xcgIY2aLd24V2n8iLT/OWYBTrpHQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xnWCVu+vQ+I2UIT2tNFeNg0NkHA0p30a69A/B6Rie/Sdty+MA9ano4sjb5VDgtcWz
+         xiA6ER8cWrxgUlJXpVEGehOJwNVyfl25Ee5dMAcftRq69SQwsYnNeFjGa1ZDgWwreM
+         HNaNnZWiIETK5FSJMc+sy8IU2WnX6KKnCe8up/Gs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 23/23] fsldma: fix very broken 32-bit ppc ioread64 functionality
-Date:   Mon, 31 Aug 2020 11:30:39 -0400
-Message-Id: <20200831153039.1024302-23-sashal@kernel.org>
+Cc:     Peilin Ye <yepeilin.cs@gmail.com>,
+        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/11] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
+Date:   Mon, 31 Aug 2020 11:31:07 -0400
+Message-Id: <20200831153117.1024537-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200831153039.1024302-1-sashal@kernel.org>
-References: <20200831153039.1024302-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,79 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 0a4c56c80f90797e9b9f8426c6aae4c0cf1c9785 ]
+[ Upstream commit 25a097f5204675550afb879ee18238ca917cba7a ]
 
-Commit ef91bb196b0d ("kernel.h: Silence sparse warning in
-lower_32_bits") caused new warnings to show in the fsldma driver, but
-that commit was not to blame: it only exposed some very incorrect code
-that tried to take the low 32 bits of an address.
+`uref->usage_index` is not always being properly checked, causing
+hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
 
-That made no sense for multiple reasons, the most notable one being that
-that code was intentionally limited to only 32-bit ppc builds, so "only
-low 32 bits of an address" was completely nonsensical.  There were no
-high bits to mask off to begin with.
-
-But even more importantly fropm a correctness standpoint, turning the
-address into an integer then caused the subsequent address arithmetic to
-be completely wrong too, and the "+1" actually incremented the address
-by one, rather than by four.
-
-Which again was incorrect, since the code was reading two 32-bit values
-and trying to make a 64-bit end result of it all.  Surprisingly, the
-iowrite64() did not suffer from the same odd and incorrect model.
-
-This code has never worked, but it's questionable whether anybody cared:
-of the two users that actually read the 64-bit value (by way of some C
-preprocessor hackery and eventually the 'get_cdar()' inline function),
-one of them explicitly ignored the value, and the other one might just
-happen to work despite the incorrect value being read.
-
-This patch at least makes it not fail the build any more, and makes the
-logic superficially sane.  Whether it makes any difference to the code
-_working_ or not shall remain a mystery.
-
-Compile-tested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsldma.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/usbhid/hiddev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/dma/fsldma.h b/drivers/dma/fsldma.h
-index 56f18ae992332..308bed0a560ac 100644
---- a/drivers/dma/fsldma.h
-+++ b/drivers/dma/fsldma.h
-@@ -205,10 +205,10 @@ struct fsldma_chan {
- #else
- static u64 fsl_ioread64(const u64 __iomem *addr)
- {
--	u32 fsl_addr = lower_32_bits(addr);
--	u64 fsl_addr_hi = (u64)in_le32((u32 *)(fsl_addr + 1)) << 32;
-+	u32 val_lo = in_le32((u32 __iomem *)addr);
-+	u32 val_hi = in_le32((u32 __iomem *)addr + 1);
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index c34ef95d7cef3..2dff663847c69 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -532,12 +532,16 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
  
--	return fsl_addr_hi | in_le32((u32 *)fsl_addr);
-+	return ((u64)val_hi << 32) + val_lo;
- }
+ 		switch (cmd) {
+ 		case HIDIOCGUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			uref->value = field->value[uref->usage_index];
+ 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
+ 				goto fault;
+ 			goto goodreturn;
  
- static void fsl_iowrite64(u64 val, u64 __iomem *addr)
-@@ -219,10 +219,10 @@ static void fsl_iowrite64(u64 val, u64 __iomem *addr)
+ 		case HIDIOCSUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			field->value[uref->usage_index] = uref->value;
+ 			goto goodreturn;
  
- static u64 fsl_ioread64be(const u64 __iomem *addr)
- {
--	u32 fsl_addr = lower_32_bits(addr);
--	u64 fsl_addr_hi = (u64)in_be32((u32 *)fsl_addr) << 32;
-+	u32 val_hi = in_be32((u32 __iomem *)addr);
-+	u32 val_lo = in_be32((u32 __iomem *)addr + 1);
- 
--	return fsl_addr_hi | in_be32((u32 *)(fsl_addr + 1));
-+	return ((u64)val_hi << 32) + val_lo;
- }
- 
- static void fsl_iowrite64be(u64 val, u64 __iomem *addr)
 -- 
 2.25.1
 
