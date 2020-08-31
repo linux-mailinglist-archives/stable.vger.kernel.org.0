@@ -2,83 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61E6E258216
-	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 21:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF02258247
+	for <lists+stable@lfdr.de>; Mon, 31 Aug 2020 22:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729803AbgHaTub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Aug 2020 15:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35230 "EHLO mail.kernel.org"
+        id S1728903AbgHaUIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Aug 2020 16:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727839AbgHaTub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Aug 2020 15:50:31 -0400
-Received: from X1 (unknown [65.49.58.28])
+        id S1729908AbgHaUIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Aug 2020 16:08:51 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EDCA2083E;
-        Mon, 31 Aug 2020 19:50:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 856922078B;
+        Mon, 31 Aug 2020 20:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598903430;
-        bh=91iSUjJrhFtccxGcUDJHA9DbrAgsxr0J3nSJgEJ7bHs=;
-        h=Date:From:To:Subject:From;
-        b=PdnENpJY0eUADtnfrQxCDeTh2fHDs7P1sJV0VIAtzbySJvUXbFcNVhhIAKM3d7cgv
-         IX3SYu7EZvMn7l5mN8B+Cm5NU1pq7WvzKT/qNPp+0NvI3NuBu8RkOnOqjuqVot1ywK
-         2tuUET68qqBpyEjJXgFaNDCxx9+q9Hv0Wo8CK0A8=
-Date:   Mon, 31 Aug 2020 12:50:29 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, axboe@kernel.dk,
-        hirofumi@mail.parknet.co.jp
-Subject:  [alternative-merged]
- fat-avoid-oops-when-bdi-io_pages==0.patch removed from -mm tree
-Message-ID: <20200831195029.T63Ay%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        s=default; t=1598904530;
+        bh=6Y0ZdwL5X0Ybc8ryd58Z4SajsjMnC64/o1JAZRemqz4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oyITyOc4eCE7cIaibJWTY5Zue1CcZtBsDEksCZEULmBDHMTxy0gIV79a255f3sZ9l
+         /qtnXAclSlwuhtsLxi+4j09Dy7Oyt6Uz1tlkc2TdnX//Ls+fQemEzzDTX+DA6xP+bF
+         rsGjLL7vCH2QMdvRqVKr07+9f31E9/az6Hct0yTM=
+Date:   Mon, 31 Aug 2020 16:08:49 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] io_uring: don't recurse on
+ tsk->sighand->siglock with" failed to apply to 5.8-stable tree
+Message-ID: <20200831200849.GD8670@sasha-vm>
+References: <1598867905173168@kroah.com>
+ <c1700041-1d6d-030e-b249-7c67cc96ac0e@kernel.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <c1700041-1d6d-030e-b249-7c67cc96ac0e@kernel.dk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 31, 2020 at 07:45:49AM -0600, Jens Axboe wrote:
+>On 8/31/20 3:58 AM, gregkh@linuxfoundation.org wrote:
+>>
+>> The patch below does not apply to the 5.8-stable tree.
+>> If someone wants it applied there, or to any other stable or longterm
+>> tree, then please email the backport, including the original git commit
+>> id to <stable@vger.kernel.org>.
+>
+>Here's a backport:
 
-The patch titled
-     Subject: fat: avoid oops when bdi->io_pages==0
-has been removed from the -mm tree.  Its filename was
-     fat-avoid-oops-when-bdi-io_pages==0.patch
+I've queued up this and the other two backports. Thanks!
 
-This patch was dropped because an alternative patch was merged
-
-------------------------------------------------------
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: fat: avoid oops when bdi->io_pages==0
-
-On one system, there was bdi->io_pages==0.  This seems to be the bug of a
-driver somewhere, which perhaps failed to initialize io_pages.  We should
-fix it though - it is better to avoid the divide-by-zero Oops.
-
-So add a check for this.
-
-Link: http://lkml.kernel.org/r/87ft85osn6.fsf@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: <stable@vger.kernel.org>		[5.8+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/fat/fatent.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/fs/fat/fatent.c~fat-avoid-oops-when-bdi-io_pages==0
-+++ a/fs/fat/fatent.c
-@@ -660,7 +660,7 @@ static void fat_ra_init(struct super_blo
- 	if (fatent->entry >= ent_limit)
- 		return;
- 
--	if (ra_pages > sb->s_bdi->io_pages)
-+	if (sb->s_bdi->io_pages && ra_pages > sb->s_bdi->io_pages)
- 		ra_pages = rounddown(ra_pages, sb->s_bdi->io_pages);
- 	reada_blocks = ra_pages << (PAGE_SHIFT - sb->s_blocksize_bits + 1);
- 
-_
-
-Patches currently in -mm which might be from hirofumi@mail.parknet.co.jp are
-
-
+-- 
+Thanks,
+Sasha
