@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0697C2597A9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 576912597AE
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731151AbgIAQQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
+        id S1727951AbgIAQQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728604AbgIAPd6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:58 -0400
+        id S1728242AbgIAPeA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A09520E65;
-        Tue,  1 Sep 2020 15:33:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEAC021534;
+        Tue,  1 Sep 2020 15:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974436;
-        bh=LrFyfFDXc9/jLnZm3rg0fByB+NJEn1pQKELGSz4xFsU=;
+        s=default; t=1598974439;
+        bh=kSE9ZyHZgrC5O8JA6ZoprRdJzM38r2e6uDO8v8/zApo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYvKVSN7E2iB4163ZTolk+BROOAHx1304cWfYqBqEeq3T0wmkR3165MnCDg1lfpbD
-         jWZNu6Mui4n8J8+VJU5vOoRgD4xe62QxXbPHIKf+Aj+iYKbeOBK7p/UTw66HocCQkC
-         fnJS8HCpE4+AiyGQRuauBWjOeNR1SRqAzhD8a2vQ=
+        b=FSHNfjftbd5YqHAz5wpL7DD7pYK2R94ge+WgxgF9PMFStiUNcwrHpB4XSnzzNxgHy
+         8gSSUTn5107P9txZaOtQYoexqbq3EFrQgY4jHynXioxpZTbdJeibtN8m47/I6OuVDU
+         3m1b9s3oIhyAMALo0LqcH+lSSdf/nZKkMAiA/xEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 176/214] powerpc/perf: Fix crashes with generic_compat_pmu & BHRB
-Date:   Tue,  1 Sep 2020 17:10:56 +0200
-Message-Id: <20200901151001.413630837@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 177/214] device property: Fix the secondary firmware node handling in set_primary_fwnode()
+Date:   Tue,  1 Sep 2020 17:10:57 +0200
+Message-Id: <20200901151001.455550067@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,74 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit b460b512417ae9c8b51a3bdcc09020cd6c60ff69 upstream.
+commit c15e1bdda4365a5f17cdadf22bf1c1df13884a9e upstream.
 
-The bhrb_filter_map ("The Branch History Rolling Buffer") callback is
-only defined in raw CPUs' power_pmu structs. The "architected" CPUs
-use generic_compat_pmu, which does not have this callback, and crashes
-occur if a user tries to enable branch stack for an event.
+When the primary firmware node pointer is removed from a
+device (set to NULL) the secondary firmware node pointer,
+when it exists, is made the primary node for the device.
+However, the secondary firmware node pointer of the original
+primary firmware node is never cleared (set to NULL).
 
-This add a NULL pointer check for bhrb_filter_map() which behaves as
-if the callback returned an error.
+To avoid situation where the secondary firmware node pointer
+is pointing to a non-existing object, clearing it properly
+when the primary node is removed from a device in
+set_primary_fwnode().
 
-This does not add the same check for config_bhrb() as the only caller
-checks for cpuhw->bhrb_users which remains zero if bhrb_filter_map==0.
-
-Fixes: be80e758d0c2 ("powerpc/perf: Add generic compat mode pmu driver")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200602025612.62707-1-aik@ozlabs.ru
+Fixes: 97badf873ab6 ("device property: Make it possible to use secondary firmware nodes")
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/perf/core-book3s.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/base/core.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -1522,9 +1522,16 @@ nocheck:
- 	ret = 0;
-  out:
- 	if (has_branch_stack(event)) {
--		power_pmu_bhrb_enable(event);
--		cpuhw->bhrb_filter = ppmu->bhrb_filter_map(
--					event->attr.branch_sample_type);
-+		u64 bhrb_filter = -1;
-+
-+		if (ppmu->bhrb_filter_map)
-+			bhrb_filter = ppmu->bhrb_filter_map(
-+				event->attr.branch_sample_type);
-+
-+		if (bhrb_filter != -1) {
-+			cpuhw->bhrb_filter = bhrb_filter;
-+			power_pmu_bhrb_enable(event);
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3400,9 +3400,9 @@ static inline bool fwnode_is_primary(str
+  */
+ void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode)
+ {
+-	if (fwnode) {
+-		struct fwnode_handle *fn = dev->fwnode;
++	struct fwnode_handle *fn = dev->fwnode;
+ 
++	if (fwnode) {
+ 		if (fwnode_is_primary(fn))
+ 			fn = fn->secondary;
+ 
+@@ -3412,8 +3412,12 @@ void set_primary_fwnode(struct device *d
+ 		}
+ 		dev->fwnode = fwnode;
+ 	} else {
+-		dev->fwnode = fwnode_is_primary(dev->fwnode) ?
+-			dev->fwnode->secondary : NULL;
++		if (fwnode_is_primary(fn)) {
++			dev->fwnode = fn->secondary;
++			fn->secondary = NULL;
++		} else {
++			dev->fwnode = NULL;
 +		}
  	}
- 
- 	perf_pmu_enable(event->pmu);
-@@ -1846,7 +1853,6 @@ static int power_pmu_event_init(struct p
- 	int n;
- 	int err;
- 	struct cpu_hw_events *cpuhw;
--	u64 bhrb_filter;
- 
- 	if (!ppmu)
- 		return -ENOENT;
-@@ -1952,7 +1958,10 @@ static int power_pmu_event_init(struct p
- 	err = power_check_constraints(cpuhw, events, cflags, n + 1);
- 
- 	if (has_branch_stack(event)) {
--		bhrb_filter = ppmu->bhrb_filter_map(
-+		u64 bhrb_filter = -1;
-+
-+		if (ppmu->bhrb_filter_map)
-+			bhrb_filter = ppmu->bhrb_filter_map(
- 					event->attr.branch_sample_type);
- 
- 		if (bhrb_filter == -1) {
+ }
+ EXPORT_SYMBOL_GPL(set_primary_fwnode);
 
 
