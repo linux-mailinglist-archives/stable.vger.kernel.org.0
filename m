@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2976F259C59
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5DA259CE1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731268AbgIARNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59954 "EHLO mail.kernel.org"
+        id S1728987AbgIARVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729217AbgIAPPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:36 -0400
+        id S1728693AbgIAPMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DC73207D3;
-        Tue,  1 Sep 2020 15:15:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C9CF20BED;
+        Tue,  1 Sep 2020 15:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973333;
-        bh=nNjZuNxAwYhI9YeRuEvRVj1xlp9+plyHUyMkqn0vztA=;
+        s=default; t=1598973162;
+        bh=dP9OWR2F7qWnMhX4Sx22XvrX3BkgvzRlHX2MWVWC4Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahfoBGEhbL0ehir/d6/kphZxoJHnrvzpnaffBiza/lwpYyOA3Ebk+ZVPbhwirUAKO
-         Lw9oHL0Ns7UsjQxx5IGOCV08VpvOy0YrhLcxxv+qJrN2yvNBU0TfB8OXlq0c7AQHrW
-         BWMQASXW1BF4w3wCOzUAB+OQF63Gpp923JVElMEw=
+        b=cTtr0AE2RW8mNYcieRqxKo0ME2U4ywFnTzax9YdZzVRqqO+DoTEeEmKSpkwLQi/fB
+         xovCp9WdoUnDIsBdelVsV6r2L7pb0ZuIL8MwGdFkgybvBYU0i//ZslwNTKa+0ZR0O8
+         TukGHrK3tMRii1JxCzagjRGvzZCtFTCpluGrtoZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhi Chen <zhichen@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 38/78] Revert "ath10k: fix DMA related firmware crashes on multiple devices"
-Date:   Tue,  1 Sep 2020 17:10:14 +0200
-Message-Id: <20200901150926.637120965@linuxfoundation.org>
+Subject: [PATCH 4.4 32/62] Revert "ath10k: fix DMA related firmware crashes on multiple devices"
+Date:   Tue,  1 Sep 2020 17:10:15 +0200
+Message-Id: <20200901150922.332417901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/ath/ath10k/hw.h b/drivers/net/wireless/ath/ath10k/hw.h
-index 6038b7486f1db..e04e0260035ad 100644
+index 713c2bcea1782..8ec5c579d7fa8 100644
 --- a/drivers/net/wireless/ath/ath10k/hw.h
 +++ b/drivers/net/wireless/ath/ath10k/hw.h
-@@ -558,7 +558,7 @@ ath10k_rx_desc_get_l3_pad_bytes(struct ath10k_hw_params *hw,
+@@ -429,7 +429,7 @@ enum ath10k_hw_rate_cck {
  
  #define TARGET_10_4_TX_DBG_LOG_SIZE		1024
  #define TARGET_10_4_NUM_WDS_ENTRIES		32
