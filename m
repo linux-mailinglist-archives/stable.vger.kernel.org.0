@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D0E025999D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B6325999B
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:42:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731057AbgIAQmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
+        id S1730398AbgIAQlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730319AbgIAP2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:28:01 -0400
+        id S1730334AbgIAP2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:28:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE35A20BED;
-        Tue,  1 Sep 2020 15:28:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47CCF20684;
+        Tue,  1 Sep 2020 15:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974081;
-        bh=X1vd/hNDwaUxtFbZyy1MUDoC1bemL9dRQgvtcayG5Ho=;
+        s=default; t=1598974083;
+        bh=7MusbzOPRuLYV64al/y9MYxeG/Uy3neV6EYixeQZD8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uyh4lEJhDrTgBaoww/PKbpTLP8vcEpcTUCwPGQvb8mFHo3RJAGIx7kptjcbrEnFqt
-         IXTfC6cqgxYoK6IwG8ID/QAnLMZeKTcDPGEkc2XMWZDHIZbRHr3ojMqeFwAgm3x4dV
-         0QbLJjkVG4TIaeAz9p77T6gnpU2i15fyJ8430M2Q=
+        b=uuD8QPkk6jfO7dh53lT2yuytDKwXDOVxpRPQJO1ZmwW3nS9+mmF39Ty59PgQimPYb
+         zsMoUsSKtMhzOUzlt4qvvTYtfoQAJG9O2s13uWhUd027V23GMzFz4lCaoR3xLeErjp
+         FkkxrMCk4uo4DrAKhTzLsJDrP4A4EiKrScsRagIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
-        Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/214] selftests/powerpc: Purge extra count_pmc() calls of ebb selftests
-Date:   Tue,  1 Sep 2020 17:08:37 +0200
-Message-Id: <20200901150954.743288024@linuxfoundation.org>
+Subject: [PATCH 5.4 038/214] f2fs: fix error path in do_recover_data()
+Date:   Tue,  1 Sep 2020 17:08:38 +0200
+Message-Id: <20200901150954.788759817@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -46,202 +44,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 3337bf41e0dd70b4064cdf60acdfcdc2d050066c ]
+[ Upstream commit 9627a7b31f3c4ff8bc8f3be3683983ffe6eaebe6 ]
 
-An extra count on ebb_state.stats.pmc_count[PMC_INDEX(pmc)] is being per-
-formed when count_pmc() is used to reset PMCs on a few selftests. This
-extra pmc_count can occasionally invalidate results, such as the ones from
-cycles_test shown hereafter. The ebb_check_count() failed with an above
-the upper limit error due to the extra value on ebb_state.stats.pmc_count.
+- don't panic kernel if f2fs_get_node_page() fails in
+f2fs_recover_inline_data() or f2fs_recover_inline_xattr();
+- return error number of f2fs_truncate_blocks() to
+f2fs_recover_inline_data()'s caller;
 
-Furthermore, this extra count is also indicated by extra PMC1 trace_log on
-the output of the cycle test (as well as on pmc56_overflow_test):
-
-==========
-   ...
-   [21]: counter = 8
-   [22]: register SPRN_MMCR0 = 0x0000000080000080
-   [23]: register SPRN_PMC1  = 0x0000000080000004
-   [24]: counter = 9
-   [25]: register SPRN_MMCR0 = 0x0000000080000080
-   [26]: register SPRN_PMC1  = 0x0000000080000004
-   [27]: counter = 10
-   [28]: register SPRN_MMCR0 = 0x0000000080000080
-   [29]: register SPRN_PMC1  = 0x0000000080000004
->> [30]: register SPRN_PMC1  = 0x000000004000051e
-PMC1 count (0x280000546) above upper limit 0x2800003e8 (+0x15e)
-[FAIL] Test FAILED on line 52
-failure: cycles
-==========
-
-Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200626164737.21943-1-desnesn@linux.ibm.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c     | 2 --
- tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c      | 2 --
- .../selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c    | 2 --
- .../selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c     | 2 --
- tools/testing/selftests/powerpc/pmu/ebb/ebb.c              | 2 --
- .../selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c  | 2 --
- .../selftests/powerpc/pmu/ebb/lost_exception_test.c        | 1 -
- .../testing/selftests/powerpc/pmu/ebb/multi_counter_test.c | 7 -------
- .../selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c       | 2 --
- .../testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c | 2 --
- .../selftests/powerpc/pmu/ebb/pmc56_overflow_test.c        | 2 --
- 11 files changed, 26 deletions(-)
+ fs/f2fs/f2fs.h     |  4 ++--
+ fs/f2fs/inline.c   | 19 ++++++++++++-------
+ fs/f2fs/node.c     |  6 ++++--
+ fs/f2fs/recovery.c | 10 ++++++++--
+ 4 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
-index a2d7b0e3dca97..a26ac122c759f 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/back_to_back_ebbs_test.c
-@@ -91,8 +91,6 @@ int back_to_back_ebbs(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 03693d6b1c104..b3b7e63394be7 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3061,7 +3061,7 @@ bool f2fs_alloc_nid(struct f2fs_sb_info *sbi, nid_t *nid);
+ void f2fs_alloc_nid_done(struct f2fs_sb_info *sbi, nid_t nid);
+ void f2fs_alloc_nid_failed(struct f2fs_sb_info *sbi, nid_t nid);
+ int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink);
+-void f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
++int f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
+ int f2fs_recover_xattr_data(struct inode *inode, struct page *page);
+ int f2fs_recover_inode_page(struct f2fs_sb_info *sbi, struct page *page);
+ int f2fs_restore_node_summary(struct f2fs_sb_info *sbi,
+@@ -3487,7 +3487,7 @@ int f2fs_read_inline_data(struct inode *inode, struct page *page);
+ int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page);
+ int f2fs_convert_inline_inode(struct inode *inode);
+ int f2fs_write_inline_data(struct inode *inode, struct page *page);
+-bool f2fs_recover_inline_data(struct inode *inode, struct page *npage);
++int f2fs_recover_inline_data(struct inode *inode, struct page *npage);
+ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
+ 			struct fscrypt_name *fname, struct page **res_page);
+ int f2fs_make_empty_inline_dir(struct inode *inode, struct inode *parent,
+diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
+index 896db0416f0e6..183388393c6a8 100644
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -252,7 +252,7 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
+ 	return 0;
+ }
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+-bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
++int f2fs_recover_inline_data(struct inode *inode, struct page *npage)
+ {
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct f2fs_inode *ri = NULL;
+@@ -274,7 +274,8 @@ bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
+ 			ri && (ri->i_inline & F2FS_INLINE_DATA)) {
+ process_inline:
+ 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
+-		f2fs_bug_on(sbi, IS_ERR(ipage));
++		if (IS_ERR(ipage))
++			return PTR_ERR(ipage);
  
- 	event_close(&event);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
-index bc893813483ee..bb9f587fa76e8 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_test.c
-@@ -42,8 +42,6 @@ int cycles(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+ 		f2fs_wait_on_page_writeback(ipage, NODE, true, true);
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+@@ -287,21 +288,25 @@ process_inline:
  
- 	event_close(&event);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
-index dcd351d203289..9ae795ce314e6 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_freeze_test.c
-@@ -99,8 +99,6 @@ int cycles_with_freeze(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+ 		set_page_dirty(ipage);
+ 		f2fs_put_page(ipage, 1);
+-		return true;
++		return 1;
+ 	}
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+ 	if (f2fs_has_inline_data(inode)) {
+ 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
+-		f2fs_bug_on(sbi, IS_ERR(ipage));
++		if (IS_ERR(ipage))
++			return PTR_ERR(ipage);
+ 		f2fs_truncate_inline_inode(inode, ipage, 0);
+ 		clear_inode_flag(inode, FI_INLINE_DATA);
+ 		f2fs_put_page(ipage, 1);
+ 	} else if (ri && (ri->i_inline & F2FS_INLINE_DATA)) {
+-		if (f2fs_truncate_blocks(inode, 0, false))
+-			return false;
++		int ret;
++
++		ret = f2fs_truncate_blocks(inode, 0, false);
++		if (ret)
++			return ret;
+ 		goto process_inline;
+ 	}
+-	return false;
++	return 0;
+ }
  
- 	printf("EBBs while frozen %d\n", ebbs_while_frozen);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
-index 94c99c12c0f23..4b45a2e70f62b 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/cycles_with_mmcr2_test.c
-@@ -71,8 +71,6 @@ int cycles_with_mmcr2(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 90a20bd129614..daeac4268c1ab 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -2512,7 +2512,7 @@ int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink)
+ 	return nr - nr_shrink;
+ }
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+-void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
++int f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ {
+ 	void *src_addr, *dst_addr;
+ 	size_t inline_size;
+@@ -2520,7 +2520,8 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ 	struct f2fs_inode *ri;
  
- 	event_close(&event);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
-index dfbc5c3ad52d7..21537d6eb6b7d 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb.c
-@@ -396,8 +396,6 @@ int ebb_child(union pipe read_pipe, union pipe write_pipe)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+ 	ipage = f2fs_get_node_page(F2FS_I_SB(inode), inode->i_ino);
+-	f2fs_bug_on(F2FS_I_SB(inode), IS_ERR(ipage));
++	if (IS_ERR(ipage))
++		return PTR_ERR(ipage);
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+ 	ri = F2FS_INODE(page);
+ 	if (ri->i_inline & F2FS_INLINE_XATTR) {
+@@ -2539,6 +2540,7 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
+ update_inode:
+ 	f2fs_update_inode(inode, ipage);
+ 	f2fs_put_page(ipage, 1);
++	return 0;
+ }
  
- 	event_close(&event);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
-index ca2f7d729155b..b208bf6ad58d3 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/ebb_on_willing_child_test.c
-@@ -38,8 +38,6 @@ static int victim_child(union pipe read_pipe, union pipe write_pipe)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
+ int f2fs_recover_xattr_data(struct inode *inode, struct page *page)
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 783773e4560de..5f230e981c483 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -514,7 +514,9 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
  
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
+ 	/* step 1: recover xattr */
+ 	if (IS_INODE(page)) {
+-		f2fs_recover_inline_xattr(inode, page);
++		err = f2fs_recover_inline_xattr(inode, page);
++		if (err)
++			goto out;
+ 	} else if (f2fs_has_xattr_block(ofs_of_node(page))) {
+ 		err = f2fs_recover_xattr_data(inode, page);
+ 		if (!err)
+@@ -523,8 +525,12 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
+ 	}
  
- 	FAIL_IF(ebb_state.stats.ebb_count == 0);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
-index ac3e6e182614a..ba2681a12cc7b 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/lost_exception_test.c
-@@ -75,7 +75,6 @@ static int test_body(void)
- 	ebb_freeze_pmcs();
- 	ebb_global_disable();
+ 	/* step 2: recover inline data */
+-	if (f2fs_recover_inline_data(inode, page))
++	err = f2fs_recover_inline_data(inode, page);
++	if (err) {
++		if (err == 1)
++			err = 0;
+ 		goto out;
++	}
  
--	count_pmc(4, sample_period);
- 	mtspr(SPRN_PMC4, 0xdead);
- 
- 	dump_summary_ebb_state();
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
-index b8242e9d97d2d..791d37ba327b5 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_counter_test.c
-@@ -70,13 +70,6 @@ int multi_counter(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
- 
--	count_pmc(1, sample_period);
--	count_pmc(2, sample_period);
--	count_pmc(3, sample_period);
--	count_pmc(4, sample_period);
--	count_pmc(5, sample_period);
--	count_pmc(6, sample_period);
--
- 	dump_ebb_state();
- 
- 	for (i = 0; i < 6; i++)
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
-index a05c0e18ded63..9b0f70d597020 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/multi_ebb_procs_test.c
-@@ -61,8 +61,6 @@ static int cycles_child(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
- 
--	count_pmc(1, sample_period);
--
- 	dump_summary_ebb_state();
- 
- 	event_close(&event);
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
-index 153ebc92234fd..2904c741e04e5 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/pmae_handling_test.c
-@@ -82,8 +82,6 @@ static int test_body(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
- 
--	count_pmc(1, sample_period);
--
- 	dump_ebb_state();
- 
- 	if (mmcr0_mismatch)
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
-index eadad75ed7e6f..b29f8ba22d1e6 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/pmc56_overflow_test.c
-@@ -76,8 +76,6 @@ int pmc56_overflow(void)
- 	ebb_global_disable();
- 	ebb_freeze_pmcs();
- 
--	count_pmc(2, sample_period);
--
- 	dump_ebb_state();
- 
- 	printf("PMC5/6 overflow %d\n", pmc56_overflowed);
+ 	/* step 3: recover data indices */
+ 	start = f2fs_start_bidx_of_node(ofs_of_node(page), inode);
 -- 
 2.25.1
 
