@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7443C259BAB
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05E9C259C22
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728715AbgIARFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:05:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
+        id S1729306AbgIARLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:11:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729531AbgIAPTj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:19:39 -0400
+        id S1729278AbgIAPQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:16:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BD41206FA;
-        Tue,  1 Sep 2020 15:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB46E206EB;
+        Tue,  1 Sep 2020 15:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973574;
-        bh=YIf0a4rsyMvekD0zIdi+x3LOrpmltn0Ror8HHha/QT0=;
+        s=default; t=1598973373;
+        bh=wZYcmCEmIqGYnq6Min8mgzatzLhIO07/7HKSNXgnsWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDy67iXdW/7Uw8RkrzsxagUXwpZUra57MVS+OndULx1pOZLMPdTfX8DVmA0e8vBuh
-         1xeMUd6UaQ3W8Sj6/Z8q7DDlVp4wH1pIjkld5tsDBqAe+nVNZ1f2nAf67EFriY9wS0
-         8Y6u7XYvEvrZgwamVL0enYi2O2J8Q4ukNplZQ5yw=
+        b=waWWXiS6o3GXLKbTAOwZge0FQA/FfbjJZKlL8RwCK7ihwXREaP8MVnFRA1JEMmfwW
+         qNDC11NBI3azzDFo/gA8t9tHZh8z99EYZ5jdyHi5Vufi1BYIwrUYtaTRAtC2kPdaZ6
+         5SRLTYHR5TebJMq4vkY588FNuN0/HFjIP3y28VIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Andy Teng <andy.teng@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 53/91] scsi: ufs: Fix possible infinite loop in ufshcd_hold
-Date:   Tue,  1 Sep 2020 17:10:27 +0200
-Message-Id: <20200901150930.757592541@linuxfoundation.org>
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>
+Subject: [PATCH 4.9 52/78] USB: lvtest: return proper error code in probe
+Date:   Tue,  1 Sep 2020 17:10:28 +0200
+Message-Id: <20200901150927.352710759@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
+commit 531412492ce93ea29b9ca3b4eb5e3ed771f851dd upstream.
 
-In ufshcd_suspend(), after clk-gating is suspended and link is set
-as Hibern8 state, ufshcd_hold() is still possibly invoked before
-ufshcd_suspend() returns. For example, MediaTek's suspend vops may
-issue UIC commands which would call ufshcd_hold() during the command
-issuing flow.
+lvs_rh_probe() can return some nonnegative value from usb_control_msg()
+when it is less than "USB_DT_HUB_NONVAR_SIZE + 2" that is considered as
+a failure. Make lvs_rh_probe() return -EINVAL in this case.
 
-Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
-then ufshcd_hold() may enter infinite loops because there is no
-clk-ungating work scheduled or pending. In this case, ufshcd_hold()
-shall just bypass, and keep the link as Hibern8 state.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Co-developed-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200805090643.3432-1-novikov@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/ufs/ufshcd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/misc/lvstest.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 11e917b44a0f1..3b4214feae971 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1425,6 +1425,7 @@ unblock_reqs:
- int ufshcd_hold(struct ufs_hba *hba, bool async)
- {
- 	int rc = 0;
-+	bool flush_result;
- 	unsigned long flags;
+--- a/drivers/usb/misc/lvstest.c
++++ b/drivers/usb/misc/lvstest.c
+@@ -392,7 +392,7 @@ static int lvs_rh_probe(struct usb_inter
+ 			USB_DT_SS_HUB_SIZE, USB_CTRL_GET_TIMEOUT);
+ 	if (ret < (USB_DT_HUB_NONVAR_SIZE + 2)) {
+ 		dev_err(&hdev->dev, "wrong root hub descriptor read %d\n", ret);
+-		return ret;
++		return ret < 0 ? ret : -EINVAL;
+ 	}
  
- 	if (!ufshcd_is_clkgating_allowed(hba))
-@@ -1456,7 +1457,9 @@ start:
- 				break;
- 			}
- 			spin_unlock_irqrestore(hba->host->host_lock, flags);
--			flush_work(&hba->clk_gating.ungate_work);
-+			flush_result = flush_work(&hba->clk_gating.ungate_work);
-+			if (hba->clk_gating.is_suspended && !flush_result)
-+				goto out;
- 			spin_lock_irqsave(hba->host->host_lock, flags);
- 			goto start;
- 		}
--- 
-2.25.1
-
+ 	/* submit urb to poll interrupt endpoint */
 
 
