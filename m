@@ -2,123 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D8E259DB3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B399259DD3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 20:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgIARzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:55:32 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:37876 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726140AbgIARzb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 13:55:31 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 081HraJn045155;
-        Tue, 1 Sep 2020 17:55:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=YIf9jDDGSbKpQsV/8I3H+CKi/MNgqATmGNYTH4lTdAE=;
- b=Carv/+tMBZhZ8HhsPYYtqupo5qk0AYwgiTvwczladr+37dim1HxBzdtLf0QPQeSBCC+b
- 9ZVuel/1qCA5EDadAsDpNQytwpj26ymNpzXhq7EVM16PtLqyxva8ziZsyU0O24n63FpN
- Uideni2VPgAsea5SMs3j8kUZMLPRbg1zFJjEfN2ibineBjoIFW0AIoc31XXhYBUpiRJm
- hCJ/DgLV5ZYv8jYTKdttwSUCj0Mddv0J7ILUA3UlJivA6WdgmWOp++sWIHpDnLsgW/VY
- oQsE4IPpPjoV3GdjH8oul1RDcMsvdaHfN+7tBONGrq9FS/BuAtZEu8g20zJVOKdBKgBf lQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 339dmmvf61-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 01 Sep 2020 17:55:26 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 081Ht19g071091;
-        Tue, 1 Sep 2020 17:55:26 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 3380ss92d3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 01 Sep 2020 17:55:26 +0000
-Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 081HtPOb022784;
-        Tue, 1 Sep 2020 17:55:25 GMT
-Received: from [20.15.0.202] (/73.88.28.6)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 01 Sep 2020 10:55:24 -0700
-Subject: Re: [PATCH] scsi: target: iscsi: Fix data digest calculation
-To:     Varun Prakash <varun@chelsio.com>, martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
-        bvanassche@acm.org, nab@linux-iscsi.org, stable@vger.kernel.org
-References: <1598358910-3052-1-git-send-email-varun@chelsio.com>
-From:   Mike Christie <michael.christie@oracle.com>
-Message-ID: <56a124d4-d503-d8b2-332b-99f1c2288463@oracle.com>
-Date:   Tue, 1 Sep 2020 12:55:23 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728982AbgIASEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 14:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728708AbgIASEk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 14:04:40 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62665C061244
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 11:04:40 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id g96so1944186otb.12
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 11:04:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5+zE7ox0ywDYN1OeLMkgE979l6agCoJMD3xzmvypBDE=;
+        b=Ipap6GUqdOvmbNmIjQWTpqSau0ISEVl6saoRlxVssQeZPfHFrOiUiYN/l0bCMfQEsf
+         8xyGF3E8+CYBWoDizzB5AVWy7QlCJOJibMR80/hMKKFE67/33cnK0eM23PFGVrcs98cR
+         24Gk2cRv6jblswhn7hTasFFu5Rf4MuBOjh1+w=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5+zE7ox0ywDYN1OeLMkgE979l6agCoJMD3xzmvypBDE=;
+        b=j1wrno3JLpnCDI9y7C1xWbbxTLCcuhSJC4X6bRUVgBAXRqpY+lDUcr2FOdylSmiNcA
+         LzsSb97V+tfNjnhmvGBM0jt7m9qKXdqvr3F4RLxLJ1pvIlAwc8LvIPlhFYCi/UXyPPg/
+         ip5vhaPqI5gGOR7DPhO/2weBQ46mOBx7+ggdjVS77gk4KTooXgxiTfwjX87RmuS+yKXO
+         8kjIcEkrf117s4E5gZ0H6Fm+tbwf0RZuK7OLuX6y6oGYcbdOPM9LlhPtDfPSOPDAHpuc
+         42CILP/5WtdzuHBKAx44Mv0wQkiAEE6uDvsImgJPf/QzSJNEA9hEyGZgU9kqxSZNRYd1
+         AkpQ==
+X-Gm-Message-State: AOAM533x2C0hS30jVbS9NjBWyPmsb7p8UWLUL2klLdR2e6OSzvo4p+ql
+        k7G/L54aZI1J4le8TCniKtfYclEuyUrloJXzHhqPZQ==
+X-Google-Smtp-Source: ABdhPJxg/1XYItddKooMbgmsc5AprWCw5inYHmcfZ/4zjBVFPzx6bgfhLJth6A8xiN7kvxcaHVETKyPw8ppTtJB+g4E=
+X-Received: by 2002:a9d:7a52:: with SMTP id z18mr997165otm.281.1598983479593;
+ Tue, 01 Sep 2020 11:04:39 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1598358910-3052-1-git-send-email-varun@chelsio.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9731 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
- phishscore=0 malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009010151
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9731 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 phishscore=0
- mlxlogscore=999 adultscore=0 impostorscore=0 mlxscore=0 suspectscore=0
- spamscore=0 clxscore=1011 malwarescore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009010151
+References: <20200820203144.271081-1-linus.walleij@linaro.org> <CACRpkdYHB2SFVqpuL0GtPe-yk7wrA=nFiQk4f7Kj0aFB9rOAvw@mail.gmail.com>
+In-Reply-To: <CACRpkdYHB2SFVqpuL0GtPe-yk7wrA=nFiQk4f7Kj0aFB9rOAvw@mail.gmail.com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Tue, 1 Sep 2020 20:04:28 +0200
+Message-ID: <CAKMK7uH1NQZMfzEmmPzUuovON-MhLnvhWnkuwU8qSBGTxKQDaQ@mail.gmail.com>
+Subject: Re: [PATCH] drm/tve200: Stabilize enable/disable
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Sean Paul <sean@poorly.run>, stable <stable@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/25/20 7:35 AM, Varun Prakash wrote:
-> Current code does not consider 'page_off' in data digest
-> calculation, to fix this add a local variable 'first_sg' and
-> set first_sg.offset to sg->offset + page_off.
-> 
-> Fixes: e48354ce078c ("iscsi-target: Add iSCSI fabric support for target v4.1")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Varun Prakash <varun@chelsio.com>
-> ---
->  drivers/target/iscsi/iscsi_target.c | 17 +++++++++++++++--
->  1 file changed, 15 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-> index c968961..2ec778e 100644
-> --- a/drivers/target/iscsi/iscsi_target.c
-> +++ b/drivers/target/iscsi/iscsi_target.c
-> @@ -1389,14 +1389,27 @@ static u32 iscsit_do_crypto_hash_sg(
->  	sg = cmd->first_data_sg;
->  	page_off = cmd->first_data_sg_off;
->  
-> +	if (data_length && page_off) {
-> +		struct scatterlist first_sg;
-> +		u32 len = min_t(u32, data_length, sg->length - page_off);
-> +
-> +		sg_init_table(&first_sg, 1);
-> +		sg_set_page(&first_sg, sg_page(sg), len, sg->offset + page_off);
-> +
-> +		ahash_request_set_crypt(hash, &first_sg, NULL, len);
-> +		crypto_ahash_update(hash);
-> +
-> +		data_length -= len;
-> +		sg = sg_next(sg);
-> +	}
-> +
->  	while (data_length) {
-> -		u32 cur_len = min_t(u32, data_length, (sg->length - page_off));
-> +		u32 cur_len = min_t(u32, data_length, sg->length);
->  
->  		ahash_request_set_crypt(hash, sg, NULL, cur_len);
->  		crypto_ahash_update(hash);
->  
->  		data_length -= cur_len;
-> -		page_off = 0;
->  		/* iscsit_map_iovec has already checked for invalid sg pointers */
->  		sg = sg_next(sg);
->  	}
-> 
+On Tue, Sep 1, 2020 at 7:52 PM Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+> On Thu, Aug 20, 2020 at 10:32 PM Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+> > The TVE200 will occasionally print a bunch of lost interrupts
+> > and similar dmesg messages, sometimes during boot and sometimes
+> > after disabling and coming back to enablement. This is probably
+> > because the hardware is left in an unknown state by the boot
+> > loader that displays a logo.
+> >
+> > This can be fixed by bringing the controller into a known state
+> > by resetting the controller while enabling it. We retry reset 5
+> > times like the vendor driver does. We also put the controller
+> > into reset before de-clocking it and clear all interrupts before
+> > enabling the vblank IRQ.
+> >
+> > This makes the video enable/disable/enable cycle rock solid
+> > on the D-Link DIR-685. Tested extensively.
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Would someone have mercy on this patch and review or
+> at least ACK it so I can merge it?
 
-Looks ok to me.
+Does what it says on the label, looks symmetric, and "do this five
+times for luck" is a classic.
 
-Reviewed-by: Mike Christie <michael.christie@oralce.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+The irq reset looks a bit like maybe separate patch, but *shrug*,
+since your description says you're missing interrupts, not that you
+have too many. But can't hurt (and maybe if we have spurious ones it
+then looks like the next vblank went missing, so makes some sense).
+
+Cheers, Daniel
+
+> I offer any reviews in return, on stuff I understand, such
+> as panel drivers.
+
+
+>
+> Best regards,
+> Linus Walleij
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
