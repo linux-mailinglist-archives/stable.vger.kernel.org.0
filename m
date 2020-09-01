@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 171F025940A
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD052594E5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgIAPe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40194 "EHLO mail.kernel.org"
+        id S1731729AbgIAPoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727852AbgIAPey (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:54 -0400
+        id S1731738AbgIAPoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:44:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94050214D8;
-        Tue,  1 Sep 2020 15:34:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AF01208CA;
+        Tue,  1 Sep 2020 15:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974493;
-        bh=rz2Oi2jQqgJvOT8xPOfzKOVn/1wYqkHwox6glnoNiFs=;
+        s=default; t=1598975052;
+        bh=lAj3qZgHlA9VpgwQn7Vfkt8qFHZHHDRIsHCNYvGNVeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+keaZo3LeXGZCj5XQDP9inMSRPd5fleJKRSTT7bUpviGZWTN2mwQCOiyou7HjgaC
-         tS6wywHaWKen2KvrSJi2Xhk2o1LM55C0aoqKkaMFRG9RBXfJfQdWcWScm1ZnOpUum9
-         R2QTxEh7NISJb8xNUEllMSP9ArWDmkuyEIGna0RI=
+        b=TUUWJHHX0C9tZn4neLNFG8y4kgedE30f/GoEl4xw8Ig2AOgrD+KiWpopvvrx7zMB8
+         Qtd0pv2I7Kw4xNkHFmjfLAllRf4SkbBch3e+sERyyAN+NLTV48IkFsxQENUD6/OxZR
+         g1gNvvZ7Zsjf0W0ZhzVPR2yEl7bAalJMjzANbeVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 167/214] writeback: Protect inode->i_io_list with inode->i_lock
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.8 191/255] usb: renesas-xhci: remove version check
 Date:   Tue,  1 Sep 2020 17:10:47 +0200
-Message-Id: <20200901151000.981348206@linuxfoundation.org>
+Message-Id: <20200901151009.842792325@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Vinod Koul <vkoul@kernel.org>
 
-commit b35250c0816c7cf7d0a8de92f5fafb6a7508a708 upstream.
+commit d66a57be2f9a315fc10d0f524f670fec903e0fb4 upstream.
 
-Currently, operations on inode->i_io_list are protected by
-wb->list_lock. In the following patches we'll need to maintain
-consistency between inode->i_state and inode->i_io_list so change the
-code so that inode->i_lock protects also all inode's i_io_list handling.
+Some devices in wild are reporting bunch of firmware versions, so remove
+the check for versions in driver
 
-Reviewed-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-CC: stable@vger.kernel.org # Prerequisite for "writeback: Avoid skipping inode writeback"
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported by: Anastasios Vacharakis <vacharakis@gmail.com>
+Reported by: Glen Journeay <journeay@gmail.com>
+Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208911
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200818071739.789720-1-vkoul@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/usb/host/xhci-pci-renesas.c |   19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -144,6 +144,7 @@ static void inode_io_list_del_locked(str
- 				     struct bdi_writeback *wb)
+--- a/drivers/usb/host/xhci-pci-renesas.c
++++ b/drivers/usb/host/xhci-pci-renesas.c
+@@ -50,20 +50,6 @@
+ #define RENESAS_RETRY	10000
+ #define RENESAS_DELAY	10
+ 
+-#define ROM_VALID_01 0x2013
+-#define ROM_VALID_02 0x2026
+-
+-static int renesas_verify_fw_version(struct pci_dev *pdev, u32 version)
+-{
+-	switch (version) {
+-	case ROM_VALID_01:
+-	case ROM_VALID_02:
+-		return 0;
+-	}
+-	dev_err(&pdev->dev, "FW has invalid version :%d\n", version);
+-	return -EINVAL;
+-}
+-
+ static int renesas_fw_download_image(struct pci_dev *dev,
+ 				     const u32 *fw, size_t step, bool rom)
  {
- 	assert_spin_locked(&wb->list_lock);
-+	assert_spin_locked(&inode->i_lock);
+@@ -202,10 +188,7 @@ static int renesas_check_rom_state(struc
  
- 	list_del_init(&inode->i_io_list);
- 	wb_io_lists_depopulated(wb);
-@@ -1123,7 +1124,9 @@ void inode_io_list_del(struct inode *ino
- 	struct bdi_writeback *wb;
+ 	version &= RENESAS_FW_VERSION_FIELD;
+ 	version = version >> RENESAS_FW_VERSION_OFFSET;
+-
+-	err = renesas_verify_fw_version(pdev, version);
+-	if (err)
+-		return err;
++	dev_dbg(&pdev->dev, "Found ROM version: %x\n", version);
  
- 	wb = inode_to_wb_and_lock_list(inode);
-+	spin_lock(&inode->i_lock);
- 	inode_io_list_del_locked(inode, wb);
-+	spin_unlock(&inode->i_lock);
- 	spin_unlock(&wb->list_lock);
- }
- 
-@@ -1172,8 +1175,10 @@ void sb_clear_inode_writeback(struct ino
-  * the case then the inode must have been redirtied while it was being written
-  * out and we don't reset its dirtied_when.
-  */
--static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
- {
-+	assert_spin_locked(&inode->i_lock);
-+
- 	if (!list_empty(&wb->b_dirty)) {
- 		struct inode *tail;
- 
-@@ -1184,6 +1189,13 @@ static void redirty_tail(struct inode *i
- 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
- }
- 
-+static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+{
-+	spin_lock(&inode->i_lock);
-+	redirty_tail_locked(inode, wb);
-+	spin_unlock(&inode->i_lock);
-+}
-+
- /*
-  * requeue inode for re-scanning after bdi->b_io list is exhausted.
-  */
-@@ -1394,7 +1406,7 @@ static void requeue_inode(struct inode *
- 		 * writeback is not making progress due to locked
- 		 * buffers. Skip this inode for now.
- 		 */
--		redirty_tail(inode, wb);
-+		redirty_tail_locked(inode, wb);
- 		return;
- 	}
- 
-@@ -1414,7 +1426,7 @@ static void requeue_inode(struct inode *
- 			 * retrying writeback of the dirty page/inode
- 			 * that cannot be performed immediately.
- 			 */
--			redirty_tail(inode, wb);
-+			redirty_tail_locked(inode, wb);
- 		}
- 	} else if (inode->i_state & I_DIRTY) {
- 		/*
-@@ -1422,7 +1434,7 @@ static void requeue_inode(struct inode *
- 		 * such as delayed allocation during submission or metadata
- 		 * updates after data IO completion.
- 		 */
--		redirty_tail(inode, wb);
-+		redirty_tail_locked(inode, wb);
- 	} else if (inode->i_state & I_DIRTY_TIME) {
- 		inode->dirtied_when = jiffies;
- 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-@@ -1669,8 +1681,8 @@ static long writeback_sb_inodes(struct s
- 		 */
- 		spin_lock(&inode->i_lock);
- 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
-+			redirty_tail_locked(inode, wb);
- 			spin_unlock(&inode->i_lock);
--			redirty_tail(inode, wb);
- 			continue;
- 		}
- 		if ((inode->i_state & I_SYNC) && wbc.sync_mode != WB_SYNC_ALL) {
+ 	/*
+ 	 * Test if ROM is present and loaded, if so we can skip everything
 
 
