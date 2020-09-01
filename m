@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B7F0259C5D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34236259BF3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732139AbgIAROK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59534 "EHLO mail.kernel.org"
+        id S1728513AbgIARJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729162AbgIAPPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:19 -0400
+        id S1729434AbgIAPRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1154220BED;
-        Tue,  1 Sep 2020 15:15:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B9042100A;
+        Tue,  1 Sep 2020 15:17:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973318;
-        bh=KBZtrl9l7zLEZJan83MptJLbyr5aJyrD63fDN0bHUu8=;
+        s=default; t=1598973465;
+        bh=OQzbnqReLKWAXFeJ31Qs4pL4CU0pTPEUgjVmHQ7LnW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcQ4V6x7O2n7bJBjii38ND10g+LJg8vHHzgOGJ/Zdd80FHeXfGaBenD+XVSBbozEO
-         dviUuzdWjxwFGYKheH1ATCKfPAF5qzymVTUN/+Lrwd/uvwpk0BgJ2WQywPy684XC4Z
-         4xvg09U4otlnsTeCySc+zaxbvnxI2WhvvGrkvUGQ=
+        b=IbhwXq/Cztc0UcbctIUsO2wMwFXsGT8OO35LvmcIWsENyBQghkSbCOl+z2ivUJZ6D
+         L/ur0Zo4ZteKFitEJ8Of9BIITgH/bJdsujMUkdB4dGTRocrvuk+BxjvJkVHiHtTO/l
+         FYR8fD5CZVZrDEdCB8JCXNbhRYIG+3MSS34DrKS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/78] ALSA: pci: delete repeated words in comments
-Date:   Tue,  1 Sep 2020 17:09:43 +0200
-Message-Id: <20200901150925.099180687@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/91] powerpc/xive: Ignore kmemleak false positives
+Date:   Tue,  1 Sep 2020 17:09:44 +0200
+Message-Id: <20200901150928.614636143@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit c7fabbc51352f50cc58242a6dc3b9c1a3599849b ]
+[ Upstream commit f0993c839e95dd6c7f054a1015e693c87e33e4fb ]
 
-Drop duplicated words in sound/pci/.
-{and, the, at}
+xive_native_provision_pages() allocates memory and passes the pointer to
+OPAL so kmemleak cannot find the pointer usage in the kernel memory and
+produces a false positive report (below) (even if the kernel did scan
+OPAL memory, it is unable to deal with __pa() addresses anyway).
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20200806021926.32418-1-rdunlap@infradead.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This silences the warning.
+
+unreferenced object 0xc000200350c40000 (size 65536):
+  comm "qemu-system-ppc", pid 2725, jiffies 4294946414 (age 70776.530s)
+  hex dump (first 32 bytes):
+    02 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00  ....P...........
+    01 00 08 07 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000081ff046c>] xive_native_alloc_vp_block+0x120/0x250
+    [<00000000d555d524>] kvmppc_xive_compute_vp_id+0x248/0x350 [kvm]
+    [<00000000d69b9c9f>] kvmppc_xive_connect_vcpu+0xc0/0x520 [kvm]
+    [<000000006acbc81c>] kvm_arch_vcpu_ioctl+0x308/0x580 [kvm]
+    [<0000000089c69580>] kvm_vcpu_ioctl+0x19c/0xae0 [kvm]
+    [<00000000902ae91e>] ksys_ioctl+0x184/0x1b0
+    [<00000000f3e68bd7>] sys_ioctl+0x48/0xb0
+    [<0000000001b2c127>] system_call_exception+0x124/0x1f0
+    [<00000000d2b2ee40>] system_call_common+0xe8/0x214
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200612043303.84894-1-aik@ozlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/cs46xx/cs46xx_lib.c       | 2 +-
- sound/pci/cs46xx/dsp_spos_scb_lib.c | 2 +-
- sound/pci/hda/hda_codec.c           | 2 +-
- sound/pci/hda/hda_generic.c         | 2 +-
- sound/pci/hda/patch_sigmatel.c      | 2 +-
- sound/pci/ice1712/prodigy192.c      | 2 +-
- sound/pci/oxygen/xonar_dg.c         | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+ arch/powerpc/sysdev/xive/native.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
-index 528102cc2d5d0..d824ff4ae3e3b 100644
---- a/sound/pci/cs46xx/cs46xx_lib.c
-+++ b/sound/pci/cs46xx/cs46xx_lib.c
-@@ -780,7 +780,7 @@ static void snd_cs46xx_set_capture_sample_rate(struct snd_cs46xx *chip, unsigned
- 		rate = 48000 / 9;
+diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
+index 30cdcbfa1c04e..b0e96f4b728c1 100644
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -22,6 +22,7 @@
+ #include <linux/delay.h>
+ #include <linux/cpumask.h>
+ #include <linux/mm.h>
++#include <linux/kmemleak.h>
  
- 	/*
--	 *  We can not capture at at rate greater than the Input Rate (48000).
-+	 *  We can not capture at a rate greater than the Input Rate (48000).
- 	 *  Return an error if an attempt is made to stray outside that limit.
- 	 */
- 	if (rate > 48000)
-diff --git a/sound/pci/cs46xx/dsp_spos_scb_lib.c b/sound/pci/cs46xx/dsp_spos_scb_lib.c
-index 7488e1b7a7707..4e726d39b05d1 100644
---- a/sound/pci/cs46xx/dsp_spos_scb_lib.c
-+++ b/sound/pci/cs46xx/dsp_spos_scb_lib.c
-@@ -1742,7 +1742,7 @@ int cs46xx_iec958_pre_open (struct snd_cs46xx *chip)
- 	struct dsp_spos_instance * ins = chip->dsp_spos_instance;
- 
- 	if ( ins->spdif_status_out & DSP_SPDIF_STATUS_OUTPUT_ENABLED ) {
--		/* remove AsynchFGTxSCB and and PCMSerialInput_II */
-+		/* remove AsynchFGTxSCB and PCMSerialInput_II */
- 		cs46xx_dsp_disable_spdif_out (chip);
- 
- 		/* save state */
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index cbe0248225c1c..4e67614f15f8e 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -3496,7 +3496,7 @@ EXPORT_SYMBOL_GPL(snd_hda_set_power_save);
-  * @nid: NID to check / update
-  *
-  * Check whether the given NID is in the amp list.  If it's in the list,
-- * check the current AMP status, and update the the power-status according
-+ * check the current AMP status, and update the power-status according
-  * to the mute status.
-  *
-  * This function is supposed to be set or called from the check_power_status
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index 949c90a859fab..184089c5e8cbc 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -820,7 +820,7 @@ static void activate_amp_in(struct hda_codec *codec, struct nid_path *path,
+ #include <asm/prom.h>
+ #include <asm/io.h>
+@@ -630,6 +631,7 @@ static bool xive_native_provision_pages(void)
+ 			pr_err("Failed to allocate provisioning page\n");
+ 			return false;
+ 		}
++		kmemleak_ignore(p);
+ 		opal_xive_donate_page(chip, __pa(p));
  	}
- }
- 
--/* sync power of each widget in the the given path */
-+/* sync power of each widget in the given path */
- static hda_nid_t path_power_update(struct hda_codec *codec,
- 				   struct nid_path *path,
- 				   bool allow_powerdown)
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index d1a6d20ace0da..80b72d0702c5e 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -862,7 +862,7 @@ static int stac_auto_create_beep_ctls(struct hda_codec *codec,
- 	static struct snd_kcontrol_new beep_vol_ctl =
- 		HDA_CODEC_VOLUME(NULL, 0, 0, 0);
- 
--	/* check for mute support for the the amp */
-+	/* check for mute support for the amp */
- 	if ((caps & AC_AMPCAP_MUTE) >> AC_AMPCAP_MUTE_SHIFT) {
- 		const struct snd_kcontrol_new *temp;
- 		if (spec->anabeep_nid == nid)
-diff --git a/sound/pci/ice1712/prodigy192.c b/sound/pci/ice1712/prodigy192.c
-index 3919aed39ca03..5e52086d7b986 100644
---- a/sound/pci/ice1712/prodigy192.c
-+++ b/sound/pci/ice1712/prodigy192.c
-@@ -31,7 +31,7 @@
-  *		  Experimentally I found out that only a combination of
-  *		  OCKS0=1, OCKS1=1 (128fs, 64fs output) and ice1724 -
-  *		  VT1724_MT_I2S_MCLK_128X=0 (256fs input) yields correct
-- *		  sampling rate. That means the the FPGA doubles the
-+ *		  sampling rate. That means that the FPGA doubles the
-  *		  MCK01 rate.
-  *
-  *	Copyright (c) 2003 Takashi Iwai <tiwai@suse.de>
-diff --git a/sound/pci/oxygen/xonar_dg.c b/sound/pci/oxygen/xonar_dg.c
-index 4cf3200e988b0..df44135e1b0c9 100644
---- a/sound/pci/oxygen/xonar_dg.c
-+++ b/sound/pci/oxygen/xonar_dg.c
-@@ -39,7 +39,7 @@
-  *   GPIO 4 <- headphone detect
-  *   GPIO 5 -> enable ADC analog circuit for the left channel
-  *   GPIO 6 -> enable ADC analog circuit for the right channel
-- *   GPIO 7 -> switch green rear output jack between CS4245 and and the first
-+ *   GPIO 7 -> switch green rear output jack between CS4245 and the first
-  *             channel of CS4361 (mechanical relay)
-  *   GPIO 8 -> enable output to speakers
-  *
+ 	return true;
 -- 
 2.25.1
 
