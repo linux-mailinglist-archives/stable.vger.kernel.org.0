@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE88C259430
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 579EE259422
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbgIAPgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:36:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
+        id S1731243AbgIAPgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:36:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731284AbgIAPgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:36:33 -0400
+        id S1731213AbgIAPgE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:36:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BAF521534;
-        Tue,  1 Sep 2020 15:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D62621707;
+        Tue,  1 Sep 2020 15:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974592;
-        bh=qRCS/QLC3FWuoJNnuz3TG5j7m7cgkYxFjClqQS7j5IU=;
+        s=default; t=1598974563;
+        bh=wfyP6ErZoZxY7ltPAxt9V2YaYyKjCJkU6bza5vC6jfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkQ4njnyu9tYj6Km+LFze49xs8qH5/qcQzkAksWxTAL47ooBMWXDLp/MBg5P/oVfx
-         oegWLE6yVAUZoYkwbGtnmRRP/EvztVp1+rfCBeFiPxz5IJCuee3+zVd11K0lBsSbX7
-         +YK59we5Nj+fdQYu8tD1T0HDVGI2LHbLe5t1ois0=
+        b=jIIhs7BP5W3kzSt6EDZx2/HfBbbW6gZU2bI5/QonSlSdRNPGNo3QrXzSRVhT0Kuo8
+         KbP2Y63ujBabAN5XSLSAABEjrie6ao8oyqkedESsP6eDc0Q7MDD9VOzFpIXHiOG4p1
+         6euKJ9Du4NJyPtOe2BVFyN5Hnj0o7OOuC+QsbL3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 007/255] drm/amdgpu: fix RAS memory leak in error case
-Date:   Tue,  1 Sep 2020 17:07:43 +0200
-Message-Id: <20200901151001.160468656@linuxfoundation.org>
+Subject: [PATCH 5.8 010/255] ASoC: img-parallel-out: Fix a reference count leak
+Date:   Tue,  1 Sep 2020 17:07:46 +0200
+Message-Id: <20200901151001.301606736@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,74 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 5e91160ac0b5cfbbaeb62cbff8b069262095f744 ]
+[ Upstream commit 6b9fbb073636906eee9fe4d4c05a4f445b9e2a23 ]
 
-RAS context memory needs to freed in failure case.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200614033344.1814-1-wu000273@umn.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ sound/soc/img/img-parallel-out.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index 50fe08bf2f727..20a7d75b2eb88 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1914,9 +1914,8 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	amdgpu_ras_check_supported(adev, &con->hw_supported,
- 			&con->supported);
- 	if (!con->hw_supported) {
--		amdgpu_ras_set_context(adev, NULL);
--		kfree(con);
--		return 0;
-+		r = 0;
-+		goto err_out;
+diff --git a/sound/soc/img/img-parallel-out.c b/sound/soc/img/img-parallel-out.c
+index 5ddbe3a31c2e9..4da49a42e8547 100644
+--- a/sound/soc/img/img-parallel-out.c
++++ b/sound/soc/img/img-parallel-out.c
+@@ -163,8 +163,10 @@ static int img_prl_out_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
  	}
  
- 	con->features = 0;
-@@ -1927,29 +1926,31 @@ int amdgpu_ras_init(struct amdgpu_device *adev)
- 	if (adev->nbio.funcs->init_ras_controller_interrupt) {
- 		r = adev->nbio.funcs->init_ras_controller_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	if (adev->nbio.funcs->init_ras_err_event_athub_interrupt) {
- 		r = adev->nbio.funcs->init_ras_err_event_athub_interrupt(adev);
- 		if (r)
--			return r;
-+			goto err_out;
- 	}
- 
- 	amdgpu_ras_mask &= AMDGPU_RAS_BLOCK_MASK;
- 
--	if (amdgpu_ras_fs_init(adev))
--		goto fs_out;
-+	if (amdgpu_ras_fs_init(adev)) {
-+		r = -EINVAL;
-+		goto err_out;
+ 	ret = pm_runtime_get_sync(prl->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(prl->dev);
+ 		return ret;
 +	}
  
- 	dev_info(adev->dev, "RAS INFO: ras initialized successfully, "
- 			"hardware ability[%x] ras_mask[%x]\n",
- 			con->hw_supported, con->supported);
- 	return 0;
--fs_out:
-+err_out:
- 	amdgpu_ras_set_context(adev, NULL);
- 	kfree(con);
- 
--	return -EINVAL;
-+	return r;
- }
- 
- /* helper function to handle common stuff in ip late init phase */
+ 	reg = img_prl_out_readl(prl, IMG_PRL_OUT_CTL);
+ 	reg = (reg & ~IMG_PRL_OUT_CTL_EDGE_MASK) | control_set;
 -- 
 2.25.1
 
