@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C374F259B43
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C864259BDA
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbgIAQ7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43272 "EHLO mail.kernel.org"
+        id S1729467AbgIARIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729719AbgIAPWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:22:03 -0400
+        id S1728827AbgIAPSK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:18:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47CAF206FA;
-        Tue,  1 Sep 2020 15:22:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 907D1206EB;
+        Tue,  1 Sep 2020 15:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973722;
-        bh=kXMZ9l08Jah4khEVfm/oqIOOPDumgTMeD3tiEwkvODU=;
+        s=default; t=1598973490;
+        bh=6U3tpnVDynBvNo+gSnrFfnNkeZUzIxS3spDzXru5xkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0TBZ5tmwXkvcTkh8+x3zPrhFoVvNAc+ra2uND7aoU66Ojqbj12uYE17B7fQ83m0D
-         YZPT/d3mP8xKDBpM+22RmWyTJYQ8k2iTI0vAdLnt68W+APr0u4cUi7J9SdKTMuuDav
-         lAWqqNN0REtX9gvSudoVpdvXsma6sam91uxBg8Ts=
+        b=fvP5HychZ4rJUsfBkxsNMZEHS6qChIRCZHqF5qGLpppkcGo5Jm8X86MnTe6JD1bnQ
+         XvbQz2Hg1baP6+mZ6QB8AQmupOVKPpoz35T170Xi1zOTUTRM6JMEUCWYxLHIXuU91J
+         3EMT4lb1sXbhDC3XP8eKBG//cK4EVsLXNb8OD3Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/125] drm/amdkfd: Fix reference count leaks.
-Date:   Tue,  1 Sep 2020 17:09:35 +0200
-Message-Id: <20200901150935.555762687@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 02/91] net: Fix potential wrong skb->protocol in skb_vlan_untag()
+Date:   Tue,  1 Sep 2020 17:09:36 +0200
+Message-Id: <20200901150928.238578130@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 20eca0123a35305e38b344d571cf32768854168c ]
+[ Upstream commit 55eff0eb7460c3d50716ed9eccf22257b046ca92 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). So
+we should pull VLAN_HLEN + sizeof(unsigned short) in skb_vlan_untag() or
+we may access the wrong data.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0d5501c1c828 ("net: Always untag vlan-tagged traffic on input.")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_topology.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ net/core/skbuff.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-index 0805c423a5ce0..5cf499a07806a 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-@@ -592,8 +592,10 @@ static int kfd_build_sysfs_node_entry(struct kfd_topology_device *dev,
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -5053,8 +5053,8 @@ struct sk_buff *skb_vlan_untag(struct sk
+ 	skb = skb_share_check(skb, GFP_ATOMIC);
+ 	if (unlikely(!skb))
+ 		goto err_free;
+-
+-	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
++	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
++	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
+ 		goto err_free;
  
- 	ret = kobject_init_and_add(dev->kobj_node, &node_type,
- 			sys_props.kobj_nodes, "%d", id);
--	if (ret < 0)
-+	if (ret < 0) {
-+		kobject_put(dev->kobj_node);
- 		return ret;
-+	}
- 
- 	dev->kobj_mem = kobject_create_and_add("mem_banks", dev->kobj_node);
- 	if (!dev->kobj_mem)
-@@ -640,8 +642,10 @@ static int kfd_build_sysfs_node_entry(struct kfd_topology_device *dev,
- 			return -ENOMEM;
- 		ret = kobject_init_and_add(mem->kobj, &mem_type,
- 				dev->kobj_mem, "%d", i);
--		if (ret < 0)
-+		if (ret < 0) {
-+			kobject_put(mem->kobj);
- 			return ret;
-+		}
- 
- 		mem->attr.name = "properties";
- 		mem->attr.mode = KFD_SYSFS_FILE_MODE;
-@@ -659,8 +663,10 @@ static int kfd_build_sysfs_node_entry(struct kfd_topology_device *dev,
- 			return -ENOMEM;
- 		ret = kobject_init_and_add(cache->kobj, &cache_type,
- 				dev->kobj_cache, "%d", i);
--		if (ret < 0)
-+		if (ret < 0) {
-+			kobject_put(cache->kobj);
- 			return ret;
-+		}
- 
- 		cache->attr.name = "properties";
- 		cache->attr.mode = KFD_SYSFS_FILE_MODE;
-@@ -678,8 +684,10 @@ static int kfd_build_sysfs_node_entry(struct kfd_topology_device *dev,
- 			return -ENOMEM;
- 		ret = kobject_init_and_add(iolink->kobj, &iolink_type,
- 				dev->kobj_iolink, "%d", i);
--		if (ret < 0)
-+		if (ret < 0) {
-+			kobject_put(iolink->kobj);
- 			return ret;
-+		}
- 
- 		iolink->attr.name = "properties";
- 		iolink->attr.mode = KFD_SYSFS_FILE_MODE;
-@@ -759,8 +767,10 @@ static int kfd_topology_update_sysfs(void)
- 		ret = kobject_init_and_add(sys_props.kobj_topology,
- 				&sysprops_type,  &kfd_device->kobj,
- 				"topology");
--		if (ret < 0)
-+		if (ret < 0) {
-+			kobject_put(sys_props.kobj_topology);
- 			return ret;
-+		}
- 
- 		sys_props.kobj_nodes = kobject_create_and_add("nodes",
- 				sys_props.kobj_topology);
--- 
-2.25.1
-
+ 	vhdr = (struct vlan_hdr *)skb->data;
 
 
