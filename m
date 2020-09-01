@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA832597CB
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B11C259669
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729871AbgIAQSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37346 "EHLO mail.kernel.org"
+        id S1729426AbgIAQCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:02:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731159AbgIAPdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:16 -0400
+        id S1729998AbgIAPny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:43:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE311205F4;
-        Tue,  1 Sep 2020 15:33:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 023122064B;
+        Tue,  1 Sep 2020 15:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974395;
-        bh=THWH1v0CuJQR382D5Dz1VXHW0bnehbkIYH4LQiHo1kA=;
+        s=default; t=1598975033;
+        bh=lFb2Q2xM9c4Y7D6VE/bsVUu/YFedlovtL8eR4vN3fhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCzZdEs465FzTeIo2tSBapZnG+vgQDdTRj/KlQHFnkvd6fJvRJJbMIlm1DKg37vxO
-         QcFoxfSmJZDQOTP/8p1f4X+UAXPJ/ubtasBuJVkKapTtASnz2ok0SzxHGpG4JIxePI
-         TBqNJhrB1CuNItsw5Mv83qYVswv9uToHDJ4Cf0mA=
+        b=cG1NJbwMzo621lVACqSys9OUKyi1JhJ54PbjCtEr2p5BuAeV826hAB603PLNV1WRa
+         JgxfKJPW1wM70AtTBUTP4avEH86QR3EIOxFxOPjgAO6V4+F72V/bsvM7aeE4B/2tlH
+         X7pm6QFnEuffS2O1H9WKm1bmwGjIMVwGOrjTfDaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakov Petrina <jakov.petrina@sartura.hr>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 129/214] libbpf: Handle GCC built-in types for Arm NEON
+Subject: [PATCH 5.8 153/255] scsi: qla2xxx: Fix null pointer access during disconnect from subsystem
 Date:   Tue,  1 Sep 2020 17:10:09 +0200
-Message-Id: <20200901150959.162854747@linuxfoundation.org>
+Message-Id: <20200901151008.021403229@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 702eddc77a905782083b14ccd05b23840675fd18 ]
+[ Upstream commit 83949613fac61e8e37eadf8275bf072342302f4e ]
 
-When building Arm NEON (SIMD) code from lib/raid6/neon.uc, GCC emits
-DWARF information using a base type "__Poly8_t", which is internal to
-GCC and not recognized by Clang. This causes build failures when
-building with Clang a vmlinux.h generated from an arm64 kernel that was
-built with GCC.
+NVMEAsync command is being submitted to QLA while the same NVMe controller
+is in the middle of reset. The reset path has deleted the association and
+freed aen_op->fcp_req.private. Add a check for this private pointer before
+issuing the command.
 
-	vmlinux.h:47284:9: error: unknown type name '__Poly8_t'
-	typedef __Poly8_t poly8x16_t[16];
-	        ^~~~~~~~~
+...
+ 6 [ffffb656ca11fce0] page_fault at ffffffff8c00114e
+    [exception RIP: qla_nvme_post_cmd+394]
+    RIP: ffffffffc0d012ba  RSP: ffffb656ca11fd98  RFLAGS: 00010206
+    RAX: ffff8fb039eda228  RBX: ffff8fb039eda200  RCX: 00000000000da161
+    RDX: ffffffffc0d4d0f0  RSI: ffffffffc0d26c9b  RDI: ffff8fb039eda220
+    RBP: 0000000000000013   R8: ffff8fb47ff6aa80   R9: 0000000000000002
+    R10: 0000000000000000  R11: ffffb656ca11fdc8  R12: ffff8fb27d04a3b0
+    R13: ffff8fc46dd98a58  R14: 0000000000000000  R15: ffff8fc4540f0000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ 7 [ffffb656ca11fe08] nvme_fc_start_fcp_op at ffffffffc0241568 [nvme_fc]
+ 8 [ffffb656ca11fe50] nvme_fc_submit_async_event at ffffffffc0241901 [nvme_fc]
+ 9 [ffffb656ca11fe68] nvme_async_event_work at ffffffffc014543d [nvme_core]
+10 [ffffb656ca11fe98] process_one_work at ffffffff8b6cd437
+11 [ffffb656ca11fed8] worker_thread at ffffffff8b6cdcef
+12 [ffffb656ca11ff10] kthread at ffffffff8b6d3402
+13 [ffffb656ca11ff50] ret_from_fork at ffffffff8c000255
 
-The polyX_t types are defined as unsigned integers in the "Arm C
-Language Extension" document (101028_Q220_00_en). Emit typedefs based on
-standard integer types for the GCC internal types, similar to those
-emitted by Clang.
+--
+PID: 37824  TASK: ffff8fb033063d80  CPU: 20  COMMAND: "kworker/u97:451"
+ 0 [ffffb656ce1abc28] __schedule at ffffffff8be629e3
+ 1 [ffffb656ce1abcc8] schedule at ffffffff8be62fe8
+ 2 [ffffb656ce1abcd0] schedule_timeout at ffffffff8be671ed
+ 3 [ffffb656ce1abd70] wait_for_completion at ffffffff8be639cf
+ 4 [ffffb656ce1abdd0] flush_work at ffffffff8b6ce2d5
+ 5 [ffffb656ce1abe70] nvme_stop_ctrl at ffffffffc0144900 [nvme_core]
+ 6 [ffffb656ce1abe80] nvme_fc_reset_ctrl_work at ffffffffc0243445 [nvme_fc]
+ 7 [ffffb656ce1abe98] process_one_work at ffffffff8b6cd437
+ 8 [ffffb656ce1abed8] worker_thread at ffffffff8b6cdb50
+ 9 [ffffb656ce1abf10] kthread at ffffffff8b6d3402
+10 [ffffb656ce1abf50] ret_from_fork at ffffffff8c000255
 
-Including linux/kernel.h to use ARRAY_SIZE() incidentally redefined
-max(), causing a build bug due to different types, hence the seemingly
-unrelated change.
-
-Reported-by: Jakov Petrina <jakov.petrina@sartura.hr>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200812143909.3293280-1-jean-philippe@linaro.org
+Link: https://lore.kernel.org/r/20200806111014.28434-10-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf_dump.c | 35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_nvme.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index d9e386b8f47ed..07fcc8e79662d 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -13,6 +13,7 @@
- #include <errno.h>
- #include <linux/err.h>
- #include <linux/btf.h>
-+#include <linux/kernel.h>
- #include "btf.h"
- #include "hashmap.h"
- #include "libbpf.h"
-@@ -543,6 +544,9 @@ static int btf_dump_order_type(struct btf_dump *d, __u32 id, bool through_ptr)
- 	}
- }
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index fa695a4007f86..262dfd7635a48 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -536,6 +536,11 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
+ 	struct nvme_private *priv = fd->private;
+ 	struct qla_nvme_rport *qla_rport = rport->private;
  
-+static void btf_dump_emit_missing_aliases(struct btf_dump *d, __u32 id,
-+					  const struct btf_type *t);
-+
- static void btf_dump_emit_struct_fwd(struct btf_dump *d, __u32 id,
- 				     const struct btf_type *t);
- static void btf_dump_emit_struct_def(struct btf_dump *d, __u32 id,
-@@ -665,6 +669,9 @@ static void btf_dump_emit_type(struct btf_dump *d, __u32 id, __u32 cont_id)
- 
- 	switch (kind) {
- 	case BTF_KIND_INT:
-+		/* Emit type alias definitions if necessary */
-+		btf_dump_emit_missing_aliases(d, id, t);
-+
- 		tstate->emit_state = EMITTED;
- 		break;
- 	case BTF_KIND_ENUM:
-@@ -899,7 +906,7 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
- 			btf_dump_printf(d, ": %d", m_sz);
- 			off = m_off + m_sz;
- 		} else {
--			m_sz = max(0, btf__resolve_size(d->btf, m->type));
-+			m_sz = max(0LL, btf__resolve_size(d->btf, m->type));
- 			off = m_off + m_sz * 8;
- 		}
- 		btf_dump_printf(d, ";");
-@@ -919,6 +926,32 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
- 		btf_dump_printf(d, " __attribute__((packed))");
- }
- 
-+static const char *missing_base_types[][2] = {
-+	/*
-+	 * GCC emits typedefs to its internal __PolyX_t types when compiling Arm
-+	 * SIMD intrinsics. Alias them to standard base types.
-+	 */
-+	{ "__Poly8_t",		"unsigned char" },
-+	{ "__Poly16_t",		"unsigned short" },
-+	{ "__Poly64_t",		"unsigned long long" },
-+	{ "__Poly128_t",	"unsigned __int128" },
-+};
-+
-+static void btf_dump_emit_missing_aliases(struct btf_dump *d, __u32 id,
-+					  const struct btf_type *t)
-+{
-+	const char *name = btf_dump_type_name(d, id);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(missing_base_types); i++) {
-+		if (strcmp(name, missing_base_types[i][0]) == 0) {
-+			btf_dump_printf(d, "typedef %s %s;\n\n",
-+					missing_base_types[i][1], name);
-+			break;
-+		}
++	if (!priv) {
++		/* nvme association has been torn down */
++		return rval;
 +	}
-+}
 +
- static void btf_dump_emit_enum_fwd(struct btf_dump *d, __u32 id,
- 				   const struct btf_type *t)
- {
+ 	fcport = qla_rport->fcport;
+ 
+ 	if (!qpair || !fcport || (qpair && !qpair->fw_started) ||
 -- 
 2.25.1
 
