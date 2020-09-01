@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BDFF259944
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:38:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736792599AD
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732121AbgIAQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58486 "EHLO mail.kernel.org"
+        id S1730656AbgIAQma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730070AbgIAP3R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:29:17 -0400
+        id S1729832AbgIAP16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:27:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC231207D3;
-        Tue,  1 Sep 2020 15:29:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80379206FA;
+        Tue,  1 Sep 2020 15:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974157;
-        bh=mOU3NR/dQoWacFNw89Jy8hh0E8aprv9aZa+5xdqmEYc=;
+        s=default; t=1598974076;
+        bh=VZu/xCLM/zvS86LzuuApCHR8B0eir2DgfJaLNqhOAVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1JO5s2/o7NlagWp1FNAS9P9m/S9H8ByNdkcXMwM8pJJtowkcnVkJsW7b5G457hFI
-         vhXC7Tt0aJXFRRO9hrjstP8eCvUjNcdMwgbTub9+8xGRKJMh45Hr19fIjN9tE6HPYH
-         SZonCmp+0aI78Idq8GwdbATePiZdUM0XxfHcV2YQ=
+        b=jnm3ZA+0qy8M2lo7zftZN5LHupWH/dvMCKMBvfi5JXL1o7mpDxoz3Wb576/861hHK
+         uawOe8UkKTSF6lQ5u8ggznSXrOYfjvQ0jHwLEKRYYx4ux6Yox3f/KkNhV2nvq0fGnd
+         GvKpf6SAhyffXKjj+wz/WVyfQfx1wz9inQzkYHLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/214] mfd: intel-lpss: Add Intel Tiger Lake PCH-H PCI IDs
-Date:   Tue,  1 Sep 2020 17:08:26 +0200
-Message-Id: <20200901150954.222820518@linuxfoundation.org>
+        stable@vger.kernel.org, Prakash Gupta <guptap@codeaurora.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 027/214] iommu/iova: Dont BUG on invalid PFNs
+Date:   Tue,  1 Sep 2020 17:08:27 +0200
+Message-Id: <20200901150954.270613348@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -45,47 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit bb7fcad48d3804d814b97c785514e2d1657e157f ]
+[ Upstream commit d3e3d2be688b4b5864538de61e750721a311e4fc ]
 
-Intel Tiger Lake PCH-H has the same LPSS than Intel Broxton.
-Add the new IDs to the list of supported devices.
+Unlike the other instances which represent a complete loss of
+consistency within the rcache mechanism itself, or a fundamental
+and obvious misconfiguration by an IOMMU driver, the BUG_ON() in
+iova_magazine_free_pfns() can be provoked at more or less any time
+in a "spooky action-at-a-distance" manner by any old device driver
+passing nonsense to dma_unmap_*() which then propagates through to
+queue_iova().
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Not only is this well outside the IOVA layer's control, it's also
+nowhere near fatal enough to justify panicking anyway - all that
+really achieves is to make debugging the offending driver more
+difficult. Let's simply WARN and otherwise ignore bogus PFNs.
+
+Reported-by: Prakash Gupta <guptap@codeaurora.org>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Prakash Gupta <guptap@codeaurora.org>
+Link: https://lore.kernel.org/r/acbd2d092b42738a03a21b417ce64e27f8c91c86.1591103298.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/iommu/iova.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index bc0f3c22021b7..da91965b8f7b2 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -228,6 +228,22 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
-+	/* TGL-H */
-+	{ PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43a9), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43aa), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ab), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ad), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ae), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43d8), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43da), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x43e8), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43e9), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43ea), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43eb), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x43fb), (kernel_ulong_t)&bxt_info },
-+	{ PCI_VDEVICE(INTEL, 0x43fd), (kernel_ulong_t)&bxt_info },
- 	/* EHL */
- 	{ PCI_VDEVICE(INTEL, 0x4b28), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x4b29), (kernel_ulong_t)&bxt_uart_info },
+diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+index 0e6a9536eca62..612cbf668adf8 100644
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -811,7 +811,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag, struct iova_domain *iovad)
+ 	for (i = 0 ; i < mag->size; ++i) {
+ 		struct iova *iova = private_find_iova(iovad, mag->pfns[i]);
+ 
+-		BUG_ON(!iova);
++		if (WARN_ON(!iova))
++			continue;
++
+ 		private_free_iova(iovad, iova);
+ 	}
+ 
 -- 
 2.25.1
 
