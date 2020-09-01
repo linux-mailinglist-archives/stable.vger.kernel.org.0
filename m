@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB3D2593EC
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7722594E3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729209AbgIAPdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S1731772AbgIAPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:44:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730153AbgIAPdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:13 -0400
+        id S1731770AbgIAPoH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:44:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B0C7215A4;
-        Tue,  1 Sep 2020 15:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BDA4206EB;
+        Tue,  1 Sep 2020 15:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974392;
-        bh=HudWXQ83+vsze5lG8mJ6OtrqAdyGxZRCgs+26OONXuk=;
+        s=default; t=1598975046;
+        bh=RUya4KzYZ3Kazt/S7V1kovWUojhiqJnuKTJaHfXwtTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfnxqBV9daySZ7ZTIJ7TKuCfMpJIJ69T5O8W7Q5iotZ3EysF4umye8Nu94WpYwTe8
-         AaxSlWheAuyse37aOqyWX0kofmYqEhXCrXLyls1M3e2RWtl/OOf7OLOY5nRgvm8x0w
-         5RyXdUhwzBTEw5z6SvmDXUptyUNoB6fXswDVpO0E=
+        b=uIzfts5eZjtdhlTVDsEZq+4RIxvwOlleSypX2nu1cuFOerI0kBJAg4qD89npEBDvW
+         BeqBkYY/wL4PLD0WJjcF5uAB0gvbMVaDcUs//LEtOGjfQp9VU0l72Ndz5wHKWARRH2
+         BNH00N5OQwU4I8pkqs/O6B9m0VJYhogcDZODCVBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 157/214] fbcon: prevent user font height or width change from causing potential out-of-bounds access
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Aleksey Makarov <amakarov@marvell.com>,
+        Peter Hurley <peter@hurleysoftware.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Christopher Covington <cov@codeaurora.org>
+Subject: [PATCH 5.8 181/255] serial: pl011: Fix oops on -EPROBE_DEFER
 Date:   Tue,  1 Sep 2020 17:10:37 +0200
-Message-Id: <20200901151000.490669793@linuxfoundation.org>
+Message-Id: <20200901151009.358712036@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 39b3cffb8cf3111738ea993e2757ab382253d86a upstream.
+commit 27afac93e3bd7fa89749cf11da5d86ac9cde4dba upstream.
 
-Add a check to fbcon_resize() to ensure that a possible change to user font
-height or user font width will not allow a font data out-of-bounds access.
-NOTE: must use original charcount in calculation as font charcount can
-change and cannot be used to determine the font data allocated size.
+If probing of a pl011 gets deferred until after free_initmem(), an oops
+ensues because pl011_console_match() is called which has been freed.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-1-git-send-email-george.kennedy@oracle.com
+Fix by removing the __init attribute from the function and those it
+calls.
+
+Commit 10879ae5f12e ("serial: pl011: add console matching function")
+introduced pl011_console_match() not just for early consoles but
+regular preferred consoles, such as those added by acpi_parse_spcr().
+Regular consoles may be registered after free_initmem() for various
+reasons, one being deferred probing, another being dynamic enablement
+of serial ports using a DeviceTree overlay.
+
+Thus, pl011_console_match() must not be declared __init and the
+functions it calls mustn't either.
+
+Stack trace for posterity:
+
+Unable to handle kernel paging request at virtual address 80c38b58
+Internal error: Oops: 8000000d [#1] PREEMPT SMP ARM
+PC is at pl011_console_match+0x0/0xfc
+LR is at register_console+0x150/0x468
+[<80187004>] (register_console)
+[<805a8184>] (uart_add_one_port)
+[<805b2b68>] (pl011_register_port)
+[<805b3ce4>] (pl011_probe)
+[<80569214>] (amba_probe)
+[<805ca088>] (really_probe)
+[<805ca2ec>] (driver_probe_device)
+[<805ca5b0>] (__device_attach_driver)
+[<805c8060>] (bus_for_each_drv)
+[<805c9dfc>] (__device_attach)
+[<805ca630>] (device_initial_probe)
+[<805c90a8>] (bus_probe_device)
+[<805c95a8>] (deferred_probe_work_func)
+
+Fixes: 10879ae5f12e ("serial: pl011: add console matching function")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.10+
+Cc: Aleksey Makarov <amakarov@marvell.com>
+Cc: Peter Hurley <peter@hurleysoftware.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Christopher Covington <cov@codeaurora.org>
+Link: https://lore.kernel.org/r/f827ff09da55b8c57d316a1b008a137677b58921.1597315557.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/core/fbcon.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/tty/serial/amba-pl011.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2185,6 +2185,9 @@ static void updatescrollmode(struct fbco
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2241,9 +2241,8 @@ pl011_console_write(struct console *co,
+ 	clk_disable(uap->clk);
+ }
+ 
+-static void __init
+-pl011_console_get_options(struct uart_amba_port *uap, int *baud,
+-			     int *parity, int *bits)
++static void pl011_console_get_options(struct uart_amba_port *uap, int *baud,
++				      int *parity, int *bits)
+ {
+ 	if (pl011_read(uap, REG_CR) & UART01x_CR_UARTEN) {
+ 		unsigned int lcr_h, ibrd, fbrd;
+@@ -2276,7 +2275,7 @@ pl011_console_get_options(struct uart_am
  	}
  }
  
-+#define PITCH(w) (((w) + 7) >> 3)
-+#define CALC_FONTSZ(h, p, c) ((h) * (p) * (c)) /* size = height * pitch * charcount */
-+
- static int fbcon_resize(struct vc_data *vc, unsigned int width, 
- 			unsigned int height, unsigned int user)
+-static int __init pl011_console_setup(struct console *co, char *options)
++static int pl011_console_setup(struct console *co, char *options)
  {
-@@ -2194,6 +2197,24 @@ static int fbcon_resize(struct vc_data *
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
- 
-+	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+		int size;
-+		int pitch = PITCH(vc->vc_font.width);
-+
-+		/*
-+		 * If user font, ensure that a possible change to user font
-+		 * height or width will not allow a font data out-of-bounds access.
-+		 * NOTE: must use original charcount in calculation as font
-+		 * charcount can change and cannot be used to determine the
-+		 * font data allocated size.
-+		 */
-+		if (pitch <= 0)
-+			return -EINVAL;
-+		size = CALC_FONTSZ(vc->vc_font.height, pitch, FNTCHARCNT(vc->vc_font.data));
-+		if (size > FNTSIZE(vc->vc_font.data))
-+			return -EINVAL;
-+	}
-+
- 	virt_w = FBCON_SWAP(ops->rotate, width, height);
- 	virt_h = FBCON_SWAP(ops->rotate, height, width);
- 	virt_fw = FBCON_SWAP(ops->rotate, vc->vc_font.width,
-@@ -2645,7 +2666,7 @@ static int fbcon_set_font(struct vc_data
- 	int size;
- 	int i, csum;
- 	u8 *new_data, *data = font->data;
--	int pitch = (font->width+7) >> 3;
-+	int pitch = PITCH(font->width);
- 
- 	/* Is there a reason why fbconsole couldn't handle any charcount >256?
- 	 * If not this check should be changed to charcount < 256 */
-@@ -2661,7 +2682,7 @@ static int fbcon_set_font(struct vc_data
- 	if (fbcon_invalid_charcount(info, charcount))
- 		return -EINVAL;
- 
--	size = h * pitch * charcount;
-+	size = CALC_FONTSZ(h, pitch, charcount);
- 
- 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
- 
+ 	struct uart_amba_port *uap;
+ 	int baud = 38400;
+@@ -2344,8 +2343,8 @@ static int __init pl011_console_setup(st
+  *
+  *	Returns 0 if console matches; otherwise non-zero to use default matching
+  */
+-static int __init pl011_console_match(struct console *co, char *name, int idx,
+-				      char *options)
++static int pl011_console_match(struct console *co, char *name, int idx,
++			       char *options)
+ {
+ 	unsigned char iotype;
+ 	resource_size_t addr;
 
 
