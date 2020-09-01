@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A281259BFB
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFE9259C9E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbgIAPR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
+        id S1729166AbgIARRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729405AbgIAPRX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:23 -0400
+        id S1729012AbgIAPOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6102A206FA;
-        Tue,  1 Sep 2020 15:17:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47731206EB;
+        Tue,  1 Sep 2020 15:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973442;
-        bh=Ucie5NyIWuOUUe0Y0RKuuHPGZyWsA1GWruljSdNz9vk=;
+        s=default; t=1598973244;
+        bh=QUuJAmNLz3po6UFp0oXzAfDS2Wu+mrghwrPnl0fVEs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOSRPDD8DOefIqw/L8S7Wddb+xdMIZFtFS0UT5iAMplqzDTHiwIJ54+2b6wPublqa
-         HQBTlroqKcDGdJDocQzj5RtlvFhFv30YDl94CC5Nf6QkRgfFx1whSzlrQH7DBNDFWe
-         7qh+QrUh4MCxhnqcBq8SkCIvLzNCVYpBot9M4Jc8=
+        b=S0GtGD3sM7oF6pNrFTpedFKDnIyWyyv1kNvpDSrFjOHXA/EwT+ZtcV7rEc7Atok8n
+         I3K94IhsJGEHJ3YfirDbsCz/aYinNNq67ZEnX+VMiYlWe81aZHhMg4SV50iENkq/wC
+         gKZwfVCzL4IX4pec9W8wT6H3ispS2ZdCuyNWTfS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 63/78] xhci: Do warm-reset when both CAS and XDEV_RESUME are set
-Date:   Tue,  1 Sep 2020 17:10:39 +0200
-Message-Id: <20200901150927.931444650@linuxfoundation.org>
+        stable@vger.kernel.org, Brice Goglin <brice.goglin@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Cyril Roelandt <tipecaml@gmail.com>
+Subject: [PATCH 4.4 57/62] USB: Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
+Date:   Tue,  1 Sep 2020 17:10:40 +0200
+Message-Id: <20200901150923.607361490@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Cyril Roelandt <tipecaml@gmail.com>
 
-commit 904df64a5f4d5ebd670801d869ca0a6d6a6e8df6 upstream.
+commit 9aa37788e7ebb3f489fb4b71ce07adadd444264a upstream.
 
-Sometimes re-plugging a USB device during system sleep renders the device
-useless:
-[  173.418345] xhci_hcd 0000:00:14.0: Get port status 2-4 read: 0x14203e2, return 0x10262
-...
-[  176.496485] usb 2-4: Waited 2000ms for CONNECT
-[  176.496781] usb usb2-port4: status 0000.0262 after resume, -19
-[  176.497103] usb 2-4: can't resume, status -19
-[  176.497438] usb usb2-port4: logical disconnect
+This device does not support UAS properly and a similar entry already
+exists in drivers/usb/storage/unusual_uas.h. Without this patch,
+storage_probe() defers the handling of this device to UAS, which cannot
+handle it either.
 
-Because PLS equals to XDEV_RESUME, xHCI driver reports U3 to usbcore,
-despite of CAS bit is flagged.
-
-So proritize CAS over XDEV_RESUME to let usbcore handle warm-reset for
-the port.
-
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200821091549.20556-3-mathias.nyman@linux.intel.com
+Tested-by: Brice Goglin <brice.goglin@gmail.com>
+Fixes: bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron SATA enclosure")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
+Link: https://lore.kernel.org/r/20200825212231.46309-1-tipecaml@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-hub.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/usb/storage/unusual_devs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -623,15 +623,6 @@ static void xhci_hub_report_usb3_link_st
- {
- 	u32 pls = status_reg & PORT_PLS_MASK;
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2213,7 +2213,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x
+ 		"JMicron",
+ 		"USB to ATA/ATAPI Bridge",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_BROKEN_FUA ),
++		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
  
--	/* resume state is a xHCI internal state.
--	 * Do not report it to usb core, instead, pretend to be U3,
--	 * thus usb core knows it's not ready for transfer
--	 */
--	if (pls == XDEV_RESUME) {
--		*status |= USB_SS_PORT_LS_U3;
--		return;
--	}
--
- 	/* When the CAS bit is set then warm reset
- 	 * should be performed on port
- 	 */
-@@ -654,6 +645,16 @@ static void xhci_hub_report_usb3_link_st
- 		pls |= USB_PORT_STAT_CONNECTION;
- 	} else {
- 		/*
-+		 * Resume state is an xHCI internal state.  Do not report it to
-+		 * usb core, instead, pretend to be U3, thus usb core knows
-+		 * it's not ready for transfer.
-+		 */
-+		if (pls == XDEV_RESUME) {
-+			*status |= USB_SS_PORT_LS_U3;
-+			return;
-+		}
-+
-+		/*
- 		 * If CAS bit isn't set but the Port is already at
- 		 * Compliance Mode, fake a connection so the USB core
- 		 * notices the Compliance state and resets the port.
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
 
 
