@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29475259C28
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7443C259BAB
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729280AbgIAPQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
+        id S1728715AbgIARFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729276AbgIAPQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:11 -0400
+        id S1729531AbgIAPTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 738CD206FA;
-        Tue,  1 Sep 2020 15:16:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BD41206FA;
+        Tue,  1 Sep 2020 15:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973370;
-        bh=gbrPAb5D+pucDE79Ksf5Uxw0vvUmK08Y4Q2vfBlMLJw=;
+        s=default; t=1598973574;
+        bh=YIf0a4rsyMvekD0zIdi+x3LOrpmltn0Ror8HHha/QT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIXjjAY4YMK1Yt15+FDRvoZfcjs4sW8amtrCjasj6HwjVTr0zeszFn6YXUTP4etpS
-         TVrE7kNNhhoZw3xrruJfCh5aFk8HzheHbJOr5Yq7R0GkStCSa4TOqo7QtD5sZKjT8F
-         KQ+nI3LVO42tpeIJ6lDybJTA93F0RYQWWJJm+0Sc=
+        b=eDy67iXdW/7Uw8RkrzsxagUXwpZUra57MVS+OndULx1pOZLMPdTfX8DVmA0e8vBuh
+         1xeMUd6UaQ3W8Sj6/Z8q7DDlVp4wH1pIjkld5tsDBqAe+nVNZ1f2nAf67EFriY9wS0
+         8Y6u7XYvEvrZgwamVL0enYi2O2J8Q4ukNplZQ5yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 51/78] fbcon: prevent user font height or width change from causing potential out-of-bounds access
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Andy Teng <andy.teng@mediatek.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 53/91] scsi: ufs: Fix possible infinite loop in ufshcd_hold
 Date:   Tue,  1 Sep 2020 17:10:27 +0200
-Message-Id: <20200901150927.299704736@linuxfoundation.org>
+Message-Id: <20200901150930.757592541@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-commit 39b3cffb8cf3111738ea993e2757ab382253d86a upstream.
+[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
 
-Add a check to fbcon_resize() to ensure that a possible change to user font
-height or user font width will not allow a font data out-of-bounds access.
-NOTE: must use original charcount in calculation as font charcount can
-change and cannot be used to determine the font data allocated size.
+In ufshcd_suspend(), after clk-gating is suspended and link is set
+as Hibern8 state, ufshcd_hold() is still possibly invoked before
+ufshcd_suspend() returns. For example, MediaTek's suspend vops may
+issue UIC commands which would call ufshcd_hold() during the command
+issuing flow.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-1-git-send-email-george.kennedy@oracle.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
+then ufshcd_hold() may enter infinite loops because there is no
+clk-ungating work scheduled or pending. In this case, ufshcd_hold()
+shall just bypass, and keep the link as Hibern8 state.
 
+Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Co-developed-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/console/fbcon.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/video/console/fbcon.c
-+++ b/drivers/video/console/fbcon.c
-@@ -2116,6 +2116,9 @@ static void updatescrollmode(struct disp
- 	}
- }
- 
-+#define PITCH(w) (((w) + 7) >> 3)
-+#define CALC_FONTSZ(h, p, c) ((h) * (p) * (c)) /* size = height * pitch * charcount */
-+
- static int fbcon_resize(struct vc_data *vc, unsigned int width, 
- 			unsigned int height, unsigned int user)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 11e917b44a0f1..3b4214feae971 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1425,6 +1425,7 @@ unblock_reqs:
+ int ufshcd_hold(struct ufs_hba *hba, bool async)
  {
-@@ -2125,6 +2128,24 @@ static int fbcon_resize(struct vc_data *
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+ 	int rc = 0;
++	bool flush_result;
+ 	unsigned long flags;
  
-+	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+		int size;
-+		int pitch = PITCH(vc->vc_font.width);
-+
-+		/*
-+		 * If user font, ensure that a possible change to user font
-+		 * height or width will not allow a font data out-of-bounds access.
-+		 * NOTE: must use original charcount in calculation as font
-+		 * charcount can change and cannot be used to determine the
-+		 * font data allocated size.
-+		 */
-+		if (pitch <= 0)
-+			return -EINVAL;
-+		size = CALC_FONTSZ(vc->vc_font.height, pitch, FNTCHARCNT(vc->vc_font.data));
-+		if (size > FNTSIZE(vc->vc_font.data))
-+			return -EINVAL;
-+	}
-+
- 	virt_w = FBCON_SWAP(ops->rotate, width, height);
- 	virt_h = FBCON_SWAP(ops->rotate, height, width);
- 	virt_fw = FBCON_SWAP(ops->rotate, vc->vc_font.width,
-@@ -2586,7 +2607,7 @@ static int fbcon_set_font(struct vc_data
- 	int size;
- 	int i, csum;
- 	u8 *new_data, *data = font->data;
--	int pitch = (font->width+7) >> 3;
-+	int pitch = PITCH(font->width);
- 
- 	/* Is there a reason why fbconsole couldn't handle any charcount >256?
- 	 * If not this check should be changed to charcount < 256 */
-@@ -2602,7 +2623,7 @@ static int fbcon_set_font(struct vc_data
- 	if (fbcon_invalid_charcount(info, charcount))
- 		return -EINVAL;
- 
--	size = h * pitch * charcount;
-+	size = CALC_FONTSZ(h, pitch, charcount);
- 
- 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
- 
+ 	if (!ufshcd_is_clkgating_allowed(hba))
+@@ -1456,7 +1457,9 @@ start:
+ 				break;
+ 			}
+ 			spin_unlock_irqrestore(hba->host->host_lock, flags);
+-			flush_work(&hba->clk_gating.ungate_work);
++			flush_result = flush_work(&hba->clk_gating.ungate_work);
++			if (hba->clk_gating.is_suspended && !flush_result)
++				goto out;
+ 			spin_lock_irqsave(hba->host->host_lock, flags);
+ 			goto start;
+ 		}
+-- 
+2.25.1
+
 
 
