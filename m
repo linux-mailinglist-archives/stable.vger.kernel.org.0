@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7920A2595D2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C3D259405
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728252AbgIAP4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
+        id S1729580AbgIAPeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:34:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726301AbgIAPpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:45:24 -0400
+        id S1728058AbgIAPeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F6A2078B;
-        Tue,  1 Sep 2020 15:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16B7D21548;
+        Tue,  1 Sep 2020 15:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975123;
-        bh=x16KV+57yJ9TEKT5Z240803Zo1qOLRkl5An5cZvrgyQ=;
+        s=default; t=1598974485;
+        bh=lMCz7shUEGYmhFpPBbA9bvISxtpCW3iyb3Uv1DC/0k0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1TVOCQeCNzJN9muWz712JbZfcjGFbywRz6E8P9FhKxWZThI5hOsnH/+pC8BnoSIo
-         tcrlXJYSaGH5xS1LV+ImVRad4Y/moFd77z0ER8aDorR4kiDkxsHEmZS0x0hkXVirnv
-         rzgfUWvhcGOeTIvUje13sAkn6eZF2qN7Rr+zJjtE=
+        b=Qr9bBI6hHe4rxk4wEpt0pWr+WRdzb+dIWlBBPlZyktbquO2Kytl9KlsqQHCjM16Lp
+         +lnMtC6YmaoTjMTfnCdadfcwk7XciaMBkCSGCSItWvlZe4g11iEnJ79US66chW+iTP
+         iBWH1E8aHj36IPdwFvTRGf8+j+bWGJi+pcwFBmCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.8 188/255] writeback: Avoid skipping inode writeback
+        stable@vger.kernel.org, Holger Assmann <h.assmann@pengutronix.de>
+Subject: [PATCH 5.4 164/214] serial: stm32: avoid kernel warning on absence of optional IRQ
 Date:   Tue,  1 Sep 2020 17:10:44 +0200
-Message-Id: <20200901151009.697365499@linuxfoundation.org>
+Message-Id: <20200901151000.835096270@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,149 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Holger Assmann <h.assmann@pengutronix.de>
 
-commit 5afced3bf28100d81fb2fe7e98918632a08feaf5 upstream.
+commit fdf16d78941b4f380753053d229955baddd00712 upstream.
 
-Inode's i_io_list list head is used to attach inode to several different
-lists - wb->{b_dirty, b_dirty_time, b_io, b_more_io}. When flush worker
-prepares a list of inodes to writeback e.g. for sync(2), it moves inodes
-to b_io list. Thus it is critical for sync(2) data integrity guarantees
-that inode is not requeued to any other writeback list when inode is
-queued for processing by flush worker. That's the reason why
-writeback_single_inode() does not touch i_io_list (unless the inode is
-completely clean) and why __mark_inode_dirty() does not touch i_io_list
-if I_SYNC flag is set.
+stm32_init_port() of the stm32-usart may trigger a warning in
+platform_get_irq() when the device tree specifies no wakeup interrupt.
 
-However there are two flaws in the current logic:
+The wakeup interrupt is usually a board-specific GPIO and the driver
+functions correctly in its absence. The mainline stm32mp151.dtsi does
+not specify it, so all mainline device trees trigger an unnecessary
+kernel warning. Use of platform_get_irq_optional() avoids this.
 
-1) When inode has only I_DIRTY_TIME set but it is already queued in b_io
-list due to sync(2), concurrent __mark_inode_dirty(inode, I_DIRTY_SYNC)
-can still move inode back to b_dirty list resulting in skipping
-writeback of inode time stamps during sync(2).
-
-2) When inode is on b_dirty_time list and writeback_single_inode() races
-with __mark_inode_dirty() like:
-
-writeback_single_inode()		__mark_inode_dirty(inode, I_DIRTY_PAGES)
-  inode->i_state |= I_SYNC
-  __writeback_single_inode()
-					  inode->i_state |= I_DIRTY_PAGES;
-					  if (inode->i_state & I_SYNC)
-					    bail
-  if (!(inode->i_state & I_DIRTY_ALL))
-  - not true so nothing done
-
-We end up with I_DIRTY_PAGES inode on b_dirty_time list and thus
-standard background writeback will not writeback this inode leading to
-possible dirty throttling stalls etc. (thanks to Martijn Coenen for this
-analysis).
-
-Fix these problems by tracking whether inode is queued in b_io or
-b_more_io lists in a new I_SYNC_QUEUED flag. When this flag is set, we
-know flush worker has queued inode and we should not touch i_io_list.
-On the other hand we also know that once flush worker is done with the
-inode it will requeue the inode to appropriate dirty list. When
-I_SYNC_QUEUED is not set, __mark_inode_dirty() can (and must) move inode
-to appropriate dirty list.
-
-Reported-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Tested-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 2c58e56096dd ("serial: stm32: fix the get_irq error case")
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200813152757.32751-1-h.assmann@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c  |   17 ++++++++++++-----
- include/linux/fs.h |    8 ++++++--
- 2 files changed, 18 insertions(+), 7 deletions(-)
+ drivers/tty/serial/stm32-usart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -146,6 +146,7 @@ static void inode_io_list_del_locked(str
- 	assert_spin_locked(&wb->list_lock);
- 	assert_spin_locked(&inode->i_lock);
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -937,7 +937,7 @@ static int stm32_init_port(struct stm32_
+ 	stm32_init_rs485(port, pdev);
  
-+	inode->i_state &= ~I_SYNC_QUEUED;
- 	list_del_init(&inode->i_io_list);
- 	wb_io_lists_depopulated(wb);
- }
-@@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct i
- 			inode->dirtied_when = jiffies;
+ 	if (stm32port->info->cfg.has_wakeup) {
+-		stm32port->wakeirq = platform_get_irq(pdev, 1);
++		stm32port->wakeirq = platform_get_irq_optional(pdev, 1);
+ 		if (stm32port->wakeirq <= 0 && stm32port->wakeirq != -ENXIO)
+ 			return stm32port->wakeirq ? : -ENODEV;
  	}
- 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
-+	inode->i_state &= ~I_SYNC_QUEUED;
- }
- 
- static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-@@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct li
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
-+		spin_lock(&inode->i_lock);
- 		if (flags & EXPIRE_DIRTY_ATIME)
--			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
-+			inode->i_state |= I_DIRTY_TIME_EXPIRED;
-+		inode->i_state |= I_SYNC_QUEUED;
-+		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
- 			continue;
- 		if (sb && sb != inode->i_sb)
-@@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *
- 	} else if (inode->i_state & I_DIRTY_TIME) {
- 		inode->dirtied_when = jiffies;
- 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-+		inode->i_state &= ~I_SYNC_QUEUED;
- 	} else {
- 		/* The inode is clean. Remove from writeback lists. */
- 		inode_io_list_del_locked(inode, wb);
-@@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *in
- 		inode->i_state |= flags;
- 
- 		/*
--		 * If the inode is being synced, just update its dirty state.
--		 * The unlocker will place the inode on the appropriate
--		 * superblock list, based upon its state.
-+		 * If the inode is queued for writeback by flush worker, just
-+		 * update its dirty state. Once the flush worker is done with
-+		 * the inode it will place it on the appropriate superblock
-+		 * list, based upon its state.
- 		 */
--		if (inode->i_state & I_SYNC)
-+		if (inode->i_state & I_SYNC_QUEUED)
- 			goto out_unlock_inode;
- 
- 		/*
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2168,6 +2168,10 @@ static inline void kiocb_clone(struct ki
-  *
-  * I_DONTCACHE		Evict inode as soon as it is not used anymore.
-  *
-+ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
-+ *			Used to detect that mark_inode_dirty() should not move
-+ * 			inode between dirty lists.
-+ *
-  * Q: What is the difference between I_WILL_FREE and I_FREEING?
-  */
- #define I_DIRTY_SYNC		(1 << 0)
-@@ -2185,12 +2189,12 @@ static inline void kiocb_clone(struct ki
- #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
- #define I_LINKABLE		(1 << 10)
- #define I_DIRTY_TIME		(1 << 11)
--#define __I_DIRTY_TIME_EXPIRED	12
--#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
-+#define I_DIRTY_TIME_EXPIRED	(1 << 12)
- #define I_WB_SWITCH		(1 << 13)
- #define I_OVL_INUSE		(1 << 14)
- #define I_CREATING		(1 << 15)
- #define I_DONTCACHE		(1 << 16)
-+#define I_SYNC_QUEUED		(1 << 17)
- 
- #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
- #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
 
 
