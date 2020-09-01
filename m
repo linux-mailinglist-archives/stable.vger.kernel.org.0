@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDD02593BF
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 339C325949B
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbgIAPaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60560 "EHLO mail.kernel.org"
+        id S1731182AbgIAPl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729759AbgIAPaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:23 -0400
+        id S1731419AbgIAPlP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:41:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 109E4206C0;
-        Tue,  1 Sep 2020 15:30:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 833C320767;
+        Tue,  1 Sep 2020 15:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974222;
-        bh=whkbtm8VN3E8r4nRvUNs2x9kFb8G9AFN0O5lxm10c/0=;
+        s=default; t=1598974875;
+        bh=bcv8a7aUYMp16+rL7DKkOjjRhxFK6QVJCj1xeSXR4ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvzDsEdhv9PDAPh7pNAxtFFW9Xle207gbCNcqZhgLvYGUsSe/w7sGFJOnVqUqsT0V
-         daE1sYEeIfksX7REyMHulFAmKaFAwEsZNWgXpFerntGLUIlEgNILlrjUCo6p8IRmno
-         Meg928ydxG9nXL6uq0kJhxRCSHka8goGHB6f2ccI=
+        b=GSqjBjZkukGrkmK0iZhcZhK8a8EXyO5ElezGlnqSsFDFjEcqdg+Jrspp92+YYoryn
+         KBFS9vgA62Nu+09oqsW6+VgiJXjbqxPtWDcfxeaVq0JeVDlic7n6cDNNtv+gXADhzP
+         2Xtm6SfUQubkA8OMQqMDrBwrSyZKoEvkkRQL1bvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/214] EDAC: skx_common: get rid of unused type var
-Date:   Tue,  1 Sep 2020 17:09:31 +0200
-Message-Id: <20200901150957.357136292@linuxfoundation.org>
+Subject: [PATCH 5.8 116/255] ext4: correctly restore system zone info when remount fails
+Date:   Tue,  1 Sep 2020 17:09:32 +0200
+Message-Id: <20200901151006.287088129@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit f05390d30e20cccd8f8de981dee42bcdd8d2d137 ]
+[ Upstream commit 0f5bde1db174f6c471f0bd27198575719dabe3e5 ]
 
-	drivers/edac/skx_common.c: In function ‘skx_mce_output_error’:
-	drivers/edac/skx_common.c:478:8: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
-	  478 |  char *type, *optype;
-	      |        ^~~~
+When remounting filesystem fails late during remount handling and
+block_validity mount option is also changed during the remount, we fail
+to restore system zone information to a state matching the mount option.
+This is mostly harmless, just the block validity checking will not match
+the situation described by the mount option. Make sure these two are always
+consistent.
 
-Acked-by: Borislav Petkov <bp@alien8.de>
-Acked-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reported-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200728130437.7804-7-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/skx_common.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ fs/ext4/block_validity.c |  8 --------
+ fs/ext4/super.c          | 29 +++++++++++++++++++++--------
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
-index 2177ad765bd16..4ca87723dcdcd 100644
---- a/drivers/edac/skx_common.c
-+++ b/drivers/edac/skx_common.c
-@@ -475,7 +475,7 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
- 				 struct decoded_addr *res)
- {
- 	enum hw_event_mc_err_type tp_event;
--	char *type, *optype;
-+	char *optype;
- 	bool ripv = GET_BITFIELD(m->mcgstatus, 0, 0);
- 	bool overflow = GET_BITFIELD(m->status, 62, 62);
- 	bool uncorrected_error = GET_BITFIELD(m->status, 61, 61);
-@@ -490,14 +490,11 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
- 	if (uncorrected_error) {
- 		core_err_cnt = 1;
- 		if (ripv) {
--			type = "FATAL";
- 			tp_event = HW_EVENT_ERR_FATAL;
- 		} else {
--			type = "NON_FATAL";
- 			tp_event = HW_EVENT_ERR_UNCORRECTED;
- 		}
- 	} else {
--		type = "CORRECTED";
- 		tp_event = HW_EVENT_ERR_CORRECTED;
+diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
+index e830a9d4e10d3..11aa37693e436 100644
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -254,14 +254,6 @@ int ext4_setup_system_zone(struct super_block *sb)
+ 	int flex_size = ext4_flex_bg_size(sbi);
+ 	int ret;
+ 
+-	if (!test_opt(sb, BLOCK_VALIDITY)) {
+-		if (sbi->system_blks)
+-			ext4_release_system_zone(sb);
+-		return 0;
+-	}
+-	if (sbi->system_blks)
+-		return 0;
+-
+ 	system_blks = kzalloc(sizeof(*system_blks), GFP_KERNEL);
+ 	if (!system_blks)
+ 		return -ENOMEM;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 54d1c09329e55..4c8253188d8df 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4698,11 +4698,13 @@ no_journal:
+ 
+ 	ext4_set_resv_clusters(sb);
+ 
+-	err = ext4_setup_system_zone(sb);
+-	if (err) {
+-		ext4_msg(sb, KERN_ERR, "failed to initialize system "
+-			 "zone (%d)", err);
+-		goto failed_mount4a;
++	if (test_opt(sb, BLOCK_VALIDITY)) {
++		err = ext4_setup_system_zone(sb);
++		if (err) {
++			ext4_msg(sb, KERN_ERR, "failed to initialize system "
++				 "zone (%d)", err);
++			goto failed_mount4a;
++		}
  	}
  
+ 	ext4_ext_init(sb);
+@@ -5716,9 +5718,16 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		ext4_register_li_request(sb, first_not_zeroed);
+ 	}
+ 
+-	err = ext4_setup_system_zone(sb);
+-	if (err)
+-		goto restore_opts;
++	/*
++	 * Handle creation of system zone data early because it can fail.
++	 * Releasing of existing data is done when we are sure remount will
++	 * succeed.
++	 */
++	if (test_opt(sb, BLOCK_VALIDITY) && !sbi->system_blks) {
++		err = ext4_setup_system_zone(sb);
++		if (err)
++			goto restore_opts;
++	}
+ 
+ 	if (sbi->s_journal == NULL && !(old_sb_flags & SB_RDONLY)) {
+ 		err = ext4_commit_super(sb, 1);
+@@ -5740,6 +5749,8 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		}
+ 	}
+ #endif
++	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
++		ext4_release_system_zone(sb);
+ 
+ 	/*
+ 	 * Some options can be enabled by ext4 and/or by VFS mount flag
+@@ -5761,6 +5772,8 @@ restore_opts:
+ 	sbi->s_commit_interval = old_opts.s_commit_interval;
+ 	sbi->s_min_batch_time = old_opts.s_min_batch_time;
+ 	sbi->s_max_batch_time = old_opts.s_max_batch_time;
++	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
++		ext4_release_system_zone(sb);
+ #ifdef CONFIG_QUOTA
+ 	sbi->s_jquota_fmt = old_opts.s_jquota_fmt;
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++) {
 -- 
 2.25.1
 
