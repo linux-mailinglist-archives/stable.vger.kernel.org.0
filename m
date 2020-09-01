@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5978E259BD4
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:08:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD2E259D1E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729203AbgIARHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36360 "EHLO mail.kernel.org"
+        id S1729439AbgIARX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729470AbgIAPSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:18:15 -0400
+        id S1726771AbgIAPLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:11:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C44320BED;
-        Tue,  1 Sep 2020 15:18:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59AC1206FA;
+        Tue,  1 Sep 2020 15:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973495;
-        bh=DJoz7hEuLH4KSUPlB0Pz1whDMhaU6YO7qiXnioDukxE=;
+        s=default; t=1598973112;
+        bh=qNEvP+YxjN9cHUGvRDWTfOl1iZ6hTNDjEXd2QmD7820=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H83izqXCJNm6ffChiFwiF8Lv0Q2FIhpGn0sC6jjAKEwqkwsAviTYExvvnj6HdVXMI
-         pfqRkajgpz+yDf+EAIoXVgySiiSi8avmwQZF6mnkkVEUwBY2Ku2z1s+kvwDB1QsOtG
-         EWXWLBU4MLmbFkWvul5+fqdP8ukLsou4FBjHuckI=
+        b=qxRPOq93RzcEAkR53z6SNFhS3FBcqDmqQ4Th+wTUcDa56jGyNFL/09TW8uNJ7Rj2G
+         vfo0mnSR7jXU9Lt62fPOgYNrtDJ31BoKyigUgxN5QlCxM66m3A7OQo60zfpqw8/7zP
+         aNYh5EcuMP6/s+J4YNAqDhVMJJ+5jFZjAtXfuw+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/91] scsi: lpfc: Fix shost refcount mismatch when deleting vport
+Subject: [PATCH 4.4 12/62] drm/radeon: fix multiple reference count leak
 Date:   Tue,  1 Sep 2020 17:09:55 +0200
-Message-Id: <20200901150929.206534823@linuxfoundation.org>
+Message-Id: <20200901150921.317831987@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dick Kennedy <dick.kennedy@broadcom.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 03dbfe0668e6692917ac278883e0586cd7f7d753 ]
+[ Upstream commit 6f2e8acdb48ed166b65d47837c31b177460491ec ]
 
-When vports are deleted, it is observed that there is memory/kthread
-leakage as the vport isn't fully being released.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-There is a shost reference taken in scsi_add_host_dma that is not released
-during scsi_remove_host. It was noticed that other drivers resolve this by
-doing a scsi_host_put after calling scsi_remove_host.
-
-The vport_delete routine is taking two references one that corresponds to
-an access to the scsi_host in the vport_delete routine and another that is
-released after the adapter mailbox command completes that destroys the VPI
-that corresponds to the vport.
-
-Remove one of the references taken such that the second reference that is
-put will complete the missing scsi_add_host_dma reference and the shost
-will be terminated.
-
-Link: https://lore.kernel.org/r/20200630215001.70793-8-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_vport.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/radeon/radeon_connectors.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_vport.c b/drivers/scsi/lpfc/lpfc_vport.c
-index c714482bf4c55..9c738e201f462 100644
---- a/drivers/scsi/lpfc/lpfc_vport.c
-+++ b/drivers/scsi/lpfc/lpfc_vport.c
-@@ -644,27 +644,16 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
- 		    vport->port_state < LPFC_VPORT_READY)
- 			return -EAGAIN;
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index bebcef2ce6b88..a9f1d99bb6f99 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -886,8 +886,10 @@ radeon_lvds_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
  	}
-+
- 	/*
--	 * This is a bit of a mess.  We want to ensure the shost doesn't get
--	 * torn down until we're done with the embedded lpfc_vport structure.
--	 *
--	 * Beyond holding a reference for this function, we also need a
--	 * reference for outstanding I/O requests we schedule during delete
--	 * processing.  But once we scsi_remove_host() we can no longer obtain
--	 * a reference through scsi_host_get().
--	 *
--	 * So we take two references here.  We release one reference at the
--	 * bottom of the function -- after delinking the vport.  And we
--	 * release the other at the completion of the unreg_vpi that get's
--	 * initiated after we've disposed of all other resources associated
--	 * with the port.
-+	 * Take early refcount for outstanding I/O requests we schedule during
-+	 * delete processing for unreg_vpi.  Always keep this before
-+	 * scsi_remove_host() as we can no longer obtain a reference through
-+	 * scsi_host_get() after scsi_host_remove as shost is set to SHOST_DEL.
- 	 */
- 	if (!scsi_host_get(shost))
- 		return VPORT_INVAL;
--	if (!scsi_host_get(shost)) {
--		scsi_host_put(shost);
--		return VPORT_INVAL;
--	}
-+
- 	lpfc_free_sysfs_attr(vport);
  
- 	lpfc_debugfs_terminate(vport);
-@@ -811,8 +800,9 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
- 		if (!(vport->vpi_state & LPFC_VPI_REGISTERED) ||
- 				lpfc_mbx_unreg_vpi(vport))
- 			scsi_host_put(shost);
--	} else
-+	} else {
- 		scsi_host_put(shost);
-+	}
+ 	if (encoder) {
+@@ -1021,8 +1023,10 @@ radeon_vga_detect(struct drm_connector *connector, bool force)
  
- 	lpfc_free_vpi(phba, vport->vpi);
- 	vport->work_port_events = 0;
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1158,8 +1162,10 @@ radeon_tv_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1241,8 +1247,10 @@ radeon_dvi_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (radeon_connector->detected_hpd_without_ddc) {
+@@ -1681,8 +1689,10 @@ radeon_dp_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (!force && radeon_check_hpd_status_unchanged(connector)) {
 -- 
 2.25.1
 
