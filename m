@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D795E259782
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491D02597B5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730552AbgIAPes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:34:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39886 "EHLO mail.kernel.org"
+        id S1726922AbgIAQRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:17:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728387AbgIAPen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:43 -0400
+        id S1728077AbgIAPdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:33:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B42A20866;
-        Tue,  1 Sep 2020 15:34:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8C7214D8;
+        Tue,  1 Sep 2020 15:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974483;
-        bh=onWtOnOe38uujL9+85ri15ureODnZNtdVZRCOwH2QR4=;
+        s=default; t=1598974415;
+        bh=uR7P4Q8mt8JWHFlW7DZ/bj4KrTVmE6vOkXGUZ96+1Fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vF23FAoSqvCZnBbDo+FZbMGnRXGFlziVXOioVKOqphkZMNWgzjm748mRAj8tLZjRx
-         TnYBUxuHpgvDM7ZdL5NBwUYBH8/nHj0/T1PH/K+P9czWiQWf6U3JL1QXnLsJohTdSU
-         GtQRdXnMI4WaWu+cRdMMwudmOXoGSljxBTHxcOfE=
+        b=UClPfQux7g0IO4+j5Yu0p6eUXmm+Ykm6G7HtRCxEvFkd3DnSY0y40+NN/Olo4Pstl
+         XCwDFYeOmG1ECW8MbYG3A00UqPEC+bJsIX48wEPBoqVTEo12xd0XynkJR4wZ1+BKQW
+         k7LGjBQ7qEzV3yCuBiNKkSI7lmb0ZoZwiiLLWGcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH 5.4 163/214] serial: pl011: Dont leak amba_ports entry on driver register error
-Date:   Tue,  1 Sep 2020 17:10:43 +0200
-Message-Id: <20200901151000.785511843@linuxfoundation.org>
+        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.4 168/214] writeback: Avoid skipping inode writeback
+Date:   Tue,  1 Sep 2020 17:10:48 +0200
+Message-Id: <20200901151001.023896654@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -43,52 +43,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Jan Kara <jack@suse.cz>
 
-commit 89efbe70b27dd325d8a8c177743a26b885f7faec upstream.
+commit 5afced3bf28100d81fb2fe7e98918632a08feaf5 upstream.
 
-pl011_probe() calls pl011_setup_port() to reserve an amba_ports[] entry,
-then calls pl011_register_port() to register the uart driver with the
-tty layer.
+Inode's i_io_list list head is used to attach inode to several different
+lists - wb->{b_dirty, b_dirty_time, b_io, b_more_io}. When flush worker
+prepares a list of inodes to writeback e.g. for sync(2), it moves inodes
+to b_io list. Thus it is critical for sync(2) data integrity guarantees
+that inode is not requeued to any other writeback list when inode is
+queued for processing by flush worker. That's the reason why
+writeback_single_inode() does not touch i_io_list (unless the inode is
+completely clean) and why __mark_inode_dirty() does not touch i_io_list
+if I_SYNC flag is set.
 
-If registration of the uart driver fails, the amba_ports[] entry is not
-released.  If this happens 14 times (value of UART_NR macro), then all
-amba_ports[] entries will have been leaked and driver probing is no
-longer possible.  (To be fair, that can only happen if the DeviceTree
-doesn't contain alias IDs since they cause the same entry to be used for
-a given port.)   Fix it.
+However there are two flaws in the current logic:
 
-Fixes: ef2889f7ffee ("serial: pl011: Move uart_register_driver call to device")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.15+
-Cc: Tushar Behera <tushar.behera@linaro.org>
-Link: https://lore.kernel.org/r/138f8c15afb2f184d8102583f8301575566064a6.1597316167.git.lukas@wunner.de
+1) When inode has only I_DIRTY_TIME set but it is already queued in b_io
+list due to sync(2), concurrent __mark_inode_dirty(inode, I_DIRTY_SYNC)
+can still move inode back to b_dirty list resulting in skipping
+writeback of inode time stamps during sync(2).
+
+2) When inode is on b_dirty_time list and writeback_single_inode() races
+with __mark_inode_dirty() like:
+
+writeback_single_inode()		__mark_inode_dirty(inode, I_DIRTY_PAGES)
+  inode->i_state |= I_SYNC
+  __writeback_single_inode()
+					  inode->i_state |= I_DIRTY_PAGES;
+					  if (inode->i_state & I_SYNC)
+					    bail
+  if (!(inode->i_state & I_DIRTY_ALL))
+  - not true so nothing done
+
+We end up with I_DIRTY_PAGES inode on b_dirty_time list and thus
+standard background writeback will not writeback this inode leading to
+possible dirty throttling stalls etc. (thanks to Martijn Coenen for this
+analysis).
+
+Fix these problems by tracking whether inode is queued in b_io or
+b_more_io lists in a new I_SYNC_QUEUED flag. When this flag is set, we
+know flush worker has queued inode and we should not touch i_io_list.
+On the other hand we also know that once flush worker is done with the
+inode it will requeue the inode to appropriate dirty list. When
+I_SYNC_QUEUED is not set, __mark_inode_dirty() can (and must) move inode
+to appropriate dirty list.
+
+Reported-by: Martijn Coenen <maco@android.com>
+Reviewed-by: Martijn Coenen <maco@android.com>
+Tested-by: Martijn Coenen <maco@android.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/fs-writeback.c  |   17 ++++++++++++-----
+ include/linux/fs.h |    8 ++++++--
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2593,7 +2593,7 @@ static int pl011_setup_port(struct devic
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -146,6 +146,7 @@ static void inode_io_list_del_locked(str
+ 	assert_spin_locked(&wb->list_lock);
+ 	assert_spin_locked(&inode->i_lock);
  
- static int pl011_register_port(struct uart_amba_port *uap)
- {
--	int ret;
-+	int ret, i;
- 
- 	/* Ensure interrupts from this UART are masked and cleared */
- 	pl011_write(0, uap, REG_IMSC);
-@@ -2604,6 +2604,9 @@ static int pl011_register_port(struct ua
- 		if (ret < 0) {
- 			dev_err(uap->port.dev,
- 				"Failed to register AMBA-PL011 driver\n");
-+			for (i = 0; i < ARRAY_SIZE(amba_ports); i++)
-+				if (amba_ports[i] == uap)
-+					amba_ports[i] = NULL;
- 			return ret;
- 		}
++	inode->i_state &= ~I_SYNC_QUEUED;
+ 	list_del_init(&inode->i_io_list);
+ 	wb_io_lists_depopulated(wb);
+ }
+@@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct i
+ 			inode->dirtied_when = jiffies;
  	}
+ 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
++	inode->i_state &= ~I_SYNC_QUEUED;
+ }
+ 
+ static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
+@@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct li
+ 			break;
+ 		list_move(&inode->i_io_list, &tmp);
+ 		moved++;
++		spin_lock(&inode->i_lock);
+ 		if (flags & EXPIRE_DIRTY_ATIME)
+-			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
++			inode->i_state |= I_DIRTY_TIME_EXPIRED;
++		inode->i_state |= I_SYNC_QUEUED;
++		spin_unlock(&inode->i_lock);
+ 		if (sb_is_blkdev_sb(inode->i_sb))
+ 			continue;
+ 		if (sb && sb != inode->i_sb)
+@@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *
+ 	} else if (inode->i_state & I_DIRTY_TIME) {
+ 		inode->dirtied_when = jiffies;
+ 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
++		inode->i_state &= ~I_SYNC_QUEUED;
+ 	} else {
+ 		/* The inode is clean. Remove from writeback lists. */
+ 		inode_io_list_del_locked(inode, wb);
+@@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *in
+ 		inode->i_state |= flags;
+ 
+ 		/*
+-		 * If the inode is being synced, just update its dirty state.
+-		 * The unlocker will place the inode on the appropriate
+-		 * superblock list, based upon its state.
++		 * If the inode is queued for writeback by flush worker, just
++		 * update its dirty state. Once the flush worker is done with
++		 * the inode it will place it on the appropriate superblock
++		 * list, based upon its state.
+ 		 */
+-		if (inode->i_state & I_SYNC)
++		if (inode->i_state & I_SYNC_QUEUED)
+ 			goto out_unlock_inode;
+ 
+ 		/*
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2140,6 +2140,10 @@ static inline void init_sync_kiocb(struc
+  *
+  * I_CREATING		New object's inode in the middle of setting up.
+  *
++ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
++ *			Used to detect that mark_inode_dirty() should not move
++ * 			inode between dirty lists.
++ *
+  * Q: What is the difference between I_WILL_FREE and I_FREEING?
+  */
+ #define I_DIRTY_SYNC		(1 << 0)
+@@ -2157,11 +2161,11 @@ static inline void init_sync_kiocb(struc
+ #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
+ #define I_LINKABLE		(1 << 10)
+ #define I_DIRTY_TIME		(1 << 11)
+-#define __I_DIRTY_TIME_EXPIRED	12
+-#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
++#define I_DIRTY_TIME_EXPIRED	(1 << 12)
+ #define I_WB_SWITCH		(1 << 13)
+ #define I_OVL_INUSE		(1 << 14)
+ #define I_CREATING		(1 << 15)
++#define I_SYNC_QUEUED		(1 << 17)
+ 
+ #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
+ #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
 
 
