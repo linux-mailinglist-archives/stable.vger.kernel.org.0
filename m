@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D872598E9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8B8925990C
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730565AbgIAP3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:29:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59588 "EHLO mail.kernel.org"
+        id S1730742AbgIAQfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730556AbgIAP3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:29:51 -0400
+        id S1730566AbgIAP3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:29:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92BD52158C;
-        Tue,  1 Sep 2020 15:29:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C760120BED;
+        Tue,  1 Sep 2020 15:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974190;
-        bh=NaOaH8glx58DCiI54aiOO/XM6TC+fQSKdJlxtVmi+T8=;
+        s=default; t=1598974192;
+        bh=vmVs7s+zVn4sfC9M7I4r7u/oNgRtmgIaQa3zAc5OEXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHJbwauFp6DyeJL6Mqa8P7dxowf42+yUnUzMOC0xZNKQfvcoS2mSIWLqffxCIjJtF
-         hQg0ClkiypekKAEiIH2JmUXchYZUKi4graqWXyWtZu05P8IEhSCQjZJgv8JKe8YXVO
-         FQsgwkToSYu4lV4XqQG3/d0E9ACZUl/MhQIl0vu0=
+        b=xqZm86lQxX/fI4uO8VV2WsdFy7w/X0tAcfFN/KyPzUX6a5UHvjg8Aa3HBxVxCFKJK
+         lvXn//dZNVHbSHL80KG/OSrpLGYuzoALerqM+khbE2ISzWCUVX6lhtYhu3Bf31ZD6U
+         Z7JG3K9465b9rgjUjNAMMoYsBVq0Y4tfFGi1k/aE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 079/214] btrfs: only commit delayed items at fsync if we are logging a directory
-Date:   Tue,  1 Sep 2020 17:09:19 +0200
-Message-Id: <20200901150956.768833483@linuxfoundation.org>
+Subject: [PATCH 5.4 080/214] mm/shuffle: dont move pages between zones and dont read garbage memmaps
+Date:   Tue,  1 Sep 2020 17:09:20 +0200
+Message-Id: <20200901150956.820425188@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -45,95 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 5aa7d1a7f4a2f8ca6be1f32415e9365d026e8fa7 ]
+[ Upstream commit 4a93025cbe4a0b19d1a25a2d763a3d2018bad0d9 ]
 
-When logging an inode we are committing its delayed items if either the
-inode is a directory or if it is a new inode, created in the current
-transaction.
+Especially with memory hotplug, we can have offline sections (with a
+garbage memmap) and overlapping zones.  We have to make sure to only touch
+initialized memmaps (online sections managed by the buddy) and that the
+zone matches, to not move pages between zones.
 
-We need to do it for directories, since new directory indexes are stored
-as delayed items of the inode and when logging a directory we need to be
-able to access all indexes from the fs/subvolume tree in order to figure
-out which index ranges need to be logged.
+To test if this can actually happen, I added a simple
 
-However for new inodes that are not directories, we do not need to do it
-because the only type of delayed item they can have is the inode item, and
-we are guaranteed to always log an up to date version of the inode item:
+	BUG_ON(page_zone(page_i) != page_zone(page_j));
 
-*) for a full fsync we do it by committing the delayed inode and then
-   copying the item from the fs/subvolume tree with
-   copy_inode_items_to_log();
+right before the swap.  When hotplugging a 256M DIMM to a 4G x86-64 VM and
+onlining the first memory block "online_movable" and the second memory
+block "online_kernel", it will trigger the BUG, as both zones (NORMAL and
+MOVABLE) overlap.
 
-*) for a fast fsync we always log the inode item based on the contents of
-   the in-memory struct btrfs_inode. We guarantee this is always done since
-   commit e4545de5b035c7 ("Btrfs: fix fsync data loss after append write").
+This might result in all kinds of weird situations (e.g., double
+allocations, list corruptions, unmovable allocations ending up in the
+movable zone).
 
-So stop running delayed items for a new inodes that are not directories,
-since that forces committing the delayed inode into the fs/subvolume tree,
-wasting time and adding contention to the tree when a full fsync is not
-required. We will only do it in case a fast fsync is needed.
-
-This patch is part of a series that has the following patches:
-
-1/4 btrfs: only commit the delayed inode when doing a full fsync
-2/4 btrfs: only commit delayed items at fsync if we are logging a directory
-3/4 btrfs: stop incremening log_batch for the log root tree when syncing log
-4/4 btrfs: remove no longer needed use of log_writers for the log root tree
-
-After the entire patchset applied I saw about 12% decrease on max latency
-reported by dbench. The test was done on a qemu vm, with 8 cores, 16Gb of
-ram, using kvm and using a raw NVMe device directly (no intermediary fs on
-the host). The test was invoked like the following:
-
-  mkfs.btrfs -f /dev/sdk
-  mount -o ssd -o nospace_cache /dev/sdk /mnt/sdk
-  dbench -D /mnt/sdk -t 300 8
-  umount /mnt/dsk
-
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>	[5.2+]
+Link: http://lkml.kernel.org/r/20200624094741.9918-2-david@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ mm/shuffle.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 0525b191843e1..709026698d915 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5147,7 +5147,6 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 			   const loff_t end,
- 			   struct btrfs_log_ctx *ctx)
+diff --git a/mm/shuffle.c b/mm/shuffle.c
+index b3fe97fd66541..56958ffa5a3a9 100644
+--- a/mm/shuffle.c
++++ b/mm/shuffle.c
+@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
+  * For two pages to be swapped in the shuffle, they must be free (on a
+  * 'free_area' lru), have the same order, and have the same migratetype.
+  */
+-static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
++static struct page * __meminit shuffle_valid_page(struct zone *zone,
++						  unsigned long pfn, int order)
  {
--	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct btrfs_path *path;
- 	struct btrfs_path *dst_path;
- 	struct btrfs_key min_key;
-@@ -5190,15 +5189,17 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 	max_key.offset = (u64)-1;
+-	struct page *page;
++	struct page *page = pfn_to_online_page(pfn);
  
  	/*
--	 * Only run delayed items if we are a dir or a new file.
-+	 * Only run delayed items if we are a directory. We want to make sure
-+	 * all directory indexes hit the fs/subvolume tree so we can find them
-+	 * and figure out which index ranges have to be logged.
-+	 *
- 	 * Otherwise commit the delayed inode only if the full sync flag is set,
- 	 * as we want to make sure an up to date version is in the subvolume
- 	 * tree so copy_inode_items_to_log() / copy_items() can find it and copy
- 	 * it to the log tree. For a non full sync, we always log the inode item
- 	 * based on the in-memory struct btrfs_inode which is always up to date.
+ 	 * Given we're dealing with randomly selected pfns in a zone we
+ 	 * need to ask questions like...
  	 */
--	if (S_ISDIR(inode->vfs_inode.i_mode) ||
--	    inode->generation > fs_info->last_trans_committed)
-+	if (S_ISDIR(inode->vfs_inode.i_mode))
- 		ret = btrfs_commit_inode_delayed_items(trans, inode);
- 	else if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags))
- 		ret = btrfs_commit_inode_delayed_inode(inode);
+ 
+-	/* ...is the pfn even in the memmap? */
+-	if (!pfn_valid_within(pfn))
++	/* ... is the page managed by the buddy? */
++	if (!page)
+ 		return NULL;
+ 
+-	/* ...is the pfn in a present section or a hole? */
+-	if (!pfn_present(pfn))
++	/* ... is the page assigned to the same zone? */
++	if (page_zone(page) != zone)
+ 		return NULL;
+ 
+ 	/* ...is the page free and currently on a free_area list? */
+-	page = pfn_to_page(pfn);
+ 	if (!PageBuddy(page))
+ 		return NULL;
+ 
+@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 		 * page_j randomly selected in the span @zone_start_pfn to
+ 		 * @spanned_pages.
+ 		 */
+-		page_i = shuffle_valid_page(i, order);
++		page_i = shuffle_valid_page(z, i, order);
+ 		if (!page_i)
+ 			continue;
+ 
+@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 			j = z->zone_start_pfn +
+ 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
+ 						order_pages);
+-			page_j = shuffle_valid_page(j, order);
++			page_j = shuffle_valid_page(z, j, order);
+ 			if (page_j && page_j != page_i)
+ 				break;
+ 		}
 -- 
 2.25.1
 
