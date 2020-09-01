@@ -2,178 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 530B0258E9F
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 14:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D4D258EBB
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 14:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727035AbgIAMwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 08:52:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727032AbgIAMwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 08:52:44 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6E82C061244
-        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 05:52:42 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id a12so1301439eds.13
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 05:52:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pgSXSA4H8mdGNjJZ0yybSD4GOey4TsVcZvKV0kpPvc0=;
-        b=S9jFVyxBJ/i/oy9jnxgCDPVeGrb68atuH7IGzBrwTa1sdRxt6qnKaGZLIN2USd8QCc
-         2ypezbk2RyBPtf4gmMwKNSh2hHQ9CJnFl2qUamd6Y9NsWHxgLQTwWap1bw3sq1A/1uL0
-         y6wJ9gC61lpcdpVYYTrHCQL4abJ+644L85lt8CmuWi7ZpLOwWnxHXn0WWPF4TyV/dd71
-         ubb1I+l1a5or3xGHerTD2KpvccOYm9fb32elVTCgvnjoap20OOdUyw5LnEfyJhvcqRkP
-         Y+LXFsomhloqu1/z4To1n9OFjQNCE47GjEW1FkHz3+FvTIvBtQQHAd5lDcUdtzwuNiSR
-         zjkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pgSXSA4H8mdGNjJZ0yybSD4GOey4TsVcZvKV0kpPvc0=;
-        b=WbNhaWp4odXKD54P7CS3YzPUMT0xXI6VT3BKvIo15BHDTs06WvqvDByLEwT0p3J2Pw
-         sOjx2GRXdz7yLG18l+XJKqd5WeGUgdP5l72XK7QzX4nqob5vV8Plqqx0Ac3txD7VjvLo
-         KRdu4h3iVm5fAqDBAjbPtiCFZ567YJC5SoibZ65cIU/J2zmppcS3pA1Kcl+wPyb5QyHJ
-         wdNUanb6fDWEF+OwhfZlRQYX5NwSQMVWxqtYGNYQ4vHkNF7Tx6ktKyr/PexNLG0aNFV0
-         YhCk0qzO2i9oJZU9wkZrJ4qtz4ATC8Asy5AvP4xFkm5hxD2D6Bxk3Wro9femkNkmeD3E
-         KvOg==
-X-Gm-Message-State: AOAM530HoyF7DZGuGIcq+J8dqJeBi1hfFWyvrCKJAHN0ywLXbbI3g8YN
-        Yp6ijgtCCMXY1oQ9i6hOHCHA+4ktCQMclS2kOkclLw==
-X-Google-Smtp-Source: ABdhPJxvjihOHm/euOwacTzZHy0ImKVveo3O/tXcHUIrkSg877sBO/hUWatDeEEOrtg6umY6mDRWry+Caz0ySzziV5k=
-X-Received: by 2002:a50:9355:: with SMTP id n21mr1511489eda.237.1598964761499;
- Tue, 01 Sep 2020 05:52:41 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200127173453.2089565-1-guro@fb.com> <20200130020626.GA21973@in.ibm.com>
- <20200130024135.GA14994@xps.DHCP.thefacebook.com> <CA+CK2bCQcnTpzq2wGFa3D50PtKwBoWbDBm56S9y8c+j+pD+KSw@mail.gmail.com>
- <20200813000416.GA1592467@carbon.dhcp.thefacebook.com> <CA+CK2bDDToW=Q5RgeWkoN3_rUr3pyWGVb9MraTzM+DM3OZ+tdg@mail.gmail.com>
- <CA+CK2bBEHFuLLg79_h6bv4Vey+B0B2YXyBxTBa=Le12OKbNdwA@mail.gmail.com> <20200901052819.GA52094@in.ibm.com>
-In-Reply-To: <20200901052819.GA52094@in.ibm.com>
-From:   Pavel Tatashin <pasha.tatashin@soleen.com>
-Date:   Tue, 1 Sep 2020 08:52:05 -0400
-Message-ID: <CA+CK2bDZW4F-Y7PDiVZ_Jdbw8F5GCa26JRSXyxFbdu-Q6dEpRg@mail.gmail.com>
-Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
-To:     Bharata B Rao <bharata@linux.ibm.com>
-Cc:     Roman Gushchin <guro@fb.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        id S1727025AbgIAM4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 08:56:04 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44580 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728149AbgIAMz2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 08:55:28 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 081CWkTs003994;
+        Tue, 1 Sep 2020 08:55:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=EsE9aMLgZ5oLOJJb71EKETx/jtQMeuycu+5EYM7apeA=;
+ b=Awx3HtL3wnJvpEXKKGxHBBkQC1BvC5v1p65zGwvdUj5KWwh9FMM/PM9OXL3HdP7WkE5w
+ oMMmrL+sSxBdDv8i3FJz7XDh6+nR3zEGXUZ3LJVOH/Y4gKnWgf+DK/JBVf2QXJEYyPv1
+ +xQLAfMioFA6SZbhMMkSvQxwHqRMAotmZynvZfjEGuf1Z2O4FhJyN9+37Ow44eqW30l4
+ YYpa+3i27GcM4h4cFWsvN27LWJVso1z7xjIRpdiNvPWMWmBqabnG1yDkX8wmEelZGVc3
+ hzs+yzPKiQtA8cKrWNn39jEcFbUpbjoAD/ft7RoPYwkR0kE/d7ev/FQFl5tbPaXFWOOB PA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 339pd48nku-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 08:55:16 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 081CWm3F004493;
+        Tue, 1 Sep 2020 08:55:16 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 339pd48njp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 08:55:16 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 081CrGUG022720;
+        Tue, 1 Sep 2020 12:55:14 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 337en8bdxk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 12:55:13 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 081CtB8651118462
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Sep 2020 12:55:11 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B4BE611C05C;
+        Tue,  1 Sep 2020 12:55:11 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F100B11C052;
+        Tue,  1 Sep 2020 12:55:09 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.77.139])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Sep 2020 12:55:09 +0000 (GMT)
+Message-ID: <910f7fe3864925d1052f5f35785dd19ed1505fe6.camel@linux.ibm.com>
+Subject: Re: [PATCH 07/11] evm: Set IMA_CHANGE_XATTR/ATTR bit if
+ EVM_ALLOW_METADATA_WRITES is set
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>,
+        "mjg59@google.com" <mjg59@google.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Tue, 01 Sep 2020 08:55:09 -0400
+In-Reply-To: <7f3dd815639a44ba9b0fb532c217bd21@huawei.com>
+References: <20200618160329.1263-2-roberto.sassu@huawei.com>
+         <20200618160458.1579-7-roberto.sassu@huawei.com>
+         <67cafcf63daf8e418871eb5302e7327ba851e253.camel@linux.ibm.com>
+         <a5e6a5acf2274a6d844b275dacfbabb8@huawei.com>
+         <ae06c113ec91442e293f2466cae3dd1b81f241eb.camel@linux.ibm.com>
+         <7f3dd815639a44ba9b0fb532c217bd21@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-01_08:2020-09-01,2020-09-01 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ mlxscore=0 malwarescore=0 adultscore=0 spamscore=0 priorityscore=1501
+ suspectscore=0 bulkscore=0 impostorscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009010109
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 1, 2020 at 1:28 AM Bharata B Rao <bharata@linux.ibm.com> wrote:
->
-> On Fri, Aug 28, 2020 at 12:47:03PM -0400, Pavel Tatashin wrote:
-> > There appears to be another problem that is related to the
-> > cgroup_mutex -> mem_hotplug_lock deadlock described above.
-> >
-> > In the original deadlock that I described, the workaround is to
-> > replace crash dump from piping to Linux traditional save to files
-> > method. However, after trying this workaround, I still observed
-> > hardware watchdog resets during machine  shutdown.
-> >
-> > The new problem occurs for the following reason: upon shutdown systemd
-> > calls a service that hot-removes memory, and if hot-removing fails for
-> > some reason systemd kills that service after timeout. However, systemd
-> > is never able to kill the service, and we get hardware reset caused by
-> > watchdog or a hang during shutdown:
-> >
-> > Thread #1: memory hot-remove systemd service
-> > Loops indefinitely, because if there is something still to be migrated
-> > this loop never terminates. However, this loop can be terminated via
-> > signal from systemd after timeout.
-> > __offline_pages()
-> >       do {
-> >           pfn = scan_movable_pages(pfn, end_pfn);
-> >                   # Returns 0, meaning there is nothing available to
-> >                   # migrate, no page is PageLRU(page)
-> >           ...
-> >           ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
-> >                                             NULL, check_pages_isolated_cb);
-> >                   # Returns -EBUSY, meaning there is at least one PFN that
-> >                   # still has to be migrated.
-> >       } while (ret);
-> >
-> > Thread #2: ccs killer kthread
-> >    css_killed_work_fn
-> >      cgroup_mutex  <- Grab this Mutex
-> >      mem_cgroup_css_offline
-> >        memcg_offline_kmem.part
-> >           memcg_deactivate_kmem_caches
-> >             get_online_mems
-> >               mem_hotplug_lock <- waits for Thread#1 to get read access
-> >
-> > Thread #3: systemd
-> > ksys_read
-> >  vfs_read
-> >    __vfs_read
-> >      seq_read
-> >        proc_single_show
-> >          proc_cgroup_show
-> >            mutex_lock -> wait for cgroup_mutex that is owned by Thread #2
-> >
-> > Thus, thread #3 systemd stuck, and unable to deliver timeout interrupt
-> > to thread #1.
-> >
-> > The proper fix for both of the problems is to avoid cgroup_mutex ->
-> > mem_hotplug_lock ordering that was recently fixed in the mainline but
-> > still present in all stable branches. Unfortunately, I do not see a
-> > simple fix in how to remove mem_hotplug_lock from
-> > memcg_deactivate_kmem_caches without using Roman's series that is too
-> > big for stable.
->
-> We too are seeing this on Power systems when stress-testing memory
-> hotplug, but with the following call trace (from hung task timer)
-> instead of Thread #2 above:
->
-> __switch_to
-> __schedule
-> schedule
-> percpu_rwsem_wait
-> __percpu_down_read
-> get_online_mems
-> memcg_create_kmem_cache
-> memcg_kmem_cache_create_func
-> process_one_work
-> worker_thread
-> kthread
-> ret_from_kernel_thread
->
-> While I understand that Roman's new slab controller patchset will fix
-> this, I also wonder if infinitely looping in the memory unplug path
-> with mem_hotplug_lock held is the right thing to do? Earlier we had
-> a few other exit possibilities in this path (like max retries etc)
-> but those were removed by commits:
->
-> 72b39cfc4d75: mm, memory_hotplug: do not fail offlining too early
-> ecde0f3e7f9e: mm, memory_hotplug: remove timeout from __offline_memory
->
-> Or, is the user-space test is expected to induce a signal back-off when
-> unplug doesn't complete within a reasonable amount of time?
+> > > I think it is better to set a flag, maybe a new one, directly in EVM, to notify
+> > > the integrity subsystem that iint->evm_status is no longer valid.
+> > >
+> > > If the EVM flag is set, IMA would reset the appraisal flags, as it uses
+> > > iint->evm_status for appraisal. We can consider to reset also the measure
+> > > flags when we have a template that includes file metadata.
+> > 
+> > When would IMA read the EVM flag?   Who would reset the flag?  At what
+> > point would it be reset?   Just as EVM shouldn't be resetting the IMA
+> > flag, IMA shouldn't be resetting the EVM flag.
+> 
+> IMA would read the flag in process_measurement() and behave similarly
+> to when it processes IMA_CHANGE_ATTR. The flag would be reset by
+> evm_verify_hmac().
 
-Hi Bharata,
+Sounds good.
 
-Thank you for your input, it looks like you are experiencing the same
-problems that I observed.
+Mimi
 
-What I found is that the reason why our machines did not complete
-hot-remove within the given time is because of this bug:
-https://lore.kernel.org/linux-mm/20200901124615.137200-1-pasha.tatashin@soleen.com
-
-Could you please try it and see if that helps for your case?
-
-Thank you,
-Pasha
