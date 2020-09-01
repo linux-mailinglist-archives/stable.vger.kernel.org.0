@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E98FB259695
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 625D3259696
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730167AbgIAQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
+        id S1730180AbgIAQEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:04:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731536AbgIAPmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:03 -0400
+        id S1731538AbgIAPmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:42:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1511120866;
-        Tue,  1 Sep 2020 15:41:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44DBA20BED;
+        Tue,  1 Sep 2020 15:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974914;
-        bh=5ce+FHrLo36TS/g31EXfQ81YDAJMHQLxvWN2O+WB90I=;
+        s=default; t=1598974919;
+        bh=q88Q+P2+4EgBQdQl1eeHV49GcwL+Mnk0zzT6hd6Yes8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHeUbIH1nE/yd2pi8gopNGL1mBrekniUy6ZSk/XU2Ec1BCqWZT1dkErzFs0TNWlRN
-         yB2NvNb9ojk7FW1AW9Ynsnbau2k7B7k7rfI0ah7XSlAGH8yM5eyvCJlV5tL/JIeBsb
-         J+QWOsmREOmpuH6xw81wBfhPnWonLX/GqHr6MXds=
+        b=GzYo6JLpTbR3zLBpFP7WT/VzAri3kZTBi9XCLqsZ7j5AkKQ8EOUSqqJpme1PW034X
+         pW+YIE7QmEnbMFA5/rZLGe5Gss+4tM1WGqIO2gKKU2BhsBmGJUAl7XAGVnyOvugqwQ
+         aL7cyFLq24Ebcbo7yMCN2aAcrn6Ca6VjFtKJmtog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Pozulp <pozulp.kernel@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 138/255] ALSA: hda/realtek: Add model alc298-samsung-headphone
-Date:   Tue,  1 Sep 2020 17:09:54 +0200
-Message-Id: <20200901151007.323227723@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 140/255] ASoC: wm8994: Avoid attempts to read unreadable registers
+Date:   Tue,  1 Sep 2020 17:09:56 +0200
+Message-Id: <20200901151007.417904684@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -43,35 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Pozulp <pozulp.kernel@gmail.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 23dc958689449be85e39351a8c809c3d344b155b ]
+[ Upstream commit f082bb59b72039a2326ec1a44496899fb8aa6d0e ]
 
-The very quiet and distorted headphone output bug that afflicted my
-Samsung Notebook 9 is appearing in many other Samsung laptops. Expose
-the quirk which fixed my laptop as a model so other users can try it.
+The driver supports WM1811, WM8994, WM8958 devices but according to
+documentation and the regmap definitions the WM8958_DSP2_* registers
+are only available on WM8958. In current code these registers are
+being accessed as if they were available on all the three chips.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
-Signed-off-by: Mike Pozulp <pozulp.kernel@gmail.com>
-Link: https://lore.kernel.org/r/20200817043219.458889-1-pozulp.kernel@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+When starting playback on WM1811 CODEC multiple errors like:
+"wm8994-codec wm8994-codec: ASoC: error at soc_component_read_no_lock on wm8994-codec: -5"
+can be seen, which is caused by attempts to read an unavailable
+WM8958_DSP2_PROGRAM register. The issue has been uncovered by recent
+commit "e2329ee ASoC: soc-component: add soc_component_err()".
+
+This patch adds a check in wm8958_aif_ev() callback so the DSP2 handling
+is only done for WM8958.
+
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200731173834.23832-1-s.nawrocki@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/wm8958-dsp2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index b767d8fce828e..da23c2d4ca51e 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7969,6 +7969,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
-+	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+diff --git a/sound/soc/codecs/wm8958-dsp2.c b/sound/soc/codecs/wm8958-dsp2.c
+index ca42445b649d4..b471892d84778 100644
+--- a/sound/soc/codecs/wm8958-dsp2.c
++++ b/sound/soc/codecs/wm8958-dsp2.c
+@@ -412,8 +412,12 @@ int wm8958_aif_ev(struct snd_soc_dapm_widget *w,
+ 		  struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
++	struct wm8994 *control = dev_get_drvdata(component->dev->parent);
+ 	int i;
+ 
++	if (control->type != WM8958)
++		return 0;
++
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+ 	case SND_SOC_DAPM_PRE_PMU:
 -- 
 2.25.1
 
