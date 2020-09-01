@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E692596C1
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381422596E2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727949AbgIAPjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49580 "EHLO mail.kernel.org"
+        id S1731512AbgIAQIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727846AbgIAPjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:39:31 -0400
+        id S1731405AbgIAPjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:39:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A62020866;
-        Tue,  1 Sep 2020 15:39:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3B6E20866;
+        Tue,  1 Sep 2020 15:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974771;
-        bh=MAsR+OKTtX8ypJugoUpKQOC+iT+UUck+JGdkWEnOczA=;
+        s=default; t=1598974776;
+        bh=I24xA+xdUYKV5J6GVNJn/ZBPTE2W97W1L7NFtlcKG18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iB8VKN19OpRN5uxuM1kR2zps8Xj8M+1VezElPKLbDi4Fto7VA+gyHhm3rE3fUQ+2Z
-         8fvOSyOJexd0QC3UybliZ92yLkuuqBZfWWRY9I5HUt0hkPgaNZrtvA4NymEZ1cOMBY
-         wvdE5/fjMCFqRoqx2EwV6X+rq/q6FWXpgobvSEUA=
+        b=k+FeebT8lwfUR4/dCpyIJ7tLVj2MCvz7K85qmXk6aTl+zsXkskX/oBV9by2yjApN1
+         AFvvxtvFI5NhvH2Qf0Eau3rXd6QM4dklvyn82LzONKWKlvr/8urdS9CUC5hmCvpVDO
+         tQZnQtM6WDK7hac8GwRVW1aW3XzHvWSTOLRKUItU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 054/255] btrfs: file: reserve qgroup space after the hole punch range is locked
-Date:   Tue,  1 Sep 2020 17:08:30 +0200
-Message-Id: <20200901151003.313221333@linuxfoundation.org>
+Subject: [PATCH 5.8 056/255] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
+Date:   Tue,  1 Sep 2020 17:08:32 +0200
+Message-Id: <20200901151003.404069234@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,58 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit a7f8b1c2ac21bf081b41264c9cfd6260dffa6246 ]
+[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
 
-The incoming qgroup reserved space timing will move the data reservation
-to ordered extent completely.
+If scsi_host_lookup() fails we will jump to put_host which may cause a
+panic. Jump to exit_set_fnode instead.
 
-However in btrfs_punch_hole_lock_range() will call
-btrfs_invalidate_page(), which will clear QGROUP_RESERVED bit for the
-range.
-
-In current stage it's OK, but if we're making ordered extents handle the
-reserved space, then btrfs_punch_hole_lock_range() can clear the
-QGROUP_RESERVED bit before we submit ordered extent, leading to qgroup
-reserved space leakage.
-
-So here change the timing to make reserve data space after
-btrfs_punch_hole_lock_range().
-The new timing is fine for either current code or the new code.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 1523aa4eaff07..9e8f6c66788d0 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3176,14 +3176,14 @@ reserve_space:
- 		if (ret < 0)
- 			goto out;
- 		space_reserved = true;
--		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
--						alloc_start, bytes_to_reserve);
--		if (ret)
--			goto out;
- 		ret = btrfs_punch_hole_lock_range(inode, lockstart, lockend,
- 						  &cached_state);
- 		if (ret)
- 			goto out;
-+		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
-+						alloc_start, bytes_to_reserve);
-+		if (ret)
-+			goto out;
- 		ret = btrfs_prealloc_file_range(inode, mode, alloc_start,
- 						alloc_end - alloc_start,
- 						i_blocksize(inode),
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 7ae5024e78243..df07ecd94793a 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -3291,7 +3291,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
+ 		pr_err("%s could not find host no %u\n",
+ 		       __func__, ev->u.set_flashnode.host_no);
+ 		err = -ENODEV;
+-		goto put_host;
++		goto exit_set_fnode;
+ 	}
+ 
+ 	idx = ev->u.set_flashnode.flashnode_idx;
 -- 
 2.25.1
 
