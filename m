@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C79259AE5
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54AF0259AD8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731886AbgIAQyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48332 "EHLO mail.kernel.org"
+        id S1729961AbgIAQyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729698AbgIAPYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:24:24 -0400
+        id S1729957AbgIAPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC1272151B;
-        Tue,  1 Sep 2020 15:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3863D21534;
+        Tue,  1 Sep 2020 15:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973864;
-        bh=7PC9BQif68XqqFEG9ytLgGPrX/aktloSK91Ow6LgB4Y=;
+        s=default; t=1598973866;
+        bh=oSERYQXpQfBuJnrHVHRieZoE8sDcxceBGWQ9X7mqF34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6Wn4Jv7nnPA6Gy82aLZi7F9pli7qcYkT+rTegEtZDMLzLukEFdtKZzGvtX5uVkpG
-         L6DaAWu5qMekCfK6FiuXLgq3+pecj1Y2obwS1sMa0b/xzvV5A1SKY/AVuNDeczuZJs
-         lTCXPk4oSUDymXuPva1WeR7zqP3iI69RSmxANWN8=
+        b=2AmVj6+07AgY6iwEfY2v9qZvZw1L/AdIZl5hXE+T3nPh73b2jiQn6cP3aDEnSBCF/
+         0JpUFQ2279yEcTXLJDF4rWW6PFoH4PglKOfrBSqsjAzGoUB3ilE3Lq14f1PE9NCEHq
+         DsYdp2DAkYev1dtVHXiQGfT9sz14jRdBFC4ZrIYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sumera Priyadarsini <sylphrenadin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/125] net: gianfar: Add of_node_put() before goto statement
-Date:   Tue,  1 Sep 2020 17:10:33 +0200
-Message-Id: <20200901150938.395932806@linuxfoundation.org>
+Subject: [PATCH 4.19 079/125] powerpc/perf: Fix soft lockups due to missed interrupt accounting
+Date:   Tue,  1 Sep 2020 17:10:34 +0200
+Message-Id: <20200901150938.445456964@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -45,44 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumera Priyadarsini <sylphrenadin@gmail.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
+[ Upstream commit 17899eaf88d689529b866371344c8f269ba79b5f ]
 
-Every iteration of for_each_available_child_of_node() decrements
-reference count of the previous node, however when control
-is transferred from the middle of the loop, as in the case of
-a return or break or goto, there is no decrement thus ultimately
-resulting in a memory leak.
+Performance monitor interrupt handler checks if any counter has
+overflown and calls record_and_restart() in core-book3s which invokes
+perf_event_overflow() to record the sample information. Apart from
+creating sample, perf_event_overflow() also does the interrupt and
+period checks via perf_event_account_interrupt().
 
-Fix a potential memory leak in gianfar.c by inserting of_node_put()
-before the goto statement.
+Currently we record information only if the SIAR (Sampled Instruction
+Address Register) valid bit is set (using siar_valid() check) and
+hence the interrupt check.
 
-Issue found with Coccinelle.
+But it is possible that we do sampling for some events that are not
+generating valid SIAR, and hence there is no chance to disable the
+event if interrupts are more than max_samples_per_tick. This leads to
+soft lockup.
 
-Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by adding perf_event_account_interrupt() in the invalid SIAR
+code path for a sampling event. ie if SIAR is invalid, just do
+interrupt check and don't record the sample information.
+
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1596717992-7321-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/core-book3s.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index cf2d1e846a692..8243501c37574 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -844,8 +844,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
- 				continue;
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index 4004dbdab9c7b..d407b73298171 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2087,6 +2087,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
  
- 			err = gfar_parse_group(child, priv, model);
--			if (err)
-+			if (err) {
-+				of_node_put(child);
- 				goto err_grp_init;
-+			}
- 		}
- 	} else { /* SQ_SG_MODE */
- 		err = gfar_parse_group(np, priv, model);
+ 		if (perf_event_overflow(event, &data, regs))
+ 			power_pmu_stop(event, 0);
++	} else if (period) {
++		/* Account for interrupt in case of invalid SIAR */
++		if (perf_event_account_interrupt(event))
++			power_pmu_stop(event, 0);
+ 	}
+ }
+ 
 -- 
 2.25.1
 
