@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5A52599EA
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09912599E2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730241AbgIAQpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:45:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
+        id S1730213AbgIAQpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729628AbgIAP12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:27:28 -0400
+        id S1730202AbgIAP1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:27:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1815420FC3;
-        Tue,  1 Sep 2020 15:27:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBAE520684;
+        Tue,  1 Sep 2020 15:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974047;
-        bh=SF7cbSp+8aJt7HKiEK1+h754VI5LCsyUECgtetCo9QU=;
+        s=default; t=1598974050;
+        bh=ps+HJouMxS0MKhtsq4HA6ltIRrGt1y5G3/30b95tvho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2Q+lc269T40l1R4u5CeYLzdqmRbKm1UQ7WBNl26wLbjccX2+MNn+tUgOudMKV+G+
-         ByjD+TXDFnxj5wY+oUu1Vl9RAsT9sF+2R6hEBdnFIYsDKeus268J0gdAXMblw+0MN6
-         qkEDHDHzfZXjHO1lbAcmF4p9fPG4vyQ9iFyZaIo0=
+        b=GfDlJzRCdvuIzg1t/QIHgkNHVVFSrMjP0cg/NHqRyKcbPpeN0YGFTH9JWkhbUA3wT
+         BvvhH8zlu7T5qZxOSJXQMv/AsXE3EeH80q+I5M0Q5wcSr9dgxnP72PMlqXn2Cz2g7f
+         VsdEc8YNQGcqo/0P3fhE1zLkuv7VgesVQ3radtDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/214] media: pci: ttpci: av7110: fix possible buffer overflow caused by bad DMA value in debiirq()
-Date:   Tue,  1 Sep 2020 17:08:23 +0200
-Message-Id: <20200901150954.080109684@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 024/214] blktrace: ensure our debugfs dir exists
+Date:   Tue,  1 Sep 2020 17:08:24 +0200
+Message-Id: <20200901150954.130300809@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -45,49 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit 6499a0db9b0f1e903d52f8244eacc1d4be00eea2 ]
+[ Upstream commit b431ef837e3374da0db8ff6683170359aaa0859c ]
 
-The value av7110->debi_virt is stored in DMA memory, and it is assigned
-to data, and thus data[0] can be modified at any time by malicious
-hardware. In this case, "if (data[0] < 2)" can be passed, but then
-data[0] can be changed into a large number, which may cause buffer
-overflow when the code "av7110->ci_slot[data[0]]" is used.
+We make an assumption that a debugfs directory exists, but since
+this can fail ensure it exists before allowing blktrace setup to
+complete. Otherwise we end up stuffing blktrace files on the debugfs
+root directory. In the worst case scenario this *in theory* can create
+an eventual panic *iff* in the future a similarly named file is created
+prior on the debugfs root directory. This theoretical crash can happen
+due to a recursive removal followed by a specific dentry removal.
 
-To fix this possible bug, data[0] is assigned to a local variable, which
-replaces the use of data[0].
+This doesn't fix any known crash, however I have seen the files
+go into the main debugfs root directory in cases where the debugfs
+directory was not created due to other internal bugs with blktrace
+now fixed.
 
-Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+blktrace is also completely useless without this directory, so
+this ensures to userspace we only setup blktrace if the kernel
+can stuff files where they are supposed to go into.
+
+debugfs directory creations typically aren't checked for, and we have
+maintainers doing sweep removals of these checks, but since we need this
+check to ensure proper userspace blktrace functionality we make sure
+to annotate the justification for the check.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ttpci/av7110.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/trace/blktrace.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/media/pci/ttpci/av7110.c b/drivers/media/pci/ttpci/av7110.c
-index d0cdee1c6eb0b..bf36b1e22b635 100644
---- a/drivers/media/pci/ttpci/av7110.c
-+++ b/drivers/media/pci/ttpci/av7110.c
-@@ -406,14 +406,15 @@ static void debiirq(unsigned long cookie)
- 	case DATA_CI_GET:
- 	{
- 		u8 *data = av7110->debi_virt;
-+		u8 data_0 = data[0];
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index a4c8f9d9522e4..884333b9fc767 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -535,6 +535,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ #endif
+ 		bt->dir = dir = debugfs_create_dir(buts->name, blk_debugfs_root);
  
--		if ((data[0] < 2) && data[2] == 0xff) {
-+		if (data_0 < 2 && data[2] == 0xff) {
- 			int flags = 0;
- 			if (data[5] > 0)
- 				flags |= CA_CI_MODULE_PRESENT;
- 			if (data[5] > 5)
- 				flags |= CA_CI_MODULE_READY;
--			av7110->ci_slot[data[0]].flags = flags;
-+			av7110->ci_slot[data_0].flags = flags;
- 		} else
- 			ci_get_data(&av7110->ci_rbuffer,
- 				    av7110->debi_virt,
++	/*
++	 * As blktrace relies on debugfs for its interface the debugfs directory
++	 * is required, contrary to the usual mantra of not checking for debugfs
++	 * files or directories.
++	 */
++	if (IS_ERR_OR_NULL(dir)) {
++		pr_warn("debugfs_dir not present for %s so skipping\n",
++			buts->name);
++		ret = -ENOENT;
++		goto err;
++	}
++
+ 	bt->dev = dev;
+ 	atomic_set(&bt->dropped, 0);
+ 	INIT_LIST_HEAD(&bt->running_list);
 -- 
 2.25.1
 
