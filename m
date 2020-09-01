@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6530D259A71
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236762599F7
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730145AbgIAP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52846 "EHLO mail.kernel.org"
+        id S1730193AbgIAP1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:27:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730141AbgIAP0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:49 -0400
+        id S1730188AbgIAP1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:27:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9509F206FA;
-        Tue,  1 Sep 2020 15:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0F52207D3;
+        Tue,  1 Sep 2020 15:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974009;
-        bh=JwN4pNT2uDpqXGOp0JJjNOfm7Wp47yEF9ZKhPxJRc8g=;
+        s=default; t=1598974037;
+        bh=MqAyc3vVX6Sn4o+E+TZtYRzJyGODsIk2bdb5U1rmkkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMB1J+RZ02jZxdoqRmDQ/WKitsSti3QHyG5MrYzEuC0jTFztncadlI+dp9lHT+DNR
-         hS55PyZrVo/T9gpsn9veWfiOzqZnqHFEH0pd0JvYAJ7OQpBYg4+G8JYY8HRfqTDOzI
-         lCzGBcysABSM/AR1432fRikM7fzQybF7xs9iKFqY=
+        b=0eG3BRWnuB7PiB3IQ2SCQEiDOCmjO2IwQD8uSIpsHKw7T4WLEYU6MRm0996P8gkw9
+         pYJPXHG3t/qinz4qtkSB50ET/DbZFDb7oJOa/Sv6Vbkvlf5fbSDdvo3IX02m9DSCZd
+         e6zcmEBnyF4b/+DHnk1K9J5AMSI1ZzETCUrp/uQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Alistair Popple <alistair@popple.id.au>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.4 001/214] powerpc/64s: Dont init FSCR_DSCR in __init_FSCR()
-Date:   Tue,  1 Sep 2020 17:08:01 +0200
-Message-Id: <20200901150953.027519540@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Greg Ungerer <gerg@linux-m68k.org>
+Subject: [PATCH 5.4 002/214] binfmt_flat: revert "binfmt_flat: dont offset the data start"
+Date:   Tue,  1 Sep 2020 17:08:02 +0200
+Message-Id: <20200901150953.075216023@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,79 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 0828137e8f16721842468e33df0460044a0c588b upstream.
+commit 2217b982624680d19a80ebb4600d05c8586c4f96 upstream.
 
-__init_FSCR() was added originally in commit 2468dcf641e4 ("powerpc:
-Add support for context switching the TAR register") (Feb 2013), and
-only set FSCR_TAR.
+binfmt_flat loader uses the gap between text and data to store data
+segment pointers for the libraries. Even in the absence of shared
+libraries it stores at least one pointer to the executable's own data
+segment. Text and data can go back to back in the flat binary image and
+without offsetting data segment last few instructions in the text
+segment may get corrupted by the data segment pointer.
 
-At that point FSCR (Facility Status and Control Register) was not
-context switched, so the setting was permanent after boot.
+Fix it by reverting commit a2357223c50a ("binfmt_flat: don't offset the
+data start").
 
-Later we added initialisation of FSCR_DSCR to __init_FSCR(), in commit
-54c9b2253d34 ("powerpc: Set DSCR bit in FSCR setup") (Mar 2013), again
-that was permanent after boot.
-
-Then commit 2517617e0de6 ("powerpc: Fix context switch DSCR on
-POWER8") (Aug 2013) added a limited context switch of FSCR, just the
-FSCR_DSCR bit was context switched based on thread.dscr_inherit. That
-commit said "This clears the H/FSCR DSCR bit initially", but it
-didn't, it left the initialisation of FSCR_DSCR in __init_FSCR().
-However the initial context switch from init_task to pid 1 would clear
-FSCR_DSCR because thread.dscr_inherit was 0.
-
-That commit also introduced the requirement that FSCR_DSCR be clear
-for user processes, so that we can take the facility unavailable
-interrupt in order to manage dscr_inherit.
-
-Then in commit 152d523e6307 ("powerpc: Create context switch helpers
-save_sprs() and restore_sprs()") (Dec 2015) FSCR was added to
-thread_struct. However it still wasn't fully context switched, we just
-took the existing value and set FSCR_DSCR if the new thread had
-dscr_inherit set. FSCR was still initialised at boot to FSCR_DSCR |
-FSCR_TAR, but that value was not propagated into the thread_struct, so
-the initial context switch set FSCR_DSCR back to 0.
-
-Finally commit b57bd2de8c6c ("powerpc: Improve FSCR init and context
-switching") (Jun 2016) added a full context switch of the FSCR, and
-added an initialisation of init_task.thread.fscr to FSCR_TAR |
-FSCR_EBB, but omitted FSCR_DSCR.
-
-The end result is that swapper runs with FSCR_DSCR set because of the
-initialisation in __init_FSCR(), but no other processes do, they use
-the value from init_task.thread.fscr.
-
-Having FSCR_DSCR set for swapper allows it to access SPR 3 from
-userspace, but swapper never runs userspace, so it has no useful
-effect. It's also confusing to have the value initialised in two
-places to two different values.
-
-So remove FSCR_DSCR from __init_FSCR(), this at least gets us to the
-point where there's a single value of FSCR, even if it's still set in
-two places.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Alistair Popple <alistair@popple.id.au>
-Link: https://lore.kernel.org/r/20200527145843.2761782-1-mpe@ellerman.id.au
-Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: stable@vger.kernel.org
+Fixes: a2357223c50a ("binfmt_flat: don't offset the data start")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/cpu_setup_power.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/binfmt_flat.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/arch/powerpc/kernel/cpu_setup_power.S
-+++ b/arch/powerpc/kernel/cpu_setup_power.S
-@@ -184,7 +184,7 @@ __init_LPCR_ISA300:
+--- a/fs/binfmt_flat.c
++++ b/fs/binfmt_flat.c
+@@ -571,7 +571,7 @@ static int load_flat_file(struct linux_b
+ 			goto err;
+ 		}
  
- __init_FSCR:
- 	mfspr	r3,SPRN_FSCR
--	ori	r3,r3,FSCR_TAR|FSCR_DSCR|FSCR_EBB
-+	ori	r3,r3,FSCR_TAR|FSCR_EBB
- 	mtspr	SPRN_FSCR,r3
- 	blr
+-		len = data_len + extra;
++		len = data_len + extra + MAX_SHARED_LIBS * sizeof(unsigned long);
+ 		len = PAGE_ALIGN(len);
+ 		realdatastart = vm_mmap(NULL, 0, len,
+ 			PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 0);
+@@ -585,7 +585,9 @@ static int load_flat_file(struct linux_b
+ 			vm_munmap(textpos, text_len);
+ 			goto err;
+ 		}
+-		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
++		datapos = ALIGN(realdatastart +
++				MAX_SHARED_LIBS * sizeof(unsigned long),
++				FLAT_DATA_ALIGN);
  
+ 		pr_debug("Allocated data+bss+stack (%u bytes): %lx\n",
+ 			 data_len + bss_len + stack_len, datapos);
+@@ -615,7 +617,7 @@ static int load_flat_file(struct linux_b
+ 		memp_size = len;
+ 	} else {
+ 
+-		len = text_len + data_len + extra;
++		len = text_len + data_len + extra + MAX_SHARED_LIBS * sizeof(u32);
+ 		len = PAGE_ALIGN(len);
+ 		textpos = vm_mmap(NULL, 0, len,
+ 			PROT_READ | PROT_EXEC | PROT_WRITE, MAP_PRIVATE, 0);
+@@ -630,7 +632,9 @@ static int load_flat_file(struct linux_b
+ 		}
+ 
+ 		realdatastart = textpos + ntohl(hdr->data_start);
+-		datapos = ALIGN(realdatastart, FLAT_DATA_ALIGN);
++		datapos = ALIGN(realdatastart +
++				MAX_SHARED_LIBS * sizeof(u32),
++				FLAT_DATA_ALIGN);
+ 
+ 		reloc = (__be32 __user *)
+ 			(datapos + (ntohl(hdr->reloc_start) - text_len));
+@@ -647,9 +651,8 @@ static int load_flat_file(struct linux_b
+ 					 (text_len + full_data
+ 						  - sizeof(struct flat_hdr)),
+ 					 0);
+-			if (datapos != realdatastart)
+-				memmove((void *)datapos, (void *)realdatastart,
+-						full_data);
++			memmove((void *) datapos, (void *) realdatastart,
++					full_data);
+ #else
+ 			/*
+ 			 * This is used on MMU systems mainly for testing.
+@@ -705,7 +708,8 @@ static int load_flat_file(struct linux_b
+ 		if (IS_ERR_VALUE(result)) {
+ 			ret = result;
+ 			pr_err("Unable to read code+data+bss, errno %d\n", ret);
+-			vm_munmap(textpos, text_len + data_len + extra);
++			vm_munmap(textpos, text_len + data_len + extra +
++				MAX_SHARED_LIBS * sizeof(u32));
+ 			goto err;
+ 		}
+ 	}
 
 
