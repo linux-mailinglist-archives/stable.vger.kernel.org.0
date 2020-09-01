@@ -2,115 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF9A258A3C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 10:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74BE2258A48
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 10:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726107AbgIAITn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 04:19:43 -0400
-Received: from mga05.intel.com ([192.55.52.43]:35392 "EHLO mga05.intel.com"
+        id S1726064AbgIAIWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 04:22:09 -0400
+Received: from mga03.intel.com ([134.134.136.65]:37502 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgIAITl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 04:19:41 -0400
-IronPort-SDR: X0Wvf8wimY16R7gC3xoraD0NCRagIrDGhSXWOh9R82X85SnbPcAzs4vDYm5++Wujbsz35uN/FZ
- iYTQ4FcM8vdw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9730"; a="241939710"
+        id S1725848AbgIAIWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 04:22:09 -0400
+IronPort-SDR: Cw0iJDm6I3KvSB38TEEugHmCtXHWMvw1UKMoIZVBEJ/MujleL3j/4lPLDCHNdg9VFYMeYquNy7
+ lYLUxp+gG7eQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9730"; a="157129119"
 X-IronPort-AV: E=Sophos;i="5.76,378,1592895600"; 
-   d="scan'208";a="241939710"
+   d="scan'208";a="157129119"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2020 01:19:41 -0700
-IronPort-SDR: NXpBjrSeVHMCMdhfGfBLnvrMfuYNHl07U+ch2qk3t5MKV/eKLEdVe1unBu2xHER7rKfcFkPfOC
- dHadQhR6MNaA==
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2020 01:22:08 -0700
+IronPort-SDR: Yyjn9M0n58MwxNlAxu38YKWBMNa+ly+sJrQb3oyXt7lYS8cdZj7h/gW2mcIfYEbA/AVBh3xosV
+ 8mTlsUeCLD4Q==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.76,378,1592895600"; 
-   d="scan'208";a="338498788"
-Received: from mylly.fi.intel.com (HELO [10.237.72.198]) ([10.237.72.198])
-  by FMSMGA003.fm.intel.com with ESMTP; 01 Sep 2020 01:19:38 -0700
-Subject: Re: [PATCH 1/2] i2c: i801: Fix runtime PM
-To:     Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        linux-pci@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180627212340.GA161569@bhelgaas-glaptop.roam.corp.google.com>
- <20200828162640.GA2160001@bjorn-Precision-5520>
- <20200831151159.GA11707@gmail.com>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <e40561b7-9b85-4f9d-48d5-7dc11bfb873c@linux.intel.com>
-Date:   Tue, 1 Sep 2020 11:19:37 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
-MIME-Version: 1.0
-In-Reply-To: <20200831151159.GA11707@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+   d="scan'208";a="333643233"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by fmsmga002.fm.intel.com with ESMTP; 01 Sep 2020 01:22:06 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>, <stern@rowland.harvard.edu>,
+        mthierer@gmail.com, balbi@kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v2] usb: Fix out of sync data toggle if a configured device is reconfigured
+Date:   Tue,  1 Sep 2020 11:25:28 +0300
+Message-Id: <20200901082528.12557-1-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/31/20 6:15 PM, Vaibhav Gupta wrote:
-> On Fri, Aug 28, 2020 at 11:26:40AM -0500, Bjorn Helgaas wrote:
->> [+cc Vaibhav]
->>
->> On Wed, Jun 27, 2018 at 04:23:40PM -0500, Bjorn Helgaas wrote:
->>> [+cc Rafael, linux-pm, linux-kernel]
->>>
->>> On Wed, Jun 27, 2018 at 10:15:50PM +0200, Jean Delvare wrote:
->>>> Hi Jarkko,
->>>>
->>>> On Tue, 26 Jun 2018 17:39:12 +0300, Jarkko Nikula wrote:
->>>>> Commit 9c8088c7988 ("i2c: i801: Don't restore config registers on
->>>>> runtime PM") nullified the runtime PM suspend/resume callback pointers
->>>>> while keeping the runtime PM enabled. This causes that device stays in
->>>>> D0 power state and sysfs /sys/bus/pci/devices/.../power/runtime_status
->>>>> shows "error" when runtime PM framework attempts to autosuspend the
->>>>> device.
->>>>>
->>>>> This is due PCI bus runtime PM which checks for driver runtime PM
->>>>> callbacks and returns with -ENOSYS if they are not set. Fix this by
->>>>> having a shared dummy runtime PM callback that returns with success.
->>>>>
->>>>> Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
->>>>
->>>> I don't want to sound like I'm trying to decline all responsibility for
->>>> a regression I caused, but frankly, if just using SIMPLE_DEV_PM_OPS()
->>>> breaks runtime PM, then it's the PM model which is broken, not the
->>>> i2c-i801 driver.
->>>>
->>>> I will boldly claim that the PCI bus runtime code is simply wrong in
->>>> returning -ENOSYS in the absence of runtime PM callbacks, and it should
->>>> be changed to return 0 instead. Or whoever receives that -ENOSYS should
->>>> not treat it as an error - whatever makes more sense.
->>>>
->>>> Having to add dummy functions in every PCI driver that doesn't need to
->>>> do anything special for runtime PM sounds plain stupid. It should be
->>>> pretty obvious that a whole lot of drivers are going to use
->>>> SIMPLE_DEV_PM_OPS() because it exists and seems to do what they want,
->>>> and all of them will be bugged because the PCI core is doing something
->>>> silly and unexpected.
->>>>
->>>> So please let's fix it at the PCI subsystem core level. Adding Bjorn
->>>> and the linux-pci list to Cc.
->>>
->>> Thanks Jean.  What you describe does sound broken.  I think the PM
->>> guys (cc'd) will have a better idea of how to deal with this.
->>
->> Did we ever get anywhere with this?  It seems like the thread petered
->> out.
-> This does seems worrying. I remember, few days earlier you pointed out a driver
-> i2c-nvidia-gpuc.c. In the code, gpu_i2c_suspend() is an empty-body function. And
-> comment mentioned that empty stub is necessary for runtime_pm to work.
-> 
-> And this driver also uses UNIVERSAL_DEV_PM_OPS.
-> 
-This was fixed by c5eb1190074c ("PCI / PM: Allow runtime PM without 
-callback functions"). So no need for empty runtime PM callbacks anymore.
+Userspace drivers that use a SetConfiguration() request to "lightweight"
+reset an already configured usb device might cause data toggles to get out
+of sync between the device and host, and the device becomes unusable.
 
+The xHCI host requires endpoints to be dropped and added back to reset the
+toggle. If USB core notices the new configuration is the same as the
+current active configuration it will avoid these extra steps by calling
+usb_reset_configuration() instead of usb_set_configuration().
+
+A SetConfiguration() request will reset the device side data toggles.
+Make sure usb_reset_configuration() function also drops and adds back the
+endpoints to ensure data toggles are in sync.
+
+To avoid code duplication split the current usb_disable_device() function
+and reuse the endpoint specific part.
+
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Martin Thierer <mthierer@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+Changes for v2:
+  - Fix incorrect return value in error path
+  - Cleanup blank line
+  - Reword commit message
+---
+ drivers/usb/core/message.c | 91 ++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 49 deletions(-)
+
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 6197938dcc2d..ae1de9cc4b09 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1205,6 +1205,34 @@ void usb_disable_interface(struct usb_device *dev, struct usb_interface *intf,
+ 	}
+ }
+ 
++/*
++ * usb_disable_device_endpoints -- Disable all endpoints for a device
++ * @dev: the device whose endpoints are being disabled
++ * @skip_ep0: 0 to disable endpoint 0, 1 to skip it.
++ */
++static void usb_disable_device_endpoints(struct usb_device *dev, int skip_ep0)
++{
++	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
++	int i;
++
++	if (hcd->driver->check_bandwidth) {
++		/* First pass: Cancel URBs, leave endpoint pointers intact. */
++		for (i = skip_ep0; i < 16; ++i) {
++			usb_disable_endpoint(dev, i, false);
++			usb_disable_endpoint(dev, i + USB_DIR_IN, false);
++		}
++		/* Remove endpoints from the host controller internal state */
++		mutex_lock(hcd->bandwidth_mutex);
++		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
++		mutex_unlock(hcd->bandwidth_mutex);
++	}
++	/* Second pass: remove endpoint pointers */
++	for (i = skip_ep0; i < 16; ++i) {
++		usb_disable_endpoint(dev, i, true);
++		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
++	}
++}
++
+ /**
+  * usb_disable_device - Disable all the endpoints for a USB device
+  * @dev: the device whose endpoints are being disabled
+@@ -1218,7 +1246,6 @@ void usb_disable_interface(struct usb_device *dev, struct usb_interface *intf,
+ void usb_disable_device(struct usb_device *dev, int skip_ep0)
+ {
+ 	int i;
+-	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
+ 
+ 	/* getting rid of interfaces will disconnect
+ 	 * any drivers bound to them (a key side effect)
+@@ -1264,22 +1291,8 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
+ 
+ 	dev_dbg(&dev->dev, "%s nuking %s URBs\n", __func__,
+ 		skip_ep0 ? "non-ep0" : "all");
+-	if (hcd->driver->check_bandwidth) {
+-		/* First pass: Cancel URBs, leave endpoint pointers intact. */
+-		for (i = skip_ep0; i < 16; ++i) {
+-			usb_disable_endpoint(dev, i, false);
+-			usb_disable_endpoint(dev, i + USB_DIR_IN, false);
+-		}
+-		/* Remove endpoints from the host controller internal state */
+-		mutex_lock(hcd->bandwidth_mutex);
+-		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
+-		mutex_unlock(hcd->bandwidth_mutex);
+-		/* Second pass: remove endpoint pointers */
+-	}
+-	for (i = skip_ep0; i < 16; ++i) {
+-		usb_disable_endpoint(dev, i, true);
+-		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
+-	}
++
++	usb_disable_device_endpoints(dev, skip_ep0);
+ }
+ 
+ /**
+@@ -1522,6 +1535,9 @@ EXPORT_SYMBOL_GPL(usb_set_interface);
+  * The caller must own the device lock.
+  *
+  * Return: Zero on success, else a negative error code.
++ *
++ * If this routine fails the device will probably be in an unusable state
++ * with endpoints disabled, and interfaces only partially enabled.
+  */
+ int usb_reset_configuration(struct usb_device *dev)
+ {
+@@ -1537,10 +1553,7 @@ int usb_reset_configuration(struct usb_device *dev)
+ 	 * calls during probe() are fine
+ 	 */
+ 
+-	for (i = 1; i < 16; ++i) {
+-		usb_disable_endpoint(dev, i, true);
+-		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
+-	}
++	usb_disable_device_endpoints(dev, 1); /* skip ep0*/
+ 
+ 	config = dev->actconfig;
+ 	retval = 0;
+@@ -1553,34 +1566,10 @@ int usb_reset_configuration(struct usb_device *dev)
+ 		mutex_unlock(hcd->bandwidth_mutex);
+ 		return -ENOMEM;
+ 	}
+-	/* Make sure we have enough bandwidth for each alternate setting 0 */
+-	for (i = 0; i < config->desc.bNumInterfaces; i++) {
+-		struct usb_interface *intf = config->interface[i];
+-		struct usb_host_interface *alt;
+ 
+-		alt = usb_altnum_to_altsetting(intf, 0);
+-		if (!alt)
+-			alt = &intf->altsetting[0];
+-		if (alt != intf->cur_altsetting)
+-			retval = usb_hcd_alloc_bandwidth(dev, NULL,
+-					intf->cur_altsetting, alt);
+-		if (retval < 0)
+-			break;
+-	}
+-	/* If not, reinstate the old alternate settings */
++	/* xHCI adds all endpoints in usb_hcd_alloc_bandwidth */
++	retval = usb_hcd_alloc_bandwidth(dev, config, NULL, NULL);
+ 	if (retval < 0) {
+-reset_old_alts:
+-		for (i--; i >= 0; i--) {
+-			struct usb_interface *intf = config->interface[i];
+-			struct usb_host_interface *alt;
+-
+-			alt = usb_altnum_to_altsetting(intf, 0);
+-			if (!alt)
+-				alt = &intf->altsetting[0];
+-			if (alt != intf->cur_altsetting)
+-				usb_hcd_alloc_bandwidth(dev, NULL,
+-						alt, intf->cur_altsetting);
+-		}
+ 		usb_enable_lpm(dev);
+ 		mutex_unlock(hcd->bandwidth_mutex);
+ 		return retval;
+@@ -1589,8 +1578,12 @@ int usb_reset_configuration(struct usb_device *dev)
+ 			USB_REQ_SET_CONFIGURATION, 0,
+ 			config->desc.bConfigurationValue, 0,
+ 			NULL, 0, USB_CTRL_SET_TIMEOUT);
+-	if (retval < 0)
+-		goto reset_old_alts;
++	if (retval < 0) {
++		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
++		usb_enable_lpm(dev);
++		mutex_unlock(hcd->bandwidth_mutex);
++		return retval;
++	}
+ 	mutex_unlock(hcd->bandwidth_mutex);
+ 
+ 	/* re-init hc/hcd interface/endpoint state */
 -- 
-Jarkko
+2.17.1
+
