@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEE1259D10
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AADF8259BF2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732729AbgIARX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+        id S1729595AbgIARJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:09:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726285AbgIAPLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:11:46 -0400
+        id S1728670AbgIAPRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA9AF2078B;
-        Tue,  1 Sep 2020 15:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1068820767;
+        Tue,  1 Sep 2020 15:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973105;
-        bh=Ogk8MZaDBf4JA0gbv2X0/yg77BbapuRkk1sa2XyGvMM=;
+        s=default; t=1598973467;
+        bh=VaX1+Ny6L+YXxWnugwcXEPKB6ewm/BTnTiDqgAWIiVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2fTKaBj793ZIysRJ21PbkiGeoDQVyCy7WHJF5bt9cRRdLz1meJC/1LlBNGCvmt9p
-         dH8Jx05qBEa4YmUSsYbghkqxKLKjXIltppFDeUaiNGQzSz7mqIg1igBRn39Tpho0rn
-         h1cZwFE7fC8dG7fuKy+lWxKFBbxSh6srRdzctK44=
+        b=UmBETSq3N0Rp9hw/xnVM61HhZSUje3V4oafbVsg0d53MopgSul3oyJ4DohESrGqAC
+         l1/Oac/F5Z3A+ba0MIb9k+xq+aAkRV696wq/zh+AFt44mdGLostZ3fmCo/iIj+RIP6
+         cdvCkahGFmTJMcisvquCZqMCEAFBtPvqu5CqO4jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 01/62] net: Fix potential wrong skb->protocol in skb_vlan_untag()
-Date:   Tue,  1 Sep 2020 17:09:44 +0200
-Message-Id: <20200901150920.786123163@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/91] media: pci: ttpci: av7110: fix possible buffer overflow caused by bad DMA value in debiirq()
+Date:   Tue,  1 Sep 2020 17:09:45 +0200
+Message-Id: <20200901150928.666814366@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,34 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
 
-[ Upstream commit 55eff0eb7460c3d50716ed9eccf22257b046ca92 ]
+[ Upstream commit 6499a0db9b0f1e903d52f8244eacc1d4be00eea2 ]
 
-We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). So
-we should pull VLAN_HLEN + sizeof(unsigned short) in skb_vlan_untag() or
-we may access the wrong data.
+The value av7110->debi_virt is stored in DMA memory, and it is assigned
+to data, and thus data[0] can be modified at any time by malicious
+hardware. In this case, "if (data[0] < 2)" can be passed, but then
+data[0] can be changed into a large number, which may cause buffer
+overflow when the code "av7110->ci_slot[data[0]]" is used.
 
-Fixes: 0d5501c1c828 ("net: Always untag vlan-tagged traffic on input.")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this possible bug, data[0] is assigned to a local variable, which
+replaces the use of data[0].
+
+Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/ttpci/av7110.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -4370,8 +4370,8 @@ struct sk_buff *skb_vlan_untag(struct sk
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (unlikely(!skb))
- 		goto err_free;
--
--	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
-+	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
-+	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
- 		goto err_free;
+diff --git a/drivers/media/pci/ttpci/av7110.c b/drivers/media/pci/ttpci/av7110.c
+index f46947d8adf8f..fcc053d95ae49 100644
+--- a/drivers/media/pci/ttpci/av7110.c
++++ b/drivers/media/pci/ttpci/av7110.c
+@@ -423,14 +423,15 @@ static void debiirq(unsigned long cookie)
+ 	case DATA_CI_GET:
+ 	{
+ 		u8 *data = av7110->debi_virt;
++		u8 data_0 = data[0];
  
- 	vhdr = (struct vlan_hdr *)skb->data;
+-		if ((data[0] < 2) && data[2] == 0xff) {
++		if (data_0 < 2 && data[2] == 0xff) {
+ 			int flags = 0;
+ 			if (data[5] > 0)
+ 				flags |= CA_CI_MODULE_PRESENT;
+ 			if (data[5] > 5)
+ 				flags |= CA_CI_MODULE_READY;
+-			av7110->ci_slot[data[0]].flags = flags;
++			av7110->ci_slot[data_0].flags = flags;
+ 		} else
+ 			ci_get_data(&av7110->ci_rbuffer,
+ 				    av7110->debi_virt,
+-- 
+2.25.1
+
 
 
