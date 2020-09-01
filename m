@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6CF25935C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27D72592D8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729981AbgIAPYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:24:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
+        id S1729420AbgIAPRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbgIAPYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:24:52 -0400
+        id S1729417AbgIAPRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C5242078B;
-        Tue,  1 Sep 2020 15:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41705206FA;
+        Tue,  1 Sep 2020 15:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973892;
-        bh=mI2ix3jDcTd6+yitBSFLtIfCRzJi7p2SJWcUmdKPOQU=;
+        s=default; t=1598973452;
+        bh=MPM8xQu0kMXTrgKqN6pug1ACKJ2u56+BVhn4erh7HLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+QQTq9HG5QQhQWy1cTS6Uzk8btU7GGg5PY9q4gz1X/LT9HSHQuJubjurgOJIlYj0
-         0vdSB+qkWmncRZWTuISR9XQcPx6Kr38uoX+8AmEh/HuAKpVKIOxN4B8RnGhEYbjqec
-         duhty0sposNLo6fYOhMoVlG3hAOEIEQ/A1WS8dV8=
+        b=VFEGZq8rb5Z+K2gavdKotUydkVS7lZmDxp2lDCsjC7fCBDEc5+JChWMlEAmJ7h0PO
+         akF/JsdHSNFRD941DmNQ/vM6bDR/qlsa4sfsRyR58OZ+4EWjm64mXl+vG/YgE8oIoN
+         38jMRhof8Jn3ROhuEDcgi8qiWytp1gjiubw1w7BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 088/125] vt_ioctl: change VT_RESIZEX ioctl to check for error return from vc_resize()
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>
+Subject: [PATCH 4.9 67/78] usb: uas: Add quirk for PNY Pro Elite
 Date:   Tue,  1 Sep 2020 17:10:43 +0200
-Message-Id: <20200901150938.891267321@linuxfoundation.org>
+Message-Id: <20200901150928.132315862@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit bc5269ca765057a1b762e79a1cfd267cd7bf1c46 upstream.
+commit 9a469bc9f32dd33c7aac5744669d21a023a719cd upstream.
 
-vc_resize() can return with an error after failure. Change VT_RESIZEX ioctl
-to save struct vc_data values that are modified and restore the original
-values in case of error.
+PNY Pro Elite USB 3.1 Gen 2 device (SSD) doesn't respond to ATA_12
+pass-through command (i.e. it just hangs). If it doesn't support this
+command, it should respond properly to the host. Let's just add a quirk
+to be able to move forward with other operations.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-2-git-send-email-george.kennedy@oracle.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Link: https://lore.kernel.org/r/2b0585228b003eedcc82db84697b31477df152e0.1597803605.git.thinhn@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -893,12 +893,22 @@ int vt_ioctl(struct tty_struct *tty,
- 			console_lock();
- 			vcp = vc_cons[i].d;
- 			if (vcp) {
-+				int ret;
-+				int save_scan_lines = vcp->vc_scan_lines;
-+				int save_font_height = vcp->vc_font.height;
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -156,6 +156,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
+ 
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
 +
- 				if (v.v_vlin)
- 					vcp->vc_scan_lines = v.v_vlin;
- 				if (v.v_clin)
- 					vcp->vc_font.height = v.v_clin;
- 				vcp->vc_resize_user = 1;
--				vc_resize(vcp, v.v_cols, v.v_rows);
-+				ret = vc_resize(vcp, v.v_cols, v.v_rows);
-+				if (ret) {
-+					vcp->vc_scan_lines = save_scan_lines;
-+					vcp->vc_font.height = save_font_height;
-+					console_unlock();
-+					return ret;
-+				}
- 			}
- 			console_unlock();
- 		}
+ /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+ UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
+ 		"VIA",
 
 
