@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84019259489
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A215A2593BE
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731504AbgIAPkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:40:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52146 "EHLO mail.kernel.org"
+        id S1730601AbgIAPaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731251AbgIAPko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:40:44 -0400
+        id S1730593AbgIAPaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99F05206EF;
-        Tue,  1 Sep 2020 15:40:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6E172078B;
+        Tue,  1 Sep 2020 15:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974844;
-        bh=fgw8t3NnhMFaUUKRwL+4eoTTjNCPCjwBU1jrwJ9Oky8=;
+        s=default; t=1598974215;
+        bh=gFg3mT5egsP14MTeQNbTG7x7JmJeEAdQR1uiseNTQp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2d9Fg2g1tVFBrJJBhASPwbfqUXXStgYIkfXItzQipJ8ifq+II3a02dmW7NUO2X0R
-         9G84XdQYDWEp6Z4VrHgAuQAkUteyKGbRPyyeg3pdpZuorjtDufyvydjLju41UaKVtc
-         C5k5fXH8f0FGbYGC62mcvTzjVPkMliyM282dPeh4=
+        b=jalBhlbSmDnlSqVe0DIiUKysobK8i+Fjy7EU/GixghuNpIlqQkYbEbypPTQJI8WOm
+         cVvkHhJnDrVsvVSYsTmoWD6ISohlbq+ZnLuvJBMsYIjqsbifECInIHHqeqJUB2eIUZ
+         Hx0OKO3gvEwb7dAwgBQiiiJ//fIciH45h9yJ67wY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Dinse <nanook@eskimo.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jeremy Kerr <jk@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 085/255] nfsd: fix oops on mixed NFSv4/NFSv3 client access
-Date:   Tue,  1 Sep 2020 17:09:01 +0200
-Message-Id: <20200901151004.808554866@linuxfoundation.org>
+Subject: [PATCH 5.4 062/214] powerpc/spufs: add CONFIG_COREDUMP dependency
+Date:   Tue,  1 Sep 2020 17:09:02 +0200
+Message-Id: <20200901150955.946510868@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 34b09af4f54e6485e28f138ccad159611a240cc1 ]
+[ Upstream commit b648a5132ca3237a0f1ce5d871fff342b0efcf8a ]
 
-If an NFSv2/v3 client breaks an NFSv4 client's delegation, it will hit a
-NULL dereference in nfsd_breaker_owns_lease().
+The kernel test robot pointed out a slightly different error message
+after recent commit 5456ffdee666 ("powerpc/spufs: simplify spufs core
+dumping") to spufs for a configuration that never worked:
 
-Easily reproduceable with for example
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_proxydma_info_dump':
+>> file.c:(.text+0x4c68): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_dma_info_dump':
+   file.c:(.text+0x4d70): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_wbox_info_dump':
+   file.c:(.text+0x4df4): undefined reference to `.dump_emit'
 
-	mount -overs=4.2 server:/export /mnt/
-	sleep 1h </mnt/file &
-	mount -overs=3 server:/export /mnt2/
-	touch /mnt2/file
+Add a Kconfig dependency to prevent this from happening again.
 
-Reported-by: Robert Dinse <nanook@eskimo.com>
-Fixes: 28df3d1539de50 ("nfsd: clients don't need to break their own delegations")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208807
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200706132302.3885935-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/cell/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index c9056316a0b35..cea682ce8aa12 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4597,6 +4597,8 @@ static bool nfsd_breaker_owns_lease(struct file_lock *fl)
- 	if (!i_am_nfsd())
- 		return NULL;
- 	rqst = kthread_data(current);
-+	if (!rqst->rq_lease_breaker)
-+		return NULL;
- 	clp = *(rqst->rq_lease_breaker);
- 	return dl->dl_stid.sc_client == clp;
- }
+diff --git a/arch/powerpc/platforms/cell/Kconfig b/arch/powerpc/platforms/cell/Kconfig
+index 0f7c8241912b9..f2ff359041eec 100644
+--- a/arch/powerpc/platforms/cell/Kconfig
++++ b/arch/powerpc/platforms/cell/Kconfig
+@@ -44,6 +44,7 @@ config SPU_FS
+ 	tristate "SPU file system"
+ 	default m
+ 	depends on PPC_CELL
++	depends on COREDUMP
+ 	select SPU_BASE
+ 	help
+ 	  The SPU file system is used to access Synergistic Processing
 -- 
 2.25.1
 
