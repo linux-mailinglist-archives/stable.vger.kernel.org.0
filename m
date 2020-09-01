@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47149259415
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B482595A2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728674AbgIAPf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:35:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41206 "EHLO mail.kernel.org"
+        id S1732044AbgIAPyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728209AbgIAPf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:35:27 -0400
+        id S1731948AbgIAPqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:46:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AFBF20866;
-        Tue,  1 Sep 2020 15:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC8E206EF;
+        Tue,  1 Sep 2020 15:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974526;
-        bh=uZ2cKxuigQGTZJA16yFuIuvZhEK5XCUeHR7VZ6noavE=;
+        s=default; t=1598975198;
+        bh=28qg86Fv2yHSlE6KxT+YVbBILfN1ppMYun3R6tD+i5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oqT0GHyuG2zK4BS16fXJT1whY/vjUQEOpZjfrQCA/DybquuSyI9D5JiOqI7/UPujS
-         j6R4aobt9TzvQ+iFzQD1MGwPWNCbLnd1sN7w9UP2Ex5Kajun/BETCa7WZGErcu6zA8
-         1jktZyhJgn5CfQbDeFU0Vh3EUfe/ykqdxFz9IkUo=
+        b=LtmT8xLi+Rn4TxynZiBUIND7JTBL4XqQ7rGafWyBcPQEE5Zn2LG34GSsL9BRQivwu
+         bHsR8RyTEFkt5nGELCvmaweRf4eOXsIUrlo4zcZfVk0Y/rjrStLKco+HnxvlgdiTFq
+         10sczAEQbS2oQUoNCZdMgGXlyBAH+ysJr1x8NjQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brice Goglin <brice.goglin@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Cyril Roelandt <tipecaml@gmail.com>
-Subject: [PATCH 5.4 193/214] USB: Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>
+Subject: [PATCH 5.8 217/255] drm/amd/powerplay: Fix hardmins not being sent to SMU for RV
 Date:   Tue,  1 Sep 2020 17:11:13 +0200
-Message-Id: <20200901151002.194608271@linuxfoundation.org>
+Message-Id: <20200901151011.098452723@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyril Roelandt <tipecaml@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit 9aa37788e7ebb3f489fb4b71ce07adadd444264a upstream.
+commit e2bf3723db563457c0abe4eaeedac25bbbbd1d76 upstream.
 
-This device does not support UAS properly and a similar entry already
-exists in drivers/usb/storage/unusual_uas.h. Without this patch,
-storage_probe() defers the handling of this device to UAS, which cannot
-handle it either.
+[Why]
+DC uses these to raise the voltage as needed for higher dispclk/dppclk
+and to ensure that we have enough bandwidth to drive the displays.
 
-Tested-by: Brice Goglin <brice.goglin@gmail.com>
-Fixes: bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron SATA enclosure")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
-Link: https://lore.kernel.org/r/20200825212231.46309-1-tipecaml@gmail.com
+There's a bug preventing these from actuially sending messages since
+it's checking the actual clock (which is 0) instead of the incoming
+clock (which shouldn't be 0) when deciding to send the hardmin.
+
+[How]
+Check the clocks != 0 instead of the actual clocks.
+
+Fixes: 9ed9203c3ee7 ("drm/amd/powerplay: rv dal-pplib interface refactor powerplay part")
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2328,7 +2328,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x
- 		"JMicron",
- 		"USB to ATA/ATAPI Bridge",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_BROKEN_FUA ),
-+		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+@@ -204,8 +204,7 @@ static int smu10_set_min_deep_sleep_dcef
+ {
+ 	struct smu10_hwmgr *smu10_data = (struct smu10_hwmgr *)(hwmgr->backend);
  
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
+-	if (smu10_data->need_min_deep_sleep_dcefclk &&
+-		smu10_data->deep_sleep_dcefclk != clock) {
++	if (clock && smu10_data->deep_sleep_dcefclk != clock) {
+ 		smu10_data->deep_sleep_dcefclk = clock;
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 					PPSMC_MSG_SetMinDeepSleepDcefclk,
+@@ -219,8 +218,7 @@ static int smu10_set_hard_min_dcefclk_by
+ {
+ 	struct smu10_hwmgr *smu10_data = (struct smu10_hwmgr *)(hwmgr->backend);
+ 
+-	if (smu10_data->dcf_actual_hard_min_freq &&
+-		smu10_data->dcf_actual_hard_min_freq != clock) {
++	if (clock && smu10_data->dcf_actual_hard_min_freq != clock) {
+ 		smu10_data->dcf_actual_hard_min_freq = clock;
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 					PPSMC_MSG_SetHardMinDcefclkByFreq,
+@@ -234,8 +232,7 @@ static int smu10_set_hard_min_fclk_by_fr
+ {
+ 	struct smu10_hwmgr *smu10_data = (struct smu10_hwmgr *)(hwmgr->backend);
+ 
+-	if (smu10_data->f_actual_hard_min_freq &&
+-		smu10_data->f_actual_hard_min_freq != clock) {
++	if (clock && smu10_data->f_actual_hard_min_freq != clock) {
+ 		smu10_data->f_actual_hard_min_freq = clock;
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 					PPSMC_MSG_SetHardMinFclkByFreq,
 
 
