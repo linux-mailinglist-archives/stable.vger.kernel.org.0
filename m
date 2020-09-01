@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492502592D3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B67B25930F
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729394AbgIAPRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:17:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34654 "EHLO mail.kernel.org"
+        id S1729628AbgIAPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729391AbgIAPRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:18 -0400
+        id S1729272AbgIAPUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 649FC206EB;
-        Tue,  1 Sep 2020 15:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFAFF2078B;
+        Tue,  1 Sep 2020 15:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973437;
-        bh=NQBcjjpv6sV35Js4GWPwNcH636eXkfIniq7D1dg7nfA=;
+        s=default; t=1598973639;
+        bh=AJxNCwJ6+PHBrRYEj/sLrEtcip7g+O9YK+Oac/lIGR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfT5K0V9pbWWjEom7T/JEB2gKZfmGYeIZeRhkZxBnedwcYApLbc7bqPhUoWpfcH4H
-         gFqVlld3in4C76ioOXMxWFRmdm+dSOc4VAl6TlR/a5g/gC7VJF9iTeuxvU5yM8NgLI
-         x7GRavFjh07iUwjKsapXGxPULVwZIWYaKowFLGYo=
+        b=q52LzeDcdsAA4faa+ljcS2qi/+7VJllSQgzKOA381uQa+qCdIThS9iO8U1L1IViGT
+         Z3kvRZFG0lVOd3o/5G2qcY6TA0OuUej9Xd4NMPES7XcsFkXskz6XYNIlsY10JN2eei
+         bpsxPxJZRCil5sq4iobZszSKMZtfNS5ClA2DLZSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 78/78] ALSA: usb-audio: Update documentation comment for MS2109 quirk
+        stable@vger.kernel.org, Brice Goglin <brice.goglin@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Cyril Roelandt <tipecaml@gmail.com>
+Subject: [PATCH 4.14 80/91] USB: Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
 Date:   Tue,  1 Sep 2020 17:10:54 +0200
-Message-Id: <20200901150928.644151116@linuxfoundation.org>
+Message-Id: <20200901150932.155815658@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Cyril Roelandt <tipecaml@gmail.com>
 
-commit 74a2a7de81a2ef20732ec02087314e92692a7a1b upstream.
+commit 9aa37788e7ebb3f489fb4b71ce07adadd444264a upstream.
 
-As the recent fix addressed the channel swap problem more properly,
-update the comment as well.
+This device does not support UAS properly and a similar entry already
+exists in drivers/usb/storage/unusual_uas.h. Without this patch,
+storage_probe() defers the handling of this device to UAS, which cannot
+handle it either.
 
-Fixes: 1b7ecc241a67 ("ALSA: usb-audio: work around streaming quirk for MacroSilicon MS2109")
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20200816084431.102151-1-marcan@marcan.st
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Brice Goglin <brice.goglin@gmail.com>
+Fixes: bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron SATA enclosure")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
+Link: https://lore.kernel.org/r/20200825212231.46309-1-tipecaml@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks-table.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/storage/unusual_devs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3331,8 +3331,8 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
-  * they pretend to be 96kHz mono as a workaround for stereo being broken
-  * by that...
-  *
-- * They also have swapped L-R channels, but that's for userspace to deal
-- * with.
-+ * They also have an issue with initial stream alignment that causes the
-+ * channels to be swapped and out of phase, which is dealt with in quirks.c.
-  */
- {
- 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2347,7 +2347,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x
+ 		"JMicron",
+ 		"USB to ATA/ATAPI Bridge",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_BROKEN_FUA ),
++		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
+ 
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
 
 
