@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A215A2593BE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC46425948D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgIAPaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
+        id S1730141AbgIAPlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730593AbgIAPaP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:15 -0400
+        id S1731516AbgIAPk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:40:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6E172078B;
-        Tue,  1 Sep 2020 15:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32D55206EF;
+        Tue,  1 Sep 2020 15:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974215;
-        bh=gFg3mT5egsP14MTeQNbTG7x7JmJeEAdQR1uiseNTQp8=;
+        s=default; t=1598974857;
+        bh=fIHIM0NwOWuvBqLrNo02Cp7DkkhrsMdirJnurd7PR9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jalBhlbSmDnlSqVe0DIiUKysobK8i+Fjy7EU/GixghuNpIlqQkYbEbypPTQJI8WOm
-         cVvkHhJnDrVsvVSYsTmoWD6ISohlbq+ZnLuvJBMsYIjqsbifECInIHHqeqJUB2eIUZ
-         Hx0OKO3gvEwb7dAwgBQiiiJ//fIciH45h9yJ67wY=
+        b=OZRGggsI/1nB6HuuvX8PyQryDuACLFlYfP5SSiI4fpgSvCL9izZIrm31ConDHgoNh
+         bjnIvUlevUe7PH1rFKCsWQl1xTUOZZCVCq0eN314jcKxPPoRT67xIXjCBGRhx38fI3
+         D630ZpY1mvIn57hy3hfHW7+XWB4V9JUiTaTv09PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jeremy Kerr <jk@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/214] powerpc/spufs: add CONFIG_COREDUMP dependency
-Date:   Tue,  1 Sep 2020 17:09:02 +0200
-Message-Id: <20200901150955.946510868@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Changpeng Liu <changpeng.liu@intel.com>,
+        Daniel Verkamp <dverkamp@chromium.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 087/255] block: virtio_blk: fix handling single range discard request
+Date:   Tue,  1 Sep 2020 17:09:03 +0200
+Message-Id: <20200901151004.895777425@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit b648a5132ca3237a0f1ce5d871fff342b0efcf8a ]
+[ Upstream commit af822aa68fbdf0a480a17462ed70232998127453 ]
 
-The kernel test robot pointed out a slightly different error message
-after recent commit 5456ffdee666 ("powerpc/spufs: simplify spufs core
-dumping") to spufs for a configuration that never worked:
+1f23816b8eb8 ("virtio_blk: add discard and write zeroes support") starts
+to support multi-range discard for virtio-blk. However, the virtio-blk
+disk may report max discard segment as 1, at least that is exactly what
+qemu is doing.
 
-   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_proxydma_info_dump':
->> file.c:(.text+0x4c68): undefined reference to `.dump_emit'
-   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_dma_info_dump':
-   file.c:(.text+0x4d70): undefined reference to `.dump_emit'
-   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_wbox_info_dump':
-   file.c:(.text+0x4df4): undefined reference to `.dump_emit'
+So far, block layer switches to normal request merge if max discard segment
+limit is 1, and multiple bios can be merged to single segment. This way may
+cause memory corruption in virtblk_setup_discard_write_zeroes().
 
-Add a Kconfig dependency to prevent this from happening again.
+Fix the issue by handling single max discard segment in straightforward
+way.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Jeremy Kerr <jk@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200706132302.3885935-1-arnd@arndb.de
+Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Changpeng Liu <changpeng.liu@intel.com>
+Cc: Daniel Verkamp <dverkamp@chromium.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/cell/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/virtio_blk.c | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/cell/Kconfig b/arch/powerpc/platforms/cell/Kconfig
-index 0f7c8241912b9..f2ff359041eec 100644
---- a/arch/powerpc/platforms/cell/Kconfig
-+++ b/arch/powerpc/platforms/cell/Kconfig
-@@ -44,6 +44,7 @@ config SPU_FS
- 	tristate "SPU file system"
- 	default m
- 	depends on PPC_CELL
-+	depends on COREDUMP
- 	select SPU_BASE
- 	help
- 	  The SPU file system is used to access Synergistic Processing
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 980df853ee497..99991b6a6f0ed 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -126,16 +126,31 @@ static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
+ 	if (!range)
+ 		return -ENOMEM;
+ 
+-	__rq_for_each_bio(bio, req) {
+-		u64 sector = bio->bi_iter.bi_sector;
+-		u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
+-
+-		range[n].flags = cpu_to_le32(flags);
+-		range[n].num_sectors = cpu_to_le32(num_sectors);
+-		range[n].sector = cpu_to_le64(sector);
+-		n++;
++	/*
++	 * Single max discard segment means multi-range discard isn't
++	 * supported, and block layer only runs contiguity merge like
++	 * normal RW request. So we can't reply on bio for retrieving
++	 * each range info.
++	 */
++	if (queue_max_discard_segments(req->q) == 1) {
++		range[0].flags = cpu_to_le32(flags);
++		range[0].num_sectors = cpu_to_le32(blk_rq_sectors(req));
++		range[0].sector = cpu_to_le64(blk_rq_pos(req));
++		n = 1;
++	} else {
++		__rq_for_each_bio(bio, req) {
++			u64 sector = bio->bi_iter.bi_sector;
++			u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
++
++			range[n].flags = cpu_to_le32(flags);
++			range[n].num_sectors = cpu_to_le32(num_sectors);
++			range[n].sector = cpu_to_le64(sector);
++			n++;
++		}
+ 	}
+ 
++	WARN_ON_ONCE(n != segments);
++
+ 	req->special_vec.bv_page = virt_to_page(range);
+ 	req->special_vec.bv_offset = offset_in_page(range);
+ 	req->special_vec.bv_len = sizeof(*range) * segments;
 -- 
 2.25.1
 
