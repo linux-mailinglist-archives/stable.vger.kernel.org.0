@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 143822593FE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5096F2594EF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730527AbgIAPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38426 "EHLO mail.kernel.org"
+        id S1731788AbgIAPoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:44:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731225AbgIAPdz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:55 -0400
+        id S1731817AbgIAPoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:44:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9693921548;
-        Tue,  1 Sep 2020 15:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B100206FA;
+        Tue,  1 Sep 2020 15:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974434;
-        bh=F28mCmXKaBmHgq8qKpeLK4Q0Oq+MJkm+PsF6ppduwXk=;
+        s=default; t=1598975077;
+        bh=t1WLS8EBNDQ55XLUQkg96xIlVp4iWCrQvJynvhjL1KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+E3APUV+wWAlRxdsL4ywzjsGtMabHWoOShhXN4TbyLaSe3IMSgcmg3o7f/RSS8Hf
-         FWw8tJswDRMtf2xIY5Dk/3BbpTZvJ4gJ02+Kudo0tGiJyeIop7mU9XqM2YLAG2fU7b
-         5dJiXIoXrPBEWcYSTkDTzIW/hKL6FYDcORfWEk9k=
+        b=jG1wH9QAQuaYh7s4kpK2J7i+/rPUmJEUt5yC9F2p6DgKQD7ErnG4Uvt6hyHLX3bNz
+         E846ReTJJ3cNtVu5RzB/77aIWu3O0zgzmFiIlzBWx8MJRwIcziKD/V9Daq7ryTiswK
+         vpesCwc6eelNY2I7NbAcinEyU9bIQaouhxMq8CmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alan Stern <stern@rowland.harvard.edu>,
         Utkarsh H Patel <utkarsh.h.patel@intel.com>,
         Pengfei Xu <pengfei.xu@intel.com>
-Subject: [PATCH 5.4 175/214] PM: sleep: core: Fix the handling of pending runtime resume requests
-Date:   Tue,  1 Sep 2020 17:10:55 +0200
-Message-Id: <20200901151001.366487984@linuxfoundation.org>
+Subject: [PATCH 5.8 200/255] PM: sleep: core: Fix the handling of pending runtime resume requests
+Date:   Tue,  1 Sep 2020 17:10:56 +0200
+Message-Id: <20200901151010.277903525@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -99,7 +99,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/base/power/main.c
 +++ b/drivers/base/power/main.c
-@@ -1728,13 +1728,17 @@ static int __device_suspend(struct devic
+@@ -1606,13 +1606,17 @@ static int __device_suspend(struct devic
  	}
  
  	/*
