@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDF02598EA
+	by mail.lfdr.de (Postfix) with ESMTP id CE0662598EB
 	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730307AbgIAP37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:29:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
+        id S1730592AbgIAPaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730567AbgIAP35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:29:57 -0400
+        id S1730299AbgIAPaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AB752078B;
-        Tue,  1 Sep 2020 15:29:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20FB820684;
+        Tue,  1 Sep 2020 15:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974197;
-        bh=kPvXC1q2GmkliQciWKKb/LdEJYKqO3ID4Wsv5KP+0Z4=;
+        s=default; t=1598974199;
+        bh=pv5+ct0WOPpI6PgAzSEL0FqEv8tW97yD1vGjkjgCw98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJOAwYpX/aj79Ax9quO/wk+jbX60ITBMR5GJTGf8/Zmyebw7RfCeoSRvNcG/M156y
-         9wOvwZJ5X1OYssld/lPfJaEMTmuf+OwHaG+oger94G3jYgqCRqVdei4itoTOwkwXzs
-         FSUp5D67D6gk+bChaFB7sPA4/Z8sfcFKqar1qWZY=
+        b=aU/84PAmsViEEENWrGfd7vRA6mQoPQJxr4xegAltPLbDNs4pOIJJJnuBwn5beD+vq
+         n9Lxu7Eq/TwnnBD8KK30gNIzESPQGsK0K4Pj5W22GCykKZQ/lgp6ckqqNc1Gzg8RLx
+         +Peh7PgQ5M63N6zw5op8l8SinjcC2G5WrQh57AHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, Yue Hu <huyue2@yulong.com>,
-        Peng Fan <peng.fan@nxp.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Ryohei Suzuki <ryh.szk.cmnty@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Roman Gushchin <guro@fb.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Michal Nazarewicz <mina86@mina86.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/214] mm/cma.c: switch to bitmap_zalloc() for cma bitmap allocation
-Date:   Tue,  1 Sep 2020 17:09:22 +0200
-Message-Id: <20200901150956.926570179@linuxfoundation.org>
+Subject: [PATCH 5.4 083/214] cma: dont quit at first error when activating reserved areas
+Date:   Tue,  1 Sep 2020 17:09:23 +0200
+Message-Id: <20200901150956.973985422@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -52,58 +51,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 2184f9928ab52f26c2ae5e9ba37faf29c78f50b8 ]
+[ Upstream commit 3a5139f1c5bb76d69756fb8f13fffa173e261153 ]
 
-kzalloc() is used for cma bitmap allocation in cma_activate_area(),
-switch to bitmap_zalloc() for clarity.
+The routine cma_init_reserved_areas is designed to activate all
+reserved cma areas.  It quits when it first encounters an error.
+This can leave some areas in a state where they are reserved but
+not activated.  There is no feedback to code which performed the
+reservation.  Attempting to allocate memory from areas in such a
+state will result in a BUG.
 
-Link: http://lkml.kernel.org/r/895d4627-f115-c77a-d454-c0a196116426@huawei.com
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Yue Hu <huyue2@yulong.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Ryohei Suzuki <ryh.szk.cmnty@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Doug Berger <opendmb@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Modify cma_init_reserved_areas to always attempt to activate all
+areas.  The called routine, cma_activate_area is responsible for
+leaving the area in a valid state.  No one is making active use
+of returned error codes, so change the routine to void.
+
+How to reproduce:  This example uses kernelcore, hugetlb and cma
+as an easy way to reproduce.  However, this is a more general cma
+issue.
+
+Two node x86 VM 16GB total, 8GB per node
+Kernel command line parameters, kernelcore=4G hugetlb_cma=8G
+Related boot time messages,
+  hugetlb_cma: reserve 8192 MiB, up to 4096 MiB per node
+  cma: Reserved 4096 MiB at 0x0000000100000000
+  hugetlb_cma: reserved 4096 MiB on node 0
+  cma: Reserved 4096 MiB at 0x0000000300000000
+  hugetlb_cma: reserved 4096 MiB on node 1
+  cma: CMA area hugetlb could not be activated
+
+ # echo 8 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ...
+  Call Trace:
+    bitmap_find_next_zero_area_off+0x51/0x90
+    cma_alloc+0x1a5/0x310
+    alloc_fresh_huge_page+0x78/0x1a0
+    alloc_pool_huge_page+0x6f/0xf0
+    set_max_huge_pages+0x10c/0x250
+    nr_hugepages_store_common+0x92/0x120
+    ? __kmalloc+0x171/0x270
+    kernfs_fop_write+0xc1/0x1a0
+    vfs_write+0xc7/0x1f0
+    ksys_write+0x5f/0xe0
+    do_syscall_64+0x4d/0x90
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: c64be2bb1c6e ("drivers: add Contiguous Memory Allocator")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Barry Song <song.bao.hua@hisilicon.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Michal Nazarewicz <mina86@mina86.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200730163123.6451-1-mike.kravetz@oracle.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ mm/cma.c | 23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
 diff --git a/mm/cma.c b/mm/cma.c
-index 7fe0b8356775f..be55d1988c675 100644
+index be55d1988c675..7de520c0a1db6 100644
 --- a/mm/cma.c
 +++ b/mm/cma.c
-@@ -95,13 +95,11 @@ static void cma_clear_bitmap(struct cma *cma, unsigned long pfn,
+@@ -93,17 +93,15 @@ static void cma_clear_bitmap(struct cma *cma, unsigned long pfn,
+ 	mutex_unlock(&cma->lock);
+ }
  
- static int __init cma_activate_area(struct cma *cma)
+-static int __init cma_activate_area(struct cma *cma)
++static void __init cma_activate_area(struct cma *cma)
  {
--	int bitmap_size = BITS_TO_LONGS(cma_bitmap_maxno(cma)) * sizeof(long);
  	unsigned long base_pfn = cma->base_pfn, pfn = base_pfn;
  	unsigned i = cma->count >> pageblock_order;
  	struct zone *zone;
  
--	cma->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
--
-+	cma->bitmap = bitmap_zalloc(cma_bitmap_maxno(cma), GFP_KERNEL);
- 	if (!cma->bitmap) {
- 		cma->count = 0;
- 		return -ENOMEM;
-@@ -139,7 +137,7 @@ static int __init cma_activate_area(struct cma *cma)
+ 	cma->bitmap = bitmap_zalloc(cma_bitmap_maxno(cma), GFP_KERNEL);
+-	if (!cma->bitmap) {
+-		cma->count = 0;
+-		return -ENOMEM;
+-	}
++	if (!cma->bitmap)
++		goto out_error;
+ 
+ 	WARN_ON_ONCE(!pfn_valid(pfn));
+ 	zone = page_zone(pfn_to_page(pfn));
+@@ -133,25 +131,22 @@ static int __init cma_activate_area(struct cma *cma)
+ 	spin_lock_init(&cma->mem_head_lock);
+ #endif
+ 
+-	return 0;
++	return;
  
  not_in_zone:
- 	pr_err("CMA area %s could not be activated\n", cma->name);
--	kfree(cma->bitmap);
-+	bitmap_free(cma->bitmap);
+-	pr_err("CMA area %s could not be activated\n", cma->name);
+ 	bitmap_free(cma->bitmap);
++out_error:
  	cma->count = 0;
- 	return -EINVAL;
+-	return -EINVAL;
++	pr_err("CMA area %s could not be activated\n", cma->name);
++	return;
+ }
+ 
+ static int __init cma_init_reserved_areas(void)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < cma_area_count; i++) {
+-		int ret = cma_activate_area(&cma_areas[i]);
+-
+-		if (ret)
+-			return ret;
+-	}
++	for (i = 0; i < cma_area_count; i++)
++		cma_activate_area(&cma_areas[i]);
+ 
+ 	return 0;
  }
 -- 
 2.25.1
