@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364AA2598E3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0B5259AE7
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730687AbgIAQeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:34:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
+        id S1729933AbgIAPYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:24:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730479AbgIAPbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:31:08 -0400
+        id S1729877AbgIAPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:23:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8033020866;
-        Tue,  1 Sep 2020 15:31:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16CF62078B;
+        Tue,  1 Sep 2020 15:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974268;
-        bh=8o1ia7Fk7UU6QLPzZBMU8sFpEz/+iYGN44b6+wNdW9s=;
+        s=default; t=1598973839;
+        bh=wWypa74ApxnbJrtT25Hj2RfEkG8HY3F1rSeh2fTUozo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvO4/qB+oEVeoXcHRtPy+hyluIkvKsQzSqkGFz4MEehKTjq9TITH88l7aofY+1obF
-         JnaSzdl5YzK65SGdIzDNIw39CxFWpQvsFcjkycBOOiOQcgqjEMSm0pILYfDC5dYk2T
-         FcJ8v2b34ckeJPX+jIq7yFQA42ceayNTaYa7u+Os=
+        b=dF939gj1QrR1xUKiBqf5M+iDi/yFkOB8bFVJRqtP1Mzvby26kngKd7yLYzei+imle
+         7k/cAfWkJXYA9jlJ9mm8u7WU72sFVNTbE4IDjN1O/1xuT/Nk76hqGzwODOaNSV3DRn
+         dw7H5GCC+TnrwbZDSx237M11oBuazcLLp0zcxucs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 111/214] i2c: rcar: in slave mode, clear NACK earlier
-Date:   Tue,  1 Sep 2020 17:09:51 +0200
-Message-Id: <20200901150958.301557647@linuxfoundation.org>
+        stable@vger.kernel.org, Li Guifu <bluce.liguifu@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 037/125] f2fs: fix use-after-free issue
+Date:   Tue,  1 Sep 2020 17:09:52 +0200
+Message-Id: <20200901150936.376893944@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-[ Upstream commit 914a7b3563b8fb92f976619bbd0fa3a4a708baae ]
+[ Upstream commit 99c787cfd2bd04926f1f553b30bd7dcea2caaba1 ]
 
-Currently, a NACK in slave mode is set/cleared when SCL is held low by
-the IP core right before the bit is about to be pushed out. This is too
-late for clearing and then a NACK from the previous byte is still used
-for the current one. Now, let's clear the NACK right after we detected
-the STOP condition following the NACK.
+During umount, f2fs_put_super() unregisters procfs entries after
+f2fs_destroy_segment_manager(), it may cause use-after-free
+issue when umount races with procfs accessing, fix it by relocating
+f2fs_unregister_sysfs().
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[Chao Yu: change commit title/message a bit]
+
+Signed-off-by: Li Guifu <bluce.liguifu@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/super.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0b90aa0318df3..9c162a01a5849 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -587,6 +587,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- 	/* master sent stop */
- 	if (ssr_filtered & SSR) {
- 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
-+		rcar_i2c_write(priv, ICSCR, SIE | SDBS); /* clear our NACK */
- 		rcar_i2c_write(priv, ICSIER, SAR);
- 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
- 	}
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 9782250c98156..161ce0eb8891a 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1004,6 +1004,9 @@ static void f2fs_put_super(struct super_block *sb)
+ 	int i;
+ 	bool dropped;
+ 
++	/* unregister procfs/sysfs entries in advance to avoid race case */
++	f2fs_unregister_sysfs(sbi);
++
+ 	f2fs_quota_off_umount(sb);
+ 
+ 	/* prevent remaining shrinker jobs */
+@@ -1067,8 +1070,6 @@ static void f2fs_put_super(struct super_block *sb)
+ 
+ 	kfree(sbi->ckpt);
+ 
+-	f2fs_unregister_sysfs(sbi);
+-
+ 	sb->s_fs_info = NULL;
+ 	if (sbi->s_chksum_driver)
+ 		crypto_free_shash(sbi->s_chksum_driver);
 -- 
 2.25.1
 
