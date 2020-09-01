@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3768825927E
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD42925936A
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728841AbgIAPND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S1730023AbgIAPZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:25:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728830AbgIAPM7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:12:59 -0400
+        id S1730017AbgIAPZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:25:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 101E720BED;
-        Tue,  1 Sep 2020 15:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2672020BED;
+        Tue,  1 Sep 2020 15:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973177;
-        bh=mdxoQ4ei3+fvVShYPWCRRxh5xRlB/KycAgoxaaOHUIA=;
+        s=default; t=1598973914;
+        bh=loNW8vulpaTwGdG8J1vyIIQEP2OudAGgSdq4gP20T0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nra6jwn6yIzeMApeXUfgs+wUHdF/KklH+QsCKWCwP6UZbkU+OL/TbsVBCm0Gf7/nJ
-         iPCygYvSSPoPXc6z49CZI3PD9oQs+Buf43lKuLYPL53FIimP+nzFdPnmlXf4Ca0Uxr
-         mWnuGTbcsuGGJvLTgbrhevxMZjzGC4ExOa9/rznY=
+        b=o+OUm3zDuV4uKw0BwRxsPwQ4vizhhDMqZX5wL0nsZDuW/+YTy/p9ee1pbB54tVx3d
+         F6OguB9VGgxdjKAQb4RH7XX723ml11MDuN7UHAL2yL/4yx7ayj2jl7GgDNIYi41IAn
+         ghhI9W1Dulo+sUgNEcxatB1iIlJ7S2pEGO31HPcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sumera Priyadarsini <sylphrenadin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
+        Alain Volmat <alain.volmat@st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 38/62] net: gianfar: Add of_node_put() before goto statement
-Date:   Tue,  1 Sep 2020 17:10:21 +0200
-Message-Id: <20200901150922.656618190@linuxfoundation.org>
+Subject: [PATCH 4.19 067/125] spi: stm32: fix stm32_spi_prepare_mbr in case of odd clk_rate
+Date:   Tue,  1 Sep 2020 17:10:22 +0200
+Message-Id: <20200901150937.856694702@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumera Priyadarsini <sylphrenadin@gmail.com>
+From: Amelie Delaunay <amelie.delaunay@st.com>
 
-[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
+[ Upstream commit 9cc61973bf9385b19ff5dda4a2a7e265fcba85e4 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-reference count of the previous node, however when control
-is transferred from the middle of the loop, as in the case of
-a return or break or goto, there is no decrement thus ultimately
-resulting in a memory leak.
+Fix spi->clk_rate when it is odd to the nearest lowest even value because
+minimum SPI divider is 2.
 
-Fix a potential memory leak in gianfar.c by inserting of_node_put()
-before the goto statement.
-
-Issue found with Coccinelle.
-
-Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+Link: https://lore.kernel.org/r/1597043558-29668-4-git-send-email-alain.volmat@st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-stm32.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index 37cc1f838dd8b..96310e2ee5458 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -845,8 +845,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
- 				continue;
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index ad1e55d3d5d59..391a20b3d2fda 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -254,7 +254,8 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz)
+ {
+ 	u32 div, mbrdiv;
  
- 			err = gfar_parse_group(child, priv, model);
--			if (err)
-+			if (err) {
-+				of_node_put(child);
- 				goto err_grp_init;
-+			}
- 		}
- 	} else { /* SQ_SG_MODE */
- 		err = gfar_parse_group(np, priv, model);
+-	div = DIV_ROUND_UP(spi->clk_rate, speed_hz);
++	/* Ensure spi->clk_rate is even */
++	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
+ 
+ 	/*
+ 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
 -- 
 2.25.1
 
