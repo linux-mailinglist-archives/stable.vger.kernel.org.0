@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C2D259C26
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3BB7259CDA
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbgIAPP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60572 "EHLO mail.kernel.org"
+        id S1731357AbgIARVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729249AbgIAPP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:57 -0400
+        id S1728768AbgIAPMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF5B9206FA;
-        Tue,  1 Sep 2020 15:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 468112078B;
+        Tue,  1 Sep 2020 15:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973357;
-        bh=wixgLls1W+QFGB7zm8+td2/LTyhetrTglGsHbXEsXIM=;
+        s=default; t=1598973157;
+        bh=70y0KJuPXC0HxpM5glw05GRVeqAhCkIz/rC48ePyieM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5A0cBR7d5prJxBpl1x4eGt0BEnPM3NIWR3P+2UiwH3btmgWztBGsYtC4JWbR/77b
-         4W689LZ/UycxzmRR284GnFc2fcDFQ9zoGmLvTgUQ2wA5mDe2tpSasC0/0k2qdUrCKG
-         D7jNmruFfiY65v1uPrYH6XEdN26AOhHaEkhFwkIE=
+        b=KXABE/nkLuJoHVJ9VorexYmzm80KmYfpZ5x99VafNta66MLgs6MAPvlYWbKJ6bz5B
+         2SyVM8jsWH8P+BXXHEGE+sNYt0M53yNdrCwHH0ItQ5P0M8uyJPLxdJwqb+yAA/0ocr
+         vItWlL58osZ7GXPv1jngPZl3ROodhn5i2iiaTYrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/78] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
+Subject: [PATCH 4.4 22/62] drm/nouveau/drm/noveau: fix reference count leak in nouveau_fbcon_open
 Date:   Tue,  1 Sep 2020 17:10:05 +0200
-Message-Id: <20200901150926.201441015@linuxfoundation.org>
+Message-Id: <20200901150921.851558358@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
+[ Upstream commit bfad51c7633325b5d4b32444efe04329d53297b2 ]
 
-If scsi_host_lookup() fails we will jump to put_host which may cause a
-panic. Jump to exit_set_fnode instead.
+nouveau_fbcon_open() calls calls pm_runtime_get_sync() that
+increments the reference count. In case of failure, decrement the
+ref count before returning the error.
 
-Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 42b97f1196232..c2bce3f6eaace 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -3191,7 +3191,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
- 		pr_err("%s could not find host no %u\n",
- 		       __func__, ev->u.set_flashnode.host_no);
- 		err = -ENODEV;
--		goto put_host;
-+		goto exit_set_fnode;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index edb3a23ded5d5..11183839f6fad 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -184,8 +184,10 @@ nouveau_fbcon_open(struct fb_info *info, int user)
+ 	struct nouveau_fbdev *fbcon = info->par;
+ 	struct nouveau_drm *drm = nouveau_drm(fbcon->dev);
+ 	int ret = pm_runtime_get_sync(drm->dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put(drm->dev->dev);
+ 		return ret;
++	}
+ 	return 0;
+ }
  
- 	idx = ev->u.set_flashnode.flashnode_idx;
 -- 
 2.25.1
 
