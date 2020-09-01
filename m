@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05E9C259C22
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B6C259BAA
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbgIARLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32806 "EHLO mail.kernel.org"
+        id S1728431AbgIARFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729278AbgIAPQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:13 -0400
+        id S1729547AbgIAPTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB46E206EB;
-        Tue,  1 Sep 2020 15:16:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F07C1215A4;
+        Tue,  1 Sep 2020 15:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973373;
-        bh=wZYcmCEmIqGYnq6Min8mgzatzLhIO07/7HKSNXgnsWs=;
+        s=default; t=1598973577;
+        bh=vJr+chEqIzqZPZ+PRsXl/2RaVUEPlrN/pdSNATEKF0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waWWXiS6o3GXLKbTAOwZge0FQA/FfbjJZKlL8RwCK7ihwXREaP8MVnFRA1JEMmfwW
-         qNDC11NBI3azzDFo/gA8t9tHZh8z99EYZ5jdyHi5Vufi1BYIwrUYtaTRAtC2kPdaZ6
-         5SRLTYHR5TebJMq4vkY588FNuN0/HFjIP3y28VIQ=
+        b=m/pTrGsmqBzo13s6BZXJomVoYt57YZlo3uIpVocfWkdBiB8nN1ZzfnEZJG0IsGSUX
+         +uqKpYrUl+qhOjpaeTmZ3j5R6YHq/jpix9nFbZFFVJjYLn4SSpnKv9zb/3C09qrnFT
+         pXtNus0lI6iwaRdrdJfarca6MbLYbtds5eLkQxgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>
-Subject: [PATCH 4.9 52/78] USB: lvtest: return proper error code in probe
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/91] scsi: ufs: Improve interrupt handling for shared interrupts
 Date:   Tue,  1 Sep 2020 17:10:28 +0200
-Message-Id: <20200901150927.352710759@linuxfoundation.org>
+Message-Id: <20200901150930.800468667@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 531412492ce93ea29b9ca3b4eb5e3ed771f851dd upstream.
+[ Upstream commit 127d5f7c4b653b8be5eb3b2c7bbe13728f9003ff ]
 
-lvs_rh_probe() can return some nonnegative value from usb_control_msg()
-when it is less than "USB_DT_HUB_NONVAR_SIZE + 2" that is considered as
-a failure. Make lvs_rh_probe() return -EINVAL in this case.
+For shared interrupts, the interrupt status might be zero, so check that
+first.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200805090643.3432-1-novikov@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200811133936.19171-2-adrian.hunter@intel.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/lvstest.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/misc/lvstest.c
-+++ b/drivers/usb/misc/lvstest.c
-@@ -392,7 +392,7 @@ static int lvs_rh_probe(struct usb_inter
- 			USB_DT_SS_HUB_SIZE, USB_CTRL_GET_TIMEOUT);
- 	if (ret < (USB_DT_HUB_NONVAR_SIZE + 2)) {
- 		dev_err(&hdev->dev, "wrong root hub descriptor read %d\n", ret);
--		return ret;
-+		return ret < 0 ? ret : -EINVAL;
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 3b4214feae971..619fe46fcc5f0 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5373,7 +5373,7 @@ static void ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
+  */
+ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ {
+-	u32 intr_status, enabled_intr_status;
++	u32 intr_status, enabled_intr_status = 0;
+ 	irqreturn_t retval = IRQ_NONE;
+ 	struct ufs_hba *hba = __hba;
+ 	int retries = hba->nutrs;
+@@ -5387,7 +5387,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 	 * read, make sure we handle them by checking the interrupt status
+ 	 * again in a loop until we process all of the reqs before returning.
+ 	 */
+-	do {
++	while (intr_status && retries--) {
+ 		enabled_intr_status =
+ 			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
+ 		if (intr_status)
+@@ -5398,7 +5398,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 		}
  
- 	/* submit urb to poll interrupt endpoint */
+ 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
+-	} while (intr_status && --retries);
++	}
+ 
+ 	spin_unlock(hba->host->host_lock);
+ 	return retval;
+-- 
+2.25.1
+
 
 
