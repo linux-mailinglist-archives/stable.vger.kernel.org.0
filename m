@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F0D25943F
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95512259441
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbgIAPhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:37:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45276 "EHLO mail.kernel.org"
+        id S1728101AbgIAPhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:37:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727944AbgIAPhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:37:20 -0400
+        id S1731330AbgIAPhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:37:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71BEA20E65;
-        Tue,  1 Sep 2020 15:37:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D22FF21582;
+        Tue,  1 Sep 2020 15:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974639;
-        bh=yXRgW0aOwALn1rcUi2JmE2/N6ulJoEuKCS41lc6gquQ=;
+        s=default; t=1598974642;
+        bh=nPjr62iDyDw76cIsvSNQAF6YytqSbALHux2+KtPnUTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wYDGQuniJ7j6bUiJPyTAug16/vZK51u9tvgUAbVFNRMSxqkI4HwQyFaHdU2rB1/ih
-         CwBv9GLwEtwlOIi9YEAwKTh34diieBNdpgM5w7UCF+BKGFzGsYgUjJMksl4BUqHixK
-         Dyr9lfu+p/3TPuF0TipIBuI/qIh7dba9Yz8qWBnE=
+        b=LAe7i9n2qUuJ18Idv0IKMTpADQLY4eVp+GgcEeHygwh4ZhlTPgg265x1pRmlmqdCI
+         AZUjFY6celIDAdQGAiY6QytNTQrX4hE5N1uGAcTDu8+A+iudjN0z8tn22obeFdN9WN
+         ODP4DsFrAUlQ4XZZC7SaNb4fCV7Pn0kYfSq9nWs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        kjlu@umn.edu, wu000273@umn.edu,
+        Allison Randal <allison@lohutok.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Enrico Weigelt <info@metux.net>,
+        "Andrew F. Davis" <afd@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 038/255] MIPS: KVM: Limit Trap-and-Emulate to MIPS32R2 only
-Date:   Tue,  1 Sep 2020 17:08:14 +0200
-Message-Id: <20200901151002.585715997@linuxfoundation.org>
+Subject: [PATCH 5.8 039/255] omapfb: fix multiple reference count leaks due to pm_runtime_get_sync
+Date:   Tue,  1 Sep 2020 17:08:15 +0200
+Message-Id: <20200901151002.631724750@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,54 +52,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 01edc5e76ecfecf9a79eec2658f6146ef47bc816 ]
+[ Upstream commit 78c2ce9bde70be5be7e3615a2ae7024ed8173087 ]
 
-After tons of fixes to get Trap-and-Emulate build on Loongson64,
-I've got panic on host machine when trying to run a VM.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-I found that it can never work on 64bit systems. Revewing the
-code, it looks like R6 can't supportrd by TE as well.
-
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Message-Id: <20200710063047.154611-3-jiaxun.yang@flygoat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Cc: kjlu@umn.edu
+Cc: wu000273@umn.edu
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Enrico Weigelt <info@metux.net>
+cc: "Andrew F. Davis" <afd@ti.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Alexios Zavras <alexios.zavras@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200614030528.128064-1-pakki001@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig     | 1 +
- arch/mips/kvm/Kconfig | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/omap2/omapfb/dss/dispc.c | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/dsi.c   | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/dss.c   | 7 +++++--
+ drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c | 5 +++--
+ drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c | 5 +++--
+ drivers/video/fbdev/omap2/omapfb/dss/venc.c  | 7 +++++--
+ 6 files changed, 26 insertions(+), 12 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index a7e40bb1e5bc6..c43ad3b3cea4b 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2203,6 +2203,7 @@ endchoice
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dispc.c b/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
+index 4a16798b2ecd8..e2b572761bf61 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dispc.c
+@@ -520,8 +520,11 @@ int dispc_runtime_get(void)
+ 	DSSDBG("dispc_runtime_get\n");
  
- config KVM_GUEST
- 	bool "KVM Guest Kernel"
-+	depends on CPU_MIPS32_R2
- 	depends on BROKEN_ON_SMP
- 	help
- 	  Select this option if building a guest kernel for KVM (Trap & Emulate)
-diff --git a/arch/mips/kvm/Kconfig b/arch/mips/kvm/Kconfig
-index 2bf02d849a3a8..032b3fca6cbba 100644
---- a/arch/mips/kvm/Kconfig
-+++ b/arch/mips/kvm/Kconfig
-@@ -37,10 +37,11 @@ choice
+ 	r = pm_runtime_get_sync(&dispc.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dispc.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ EXPORT_SYMBOL(dispc_runtime_get);
  
- config KVM_MIPS_TE
- 	bool "Trap & Emulate"
-+	depends on CPU_MIPS32_R2
- 	help
- 	  Use trap and emulate to virtualize 32-bit guests in user mode. This
- 	  does not require any special hardware Virtualization support beyond
--	  standard MIPS32/64 r2 or later, but it does require the guest kernel
-+	  standard MIPS32 r2 or later, but it does require the guest kernel
- 	  to be configured with CONFIG_KVM_GUEST=y so that it resides in the
- 	  user address segment.
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dsi.c b/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
+index d620376216e1d..6f9c25fec9946 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dsi.c
+@@ -1137,8 +1137,11 @@ static int dsi_runtime_get(struct platform_device *dsidev)
+ 	DSSDBG("dsi_runtime_get\n");
  
+ 	r = pm_runtime_get_sync(&dsi->pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dsi->pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void dsi_runtime_put(struct platform_device *dsidev)
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+index bfc5c4c5a26ad..a6b1c1598040d 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+@@ -768,8 +768,11 @@ int dss_runtime_get(void)
+ 	DSSDBG("dss_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&dss.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&dss.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ void dss_runtime_put(void)
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c b/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
+index 7060ae56c062c..4804aab342981 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/hdmi4.c
+@@ -39,9 +39,10 @@ static int hdmi_runtime_get(void)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi.pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&hdmi.pdev->dev);
+ 		return r;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c b/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
+index ac49531e47327..a06b6f1355bdb 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/hdmi5.c
+@@ -43,9 +43,10 @@ static int hdmi_runtime_get(void)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi.pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&hdmi.pdev->dev);
+ 		return r;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/venc.c b/drivers/video/fbdev/omap2/omapfb/dss/venc.c
+index d5404d56c922f..0b0ad20afd630 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/venc.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/venc.c
+@@ -348,8 +348,11 @@ static int venc_runtime_get(void)
+ 	DSSDBG("venc_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&venc.pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_sync(&venc.pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void venc_runtime_put(void)
 -- 
 2.25.1
 
