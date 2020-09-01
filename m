@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D785B25950D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6860325950E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731923AbgIAPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:46:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35372 "EHLO mail.kernel.org"
+        id S1731928AbgIAPqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726512AbgIAPqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:46:05 -0400
+        id S1731926AbgIAPqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:46:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E0D62064B;
-        Tue,  1 Sep 2020 15:46:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02691206FA;
+        Tue,  1 Sep 2020 15:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975165;
-        bh=nen8rbwTQ4JvbkPLYxyfVe+jS2BIf74BjMDoianqLnA=;
+        s=default; t=1598975167;
+        bh=M6mO7aD4g3nwn2ky5GQ939Xtf4Z8vXz99rt/x9hNkn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4XUazhvcdJFaDbXOAHJiNnosUwhtVP4yh8L4SQcE65PhqZw2p5dtXLTafTSZ2dDQ
-         a+BqyT2nm7C8V1ZewW7FekhCeVbZ+gIM0ICjIoXN9/6WyaPNJe6CZbPuL+JHusagaq
-         /1N/Xl6k+YP3wHnAXZco5vdp48GSnBtzsIlxI+qM=
+        b=wG+r2VO5Jv65epQZfVvs/x5ll0EgcegQiPM+jSbMIoukDC6JV9xR5wWCPaBqbcCsD
+         C6ui0HlQXGSeN/OBQuYINC7Ahu0kvf0WEr670EoreV3/ovPuvnQ8utgNGTlyEmGhwn
+         FpovIzaZRuS9aATC1wnGUlb8IQXRFDS6kFnkOivw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.8 234/255] USB: cdc-acm: rework notification_buffer resizing
-Date:   Tue,  1 Sep 2020 17:11:30 +0200
-Message-Id: <20200901151011.963098463@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        =?UTF-8?q?Till=20D=C3=B6rges?= <doerges@pre-sense.de>
+Subject: [PATCH 5.8 235/255] usb: storage: Add unusual_uas entry for Sony PSZ drives
+Date:   Tue,  1 Sep 2020 17:11:31 +0200
+Message-Id: <20200901151012.009820301@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -43,99 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit f4b9d8a582f738c24ebeabce5cc15f4b8159d74e upstream.
+commit 20934c0de13b49a072fb1e0ca79fe0fe0e40eae5 upstream.
 
-Clang static analysis reports this error
+The PSZ-HA* family of USB disk drives from Sony can't handle the
+REPORT OPCODES command when using the UAS protocol.  This patch adds
+an appropriate quirks entry.
 
-cdc-acm.c:409:3: warning: Use of memory after it is freed
-        acm_process_notification(acm, (unsigned char *)dr);
-
-There are three problems, the first one is that dr is not reset
-
-The variable dr is set with
-
-if (acm->nb_index)
-	dr = (struct usb_cdc_notification *)acm->notification_buffer;
-
-But if the notification_buffer is too small it is resized with
-
-		if (acm->nb_size) {
-			kfree(acm->notification_buffer);
-			acm->nb_size = 0;
-		}
-		alloc_size = roundup_pow_of_two(expected_size);
-		/*
-		 * kmalloc ensures a valid notification_buffer after a
-		 * use of kfree in case the previous allocation was too
-		 * small. Final freeing is done on disconnect.
-		 */
-		acm->notification_buffer =
-			kmalloc(alloc_size, GFP_ATOMIC);
-
-dr should point to the new acm->notification_buffer.
-
-The second problem is any data in the notification_buffer is lost
-when the pointer is freed.  In the normal case, the current data
-is accumulated in the notification_buffer here.
-
-	memcpy(&acm->notification_buffer[acm->nb_index],
-	       urb->transfer_buffer, copy_size);
-
-When a resize happens, anything before
-notification_buffer[acm->nb_index] is garbage.
-
-The third problem is the acm->nb_index is not reset on a
-resizing buffer error.
-
-So switch resizing to using krealloc and reassign dr and
-reset nb_index.
-
-Fixes: ea2583529cd1 ("cdc-acm: reassemble fragmented notifications")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20200801152154.20683-1-trix@redhat.com
+Reported-and-tested-by: Till Dörges <doerges@pre-sense.de>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200826143229.GB400430@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -378,21 +378,19 @@ static void acm_ctrl_irq(struct urb *urb
- 	if (current_size < expected_size) {
- 		/* notification is transmitted fragmented, reassemble */
- 		if (acm->nb_size < expected_size) {
--			if (acm->nb_size) {
--				kfree(acm->notification_buffer);
--				acm->nb_size = 0;
--			}
-+			u8 *new_buffer;
- 			alloc_size = roundup_pow_of_two(expected_size);
--			/*
--			 * kmalloc ensures a valid notification_buffer after a
--			 * use of kfree in case the previous allocation was too
--			 * small. Final freeing is done on disconnect.
--			 */
--			acm->notification_buffer =
--				kmalloc(alloc_size, GFP_ATOMIC);
--			if (!acm->notification_buffer)
-+			/* Final freeing is done on disconnect. */
-+			new_buffer = krealloc(acm->notification_buffer,
-+					      alloc_size, GFP_ATOMIC);
-+			if (!new_buffer) {
-+				acm->nb_index = 0;
- 				goto exit;
-+			}
-+
-+			acm->notification_buffer = new_buffer;
- 			acm->nb_size = alloc_size;
-+			dr = (struct usb_cdc_notification *)acm->notification_buffer;
- 		}
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -28,6 +28,13 @@
+  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
+  */
  
- 		copy_size = min(current_size,
++/* Reported-by: Till Dörges <doerges@pre-sense.de> */
++UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x9999,
++		"Sony",
++		"PSZ-HA*",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /* Reported-by: Julian Groß <julian.g@posteo.de> */
+ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
+ 		"LaCie",
 
 
