@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BE525975C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DADBB259718
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbgIAQNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
+        id S1731426AbgIAQKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731250AbgIAPgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:36:15 -0400
+        id S1731391AbgIAPiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:38:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E507621707;
-        Tue,  1 Sep 2020 15:36:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E42220E65;
+        Tue,  1 Sep 2020 15:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974574;
-        bh=+kj9s/5ZqlyNsnM52p3naaPPs/OU12x7yQGwDwRDM5w=;
+        s=default; t=1598974688;
+        bh=oTjC9jfaLqaZgNMzxkpn5Xgk4LZV2PW+EeOGjegi/zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0slcQnaI6nrzG5Xnq7AHSJyJpRGFOiBliolkOfM+CkTm5+mhRWoZ5F4h3C0JYIpXo
-         v57LeS8lADIRCy1tSVjsYbc/6SUl+g/SALyEm0rT3tDN5vu9+xHAPJm2GwVpq96wTX
-         MD1IDTdrJCM7keSyqFzuL8BHyCA9yTI5k2fn8bLI=
+        b=yl6BC8DZp1TErz3osVJr9xSHxuyTGiQKyn/2O53+D8ETQ7LwLkSHVdahnYXoANRTe
+         JA+yllBT37Jl0y1x4m8zzy+yM5l6WxxTTf2npci+5T1GTXZdSOM7fv/wSwAMTbDmLJ
+         Ywy0Hfi9wS5Lx2hrycgPWCYwgyh5nz5jjCA0eoc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 014/255] powerpc/xive: Ignore kmemleak false positives
-Date:   Tue,  1 Sep 2020 17:07:50 +0200
-Message-Id: <20200901151001.473378139@linuxfoundation.org>
+Subject: [PATCH 5.8 016/255] gcc-plugins/stackleak: Dont instrument itself
+Date:   Tue,  1 Sep 2020 17:07:52 +0200
+Message-Id: <20200901151001.568883262@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,61 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Alexander Popov <alex.popov@linux.com>
 
-[ Upstream commit f0993c839e95dd6c7f054a1015e693c87e33e4fb ]
+[ Upstream commit 005e696df65d0ff90468ecf38a50aa584dc82421 ]
 
-xive_native_provision_pages() allocates memory and passes the pointer to
-OPAL so kmemleak cannot find the pointer usage in the kernel memory and
-produces a false positive report (below) (even if the kernel did scan
-OPAL memory, it is unable to deal with __pa() addresses anyway).
+There is no need to try instrumenting functions in kernel/stackleak.c.
+Otherwise that can cause issues if the cleanup pass of stackleak gcc plugin
+is disabled.
 
-This silences the warning.
-
-unreferenced object 0xc000200350c40000 (size 65536):
-  comm "qemu-system-ppc", pid 2725, jiffies 4294946414 (age 70776.530s)
-  hex dump (first 32 bytes):
-    02 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00  ....P...........
-    01 00 08 07 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000081ff046c>] xive_native_alloc_vp_block+0x120/0x250
-    [<00000000d555d524>] kvmppc_xive_compute_vp_id+0x248/0x350 [kvm]
-    [<00000000d69b9c9f>] kvmppc_xive_connect_vcpu+0xc0/0x520 [kvm]
-    [<000000006acbc81c>] kvm_arch_vcpu_ioctl+0x308/0x580 [kvm]
-    [<0000000089c69580>] kvm_vcpu_ioctl+0x19c/0xae0 [kvm]
-    [<00000000902ae91e>] ksys_ioctl+0x184/0x1b0
-    [<00000000f3e68bd7>] sys_ioctl+0x48/0xb0
-    [<0000000001b2c127>] system_call_exception+0x124/0x1f0
-    [<00000000d2b2ee40>] system_call_common+0xe8/0x214
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200612043303.84894-1-aik@ozlabs.ru
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Link: https://lore.kernel.org/r/20200624123330.83226-2-alex.popov@linux.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/native.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
-index 71b881e554fcb..cb58ec7ce77ac 100644
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/cpumask.h>
- #include <linux/mm.h>
-+#include <linux/kmemleak.h>
+diff --git a/kernel/Makefile b/kernel/Makefile
+index f3218bc5ec69f..155b5380500ad 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -125,6 +125,7 @@ obj-$(CONFIG_WATCH_QUEUE) += watch_queue.o
  
- #include <asm/machdep.h>
- #include <asm/prom.h>
-@@ -647,6 +648,7 @@ static bool xive_native_provision_pages(void)
- 			pr_err("Failed to allocate provisioning page\n");
- 			return false;
- 		}
-+		kmemleak_ignore(p);
- 		opal_xive_donate_page(chip, __pa(p));
- 	}
- 	return true;
+ obj-$(CONFIG_SYSCTL_KUNIT_TEST) += sysctl-test.o
+ 
++CFLAGS_stackleak.o += $(DISABLE_STACKLEAK_PLUGIN)
+ obj-$(CONFIG_GCC_PLUGIN_STACKLEAK) += stackleak.o
+ KASAN_SANITIZE_stackleak.o := n
+ KCSAN_SANITIZE_stackleak.o := n
 -- 
 2.25.1
 
