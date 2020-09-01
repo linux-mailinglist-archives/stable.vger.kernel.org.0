@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B7325967E
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F369259676
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbgIAQDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55974 "EHLO mail.kernel.org"
+        id S1731603AbgIAPms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:42:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731587AbgIAPmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:43 -0400
+        id S1731598AbgIAPmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:42:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28AF320866;
-        Tue,  1 Sep 2020 15:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1E5D2064B;
+        Tue,  1 Sep 2020 15:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974962;
-        bh=YBMxGta17FoLOSD5i5I0H4LnKtfJC+vSUhoXYq4gL3Q=;
+        s=default; t=1598974965;
+        bh=DL6TgYqI0mVLUzh493KSi5lEYVXC4F0BfeYNs/e9TSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2F3rG+Z+ApMKl/NAnfgDEdCPWC/Y4hJ3w5sBWd2ZS1+n81y/3Q/7dfB63nuKmBp2O
-         p7I3yddfpe7ZwwryrwY0igGkE1cZ0exCwA3FMY5R/xzs0X5t5GafeZS7v9WigbF7PZ
-         xU4wfsxHwIut73MDtmXCTCY/hGMK0gpb2oJYbZYg=
+        b=T90H7k+tH42ihP44gQd499LhUrFli6PKACYPOob5Bk3e+GkRi0baY8hzlOzliERwk
+         Bqy8aCkuak86UPnUcfDmUc+3M9haoY4SqlrgAjV6h76Jxge6h+W1vi7ZL6WPDBk25d
+         yMFa4HyQ7QAS80Kh+GrDR8cZm/NXhQpUVFl1AQQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Tao Zhou <tao.zhou1@amd.com>,
+        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 157/255] drm/amdgpu: fix NULL pointer access issue when unloading driver
-Date:   Tue,  1 Sep 2020 17:10:13 +0200
-Message-Id: <20200901151008.213401409@linuxfoundation.org>
+Subject: [PATCH 5.8 158/255] drm/amdkfd: fix the wrong sdma instance query for renoir
+Date:   Tue,  1 Sep 2020 17:10:14 +0200
+Message-Id: <20200901151008.261580895@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,82 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Huang Rui <ray.huang@amd.com>
 
-[ Upstream commit 1a68d96f81b8e7eb2a121fbf9abf9e5974e58832 ]
+[ Upstream commit 34174b89bfa495bed9cddcc504fb38feca90fab7 ]
 
-When unloading driver by "modprobe -r amdgpu", one NULL pointer
-dereference bug occurs in ras debugfs releasing. The cause is the
-duplicated debugfs_remove, as drm debugfs_root dir has been cleaned
-up already by drm_minor_unregister.
+Renoir only has one sdma instance, it will get failed once query the
+sdma1 registers. So use switch-case instead of static register array.
 
-BUG: kernel NULL pointer dereference, address: 00000000000000a0
-PGD 0 P4D 0
-Oops: 0002 [#1] SMP PTI
-CPU: 11 PID: 1526 Comm: modprobe Tainted: G           OE     5.6.0-guchchen #1
-Hardware name: System manufacturer System Product Name/TUF Z370-PLUS GAMING II, BIOS 0411 09/21/2018
-RIP: 0010:down_write+0x15/0x40
-Code: eb de e8 7e 17 72 ff cc cc cc cc cc cc cc cc cc cc cc cc cc cc 0f 1f 44 00 00 53 48 89 fb e8 92
-d8 ff ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 0f 65 48 8b 04 25 c0 8b 01 00 48 89 43 08 5b c3
-RSP: 0018:ffffb1590386fcd0 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000000000a0 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffffffff85b2fcc2 RDI: 00000000000000a0
-RBP: ffffb1590386fd30 R08: ffffffff85b2fcc2 R09: 000000000002b3c0
-R10: ffff97a330618c40 R11: 00000000000005f6 R12: ffff97a3481beb40
-R13: 00000000000000a0 R14: ffff97a3481beb40 R15: 0000000000000000
-FS:  00007fb11a717540(0000) GS:ffff97a376cc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000000000a0 CR3: 00000004066d6006 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- simple_recursive_removal+0x63/0x370
- ? debugfs_remove+0x60/0x60
- debugfs_remove+0x40/0x60
- amdgpu_ras_fini+0x82/0x230 [amdgpu]
- ? __kernfs_remove.part.17+0x101/0x1f0
- ? kernfs_name_hash+0x12/0x80
- amdgpu_device_fini+0x1c0/0x580 [amdgpu]
- amdgpu_driver_unload_kms+0x3e/0x70 [amdgpu]
- amdgpu_pci_remove+0x36/0x60 [amdgpu]
- pci_device_remove+0x3b/0xb0
- device_release_driver_internal+0xe5/0x1c0
- driver_detach+0x46/0x90
- bus_remove_driver+0x58/0xd0
- pci_unregister_driver+0x29/0x90
- amdgpu_exit+0x11/0x25 [amdgpu]
- __x64_sys_delete_module+0x13d/0x210
- do_syscall_64+0x5f/0x250
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 2 --
- 1 file changed, 2 deletions(-)
+ .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v9.c | 31 +++++++++++++------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index 20a7d75b2eb88..3f47f35eedff1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1240,7 +1240,6 @@ void amdgpu_ras_debugfs_remove(struct amdgpu_device *adev,
- 	if (!obj || !obj->ent)
- 		return;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v9.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v9.c
+index c7fd0c47b2545..1102de76d8767 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v9.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v9.c
+@@ -195,19 +195,32 @@ static uint32_t get_sdma_rlc_reg_offset(struct amdgpu_device *adev,
+ 				unsigned int engine_id,
+ 				unsigned int queue_id)
+ {
+-	uint32_t sdma_engine_reg_base[2] = {
+-		SOC15_REG_OFFSET(SDMA0, 0,
+-				 mmSDMA0_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL,
+-		SOC15_REG_OFFSET(SDMA1, 0,
+-				 mmSDMA1_RLC0_RB_CNTL) - mmSDMA1_RLC0_RB_CNTL
+-	};
+-	uint32_t retval = sdma_engine_reg_base[engine_id]
++	uint32_t sdma_engine_reg_base = 0;
++	uint32_t sdma_rlc_reg_offset;
++
++	switch (engine_id) {
++	default:
++		dev_warn(adev->dev,
++			 "Invalid sdma engine id (%d), using engine id 0\n",
++			 engine_id);
++		fallthrough;
++	case 0:
++		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
++				mmSDMA0_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
++		break;
++	case 1:
++		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA1, 0,
++				mmSDMA1_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
++		break;
++	}
++
++	sdma_rlc_reg_offset = sdma_engine_reg_base
+ 		+ queue_id * (mmSDMA0_RLC1_RB_CNTL - mmSDMA0_RLC0_RB_CNTL);
  
--	debugfs_remove(obj->ent);
- 	obj->ent = NULL;
- 	put_obj(obj);
- }
-@@ -1254,7 +1253,6 @@ static void amdgpu_ras_debugfs_remove_all(struct amdgpu_device *adev)
- 		amdgpu_ras_debugfs_remove(adev, &obj->head);
- 	}
+ 	pr_debug("RLC register offset for SDMA%d RLC%d: 0x%x\n", engine_id,
+-			queue_id, retval);
++		 queue_id, sdma_rlc_reg_offset);
  
--	debugfs_remove_recursive(con->dir);
- 	con->dir = NULL;
+-	return retval;
++	return sdma_rlc_reg_offset;
  }
- /* debugfs end */
+ 
+ static inline struct v9_mqd *get_mqd(void *mqd)
 -- 
 2.25.1
 
