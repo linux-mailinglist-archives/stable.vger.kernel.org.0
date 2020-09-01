@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9760A259995
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DECEB259989
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730395AbgIAQlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56234 "EHLO mail.kernel.org"
+        id S1730221AbgIAQkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730345AbgIAP2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:28:09 -0400
+        id S1730357AbgIAP2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:28:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A324207D3;
-        Tue,  1 Sep 2020 15:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F29F2100A;
+        Tue,  1 Sep 2020 15:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974089;
-        bh=eXkRyPhcUiQGNLNWpcl4I2tLXNoV/g7UbdgnwcGdQnU=;
+        s=default; t=1598974091;
+        bh=cOs6hkEis3MMWFlqoXr5LZziZMthQpLZImQjdLCdOCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5ieOUoyPCR6lAMQC/13kqnv+BiHgZ8Ian9dp8Xjp9mV6Zs9nzWvYCVQTEZUrVzER
-         13tcOF5aannJxSQI2ka9Hj3684oLL8Wae+XZRZEIz6MwilWj4zIRjUic8+Z5OYyz3B
-         qGbyjc5+XNF3l1zHqaMNRHHowd63Ipq+ehtIpENw=
+        b=Clwvq4rEXsoh3FT6AGBQfZUxNBKNOo7jvikWRz/f5NXUhnCiTB0t5nmbet96WilNR
+         wsDow2k+v7gAAlJ16tKImbBjvl53HPzqI5vUcsECDVT18J+GHQ7JDHGoPtFtO7+7cM
+         aYhOi0kGjto3rXst9XmzXAKT07GPHrL1ZQyJGPUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/214] PCI: Fix pci_create_slot() reference count leak
-Date:   Tue,  1 Sep 2020 17:08:40 +0200
-Message-Id: <20200901150954.885546013@linuxfoundation.org>
+Subject: [PATCH 5.4 041/214] ARM: dts: ls1021a: output PPS signal on FIPER2
+Date:   Tue,  1 Sep 2020 17:08:41 +0200
+Message-Id: <20200901150954.931991391@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,57 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Yangbo Lu <yangbo.lu@nxp.com>
 
-[ Upstream commit 8a94644b440eef5a7b9c104ac8aa7a7f413e35e5 ]
+[ Upstream commit 5656bb3857c4904d1dec6e1b8f876c1c0337274e ]
 
-kobject_init_and_add() takes a reference even when it fails.  If it returns
-an error, kobject_put() must be called to clean up the memory associated
-with the object.
+The timer fixed interval period pulse generator register
+is used to generate periodic pulses. The down count
+register loads the value programmed in the fixed period
+interval (FIPER). At every tick of the timer accumulator
+overflow, the counter decrements by the value of
+TMR_CTRL[TCLK_PERIOD]. It generates a pulse when the down
+counter value reaches zero. It reloads the down counter
+in the cycle following a pulse.
 
-When kobject_init_and_add() fails, call kobject_put() instead of kfree().
+To use the TMR_FIPER register to generate desired periodic
+pulses. The value should programmed is,
+desired_period - tclk_period
 
-b8eb718348b8 ("net-sysfs: Fix reference count leak in
-rx|netdev_queue_add_kobject") fixed a similar problem.
+Current tmr-fiper2 value is to generate 100us periodic pulses.
+(But the value should have been 99995, not 99990. The tclk_period is 5.)
+This patch is to generate 1 second periodic pulses with value
+999999995 programmed which is more desired by user.
 
-Link: https://lore.kernel.org/r/20200528021322.1984-1-wu000273@umn.edu
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/slot.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/ls1021a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-index ae4aa0e1f2f42..1f087746b7bb0 100644
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -304,13 +304,16 @@ placeholder:
- 	slot_name = make_slot_name(name);
- 	if (!slot_name) {
- 		err = -ENOMEM;
-+		kfree(slot);
- 		goto err;
- 	}
- 
- 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
- 				   "%s", slot_name);
--	if (err)
-+	if (err) {
-+		kobject_put(&slot->kobj);
- 		goto err;
-+	}
- 
- 	INIT_LIST_HEAD(&slot->list);
- 	list_add(&slot->list, &parent->slots);
-@@ -329,7 +332,6 @@ out:
- 	mutex_unlock(&pci_slot_mutex);
- 	return slot;
- err:
--	kfree(slot);
- 	slot = ERR_PTR(err);
- 	goto out;
- }
+diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
+index 63d9f4a066e38..5a8e58b663420 100644
+--- a/arch/arm/boot/dts/ls1021a.dtsi
++++ b/arch/arm/boot/dts/ls1021a.dtsi
+@@ -753,7 +753,7 @@
+ 			fsl,tmr-prsc    = <2>;
+ 			fsl,tmr-add     = <0xaaaaaaab>;
+ 			fsl,tmr-fiper1  = <999999995>;
+-			fsl,tmr-fiper2  = <99990>;
++			fsl,tmr-fiper2  = <999999995>;
+ 			fsl,max-adj     = <499999999>;
+ 			fsl,extts-fifo;
+ 		};
 -- 
 2.25.1
 
