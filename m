@@ -2,128 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532D5259210
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:02:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E40259388
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728337AbgIAPCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:02:51 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60221 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728316AbgIAPCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 11:02:49 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1C3145C0062;
-        Tue,  1 Sep 2020 11:02:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 01 Sep 2020 11:02:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=O
-        U08XTjJa5+kwHSuRa3g3Og6KoUvdBoGgCuw6EwoPKo=; b=KWRlGNm4MnEgsH2ho
-        otSFGbCrCGBjR8bLaQ3tZ7r5bfDj1jAJT+xnrl1vdpjX0tQbl/qReZJ0mjjGluvw
-        jc5I50jEgCmgCu/rEDSmFTYPDOaPTJFyQheGQE403pgI56elJ1TGSg1+7cKx9MCY
-        Po1GLTgcb8qiUXIoTMH76t9JmLkLq3eVADk6lDgF6gAKIXTgqrUL9ubu7uFmFnOA
-        iDUFZQR5Hm5GGEFmBkEgwxLh/pR9PAZcZ46Vyz3JZO/dSymFdIPcQu04gfBgWJCO
-        9V72wW8b9KEQPGIPplrDR/QFBZmQMSu15AcaBm6tqOosEL5nMCMSl40/AIJK8GVx
-        l2U1A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=OU08XTjJa5+kwHSuRa3g3Og6KoUvdBoGgCuw6EwoP
-        Ko=; b=nTWtf48xuqJBwmWnqppamF1Qvhw5vinUZFq51HEFQUO60iWghPgUcZppj
-        IDa6L4mhcr3n2BcCdlB3Bmylme13CpvhFIw2VYNhQHlcQAPVG7EzzUECXnXDL+n0
-        0Da86KVVBT3sN9g8Wz3R/ef/cpefBlQdhJhfaofZ0UyZrWtuPBIC8M+9Z7CAUsJn
-        rrpHEU8u60UpXSaq7g0v6M1Ue9y43N1OmpvTg1JdFm4n3yXy3Cs42tHX6UKiIJ+h
-        c/DA/+RU80cwohn2ozdRoMzC/IhjR2R7bVO6Fdcl8RqncBZMJxL9A5iZYILfQm/u
-        45d2/MeovUIiWi9jn7Y7E4I98lwlA==
-X-ME-Sender: <xms:lmJOX6wx05Q876hMBlyJiWRlML0lCgWLBlP9xP_CeQIwCOk3CdvdKw>
-    <xme:lmJOX2TKElfBdA9c1v5dRS2t3jN26wN5A3CnfH4lkTjjslTs1wAtV3sgh3mTrnNEU
-    w60D53PVFqPIw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefjedgkeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepvdffgf
-    euieeuhfehveehtefghedvfeegkeefveeujeeffedtteduteeihfehffdvnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhush
-    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
-    hhdrtghomh
-X-ME-Proxy: <xmx:l2JOX8VcZjizwD-RItV6AnI_Rrc8bQRzrGqPYUkTBEh-tkL8anbrGQ>
-    <xmx:l2JOXwjqbZtHSRKuUnZxVd1jkcEqt3_5Op5iXISEn65EoMIEhxutfw>
-    <xmx:l2JOX8CZs9nbCsyWfy-zMX0N3LM7xBc0w-8MX3hgoKtHxGjeI3fpiw>
-    <xmx:l2JOX_MeMNLWklpgm6RsIvCOLrRTruwzYw05xp3eZ-I8o-R7C9J-5g>
+        id S1729796AbgIAP07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53154 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730160AbgIAP05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:26:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 318E73280060;
-        Tue,  1 Sep 2020 11:02:46 -0400 (EDT)
-Date:   Tue, 1 Sep 2020 17:03:14 +0200
-From:   Greg KH <greg@kroah.com>
-To:     =?iso-8859-1?Q?Andr=E9?= Przywara <andre.przywara@arm.com>
-Cc:     Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH stable v5.4 1/3] KVM: arm64: Add kvm_extable for
- vaxoricism code
-Message-ID: <20200901150314.GA1317670@kroah.com>
-References: <20200901094923.52486-1-andre.przywara@arm.com>
- <20200901094923.52486-2-andre.przywara@arm.com>
- <79d6944d383945608b685a2d0f9d9b2c@kernel.org>
- <746764b0-7d63-b154-df02-7ca64a36ffcd@arm.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38E2D20BED;
+        Tue,  1 Sep 2020 15:26:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598974016;
+        bh=ZihNs/9YG8pkJQ6Ms6HZWzOwbifq1mA/2BkkVpkZC9s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Y5Y5rX9RABUjSt9ImtzJ4esJ2C9S3ZTvd3amRD5x1CH2/FUjIWAQYMw8Smevx652A
+         6NPPokHwysPhiJrwTmb1cyOmzZ2bg/zpAA9a8orDnQxQfo9XLmhRywxPA48mvy09ra
+         JA9GN7k8prMQ7HVHCyS/B5ubBfHl/99m1NUT2L1k=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 012/214] ipvlan: fix device features
+Date:   Tue,  1 Sep 2020 17:08:12 +0200
+Message-Id: <20200901150953.556932506@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <746764b0-7d63-b154-df02-7ca64a36ffcd@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 01, 2020 at 12:17:54PM +0100, André Przywara wrote:
-> On 01/09/2020 12:12, Marc Zyngier wrote:
-> > Hi Andre,
-> > 
-> > On 2020-09-01 10:49, Andre Przywara wrote:
-> >> From: James Morse <james.morse@arm.com>
-> >>
-> >> commit e9ee186bb735bfc17fa81dbc9aebf268aee5b41e upstream.
-> >>
-> >> KVM has a one instruction window where it will allow an SError exception
-> >> to be consumed by the hypervisor without treating it as a hypervisor bug.
-> >> This is used to consume asynchronous external abort that were caused by
-> >> the guest.
-> >>
-> >> As we are about to add another location that survives unexpected
-> >> exceptions,
-> >> generalise this code to make it behave like the host's extable.
-> >>
-> >> KVM's version has to be mapped to EL2 to be accessible on nVHE systems.
-> >>
-> >> The SError vaxorcism code is a one instruction window, so has two entries
-> >> in the extable. Because the KVM code is copied for VHE and nVHE, we
-> >> end up
-> >> with four entries, half of which correspond with code that isn't mapped.
-> >>
-> >> Cc: <stable@vger.kernel.org> # 5.4.x
-> >> Cc: Marc Zyngier <maz@kernel.org>
-> >> Signed-off-by: James Morse <james.morse@arm.com>
-> >> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-> > 
-> > Can you make sure these patches do carry the sign-off chain as we have
-> > in mainline? In particular, this is missing:
-> > 
-> >     Reviewed-by: Marc Zyngier <maz@kernel.org>
-> >     Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > 
-> > You can add your own SoB after this.
-> 
-> Sure, I wasn't sure your review would apply to this version as well. I
-> took the backports from James' kernel.org repo, where they were lacking
-> any of those tags.
-> So shall I copy all the tags from mainline to all backport versions?
+From: Mahesh Bandewar <maheshb@google.com>
 
-Yes.
+[ Upstream commit d0f5c7076e01fef6fcb86988d9508bf3ce258bd4 ]
 
-thanks,
+Processing NETDEV_FEAT_CHANGE causes IPvlan links to lose
+NETIF_F_LLTX feature because of the incorrect handling of
+features in ipvlan_fix_features().
 
-greg k-h
+--before--
+lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
+tx-lockless: on [fixed]
+lpaa10:~# ethtool -K ipvl0 tso off
+Cannot change tcp-segmentation-offload
+Actual changes:
+vlan-challenged: off [fixed]
+tx-lockless: off [fixed]
+lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
+tx-lockless: off [fixed]
+lpaa10:~#
+
+--after--
+lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
+tx-lockless: on [fixed]
+lpaa10:~# ethtool -K ipvl0 tso off
+Cannot change tcp-segmentation-offload
+Could not change any device features
+lpaa10:~# ethtool -k ipvl0 | grep tx-lockless
+tx-lockless: on [fixed]
+lpaa10:~#
+
+Fixes: 2ad7bf363841 ("ipvlan: Initial check-in of the IPVLAN driver.")
+Signed-off-by: Mahesh Bandewar <maheshb@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/ipvlan/ipvlan_main.c |   27 ++++++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
+
+--- a/drivers/net/ipvlan/ipvlan_main.c
++++ b/drivers/net/ipvlan/ipvlan_main.c
+@@ -106,12 +106,21 @@ static void ipvlan_port_destroy(struct n
+ 	kfree(port);
+ }
+ 
++#define IPVLAN_ALWAYS_ON_OFLOADS \
++	(NETIF_F_SG | NETIF_F_HW_CSUM | \
++	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_SOFTWARE | NETIF_F_GSO_ENCAP_ALL)
++
++#define IPVLAN_ALWAYS_ON \
++	(IPVLAN_ALWAYS_ON_OFLOADS | NETIF_F_LLTX | NETIF_F_VLAN_CHALLENGED)
++
+ #define IPVLAN_FEATURES \
+-	(NETIF_F_SG | NETIF_F_CSUM_MASK | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
++	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
+ 	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_GSO_ROBUST | \
+ 	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
+ 	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
+ 
++	/* NETIF_F_GSO_ENCAP_ALL NETIF_F_GSO_SOFTWARE Newly added */
++
+ #define IPVLAN_STATE_MASK \
+ 	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
+ 
+@@ -125,7 +134,9 @@ static int ipvlan_init(struct net_device
+ 	dev->state = (dev->state & ~IPVLAN_STATE_MASK) |
+ 		     (phy_dev->state & IPVLAN_STATE_MASK);
+ 	dev->features = phy_dev->features & IPVLAN_FEATURES;
+-	dev->features |= NETIF_F_LLTX | NETIF_F_VLAN_CHALLENGED;
++	dev->features |= IPVLAN_ALWAYS_ON;
++	dev->vlan_features = phy_dev->vlan_features & IPVLAN_FEATURES;
++	dev->vlan_features |= IPVLAN_ALWAYS_ON_OFLOADS;
+ 	dev->hw_enc_features |= dev->features;
+ 	dev->gso_max_size = phy_dev->gso_max_size;
+ 	dev->gso_max_segs = phy_dev->gso_max_segs;
+@@ -225,7 +236,14 @@ static netdev_features_t ipvlan_fix_feat
+ {
+ 	struct ipvl_dev *ipvlan = netdev_priv(dev);
+ 
+-	return features & (ipvlan->sfeatures | ~IPVLAN_FEATURES);
++	features |= NETIF_F_ALL_FOR_ALL;
++	features &= (ipvlan->sfeatures | ~IPVLAN_FEATURES);
++	features = netdev_increment_features(ipvlan->phy_dev->features,
++					     features, features);
++	features |= IPVLAN_ALWAYS_ON;
++	features &= (IPVLAN_FEATURES | IPVLAN_ALWAYS_ON);
++
++	return features;
+ }
+ 
+ static void ipvlan_change_rx_flags(struct net_device *dev, int change)
+@@ -732,10 +750,9 @@ static int ipvlan_device_event(struct no
+ 
+ 	case NETDEV_FEAT_CHANGE:
+ 		list_for_each_entry(ipvlan, &port->ipvlans, pnode) {
+-			ipvlan->dev->features = dev->features & IPVLAN_FEATURES;
+ 			ipvlan->dev->gso_max_size = dev->gso_max_size;
+ 			ipvlan->dev->gso_max_segs = dev->gso_max_segs;
+-			netdev_features_change(ipvlan->dev);
++			netdev_update_features(ipvlan->dev);
+ 		}
+ 		break;
+ 
+
+
