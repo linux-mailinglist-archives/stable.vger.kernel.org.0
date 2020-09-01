@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D13259667
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DAA62597C3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728318AbgIAQB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58658 "EHLO mail.kernel.org"
+        id S1730710AbgIAQSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731718AbgIAPn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:43:56 -0400
+        id S1728575AbgIAPdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:33:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A166206EB;
-        Tue,  1 Sep 2020 15:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BEC02166E;
+        Tue,  1 Sep 2020 15:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975036;
-        bh=+T3dHC8Q9XGpr8N7sUoQsM4SM1kDVWJHzyuDrKyjutQ=;
+        s=default; t=1598974398;
+        bh=AJ5GY7sStFFpN4d2wp55vrmNmGGsqU3GnYKHqvcwtPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmaP35yBwq1dLSrWb7QU0qrLnAjmbvLa9ZE3DpnPhdDjCrU2yzgBHZ7hermFWZT1/
-         uDnInT8xha8HGTwrcn1mXpi0t15cAMVawzo2j6ubLSQOICIqIZWYc010RSSpps9voz
-         BI+R29JpxA8aiU07qwCs0YHy51W4DaSzC2oIhb9M=
+        b=XRTfWewIhwo7H5KfCEGb2abvDZxb92H+Ekd0mtsNKxE6audf1qmoj+9pddX0wVKZH
+         nI9kN9LsjP8F0uOhP3cUCTlfkdIIIUZmhGDVQ1V6k1mLNqCnYLcHX8TUBbnX2LeI4k
+         6XuF2M5fEpjzMhRlZrFXOKCedzyKCUMhTx6+NH/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 154/255] Revert "scsi: qla2xxx: Fix crash on qla2x00_mailbox_command"
+Subject: [PATCH 5.4 130/214] netfilter: avoid ipv6 -> nf_defrag_ipv6 module dependency
 Date:   Tue,  1 Sep 2020 17:10:10 +0200
-Message-Id: <20200901151008.070095567@linuxfoundation.org>
+Message-Id: <20200901150959.211192617@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit de7e6194301ad31c4ce95395eb678e51a1b907e5 ]
+[ Upstream commit 2404b73c3f1a5f15726c6ecd226b56f6f992767f ]
 
-FCoE adapter initialization failed for ISP8021 with the following patch
-applied. In addition, reproduction of the issue the patch originally tried
-to address has been unsuccessful.
+nf_ct_frag6_gather is part of nf_defrag_ipv6.ko, not ipv6 core.
 
-This reverts commit 3cb182b3fa8b7a61f05c671525494697cba39c6a.
+The current use of the netfilter ipv6 stub indirections  causes a module
+dependency between ipv6 and nf_defrag_ipv6.
 
-Link: https://lore.kernel.org/r/20200806111014.28434-11-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This prevents nf_defrag_ipv6 module from being removed because ipv6 can't
+be unloaded.
+
+Remove the indirection and always use a direct call.  This creates a
+depency from nf_conntrack_bridge to nf_defrag_ipv6 instead:
+
+modinfo nf_conntrack
+depends:        nf_conntrack,nf_defrag_ipv6,bridge
+
+.. and nf_conntrack already depends on nf_defrag_ipv6 anyway.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 8 --------
- 1 file changed, 8 deletions(-)
+ include/linux/netfilter_ipv6.h             | 18 ------------------
+ net/bridge/netfilter/nf_conntrack_bridge.c |  8 ++++++--
+ net/ipv6/netfilter.c                       |  3 ---
+ 3 files changed, 6 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index df31ee0d59b20..fdb2ce7acb912 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -333,14 +333,6 @@ qla2x00_mailbox_command(scsi_qla_host_t *vha, mbx_cmd_t *mcp)
- 			if (time_after(jiffies, wait_time))
- 				break;
+diff --git a/include/linux/netfilter_ipv6.h b/include/linux/netfilter_ipv6.h
+index aac42c28fe62d..9b67394471e1c 100644
+--- a/include/linux/netfilter_ipv6.h
++++ b/include/linux/netfilter_ipv6.h
+@@ -58,7 +58,6 @@ struct nf_ipv6_ops {
+ 			int (*output)(struct net *, struct sock *, struct sk_buff *));
+ 	int (*reroute)(struct sk_buff *skb, const struct nf_queue_entry *entry);
+ #if IS_MODULE(CONFIG_IPV6)
+-	int (*br_defrag)(struct net *net, struct sk_buff *skb, u32 user);
+ 	int (*br_fragment)(struct net *net, struct sock *sk,
+ 			   struct sk_buff *skb,
+ 			   struct nf_bridge_frag_data *data,
+@@ -117,23 +116,6 @@ static inline int nf_ip6_route(struct net *net, struct dst_entry **dst,
  
--			/*
--			 * Check if it's UNLOADING, cause we cannot poll in
--			 * this case, or else a NULL pointer dereference
--			 * is triggered.
--			 */
--			if (unlikely(test_bit(UNLOADING, &base_vha->dpc_flags)))
--				return QLA_FUNCTION_TIMEOUT;
+ #include <net/netfilter/ipv6/nf_defrag_ipv6.h>
+ 
+-static inline int nf_ipv6_br_defrag(struct net *net, struct sk_buff *skb,
+-				    u32 user)
+-{
+-#if IS_MODULE(CONFIG_IPV6)
+-	const struct nf_ipv6_ops *v6_ops = nf_get_ipv6_ops();
 -
- 			/* Check for pending interrupts. */
- 			qla2x00_poll(ha->rsp_q_map[0]);
+-	if (!v6_ops)
+-		return 1;
+-
+-	return v6_ops->br_defrag(net, skb, user);
+-#elif IS_BUILTIN(CONFIG_IPV6)
+-	return nf_ct_frag6_gather(net, skb, user);
+-#else
+-	return 1;
+-#endif
+-}
+-
+ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		    struct nf_bridge_frag_data *data,
+ 		    int (*output)(struct net *, struct sock *sk,
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index 8096732223828..8d033a75a766e 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -168,6 +168,7 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
+ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
+ 				     const struct nf_hook_state *state)
+ {
++#if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+ 	u16 zone_id = NF_CT_DEFAULT_ZONE_ID;
+ 	enum ip_conntrack_info ctinfo;
+ 	struct br_input_skb_cb cb;
+@@ -180,14 +181,17 @@ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
  
+ 	br_skb_cb_save(skb, &cb, sizeof(struct inet6_skb_parm));
+ 
+-	err = nf_ipv6_br_defrag(state->net, skb,
+-				IP_DEFRAG_CONNTRACK_BRIDGE_IN + zone_id);
++	err = nf_ct_frag6_gather(state->net, skb,
++				 IP_DEFRAG_CONNTRACK_BRIDGE_IN + zone_id);
+ 	/* queued */
+ 	if (err == -EINPROGRESS)
+ 		return NF_STOLEN;
+ 
+ 	br_skb_cb_restore(skb, &cb, IP6CB(skb)->frag_max_size);
+ 	return err == 0 ? NF_ACCEPT : NF_DROP;
++#else
++	return NF_ACCEPT;
++#endif
+ }
+ 
+ static int nf_ct_br_ip_check(const struct sk_buff *skb)
+diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
+index 409e79b84a830..6d0e942d082d4 100644
+--- a/net/ipv6/netfilter.c
++++ b/net/ipv6/netfilter.c
+@@ -245,9 +245,6 @@ static const struct nf_ipv6_ops ipv6ops = {
+ 	.route_input		= ip6_route_input,
+ 	.fragment		= ip6_fragment,
+ 	.reroute		= nf_ip6_reroute,
+-#if IS_MODULE(CONFIG_IPV6) && IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+-	.br_defrag		= nf_ct_frag6_gather,
+-#endif
+ #if IS_MODULE(CONFIG_IPV6)
+ 	.br_fragment		= br_ip6_fragment,
+ #endif
 -- 
 2.25.1
 
