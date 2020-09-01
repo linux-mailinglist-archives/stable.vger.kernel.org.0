@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B082593C5
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F72C25949D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730628AbgIAPas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33036 "EHLO mail.kernel.org"
+        id S1731309AbgIAPl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgIAPap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:45 -0400
+        id S1730616AbgIAPlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:41:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F09C207D3;
-        Tue,  1 Sep 2020 15:30:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C46F1206EB;
+        Tue,  1 Sep 2020 15:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974244;
-        bh=WdnpDlkzTQsxN4919At8IGyxFiDcqFVjfe6E6UOUb4Y=;
+        s=default; t=1598974880;
+        bh=TYTTdCegp15oLYrWq/F7PP5Ab8BnxcWk62tjoSVlprc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl0xKS1tKwe2wODF9uR94n6h83xocOd3L11Emzvx5Ek3R05/pqny+1jrpsEc5fVk5
-         gXWOYzP0nm0bUNrQW9vP8ZoW1JLi6Rvk95o8VP3HJpPKDT+fp443oGoAUKVT6Udnla
-         6YZe4MYFaP0kJG2+dYtyOYO4+fbSoxnnesIThVgY=
+        b=Bwd3Xi4C1KYyvuUCd8bkTFO/tHAXpuwCYnUnLvAwPn7f7pTK4Y2eyFWmDNCW53o8M
+         Ot0iWMThnKLDfibJfaW39ldcpBtOcYPATRHDY7PPDCuMQv4NUGemJJJRJBukMR5WfY
+         BNawrRqStVr5IysMrTjLPKQelGWLKHpYV+eNqvmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jianlin Lv <Jianlin.Lv@arm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/214] block: Fix page_is_mergeable() for compound pages
+Subject: [PATCH 5.8 126/255] selftests/bpf: Fix segmentation fault in test_progs
 Date:   Tue,  1 Sep 2020 17:09:42 +0200
-Message-Id: <20200901150957.887959537@linuxfoundation.org>
+Message-Id: <20200901151006.765388854@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Jianlin Lv <Jianlin.Lv@arm.com>
 
-[ Upstream commit d81665198b83e55a28339d1f3e4890ed8a434556 ]
+[ Upstream commit 0390c429dbed4068bd2cd8dded937d9a5ec24cd2 ]
 
-If we pass in an offset which is larger than PAGE_SIZE, then
-page_is_mergeable() thinks it's not mergeable with the previous bio_vec,
-leading to a large number of bio_vecs being used.  Use a slightly more
-obvious test that the two pages are compatible with each other.
+test_progs reports the segmentation fault as below:
 
-Fixes: 52d52d1c98a9 ("block: only allow contiguous page structs in a bio_vec")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  $ sudo ./test_progs -t mmap --verbose
+  test_mmap:PASS:skel_open_and_load 0 nsec
+  [...]
+  test_mmap:PASS:adv_mmap1 0 nsec
+  test_mmap:PASS:adv_mmap2 0 nsec
+  test_mmap:PASS:adv_mmap3 0 nsec
+  test_mmap:PASS:adv_mmap4 0 nsec
+  Segmentation fault
+
+This issue was triggered because mmap() and munmap() used inconsistent
+length parameters; mmap() creates a new mapping of 3 * page_size, but the
+length parameter set in the subsequent re-map and munmap() functions is
+4 * page_size; this leads to the destruction of the process space.
+
+To fix this issue, first create 4 pages of anonymous mapping, then do all
+the mmap() with MAP_FIXED.
+
+Another issue is that when unmap the second page fails, the length
+parameter to delete tmp1 mappings should be 4 * page_size.
+
+Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200810153940.125508-1-Jianlin.Lv@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/mmap.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 94d697217887a..87505a93bcff6 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -683,8 +683,8 @@ static inline bool page_is_mergeable(const struct bio_vec *bv,
- 		struct page *page, unsigned int len, unsigned int off,
- 		bool *same_page)
- {
--	phys_addr_t vec_end_addr = page_to_phys(bv->bv_page) +
--		bv->bv_offset + bv->bv_len - 1;
-+	size_t bv_end = bv->bv_offset + bv->bv_len;
-+	phys_addr_t vec_end_addr = page_to_phys(bv->bv_page) + bv_end - 1;
- 	phys_addr_t page_addr = page_to_phys(page);
+diff --git a/tools/testing/selftests/bpf/prog_tests/mmap.c b/tools/testing/selftests/bpf/prog_tests/mmap.c
+index 43d0b5578f461..9c3c5c0f068fb 100644
+--- a/tools/testing/selftests/bpf/prog_tests/mmap.c
++++ b/tools/testing/selftests/bpf/prog_tests/mmap.c
+@@ -21,7 +21,7 @@ void test_mmap(void)
+ 	const long page_size = sysconf(_SC_PAGE_SIZE);
+ 	int err, duration = 0, i, data_map_fd, data_map_id, tmp_fd, rdmap_fd;
+ 	struct bpf_map *data_map, *bss_map;
+-	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp1, *tmp2;
++	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp0, *tmp1, *tmp2;
+ 	struct test_mmap__bss *bss_data;
+ 	struct bpf_map_info map_info;
+ 	__u32 map_info_sz = sizeof(map_info);
+@@ -183,16 +183,23 @@ void test_mmap(void)
  
- 	if (vec_end_addr + 1 != page_addr + off)
-@@ -693,9 +693,9 @@ static inline bool page_is_mergeable(const struct bio_vec *bv,
- 		return false;
+ 	/* check some more advanced mmap() manipulations */
  
- 	*same_page = ((vec_end_addr & PAGE_MASK) == page_addr);
--	if (!*same_page && pfn_to_page(PFN_DOWN(vec_end_addr)) + 1 != page)
--		return false;
--	return true;
-+	if (*same_page)
-+		return true;
-+	return (bv->bv_page + bv_end / PAGE_SIZE) == (page + off / PAGE_SIZE);
- }
++	tmp0 = mmap(NULL, 4 * page_size, PROT_READ, MAP_SHARED | MAP_ANONYMOUS,
++			  -1, 0);
++	if (CHECK(tmp0 == MAP_FAILED, "adv_mmap0", "errno %d\n", errno))
++		goto cleanup;
++
+ 	/* map all but last page: pages 1-3 mapped */
+-	tmp1 = mmap(NULL, 3 * page_size, PROT_READ, MAP_SHARED,
++	tmp1 = mmap(tmp0, 3 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 			  data_map_fd, 0);
+-	if (CHECK(tmp1 == MAP_FAILED, "adv_mmap1", "errno %d\n", errno))
++	if (CHECK(tmp0 != tmp1, "adv_mmap1", "tmp0: %p, tmp1: %p\n", tmp0, tmp1)) {
++		munmap(tmp0, 4 * page_size);
+ 		goto cleanup;
++	}
  
- static bool bio_try_merge_pc_page(struct request_queue *q, struct bio *bio,
+ 	/* unmap second page: pages 1, 3 mapped */
+ 	err = munmap(tmp1 + page_size, page_size);
+ 	if (CHECK(err, "adv_mmap2", "errno %d\n", errno)) {
+-		munmap(tmp1, map_sz);
++		munmap(tmp1, 4 * page_size);
+ 		goto cleanup;
+ 	}
+ 
+@@ -201,7 +208,7 @@ void test_mmap(void)
+ 		    MAP_SHARED | MAP_FIXED, data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap3", "errno %d\n", errno)) {
+ 		munmap(tmp1, page_size);
+-		munmap(tmp1 + 2*page_size, page_size);
++		munmap(tmp1 + 2*page_size, 2 * page_size);
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 + page_size != tmp2, "adv_mmap4",
+@@ -211,7 +218,7 @@ void test_mmap(void)
+ 	tmp2 = mmap(tmp1, 4 * page_size, PROT_READ, MAP_SHARED | MAP_FIXED,
+ 		    data_map_fd, 0);
+ 	if (CHECK(tmp2 == MAP_FAILED, "adv_mmap5", "errno %d\n", errno)) {
+-		munmap(tmp1, 3 * page_size); /* unmap page 1 */
++		munmap(tmp1, 4 * page_size); /* unmap page 1 */
+ 		goto cleanup;
+ 	}
+ 	CHECK(tmp1 != tmp2, "adv_mmap6", "tmp1: %p, tmp2: %p\n", tmp1, tmp2);
 -- 
 2.25.1
 
