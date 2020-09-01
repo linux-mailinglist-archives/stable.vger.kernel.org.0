@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B39225959D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DC225957D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730408AbgIAPxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37346 "EHLO mail.kernel.org"
+        id S1729295AbgIAPrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731964AbgIAPq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:46:57 -0400
+        id S1726490AbgIAPrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:47:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C9212078B;
-        Tue,  1 Sep 2020 15:46:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F88B206EB;
+        Tue,  1 Sep 2020 15:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975216;
-        bh=dOh1KjTAvwCbwoYE9RLeEs7tiaRL0Fgwego3FzwZgtE=;
+        s=default; t=1598975219;
+        bh=HAHOxMSHdU6rneTM5WbVyXyKK7cvJRLLgO2eLJdQCb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vP5xjVyx7C4wmV2vNkZf4MW/icvyy/yJBmpeMBliAWmQ6PvweZYWjsXTvqMatByXF
-         a907PkQlqMO2NsW3F6xJje2bzrwnd9kznAJZ4Y93fVqBALMAq+lsZzbASIvikrH8Vx
-         dQZLRl70Ma84EF9vk7/KXpkiGAXJwWcSUWNLHL0g=
+        b=LBANgDTH8o+PCjUOc8u4BXB7dPdWv3bz8Zyw43wmG7iWM+wAweWYb4X2QHCH9ZKwD
+         EQMDxZUFaSibY+dL3LUWaZiHne6q9cPwh71TeoRDz2IDSMuNgix0zZqHJsx9AlWIS2
+         L3ylWCTEiD7dyYUcIf/mF6noa5KzgA6V+uKoY9nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org,
+        syzbot+f36cfe60b1006a94f9dc@syzkaller.appspotmail.com,
+        Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot <syzbot+c37a14770d51a085a520@syzkaller.appspotmail.com>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.8 247/255] fbmem: pull fbcon_update_vcs() out of fb_set_var()
-Date:   Tue,  1 Sep 2020 17:11:43 +0200
-Message-Id: <20200901151012.600631910@linuxfoundation.org>
+        Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 248/255] mm/page_counter: fix various data races at memsw
+Date:   Tue,  1 Sep 2020 17:11:44 +0200
+Message-Id: <20200901151012.651156551@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -46,133 +52,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit d88ca7e1a27eb2df056bbf37ddef62e1c73d37ea ]
+commit 6e4bd50f3888fa8fea8bc66a0ad4ad5f1c862961 upstream.
 
-syzbot is reporting OOB read bug in vc_do_resize() [1] caused by memcpy()
-based on outdated old_{rows,row_size} values, for resize_screen() can
-recurse into vc_do_resize() which changes vc->vc_{cols,rows} that outdates
-old_{rows,row_size} values which were saved before calling resize_screen().
+Commit 3e32cb2e0a12 ("mm: memcontrol: lockless page counters") could had
+memcg->memsw->watermark and memcg->memsw->failcnt been accessed
+concurrently as reported by KCSAN,
 
-Daniel Vetter explained that resize_screen() should not recurse into
-fbcon_update_vcs() path due to FBINFO_MISC_USEREVENT being still set
-when calling resize_screen().
+ BUG: KCSAN: data-race in page_counter_try_charge / page_counter_try_charge
 
-Instead of masking FBINFO_MISC_USEREVENT before calling fbcon_update_vcs(),
-we can remove FBINFO_MISC_USEREVENT by calling fbcon_update_vcs() only if
-fb_set_var() returned 0. This change assumes that it is harmless to call
-fbcon_update_vcs() when fb_set_var() returned 0 without reaching
-fb_notifier_call_chain().
+ read to 0xffff8fb18c4cd190 of 8 bytes by task 1081 on cpu 59:
+  page_counter_try_charge+0x4d/0x150 mm/page_counter.c:138
+  try_charge+0x131/0xd50 mm/memcontrol.c:2405
+  __memcg_kmem_charge_memcg+0x58/0x140
+  __memcg_kmem_charge+0xcc/0x280
+  __alloc_pages_nodemask+0x1e1/0x450
+  alloc_pages_current+0xa6/0x120
+  pte_alloc_one+0x17/0xd0
+  __pte_alloc+0x3a/0x1f0
+  copy_p4d_range+0xc36/0x1990
+  copy_page_range+0x21d/0x360
+  dup_mmap+0x5f5/0x7a0
+  dup_mm+0xa2/0x240
+  copy_process+0x1b3f/0x3460
+  _do_fork+0xaa/0xa20
+  __x64_sys_clone+0x13b/0x170
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[1] https://syzkaller.appspot.com/bug?id=c70c88cfd16dcf6e1d3c7f0ab8648b3144b5b25e
+ write to 0xffff8fb18c4cd190 of 8 bytes by task 1153 on cpu 120:
+  page_counter_try_charge+0x5b/0x150 mm/page_counter.c:139
+  try_charge+0x131/0xd50 mm/memcontrol.c:2405
+  mem_cgroup_try_charge+0x159/0x460
+  mem_cgroup_try_charge_delay+0x3d/0xa0
+  wp_page_copy+0x14d/0x930
+  do_wp_page+0x107/0x7b0
+  __handle_mm_fault+0xce6/0xd40
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-Reported-and-tested-by: syzbot <syzbot+c37a14770d51a085a520@syzkaller.appspotmail.com>
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: kernel test robot <lkp@intel.com> for missing #include
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/075b7e37-3278-cd7d-31ab-c5073cfa8e92@i-love.sakura.ne.jp
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ BUG: KCSAN: data-race in page_counter_try_charge / page_counter_try_charge
+
+ write to 0xffff88809bbf2158 of 8 bytes by task 11782 on cpu 0:
+  page_counter_try_charge+0x100/0x170 mm/page_counter.c:129
+  try_charge+0x185/0xbf0 mm/memcontrol.c:2405
+  __memcg_kmem_charge_memcg+0x4a/0xe0 mm/memcontrol.c:2837
+  __memcg_kmem_charge+0xcf/0x1b0 mm/memcontrol.c:2877
+  __alloc_pages_nodemask+0x26c/0x310 mm/page_alloc.c:4780
+
+ read to 0xffff88809bbf2158 of 8 bytes by task 11814 on cpu 1:
+  page_counter_try_charge+0xef/0x170 mm/page_counter.c:129
+  try_charge+0x185/0xbf0 mm/memcontrol.c:2405
+  __memcg_kmem_charge_memcg+0x4a/0xe0 mm/memcontrol.c:2837
+  __memcg_kmem_charge+0xcf/0x1b0 mm/memcontrol.c:2877
+  __alloc_pages_nodemask+0x26c/0x310 mm/page_alloc.c:4780
+
+Since watermark could be compared or set to garbage due to a data race
+which would change the code logic, fix it by adding a pair of READ_ONCE()
+and WRITE_ONCE() in those places.
+
+The "failcnt" counter is tolerant of some degree of inaccuracy and is only
+used to report stats, a data race will not be harmful, thus mark it as an
+intentional data race using the data_race() macro.
+
+Fixes: 3e32cb2e0a12 ("mm: memcontrol: lockless page counters")
+Reported-by: syzbot+f36cfe60b1006a94f9dc@syzkaller.appspotmail.com
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Link: http://lkml.kernel.org/r/1581519682-23594-1-git-send-email-cai@lca.pw
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/video/fbdev/core/fbmem.c   | 8 ++------
- drivers/video/fbdev/core/fbsysfs.c | 4 ++--
- drivers/video/fbdev/ps3fb.c        | 5 +++--
- include/linux/fb.h                 | 2 --
- 4 files changed, 7 insertions(+), 12 deletions(-)
+ mm/page_counter.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
-index 30e73ec4ad5c8..da7c88ffaa6a8 100644
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -957,7 +957,6 @@ static int fb_check_caps(struct fb_info *info, struct fb_var_screeninfo *var,
- int
- fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
- {
--	int flags = info->flags;
- 	int ret = 0;
- 	u32 activate;
- 	struct fb_var_screeninfo old_var;
-@@ -1052,9 +1051,6 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
- 	event.data = &mode;
- 	fb_notifier_call_chain(FB_EVENT_MODE_CHANGE, &event);
- 
--	if (flags & FBINFO_MISC_USEREVENT)
--		fbcon_update_vcs(info, activate & FB_ACTIVATE_ALL);
--
- 	return 0;
+--- a/mm/page_counter.c
++++ b/mm/page_counter.c
+@@ -77,8 +77,8 @@ void page_counter_charge(struct page_cou
+ 		 * This is indeed racy, but we can live with some
+ 		 * inaccuracy in the watermark.
+ 		 */
+-		if (new > c->watermark)
+-			c->watermark = new;
++		if (new > READ_ONCE(c->watermark))
++			WRITE_ONCE(c->watermark, new);
+ 	}
  }
- EXPORT_SYMBOL(fb_set_var);
-@@ -1105,9 +1101,9 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
- 			return -EFAULT;
- 		console_lock();
- 		lock_fb_info(info);
--		info->flags |= FBINFO_MISC_USEREVENT;
- 		ret = fb_set_var(info, &var);
--		info->flags &= ~FBINFO_MISC_USEREVENT;
-+		if (!ret)
-+			fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
- 		unlock_fb_info(info);
- 		console_unlock();
- 		if (!ret && copy_to_user(argp, &var, sizeof(var)))
-diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
-index d54c88f88991d..65dae05fff8e6 100644
---- a/drivers/video/fbdev/core/fbsysfs.c
-+++ b/drivers/video/fbdev/core/fbsysfs.c
-@@ -91,9 +91,9 @@ static int activate(struct fb_info *fb_info, struct fb_var_screeninfo *var)
  
- 	var->activate |= FB_ACTIVATE_FORCE;
- 	console_lock();
--	fb_info->flags |= FBINFO_MISC_USEREVENT;
- 	err = fb_set_var(fb_info, var);
--	fb_info->flags &= ~FBINFO_MISC_USEREVENT;
-+	if (!err)
-+		fbcon_update_vcs(fb_info, var->activate & FB_ACTIVATE_ALL);
- 	console_unlock();
- 	if (err)
- 		return err;
-diff --git a/drivers/video/fbdev/ps3fb.c b/drivers/video/fbdev/ps3fb.c
-index 9df78fb772672..203c254f8f6cb 100644
---- a/drivers/video/fbdev/ps3fb.c
-+++ b/drivers/video/fbdev/ps3fb.c
-@@ -29,6 +29,7 @@
- #include <linux/freezer.h>
- #include <linux/uaccess.h>
- #include <linux/fb.h>
-+#include <linux/fbcon.h>
- #include <linux/init.h>
+@@ -119,9 +119,10 @@ bool page_counter_try_charge(struct page
+ 			propagate_protected_usage(c, new);
+ 			/*
+ 			 * This is racy, but we can live with some
+-			 * inaccuracy in the failcnt.
++			 * inaccuracy in the failcnt which is only used
++			 * to report stats.
+ 			 */
+-			c->failcnt++;
++			data_race(c->failcnt++);
+ 			*fail = c;
+ 			goto failed;
+ 		}
+@@ -130,8 +131,8 @@ bool page_counter_try_charge(struct page
+ 		 * Just like with failcnt, we can live with some
+ 		 * inaccuracy in the watermark.
+ 		 */
+-		if (new > c->watermark)
+-			c->watermark = new;
++		if (new > READ_ONCE(c->watermark))
++			WRITE_ONCE(c->watermark, new);
+ 	}
+ 	return true;
  
- #include <asm/cell-regs.h>
-@@ -824,12 +825,12 @@ static int ps3fb_ioctl(struct fb_info *info, unsigned int cmd,
- 				var = info->var;
- 				fb_videomode_to_var(&var, vmode);
- 				console_lock();
--				info->flags |= FBINFO_MISC_USEREVENT;
- 				/* Force, in case only special bits changed */
- 				var.activate |= FB_ACTIVATE_FORCE;
- 				par->new_mode_id = val;
- 				retval = fb_set_var(info, &var);
--				info->flags &= ~FBINFO_MISC_USEREVENT;
-+				if (!retval)
-+					fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
- 				console_unlock();
- 			}
- 			break;
-diff --git a/include/linux/fb.h b/include/linux/fb.h
-index 3b4b2f0c6994d..b11eb02cad6d3 100644
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -400,8 +400,6 @@ struct fb_tile_ops {
- #define FBINFO_HWACCEL_YPAN		0x2000 /* optional */
- #define FBINFO_HWACCEL_YWRAP		0x4000 /* optional */
- 
--#define FBINFO_MISC_USEREVENT          0x10000 /* event request
--						  from userspace */
- #define FBINFO_MISC_TILEBLITTING       0x20000 /* use tile blitting */
- 
- /* A driver may set this flag to indicate that it does want a set_par to be
--- 
-2.25.1
-
 
 
