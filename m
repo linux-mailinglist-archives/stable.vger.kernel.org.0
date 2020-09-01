@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A05862593BC
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CBD7259320
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbgIAPaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60114 "EHLO mail.kernel.org"
+        id S1729700AbgIAPVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730583AbgIAPaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:05 -0400
+        id S1729693AbgIAPVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:21:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23B2C207D3;
-        Tue,  1 Sep 2020 15:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D39A820BED;
+        Tue,  1 Sep 2020 15:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974204;
-        bh=RbLY80t28iVxPmRZ5jqBog4FFObASEvB4HKzTo531/I=;
+        s=default; t=1598973702;
+        bh=d29t0xIX3Wuf1ezlJqMis22yC4srR/5mCFQQAfPtXsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMwnfX5QOkAJbbc5O+WOdBWZcoHFxoVVK/MLQA6ezqDZOvbohyEHXaKdzDXEgxarF
-         PnDseAM4o7x7NZXT/WrAMMoM2lv2LGqb41a48Eb3SdDkfhIzCbFA+m4NvHp0fWyesO
-         PpBAgCaO7GC2mQzLH1EvmTv5Rb6fclRKy46WU5Ro=
+        b=wdQLsqhbNOSiOVSrQsbNsEfoE4KbW6l2S8jpPB8O7s7Gcf2+RWb+RKOtbg3faekSg
+         WOxl8fe7MRDUIVX6KgCu3YuRKF8dleBEwCC9rYkWbsCaDXtG0Bk4Z//RjCpyYHJ/Ip
+         92StWCTPRDWcl2OpbMQHt7wryJpVcc65Dya3bKa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/214] drm/ingenic: Fix incorrect assumption about plane->index
-Date:   Tue,  1 Sep 2020 17:09:25 +0200
-Message-Id: <20200901150957.065326104@linuxfoundation.org>
+Subject: [PATCH 4.19 013/125] mfd: intel-lpss: Add Intel Emmitsburg PCH PCI IDs
+Date:   Tue,  1 Sep 2020 17:09:28 +0200
+Message-Id: <20200901150935.230579512@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit ca43f274e03f91c533643299ae4984965ce03205 ]
+[ Upstream commit 3ea2e4eab64cefa06055bb0541fcdedad4b48565 ]
 
-plane->index is NOT the index of the color plane in a YUV frame.
-Actually, a YUV frame is represented by a single drm_plane, even though
-it contains three Y, U, V planes.
+Intel Emmitsburg PCH has the same LPSS than Intel Ice Lake.
+Add the new IDs to the list of supported devices.
 
-v2-v3: No change
-
-Cc: stable@vger.kernel.org # v5.3
-Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200716163846.174790-1-paul@crapouillou.net
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/intel-lpss-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index e746b3a6f7cbc..7e6179fe63f86 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -377,7 +377,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
- 		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
- 		width = state->src_w >> 16;
- 		height = state->src_h >> 16;
--		cpp = state->fb->format->cpp[plane->index];
-+		cpp = state->fb->format->cpp[0];
- 
- 		priv->dma_hwdesc->addr = addr;
- 		priv->dma_hwdesc->cmd = width * height * cpp / 4;
+diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+index 742d6c1973f4f..adea7ff63132f 100644
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -176,6 +176,9 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x1ac4), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
++	/* EBG */
++	{ PCI_VDEVICE(INTEL, 0x1bad), (kernel_ulong_t)&bxt_uart_info },
++	{ PCI_VDEVICE(INTEL, 0x1bae), (kernel_ulong_t)&bxt_uart_info },
+ 	/* GLK */
+ 	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
 -- 
 2.25.1
 
