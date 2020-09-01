@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 246CE25971C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D15E25971D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbgIAPiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46484 "EHLO mail.kernel.org"
+        id S1731271AbgIAPiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:38:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731374AbgIAPh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:37:58 -0400
+        id S1728789AbgIAPiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:38:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62C4C20E65;
-        Tue,  1 Sep 2020 15:37:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC95F205F4;
+        Tue,  1 Sep 2020 15:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974677;
-        bh=K7rQBmF2o/HDSQ0ZPX0Bc+/MKqPqW6lr/a49UeaCeTk=;
+        s=default; t=1598974683;
+        bh=SZsiREGE4KJceeQbEtHOnO+GBKVXcEKF/BC7sEucQvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAtraqI2g35wlhSgDnIy8ifFYcfJiHPkYvwqyaamlkGVuzeZfT2HY6eIIvqUA+GcJ
-         DlENX7K9dcoIh+wyvIlmLzL3+QsCkg/IUV8L6M4Fv+12ajVeI5WsyaOvf0rn+7aueG
-         hKZzNR2z34x1LpETPKQLsbs5fyFD9VOt58xtlBu8=
+        b=RAWNuqTCIJatVu0hrvIfviBYcXlq5uCt0Yek47D1UlhjOp06K6vf9XvPxZ4iTXA71
+         YnhLmiOn86C0ogauEtJAeYKo0qwAJAHcZN0bVg5G90Ma1WF+W8ohrIAfAIWiWlMazl
+         9bkLl6CHD8nxkxnDfzW8EIjzWY9oEMj6eSqUPZas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 022/255] platform/chrome: cros_ec_sensorhub: Fix EC timestamp overflow
-Date:   Tue,  1 Sep 2020 17:07:58 +0200
-Message-Id: <20200901151001.832235108@linuxfoundation.org>
+Subject: [PATCH 5.8 024/255] drm/radeon: fix multiple reference count leak
+Date:   Tue,  1 Sep 2020 17:08:00 +0200
+Message-Id: <20200901151001.929368872@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,36 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit e48bc01ed5adec203676c735365373b31c3c7600 ]
+[ Upstream commit 6f2e8acdb48ed166b65d47837c31b177460491ec ]
 
-EC is using 32 bit timestamps (us), and before converting it to 64bit
-they were not casted, so it would overflow every 4s.
-Regular overflow every ~70 minutes was not taken into account either.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_sensorhub_ring.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/radeon/radeon_connectors.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-index 24e48d96ed766..b1c641c72f515 100644
---- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-+++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-@@ -419,9 +419,7 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
- 			 * Disable filtering since we might add more jitter
- 			 * if b is in a random point in time.
- 			 */
--			new_timestamp = fifo_timestamp -
--					fifo_info->timestamp  * 1000 +
--					in->timestamp * 1000;
-+			new_timestamp = c - b * 1000 + a * 1000;
- 			/*
- 			 * The timestamp can be stale if we had to use the fifo
- 			 * info timestamp.
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index fe12d9d91d7a5..e308344344425 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -879,8 +879,10 @@ radeon_lvds_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (encoder) {
+@@ -1025,8 +1027,10 @@ radeon_vga_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1163,8 +1167,10 @@ radeon_tv_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1247,8 +1253,10 @@ radeon_dvi_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (radeon_connector->detected_hpd_without_ddc) {
+@@ -1657,8 +1665,10 @@ radeon_dp_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (!force && radeon_check_hpd_status_unchanged(connector)) {
 -- 
 2.25.1
 
