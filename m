@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 403E62598EE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6D5259905
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbgIAPaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
+        id S1728656AbgIAQff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730596AbgIAPaS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:18 -0400
+        id S1730597AbgIAPaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F087207D3;
-        Tue,  1 Sep 2020 15:30:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6333D20684;
+        Tue,  1 Sep 2020 15:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974217;
-        bh=ALYJ0PwkIOyn+zIbpSyguYiW+bBvfEuoxI+K2epU1AY=;
+        s=default; t=1598974219;
+        bh=629+49mpM0RMi+i39YNvE37+uGnqLXIa4iJPk9vUMew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjhrix+2SAHM8z9sT1Egxjsm13cbtuSmPnTrbcmwrZ8MHpJkt1DHkWE+hGNgoD/QR
-         PTWNgFJAK9eX4EP5PkUfv2B8x4reLk4xLBsbB+U1E/hwYfNnXe9oQ0J1C0spszWBjR
-         saQ1fbOaUHqvPZEOM6i0VWb4m4U+Ir8QfmsT4vQc=
+        b=BmhQatE4cyyvSdOJsvA8aSfk4LdGlpiu/0SvebG04YvVZJQR5HuBG+oW4eoZ77STT
+         vaYkv+Kz6v4ksQaHE9FkNyd8WCVuoihbUgX9lf4hnQz+eX5BgVjrKLojF8rU8yJNCv
+         0YFrcZ8cFFqj6m8X+yBkyH/SIJeIOo/Bb3+vw1mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/214] mm/vunmap: add cond_resched() in vunmap_pmd_range
-Date:   Tue,  1 Sep 2020 17:09:29 +0200
-Message-Id: <20200901150957.259958320@linuxfoundation.org>
+Subject: [PATCH 5.4 090/214] EDAC: sb_edac: get rid of unused vars
+Date:   Tue,  1 Sep 2020 17:09:30 +0200
+Message-Id: <20200901150957.306703857@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -46,60 +45,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e47110e90584a22e9980510b00d0dfad3a83354e ]
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-Like zap_pte_range add cond_resched so that we can avoid softlockups as
-reported below.  On non-preemptible kernel with large I/O map region (like
-the one we get when using persistent memory with sector mode), an unmap of
-the namespace can report below softlockups.
+[ Upstream commit 323014d85d2699b2879ecb15cd06a15408e3e801 ]
 
-22724.027334] watchdog: BUG: soft lockup - CPU#49 stuck for 23s! [ndctl:50777]
- NIP [c0000000000dc224] plpar_hcall+0x38/0x58
- LR [c0000000000d8898] pSeries_lpar_hpte_invalidate+0x68/0xb0
- Call Trace:
-    flush_hash_page+0x114/0x200
-    hpte_need_flush+0x2dc/0x540
-    vunmap_page_range+0x538/0x6f0
-    free_unmap_vmap_area+0x30/0x70
-    remove_vm_area+0xfc/0x140
-    __vunmap+0x68/0x270
-    __iounmap.part.0+0x34/0x60
-    memunmap+0x54/0x70
-    release_nodes+0x28c/0x300
-    device_release_driver_internal+0x16c/0x280
-    unbind_store+0x124/0x170
-    drv_attr_store+0x44/0x60
-    sysfs_kf_write+0x64/0x90
-    kernfs_fop_write+0x1b0/0x290
-    __vfs_write+0x3c/0x70
-    vfs_write+0xd8/0x260
-    ksys_write+0xdc/0x130
-    system_call+0x5c/0x70
+There are several vars unused on this driver, probably because
+it was a modified copy of another driver. Get rid of them.
 
-Reported-by: Harish Sriram <harish@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200807075933.310240-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	drivers/edac/sb_edac.c: In function ‘knl_get_dimm_capacity’:
+	drivers/edac/sb_edac.c:1343:16: warning: variable ‘sad_size’ set but not used [-Wunused-but-set-variable]
+	 1343 |  u64 sad_base, sad_size, sad_limit = 0;
+	      |                ^~~~~~~~
+	drivers/edac/sb_edac.c: In function ‘sbridge_mce_output_error’:
+	drivers/edac/sb_edac.c:2955:8: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
+	 2955 |  char *type, *optype, msg[256];
+	      |        ^~~~
+	drivers/edac/sb_edac.c: In function ‘sbridge_unregister_mci’:
+	drivers/edac/sb_edac.c:3203:22: warning: variable ‘pvt’ set but not used [-Wunused-but-set-variable]
+	 3203 |  struct sbridge_pvt *pvt;
+	      |                      ^~~
+	At top level:
+	drivers/edac/sb_edac.c:266:18: warning: ‘correrrthrsld’ defined but not used [-Wunused-const-variable=]
+	  266 | static const u32 correrrthrsld[] = {
+	      |                  ^~~~~~~~~~~~~
+	drivers/edac/sb_edac.c:257:18: warning: ‘correrrcnt’ defined but not used [-Wunused-const-variable=]
+	  257 | static const u32 correrrcnt[] = {
+	      |                  ^~~~~~~~~~
+
+Acked-by: Borislav Petkov <bp@alien8.de>
+Acked-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmalloc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/edac/sb_edac.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index ad4d00bd79147..5797e1eeaa7e6 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -85,6 +85,8 @@ static void vunmap_pmd_range(pud_t *pud, unsigned long addr, unsigned long end)
- 		if (pmd_none_or_clear_bad(pmd))
- 			continue;
- 		vunmap_pte_range(pmd, addr, next);
+diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
+index f743502ca9b72..a2fd39d330d67 100644
+--- a/drivers/edac/sb_edac.c
++++ b/drivers/edac/sb_edac.c
+@@ -254,18 +254,20 @@ static const u32 rir_offset[MAX_RIR_RANGES][MAX_RIR_WAY] = {
+  * FIXME: Implement the error count reads directly
+  */
+ 
+-static const u32 correrrcnt[] = {
+-	0x104, 0x108, 0x10c, 0x110,
+-};
+-
+ #define RANK_ODD_OV(reg)		GET_BITFIELD(reg, 31, 31)
+ #define RANK_ODD_ERR_CNT(reg)		GET_BITFIELD(reg, 16, 30)
+ #define RANK_EVEN_OV(reg)		GET_BITFIELD(reg, 15, 15)
+ #define RANK_EVEN_ERR_CNT(reg)		GET_BITFIELD(reg,  0, 14)
+ 
++#if 0 /* Currently unused*/
++static const u32 correrrcnt[] = {
++	0x104, 0x108, 0x10c, 0x110,
++};
 +
-+		cond_resched();
- 	} while (pmd++, addr = next, addr != end);
- }
+ static const u32 correrrthrsld[] = {
+ 	0x11c, 0x120, 0x124, 0x128,
+ };
++#endif
+ 
+ #define RANK_ODD_ERR_THRSLD(reg)	GET_BITFIELD(reg, 16, 30)
+ #define RANK_EVEN_ERR_THRSLD(reg)	GET_BITFIELD(reg,  0, 14)
+@@ -1340,7 +1342,7 @@ static void knl_show_mc_route(u32 reg, char *s)
+  */
+ static int knl_get_dimm_capacity(struct sbridge_pvt *pvt, u64 *mc_sizes)
+ {
+-	u64 sad_base, sad_size, sad_limit = 0;
++	u64 sad_base, sad_limit = 0;
+ 	u64 tad_base, tad_size, tad_limit, tad_deadspace, tad_livespace;
+ 	int sad_rule = 0;
+ 	int tad_rule = 0;
+@@ -1427,7 +1429,6 @@ static int knl_get_dimm_capacity(struct sbridge_pvt *pvt, u64 *mc_sizes)
+ 		edram_only = KNL_EDRAM_ONLY(dram_rule);
+ 
+ 		sad_limit = pvt->info.sad_limit(dram_rule)+1;
+-		sad_size = sad_limit - sad_base;
+ 
+ 		pci_read_config_dword(pvt->pci_sad0,
+ 			pvt->info.interleave_list[sad_rule], &interleave_reg);
+@@ -2952,7 +2953,7 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
+ 	struct mem_ctl_info *new_mci;
+ 	struct sbridge_pvt *pvt = mci->pvt_info;
+ 	enum hw_event_mc_err_type tp_event;
+-	char *type, *optype, msg[256];
++	char *optype, msg[256];
+ 	bool ripv = GET_BITFIELD(m->mcgstatus, 0, 0);
+ 	bool overflow = GET_BITFIELD(m->status, 62, 62);
+ 	bool uncorrected_error = GET_BITFIELD(m->status, 61, 61);
+@@ -2981,14 +2982,11 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
+ 	if (uncorrected_error) {
+ 		core_err_cnt = 1;
+ 		if (ripv) {
+-			type = "FATAL";
+ 			tp_event = HW_EVENT_ERR_FATAL;
+ 		} else {
+-			type = "NON_FATAL";
+ 			tp_event = HW_EVENT_ERR_UNCORRECTED;
+ 		}
+ 	} else {
+-		type = "CORRECTED";
+ 		tp_event = HW_EVENT_ERR_CORRECTED;
+ 	}
+ 
+@@ -3200,7 +3198,6 @@ static struct notifier_block sbridge_mce_dec = {
+ static void sbridge_unregister_mci(struct sbridge_dev *sbridge_dev)
+ {
+ 	struct mem_ctl_info *mci = sbridge_dev->mci;
+-	struct sbridge_pvt *pvt;
+ 
+ 	if (unlikely(!mci || !mci->pvt_info)) {
+ 		edac_dbg(0, "MC: dev = %p\n", &sbridge_dev->pdev[0]->dev);
+@@ -3209,8 +3206,6 @@ static void sbridge_unregister_mci(struct sbridge_dev *sbridge_dev)
+ 		return;
+ 	}
+ 
+-	pvt = mci->pvt_info;
+-
+ 	edac_dbg(0, "MC: mci = %p, dev = %p\n",
+ 		 mci, &sbridge_dev->pdev[0]->dev);
  
 -- 
 2.25.1
