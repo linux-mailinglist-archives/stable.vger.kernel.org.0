@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1929259B26
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 495322598F4
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732222AbgIAQ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:57:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44682 "EHLO mail.kernel.org"
+        id S1730641AbgIAPa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728689AbgIAPWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:22:43 -0400
+        id S1730635AbgIAPaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56F7920BED;
-        Tue,  1 Sep 2020 15:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C49BE20FC3;
+        Tue,  1 Sep 2020 15:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973762;
-        bh=1nsTKj7awYDFJYgmIC6BY7wjrwye7JdlCmgi14Garuc=;
+        s=default; t=1598974252;
+        bh=iHraPqcWIuC6KUiwWwCGn2hqCPFfZxVGTyd79HTIvtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUdiXGWBCSzthhoWN7CyET3KRrAdpDzSkYXI2CXe/MaA/2gFJFVgG9UGBHo6I4flP
-         KN/Edcrwkt0NCLDHneUcWHD6l1H+hpr6tHG2dWV2GPNAJqpvdJARC1rM6xfBp5Ye96
-         HOwfbdXBMBgZBKzL2jioopZavv0cQ572nA6zLPCE=
+        b=akDXqimAjwnJen8vguT3ReJ76uulIFtNp2j9f4VsuMJ/LMsC5+TOjxIi4+6i0FnrF
+         on528O/XAdvabPf/EBdXnAbJ0j67mk8NitGBIG1x/z6y3IueAU6D76Q76TArtIrwKk
+         6axX6iMi9aBqjPcgWoP0qJJVuQKEdYV14nIz3D0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/125] f2fs: fix error path in do_recover_data()
-Date:   Tue,  1 Sep 2020 17:09:44 +0200
-Message-Id: <20200901150935.986219254@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 105/214] blk-mq: insert request not through ->queue_rq into sw/scheduler queue
+Date:   Tue,  1 Sep 2020 17:09:45 +0200
+Message-Id: <20200901150958.018897922@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,161 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 9627a7b31f3c4ff8bc8f3be3683983ffe6eaebe6 ]
+[ Upstream commit db03f88fae8a2c8007caafa70287798817df2875 ]
 
-- don't panic kernel if f2fs_get_node_page() fails in
-f2fs_recover_inline_data() or f2fs_recover_inline_xattr();
-- return error number of f2fs_truncate_blocks() to
-f2fs_recover_inline_data()'s caller;
+c616cbee97ae ("blk-mq: punt failed direct issue to dispatch list") supposed
+to add request which has been through ->queue_rq() to the hw queue dispatch
+list, however it adds request running out of budget or driver tag to hw queue
+too. This way basically bypasses request merge, and causes too many request
+dispatched to LLD, and system% is unnecessary increased.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes this issue by adding request not through ->queue_rq into sw/scheduler
+queue, and this way is safe because no ->queue_rq is called on this request
+yet.
+
+High %system can be observed on Azure storvsc device, and even soft lock
+is observed. This patch reduces %system during heavy sequential IO,
+meantime decreases soft lockup risk.
+
+Fixes: c616cbee97ae ("blk-mq: punt failed direct issue to dispatch list")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h     |  4 ++--
- fs/f2fs/inline.c   | 19 ++++++++++++-------
- fs/f2fs/node.c     |  6 ++++--
- fs/f2fs/recovery.c | 10 ++++++++--
- 4 files changed, 26 insertions(+), 13 deletions(-)
+ block/blk-mq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 6b5b685af5990..53ffa6fe207a3 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2921,7 +2921,7 @@ bool f2fs_alloc_nid(struct f2fs_sb_info *sbi, nid_t *nid);
- void f2fs_alloc_nid_done(struct f2fs_sb_info *sbi, nid_t nid);
- void f2fs_alloc_nid_failed(struct f2fs_sb_info *sbi, nid_t nid);
- int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink);
--void f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
-+int f2fs_recover_inline_xattr(struct inode *inode, struct page *page);
- int f2fs_recover_xattr_data(struct inode *inode, struct page *page);
- int f2fs_recover_inode_page(struct f2fs_sb_info *sbi, struct page *page);
- int f2fs_restore_node_summary(struct f2fs_sb_info *sbi,
-@@ -3314,7 +3314,7 @@ int f2fs_read_inline_data(struct inode *inode, struct page *page);
- int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page);
- int f2fs_convert_inline_inode(struct inode *inode);
- int f2fs_write_inline_data(struct inode *inode, struct page *page);
--bool f2fs_recover_inline_data(struct inode *inode, struct page *npage);
-+int f2fs_recover_inline_data(struct inode *inode, struct page *npage);
- struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
- 			struct fscrypt_name *fname, struct page **res_page);
- int f2fs_make_empty_inline_dir(struct inode *inode, struct inode *parent,
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index c1ba29d10789d..2fabeb0bb28fd 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -256,7 +256,7 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
- 	return 0;
- }
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index ae7d31cb5a4e1..8f67f0f16ec2e 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1869,7 +1869,8 @@ insert:
+ 	if (bypass_insert)
+ 		return BLK_STS_RESOURCE;
  
--bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
-+int f2fs_recover_inline_data(struct inode *inode, struct page *npage)
- {
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	struct f2fs_inode *ri = NULL;
-@@ -278,7 +278,8 @@ bool f2fs_recover_inline_data(struct inode *inode, struct page *npage)
- 			ri && (ri->i_inline & F2FS_INLINE_DATA)) {
- process_inline:
- 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
--		f2fs_bug_on(sbi, IS_ERR(ipage));
-+		if (IS_ERR(ipage))
-+			return PTR_ERR(ipage);
- 
- 		f2fs_wait_on_page_writeback(ipage, NODE, true);
- 
-@@ -291,21 +292,25 @@ process_inline:
- 
- 		set_page_dirty(ipage);
- 		f2fs_put_page(ipage, 1);
--		return true;
-+		return 1;
- 	}
- 
- 	if (f2fs_has_inline_data(inode)) {
- 		ipage = f2fs_get_node_page(sbi, inode->i_ino);
--		f2fs_bug_on(sbi, IS_ERR(ipage));
-+		if (IS_ERR(ipage))
-+			return PTR_ERR(ipage);
- 		f2fs_truncate_inline_inode(inode, ipage, 0);
- 		clear_inode_flag(inode, FI_INLINE_DATA);
- 		f2fs_put_page(ipage, 1);
- 	} else if (ri && (ri->i_inline & F2FS_INLINE_DATA)) {
--		if (f2fs_truncate_blocks(inode, 0, false))
--			return false;
-+		int ret;
+-	blk_mq_request_bypass_insert(rq, false, run_queue);
++	blk_mq_sched_insert_request(rq, false, run_queue, false);
 +
-+		ret = f2fs_truncate_blocks(inode, 0, false);
-+		if (ret)
-+			return ret;
- 		goto process_inline;
- 	}
--	return false;
-+	return 0;
+ 	return BLK_STS_OK;
  }
  
- struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index f0714c1258c79..2ff02541c53d5 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2451,7 +2451,7 @@ int f2fs_try_to_free_nids(struct f2fs_sb_info *sbi, int nr_shrink)
- 	return nr - nr_shrink;
- }
- 
--void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
-+int f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
- {
- 	void *src_addr, *dst_addr;
- 	size_t inline_size;
-@@ -2459,7 +2459,8 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
- 	struct f2fs_inode *ri;
- 
- 	ipage = f2fs_get_node_page(F2FS_I_SB(inode), inode->i_ino);
--	f2fs_bug_on(F2FS_I_SB(inode), IS_ERR(ipage));
-+	if (IS_ERR(ipage))
-+		return PTR_ERR(ipage);
- 
- 	ri = F2FS_INODE(page);
- 	if (ri->i_inline & F2FS_INLINE_XATTR) {
-@@ -2478,6 +2479,7 @@ void f2fs_recover_inline_xattr(struct inode *inode, struct page *page)
- update_inode:
- 	f2fs_update_inode(inode, ipage);
- 	f2fs_put_page(ipage, 1);
-+	return 0;
- }
- 
- int f2fs_recover_xattr_data(struct inode *inode, struct page *page)
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index 733f005b85d65..ad0486beee2c0 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -471,7 +471,9 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
- 
- 	/* step 1: recover xattr */
- 	if (IS_INODE(page)) {
--		f2fs_recover_inline_xattr(inode, page);
-+		err = f2fs_recover_inline_xattr(inode, page);
-+		if (err)
-+			goto out;
- 	} else if (f2fs_has_xattr_block(ofs_of_node(page))) {
- 		err = f2fs_recover_xattr_data(inode, page);
- 		if (!err)
-@@ -480,8 +482,12 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
- 	}
- 
- 	/* step 2: recover inline data */
--	if (f2fs_recover_inline_data(inode, page))
-+	err = f2fs_recover_inline_data(inode, page);
-+	if (err) {
-+		if (err == 1)
-+			err = 0;
- 		goto out;
-+	}
- 
- 	/* step 3: recover data indices */
- 	start = f2fs_start_bidx_of_node(ofs_of_node(page), inode);
 -- 
 2.25.1
 
