@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB631259892
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE264259687
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbgIAQ20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:28:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35438 "EHLO mail.kernel.org"
+        id S1726678AbgIAQDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:03:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730834AbgIAPcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:32:01 -0400
+        id S1731565AbgIAPmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:42:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7EEE21548;
-        Tue,  1 Sep 2020 15:31:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 055E92064B;
+        Tue,  1 Sep 2020 15:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974320;
-        bh=igFLgAPBjGzvMF/y+IQ59KaFgYmVYOPfdPx8ZzrjThA=;
+        s=default; t=1598974954;
+        bh=hEcf91JbzgPXRuztevJtJxtp78NU32tVPVA7ZRUoHnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mD8oxMFGh/6Fv+u6hOXtR2pinuiL1bSBiDXJAT2xuGTU+VhqeZCSw6B1fg79W3Z01
-         3ItUGXwiQMeJLAVks/Sil+qMP7YacimHMa+E8PsqxH/kRwmD0ycOR4oeWmjppIzoAG
-         0+3hjKAA6gUy4xeQYHzYF4eVeUkPjfnSHq3Rb9aw=
+        b=REPgVan5/Q6Rt1Oq2idcuIrKb4w5nba6deQdQXHzhMO+s6skHdRD47/9OZ176YHQc
+         pvhthVi37NyLxw7wWFPFvyxWS5Qhm0rDPT+3Puw3eUEbfml6ARtPk4EWfxpTNuTNGK
+         z98qu/dpcu2oWVNxUhWoDgbH5o/u2e6We7D+muPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Changpeng Liu <changpeng.liu@intel.com>,
-        Daniel Verkamp <dverkamp@chromium.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/214] block: virtio_blk: fix handling single range discard request
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 124/255] drm/amd/display: Fix LFC multiplier changing erratically
 Date:   Tue,  1 Sep 2020 17:09:40 +0200
-Message-Id: <20200901150957.787929636@linuxfoundation.org>
+Message-Id: <20200901151006.670575737@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,80 +46,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Anthony Koo <Anthony.Koo@amd.com>
 
-[ Upstream commit af822aa68fbdf0a480a17462ed70232998127453 ]
+[ Upstream commit e4ed4dbbc8383d42a197da8fe7ca6434b0f14def ]
 
-1f23816b8eb8 ("virtio_blk: add discard and write zeroes support") starts
-to support multi-range discard for virtio-blk. However, the virtio-blk
-disk may report max discard segment as 1, at least that is exactly what
-qemu is doing.
+[Why]
+1. There is a calculation that is using frame_time_in_us instead of
+last_render_time_in_us to calculate whether choosing an LFC multiplier
+would cause the inserted frame duration to be outside of range.
 
-So far, block layer switches to normal request merge if max discard segment
-limit is 1, and multiple bios can be merged to single segment. This way may
-cause memory corruption in virtblk_setup_discard_write_zeroes().
+2. We do not handle unsigned integer subtraction correctly and it underflows
+to a really large value, which causes some logic errors.
 
-Fix the issue by handling single max discard segment in straightforward
-way.
+[How]
+1. Fix logic to calculate 'within range' using last_render_time_in_us
+2. Split out delta_from_mid_point_delta_in_us calculation to ensure
+we don't underflow and wrap around
 
-Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Changpeng Liu <changpeng.liu@intel.com>
-Cc: Daniel Verkamp <dverkamp@chromium.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ .../amd/display/modules/freesync/freesync.c   | 36 +++++++++++++++----
+ 1 file changed, 29 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c1de270046bfe..2eeb2bcb488d4 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -205,16 +205,31 @@ static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
- 	if (!range)
- 		return -ENOMEM;
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index eb7421e83b865..23a7fa8447e24 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -324,22 +324,44 @@ static void apply_below_the_range(struct core_freesync *core_freesync,
  
--	__rq_for_each_bio(bio, req) {
--		u64 sector = bio->bi_iter.bi_sector;
--		u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
--
--		range[n].flags = cpu_to_le32(flags);
--		range[n].num_sectors = cpu_to_le32(num_sectors);
--		range[n].sector = cpu_to_le64(sector);
--		n++;
-+	/*
-+	 * Single max discard segment means multi-range discard isn't
-+	 * supported, and block layer only runs contiguity merge like
-+	 * normal RW request. So we can't reply on bio for retrieving
-+	 * each range info.
-+	 */
-+	if (queue_max_discard_segments(req->q) == 1) {
-+		range[0].flags = cpu_to_le32(flags);
-+		range[0].num_sectors = cpu_to_le32(blk_rq_sectors(req));
-+		range[0].sector = cpu_to_le64(blk_rq_pos(req));
-+		n = 1;
-+	} else {
-+		__rq_for_each_bio(bio, req) {
-+			u64 sector = bio->bi_iter.bi_sector;
-+			u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
-+
-+			range[n].flags = cpu_to_le32(flags);
-+			range[n].num_sectors = cpu_to_le32(num_sectors);
-+			range[n].sector = cpu_to_le64(sector);
-+			n++;
+ 		/* Choose number of frames to insert based on how close it
+ 		 * can get to the mid point of the variable range.
++		 *  - Delta for CEIL: delta_from_mid_point_in_us_1
++		 *  - Delta for FLOOR: delta_from_mid_point_in_us_2
+ 		 */
+-		if ((frame_time_in_us / mid_point_frames_ceil) > in_out_vrr->min_duration_in_us &&
+-				(delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2 ||
+-						mid_point_frames_floor < 2)) {
++		if ((last_render_time_in_us / mid_point_frames_ceil) < in_out_vrr->min_duration_in_us) {
++			/* Check for out of range.
++			 * If using CEIL produces a value that is out of range,
++			 * then we are forced to use FLOOR.
++			 */
++			frames_to_insert = mid_point_frames_floor;
++		} else if (mid_point_frames_floor < 2) {
++			/* Check if FLOOR would result in non-LFC. In this case
++			 * choose to use CEIL
++			 */
++			frames_to_insert = mid_point_frames_ceil;
++		} else if (delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2) {
++			/* If choosing CEIL results in a frame duration that is
++			 * closer to the mid point of the range.
++			 * Choose CEIL
++			 */
+ 			frames_to_insert = mid_point_frames_ceil;
+-			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_2 -
+-					delta_from_mid_point_in_us_1;
+ 		} else {
++			/* If choosing FLOOR results in a frame duration that is
++			 * closer to the mid point of the range.
++			 * Choose FLOOR
++			 */
+ 			frames_to_insert = mid_point_frames_floor;
+-			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_1 -
+-					delta_from_mid_point_in_us_2;
+ 		}
+ 
+ 		/* Prefer current frame multiplier when BTR is enabled unless it drifts
+ 		 * too far from the midpoint
+ 		 */
++		if (delta_from_mid_point_in_us_1 < delta_from_mid_point_in_us_2) {
++			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_2 -
++					delta_from_mid_point_in_us_1;
++		} else {
++			delta_from_mid_point_delta_in_us = delta_from_mid_point_in_us_1 -
++					delta_from_mid_point_in_us_2;
 +		}
- 	}
- 
-+	WARN_ON_ONCE(n != segments);
-+
- 	req->special_vec.bv_page = virt_to_page(range);
- 	req->special_vec.bv_offset = offset_in_page(range);
- 	req->special_vec.bv_len = sizeof(*range) * segments;
+ 		if (in_out_vrr->btr.frames_to_insert != 0 &&
+ 				delta_from_mid_point_delta_in_us < BTR_DRIFT_MARGIN) {
+ 			if (((last_render_time_in_us / in_out_vrr->btr.frames_to_insert) <
 -- 
 2.25.1
 
