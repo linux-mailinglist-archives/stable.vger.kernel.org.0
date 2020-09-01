@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45272592ED
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B39DE25932B
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729201AbgIAPTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37190 "EHLO mail.kernel.org"
+        id S1729283AbgIAPWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729509AbgIAPSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:18:40 -0400
+        id S1729749AbgIAPWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37A99207D3;
-        Tue,  1 Sep 2020 15:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B84372078B;
+        Tue,  1 Sep 2020 15:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973519;
-        bh=kr53/aLDIqOoxQ3H3Cd+86TFZJG+yDTjeToeL/dSmrc=;
+        s=default; t=1598973738;
+        bh=zDewFyKAhN2MM8iL/yddbmbpDn8Qz1RdSFBnqgcVvPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7GdUWO0f+8fN0sxg43qnuCdYPxLCj4D+Y3jZQ6V/X54gQK4+ytS/nIlcglv19A8b
-         z3bHICdyRV1Yh3nqqniXgfIbtxlWXN1ZJf1qeS2sXGj9L7JmQRDG8+gzwM4i1uocvg
-         LtR56n2G8phR5bfFBdNcMWKq+JA19I+UR8hRiACs=
+        b=HveBau7Bdrlo63TpIyCyOQidNwPTtTheVoMHOHXrRa0QAP38aEVrmRFyyKLK5RKL0
+         JOLqokfavmIQ1MTftg/rUQKXxXiTepCHyMfPVs1LgKnT0tHMTmfGvxyHhsYC0El7Z/
+         JoI5LA0T2TpIUrsXynVzI0HBQx4uHSfJaNCa43bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/91] ALSA: pci: delete repeated words in comments
-Date:   Tue,  1 Sep 2020 17:09:40 +0200
-Message-Id: <20200901150928.433379039@linuxfoundation.org>
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 026/125] scsi: lpfc: Fix shost refcount mismatch when deleting vport
+Date:   Tue,  1 Sep 2020 17:09:41 +0200
+Message-Id: <20200901150935.841951316@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dick Kennedy <dick.kennedy@broadcom.com>
 
-[ Upstream commit c7fabbc51352f50cc58242a6dc3b9c1a3599849b ]
+[ Upstream commit 03dbfe0668e6692917ac278883e0586cd7f7d753 ]
 
-Drop duplicated words in sound/pci/.
-{and, the, at}
+When vports are deleted, it is observed that there is memory/kthread
+leakage as the vport isn't fully being released.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20200806021926.32418-1-rdunlap@infradead.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+There is a shost reference taken in scsi_add_host_dma that is not released
+during scsi_remove_host. It was noticed that other drivers resolve this by
+doing a scsi_host_put after calling scsi_remove_host.
+
+The vport_delete routine is taking two references one that corresponds to
+an access to the scsi_host in the vport_delete routine and another that is
+released after the adapter mailbox command completes that destroys the VPI
+that corresponds to the vport.
+
+Remove one of the references taken such that the second reference that is
+put will complete the missing scsi_add_host_dma reference and the shost
+will be terminated.
+
+Link: https://lore.kernel.org/r/20200630215001.70793-8-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/cs46xx/cs46xx_lib.c       | 2 +-
- sound/pci/cs46xx/dsp_spos_scb_lib.c | 2 +-
- sound/pci/hda/hda_codec.c           | 2 +-
- sound/pci/hda/hda_generic.c         | 2 +-
- sound/pci/hda/patch_sigmatel.c      | 2 +-
- sound/pci/ice1712/prodigy192.c      | 2 +-
- sound/pci/oxygen/xonar_dg.c         | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/scsi/lpfc/lpfc_vport.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
-diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
-index 0020fd0efc466..09c547f4cc186 100644
---- a/sound/pci/cs46xx/cs46xx_lib.c
-+++ b/sound/pci/cs46xx/cs46xx_lib.c
-@@ -780,7 +780,7 @@ static void snd_cs46xx_set_capture_sample_rate(struct snd_cs46xx *chip, unsigned
- 		rate = 48000 / 9;
- 
- 	/*
--	 *  We can not capture at at rate greater than the Input Rate (48000).
-+	 *  We can not capture at a rate greater than the Input Rate (48000).
- 	 *  Return an error if an attempt is made to stray outside that limit.
- 	 */
- 	if (rate > 48000)
-diff --git a/sound/pci/cs46xx/dsp_spos_scb_lib.c b/sound/pci/cs46xx/dsp_spos_scb_lib.c
-index 7488e1b7a7707..4e726d39b05d1 100644
---- a/sound/pci/cs46xx/dsp_spos_scb_lib.c
-+++ b/sound/pci/cs46xx/dsp_spos_scb_lib.c
-@@ -1742,7 +1742,7 @@ int cs46xx_iec958_pre_open (struct snd_cs46xx *chip)
- 	struct dsp_spos_instance * ins = chip->dsp_spos_instance;
- 
- 	if ( ins->spdif_status_out & DSP_SPDIF_STATUS_OUTPUT_ENABLED ) {
--		/* remove AsynchFGTxSCB and and PCMSerialInput_II */
-+		/* remove AsynchFGTxSCB and PCMSerialInput_II */
- 		cs46xx_dsp_disable_spdif_out (chip);
- 
- 		/* save state */
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 7d65fe31c8257..a56f018d586f5 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -3394,7 +3394,7 @@ EXPORT_SYMBOL_GPL(snd_hda_set_power_save);
-  * @nid: NID to check / update
-  *
-  * Check whether the given NID is in the amp list.  If it's in the list,
-- * check the current AMP status, and update the the power-status according
-+ * check the current AMP status, and update the power-status according
-  * to the mute status.
-  *
-  * This function is supposed to be set or called from the check_power_status
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index 28ef409a9e6ae..9dee657ce9e27 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -823,7 +823,7 @@ static void activate_amp_in(struct hda_codec *codec, struct nid_path *path,
+diff --git a/drivers/scsi/lpfc/lpfc_vport.c b/drivers/scsi/lpfc/lpfc_vport.c
+index 1ff0f7de91058..64545b300dfc7 100644
+--- a/drivers/scsi/lpfc/lpfc_vport.c
++++ b/drivers/scsi/lpfc/lpfc_vport.c
+@@ -653,27 +653,16 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
+ 		    vport->port_state < LPFC_VPORT_READY)
+ 			return -EAGAIN;
  	}
- }
++
+ 	/*
+-	 * This is a bit of a mess.  We want to ensure the shost doesn't get
+-	 * torn down until we're done with the embedded lpfc_vport structure.
+-	 *
+-	 * Beyond holding a reference for this function, we also need a
+-	 * reference for outstanding I/O requests we schedule during delete
+-	 * processing.  But once we scsi_remove_host() we can no longer obtain
+-	 * a reference through scsi_host_get().
+-	 *
+-	 * So we take two references here.  We release one reference at the
+-	 * bottom of the function -- after delinking the vport.  And we
+-	 * release the other at the completion of the unreg_vpi that get's
+-	 * initiated after we've disposed of all other resources associated
+-	 * with the port.
++	 * Take early refcount for outstanding I/O requests we schedule during
++	 * delete processing for unreg_vpi.  Always keep this before
++	 * scsi_remove_host() as we can no longer obtain a reference through
++	 * scsi_host_get() after scsi_host_remove as shost is set to SHOST_DEL.
+ 	 */
+ 	if (!scsi_host_get(shost))
+ 		return VPORT_INVAL;
+-	if (!scsi_host_get(shost)) {
+-		scsi_host_put(shost);
+-		return VPORT_INVAL;
+-	}
++
+ 	lpfc_free_sysfs_attr(vport);
  
--/* sync power of each widget in the the given path */
-+/* sync power of each widget in the given path */
- static hda_nid_t path_power_update(struct hda_codec *codec,
- 				   struct nid_path *path,
- 				   bool allow_powerdown)
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index 7cd147411b22d..f7896a9ae3d65 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -863,7 +863,7 @@ static int stac_auto_create_beep_ctls(struct hda_codec *codec,
- 	static struct snd_kcontrol_new beep_vol_ctl =
- 		HDA_CODEC_VOLUME(NULL, 0, 0, 0);
+ 	lpfc_debugfs_terminate(vport);
+@@ -820,8 +809,9 @@ skip_logo:
+ 		if (!(vport->vpi_state & LPFC_VPI_REGISTERED) ||
+ 				lpfc_mbx_unreg_vpi(vport))
+ 			scsi_host_put(shost);
+-	} else
++	} else {
+ 		scsi_host_put(shost);
++	}
  
--	/* check for mute support for the the amp */
-+	/* check for mute support for the amp */
- 	if ((caps & AC_AMPCAP_MUTE) >> AC_AMPCAP_MUTE_SHIFT) {
- 		const struct snd_kcontrol_new *temp;
- 		if (spec->anabeep_nid == nid)
-diff --git a/sound/pci/ice1712/prodigy192.c b/sound/pci/ice1712/prodigy192.c
-index 3919aed39ca03..5e52086d7b986 100644
---- a/sound/pci/ice1712/prodigy192.c
-+++ b/sound/pci/ice1712/prodigy192.c
-@@ -31,7 +31,7 @@
-  *		  Experimentally I found out that only a combination of
-  *		  OCKS0=1, OCKS1=1 (128fs, 64fs output) and ice1724 -
-  *		  VT1724_MT_I2S_MCLK_128X=0 (256fs input) yields correct
-- *		  sampling rate. That means the the FPGA doubles the
-+ *		  sampling rate. That means that the FPGA doubles the
-  *		  MCK01 rate.
-  *
-  *	Copyright (c) 2003 Takashi Iwai <tiwai@suse.de>
-diff --git a/sound/pci/oxygen/xonar_dg.c b/sound/pci/oxygen/xonar_dg.c
-index 4cf3200e988b0..df44135e1b0c9 100644
---- a/sound/pci/oxygen/xonar_dg.c
-+++ b/sound/pci/oxygen/xonar_dg.c
-@@ -39,7 +39,7 @@
-  *   GPIO 4 <- headphone detect
-  *   GPIO 5 -> enable ADC analog circuit for the left channel
-  *   GPIO 6 -> enable ADC analog circuit for the right channel
-- *   GPIO 7 -> switch green rear output jack between CS4245 and and the first
-+ *   GPIO 7 -> switch green rear output jack between CS4245 and the first
-  *             channel of CS4361 (mechanical relay)
-  *   GPIO 8 -> enable output to speakers
-  *
+ 	lpfc_free_vpi(phba, vport->vpi);
+ 	vport->work_port_events = 0;
 -- 
 2.25.1
 
