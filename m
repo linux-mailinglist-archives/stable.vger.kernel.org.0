@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33367259C76
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A86D259C0E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729051AbgIAPOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:14:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58242 "EHLO mail.kernel.org"
+        id S1729088AbgIAPSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729045AbgIAPO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:29 -0400
+        id S1729437AbgIAPRz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2D1D20BED;
-        Tue,  1 Sep 2020 15:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD7412137B;
+        Tue,  1 Sep 2020 15:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973269;
-        bh=EC0gZpwbVWyRCJJFNNRf8jvNqjXRs7By//WD6ow1/qg=;
+        s=default; t=1598973475;
+        bh=tE9xsYHjcyP1RgE3aKIgru7GwEiC8ipKwroxXBMxFY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dglZEr2Bg9rS4++EUO2G5DR8S/6cttEJn95LDDk82yabPqfkhBFjKekHsgf9FavKM
-         nBS/7abMgWAx/fuCM6H9/+oJ+nhy9D6g60M8H4BKvCayFpEq+G1B5oHMU2ZN567Akx
-         zo1blnkkKppLq0nOBOH0qm2oND1Rhxiqzqi79Opw=
+        b=YYdBc/xEYE9OfycVrAUBxsVzIoXwqOvnco1ZlRJKFZtGy2/iU70IIMPSzNt+As2ky
+         TYMqFBNmHF4IT0g4arHz+PbkFqeZDQ00lpBfQ4P/ZpDecKDhLaLEyZOi4Q3V881XFQ
+         XXuUkQxHMK5icZtlXzH+A/SN28FE50PW2xhZj26M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Prakash Gupta <guptap@codeaurora.org>,
         Robin Murphy <robin.murphy@arm.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/78] iommu/iova: Dont BUG on invalid PFNs
+Subject: [PATCH 4.14 14/91] iommu/iova: Dont BUG on invalid PFNs
 Date:   Tue,  1 Sep 2020 17:09:48 +0200
-Message-Id: <20200901150925.346875694@linuxfoundation.org>
+Message-Id: <20200901150928.820696329@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index f106fd9782bfb..99c36a5438a75 100644
+index 4edf65dbbcab5..2c97d2552c5bd 100644
 --- a/drivers/iommu/iova.c
 +++ b/drivers/iommu/iova.c
-@@ -676,7 +676,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag, struct iova_domain *iovad)
+@@ -845,7 +845,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag, struct iova_domain *iovad)
  	for (i = 0 ; i < mag->size; ++i) {
  		struct iova *iova = private_find_iova(iovad, mag->pfns[i]);
  
