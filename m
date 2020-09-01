@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F9525931B
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C40A259377
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729516AbgIAPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S1730069AbgIAPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbgIAPVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:21:07 -0400
+        id S1730067AbgIAPZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:25:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43C062078B;
-        Tue,  1 Sep 2020 15:21:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A11920684;
+        Tue,  1 Sep 2020 15:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973666;
-        bh=KZqOG/D8Kv+NwvA7W2O63q9QsMqSBbOK6JsY9OwhER8=;
+        s=default; t=1598973950;
+        bh=uZ2cKxuigQGTZJA16yFuIuvZhEK5XCUeHR7VZ6noavE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjZKXBPGus2qn66fQghC9dwh4YIijjOPPavHj3xPS+Wj5NWImq8Gybq57X4lIYPLc
-         PDZBwMs5VDA7N6e69eLTAckVmx8FsQ8CMKzxwdVAKb+UuZ1S7LeoEbK5A4iOG88gMp
-         xWsnK5w2C+ELBnAn6Sqi6WsbGN9ib+lpSas9/+K4=
+        b=TWC5B2m+x8qM45Us3g8Gxfwv+v1wWBcxoK5cbtqPPBBOI0ApMseWUQhQzMkvZ9Bjk
+         kigDJI+qYt83Y+XqddfFBuvOFxibglDlvoIgN9teqpDPqYOM8/okmjjkivk+p6tfQj
+         DXioZubVPuALfccOn0/XDupnCePmS4KvAp4wQvbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 90/91] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
-Date:   Tue,  1 Sep 2020 17:11:04 +0200
-Message-Id: <20200901150932.640258413@linuxfoundation.org>
+        stable@vger.kernel.org, Brice Goglin <brice.goglin@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Cyril Roelandt <tipecaml@gmail.com>
+Subject: [PATCH 4.19 112/125] USB: Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
+Date:   Tue,  1 Sep 2020 17:11:07 +0200
+Message-Id: <20200901150940.103878011@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Cyril Roelandt <tipecaml@gmail.com>
 
-commit 25a097f5204675550afb879ee18238ca917cba7a upstream.
+commit 9aa37788e7ebb3f489fb4b71ce07adadd444264a upstream.
 
-`uref->usage_index` is not always being properly checked, causing
-hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
+This device does not support UAS properly and a similar entry already
+exists in drivers/usb/storage/unusual_uas.h. Without this patch,
+storage_probe() defers the handling of this device to UAS, which cannot
+handle it either.
 
-Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Tested-by: Brice Goglin <brice.goglin@gmail.com>
+Fixes: bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron SATA enclosure")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
+Link: https://lore.kernel.org/r/20200825212231.46309-1-tipecaml@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/usbhid/hiddev.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/storage/unusual_devs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -532,12 +532,16 @@ static noinline int hiddev_ioctl_usage(s
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2328,7 +2328,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x
+ 		"JMicron",
+ 		"USB to ATA/ATAPI Bridge",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_BROKEN_FUA ),
++		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
  
- 		switch (cmd) {
- 		case HIDIOCGUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			uref->value = field->value[uref->usage_index];
- 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
- 				goto fault;
- 			goto goodreturn;
- 
- 		case HIDIOCSUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			field->value[uref->usage_index] = uref->value;
- 			goto goodreturn;
- 
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
 
 
