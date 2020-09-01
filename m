@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58761259C0A
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:10:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A24259B79
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728480AbgIARK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
+        id S1730475AbgIARCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729366AbgIAPRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:06 -0400
+        id S1729616AbgIAPU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8B5C206EB;
-        Tue,  1 Sep 2020 15:17:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E94FD20767;
+        Tue,  1 Sep 2020 15:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973425;
-        bh=Pma8lnuc0ri+KEpgjVb6CgNFMwLaiH4SGz3ktA/N34o=;
+        s=default; t=1598973629;
+        bh=t1iltjttesnODkweQy4rYpmj8dRrV11y+px+IK3HtrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yALubkchqc756vtzLkb77rH99upbmq9GY1LXEFDc6av8eWyfwz4c1Ggk/vbBp/fkH
-         EqeDntKthC4UZ036/77YVm1Q/3suy976ruaHMQd0Rfuo38d2V7VkUE8gNK4QnFtbmy
-         ctEmhDgopfBpiwp9xQVAVY4X1KDY5vreIWIWBfEs=
+        b=jDCTDfrZN5svxh5A3bV+y9gMUj4CUMQptKydxzYBTxLBRAiMmBiPnDs4jrqHlRFGD
+         kobnNDRDXadcDFANj8dgIcBeZJ3O1I/LJ7tUISYHTLc3nyjM9CQcrnh2+sDeFmASBB
+         Ah6PoSy7tswPbISARiOgbvP72rjRztoG/TTT3l+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Brooke Basile <brookebasile@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>, stable <stable@kernel.org>
-Subject: [PATCH 4.9 73/78] USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()
-Date:   Tue,  1 Sep 2020 17:10:49 +0200
-Message-Id: <20200901150928.415910014@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.14 76/91] drm/amdgpu: Fix buffer overflow in INFO ioctl
+Date:   Tue,  1 Sep 2020 17:10:50 +0200
+Message-Id: <20200901150931.969701698@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,178 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brooke Basile <brookebasile@gmail.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 2b74b0a04d3e9f9f08ff026e5663dce88ff94e52 upstream.
+commit b5b97cab55eb71daba3283c8b1d2cce456d511a1 upstream.
 
-Some values extracted by ncm_unwrap_ntb() could possibly lead to several
-different out of bounds reads of memory.  Specifically the values passed
-to netdev_alloc_skb_ip_align() need to be checked so that memory is not
-overflowed.
+The values for "se_num" and "sh_num" come from the user in the ioctl.
+They can be in the 0-255 range but if they're more than
+AMDGPU_GFX_MAX_SE (4) or AMDGPU_GFX_MAX_SH_PER_SE (2) then it results in
+an out of bounds read.
 
-Resolve this by applying bounds checking to a number of different
-indexes and lengths of the structure parsing logic.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Brooke Basile <brookebasile@gmail.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Cc: stable <stable@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_ncm.c |   81 ++++++++++++++++++++++++++++++------
- 1 file changed, 69 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -1209,12 +1209,15 @@ static int ncm_unwrap_ntb(struct gether
- 	int		ndp_index;
- 	unsigned	dg_len, dg_len2;
- 	unsigned	ndp_len;
-+	unsigned	block_len;
- 	struct sk_buff	*skb2;
- 	int		ret = -EINVAL;
--	unsigned	max_size = le32_to_cpu(ntb_parameters.dwNtbOutMaxSize);
-+	unsigned	ntb_max = le32_to_cpu(ntb_parameters.dwNtbOutMaxSize);
-+	unsigned	frame_max = le16_to_cpu(ecm_desc.wMaxSegmentSize);
- 	const struct ndp_parser_opts *opts = ncm->parser_opts;
- 	unsigned	crc_len = ncm->is_crc ? sizeof(uint32_t) : 0;
- 	int		dgram_counter;
-+	bool		ndp_after_header;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -502,8 +502,12 @@ static int amdgpu_info_ioctl(struct drm_
+ 		 * in the bitfields */
+ 		if (se_num == AMDGPU_INFO_MMR_SE_INDEX_MASK)
+ 			se_num = 0xffffffff;
++		else if (se_num >= AMDGPU_GFX_MAX_SE)
++			return -EINVAL;
+ 		if (sh_num == AMDGPU_INFO_MMR_SH_INDEX_MASK)
+ 			sh_num = 0xffffffff;
++		else if (sh_num >= AMDGPU_GFX_MAX_SH_PER_SE)
++			return -EINVAL;
  
- 	/* dwSignature */
- 	if (get_unaligned_le32(tmp) != opts->nth_sign) {
-@@ -1233,25 +1236,37 @@ static int ncm_unwrap_ntb(struct gether
- 	}
- 	tmp++; /* skip wSequence */
- 
-+	block_len = get_ncm(&tmp, opts->block_length);
- 	/* (d)wBlockLength */
--	if (get_ncm(&tmp, opts->block_length) > max_size) {
-+	if (block_len > ntb_max) {
- 		INFO(port->func.config->cdev, "OUT size exceeded\n");
- 		goto err;
- 	}
- 
- 	ndp_index = get_ncm(&tmp, opts->ndp_index);
-+	ndp_after_header = false;
- 
- 	/* Run through all the NDP's in the NTB */
- 	do {
--		/* NCM 3.2 */
--		if (((ndp_index % 4) != 0) &&
--				(ndp_index < opts->nth_size)) {
-+		/*
-+		 * NCM 3.2
-+		 * dwNdpIndex
-+		 */
-+		if (((ndp_index % 4) != 0) ||
-+				(ndp_index < opts->nth_size) ||
-+				(ndp_index > (block_len -
-+					      opts->ndp_size))) {
- 			INFO(port->func.config->cdev, "Bad index: %#X\n",
- 			     ndp_index);
- 			goto err;
- 		}
-+		if (ndp_index == opts->nth_size)
-+			ndp_after_header = true;
- 
--		/* walk through NDP */
-+		/*
-+		 * walk through NDP
-+		 * dwSignature
-+		 */
- 		tmp = (void *)(skb->data + ndp_index);
- 		if (get_unaligned_le32(tmp) != ncm->ndp_sign) {
- 			INFO(port->func.config->cdev, "Wrong NDP SIGN\n");
-@@ -1262,14 +1277,15 @@ static int ncm_unwrap_ntb(struct gether
- 		ndp_len = get_unaligned_le16(tmp++);
- 		/*
- 		 * NCM 3.3.1
-+		 * wLength
- 		 * entry is 2 items
- 		 * item size is 16/32 bits, opts->dgram_item_len * 2 bytes
- 		 * minimal: struct usb_cdc_ncm_ndpX + normal entry + zero entry
- 		 * Each entry is a dgram index and a dgram length.
- 		 */
- 		if ((ndp_len < opts->ndp_size
--				+ 2 * 2 * (opts->dgram_item_len * 2))
--				|| (ndp_len % opts->ndplen_align != 0)) {
-+				+ 2 * 2 * (opts->dgram_item_len * 2)) ||
-+				(ndp_len % opts->ndplen_align != 0)) {
- 			INFO(port->func.config->cdev, "Bad NDP length: %#X\n",
- 			     ndp_len);
- 			goto err;
-@@ -1286,8 +1302,21 @@ static int ncm_unwrap_ntb(struct gether
- 
- 		do {
- 			index = index2;
-+			/* wDatagramIndex[0] */
-+			if ((index < opts->nth_size) ||
-+					(index > block_len - opts->dpe_size)) {
-+				INFO(port->func.config->cdev,
-+				     "Bad index: %#X\n", index);
-+				goto err;
-+			}
-+
- 			dg_len = dg_len2;
--			if (dg_len < 14 + crc_len) { /* ethernet hdr + crc */
-+			/*
-+			 * wDatagramLength[0]
-+			 * ethernet hdr + crc or larger than max frame size
-+			 */
-+			if ((dg_len < 14 + crc_len) ||
-+					(dg_len > frame_max)) {
- 				INFO(port->func.config->cdev,
- 				     "Bad dgram length: %#X\n", dg_len);
- 				goto err;
-@@ -1311,6 +1340,37 @@ static int ncm_unwrap_ntb(struct gether
- 			index2 = get_ncm(&tmp, opts->dgram_item_len);
- 			dg_len2 = get_ncm(&tmp, opts->dgram_item_len);
- 
-+			if (index2 == 0 || dg_len2 == 0)
-+				break;
-+
-+			/* wDatagramIndex[1] */
-+			if (ndp_after_header) {
-+				if (index2 < opts->nth_size + opts->ndp_size) {
-+					INFO(port->func.config->cdev,
-+					     "Bad index: %#X\n", index2);
-+					goto err;
-+				}
-+			} else {
-+				if (index2 < opts->nth_size + opts->dpe_size) {
-+					INFO(port->func.config->cdev,
-+					     "Bad index: %#X\n", index2);
-+					goto err;
-+				}
-+			}
-+			if (index2 > block_len - opts->dpe_size) {
-+				INFO(port->func.config->cdev,
-+				     "Bad index: %#X\n", index2);
-+				goto err;
-+			}
-+
-+			/* wDatagramLength[1] */
-+			if ((dg_len2 < 14 + crc_len) ||
-+					(dg_len2 > frame_max)) {
-+				INFO(port->func.config->cdev,
-+				     "Bad dgram length: %#X\n", dg_len);
-+				goto err;
-+			}
-+
- 			/*
- 			 * Copy the data into a new skb.
- 			 * This ensures the truesize is correct
-@@ -1327,9 +1387,6 @@ static int ncm_unwrap_ntb(struct gether
- 			ndp_len -= 2 * (opts->dgram_item_len * 2);
- 
- 			dgram_counter++;
--
--			if (index2 == 0 || dg_len2 == 0)
--				break;
- 		} while (ndp_len > 2 * (opts->dgram_item_len * 2));
- 	} while (ndp_index);
- 
+ 		if (info->read_mmr_reg.count > 128)
+ 			return -EINVAL;
 
 
