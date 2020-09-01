@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCFA2596C5
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF922596C6
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbgIAPk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51494 "EHLO mail.kernel.org"
+        id S1728034AbgIAPkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726892AbgIAPkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:40:24 -0400
+        id S1731501AbgIAPkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:40:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C798205F4;
-        Tue,  1 Sep 2020 15:40:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1B9E2064B;
+        Tue,  1 Sep 2020 15:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974823;
-        bh=6ceRjbOi00aeiPyiExOHXrxLa2Uo8I/yzUXIHx6fLpg=;
+        s=default; t=1598974831;
+        bh=BgjkH+en7+kW2CLN1WT3ryTGuJJpA+Dy/5tLtJauIiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkTKIcSnr94wfda9H7fqmNLzgVG7KtEgt06todWGkwuF/C8g90WobmaXWScKX1O+g
-         NPi3XkGgsQwt/l9w/Rm2XMjq8CGb81sQ8fkCjjDLRW/0mP35DYP7xozxi+NJZ5wbYZ
-         4vOnq28WfRmS2uIqvgwYcTbWQfavcKOFfwXQuU2I=
+        b=OE2j4JVvOiNjMq/PyHIgR/PCb79YjmAN8nWFcPXXZLe7q4OXEyRUYlkO77soIEEBT
+         G6EablcW3rncEFpOGPGGMiEBwLT7QQhJbTZ2QAaFNnEFeCdN2z0IQC7NUQ1SVcTwO9
+         3bCaiFEyvXs+AzF8nVG5JdcvZNi77quqMGVexCoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 104/255] usb: gadget: f_tcm: Fix some resource leaks in some error paths
-Date:   Tue,  1 Sep 2020 17:09:20 +0200
-Message-Id: <20200901151005.696699394@linuxfoundation.org>
+Subject: [PATCH 5.8 107/255] jbd2: make sure jh have b_transaction set in refile/unfile_buffer
+Date:   Tue,  1 Sep 2020 17:09:23 +0200
+Message-Id: <20200901151005.840700712@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,44 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
+[ Upstream commit 24dc9864914eb5813173cfa53313fcd02e4aea7d ]
 
-If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
-already allocated memory must be released.
+Callers of __jbd2_journal_unfile_buffer() and
+__jbd2_journal_refile_buffer() assume that the b_transaction is set. In
+fact if it's not, we can end up with journal_head refcounting errors
+leading to crash much later that might be very hard to track down. Add
+asserts to make sure that is the case.
 
-Fix a mix-up in the code and free the correct requests.
+We also make sure that b_next_transaction is NULL in
+__jbd2_journal_unfile_buffer() since the callers expect that as well and
+we should not get into that stage in this state anyway, leading to
+problems later on if we do.
 
-Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Tested with fstests.
+
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200617092549.6712-1-lczerner@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_tcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/jbd2/transaction.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
-index eaf556ceac32b..0a45b4ef66a67 100644
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -753,12 +753,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
- 		goto err_sts;
- 
- 	return 0;
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index e91aad3637a23..e65e0aca28261 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2026,6 +2026,9 @@ static void __jbd2_journal_temp_unlink_buffer(struct journal_head *jh)
+  */
+ static void __jbd2_journal_unfile_buffer(struct journal_head *jh)
+ {
++	J_ASSERT_JH(jh, jh->b_transaction != NULL);
++	J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
 +
- err_sts:
--	usb_ep_free_request(fu->ep_status, stream->req_status);
--	stream->req_status = NULL;
--err_out:
- 	usb_ep_free_request(fu->ep_out, stream->req_out);
- 	stream->req_out = NULL;
-+err_out:
-+	usb_ep_free_request(fu->ep_in, stream->req_in);
-+	stream->req_in = NULL;
- out:
- 	return -ENOMEM;
+ 	__jbd2_journal_temp_unlink_buffer(jh);
+ 	jh->b_transaction = NULL;
  }
+@@ -2572,6 +2575,13 @@ bool __jbd2_journal_refile_buffer(struct journal_head *jh)
+ 
+ 	was_dirty = test_clear_buffer_jbddirty(bh);
+ 	__jbd2_journal_temp_unlink_buffer(jh);
++
++	/*
++	 * b_transaction must be set, otherwise the new b_transaction won't
++	 * be holding jh reference
++	 */
++	J_ASSERT_JH(jh, jh->b_transaction != NULL);
++
+ 	/*
+ 	 * We set b_transaction here because b_next_transaction will inherit
+ 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
 -- 
 2.25.1
 
