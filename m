@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4815B259CBE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3CA259C18
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728929AbgIAPNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
+        id S1729343AbgIARKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:10:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728407AbgIAPNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:38 -0400
+        id S1728942AbgIAPQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:16:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B71C52078B;
-        Tue,  1 Sep 2020 15:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F378206FA;
+        Tue,  1 Sep 2020 15:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973217;
-        bh=0kmkTFNsK2Lv9fGs/6hQNxiybJYvll7aL8HJRkNe6bY=;
+        s=default; t=1598973394;
+        bh=haMngcYoHsu/t+/mS4mejSu6pXO3QuqXEo3Pm1l24Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpcolHkkLeXwPTYZB/HPURagD9II191c3sk8EoQDrACr9akDyYNT4h21MND2kTWDg
-         CS5kcSStRLpXJi4JhFxKRi5rP+0IuiRDed5aeXBeEa3KtunssWLBU8/MQNdd7MNgVi
-         /9caic6eQQayroI9lzVO3kH7RdPlkRKWjVYsngTY=
+        b=ldF+RYtVJOsLosgnzrQBIVc5OCEFQi+U9izw77zu5LUb4ywebFevXfMxy3WMsTflU
+         DzqE1X24Zx29GVRixLniZFAF/sCK7YtTI5iQwzDDKhDgf7FbCFcSnCTcQzpS4sGeQ5
+         CqjQMICNaVF3kl2xtjuFhtJPu4sP45wOBNkw+YY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Utkarsh H Patel <utkarsh.h.patel@intel.com>,
-        Pengfei Xu <pengfei.xu@intel.com>
-Subject: [PATCH 4.4 52/62] PM: sleep: core: Fix the handling of pending runtime resume requests
+        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 59/78] writeback: Protect inode->i_io_list with inode->i_lock
 Date:   Tue,  1 Sep 2020 17:10:35 +0200
-Message-Id: <20200901150923.330917902@linuxfoundation.org>
+Message-Id: <20200901150927.737340316@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit e3eb6e8fba65094328b8dca635d00de74ba75b45 upstream.
+commit b35250c0816c7cf7d0a8de92f5fafb6a7508a708 upstream.
 
-It has been reported that system-wide suspend may be aborted in the
-absence of any wakeup events due to unforseen interactions of it with
-the runtume PM framework.
+Currently, operations on inode->i_io_list are protected by
+wb->list_lock. In the following patches we'll need to maintain
+consistency between inode->i_state and inode->i_io_list so change the
+code so that inode->i_lock protects also all inode's i_io_list handling.
 
-One failing scenario is when there are multiple devices sharing an
-ACPI power resource and runtime-resume needs to be carried out for
-one of them during system-wide suspend (for example, because it needs
-to be reconfigured before the whole system goes to sleep).  In that
-case, the runtime-resume of that device involves turning the ACPI
-power resource "on" which in turn causes runtime-resume requests
-to be queued up for all of the other devices sharing it.  Those
-requests go to the runtime PM workqueue which is frozen during
-system-wide suspend, so they are not actually taken care of until
-the resume of the whole system, but the pm_runtime_barrier()
-call in __device_suspend() sees them and triggers system wakeup
-events for them which then cause the system-wide suspend to be
-aborted if wakeup source objects are in active use.
-
-Of course, the logic that leads to triggering those wakeup events is
-questionable in the first place, because clearly there are cases in
-which a pending runtime resume request for a device is not connected
-to any real wakeup events in any way (like the one above).  Moreover,
-it is racy, because the device may be resuming already by the time
-the pm_runtime_barrier() runs and so if the driver doesn't take care
-of signaling the wakeup event as appropriate, it will be lost.
-However, if the driver does take care of that, the extra
-pm_wakeup_event() call in the core is redundant.
-
-Accordingly, drop the conditional pm_wakeup_event() call fron
-__device_suspend() and make the latter call pm_runtime_barrier()
-alone.  Also modify the comment next to that call to reflect the new
-code and extend it to mention the need to avoid unwanted interactions
-between runtime PM and system-wide device suspend callbacks.
-
-Fixes: 1e2ef05bb8cf8 ("PM: Limit race conditions between runtime PM and system sleep (v2)")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
-Tested-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
-Tested-by: Pengfei Xu <pengfei.xu@intel.com>
-Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Martijn Coenen <maco@android.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+CC: stable@vger.kernel.org # Prerequisite for "writeback: Avoid skipping inode writeback"
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/power/main.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ fs/fs-writeback.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1361,13 +1361,17 @@ static int __device_suspend(struct devic
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -160,6 +160,7 @@ static void inode_io_list_del_locked(str
+ 				     struct bdi_writeback *wb)
+ {
+ 	assert_spin_locked(&wb->list_lock);
++	assert_spin_locked(&inode->i_lock);
+ 
+ 	list_del_init(&inode->i_io_list);
+ 	wb_io_lists_depopulated(wb);
+@@ -1039,7 +1040,9 @@ void inode_io_list_del(struct inode *ino
+ 	struct bdi_writeback *wb;
+ 
+ 	wb = inode_to_wb_and_lock_list(inode);
++	spin_lock(&inode->i_lock);
+ 	inode_io_list_del_locked(inode, wb);
++	spin_unlock(&inode->i_lock);
+ 	spin_unlock(&wb->list_lock);
+ }
+ 
+@@ -1088,8 +1091,10 @@ void sb_clear_inode_writeback(struct ino
+  * the case then the inode must have been redirtied while it was being written
+  * out and we don't reset its dirtied_when.
+  */
+-static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
++static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
+ {
++	assert_spin_locked(&inode->i_lock);
++
+ 	if (!list_empty(&wb->b_dirty)) {
+ 		struct inode *tail;
+ 
+@@ -1100,6 +1105,13 @@ static void redirty_tail(struct inode *i
+ 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
+ }
+ 
++static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
++{
++	spin_lock(&inode->i_lock);
++	redirty_tail_locked(inode, wb);
++	spin_unlock(&inode->i_lock);
++}
++
+ /*
+  * requeue inode for re-scanning after bdi->b_io list is exhausted.
+  */
+@@ -1310,7 +1322,7 @@ static void requeue_inode(struct inode *
+ 		 * writeback is not making progress due to locked
+ 		 * buffers. Skip this inode for now.
+ 		 */
+-		redirty_tail(inode, wb);
++		redirty_tail_locked(inode, wb);
+ 		return;
  	}
  
- 	/*
--	 * If a device configured to wake up the system from sleep states
--	 * has been suspended at run time and there's a resume request pending
--	 * for it, this is equivalent to the device signaling wakeup, so the
--	 * system suspend operation should be aborted.
-+	 * Wait for possible runtime PM transitions of the device in progress
-+	 * to complete and if there's a runtime resume request pending for it,
-+	 * resume it before proceeding with invoking the system-wide suspend
-+	 * callbacks for it.
-+	 *
-+	 * If the system-wide suspend callbacks below change the configuration
-+	 * of the device, they must disable runtime PM for it or otherwise
-+	 * ensure that its runtime-resume callbacks will not be confused by that
-+	 * change in case they are invoked going forward.
- 	 */
--	if (pm_runtime_barrier(dev) && device_may_wakeup(dev))
--		pm_wakeup_event(dev, 0);
-+	pm_runtime_barrier(dev);
- 
- 	if (pm_wakeup_pending()) {
- 		dev->power.direct_complete = false;
+@@ -1330,7 +1342,7 @@ static void requeue_inode(struct inode *
+ 			 * retrying writeback of the dirty page/inode
+ 			 * that cannot be performed immediately.
+ 			 */
+-			redirty_tail(inode, wb);
++			redirty_tail_locked(inode, wb);
+ 		}
+ 	} else if (inode->i_state & I_DIRTY) {
+ 		/*
+@@ -1338,7 +1350,7 @@ static void requeue_inode(struct inode *
+ 		 * such as delayed allocation during submission or metadata
+ 		 * updates after data IO completion.
+ 		 */
+-		redirty_tail(inode, wb);
++		redirty_tail_locked(inode, wb);
+ 	} else if (inode->i_state & I_DIRTY_TIME) {
+ 		inode->dirtied_when = jiffies;
+ 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
+@@ -1585,8 +1597,8 @@ static long writeback_sb_inodes(struct s
+ 		 */
+ 		spin_lock(&inode->i_lock);
+ 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
++			redirty_tail_locked(inode, wb);
+ 			spin_unlock(&inode->i_lock);
+-			redirty_tail(inode, wb);
+ 			continue;
+ 		}
+ 		if ((inode->i_state & I_SYNC) && wbc.sync_mode != WB_SYNC_ALL) {
 
 
