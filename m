@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD437259742
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D19D259744
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbgIAPhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S1731235AbgIAQMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:12:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726419AbgIAPgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:36:52 -0400
+        id S1728671AbgIAPgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:36:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE6F20866;
-        Tue,  1 Sep 2020 15:36:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5AA220E65;
+        Tue,  1 Sep 2020 15:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974611;
-        bh=GwiJXLRvB5e9CxSOmoT4bs9rK/an/E+PE8TN3zdX0ds=;
+        s=default; t=1598974614;
+        bh=M+Bk+/4lU9mMcnvrN2jpBXG1aWpPW0uTtcT+LKxuSn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/wGvcXc9Qqf0dvhHQkd/Vos0FlPzRKivHHtyuwx2Bam0QoB8r2zBWrs5ohlUakKX
-         lu7jpv+ijXlAg90QhTxM+TV8PZuu+1yJGm0YXkA6OMY5lzNnRV2JqOlE/P6NQIWWq7
-         PJWxB3boiiebUOQamNbomDXiW4UM4tBwABnHC48g=
+        b=JXR/qp2+RJitLnmQfwrP/2N12Q4/DahSddvAt/mt0ntAMg4cIfFDTdeEXw9rq0nLp
+         PMCmSBy2QFwEdZdC7TSFYVbEDJk2X1OjHeB7xce+vpvVgL+vlrY9kg1t68xbEheJci
+         mCtqUp0FL7DmqJDXhXkgA+z6/bp1UIHBlKXLxmQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 028/255] drm/amdgpu/display: fix ref count leak when pm_runtime_get_sync fails
-Date:   Tue,  1 Sep 2020 17:08:04 +0200
-Message-Id: <20200901151002.121912582@linuxfoundation.org>
+Subject: [PATCH 5.8 029/255] drm/amdgpu/fence: fix ref count leak when pm_runtime_get_sync fails
+Date:   Tue,  1 Sep 2020 17:08:05 +0200
+Message-Id: <20200901151002.170202815@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,73 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit f79f94765f8c39db0b7dec1d335ab046aac03f20 ]
+[ Upstream commit e520d3e0d2818aafcdf9d8b60916754d8fedc366 ]
 
 The call to pm_runtime_get_sync increments the counter even in case of
 failure, leading to incorrect ref count.
 In case of failure, decrement the ref count before returning.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index f355d9a752d29..a1aec205435de 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -716,8 +716,10 @@ amdgpu_connector_lvds_detect(struct drm_connector *connector, bool force)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 3414e119f0cbf..f5a6ee7c2eaa3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -754,8 +754,10 @@ static int amdgpu_debugfs_gpu_recover(struct seq_file *m, void *data)
+ 	int r;
  
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
+ 	r = pm_runtime_get_sync(dev->dev);
+-	if (r < 0)
++	if (r < 0) {
++		pm_runtime_put_autosuspend(dev->dev);
+ 		return 0;
++	}
  
- 	if (encoder) {
-@@ -854,8 +856,10 @@ amdgpu_connector_vga_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	encoder = amdgpu_connector_best_single_encoder(connector);
-@@ -977,8 +981,10 @@ amdgpu_connector_dvi_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	if (!force && amdgpu_connector_check_hpd_status_unchanged(connector)) {
-@@ -1328,8 +1334,10 @@ amdgpu_connector_dp_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	if (!force && amdgpu_connector_check_hpd_status_unchanged(connector)) {
+ 	seq_printf(m, "gpu recover\n");
+ 	amdgpu_device_gpu_recover(adev, NULL);
 -- 
 2.25.1
 
