@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DE1259CD7
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B808C259BB0
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729118AbgIARUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55622 "EHLO mail.kernel.org"
+        id S1728941AbgIARFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbgIAPM7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:12:59 -0400
+        id S1729409AbgIAPTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98BB62078B;
-        Tue,  1 Sep 2020 15:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5294E20BED;
+        Tue,  1 Sep 2020 15:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973175;
-        bh=09Wqh4L9or5jeLtdxk2mtE42QNDtQ7tzYcsmQ3nsWK4=;
+        s=default; t=1598973554;
+        bh=LbRaIABWxaST1ouu9VXVnN8c3Rez24/P2Vaz4bEXpsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAdG7wquEbk40k3TERdDy9SSchkZxXSECIMXcXYQyPzjxvdVrOwgBVbzjfmLzVeBz
-         ZeoflKDFvkAiObi8dJSrRJfjMH/gHOT+Gm68x0Vll0t7P0USYTy0d7l8b/ZbBR0tnh
-         cg3Jz41Tvz97nVVQIITVouZP9Ink9uoW/wyk9Mvo=
+        b=onEoY/dcNN/mME+326PugwcgalrcRokcyL1pIm95GJX/7KbRK6Xyjx1VqIx1sDqUX
+         DB5PcVKsnqX1ZRCKpHpkSzvFUU/XralqnlPKeU9MwL8fAuhqnsj5uOe82iRUTXyLA+
+         E3AJBwC5/rsoMYi1DYqixaySoH3gODezgtNKWdv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Andy Teng <andy.teng@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 37/62] scsi: ufs: Fix possible infinite loop in ufshcd_hold
+Subject: [PATCH 4.14 46/91] usb: gadget: f_tcm: Fix some resource leaks in some error paths
 Date:   Tue,  1 Sep 2020 17:10:20 +0200
-Message-Id: <20200901150922.610356896@linuxfoundation.org>
+Message-Id: <20200901150930.427798423@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
+[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
 
-In ufshcd_suspend(), after clk-gating is suspended and link is set
-as Hibern8 state, ufshcd_hold() is still possibly invoked before
-ufshcd_suspend() returns. For example, MediaTek's suspend vops may
-issue UIC commands which would call ufshcd_hold() during the command
-issuing flow.
+If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
+already allocated memory must be released.
 
-Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
-then ufshcd_hold() may enter infinite loops because there is no
-clk-ungating work scheduled or pending. In this case, ufshcd_hold()
-shall just bypass, and keep the link as Hibern8 state.
+Fix a mix-up in the code and free the correct requests.
 
-Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Co-developed-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Andy Teng <andy.teng@mediatek.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_tcm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index d15cd7a02f9b4..d7a0a64f64536 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -575,6 +575,7 @@ unblock_reqs:
- int ufshcd_hold(struct ufs_hba *hba, bool async)
- {
- 	int rc = 0;
-+	bool flush_result;
- 	unsigned long flags;
+diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
+index a82e2bd5ea34d..c41d09166a1d6 100644
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -751,12 +751,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
+ 		goto err_sts;
  
- 	if (!ufshcd_is_clkgating_allowed(hba))
-@@ -601,7 +602,9 @@ start:
- 				break;
- 			}
- 			spin_unlock_irqrestore(hba->host->host_lock, flags);
--			flush_work(&hba->clk_gating.ungate_work);
-+			flush_result = flush_work(&hba->clk_gating.ungate_work);
-+			if (hba->clk_gating.is_suspended && !flush_result)
-+				goto out;
- 			spin_lock_irqsave(hba->host->host_lock, flags);
- 			goto start;
- 		}
+ 	return 0;
++
+ err_sts:
+-	usb_ep_free_request(fu->ep_status, stream->req_status);
+-	stream->req_status = NULL;
+-err_out:
+ 	usb_ep_free_request(fu->ep_out, stream->req_out);
+ 	stream->req_out = NULL;
++err_out:
++	usb_ep_free_request(fu->ep_in, stream->req_in);
++	stream->req_in = NULL;
+ out:
+ 	return -ENOMEM;
+ }
 -- 
 2.25.1
 
