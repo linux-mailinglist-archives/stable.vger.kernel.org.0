@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E93259439
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:37:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F0D25943F
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731300AbgIAPgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44206 "EHLO mail.kernel.org"
+        id S1731144AbgIAPhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:37:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731293AbgIAPgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:36:49 -0400
+        id S1727944AbgIAPhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:37:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA4020866;
-        Tue,  1 Sep 2020 15:36:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71BEA20E65;
+        Tue,  1 Sep 2020 15:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974609;
-        bh=W2rAa3hVKvGfCtUIdsWN4znjxtVhRCXRyUpQdLekit0=;
+        s=default; t=1598974639;
+        bh=yXRgW0aOwALn1rcUi2JmE2/N6ulJoEuKCS41lc6gquQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHfgfg4QVliNbGxuYg90/xDDAs0i/SxRF9DPz5pzOCV0abqMAIOjuega5PZsfGKYM
-         BZjUJKi2Pkn6moiAaKt04kgCZoJiRDwaLkQbnuLfQaHk0dsVd1vEIbIRVxbWviO6EQ
-         7/VwpT/IhcwiALPGMCnVyVlpau69ezPbxre1cGCs=
+        b=wYDGQuniJ7j6bUiJPyTAug16/vZK51u9tvgUAbVFNRMSxqkI4HwQyFaHdU2rB1/ih
+         CwBv9GLwEtwlOIi9YEAwKTh34diieBNdpgM5w7UCF+BKGFzGsYgUjJMksl4BUqHixK
+         Dyr9lfu+p/3TPuF0TipIBuI/qIh7dba9Yz8qWBnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 027/255] drm/amdgpu: fix ref count leak in amdgpu_display_crtc_set_config
-Date:   Tue,  1 Sep 2020 17:08:03 +0200
-Message-Id: <20200901151002.076582814@linuxfoundation.org>
+Subject: [PATCH 5.8 038/255] MIPS: KVM: Limit Trap-and-Emulate to MIPS32R2 only
+Date:   Tue,  1 Sep 2020 17:08:14 +0200
+Message-Id: <20200901151002.585715997@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,51 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-[ Upstream commit e008fa6fb41544b63973a529b704ef342f47cc65 ]
+[ Upstream commit 01edc5e76ecfecf9a79eec2658f6146ef47bc816 ]
 
-in amdgpu_display_crtc_set_config, the call to pm_runtime_get_sync
-increments the counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+After tons of fixes to get Trap-and-Emulate build on Loongson64,
+I've got panic on host machine when trying to run a VM.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+I found that it can never work on 64bit systems. Revewing the
+code, it looks like R6 can't supportrd by TE as well.
+
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-Id: <20200710063047.154611-3-jiaxun.yang@flygoat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/Kconfig     | 1 +
+ arch/mips/kvm/Kconfig | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index f7143d927b6d8..5e51f0acf744f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -282,7 +282,7 @@ int amdgpu_display_crtc_set_config(struct drm_mode_set *set,
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index a7e40bb1e5bc6..c43ad3b3cea4b 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2203,6 +2203,7 @@ endchoice
  
- 	ret = pm_runtime_get_sync(dev->dev);
- 	if (ret < 0)
--		return ret;
-+		goto out;
+ config KVM_GUEST
+ 	bool "KVM Guest Kernel"
++	depends on CPU_MIPS32_R2
+ 	depends on BROKEN_ON_SMP
+ 	help
+ 	  Select this option if building a guest kernel for KVM (Trap & Emulate)
+diff --git a/arch/mips/kvm/Kconfig b/arch/mips/kvm/Kconfig
+index 2bf02d849a3a8..032b3fca6cbba 100644
+--- a/arch/mips/kvm/Kconfig
++++ b/arch/mips/kvm/Kconfig
+@@ -37,10 +37,11 @@ choice
  
- 	ret = drm_crtc_helper_set_config(set, ctx);
+ config KVM_MIPS_TE
+ 	bool "Trap & Emulate"
++	depends on CPU_MIPS32_R2
+ 	help
+ 	  Use trap and emulate to virtualize 32-bit guests in user mode. This
+ 	  does not require any special hardware Virtualization support beyond
+-	  standard MIPS32/64 r2 or later, but it does require the guest kernel
++	  standard MIPS32 r2 or later, but it does require the guest kernel
+ 	  to be configured with CONFIG_KVM_GUEST=y so that it resides in the
+ 	  user address segment.
  
-@@ -297,7 +297,7 @@ int amdgpu_display_crtc_set_config(struct drm_mode_set *set,
- 	   take the current one */
- 	if (active && !adev->have_disp_power_ref) {
- 		adev->have_disp_power_ref = true;
--		return ret;
-+		goto out;
- 	}
- 	/* if we have no active crtcs, then drop the power ref
- 	   we got before */
-@@ -306,6 +306,7 @@ int amdgpu_display_crtc_set_config(struct drm_mode_set *set,
- 		adev->have_disp_power_ref = false;
- 	}
- 
-+out:
- 	/* drop the power reference we got coming in here */
- 	pm_runtime_put_autosuspend(dev->dev);
- 	return ret;
 -- 
 2.25.1
 
