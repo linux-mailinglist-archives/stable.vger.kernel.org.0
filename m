@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B6B2592BD
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861DB259358
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728893AbgIAPQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33222 "EHLO mail.kernel.org"
+        id S1729970AbgIAPYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:24:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729315AbgIAPQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:30 -0400
+        id S1729966AbgIAPYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E22B5206FA;
-        Tue,  1 Sep 2020 15:16:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C24A72078B;
+        Tue,  1 Sep 2020 15:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973389;
-        bh=WlnXmUHGuYq4iNIMFlkeAyHlr815/ppfPqBXrqYHCuI=;
+        s=default; t=1598973874;
+        bh=weL9YdpfKwX/bBVPebMPmhQsixTnADMaMl9sjOrg8Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xo07oMkJpmHXJk7S/MvLIp3tgu/hV7AzHN8KHplfjJGr2jvuHa/zf+uL0uxpC+pGN
-         eFGDkjgU3fjKLbLtENnchbwnmaKErDu4+uOl0ZGqR4jN0cuzctlH4q9wi9xhqKVrBf
-         VF1bab+WcdgPFE3q24hAtNorl3Bcn0WRG8S4voqA=
+        b=UzJypqs/tEgduxxRg66BSULtLzEjPMqKyub/6MAreVcK7s1t1DlLJkSCUG9BTUNT8
+         L0rrirwX2rgTeVf7NcW9WaL2zTylXiDqseO9NE5pEHHYvULUWDqqKfWBkLjlzlYgRM
+         xe8BOIWd/mzMfSkSGduBYdStn+M8rOSIYS6HWTxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH 4.9 57/78] serial: pl011: Dont leak amba_ports entry on driver register error
-Date:   Tue,  1 Sep 2020 17:10:33 +0200
-Message-Id: <20200901150927.620470818@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Andrea Borgia <andrea@borgia.bo.it>
+Subject: [PATCH 4.19 081/125] HID: i2c-hid: Always sleep 60ms after I2C_HID_PWR_ON commands
+Date:   Tue,  1 Sep 2020 17:10:36 +0200
+Message-Id: <20200901150938.545315051@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 89efbe70b27dd325d8a8c177743a26b885f7faec upstream.
+commit eef4016243e94c438f177ca8226876eb873b9c75 upstream.
 
-pl011_probe() calls pl011_setup_port() to reserve an amba_ports[] entry,
-then calls pl011_register_port() to register the uart driver with the
-tty layer.
+Before this commit i2c_hid_parse() consists of the following steps:
 
-If registration of the uart driver fails, the amba_ports[] entry is not
-released.  If this happens 14 times (value of UART_NR macro), then all
-amba_ports[] entries will have been leaked and driver probing is no
-longer possible.  (To be fair, that can only happen if the DeviceTree
-doesn't contain alias IDs since they cause the same entry to be used for
-a given port.)   Fix it.
+1. Send power on cmd
+2. usleep_range(1000, 5000)
+3. Send reset cmd
+4. Wait for reset to complete (device interrupt, or msleep(100))
+5. Send power on cmd
+6. Try to read HID descriptor
 
-Fixes: ef2889f7ffee ("serial: pl011: Move uart_register_driver call to device")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.15+
-Cc: Tushar Behera <tushar.behera@linaro.org>
-Link: https://lore.kernel.org/r/138f8c15afb2f184d8102583f8301575566064a6.1597316167.git.lukas@wunner.de
+Notice how there is an usleep_range(1000, 5000) after the first power-on
+command, but not after the second power-on command.
+
+Testing has shown that at least on the BMAX Y13 laptop's i2c-hid touchpad,
+not having a delay after the second power-on command causes the HID
+descriptor to read as all zeros.
+
+In case we hit this on other devices too, the descriptor being all zeros
+can be recognized by the following message being logged many, many times:
+
+hid-generic 0018:0911:5288.0002: unknown main item tag 0x0
+
+At the same time as the BMAX Y13's touchpad issue was debugged,
+Kai-Heng was working on debugging some issues with Goodix i2c-hid
+touchpads. It turns out that these need a delay after a PWR_ON command
+too, otherwise they stop working after a suspend/resume cycle.
+According to Goodix a delay of minimal 60ms is needed.
+
+Having multiple cases where we need a delay after sending the power-on
+command, seems to indicate that we should always sleep after the power-on
+command.
+
+This commit fixes the mentioned issues by moving the existing 1ms sleep to
+the i2c_hid_set_power() function and changing it to a 60ms sleep.
+
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208247
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-and-tested-by: Andrea Borgia <andrea@borgia.bo.it>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2532,7 +2532,7 @@ static int pl011_setup_port(struct devic
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -444,6 +444,19 @@ static int i2c_hid_set_power(struct i2c_
+ 		dev_err(&client->dev, "failed to change power setting.\n");
  
- static int pl011_register_port(struct uart_amba_port *uap)
- {
--	int ret;
-+	int ret, i;
+ set_pwr_exit:
++
++	/*
++	 * The HID over I2C specification states that if a DEVICE needs time
++	 * after the PWR_ON request, it should utilise CLOCK stretching.
++	 * However, it has been observered that the Windows driver provides a
++	 * 1ms sleep between the PWR_ON and RESET requests.
++	 * According to Goodix Windows even waits 60 ms after (other?)
++	 * PWR_ON requests. Testing has confirmed that several devices
++	 * will not work properly without a delay after a PWR_ON request.
++	 */
++	if (!ret && power_state == I2C_HID_PWR_ON)
++		msleep(60);
++
+ 	return ret;
+ }
  
- 	/* Ensure interrupts from this UART are masked and cleared */
- 	pl011_write(0, uap, REG_IMSC);
-@@ -2543,6 +2543,9 @@ static int pl011_register_port(struct ua
- 		if (ret < 0) {
- 			dev_err(uap->port.dev,
- 				"Failed to register AMBA-PL011 driver\n");
-+			for (i = 0; i < ARRAY_SIZE(amba_ports); i++)
-+				if (amba_ports[i] == uap)
-+					amba_ports[i] = NULL;
- 			return ret;
- 		}
- 	}
+@@ -465,15 +478,6 @@ static int i2c_hid_hwreset(struct i2c_cl
+ 	if (ret)
+ 		goto out_unlock;
+ 
+-	/*
+-	 * The HID over I2C specification states that if a DEVICE needs time
+-	 * after the PWR_ON request, it should utilise CLOCK stretching.
+-	 * However, it has been observered that the Windows driver provides a
+-	 * 1ms sleep between the PWR_ON and RESET requests and that some devices
+-	 * rely on this.
+-	 */
+-	usleep_range(1000, 5000);
+-
+ 	i2c_hid_dbg(ihid, "resetting...\n");
+ 
+ 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
 
 
