@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED45625940D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47149259415
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728306AbgIAPfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:35:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40330 "EHLO mail.kernel.org"
+        id S1728674AbgIAPf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:35:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728213AbgIAPe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:59 -0400
+        id S1728209AbgIAPf1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:35:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C97D720E65;
-        Tue,  1 Sep 2020 15:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AFBF20866;
+        Tue,  1 Sep 2020 15:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974498;
-        bh=oohKm4wA5PeEduUAWRlKUhWqsHa0F45uQylFxb/AJN8=;
+        s=default; t=1598974526;
+        bh=uZ2cKxuigQGTZJA16yFuIuvZhEK5XCUeHR7VZ6noavE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KwcEFepcnVTi5UhliVJOxWO9nlF2fSfsj7TbL8o4bTuaElrTpSB1rMMgG7/WEoH7
-         HIHPOQMArhkxdMptXMKXD36NP08U2wG105wsj+oXVcr3yVBCHAi2QHk3RhEYkubc7H
-         D8l1gtJOH5gFOngVgiq3aCqwr8m/XtwSo98FSs4w=
+        b=oqT0GHyuG2zK4BS16fXJT1whY/vjUQEOpZjfrQCA/DybquuSyI9D5JiOqI7/UPujS
+         j6R4aobt9TzvQ+iFzQD1MGwPWNCbLnd1sN7w9UP2Ex5Kajun/BETCa7WZGErcu6zA8
+         1jktZyhJgn5CfQbDeFU0Vh3EUfe/ykqdxFz9IkUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Jean-Christophe Barnoud <jcbarnoud@gmail.com>
-Subject: [PATCH 5.4 192/214] USB: quirks: Ignore duplicate endpoint on Sound Devices MixPre-D
-Date:   Tue,  1 Sep 2020 17:11:12 +0200
-Message-Id: <20200901151002.146235652@linuxfoundation.org>
+        stable@vger.kernel.org, Brice Goglin <brice.goglin@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Cyril Roelandt <tipecaml@gmail.com>
+Subject: [PATCH 5.4 193/214] USB: Ignore UAS for JMicron JMS567 ATA/ATAPI Bridge
+Date:   Tue,  1 Sep 2020 17:11:13 +0200
+Message-Id: <20200901151002.194608271@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -43,53 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Cyril Roelandt <tipecaml@gmail.com>
 
-commit 068834a2773b6a12805105cfadbb3d4229fc6e0a upstream.
+commit 9aa37788e7ebb3f489fb4b71ce07adadd444264a upstream.
 
-The Sound Devices MixPre-D audio card suffers from the same defect
-as the Sound Devices USBPre2: an endpoint shared between a normal
-audio interface and a vendor-specific interface, in violation of the
-USB spec.  Since the USB core now treats duplicated endpoints as bugs
-and ignores them, the audio endpoint isn't available and the card
-can't be used for audio capture.
+This device does not support UAS properly and a similar entry already
+exists in drivers/usb/storage/unusual_uas.h. Without this patch,
+storage_probe() defers the handling of this device to UAS, which cannot
+handle it either.
 
-Along the same lines as commit bdd1b147b802 ("USB: quirks: blacklist
-duplicate ep on Sound Devices USBPre2"), this patch adds a quirks
-entry saying to ignore ep5in for interface 1, leaving it available for
-use with standard audio interface 2.
-
-Reported-and-tested-by: Jean-Christophe Barnoud <jcbarnoud@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Tested-by: Brice Goglin <brice.goglin@gmail.com>
+Fixes: bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron SATA enclosure")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 CC: <stable@vger.kernel.org>
-Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
-Link: https://lore.kernel.org/r/20200826194624.GA412633@rowland.harvard.edu
+Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
+Link: https://lore.kernel.org/r/20200825212231.46309-1-tipecaml@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/quirks.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/storage/unusual_devs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -370,6 +370,10 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x0926, 0x0202), .driver_info =
- 			USB_QUIRK_ENDPOINT_BLACKLIST },
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2328,7 +2328,7 @@ UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x
+ 		"JMicron",
+ 		"USB to ATA/ATAPI Bridge",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_BROKEN_FUA ),
++		US_FL_BROKEN_FUA | US_FL_IGNORE_UAS ),
  
-+	/* Sound Devices MixPre-D */
-+	{ USB_DEVICE(0x0926, 0x0208), .driver_info =
-+			USB_QUIRK_ENDPOINT_BLACKLIST },
-+
- 	/* Keytouch QWERTY Panel keyboard */
- 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
- 			USB_QUIRK_CONFIG_INTF_STRINGS },
-@@ -511,6 +515,7 @@ static const struct usb_device_id usb_am
-  */
- static const struct usb_device_id usb_endpoint_blacklist[] = {
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
- 	{ }
- };
- 
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
 
 
