@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74247259C54
+	by mail.lfdr.de (Postfix) with ESMTP id EB1FD259C55
 	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbgIAPPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S1729174AbgIAPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:15:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729160AbgIAPO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:59 -0400
+        id S1729165AbgIAPPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:15:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 324CE20FC3;
-        Tue,  1 Sep 2020 15:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98E0521527;
+        Tue,  1 Sep 2020 15:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973298;
-        bh=NX2BonOKPY9NrT2NnXW7e19NfLvwaMIpuyVIyomGOkA=;
+        s=default; t=1598973301;
+        bh=hHlrvVv6ZvQQkb3Q7+JMMIw0qSxNayamM1etArGofpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btkbPRsnkQU78uKnI0jguM9jMDHx/HMqGQ6T50wppUsZ/cCS7UeFhdtgy9XTxHdxp
-         K8oJO8QKuX04MdR9knc1+VUeVlV+lg0eygqfZXEyxJv2Nm3ZEpVMg4OxzZRcu2F5zz
-         zAdmBEqhrtl6Zpg+iuSLAiW5nb8+uOSGfEv5BfuI=
+        b=NtEYYJ+YbHPKXVAI89OdlHxPLDIb6VEwPKYlDzsyeQ3aVAlOvvvnSy1LCP9brQCI8
+         hqSjvbJHbALha6HtEb0NfD3EB8L2dOja/1yJ79nsbhNq+W7qaIxITpZz72mlvvEaD2
+         zfs+Hc1bRVdo/MCEbxAMZEQOvaRKizW/AV6ydKYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reto Schneider <code@reto-schneider.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Peng Fan <fanpeng@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/78] rtlwifi: rtl8192cu: Prevent leaking urb
-Date:   Tue,  1 Sep 2020 17:09:59 +0200
-Message-Id: <20200901150925.906858416@linuxfoundation.org>
+Subject: [PATCH 4.9 24/78] mips/vdso: Fix resource leaks in genvdso.c
+Date:   Tue,  1 Sep 2020 17:10:00 +0200
+Message-Id: <20200901150925.950379199@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
 References: <20200901150924.680106554@linuxfoundation.org>
@@ -44,38 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reto Schneider <code@reto-schneider.ch>
+From: Peng Fan <fanpeng@loongson.cn>
 
-[ Upstream commit 03128643eb5453a798db5770952c73dc64fcaf00 ]
+[ Upstream commit a859647b4e6bfeb192284d27d24b6a0c914cae1d ]
 
-If usb_submit_urb fails the allocated urb should be unanchored and
-released.
+Close "fd" before the return of map_vdso() and close "out_file"
+in main().
 
-Signed-off-by: Reto Schneider <code@reto-schneider.ch>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200622132113.14508-3-code@reto-schneider.ch
+Signed-off-by: Peng Fan <fanpeng@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/mips/vdso/genvdso.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 93b22a5b6878e..e524573aa8a09 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -752,8 +752,11 @@ static int _rtl_usb_receive(struct ieee80211_hw *hw)
- 
- 		usb_anchor_urb(urb, &rtlusb->rx_submitted);
- 		err = usb_submit_urb(urb, GFP_KERNEL);
--		if (err)
-+		if (err) {
-+			usb_unanchor_urb(urb);
-+			usb_free_urb(urb);
- 			goto err_out;
-+		}
- 		usb_free_urb(urb);
+diff --git a/arch/mips/vdso/genvdso.c b/arch/mips/vdso/genvdso.c
+index 530a36f465ced..afcc86726448e 100644
+--- a/arch/mips/vdso/genvdso.c
++++ b/arch/mips/vdso/genvdso.c
+@@ -126,6 +126,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (fstat(fd, &stat) != 0) {
+ 		fprintf(stderr, "%s: Failed to stat '%s': %s\n", program_name,
+ 			path, strerror(errno));
++		close(fd);
+ 		return NULL;
  	}
- 	return 0;
+ 
+@@ -134,6 +135,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (addr == MAP_FAILED) {
+ 		fprintf(stderr, "%s: Failed to map '%s': %s\n", program_name,
+ 			path, strerror(errno));
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -143,6 +145,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
+ 		fprintf(stderr, "%s: '%s' is not an ELF file\n", program_name,
+ 			path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -154,6 +157,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	default:
+ 		fprintf(stderr, "%s: '%s' has invalid ELF class\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -165,6 +169,7 @@ static void *map_vdso(const char *path, size_t *_size)
+ 	default:
+ 		fprintf(stderr, "%s: '%s' has invalid ELF data order\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+@@ -172,15 +177,18 @@ static void *map_vdso(const char *path, size_t *_size)
+ 		fprintf(stderr,
+ 			"%s: '%s' has invalid ELF machine (expected EM_MIPS)\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	} else if (swap_uint16(ehdr->e_type) != ET_DYN) {
+ 		fprintf(stderr,
+ 			"%s: '%s' has invalid ELF type (expected ET_DYN)\n",
+ 			program_name, path);
++		close(fd);
+ 		return NULL;
+ 	}
+ 
+ 	*_size = stat.st_size;
++	close(fd);
+ 	return addr;
+ }
+ 
+@@ -284,10 +292,12 @@ int main(int argc, char **argv)
+ 	/* Calculate and write symbol offsets to <output file> */
+ 	if (!get_symbols(dbg_vdso_path, dbg_vdso)) {
+ 		unlink(out_path);
++		fclose(out_file);
+ 		return EXIT_FAILURE;
+ 	}
+ 
+ 	fprintf(out_file, "};\n");
++	fclose(out_file);
+ 
+ 	return EXIT_SUCCESS;
+ }
 -- 
 2.25.1
 
