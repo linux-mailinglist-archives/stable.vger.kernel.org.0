@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210C5259299
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F32259274
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:12:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729083AbgIAPOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:14:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58492 "EHLO mail.kernel.org"
+        id S1728762AbgIAPMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729077AbgIAPOj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:39 -0400
+        id S1728756AbgIAPMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93B8C20FC3;
-        Tue,  1 Sep 2020 15:14:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83BC22100A;
+        Tue,  1 Sep 2020 15:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973279;
-        bh=/99HfNvZQT+pdnlQDcg8nOPTiYMoLV8LgYWzXg1CdMo=;
+        s=default; t=1598973153;
+        bh=i5kGUjg7/b0WEaU8Hi+uOa8WELF86nsoMIH1jmyCBU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/Aazr5SAHKKX4O+ypHhEJkYswn18drvnfhAUsz9RulbdWq71D34EE7t6rRO/HYOK
-         PM1BBrndwCz7gDqRhmGs5TepL6Xk5uJJKOxI0YjGSyIo9MmS64joZcrUKQcf/nxVPa
-         ExLdkJV0PGDCAXnZWRiiKeyWzbDbXYxCBDuWAd68=
+        b=QfLCqn+P7zyVbuzohdFJk0Y24rrZxnOqXsa7m1vVzLzt5CHZSEG7DIGWDoMz05MGy
+         wrqMw4YzGbwvz4eU4zatKUb58hI96jdEIIB89PZWJzpCyQUfRJsvpFcH7WZuVU3GhQ
+         26b3QjwUdvmRgxupMkSzoyz2+xfrus5ID17oQfDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/78] drm/amd/display: fix ref count leak in amdgpu_drm_ioctl
+Subject: [PATCH 4.4 09/62] media: pci: ttpci: av7110: fix possible buffer overflow caused by bad DMA value in debiirq()
 Date:   Tue,  1 Sep 2020 17:09:52 +0200
-Message-Id: <20200901150925.550501788@linuxfoundation.org>
+Message-Id: <20200901150921.182733811@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
 
-[ Upstream commit 5509ac65f2fe5aa3c0003237ec629ca55024307c ]
+[ Upstream commit 6499a0db9b0f1e903d52f8244eacc1d4be00eea2 ]
 
-in amdgpu_drm_ioctl the call to pm_runtime_get_sync increments the
-counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+The value av7110->debi_virt is stored in DMA memory, and it is assigned
+to data, and thus data[0] can be modified at any time by malicious
+hardware. In this case, "if (data[0] < 2)" can be passed, but then
+data[0] can be changed into a large number, which may cause buffer
+overflow when the code "av7110->ci_slot[data[0]]" is used.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix this possible bug, data[0] is assigned to a local variable, which
+replaces the use of data[0].
+
+Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/pci/ttpci/av7110.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index e0890deccb2fe..7cae10fec78de 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -633,11 +633,12 @@ long amdgpu_drm_ioctl(struct file *filp,
- 	dev = file_priv->minor->dev;
- 	ret = pm_runtime_get_sync(dev->dev);
- 	if (ret < 0)
--		return ret;
-+		goto out;
+diff --git a/drivers/media/pci/ttpci/av7110.c b/drivers/media/pci/ttpci/av7110.c
+index f89364951ebdf..fb13cc3c591da 100644
+--- a/drivers/media/pci/ttpci/av7110.c
++++ b/drivers/media/pci/ttpci/av7110.c
+@@ -426,14 +426,15 @@ static void debiirq(unsigned long cookie)
+ 	case DATA_CI_GET:
+ 	{
+ 		u8 *data = av7110->debi_virt;
++		u8 data_0 = data[0];
  
- 	ret = drm_ioctl(filp, cmd, arg);
- 
- 	pm_runtime_mark_last_busy(dev->dev);
-+out:
- 	pm_runtime_put_autosuspend(dev->dev);
- 	return ret;
- }
+-		if ((data[0] < 2) && data[2] == 0xff) {
++		if (data_0 < 2 && data[2] == 0xff) {
+ 			int flags = 0;
+ 			if (data[5] > 0)
+ 				flags |= CA_CI_MODULE_PRESENT;
+ 			if (data[5] > 5)
+ 				flags |= CA_CI_MODULE_READY;
+-			av7110->ci_slot[data[0]].flags = flags;
++			av7110->ci_slot[data_0].flags = flags;
+ 		} else
+ 			ci_get_data(&av7110->ci_rbuffer,
+ 				    av7110->debi_virt,
 -- 
 2.25.1
 
