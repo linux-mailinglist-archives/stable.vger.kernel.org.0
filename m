@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B6A25969C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E68B8259674
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730720AbgIAQEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:04:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55812 "EHLO mail.kernel.org"
+        id S1731404AbgIAPnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:43:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbgIAPmk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:40 -0400
+        id S1731642AbgIAPnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:43:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66C182064B;
-        Tue,  1 Sep 2020 15:42:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CCE720866;
+        Tue,  1 Sep 2020 15:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974960;
-        bh=a4AFxIIbHQK9Lqw9oBlSp8gM0Wf/4JFV3vGKeiNeUr8=;
+        s=default; t=1598974988;
+        bh=mC8QRiua3TxU8EWz/9lpCvr+KGukWMfPbUNQDuVcy7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJ5q2SxgkS7/Ohbz8ekOopA6UQw3zTEbyzWJMbuNowCX1rgXQnTVYhL1err/n14BX
-         pSICQLafvOQ49Ufuc1GkFnVzh+5DvoKQ20zXgNbL7AdxZkgM2NCVii+TthKsqUii21
-         mH61UpU0kLmKHGT05MDkr6sGudg/5JKK0h7PPIms=
+        b=CHBBMO4k13czWaQrMlchOhqIU59flWmx0zLEFVAb44J4b3kETAZ1Oz3THQ9C/XmpK
+         l+HcAmfOlN5O7S65jGDWsmXNDgwU59UTA81jWcnpuUL81kzAKe2+KLQNRS5ZKOhVCi
+         oVV6h3dGYca7O8Im1ac0cJntvTcJiD9YndZ7hkRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 148/255] scsi: qla2xxx: Flush all sessions on zone disable
-Date:   Tue,  1 Sep 2020 17:10:04 +0200
-Message-Id: <20200901151007.780748111@linuxfoundation.org>
+Subject: [PATCH 5.8 149/255] scsi: qla2xxx: Flush I/O on zone disable
+Date:   Tue,  1 Sep 2020 17:10:05 +0200
+Message-Id: <20200901151007.826848481@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -50,13 +50,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 10ae30ba664822f62de169a61628e31c999c7cc8 ]
+[ Upstream commit a117579d0205b5a0592a3a98493e2b875e4da236 ]
 
-On Zone Disable, certain switches would ignore all commands. This causes
-timeout for both switch scan command and abort of that command. On
-detection of this condition, all sessions will be shutdown.
+Perform implicit logout to flush I/O on zone disable.
 
-Link: https://lore.kernel.org/r/20200806111014.28434-2-njavali@marvell.com
+Link: https://lore.kernel.org/r/20200806111014.28434-3-njavali@marvell.com
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
@@ -64,32 +62,21 @@ Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/scsi/qla2xxx/qla_gs.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index df670fba2ab8a..c6b6a3250312e 100644
+index c6b6a3250312e..7074073446701 100644
 --- a/drivers/scsi/qla2xxx/qla_gs.c
 +++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3736,6 +3736,18 @@ static void qla2x00_async_gpnft_gnnft_sp_done(srb_t *sp, int res)
- 		unsigned long flags;
- 		const char *name = sp->name;
- 
-+		if (res == QLA_OS_TIMER_EXPIRED) {
-+			/* switch is ignoring all commands.
-+			 * This might be a zone disable behavior.
-+			 * This means we hit 64s timeout.
-+			 * 22s GPNFT + 44s Abort = 64s
-+			 */
-+			ql_dbg(ql_dbg_disc, vha, 0xffff,
-+			       "%s: Switch Zone check please .\n",
-+			       name);
-+			qla2x00_mark_all_devices_lost(vha);
-+		}
-+
- 		/*
- 		 * We are in an Interrupt context, queue up this
- 		 * sp for GNNFT_DONE work. This will allow all
+@@ -3436,7 +3436,6 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
+ 			list_for_each_entry(fcport, &vha->vp_fcports, list) {
+ 				if ((fcport->flags & FCF_FABRIC_DEVICE) != 0) {
+ 					fcport->scan_state = QLA_FCPORT_SCAN;
+-					fcport->logout_on_delete = 0;
+ 				}
+ 			}
+ 			goto login_logout;
 -- 
 2.25.1
 
