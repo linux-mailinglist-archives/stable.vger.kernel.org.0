@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3CA525927A
+	by mail.lfdr.de (Postfix) with ESMTP id D518725927B
 	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728813AbgIAPMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55410 "EHLO mail.kernel.org"
+        id S1728822AbgIAPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728810AbgIAPMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:12:48 -0400
+        id S1728814AbgIAPMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AFCB2078B;
-        Tue,  1 Sep 2020 15:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0FD8206FA;
+        Tue,  1 Sep 2020 15:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973167;
-        bh=msI9Izo9L4J+yHwpIL1IKf+9sn3TvKT/LB9B3RnpodM=;
+        s=default; t=1598973170;
+        bh=k1wBZkuFVL8dW5d4JlcUY7U1TYR+0F01BvfIZJpQIPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZhrOy5jM3rzyNKVRFUGDM742ks8lRgvqSbyH6YkAtawppWRWReJ1aRHsZwHkmNia
-         KiVnZ9H0HkEccEAXbGJe2NVx07DVeP9GmK6HIRWGWT6/7T2AN4d78B3stJs2+ZfvK3
-         H7EjmIUbF7GZnt2r9opGXWFr9eC+mzs/ZL7zzXrg=
+        b=ZQh+LLSmvQF+Wo/GRw5n62khdo57OscQRdIKRCHBJYHQUDvAQQBwJVNT1Dl83FCxy
+         UDsPyFc96jS3W7BPaoFg7UAGcX6UIh09TOnQCgj8GLzQRXAgM2Aa0TAFm9+NNnSdlg
+         QAfFNi2VQCEpVHr4BVMD21vzsWuLz2yiX9wiiZk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 34/62] jbd2: make sure jh have b_transaction set in refile/unfile_buffer
-Date:   Tue,  1 Sep 2020 17:10:17 +0200
-Message-Id: <20200901150922.427271148@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 35/62] jbd2: abort journal if free a async write error metadata buffer
+Date:   Tue,  1 Sep 2020 17:10:18 +0200
+Message-Id: <20200901150922.485242933@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
 References: <20200901150920.697676718@linuxfoundation.org>
@@ -44,60 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 24dc9864914eb5813173cfa53313fcd02e4aea7d ]
+[ Upstream commit c044f3d8360d2ecf831ba2cc9f08cf9fb2c699fb ]
 
-Callers of __jbd2_journal_unfile_buffer() and
-__jbd2_journal_refile_buffer() assume that the b_transaction is set. In
-fact if it's not, we can end up with journal_head refcounting errors
-leading to crash much later that might be very hard to track down. Add
-asserts to make sure that is the case.
+If we free a metadata buffer which has been failed to async write out
+in the background, the jbd2 checkpoint procedure will not detect this
+failure in jbd2_log_do_checkpoint(), so it may lead to filesystem
+inconsistency after cleanup journal tail. This patch abort the journal
+if free a buffer has write_io_error flag to prevent potential further
+inconsistency.
 
-We also make sure that b_next_transaction is NULL in
-__jbd2_journal_unfile_buffer() since the callers expect that as well and
-we should not get into that stage in this state anyway, leading to
-problems later on if we do.
-
-Tested with fstests.
-
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200617092549.6712-1-lczerner@redhat.com
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20200620025427.1756360-5-yi.zhang@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/jbd2/transaction.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 3233e5ac9774f..622610934c9ad 100644
+index 622610934c9ad..ce2bf9d74224c 100644
 --- a/fs/jbd2/transaction.c
 +++ b/fs/jbd2/transaction.c
-@@ -1906,6 +1906,9 @@ static void __jbd2_journal_temp_unlink_buffer(struct journal_head *jh)
-  */
- static void __jbd2_journal_unfile_buffer(struct journal_head *jh)
+@@ -2000,6 +2000,7 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
  {
-+	J_ASSERT_JH(jh, jh->b_transaction != NULL);
-+	J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
-+
- 	__jbd2_journal_temp_unlink_buffer(jh);
- 	jh->b_transaction = NULL;
- 	jbd2_journal_put_journal_head(jh);
-@@ -2453,6 +2456,13 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
+ 	struct buffer_head *head;
+ 	struct buffer_head *bh;
++	bool has_write_io_error = false;
+ 	int ret = 0;
  
- 	was_dirty = test_clear_buffer_jbddirty(bh);
- 	__jbd2_journal_temp_unlink_buffer(jh);
+ 	J_ASSERT(PageLocked(page));
+@@ -2024,11 +2025,26 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+ 		jbd_unlock_bh_state(bh);
+ 		if (buffer_jbd(bh))
+ 			goto busy;
 +
-+	/*
-+	 * b_transaction must be set, otherwise the new b_transaction won't
-+	 * be holding jh reference
-+	 */
-+	J_ASSERT_JH(jh, jh->b_transaction != NULL);
++		/*
++		 * If we free a metadata buffer which has been failed to
++		 * write out, the jbd2 checkpoint procedure will not detect
++		 * this failure and may lead to filesystem inconsistency
++		 * after cleanup journal tail.
++		 */
++		if (buffer_write_io_error(bh)) {
++			pr_err("JBD2: Error while async write back metadata bh %llu.",
++			       (unsigned long long)bh->b_blocknr);
++			has_write_io_error = true;
++		}
+ 	} while ((bh = bh->b_this_page) != head);
+ 
+ 	ret = try_to_free_buffers(page);
+ 
+ busy:
++	if (has_write_io_error)
++		jbd2_journal_abort(journal, -EIO);
 +
- 	/*
- 	 * We set b_transaction here because b_next_transaction will inherit
- 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
