@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A050125949A
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3845E2593C6
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730067AbgIAPlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
+        id S1730633AbgIAPav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731522AbgIAPlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:41:23 -0400
+        id S1730617AbgIAPar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A201207D3;
-        Tue,  1 Sep 2020 15:41:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC812205F4;
+        Tue,  1 Sep 2020 15:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974882;
-        bh=oTARuwR/1mchUtNNkLCWoveYMMVPoNEEk5qgz+NHa2U=;
+        s=default; t=1598974247;
+        bh=KMaCEr9hIazVnaJX5NLqVXB6MyFYkILtr0umHanmixo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2o3puX4LdfREOdIkju8FJpXmKEDIdLm46Uro/b2J06doTcgT6GqeiQtN5kCGugjek
-         w/2g1wA1nZnP7XBRkk6Sw5xGu/gP3NWRLFUh/Llctofa6cMmc6SQMdo/fH9StBgqJl
-         aEBHIqj9O2QBSdcnxB9ja4RN8odpI1GcjNzkFCrU=
+        b=e253W+4rDWHr/x/CxkT4i7vshkjuhZ3adOWN2fCEapvmpRo/1kY0QwxfLvuZMi2Pr
+         p3Amg1pXLLHl/8KkBOl+ak13GMnwf4dmOadkQbwNn3A1MjZF8eKiAfIHtN5WdVpSu5
+         RA9rAOY0wU9n9CJ8sj2eVunLwqRyy3C1vOfyrz2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakov Petrina <jakov.petrina@sartura.hr>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 127/255] libbpf: Handle GCC built-in types for Arm NEON
+        stable@vger.kernel.org,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 103/214] bfq: fix blkio cgroup leakage v4
 Date:   Tue,  1 Sep 2020 17:09:43 +0200
-Message-Id: <20200901151006.813605878@linuxfoundation.org>
+Message-Id: <20200901150957.939809582@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +45,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-[ Upstream commit 702eddc77a905782083b14ccd05b23840675fd18 ]
+[ Upstream commit 2de791ab4918969d8108f15238a701968375f235 ]
 
-When building Arm NEON (SIMD) code from lib/raid6/neon.uc, GCC emits
-DWARF information using a base type "__Poly8_t", which is internal to
-GCC and not recognized by Clang. This causes build failures when
-building with Clang a vmlinux.h generated from an arm64 kernel that was
-built with GCC.
+Changes from v1:
+    - update commit description with proper ref-accounting justification
 
-	vmlinux.h:47284:9: error: unknown type name '__Poly8_t'
-	typedef __Poly8_t poly8x16_t[16];
-	        ^~~~~~~~~
+commit db37a34c563b ("block, bfq: get a ref to a group when adding it to a service tree")
+introduce leak forbfq_group and blkcg_gq objects because of get/put
+imbalance.
+In fact whole idea of original commit is wrong because bfq_group entity
+can not dissapear under us because it is referenced by child bfq_queue's
+entities from here:
+ -> bfq_init_entity()
+    ->bfqg_and_blkg_get(bfqg);
+    ->entity->parent = bfqg->my_entity
 
-The polyX_t types are defined as unsigned integers in the "Arm C
-Language Extension" document (101028_Q220_00_en). Emit typedefs based on
-standard integer types for the GCC internal types, similar to those
-emitted by Clang.
+ -> bfq_put_queue(bfqq)
+    FINAL_PUT
+    ->bfqg_and_blkg_put(bfqq_group(bfqq))
+    ->kmem_cache_free(bfq_pool, bfqq);
 
-Including linux/kernel.h to use ARRAY_SIZE() incidentally redefined
-max(), causing a build bug due to different types, hence the seemingly
-unrelated change.
+So parent entity can not disappear while child entity is in tree,
+and child entities already has proper protection.
+This patch revert commit db37a34c563b ("block, bfq: get a ref to a group when adding it to a service tree")
 
-Reported-by: Jakov Petrina <jakov.petrina@sartura.hr>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200812143909.3293280-1-jean-philippe@linaro.org
+bfq_group leak trace caused by bad commit:
+-> blkg_alloc
+   -> bfq_pq_alloc
+     -> bfqg_get (+1)
+->bfq_activate_bfqq
+  ->bfq_activate_requeue_entity
+    -> __bfq_activate_entity
+       ->bfq_get_entity
+         ->bfqg_and_blkg_get (+1)  <==== : Note1
+->bfq_del_bfqq_busy
+  ->bfq_deactivate_entity+0x53/0xc0 [bfq]
+    ->__bfq_deactivate_entity+0x1b8/0x210 [bfq]
+      -> bfq_forget_entity(is_in_service = true)
+	 entity->on_st_or_in_serv = false   <=== :Note2
+	 if (is_in_service)
+	     return;  ==> do not touch reference
+-> blkcg_css_offline
+ -> blkcg_destroy_blkgs
+  -> blkg_destroy
+   -> bfq_pd_offline
+    -> __bfq_deactivate_entity
+         if (!entity->on_st_or_in_serv) /* true, because (Note2)
+		return false;
+ -> bfq_pd_free
+    -> bfqg_put() (-1, byt bfqg->ref == 2) because of (Note2)
+So bfq_group and blkcg_gq  will leak forever, see test-case below.
+
+##TESTCASE_BEGIN:
+#!/bin/bash
+
+max_iters=${1:-100}
+#prep cgroup mounts
+mount -t tmpfs cgroup_root /sys/fs/cgroup
+mkdir /sys/fs/cgroup/blkio
+mount -t cgroup -o blkio none /sys/fs/cgroup/blkio
+
+# Prepare blkdev
+grep blkio /proc/cgroups
+truncate -s 1M img
+losetup /dev/loop0 img
+echo bfq > /sys/block/loop0/queue/scheduler
+
+grep blkio /proc/cgroups
+for ((i=0;i<max_iters;i++))
+do
+    mkdir -p /sys/fs/cgroup/blkio/a
+    echo 0 > /sys/fs/cgroup/blkio/a/cgroup.procs
+    dd if=/dev/loop0 bs=4k count=1 of=/dev/null iflag=direct 2> /dev/null
+    echo 0 > /sys/fs/cgroup/blkio/cgroup.procs
+    rmdir /sys/fs/cgroup/blkio/a
+    grep blkio /proc/cgroups
+done
+##TESTCASE_END:
+
+Fixes: db37a34c563b ("block, bfq: get a ref to a group when adding it to a service tree")
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf_dump.c | 35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ block/bfq-cgroup.c  |  2 +-
+ block/bfq-iosched.h |  1 -
+ block/bfq-wf2q.c    | 12 ++----------
+ 3 files changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index bbb4303172606..4edf76c5a7101 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -13,6 +13,7 @@
- #include <errno.h>
- #include <linux/err.h>
- #include <linux/btf.h>
-+#include <linux/kernel.h>
- #include "btf.h"
- #include "hashmap.h"
- #include "libbpf.h"
-@@ -548,6 +549,9 @@ static int btf_dump_order_type(struct btf_dump *d, __u32 id, bool through_ptr)
- 	}
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 12b707a4e52fd..342a1cfa48c57 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -332,7 +332,7 @@ static void bfqg_put(struct bfq_group *bfqg)
+ 		kfree(bfqg);
  }
  
-+static void btf_dump_emit_missing_aliases(struct btf_dump *d, __u32 id,
-+					  const struct btf_type *t);
-+
- static void btf_dump_emit_struct_fwd(struct btf_dump *d, __u32 id,
- 				     const struct btf_type *t);
- static void btf_dump_emit_struct_def(struct btf_dump *d, __u32 id,
-@@ -670,6 +674,9 @@ static void btf_dump_emit_type(struct btf_dump *d, __u32 id, __u32 cont_id)
- 
- 	switch (kind) {
- 	case BTF_KIND_INT:
-+		/* Emit type alias definitions if necessary */
-+		btf_dump_emit_missing_aliases(d, id, t);
-+
- 		tstate->emit_state = EMITTED;
- 		break;
- 	case BTF_KIND_ENUM:
-@@ -869,7 +876,7 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
- 			btf_dump_printf(d, ": %d", m_sz);
- 			off = m_off + m_sz;
- 		} else {
--			m_sz = max(0, btf__resolve_size(d->btf, m->type));
-+			m_sz = max(0LL, btf__resolve_size(d->btf, m->type));
- 			off = m_off + m_sz * 8;
- 		}
- 		btf_dump_printf(d, ";");
-@@ -889,6 +896,32 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
- 		btf_dump_printf(d, " __attribute__((packed))");
- }
- 
-+static const char *missing_base_types[][2] = {
-+	/*
-+	 * GCC emits typedefs to its internal __PolyX_t types when compiling Arm
-+	 * SIMD intrinsics. Alias them to standard base types.
-+	 */
-+	{ "__Poly8_t",		"unsigned char" },
-+	{ "__Poly16_t",		"unsigned short" },
-+	{ "__Poly64_t",		"unsigned long long" },
-+	{ "__Poly128_t",	"unsigned __int128" },
-+};
-+
-+static void btf_dump_emit_missing_aliases(struct btf_dump *d, __u32 id,
-+					  const struct btf_type *t)
-+{
-+	const char *name = btf_dump_type_name(d, id);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(missing_base_types); i++) {
-+		if (strcmp(name, missing_base_types[i][0]) == 0) {
-+			btf_dump_printf(d, "typedef %s %s;\n\n",
-+					missing_base_types[i][1], name);
-+			break;
-+		}
-+	}
-+}
-+
- static void btf_dump_emit_enum_fwd(struct btf_dump *d, __u32 id,
- 				   const struct btf_type *t)
+-void bfqg_and_blkg_get(struct bfq_group *bfqg)
++static void bfqg_and_blkg_get(struct bfq_group *bfqg)
  {
+ 	/* see comments in bfq_bic_update_cgroup for why refcounting bfqg */
+ 	bfqg_get(bfqg);
+diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
+index c0232975075d0..de98fdfe9ea17 100644
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -980,7 +980,6 @@ struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
+ struct blkcg_gq *bfqg_to_blkg(struct bfq_group *bfqg);
+ struct bfq_group *bfqq_group(struct bfq_queue *bfqq);
+ struct bfq_group *bfq_create_group_hierarchy(struct bfq_data *bfqd, int node);
+-void bfqg_and_blkg_get(struct bfq_group *bfqg);
+ void bfqg_and_blkg_put(struct bfq_group *bfqg);
+ 
+ #ifdef CONFIG_BFQ_GROUP_IOSCHED
+diff --git a/block/bfq-wf2q.c b/block/bfq-wf2q.c
+index 44079147e396e..05f0bf4a1144d 100644
+--- a/block/bfq-wf2q.c
++++ b/block/bfq-wf2q.c
+@@ -536,9 +536,7 @@ static void bfq_get_entity(struct bfq_entity *entity)
+ 		bfqq->ref++;
+ 		bfq_log_bfqq(bfqq->bfqd, bfqq, "get_entity: %p %d",
+ 			     bfqq, bfqq->ref);
+-	} else
+-		bfqg_and_blkg_get(container_of(entity, struct bfq_group,
+-					       entity));
++	}
+ }
+ 
+ /**
+@@ -652,14 +650,8 @@ static void bfq_forget_entity(struct bfq_service_tree *st,
+ 
+ 	entity->on_st = false;
+ 	st->wsum -= entity->weight;
+-	if (is_in_service)
+-		return;
+-
+-	if (bfqq)
++	if (bfqq && !is_in_service)
+ 		bfq_put_queue(bfqq);
+-	else
+-		bfqg_and_blkg_put(container_of(entity, struct bfq_group,
+-					       entity));
+ }
+ 
+ /**
 -- 
 2.25.1
 
