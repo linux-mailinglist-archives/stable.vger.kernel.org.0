@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 660182593E2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5DA22594D1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgIAPcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:32:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
+        id S1728318AbgIAPnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:43:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726895AbgIAPcp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:32:45 -0400
+        id S1731659AbgIAPnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:43:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6FD6205F4;
-        Tue,  1 Sep 2020 15:32:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B39F9206EB;
+        Tue,  1 Sep 2020 15:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974364;
-        bh=gX242I+Ys66LLIFI8NFdVo8uWb+C82vQGDzHe3iSuT0=;
+        s=default; t=1598975002;
+        bh=Tyu91bH63gG6nmgdD1zZbuSXVaxKlvW0YzojL9UrOcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqMHyW/2uwk7GEP2ZtHM1TNmX/iP6znQ2MTVXOGk1JdAkHqe9XZ8zn/mv6zvSB5Mg
-         2sYdRzYyAz79JO7WUYMUaJEuolvkHYMkdofk/0ZRTMhoHnyknPathcoSaiIeUB9yPs
-         qPbS3LjfOeti1e/VRFr0AlhL7+tIDSNpFshparVI=
+        b=ZWhjIEb7B4HjzxiFZBqykuoi7Mg/9906cchD1DEtBrt8kM4/U1tv30cNQ+XlIArp/
+         WYLxnIS1KpIAwYY7A50O5/ZciM7aFyWFBW2RYPN8qA59QoJQq5oFENoy+IxjZkDru2
+         FA1TJFD6bOZl6Oi9jNKPn2zbm0bxBWnXfmt1QHBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 147/214] arm64: Move handling of erratum 1418040 into C code
+        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
+        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        David Jeffery <djeffery@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.8 171/255] blk-mq: order adding requests to hctx->dispatch and checking SCHED_RESTART
 Date:   Tue,  1 Sep 2020 17:10:27 +0200
-Message-Id: <20200901151000.021484773@linuxfoundation.org>
+Message-Id: <20200901151008.889544975@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,84 +46,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit d49f7d7376d0c0daf8680984a37bd07581ac7d38 ]
+commit d7d8535f377e9ba87edbf7fbbd634ac942f3f54f upstream.
 
-Instead of dealing with erratum 1418040 on each entry and exit,
-let's move the handling to __switch_to() instead, which has
-several advantages:
+SCHED_RESTART code path is relied to re-run queue for dispatch requests
+in hctx->dispatch. Meantime the SCHED_RSTART flag is checked when adding
+requests to hctx->dispatch.
 
-- It can be applied when it matters (switching between 32 and 64
-  bit tasks).
-- It is written in C (yay!)
-- It can rely on static keys rather than alternatives
+memory barriers have to be used for ordering the following two pair of OPs:
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200731173824.107480-2-maz@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1) adding requests to hctx->dispatch and checking SCHED_RESTART in
+blk_mq_dispatch_rq_list()
+
+2) clearing SCHED_RESTART and checking if there is request in hctx->dispatch
+in blk_mq_sched_restart().
+
+Without the added memory barrier, either:
+
+1) blk_mq_sched_restart() may miss requests added to hctx->dispatch meantime
+blk_mq_dispatch_rq_list() observes SCHED_RESTART, and not run queue in
+dispatch side
+
+or
+
+2) blk_mq_dispatch_rq_list still sees SCHED_RESTART, and not run queue
+in dispatch side, meantime checking if there is request in
+hctx->dispatch from blk_mq_sched_restart() is missed.
+
+IO hang in ltp/fs_fill test is reported by kernel test robot:
+
+	https://lkml.org/lkml/2020/7/26/77
+
+Turns out it is caused by the above out-of-order OPs. And the IO hang
+can't be observed any more after applying this patch.
+
+Fixes: bd166ef183c2 ("blk-mq-sched: add framework for MQ capable IO schedulers")
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: David Jeffery <djeffery@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/kernel/process.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ block/blk-mq-sched.c |    9 +++++++++
+ block/blk-mq.c       |    9 +++++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index fab013c5ee8c9..10190c4b16dc4 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -498,6 +498,39 @@ static void entry_task_switch(struct task_struct *next)
- 	__this_cpu_write(__entry_task, next);
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -77,6 +77,15 @@ void blk_mq_sched_restart(struct blk_mq_
+ 		return;
+ 	clear_bit(BLK_MQ_S_SCHED_RESTART, &hctx->state);
+ 
++	/*
++	 * Order clearing SCHED_RESTART and list_empty_careful(&hctx->dispatch)
++	 * in blk_mq_run_hw_queue(). Its pair is the barrier in
++	 * blk_mq_dispatch_rq_list(). So dispatch code won't see SCHED_RESTART,
++	 * meantime new request added to hctx->dispatch is missed to check in
++	 * blk_mq_run_hw_queue().
++	 */
++	smp_mb();
++
+ 	blk_mq_run_hw_queue(hctx, true);
  }
  
-+/*
-+ * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
-+ * Assuming the virtual counter is enabled at the beginning of times:
-+ *
-+ * - disable access when switching from a 64bit task to a 32bit task
-+ * - enable access when switching from a 32bit task to a 64bit task
-+ */
-+static void erratum_1418040_thread_switch(struct task_struct *prev,
-+					  struct task_struct *next)
-+{
-+	bool prev32, next32;
-+	u64 val;
-+
-+	if (!(IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) &&
-+	      cpus_have_const_cap(ARM64_WORKAROUND_1418040)))
-+		return;
-+
-+	prev32 = is_compat_thread(task_thread_info(prev));
-+	next32 = is_compat_thread(task_thread_info(next));
-+
-+	if (prev32 == next32)
-+		return;
-+
-+	val = read_sysreg(cntkctl_el1);
-+
-+	if (!next32)
-+		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
-+	else
-+		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
-+
-+	write_sysreg(val, cntkctl_el1);
-+}
-+
- /*
-  * Thread switching.
-  */
-@@ -514,6 +547,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
- 	uao_thread_switch(next);
- 	ptrauth_thread_switch(next);
- 	ssbs_thread_switch(next);
-+	erratum_1418040_thread_switch(prev, next);
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1324,6 +1324,15 @@ bool blk_mq_dispatch_rq_list(struct requ
+ 		spin_unlock(&hctx->lock);
  
- 	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
--- 
-2.25.1
-
+ 		/*
++		 * Order adding requests to hctx->dispatch and checking
++		 * SCHED_RESTART flag. The pair of this smp_mb() is the one
++		 * in blk_mq_sched_restart(). Avoid restart code path to
++		 * miss the new added requests to hctx->dispatch, meantime
++		 * SCHED_RESTART is observed here.
++		 */
++		smp_mb();
++
++		/*
+ 		 * If SCHED_RESTART was set by the caller of this function and
+ 		 * it is no longer set that means that it was cleared by another
+ 		 * thread and hence that a queue rerun is needed.
 
 
