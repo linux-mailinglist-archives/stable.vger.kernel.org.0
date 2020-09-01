@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6D5259905
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E18B2598FF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728656AbgIAQff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60518 "EHLO mail.kernel.org"
+        id S1730840AbgIAQfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730597AbgIAPaU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:20 -0400
+        id S1730621AbgIAPam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6333D20684;
-        Tue,  1 Sep 2020 15:30:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05117205F4;
+        Tue,  1 Sep 2020 15:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974219;
-        bh=629+49mpM0RMi+i39YNvE37+uGnqLXIa4iJPk9vUMew=;
+        s=default; t=1598974242;
+        bh=dUnRKN63euXMnnE/TPo9Pk5s7qNIZV5FF+T1lo9FPVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmhQatE4cyyvSdOJsvA8aSfk4LdGlpiu/0SvebG04YvVZJQR5HuBG+oW4eoZ77STT
-         vaYkv+Kz6v4ksQaHE9FkNyd8WCVuoihbUgX9lf4hnQz+eX5BgVjrKLojF8rU8yJNCv
-         0YFrcZ8cFFqj6m8X+yBkyH/SIJeIOo/Bb3+vw1mU=
+        b=Q6KJ78C3zZ+Wn+GXEWOOO0N+ZPWoAsJ+Vu0zj8e3gE5cOytkloGaAZ9z7AIrCeNos
+         zR/J7/vPImiC3vErh0hmNbAugjzQpvd0gDrTBTcD8+Oc4YSJAWJAMZpcWzgxje+ueG
+         JGsnLcB35udI52y7drLxPVJXcG6ojaFGe6bJWGLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Sham Muthayyan <smuthayy@codeaurora.org>,
+        Ansuel Smith <ansuelsmth@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/214] EDAC: sb_edac: get rid of unused vars
-Date:   Tue,  1 Sep 2020 17:09:30 +0200
-Message-Id: <20200901150957.306703857@linuxfoundation.org>
+Subject: [PATCH 5.4 093/214] PCI: qcom: Add missing ipq806x clocks in PCIe driver
+Date:   Tue,  1 Sep 2020 17:09:33 +0200
+Message-Id: <20200901150957.444681609@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -45,128 +47,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 323014d85d2699b2879ecb15cd06a15408e3e801 ]
+[ Upstream commit 8b6f0330b5f9a7543356bfa9e76d580f03aa2c1e ]
 
-There are several vars unused on this driver, probably because
-it was a modified copy of another driver. Get rid of them.
+Aux and Ref clk are missing in PCIe qcom driver. Add support for this
+optional clks for ipq8064/apq8064 SoC.
 
-	drivers/edac/sb_edac.c: In function ‘knl_get_dimm_capacity’:
-	drivers/edac/sb_edac.c:1343:16: warning: variable ‘sad_size’ set but not used [-Wunused-but-set-variable]
-	 1343 |  u64 sad_base, sad_size, sad_limit = 0;
-	      |                ^~~~~~~~
-	drivers/edac/sb_edac.c: In function ‘sbridge_mce_output_error’:
-	drivers/edac/sb_edac.c:2955:8: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
-	 2955 |  char *type, *optype, msg[256];
-	      |        ^~~~
-	drivers/edac/sb_edac.c: In function ‘sbridge_unregister_mci’:
-	drivers/edac/sb_edac.c:3203:22: warning: variable ‘pvt’ set but not used [-Wunused-but-set-variable]
-	 3203 |  struct sbridge_pvt *pvt;
-	      |                      ^~~
-	At top level:
-	drivers/edac/sb_edac.c:266:18: warning: ‘correrrthrsld’ defined but not used [-Wunused-const-variable=]
-	  266 | static const u32 correrrthrsld[] = {
-	      |                  ^~~~~~~~~~~~~
-	drivers/edac/sb_edac.c:257:18: warning: ‘correrrcnt’ defined but not used [-Wunused-const-variable=]
-	  257 | static const u32 correrrcnt[] = {
-	      |                  ^~~~~~~~~~
-
-Acked-by: Borislav Petkov <bp@alien8.de>
-Acked-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20200615210608.21469-2-ansuelsmth@gmail.com
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/sb_edac.c | 21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c | 38 ++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
-index f743502ca9b72..a2fd39d330d67 100644
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -254,18 +254,20 @@ static const u32 rir_offset[MAX_RIR_RANGES][MAX_RIR_WAY] = {
-  * FIXME: Implement the error count reads directly
-  */
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 270d502b8cd50..380a77a914fa0 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -103,6 +103,8 @@ struct qcom_pcie_resources_2_1_0 {
+ 	struct clk *iface_clk;
+ 	struct clk *core_clk;
+ 	struct clk *phy_clk;
++	struct clk *aux_clk;
++	struct clk *ref_clk;
+ 	struct reset_control *pci_reset;
+ 	struct reset_control *axi_reset;
+ 	struct reset_control *ahb_reset;
+@@ -253,6 +255,14 @@ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
+ 	if (IS_ERR(res->phy_clk))
+ 		return PTR_ERR(res->phy_clk);
  
--static const u32 correrrcnt[] = {
--	0x104, 0x108, 0x10c, 0x110,
--};
--
- #define RANK_ODD_OV(reg)		GET_BITFIELD(reg, 31, 31)
- #define RANK_ODD_ERR_CNT(reg)		GET_BITFIELD(reg, 16, 30)
- #define RANK_EVEN_OV(reg)		GET_BITFIELD(reg, 15, 15)
- #define RANK_EVEN_ERR_CNT(reg)		GET_BITFIELD(reg,  0, 14)
- 
-+#if 0 /* Currently unused*/
-+static const u32 correrrcnt[] = {
-+	0x104, 0x108, 0x10c, 0x110,
-+};
++	res->aux_clk = devm_clk_get_optional(dev, "aux");
++	if (IS_ERR(res->aux_clk))
++		return PTR_ERR(res->aux_clk);
 +
- static const u32 correrrthrsld[] = {
- 	0x11c, 0x120, 0x124, 0x128,
- };
-+#endif
++	res->ref_clk = devm_clk_get_optional(dev, "ref");
++	if (IS_ERR(res->ref_clk))
++		return PTR_ERR(res->ref_clk);
++
+ 	res->pci_reset = devm_reset_control_get_exclusive(dev, "pci");
+ 	if (IS_ERR(res->pci_reset))
+ 		return PTR_ERR(res->pci_reset);
+@@ -285,6 +295,8 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
+ 	clk_disable_unprepare(res->iface_clk);
+ 	clk_disable_unprepare(res->core_clk);
+ 	clk_disable_unprepare(res->phy_clk);
++	clk_disable_unprepare(res->aux_clk);
++	clk_disable_unprepare(res->ref_clk);
+ 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
+ }
  
- #define RANK_ODD_ERR_THRSLD(reg)	GET_BITFIELD(reg, 16, 30)
- #define RANK_EVEN_ERR_THRSLD(reg)	GET_BITFIELD(reg,  0, 14)
-@@ -1340,7 +1342,7 @@ static void knl_show_mc_route(u32 reg, char *s)
-  */
- static int knl_get_dimm_capacity(struct sbridge_pvt *pvt, u64 *mc_sizes)
- {
--	u64 sad_base, sad_size, sad_limit = 0;
-+	u64 sad_base, sad_limit = 0;
- 	u64 tad_base, tad_size, tad_limit, tad_deadspace, tad_livespace;
- 	int sad_rule = 0;
- 	int tad_rule = 0;
-@@ -1427,7 +1429,6 @@ static int knl_get_dimm_capacity(struct sbridge_pvt *pvt, u64 *mc_sizes)
- 		edram_only = KNL_EDRAM_ONLY(dram_rule);
- 
- 		sad_limit = pvt->info.sad_limit(dram_rule)+1;
--		sad_size = sad_limit - sad_base;
- 
- 		pci_read_config_dword(pvt->pci_sad0,
- 			pvt->info.interleave_list[sad_rule], &interleave_reg);
-@@ -2952,7 +2953,7 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
- 	struct mem_ctl_info *new_mci;
- 	struct sbridge_pvt *pvt = mci->pvt_info;
- 	enum hw_event_mc_err_type tp_event;
--	char *type, *optype, msg[256];
-+	char *optype, msg[256];
- 	bool ripv = GET_BITFIELD(m->mcgstatus, 0, 0);
- 	bool overflow = GET_BITFIELD(m->status, 62, 62);
- 	bool uncorrected_error = GET_BITFIELD(m->status, 61, 61);
-@@ -2981,14 +2982,11 @@ static void sbridge_mce_output_error(struct mem_ctl_info *mci,
- 	if (uncorrected_error) {
- 		core_err_cnt = 1;
- 		if (ripv) {
--			type = "FATAL";
- 			tp_event = HW_EVENT_ERR_FATAL;
- 		} else {
--			type = "NON_FATAL";
- 			tp_event = HW_EVENT_ERR_UNCORRECTED;
- 		}
- 	} else {
--		type = "CORRECTED";
- 		tp_event = HW_EVENT_ERR_CORRECTED;
+@@ -315,16 +327,28 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		goto err_assert_ahb;
  	}
  
-@@ -3200,7 +3198,6 @@ static struct notifier_block sbridge_mce_dec = {
- static void sbridge_unregister_mci(struct sbridge_dev *sbridge_dev)
- {
- 	struct mem_ctl_info *mci = sbridge_dev->mci;
--	struct sbridge_pvt *pvt;
- 
- 	if (unlikely(!mci || !mci->pvt_info)) {
- 		edac_dbg(0, "MC: dev = %p\n", &sbridge_dev->pdev[0]->dev);
-@@ -3209,8 +3206,6 @@ static void sbridge_unregister_mci(struct sbridge_dev *sbridge_dev)
- 		return;
++	ret = clk_prepare_enable(res->core_clk);
++	if (ret) {
++		dev_err(dev, "cannot prepare/enable core clock\n");
++		goto err_clk_core;
++	}
++
+ 	ret = clk_prepare_enable(res->phy_clk);
+ 	if (ret) {
+ 		dev_err(dev, "cannot prepare/enable phy clock\n");
+ 		goto err_clk_phy;
  	}
  
--	pvt = mci->pvt_info;
--
- 	edac_dbg(0, "MC: mci = %p, dev = %p\n",
- 		 mci, &sbridge_dev->pdev[0]->dev);
+-	ret = clk_prepare_enable(res->core_clk);
++	ret = clk_prepare_enable(res->aux_clk);
+ 	if (ret) {
+-		dev_err(dev, "cannot prepare/enable core clock\n");
+-		goto err_clk_core;
++		dev_err(dev, "cannot prepare/enable aux clock\n");
++		goto err_clk_aux;
++	}
++
++	ret = clk_prepare_enable(res->ref_clk);
++	if (ret) {
++		dev_err(dev, "cannot prepare/enable ref clock\n");
++		goto err_clk_ref;
+ 	}
  
+ 	ret = reset_control_deassert(res->ahb_reset);
+@@ -400,10 +424,14 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	return 0;
+ 
+ err_deassert_ahb:
+-	clk_disable_unprepare(res->core_clk);
+-err_clk_core:
++	clk_disable_unprepare(res->ref_clk);
++err_clk_ref:
++	clk_disable_unprepare(res->aux_clk);
++err_clk_aux:
+ 	clk_disable_unprepare(res->phy_clk);
+ err_clk_phy:
++	clk_disable_unprepare(res->core_clk);
++err_clk_core:
+ 	clk_disable_unprepare(res->iface_clk);
+ err_assert_ahb:
+ 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
 -- 
 2.25.1
 
