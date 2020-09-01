@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DF3259464
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ADCB259466
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:39:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730129AbgIAPjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48546 "EHLO mail.kernel.org"
+        id S1731297AbgIAPjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:39:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731264AbgIAPjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:39:02 -0400
+        id S1731330AbgIAPjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:39:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 396C8205F4;
-        Tue,  1 Sep 2020 15:39:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FEC7205F4;
+        Tue,  1 Sep 2020 15:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974741;
-        bh=nfq+6Z0gn9+uR5oCqrA1Bl68yA5Kk/Q8rc+cxu5c2Ak=;
+        s=default; t=1598974751;
+        bh=RYwLB6hsXqUVuuWOGpN+7Mj6mlUmyTGE+toBtsZAumU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SllABujb3oSlsMQPCCJuPmYY9sKxytxa4C/WpMRd2zx54cRHvBgZT01jDmxZIb5Mm
-         eVA42yHpL7YvBV0OZ+k+a5Kv0yhREbt42VQupseI1dEDyrWsBuRBkEykNemHVlySXN
-         tlJGQqFLlf1GgmLgzcbB152rVVizKiIA2XIOauug=
+        b=CtAdOvbuJYcs/ZOrvOaunzAnQZW31ONZdibVE4TFu8m0lDzHsDDvi4w9TUtcN4q9a
+         2L6ipzPhp/G7GYfkg6oldWgYZIlupeA3b7Rncdja7hJ4hRQlgQg9BDS/jsyL2BmFbZ
+         u4/3pTBDnt+ItVOTLJlYcc/wtAG9a0VwIzzKKwd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Elena Petrova <lenaptr@google.com>,
-        Marco Elver <elver@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Walter Wu <walter-zh.wu@mediatek.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 076/255] efi: provide empty efi_enter_virtual_mode implementation
-Date:   Tue,  1 Sep 2020 17:08:52 +0200
-Message-Id: <20200901151004.373653877@linuxfoundation.org>
+Subject: [PATCH 5.8 077/255] arm64: Fix __cpu_logical_map undefined issue
+Date:   Tue,  1 Sep 2020 17:08:53 +0200
+Message-Id: <20200901151004.422558958@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -55,50 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 2c547f9da0539ad1f7ef7f08c8c82036d61b011a ]
+[ Upstream commit eaecca9e7710281be7c31d892c9f447eafd7ddd9 ]
 
-When CONFIG_EFI is not enabled, we might get an undefined reference to
-efi_enter_virtual_mode() error, if this efi_enabled() call isn't inlined
-into start_kernel().  This happens in particular, if start_kernel() is
-annodated with __no_sanitize_address.
+The __cpu_logical_map undefined issue occued when the new
+tegra194-cpufreq drvier building as a module.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Elena Petrova <lenaptr@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Walter Wu <walter-zh.wu@mediatek.com>
-Link: http://lkml.kernel.org/r/6514652d3a32d3ed33d6eb5c91d0af63bf0d1a0c.1596544734.git.andreyknvl@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ERROR: modpost: "__cpu_logical_map" [drivers/cpufreq/tegra194-cpufreq.ko] undefined!
+
+The driver using cpu_logical_map() macro which will expand to
+__cpu_logical_map, we can't access it in a drvier. Let's turn
+cpu_logical_map() into a C wrapper and export it to fix the
+build issue.
+
+Also create a function set_cpu_logical_map(cpu, hwid) when assign
+a value to cpu_logical_map(cpu).
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/efi.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/include/asm/smp.h | 7 ++++++-
+ arch/arm64/kernel/setup.c    | 8 +++++++-
+ arch/arm64/kernel/smp.c      | 6 +++---
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 05c47f857383e..73db1ae04cef8 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -606,7 +606,11 @@ extern void *efi_get_pal_addr (void);
- extern void efi_map_pal_code (void);
- extern void efi_memmap_walk (efi_freemem_callback_t callback, void *arg);
- extern void efi_gettimeofday (struct timespec64 *ts);
-+#ifdef CONFIG_EFI
- extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
-+#else
-+static inline void efi_enter_virtual_mode (void) {}
-+#endif
- #ifdef CONFIG_X86
- extern efi_status_t efi_query_variable_store(u32 attributes,
- 					     unsigned long size,
+diff --git a/arch/arm64/include/asm/smp.h b/arch/arm64/include/asm/smp.h
+index a0c8a0b652593..0eadbf933e359 100644
+--- a/arch/arm64/include/asm/smp.h
++++ b/arch/arm64/include/asm/smp.h
+@@ -46,7 +46,12 @@ DECLARE_PER_CPU_READ_MOSTLY(int, cpu_number);
+  * Logical CPU mapping.
+  */
+ extern u64 __cpu_logical_map[NR_CPUS];
+-#define cpu_logical_map(cpu)    __cpu_logical_map[cpu]
++extern u64 cpu_logical_map(int cpu);
++
++static inline void set_cpu_logical_map(int cpu, u64 hwid)
++{
++	__cpu_logical_map[cpu] = hwid;
++}
+ 
+ struct seq_file;
+ 
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index 93b3844cf4421..07b7940951e28 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -85,7 +85,7 @@ u64 __cacheline_aligned boot_args[4];
+ void __init smp_setup_processor_id(void)
+ {
+ 	u64 mpidr = read_cpuid_mpidr() & MPIDR_HWID_BITMASK;
+-	cpu_logical_map(0) = mpidr;
++	set_cpu_logical_map(0, mpidr);
+ 
+ 	/*
+ 	 * clear __my_cpu_offset on boot CPU to avoid hang caused by
+@@ -276,6 +276,12 @@ arch_initcall(reserve_memblock_reserved_regions);
+ 
+ u64 __cpu_logical_map[NR_CPUS] = { [0 ... NR_CPUS-1] = INVALID_HWID };
+ 
++u64 cpu_logical_map(int cpu)
++{
++	return __cpu_logical_map[cpu];
++}
++EXPORT_SYMBOL_GPL(cpu_logical_map);
++
+ void __init setup_arch(char **cmdline_p)
+ {
+ 	init_mm.start_code = (unsigned long) _text;
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index e43a8ff19f0f6..8cd6316a0d833 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -567,7 +567,7 @@ acpi_map_gic_cpu_interface(struct acpi_madt_generic_interrupt *processor)
+ 		return;
+ 
+ 	/* map the logical cpu id to cpu MPIDR */
+-	cpu_logical_map(cpu_count) = hwid;
++	set_cpu_logical_map(cpu_count, hwid);
+ 
+ 	cpu_madt_gicc[cpu_count] = *processor;
+ 
+@@ -681,7 +681,7 @@ static void __init of_parse_and_init_cpus(void)
+ 			goto next;
+ 
+ 		pr_debug("cpu logical map 0x%llx\n", hwid);
+-		cpu_logical_map(cpu_count) = hwid;
++		set_cpu_logical_map(cpu_count, hwid);
+ 
+ 		early_map_cpu_to_node(cpu_count, of_node_to_nid(dn));
+ next:
+@@ -722,7 +722,7 @@ void __init smp_init_cpus(void)
+ 	for (i = 1; i < nr_cpu_ids; i++) {
+ 		if (cpu_logical_map(i) != INVALID_HWID) {
+ 			if (smp_cpu_setup(i))
+-				cpu_logical_map(i) = INVALID_HWID;
++				set_cpu_logical_map(i, INVALID_HWID);
+ 		}
+ 	}
+ }
 -- 
 2.25.1
 
