@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82CE7259A8D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D91259A74
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729773AbgIAP0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
+        id S1729693AbgIAP0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730085AbgIAP0K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:10 -0400
+        id S1730086AbgIAP0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:26:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE803207D3;
-        Tue,  1 Sep 2020 15:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D728206FA;
+        Tue,  1 Sep 2020 15:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973970;
-        bh=FIgXbcABySPjS5C8CGpU9kqOmSRTlk2niq4DSjsFc28=;
+        s=default; t=1598973973;
+        bh=BptcukaOpDLFwXjlv74voxVU++2dHhO/IkbkbWNIdyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVTJGdShza8xew3xH0Zo+ZXOrp0p4dxcTtUp8BfVNEQEzJ8yBSe9ssp/ynl5L2ffE
-         KN3w9M0b5VCTe9t539eGtKsfxusHtyGMjz4r/i7DS1rwQ4fbRCFA2LuHo2gI1ALpBh
-         FyGON/lzh6m1zTZOQcmyQAYsoWk7Uszhnrtwsk9M=
+        b=Jqxex1ZZC6aDbefviXFLZmvGJEBceR7smfqeTzeNGIXuhAiamm0l8eLRYiqOTqCfO
+         7Ko6dNYv7HwZESjYUBr5EvpVaLEIbzkTyd4+BkS90a7ZYVF1mEJjl9Rfue42pfhIVQ
+         j94SsNM/+OhnWYxo7T1GGzx55icvgFsGF0H3XJYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/125] btrfs: check the right error variable in btrfs_del_dir_entries_in_log
-Date:   Tue,  1 Sep 2020 17:11:14 +0200
-Message-Id: <20200901150940.444311659@linuxfoundation.org>
+Subject: [PATCH 4.19 120/125] usb: dwc3: gadget: Dont setup more than requested
+Date:   Tue,  1 Sep 2020 17:11:15 +0200
+Message-Id: <20200901150940.493935432@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -45,56 +44,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit fb2fecbad50964b9f27a3b182e74e437b40753ef ]
+[ Upstream commit 5d187c0454ef4c5e046a81af36882d4d515922ec ]
 
-With my new locking code dbench is so much faster that I tripped over a
-transaction abort from ENOSPC.  This turned out to be because
-btrfs_del_dir_entries_in_log was checking for ret == -ENOSPC, but this
-function sets err on error, and returns err.  So instead of properly
-marking the inode as needing a full commit, we were returning -ENOSPC
-and aborting in __btrfs_unlink_inode.  Fix this by checking the proper
-variable so that we return the correct thing in the case of ENOSPC.
+The SG list may be set up with entry size more than the requested
+length. Check the usb_request->length and make sure that we don't setup
+the TRBs to send/receive more than requested. This case may occur when
+the SG entry is allocated up to a certain minimum size, but the request
+length is less than that. It can also occur when the request is reused
+for a different request length.
 
-The ENOENT needs to be checked, because btrfs_lookup_dir_item_index()
-can return -ENOENT if the dir item isn't in the tree log (which would
-happen if we hadn't fsync'ed this guy).  We actually handle that case in
-__btrfs_unlink_inode, so it's an expected error to get back.
-
-Fixes: 4a500fd178c8 ("Btrfs: Metadata ENOSPC handling for tree log")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note and comment about ENOENT ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: <stable@vger.kernel.org> # v4.18+
+Fixes: a31e63b608ff ("usb: dwc3: gadget: Correct handling of scattergather lists")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/dwc3/gadget.c | 51 +++++++++++++++++++++++++++------------
+ 1 file changed, 35 insertions(+), 16 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 090315f4ac78f..3e903e6a33870 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3422,11 +3422,13 @@ int btrfs_del_dir_entries_in_log(struct btrfs_trans_handle *trans,
- 	btrfs_free_path(path);
- out_unlock:
- 	mutex_unlock(&dir->log_mutex);
--	if (ret == -ENOSPC) {
-+	if (err == -ENOSPC) {
- 		btrfs_set_log_full_commit(root->fs_info, trans);
--		ret = 0;
--	} else if (ret < 0)
--		btrfs_abort_transaction(trans, ret);
-+		err = 0;
-+	} else if (err < 0 && err != -ENOENT) {
-+		/* ENOENT can be returned if the entry hasn't been fsynced yet */
-+		btrfs_abort_transaction(trans, err);
-+	}
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 2f5f4ca5c0d04..5d8a28efddad9 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1017,26 +1017,24 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+  * dwc3_prepare_one_trb - setup one TRB from one request
+  * @dep: endpoint for which this request is prepared
+  * @req: dwc3_request pointer
++ * @trb_length: buffer size of the TRB
+  * @chain: should this TRB be chained to the next?
+  * @node: only for isochronous endpoints. First TRB needs different type.
+  */
+ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+-		struct dwc3_request *req, unsigned chain, unsigned node)
++		struct dwc3_request *req, unsigned int trb_length,
++		unsigned chain, unsigned node)
+ {
+ 	struct dwc3_trb		*trb;
+-	unsigned int		length;
+ 	dma_addr_t		dma;
+ 	unsigned		stream_id = req->request.stream_id;
+ 	unsigned		short_not_ok = req->request.short_not_ok;
+ 	unsigned		no_interrupt = req->request.no_interrupt;
  
- 	btrfs_end_log_trans(root);
+-	if (req->request.num_sgs > 0) {
+-		length = sg_dma_len(req->start_sg);
++	if (req->request.num_sgs > 0)
+ 		dma = sg_dma_address(req->start_sg);
+-	} else {
+-		length = req->request.length;
++	else
+ 		dma = req->request.dma;
+-	}
+ 
+ 	trb = &dep->trb_pool[dep->trb_enqueue];
+ 
+@@ -1048,7 +1046,7 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+ 
+ 	req->num_trbs++;
+ 
+-	__dwc3_prepare_one_trb(dep, trb, dma, length, chain, node,
++	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
+ 			stream_id, short_not_ok, no_interrupt);
+ }
+ 
+@@ -1058,16 +1056,27 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 	struct scatterlist *sg = req->start_sg;
+ 	struct scatterlist *s;
+ 	int		i;
+-
++	unsigned int length = req->request.length;
+ 	unsigned int remaining = req->request.num_mapped_sgs
+ 		- req->num_queued_sgs;
+ 
++	/*
++	 * If we resume preparing the request, then get the remaining length of
++	 * the request and resume where we left off.
++	 */
++	for_each_sg(req->request.sg, s, req->num_queued_sgs, i)
++		length -= sg_dma_len(s);
++
+ 	for_each_sg(sg, s, remaining, i) {
+-		unsigned int length = req->request.length;
+ 		unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
+ 		unsigned int rem = length % maxp;
++		unsigned int trb_length;
+ 		unsigned chain = true;
+ 
++		trb_length = min_t(unsigned int, length, sg_dma_len(s));
++
++		length -= trb_length;
++
+ 		/*
+ 		 * IOMMU driver is coalescing the list of sgs which shares a
+ 		 * page boundary into one and giving it to USB driver. With
+@@ -1075,7 +1084,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 		 * sgs passed. So mark the chain bit to false if it isthe last
+ 		 * mapped sg.
+ 		 */
+-		if (i == remaining - 1)
++		if ((i == remaining - 1) || !length)
+ 			chain = false;
+ 
+ 		if (rem && usb_endpoint_dir_out(dep->endpoint.desc) && !chain) {
+@@ -1085,7 +1094,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 			req->needs_extra_trb = true;
+ 
+ 			/* prepare normal TRB */
+-			dwc3_prepare_one_trb(dep, req, true, i);
++			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
+ 
+ 			/* Now prepare one extra TRB to align transfer size */
+ 			trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1096,7 +1105,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 					req->request.short_not_ok,
+ 					req->request.no_interrupt);
+ 		} else {
+-			dwc3_prepare_one_trb(dep, req, chain, i);
++			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
+ 		}
+ 
+ 		/*
+@@ -1111,6 +1120,16 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
+ 
+ 		req->num_queued_sgs++;
+ 
++		/*
++		 * The number of pending SG entries may not correspond to the
++		 * number of mapped SG entries. If all the data are queued, then
++		 * don't include unused SG entries.
++		 */
++		if (length == 0) {
++			req->num_pending_sgs -= req->request.num_mapped_sgs - req->num_queued_sgs;
++			break;
++		}
++
+ 		if (!dwc3_calc_trbs_left(dep))
+ 			break;
+ 	}
+@@ -1130,7 +1149,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 		req->needs_extra_trb = true;
+ 
+ 		/* prepare normal TRB */
+-		dwc3_prepare_one_trb(dep, req, true, 0);
++		dwc3_prepare_one_trb(dep, req, length, true, 0);
+ 
+ 		/* Now prepare one extra TRB to align transfer size */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1147,7 +1166,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 		req->needs_extra_trb = true;
+ 
+ 		/* prepare normal TRB */
+-		dwc3_prepare_one_trb(dep, req, true, 0);
++		dwc3_prepare_one_trb(dep, req, length, true, 0);
+ 
+ 		/* Now prepare one extra TRB to handle ZLP */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
+@@ -1157,7 +1176,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 				req->request.short_not_ok,
+ 				req->request.no_interrupt);
+ 	} else {
+-		dwc3_prepare_one_trb(dep, req, false, 0);
++		dwc3_prepare_one_trb(dep, req, length, false, 0);
+ 	}
+ }
  
 -- 
 2.25.1
