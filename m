@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34236259BF3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEE1259D10
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728513AbgIARJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35364 "EHLO mail.kernel.org"
+        id S1732729AbgIARX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729434AbgIAPRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:45 -0400
+        id S1726285AbgIAPLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:11:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B9042100A;
-        Tue,  1 Sep 2020 15:17:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA9AF2078B;
+        Tue,  1 Sep 2020 15:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973465;
-        bh=OQzbnqReLKWAXFeJ31Qs4pL4CU0pTPEUgjVmHQ7LnW0=;
+        s=default; t=1598973105;
+        bh=Ogk8MZaDBf4JA0gbv2X0/yg77BbapuRkk1sa2XyGvMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbhwXq/Cztc0UcbctIUsO2wMwFXsGT8OO35LvmcIWsENyBQghkSbCOl+z2ivUJZ6D
-         L/ur0Zo4ZteKFitEJ8Of9BIITgH/bJdsujMUkdB4dGTRocrvuk+BxjvJkVHiHtTO/l
-         FYR8fD5CZVZrDEdCB8JCXNbhRYIG+3MSS34DrKS8=
+        b=h2fTKaBj793ZIysRJ21PbkiGeoDQVyCy7WHJF5bt9cRRdLz1meJC/1LlBNGCvmt9p
+         dH8Jx05qBEa4YmUSsYbghkqxKLKjXIltppFDeUaiNGQzSz7mqIg1igBRn39Tpho0rn
+         h1cZwFE7fC8dG7fuKy+lWxKFBbxSh6srRdzctK44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/91] powerpc/xive: Ignore kmemleak false positives
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 01/62] net: Fix potential wrong skb->protocol in skb_vlan_untag()
 Date:   Tue,  1 Sep 2020 17:09:44 +0200
-Message-Id: <20200901150928.614636143@linuxfoundation.org>
+Message-Id: <20200901150920.786123163@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,63 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit f0993c839e95dd6c7f054a1015e693c87e33e4fb ]
+[ Upstream commit 55eff0eb7460c3d50716ed9eccf22257b046ca92 ]
 
-xive_native_provision_pages() allocates memory and passes the pointer to
-OPAL so kmemleak cannot find the pointer usage in the kernel memory and
-produces a false positive report (below) (even if the kernel did scan
-OPAL memory, it is unable to deal with __pa() addresses anyway).
+We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). So
+we should pull VLAN_HLEN + sizeof(unsigned short) in skb_vlan_untag() or
+we may access the wrong data.
 
-This silences the warning.
-
-unreferenced object 0xc000200350c40000 (size 65536):
-  comm "qemu-system-ppc", pid 2725, jiffies 4294946414 (age 70776.530s)
-  hex dump (first 32 bytes):
-    02 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00  ....P...........
-    01 00 08 07 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000081ff046c>] xive_native_alloc_vp_block+0x120/0x250
-    [<00000000d555d524>] kvmppc_xive_compute_vp_id+0x248/0x350 [kvm]
-    [<00000000d69b9c9f>] kvmppc_xive_connect_vcpu+0xc0/0x520 [kvm]
-    [<000000006acbc81c>] kvm_arch_vcpu_ioctl+0x308/0x580 [kvm]
-    [<0000000089c69580>] kvm_vcpu_ioctl+0x19c/0xae0 [kvm]
-    [<00000000902ae91e>] ksys_ioctl+0x184/0x1b0
-    [<00000000f3e68bd7>] sys_ioctl+0x48/0xb0
-    [<0000000001b2c127>] system_call_exception+0x124/0x1f0
-    [<00000000d2b2ee40>] system_call_common+0xe8/0x214
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200612043303.84894-1-aik@ozlabs.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0d5501c1c828 ("net: Always untag vlan-tagged traffic on input.")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/xive/native.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/skbuff.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
-index 30cdcbfa1c04e..b0e96f4b728c1 100644
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -22,6 +22,7 @@
- #include <linux/delay.h>
- #include <linux/cpumask.h>
- #include <linux/mm.h>
-+#include <linux/kmemleak.h>
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4370,8 +4370,8 @@ struct sk_buff *skb_vlan_untag(struct sk
+ 	skb = skb_share_check(skb, GFP_ATOMIC);
+ 	if (unlikely(!skb))
+ 		goto err_free;
+-
+-	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
++	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
++	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
+ 		goto err_free;
  
- #include <asm/prom.h>
- #include <asm/io.h>
-@@ -630,6 +631,7 @@ static bool xive_native_provision_pages(void)
- 			pr_err("Failed to allocate provisioning page\n");
- 			return false;
- 		}
-+		kmemleak_ignore(p);
- 		opal_xive_donate_page(chip, __pa(p));
- 	}
- 	return true;
--- 
-2.25.1
-
+ 	vhdr = (struct vlan_hdr *)skb->data;
 
 
