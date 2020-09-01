@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F68259B4C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841F6259C93
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732500AbgIAQ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:59:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42028 "EHLO mail.kernel.org"
+        id S1729477AbgIARRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729671AbgIAPVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:21:24 -0400
+        id S1729019AbgIAPOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55FD02151B;
-        Tue,  1 Sep 2020 15:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 893DF20FC3;
+        Tue,  1 Sep 2020 15:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973681;
-        bh=GtHdXknf2QZwAz5y4ndnifzMgJ+6HLrSh/jwY1qWuC8=;
+        s=default; t=1598973252;
+        bh=YprBujwCNjdQBe6mfhfGwFK2UYFCsqQ4kKCODmIigBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYfACaja0TqjP/clzSVikJvoSl5p46iwCBU15rIaqB0gSXsYnC4xLBCGv8pZdEICT
-         8NUrPk6+CqlYluIPNdmZZVex+qRcS9pD4CBNUWD80fDGPa5vcWnndO4NLHMBFMxgRj
-         D8quG30l+AKft+2JyP5+pUxXpcst9nQSBuDm3LHc=
+        b=qvv7RXVfm8ZFvWl/T3vGpz8fHgl89yZ37rNpofuekcYCXJtDYOB/iZDiHv3nlYm8n
+         hwVVbSq3XEJ7VZB8w6xW9EIWULWtRw9LUp07PSPFTRLnamJSXsH4zhaulHJTdqwzFR
+         +5Hak4FYYikqlUAmYXMC72QuibFO/DNwct59h8sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Raul Rangel <rrangel@google.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 68/91] serial: 8250: change lock order in serial8250_do_startup()
-Date:   Tue,  1 Sep 2020 17:10:42 +0200
-Message-Id: <20200901150931.549274292@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 60/62] btrfs: check the right error variable in btrfs_del_dir_entries_in_log
+Date:   Tue,  1 Sep 2020 17:10:43 +0200
+Message-Id: <20200901150923.751316659@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,215 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 205d300aea75623e1ae4aa43e0d265ab9cf195fd upstream.
+[ Upstream commit fb2fecbad50964b9f27a3b182e74e437b40753ef ]
 
-We have a number of "uart.port->desc.lock vs desc.lock->uart.port"
-lockdep reports coming from 8250 driver; this causes a bit of trouble
-to people, so let's fix it.
+With my new locking code dbench is so much faster that I tripped over a
+transaction abort from ENOSPC.  This turned out to be because
+btrfs_del_dir_entries_in_log was checking for ret == -ENOSPC, but this
+function sets err on error, and returns err.  So instead of properly
+marking the inode as needing a full commit, we were returning -ENOSPC
+and aborting in __btrfs_unlink_inode.  Fix this by checking the proper
+variable so that we return the correct thing in the case of ENOSPC.
 
-The problem is reverse lock order in two different call paths:
+The ENOENT needs to be checked, because btrfs_lookup_dir_item_index()
+can return -ENOENT if the dir item isn't in the tree log (which would
+happen if we hadn't fsync'ed this guy).  We actually handle that case in
+__btrfs_unlink_inode, so it's an expected error to get back.
 
-chain #1:
-
- serial8250_do_startup()
-  spin_lock_irqsave(&port->lock);
-   disable_irq_nosync(port->irq);
-    raw_spin_lock_irqsave(&desc->lock)
-
-chain #2:
-
-  __report_bad_irq()
-   raw_spin_lock_irqsave(&desc->lock)
-    for_each_action_of_desc()
-     printk()
-      spin_lock_irqsave(&port->lock);
-
-Fix this by changing the order of locks in serial8250_do_startup():
- do disable_irq_nosync() first, which grabs desc->lock, and grab
- uart->port after that, so that chain #1 and chain #2 have same lock
- order.
-
-Full lockdep splat:
-
- ======================================================
- WARNING: possible circular locking dependency detected
- 5.4.39 #55 Not tainted
- ======================================================
-
- swapper/0/0 is trying to acquire lock:
- ffffffffab65b6c0 (console_owner){-...}, at: console_lock_spinning_enable+0x31/0x57
-
- but task is already holding lock:
- ffff88810a8e34c0 (&irq_desc_lock_class){-.-.}, at: __report_bad_irq+0x5b/0xba
-
- which lock already depends on the new lock.
-
- the existing dependency chain (in reverse order) is:
-
- -> #2 (&irq_desc_lock_class){-.-.}:
-        _raw_spin_lock_irqsave+0x61/0x8d
-        __irq_get_desc_lock+0x65/0x89
-        __disable_irq_nosync+0x3b/0x93
-        serial8250_do_startup+0x451/0x75c
-        uart_startup+0x1b4/0x2ff
-        uart_port_activate+0x73/0xa0
-        tty_port_open+0xae/0x10a
-        uart_open+0x1b/0x26
-        tty_open+0x24d/0x3a0
-        chrdev_open+0xd5/0x1cc
-        do_dentry_open+0x299/0x3c8
-        path_openat+0x434/0x1100
-        do_filp_open+0x9b/0x10a
-        do_sys_open+0x15f/0x3d7
-        kernel_init_freeable+0x157/0x1dd
-        kernel_init+0xe/0x105
-        ret_from_fork+0x27/0x50
-
- -> #1 (&port_lock_key){-.-.}:
-        _raw_spin_lock_irqsave+0x61/0x8d
-        serial8250_console_write+0xa7/0x2a0
-        console_unlock+0x3b7/0x528
-        vprintk_emit+0x111/0x17f
-        printk+0x59/0x73
-        register_console+0x336/0x3a4
-        uart_add_one_port+0x51b/0x5be
-        serial8250_register_8250_port+0x454/0x55e
-        dw8250_probe+0x4dc/0x5b9
-        platform_drv_probe+0x67/0x8b
-        really_probe+0x14a/0x422
-        driver_probe_device+0x66/0x130
-        device_driver_attach+0x42/0x5b
-        __driver_attach+0xca/0x139
-        bus_for_each_dev+0x97/0xc9
-        bus_add_driver+0x12b/0x228
-        driver_register+0x64/0xed
-        do_one_initcall+0x20c/0x4a6
-        do_initcall_level+0xb5/0xc5
-        do_basic_setup+0x4c/0x58
-        kernel_init_freeable+0x13f/0x1dd
-        kernel_init+0xe/0x105
-        ret_from_fork+0x27/0x50
-
- -> #0 (console_owner){-...}:
-        __lock_acquire+0x118d/0x2714
-        lock_acquire+0x203/0x258
-        console_lock_spinning_enable+0x51/0x57
-        console_unlock+0x25d/0x528
-        vprintk_emit+0x111/0x17f
-        printk+0x59/0x73
-        __report_bad_irq+0xa3/0xba
-        note_interrupt+0x19a/0x1d6
-        handle_irq_event_percpu+0x57/0x79
-        handle_irq_event+0x36/0x55
-        handle_fasteoi_irq+0xc2/0x18a
-        do_IRQ+0xb3/0x157
-        ret_from_intr+0x0/0x1d
-        cpuidle_enter_state+0x12f/0x1fd
-        cpuidle_enter+0x2e/0x3d
-        do_idle+0x1ce/0x2ce
-        cpu_startup_entry+0x1d/0x1f
-        start_kernel+0x406/0x46a
-        secondary_startup_64+0xa4/0xb0
-
- other info that might help us debug this:
-
- Chain exists of:
-   console_owner --> &port_lock_key --> &irq_desc_lock_class
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&irq_desc_lock_class);
-                                lock(&port_lock_key);
-                                lock(&irq_desc_lock_class);
-   lock(console_owner);
-
-  *** DEADLOCK ***
-
- 2 locks held by swapper/0/0:
-  #0: ffff88810a8e34c0 (&irq_desc_lock_class){-.-.}, at: __report_bad_irq+0x5b/0xba
-  #1: ffffffffab65b5c0 (console_lock){+.+.}, at: console_trylock_spinning+0x20/0x181
-
- stack backtrace:
- CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.39 #55
- Hardware name: XXXXXX
- Call Trace:
-  <IRQ>
-  dump_stack+0xbf/0x133
-  ? print_circular_bug+0xd6/0xe9
-  check_noncircular+0x1b9/0x1c3
-  __lock_acquire+0x118d/0x2714
-  lock_acquire+0x203/0x258
-  ? console_lock_spinning_enable+0x31/0x57
-  console_lock_spinning_enable+0x51/0x57
-  ? console_lock_spinning_enable+0x31/0x57
-  console_unlock+0x25d/0x528
-  ? console_trylock+0x18/0x4e
-  vprintk_emit+0x111/0x17f
-  ? lock_acquire+0x203/0x258
-  printk+0x59/0x73
-  __report_bad_irq+0xa3/0xba
-  note_interrupt+0x19a/0x1d6
-  handle_irq_event_percpu+0x57/0x79
-  handle_irq_event+0x36/0x55
-  handle_fasteoi_irq+0xc2/0x18a
-  do_IRQ+0xb3/0x157
-  common_interrupt+0xf/0xf
-  </IRQ>
-
-Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Fixes: 768aec0b5bcc ("serial: 8250: fix shared interrupts issues with SMP and RT kernels")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: Raul Rangel <rrangel@google.com>
-BugLink: https://bugs.chromium.org/p/chromium/issues/detail?id=1114800
-Link: https://lore.kernel.org/lkml/CAHQZ30BnfX+gxjPm1DUd5psOTqbyDh4EJE=2=VAMW_VDafctkA@mail.gmail.com/T/#u
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200817022646.1484638-1-sergey.senozhatsky@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4a500fd178c8 ("Btrfs: Metadata ENOSPC handling for tree log")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ add note and comment about ENOENT ]
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/btrfs/tree-log.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2264,6 +2264,10 @@ int serial8250_do_startup(struct uart_po
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 820d3b5bc4150..8f0f91de436d5 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3169,11 +3169,13 @@ int btrfs_del_dir_entries_in_log(struct btrfs_trans_handle *trans,
+ 	btrfs_free_path(path);
+ out_unlock:
+ 	mutex_unlock(&BTRFS_I(dir)->log_mutex);
+-	if (ret == -ENOSPC) {
++	if (err == -ENOSPC) {
+ 		btrfs_set_log_full_commit(root->fs_info, trans);
+-		ret = 0;
+-	} else if (ret < 0)
+-		btrfs_abort_transaction(trans, root, ret);
++		err = 0;
++	} else if (err < 0 && err != -ENOENT) {
++		/* ENOENT can be returned if the entry hasn't been fsynced yet */
++		btrfs_abort_transaction(trans, root, err);
++	}
  
- 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
- 		unsigned char iir1;
-+
-+		if (port->irqflags & IRQF_SHARED)
-+			disable_irq_nosync(port->irq);
-+
- 		/*
- 		 * Test for UARTs that do not reassert THRE when the
- 		 * transmitter is idle and the interrupt has already
-@@ -2273,8 +2277,6 @@ int serial8250_do_startup(struct uart_po
- 		 * allow register changes to become visible.
- 		 */
- 		spin_lock_irqsave(&port->lock, flags);
--		if (up->port.irqflags & IRQF_SHARED)
--			disable_irq_nosync(port->irq);
+ 	btrfs_end_log_trans(root);
  
- 		wait_for_xmitr(up, UART_LSR_THRE);
- 		serial_port_out_sync(port, UART_IER, UART_IER_THRI);
-@@ -2286,9 +2288,10 @@ int serial8250_do_startup(struct uart_po
- 		iir = serial_port_in(port, UART_IIR);
- 		serial_port_out(port, UART_IER, 0);
- 
-+		spin_unlock_irqrestore(&port->lock, flags);
-+
- 		if (port->irqflags & IRQF_SHARED)
- 			enable_irq(port->irq);
--		spin_unlock_irqrestore(&port->lock, flags);
- 
- 		/*
- 		 * If the interrupt is not reasserted, or we otherwise
+-- 
+2.25.1
+
 
 
