@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDCAB2593AE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4B12593B1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730539AbgIAP3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:29:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
+        id S1728612AbgIAP3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:29:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730526AbgIAP3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:29:33 -0400
+        id S1730545AbgIAP3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:29:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9961E20684;
-        Tue,  1 Sep 2020 15:29:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2DEB20684;
+        Tue,  1 Sep 2020 15:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974172;
-        bh=Zn5iuplSmikrE6kXcerU2XXERhdllL1cvIoyTaS5vW8=;
+        s=default; t=1598974177;
+        bh=Evw0TAfbSQ69ANI8VceYk5KVjE9MAatzHdPPh8BbDOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOhnLvxQo0+QvhUrhhc13l4QbUSyv7HBVYSdheEfN80uSDzYErBIdr7CIh9t881f4
-         R5lPquPZypIeTkyp/E3E7/Y7lo/PhOXe+s1vDtlcTlUkqp86K8otXDO784Zzv7Wl7E
-         6OTvuGMUyqhbwFxnLe2+P09Jbt4k7lI21Mv97PXk=
+        b=qNU38RUC8xMgxAgwdL1XbRZXT3C4nFPgUxIGTZqR7IzuxyZ9sDgJe5Bn0MUA+zV8F
+         tg+SMHPOxsg6jYETrDbiZC9IoJj4WoTv38JBicC66EDKdbmU5zRyTSVWDh74LMKzjp
+         t+qF2rzwCHKCnQJulj7efPMQzZ92Y/GnryjTMTTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/214] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu is absent
-Date:   Tue,  1 Sep 2020 17:09:13 +0200
-Message-Id: <20200901150956.473202802@linuxfoundation.org>
+Subject: [PATCH 5.4 075/214] drm/xen-front: Fix misused IS_ERR_OR_NULL checks
+Date:   Tue,  1 Sep 2020 17:09:15 +0200
+Message-Id: <20200901150956.566463675@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,99 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-[ Upstream commit 63ef91f24f9bfc70b6446319f6cabfd094481372 ]
+[ Upstream commit 14dee058610446aa464254fc5c8e88c7535195e0 ]
 
-Booting a recent kernel on a rk3399-based system (nanopc-t4),
-equipped with a recent u-boot and ATF results in an Oops due
-to a NULL pointer dereference.
+The patch c575b7eeb89f: "drm/xen-front: Add support for Xen PV
+display frontend" from Apr 3, 2018, leads to the following static
+checker warning:
 
-This turns out to be due to the rk3399-dmc driver looking for
-an *undocumented* property (rockchip,pmu), and happily using
-a NULL pointer when the property isn't there.
+	drivers/gpu/drm/xen/xen_drm_front_gem.c:140 xen_drm_front_gem_create()
+	warn: passing zero to 'ERR_CAST'
 
-Instead, make most of what was brought in with 9173c5ceb035
-("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters
-to TF-A.") conditioned on finding this property in the device-tree,
-preventing the driver from exploding.
+drivers/gpu/drm/xen/xen_drm_front_gem.c
+   133  struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
+   134                                                  size_t size)
+   135  {
+   136          struct xen_gem_object *xen_obj;
+   137
+   138          xen_obj = gem_create(dev, size);
+   139          if (IS_ERR_OR_NULL(xen_obj))
+   140                  return ERR_CAST(xen_obj);
 
-Cc: stable@vger.kernel.org
-Fixes: 9173c5ceb035 ("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters to TF-A.")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fix this and the rest of misused places with IS_ERR_OR_NULL in the
+driver.
+
+Fixes:  c575b7eeb89f: "drm/xen-front: Add support for Xen PV display frontend"
+
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200813062113.11030-3-andr2000@gmail.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/rk3399_dmc.c | 42 ++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front.c     | 4 ++--
+ drivers/gpu/drm/xen/xen_drm_front_gem.c | 8 ++++----
+ drivers/gpu/drm/xen/xen_drm_front_kms.c | 2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 24f04f78285b7..027769e39f9b8 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -95,18 +95,20 @@ static int rk3399_dmcfreq_target(struct device *dev, unsigned long *freq,
+diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
+index 374142018171c..09894a1d343f3 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -400,8 +400,8 @@ static int xen_drm_drv_dumb_create(struct drm_file *filp,
+ 	args->size = args->pitch * args->height;
  
- 	mutex_lock(&dmcfreq->lock);
- 
--	if (target_rate >= dmcfreq->odt_dis_freq)
--		odt_enable = true;
--
--	/*
--	 * This makes a SMC call to the TF-A to set the DDR PD (power-down)
--	 * timings and to enable or disable the ODT (on-die termination)
--	 * resistors.
--	 */
--	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
--		      dmcfreq->odt_pd_arg1,
--		      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
--		      odt_enable, 0, 0, 0, &res);
-+	if (dmcfreq->regmap_pmu) {
-+		if (target_rate >= dmcfreq->odt_dis_freq)
-+			odt_enable = true;
-+
-+		/*
-+		 * This makes a SMC call to the TF-A to set the DDR PD
-+		 * (power-down) timings and to enable or disable the
-+		 * ODT (on-die termination) resistors.
-+		 */
-+		arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
-+			      dmcfreq->odt_pd_arg1,
-+			      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
-+			      odt_enable, 0, 0, 0, &res);
-+	}
- 
- 	/*
- 	 * If frequency scaling from low to high, adjust voltage first.
-@@ -371,13 +373,14 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
+ 	obj = xen_drm_front_gem_create(dev, args->size);
+-	if (IS_ERR_OR_NULL(obj)) {
+-		ret = PTR_ERR_OR_ZERO(obj);
++	if (IS_ERR(obj)) {
++		ret = PTR_ERR(obj);
+ 		goto fail;
  	}
  
- 	node = of_parse_phandle(np, "rockchip,pmu", 0);
--	if (node) {
--		data->regmap_pmu = syscon_node_to_regmap(node);
--		of_node_put(node);
--		if (IS_ERR(data->regmap_pmu)) {
--			ret = PTR_ERR(data->regmap_pmu);
--			goto err_edev;
--		}
-+	if (!node)
-+		goto no_pmu;
-+
-+	data->regmap_pmu = syscon_node_to_regmap(node);
-+	of_node_put(node);
-+	if (IS_ERR(data->regmap_pmu)) {
-+		ret = PTR_ERR(data->regmap_pmu);
-+		goto err_edev;
- 	}
+diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
+index f0b85e0941114..4ec8a49241e17 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
+@@ -83,7 +83,7 @@ static struct xen_gem_object *gem_create(struct drm_device *dev, size_t size)
  
- 	regmap_read(data->regmap_pmu, RK3399_PMUGRF_OS_REG2, &val);
-@@ -399,6 +402,7 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
- 		goto err_edev;
- 	};
+ 	size = round_up(size, PAGE_SIZE);
+ 	xen_obj = gem_create_obj(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return xen_obj;
  
-+no_pmu:
- 	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, 0, 0,
- 		      ROCKCHIP_SIP_CONFIG_DRAM_INIT,
- 		      0, 0, 0, 0, &res);
+ 	if (drm_info->front_info->cfg.be_alloc) {
+@@ -117,7 +117,7 @@ static struct xen_gem_object *gem_create(struct drm_device *dev, size_t size)
+ 	 */
+ 	xen_obj->num_pages = DIV_ROUND_UP(size, PAGE_SIZE);
+ 	xen_obj->pages = drm_gem_get_pages(&xen_obj->base);
+-	if (IS_ERR_OR_NULL(xen_obj->pages)) {
++	if (IS_ERR(xen_obj->pages)) {
+ 		ret = PTR_ERR(xen_obj->pages);
+ 		xen_obj->pages = NULL;
+ 		goto fail;
+@@ -136,7 +136,7 @@ struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
+ 	struct xen_gem_object *xen_obj;
+ 
+ 	xen_obj = gem_create(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return ERR_CAST(xen_obj);
+ 
+ 	return &xen_obj->base;
+@@ -194,7 +194,7 @@ xen_drm_front_gem_import_sg_table(struct drm_device *dev,
+ 
+ 	size = attach->dmabuf->size;
+ 	xen_obj = gem_create_obj(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return ERR_CAST(xen_obj);
+ 
+ 	ret = gem_alloc_pages_array(xen_obj, size);
+diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+index 21ad1c359b613..e4dedbb184ab7 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+@@ -60,7 +60,7 @@ fb_create(struct drm_device *dev, struct drm_file *filp,
+ 	int ret;
+ 
+ 	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
+-	if (IS_ERR_OR_NULL(fb))
++	if (IS_ERR(fb))
+ 		return fb;
+ 
+ 	gem_obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
 -- 
 2.25.1
 
