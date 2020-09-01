@@ -2,111 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D2C258FBB
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 16:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F6F258FFC
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 16:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728321AbgIAOCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 10:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51270 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728228AbgIAOBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 10:01:45 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728184AbgIAONn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 10:13:43 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:20344 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728224AbgIAONf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 10:13:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1598969605;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lmiElt+9vhSWgn5IQs4zZ1hI4HFHW1dobLkb12hq7e0=;
+        b=Z1duOMO5KjvjpIT+NNVTw2aNPVBhY8rKE2UYHyfz8l9LXkqHSs9rcy/mQXfA4Bxl3dMQCC
+        q4WyonJ2GS+kmzWJvmrS4EqDNF//pSccPj8hEu9DlsyQglbbbBwGqeD8qC3q5ig5oYZBE2
+        Sae5VVc1vMp3H81xO0qpg3xyYa3JtxM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-426-9b_WghmtOdeIBcwk43FnZQ-1; Tue, 01 Sep 2020 10:11:18 -0400
+X-MC-Unique: 9b_WghmtOdeIBcwk43FnZQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6242E20684;
-        Tue,  1 Sep 2020 14:01:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598968905;
-        bh=/N8nHavQMwb1Q9MG1292ynTkA5Sd/Itzgyiq3Mb3uxY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fQPmSxPgimwG78UEqzuF6YeEg0SeElwP+0SU6ICChsYBc8UVWfFfu/+c2MhUY42uh
-         rVkEdBLw/M9ptU+qu+/wW1bKif4cCV3MSm5y246UkpP4HOne9NIlZJMpOxkHSBUNyE
-         2iDgfU+3+oVNKMhUqzavSuZQSmt66+qoEvSBxHIo=
-Date:   Tue, 1 Sep 2020 16:02:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bodo Stroesser <bstroesser@ts.fujitsu.com>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        target-devel@vger.kernel.org, linux-scsi@vger.kernel.org,
-        Mike Christie <mchristi@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] scsi: target: tcmu: fix size in calls to
- tcmu_flush_dcache_range
-Message-ID: <20200901140212.GE397411@kroah.com>
-References: <20200528193108.9085-1-bstroesser@ts.fujitsu.com>
- <159114947916.26776.943125808891892721.b4-ty@oracle.com>
- <79f7119f-fda7-64cc-b617-d49a23f2e628@ts.fujitsu.com>
- <28862cd1-e7f2-d161-1bab-4d2ff73cf6a1@ts.fujitsu.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7034618CBC40
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 14:11:17 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 68DD67C5A0
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 14:11:17 +0000 (UTC)
+Received: from zmail21.collab.prod.int.phx2.redhat.com (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 61E827A2E3;
+        Tue,  1 Sep 2020 14:11:17 +0000 (UTC)
+Date:   Tue, 1 Sep 2020 10:11:17 -0400 (EDT)
+From:   Bob Peterson <rpeterso@redhat.com>
+To:     Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     cluster-devel@redhat.com, stable@vger.kernel.org
+Message-ID: <1627290349.15019228.1598969477058.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200829092656.1173430-1-agruenba@redhat.com>
+References: <20200829092656.1173430-1-agruenba@redhat.com>
+Subject: Re: [Cluster-devel] [PATCH] gfs2: Make sure we don't miss any
+ delayed        withdraws
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <28862cd1-e7f2-d161-1bab-4d2ff73cf6a1@ts.fujitsu.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.3.112.23, 10.4.195.29]
+Thread-Topic: gfs2: Make sure we don't miss any delayed withdraws
+Thread-Index: VoLo+U/TkLWMztf9VlU2T0Q+oPJTBw==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 28, 2020 at 12:03:38PM +0200, Bodo Stroesser wrote:
-> Hi,
-> I'm adding stable@vger.kernel.org
+----- Original Message -----
+> Commit ca399c96e96e changes gfs2_log_flush to not withdraw the
+> filesystem while holding the log flush lock, but it fails to check if
+> the filesystem needs to be withdrawn once the log flush lock has been
+> released.  Likewise, commit f05b86db314d depends on gfs2_log_flush to
+> trigger for delayed withdraws.  Add that and clean up the code flow
+> somewhat.
 > 
-> Once again, this time really adding stable.
+> In gfs2_put_super, add a check for delayed withdraws that have been
+> missed to prevent these kinds of bugs in the future.
 > 
-> On 2020-06-03 04:31, Martin K. Petersen wrote:
-> > On Thu, 28 May 2020 21:31:08 +0200, Bodo Stroesser wrote:
-> > 
-> > > 1) If remaining ring space before the end of the ring is
-> > >      smaller then the next cmd to write, tcmu writes a padding
-> > >      entry which fills the remaining space at the end of the
-> > >      ring.
-> > >      Then tcmu calls tcmu_flush_dcache_range() with the size
-> > >      of struct tcmu_cmd_entry as data length to flush.
-> > >      If the space filled by the padding was smaller then
-> > >      tcmu_cmd_entry, tcmu_flush_dcache_range() is called for
-> > >      an address range reaching behind the end of the vmalloc'ed
-> > >      ring.
-> > >      tcmu_flush_dcache_range() in a loop calls
-> > >         flush_dcache_page(virt_to_page(start));
-> > >      for every page being part of the range. On x86 the line is
-> > >      optimized out by the compiler, as flush_dcache_page() is
-> > >      empty on x86.
-> > >      But I assume the above can cause trouble on other
-> > >      architectures that really have a flush_dcache_page().
-> > >      For paddings only the header part of an entry is relevant
-> > >      Due to alignment rules the header always fits in the
-> > >      remaining space, if padding is needed.
-> > >      So tcmu_flush_dcache_range() can safely be called with
-> > >      sizeof(entry->hdr) as the length here.
-> > > 
-> > > [...]
-> > 
-> > Applied to 5.8/scsi-queue, thanks!
-> > 
-> > [1/1] scsi: target: tcmu: Fix size in calls to tcmu_flush_dcache_range
-> >         https://git.kernel.org/mkp/scsi/c/8c4e0f212398
-> > 
-> 
-> The full commit of this patch is:
->      8c4e0f212398cdd1eb4310a5981d06a723cdd24f
-> 
-> This patch is the first of four patches that are necessary to run tcmu
-> on ARM without crash. For details please see
->      https://bugzilla.kernel.org/show_bug.cgi?id=208045
-> Upsteam commits of patches 2,3, and 4 are:
->    2: 3c58f737231e "scsi: target: tcmu: Optimize use of flush_dcache_page"
->    3: 3145550a7f8b "scsi: target: tcmu: Fix crash in tcmu_flush_dcache_range
-> on ARM"
->    4: 5a0c256d96f0 "scsi: target: tcmu: Fix crash on ARM during cmd
-> completion"
-> 
-> Since patches 3 and 4 already were accepted for 5.8, 5.4, and 4.19, and
-> I sent a request to add patch 2 about 1 hour ago, please consider adding
-> this patch to 5.4 and 4.19, because without it tcmu on ARM will still
-> crash.
+> Fixes: ca399c96e96e ("gfs2: flesh out delayed withdraw for gfs2_log_flush")
+> Fixes: f05b86db314d ("gfs2: Prepare to withdraw as soon as an IO error occurs
+> in log write")
+> Cc: stable@vger.kernel.org # v5.7+
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> ---
+Looks good.
 
-I don't see such a request, and am confused now.
+Reviewed-by: Bob Peterson <rpeterso@redhat.com>
 
-What exact commits do you want backported, and to what trees?
+Bob Peterson
 
-thanks,
-
-greg k-h
