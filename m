@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 978D2259AEF
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939FA2598F9
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732366AbgIAQze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47168 "EHLO mail.kernel.org"
+        id S1730855AbgIAQed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:34:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729423AbgIAPXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:23:49 -0400
+        id S1730183AbgIAPbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:31:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 228192078B;
-        Tue,  1 Sep 2020 15:23:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A3B0207D3;
+        Tue,  1 Sep 2020 15:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973829;
-        bh=jLrsiqJFchZqsU3JqhX9Hjb//ucy/rBP5Iv1hlCWZl0=;
+        s=default; t=1598974262;
+        bh=ukgZArakq9MIOFCXo4+CkkhacHVf1hJGI1kvxJf+JJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6wzTfm/p8/Cn7Y9IjjpaEmEtLS7ekeJrYR+oLYsspegFpP7gUCabVqnN517rNYJE
-         YSo9mfGHHd+kivDK6kl67ZvCd1EvD3kbSGeLuM+KF/9oet308VtgcTgY19ledL/9b9
-         v6hh5A0Rxx506xN4JyLG9AQ5WAifH/9SlSoFgD4s=
+        b=QtG9ihjtrxbpK8vLILe8zaO7uu0qygAgGt+PTGq9dPMDa3iA+63XTdFOH1SllsMOd
+         y/3AhjGP14Dy9QIXTlm7Yv+KG7U2QpZa6SZMvbw0IePeU17/wCH1VuGi0mhpdMTgTV
+         y0sN/sSVm8wA3Tr6jZColbS7DjQIFg3ty82KARvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reto Schneider <code@reto-schneider.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/125] rtlwifi: rtl8192cu: Prevent leaking urb
-Date:   Tue,  1 Sep 2020 17:09:48 +0200
-Message-Id: <20200901150936.185344758@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Pu <houpu@bytedance.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 109/214] null_blk: fix passing of REQ_FUA flag in null_handle_rq
+Date:   Tue,  1 Sep 2020 17:09:49 +0200
+Message-Id: <20200901150958.207828731@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reto Schneider <code@reto-schneider.ch>
+From: Hou Pu <houpu@bytedance.com>
 
-[ Upstream commit 03128643eb5453a798db5770952c73dc64fcaf00 ]
+[ Upstream commit 2d62e6b038e729c3e4bfbfcfbd44800ef0883680 ]
 
-If usb_submit_urb fails the allocated urb should be unanchored and
-released.
+REQ_FUA should be checked using rq->cmd_flags instead of req_op().
 
-Signed-off-by: Reto Schneider <code@reto-schneider.ch>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200622132113.14508-3-code@reto-schneider.ch
+Fixes: deb78b419dfda ("nullb: emulate cache")
+Signed-off-by: Hou Pu <houpu@bytedance.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/block/null_blk_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 1893640555c1e..3d6c0d8c71d7e 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -739,8 +739,11 @@ static int _rtl_usb_receive(struct ieee80211_hw *hw)
- 
- 		usb_anchor_urb(urb, &rtlusb->rx_submitted);
- 		err = usb_submit_urb(urb, GFP_KERNEL);
--		if (err)
-+		if (err) {
-+			usb_unanchor_urb(urb);
-+			usb_free_urb(urb);
- 			goto err_out;
-+		}
- 		usb_free_urb(urb);
- 	}
- 	return 0;
+diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
+index c4454cfc6d530..13eae973eaea4 100644
+--- a/drivers/block/null_blk_main.c
++++ b/drivers/block/null_blk_main.c
+@@ -1072,7 +1072,7 @@ static int null_handle_rq(struct nullb_cmd *cmd)
+ 		len = bvec.bv_len;
+ 		err = null_transfer(nullb, bvec.bv_page, len, bvec.bv_offset,
+ 				     op_is_write(req_op(rq)), sector,
+-				     req_op(rq) & REQ_FUA);
++				     rq->cmd_flags & REQ_FUA);
+ 		if (err) {
+ 			spin_unlock_irq(&nullb->lock);
+ 			return err;
 -- 
 2.25.1
 
