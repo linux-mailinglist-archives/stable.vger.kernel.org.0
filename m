@@ -2,88 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB3C258C08
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 11:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 575E1258C1C
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 11:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726192AbgIAJty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 05:49:54 -0400
-Received: from foss.arm.com ([217.140.110.172]:39596 "EHLO foss.arm.com"
+        id S1726131AbgIAJwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 05:52:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726312AbgIAJty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 05:49:54 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A8E451045;
-        Tue,  1 Sep 2020 02:49:53 -0700 (PDT)
-Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DF8973F71F;
-        Tue,  1 Sep 2020 02:49:52 -0700 (PDT)
-From:   Andre Przywara <andre.przywara@arm.com>
-To:     stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH stable v5.4 3/3] KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
-Date:   Tue,  1 Sep 2020 10:49:23 +0100
-Message-Id: <20200901094923.52486-4-andre.przywara@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200901094923.52486-1-andre.przywara@arm.com>
-References: <20200901094923.52486-1-andre.przywara@arm.com>
+        id S1725848AbgIAJwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 05:52:46 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 425372083B;
+        Tue,  1 Sep 2020 09:52:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598953965;
+        bh=/x5xWMTPRiwhGfelkMmR+j0B+ZSdj/FnvgpOVJoJfko=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zahzP1/EIqF0AlG4NbLJCiHyAYerxvfWVb2iHrfJGJXds8cuiQxiOvRg4IUpeJffu
+         RDKZ3yvml1t9o1oWn8MfdDXH7aoDiSaGdHK4oAtPHHp6ar7Bs1bLQRNRpNFjmC8wFx
+         KQOQEQyYQ9Q1QUrqXBuZjlSddnmb0Qt4DBICTMuA=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kD2y3-008ExN-Nd; Tue, 01 Sep 2020 10:52:43 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, kernel-team@android.com
+Subject: [PATCH v4] HID: core: Sanitize event code and type when mapping input
+Date:   Tue,  1 Sep 2020 10:52:33 +0100
+Message-Id: <20200901095233.1069194-1-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@android.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+When calling into hid_map_usage(), the passed event code is
+blindly stored as is, even if it doesn't fit in the associated bitmap.
 
-commit 71a7f8cb1ca4ca7214a700b1243626759b6c11d4 upstream.
+This event code can come from a variety of sources, including devices
+masquerading as input devices, only a bit more "programmable".
 
-AT instructions do a translation table walk and return the result, or
-the fault in PAR_EL1. KVM uses these to find the IPA when the value is
-not provided by the CPU in HPFAR_EL1.
+Instead of taking the event code at face value, check that it actually
+fits the corresponding bitmap, and if it doesn't:
+- spit out a warning so that we know which device is acting up
+- NULLify the bitmap pointer so that we catch unexpected uses
 
-If a translation table walk causes an external abort it is taken as an
-exception, even if it was due to an AT instruction. (DDI0487F.a's D5.2.11
-"Synchronous faults generated by address translation instructions")
+Code paths that can make use of untrusted inputs can now check
+that the mapping was indeed correct and bail out if not.
 
-While we previously made KVM resilient to exceptions taken due to AT
-instructions, the device access causes mismatched attributes, and may
-occur speculatively. Prevent this, by forbidding a walk through memory
-described as device at stage2. Now such AT instructions will report a
-stage2 fault.
-
-Such a fault will cause KVM to restart the guest. If the AT instructions
-always walk the page tables, but guest execution uses the translation cached
-in the TLB, the guest can't make forward progress until the TLB entry is
-evicted. This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64:
-Defer guest entry when an asynchronous exception is pending"), KVM will
-return to the host to process IRQs allowing the rest of the system to keep
-running.
-
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org # v5.4.x
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 ---
- arch/arm64/include/asm/kvm_arm.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+* From v3:
+  - Drop totally unrelated mfd/syscon change from the patch
 
-diff --git a/arch/arm64/include/asm/kvm_arm.h b/arch/arm64/include/asm/kvm_arm.h
-index ddf9d762ac62..a4ffd9b55e72 100644
---- a/arch/arm64/include/asm/kvm_arm.h
-+++ b/arch/arm64/include/asm/kvm_arm.h
-@@ -72,11 +72,12 @@
-  * IMO:		Override CPSR.I and enable signaling with VI
-  * FMO:		Override CPSR.F and enable signaling with VF
-  * SWIO:	Turn set/way invalidates into set/way clean+invalidate
-+ * PTW:		Take a stage2 fault if a stage1 walk steps in device memory
+* From v2:
+  - Don't prematurely narrow the event code so that hid_map_usage()
+    catches illegal values beyond the 16bit limit.
+
+* From v1:
+  - Dropped the input.c changes, and turned hid_map_usage() into
+    the validation primitive.
+  - Handle mapping failures in hidinput_configure_usage() and
+    mt_touch_input_mapping() (on top of hid_map_usage_clear() which
+    was already handled)
+
+ drivers/hid/hid-input.c      |  4 ++++
+ drivers/hid/hid-multitouch.c |  2 ++
+ include/linux/hid.h          | 42 +++++++++++++++++++++++++-----------
+ 3 files changed, 35 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index b8eabf206e74..88e19996427e 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1132,6 +1132,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	}
+ 
+ mapped:
++	/* Mapping failed, bail out */
++	if (!bit)
++		return;
++
+ 	if (device->driver->input_mapped &&
+ 	    device->driver->input_mapped(device, hidinput, field, usage,
+ 					 &bit, &max) < 0) {
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3f94b4954225..e3152155c4b8 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -856,6 +856,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
+ 
+ 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
++		if (!*bit)
++			return -1;
+ 		input_set_capability(hi->input, EV_KEY, code);
+ 		return 1;
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 875f71132b14..c7044a14200e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -959,34 +959,49 @@ static inline void hid_device_io_stop(struct hid_device *hid) {
+  * @max: maximal valid usage->code to consider later (out parameter)
+  * @type: input event type (EV_KEY, EV_REL, ...)
+  * @c: code which corresponds to this usage and type
++ *
++ * The value pointed to by @bit will be set to NULL if either @type is
++ * an unhandled event type, or if @c is out of range for @type. This
++ * can be used as an error condition.
   */
- #define HCR_GUEST_FLAGS (HCR_TSC | HCR_TSW | HCR_TWE | HCR_TWI | HCR_VM | \
- 			 HCR_TVM | HCR_BSU_IS | HCR_FB | HCR_TAC | \
- 			 HCR_AMO | HCR_SWIO | HCR_TIDCP | HCR_RW | HCR_TLOR | \
--			 HCR_FMO | HCR_IMO)
-+			 HCR_FMO | HCR_IMO | HCR_PTW )
- #define HCR_VIRT_EXCP_MASK (HCR_VSE | HCR_VI | HCR_VF)
- #define HCR_HOST_NVHE_FLAGS (HCR_RW | HCR_API | HCR_APK)
- #define HCR_HOST_VHE_FLAGS (HCR_RW | HCR_TGE | HCR_E2H)
+ static inline void hid_map_usage(struct hid_input *hidinput,
+ 		struct hid_usage *usage, unsigned long **bit, int *max,
+-		__u8 type, __u16 c)
++		__u8 type, unsigned int c)
+ {
+ 	struct input_dev *input = hidinput->input;
+-
+-	usage->type = type;
+-	usage->code = c;
++	unsigned long *bmap = NULL;
++	unsigned int limit = 0;
+ 
+ 	switch (type) {
+ 	case EV_ABS:
+-		*bit = input->absbit;
+-		*max = ABS_MAX;
++		bmap = input->absbit;
++		limit = ABS_MAX;
+ 		break;
+ 	case EV_REL:
+-		*bit = input->relbit;
+-		*max = REL_MAX;
++		bmap = input->relbit;
++		limit = REL_MAX;
+ 		break;
+ 	case EV_KEY:
+-		*bit = input->keybit;
+-		*max = KEY_MAX;
++		bmap = input->keybit;
++		limit = KEY_MAX;
+ 		break;
+ 	case EV_LED:
+-		*bit = input->ledbit;
+-		*max = LED_MAX;
++		bmap = input->ledbit;
++		limit = LED_MAX;
+ 		break;
+ 	}
++
++	if (unlikely(c > limit || !bmap)) {
++		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
++				    input->name, c, type);
++		*bit = NULL;
++		return;
++	}
++
++	usage->type = type;
++	usage->code = c;
++	*max = limit;
++	*bit = bmap;
+ }
+ 
+ /**
+@@ -1000,7 +1015,8 @@ static inline void hid_map_usage_clear(struct hid_input *hidinput,
+ 		__u8 type, __u16 c)
+ {
+ 	hid_map_usage(hidinput, usage, bit, max, type, c);
+-	clear_bit(c, *bit);
++	if (*bit)
++		clear_bit(usage->code, *bit);
+ }
+ 
+ /**
 -- 
-2.17.1
+2.27.0
 
