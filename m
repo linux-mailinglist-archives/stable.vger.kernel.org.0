@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE912593A8
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BEF2593AB
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730497AbgIAP3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57954 "EHLO mail.kernel.org"
+        id S1729723AbgIAP3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:29:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730489AbgIAP3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:29:00 -0400
+        id S1730528AbgIAP3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:29:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DECAA206C0;
-        Tue,  1 Sep 2020 15:28:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 315CE20684;
+        Tue,  1 Sep 2020 15:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974139;
-        bh=hYHDPNcJLv6GLq7JQ/K4v1nN9Uif5sCAVHnXdu4FShI=;
+        s=default; t=1598974159;
+        bh=TajFQRDmtSBDvAbjV8hFef1jraq1/CpRJs8Ui/LFgC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRamb18/MJxUEmoWi1OciLwE3iWSp76LRgsanEwRB5sopoUIn4/sH4xyM278poxRB
-         5K2q64+mwbRXBBTjhhznVOI/mTQfv04CPynmS0ZAiT7u3cNDeabv0ljHvnfZDYkdjg
-         B1mmXY4CYbEOaG7b4+SOXYUsxnCTggJEPMeJHmIE=
+        b=wx3c4lUei1wNmSeCbQomEKGX2XUzQt0oB0oTZhcxBeLUaPxVaZ+utKXZe7Y4zDixo
+         rIwjw1iHc2Q61/CQh0MEsfr1Za00/mUoH0FpICgRpOHZDxO3SoyeDgiw2DzPLx0p3A
+         yrm/92DTNs3vzEMeJ4TWpbaWIKP2GbWpjZ5z+Jn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Borislav Petkov <bp@suse.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/214] EDAC/ie31200: Fallback if host bridge device is already initialized
-Date:   Tue,  1 Sep 2020 17:08:58 +0200
-Message-Id: <20200901150955.768654803@linuxfoundation.org>
+Subject: [PATCH 5.4 060/214] media: davinci: vpif_capture: fix potential double free
+Date:   Tue,  1 Sep 2020 17:09:00 +0200
+Message-Id: <20200901150955.858876664@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -47,125 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Baron <jbaron@akamai.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 709ed1bcef12398ac1a35c149f3e582db04456c2 ]
+[ Upstream commit 602649eadaa0c977e362e641f51ec306bc1d365d ]
 
-The Intel uncore driver may claim some of the pci ids from ie31200 which
-means that the ie31200 edac driver will not initialize them as part of
-pci_register_driver().
+In case of errors vpif_probe_complete() releases memory for vpif_obj.sd
+and unregisters the V4L2 device. But then this is done again by
+vpif_probe() itself. The patch removes the cleaning from
+vpif_probe_complete().
 
-Let's add a fallback for this case to 'pci_get_device()' to get a
-reference on the device such that it can still be configured. This is
-similar in approach to other edac drivers.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Jason Baron <jbaron@akamai.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/1594923911-10885-1-git-send-email-jbaron@akamai.com
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ie31200_edac.c | 50 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 3 deletions(-)
+ drivers/media/platform/davinci/vpif_capture.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/edac/ie31200_edac.c b/drivers/edac/ie31200_edac.c
-index d26300f9cb07d..9be43b4f9c506 100644
---- a/drivers/edac/ie31200_edac.c
-+++ b/drivers/edac/ie31200_edac.c
-@@ -170,6 +170,8 @@
- 	(n << (28 + (2 * skl) - PAGE_SHIFT))
+diff --git a/drivers/media/platform/davinci/vpif_capture.c b/drivers/media/platform/davinci/vpif_capture.c
+index 71f4fe882d138..74f68ac3c9a75 100644
+--- a/drivers/media/platform/davinci/vpif_capture.c
++++ b/drivers/media/platform/davinci/vpif_capture.c
+@@ -1482,8 +1482,6 @@ probe_out:
+ 		/* Unregister video device */
+ 		video_unregister_device(&ch->video_dev);
+ 	}
+-	kfree(vpif_obj.sd);
+-	v4l2_device_unregister(&vpif_obj.v4l2_dev);
  
- static int nr_channels;
-+static struct pci_dev *mci_pdev;
-+static int ie31200_registered = 1;
- 
- struct ie31200_priv {
- 	void __iomem *window;
-@@ -541,12 +543,16 @@ fail_free:
- static int ie31200_init_one(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
--	edac_dbg(0, "MC:\n");
-+	int rc;
- 
-+	edac_dbg(0, "MC:\n");
- 	if (pci_enable_device(pdev) < 0)
- 		return -EIO;
-+	rc = ie31200_probe1(pdev, ent->driver_data);
-+	if (rc == 0 && !mci_pdev)
-+		mci_pdev = pci_dev_get(pdev);
- 
--	return ie31200_probe1(pdev, ent->driver_data);
-+	return rc;
+ 	return err;
  }
- 
- static void ie31200_remove_one(struct pci_dev *pdev)
-@@ -555,6 +561,8 @@ static void ie31200_remove_one(struct pci_dev *pdev)
- 	struct ie31200_priv *priv;
- 
- 	edac_dbg(0, "\n");
-+	pci_dev_put(mci_pdev);
-+	mci_pdev = NULL;
- 	mci = edac_mc_del_mc(&pdev->dev);
- 	if (!mci)
- 		return;
-@@ -596,17 +604,53 @@ static struct pci_driver ie31200_driver = {
- 
- static int __init ie31200_init(void)
- {
-+	int pci_rc, i;
-+
- 	edac_dbg(3, "MC:\n");
- 	/* Ensure that the OPSTATE is set correctly for POLL or NMI */
- 	opstate_init();
- 
--	return pci_register_driver(&ie31200_driver);
-+	pci_rc = pci_register_driver(&ie31200_driver);
-+	if (pci_rc < 0)
-+		goto fail0;
-+
-+	if (!mci_pdev) {
-+		ie31200_registered = 0;
-+		for (i = 0; ie31200_pci_tbl[i].vendor != 0; i++) {
-+			mci_pdev = pci_get_device(ie31200_pci_tbl[i].vendor,
-+						  ie31200_pci_tbl[i].device,
-+						  NULL);
-+			if (mci_pdev)
-+				break;
-+		}
-+		if (!mci_pdev) {
-+			edac_dbg(0, "ie31200 pci_get_device fail\n");
-+			pci_rc = -ENODEV;
-+			goto fail1;
-+		}
-+		pci_rc = ie31200_init_one(mci_pdev, &ie31200_pci_tbl[i]);
-+		if (pci_rc < 0) {
-+			edac_dbg(0, "ie31200 init fail\n");
-+			pci_rc = -ENODEV;
-+			goto fail1;
-+		}
-+	}
-+	return 0;
-+
-+fail1:
-+	pci_unregister_driver(&ie31200_driver);
-+fail0:
-+	pci_dev_put(mci_pdev);
-+
-+	return pci_rc;
- }
- 
- static void __exit ie31200_exit(void)
- {
- 	edac_dbg(3, "MC:\n");
- 	pci_unregister_driver(&ie31200_driver);
-+	if (!ie31200_registered)
-+		ie31200_remove_one(mci_pdev);
- }
- 
- module_init(ie31200_init);
 -- 
 2.25.1
 
