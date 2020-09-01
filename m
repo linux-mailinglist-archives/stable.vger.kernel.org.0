@@ -2,131 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAF525A11B
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 00:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D1C25A12E
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 00:10:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727009AbgIAWBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 18:01:25 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:35996 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727778AbgIAWBW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 18:01:22 -0400
-Received: by mail-pg1-f196.google.com with SMTP id p37so1438412pgl.3
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 15:01:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6Usj/YrrYooLFBIiEKYdngINfSiSPMYMA+NEAbatcIM=;
-        b=SpH8ODIIztcrtj/kYWW6XeyyKqONn2FHfACELBj+wYof6nQm3Hr2vEv7Tr/anjD8xB
-         KIg2nUXvWLapnDUaiuUACK+8u2LGeEk1xsUiEbsd4gx1y1v6n/PdQGHfk9qJEVlJYmG3
-         jZKpXKUC/o6iXwpM4RUiVKyLjOKYnmJD1ZBhrkzCcs/QVbpT70SwHWvh9Dhg+lLXBY+Q
-         BZ8Jr1/UfFqoqJEGOEhjyeiKuKGBkx3IefHA3KVEgTdD8m75ohKyP3N0fUs4Ts6v0BfR
-         D4aUsb/ASZKV9XaydhiDTNi1rSx2saNPNM0km3a8dNDsKeGUsJZKx3MK05BmISdk+Pch
-         7wAg==
-X-Gm-Message-State: AOAM533Q5awsO1hHJIMm/8Ma2ytqHR19d0ifA6gWTCwE9OuWXbLuO7Qd
-        YojsjBfJQKhDTrjjBQb+IXM=
-X-Google-Smtp-Source: ABdhPJyJVERwgPjzzt/aocsS1WdB0fk1euLPdtFD/GBVuYfnrWc9rN0D2etp2qHL261lyQ2CQXkmfA==
-X-Received: by 2002:a62:82c3:: with SMTP id w186mr210319pfd.287.1598997681066;
-        Tue, 01 Sep 2020 15:01:21 -0700 (PDT)
-Received: from ?IPv6:2601:647:4802:9070:61c1:4660:c489:2347? ([2601:647:4802:9070:61c1:4660:c489:2347])
-        by smtp.gmail.com with ESMTPSA id p9sm3167195pgb.48.2020.09.01.15.01.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2020 15:01:20 -0700 (PDT)
-Subject: Re: [PATCH] nvme: Revert: Fix controller creation races with teardown
- flow
-To:     James Smart <james.smart@broadcom.com>,
-        linux-nvme@lists.infradead.org
-Cc:     Israel Rukshin <israelr@mellanox.com>, stable@vger.kernel.org,
-        Keith Busch <kbusch@kernel.org>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>
-References: <20200828190150.34455-1-james.smart@broadcom.com>
- <0867c437-1521-c0c9-d7fa-6a615d88105a@grimberg.me>
- <a73cd06b-b319-d55f-1465-4263e08900ae@broadcom.com>
- <741ec2a7-7a38-9432-33fb-58227bf1f1f1@grimberg.me>
- <7f43e9db-974a-5e98-76a6-ed2f3bd0dc92@broadcom.com>
- <4aaad97e-03b5-5c22-af8e-ae7624e78991@grimberg.me>
- <f7d0c08f-2a34-fffa-7962-d0641bc579fd@broadcom.com>
-From:   Sagi Grimberg <sagi@grimberg.me>
-Message-ID: <7e78b2e6-d103-23a1-a9ab-d12336a9c089@grimberg.me>
-Date:   Tue, 1 Sep 2020 15:01:19 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <f7d0c08f-2a34-fffa-7962-d0641bc579fd@broadcom.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+        id S1726078AbgIAWKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 18:10:07 -0400
+Received: from mail-dm6nam12on2058.outbound.protection.outlook.com ([40.107.243.58]:27794
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726352AbgIAWKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 18:10:04 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WjIyF6RF9/Yhig1i/0JZo6rSSwKH2gPQ68qj7pJ6qbXEiUmFNGpjZ5hvOfc24zjI+o50iZSz8bHF/ukdwY53S0z+pylJF4XotWnOwT89SmO50VHYwpHVRuRVuYp4bxjR88kMYF0mwwUbVe5ASQf6ltuauQshKYg8kMl3r2aHGwAriT+P88KNxzGWX/L/K7zykwpt/HR4Xfgfho9w8p+zTEz4MIiN/ttxx3Q5m7qz0r+4todDBrLeiZLOUoNDATCCaWm80Gv57kscBkTTt5U6oH5KBQx//7ype5cPU8RHPyZnuP8uR3cq/MflyvsHJuMmYYmHqL0Q5qoclVpvJ/B0bw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5MJLkk/7llZ9T5JWMFMdrD5NRzEziS/BGcyBXM7AWEM=;
+ b=d2og5DQYLjRqIwRF/C6l9WmIFYofhBhcIayPEsa44VhQA98LoOhnrKcMlaZZVnX418aKySDx+hu1cfTya+p5xB1PDJa+ZKhR5dvv/HyWqZl8BeASBHowYt750cknagMe1pStJ5oSU6fB+Yol1FFdDk7Vu+PwwydE77alenD+dj5heLUoygxX51LgyGp0gJ2mpRlN/7lJ0+S3cyD1VvUOJ/DZNitcbCZPRMUIaes+9MYuLBf4fW+3GU7vLgcRKwHDmRXiMBRdQG7vJ/a1c6g0wKU9Zt+PBI0WYkfiafIuSFblWgOFYmliQK+Jfayw2upmQTGK7vmztLin64TKc1mvlw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5MJLkk/7llZ9T5JWMFMdrD5NRzEziS/BGcyBXM7AWEM=;
+ b=otkk5rNDKYuHU/SlQSc7KOGUnV88OckpAIByTafDfdvLudo5Vq5REpxhoCmoAfiiSaYxFQREXBzynejOmjp+0u3QQW8PvQWR4bGPXA+aR2+1rMY0+zLwMek0kSKcMxRRPLmPdXh//REYfP3cMzeDtstu3UZKVGd9D0fcHfFrRQk=
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB2946.namprd12.prod.outlook.com (2603:10b6:408:9d::13)
+ by BN8PR12MB3169.namprd12.prod.outlook.com (2603:10b6:408:69::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3348.15; Tue, 1 Sep
+ 2020 22:10:00 +0000
+Received: from BN8PR12MB2946.namprd12.prod.outlook.com
+ ([fe80::a92d:18c0:971b:48e6]) by BN8PR12MB2946.namprd12.prod.outlook.com
+ ([fe80::a92d:18c0:971b:48e6%6]) with mapi id 15.20.3326.025; Tue, 1 Sep 2020
+ 22:10:00 +0000
+From:   Kim Phillips <kim.phillips@amd.com>
+To:     Arnaldo Carvalho de Melo <acme@redhat.com>, kim.phillips@amd.com
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Vijay Thakkar <vijaythakkar@me.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        John Garry <john.garry@huawei.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Yunfeng Ye <yeyunfeng@huawei.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
+        Borislav Petkov <bp@suse.de>, Jon Grimm <jon.grimm@amd.com>,
+        Martin Jambor <mjambor@suse.cz>,
+        Michael Petlan <mpetlan@redhat.com>,
+        William Cohen <wcohen@redhat.com>,
+        Stephane Eranian <eranian@google.com>,
+        Ian Rogers <irogers@google.com>,
+        linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] perf vendor events amd: Add L2 Prefetch events for zen1
+Date:   Tue,  1 Sep 2020 17:09:41 -0500
+Message-Id: <20200901220944.277505-1-kim.phillips@amd.com>
+X-Mailer: git-send-email 2.27.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: DM5PR15CA0036.namprd15.prod.outlook.com
+ (2603:10b6:4:4b::22) To BN8PR12MB2946.namprd12.prod.outlook.com
+ (2603:10b6:408:9d::13)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from 255.255.255.255 (255.255.255.255) by DM5PR15CA0036.namprd15.prod.outlook.com (2603:10b6:4:4b::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3326.19 via Frontend Transport; Tue, 1 Sep 2020 22:09:57 +0000
+X-Mailer: git-send-email 2.27.0
+X-Originating-IP: [165.204.77.11]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 0b8635e4-cb26-4a64-a95b-08d84ec3c4fe
+X-MS-TrafficTypeDiagnostic: BN8PR12MB3169:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BN8PR12MB31692FDF394EEF38E4CCCCD3872E0@BN8PR12MB3169.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: qxuTo6+zPDcwLKdP9/HQHBCnhZS6icinEVdYJ5DKUOTvG3Fo9hHMtc44BOk+iVna2y2pBiDaZSud04RCXN0HSEUc/iuzNS7i82pgxuWN1OPNixCD6J+Tlm+RHUQPCHMQs3ztSZv03jx2WvWvLKsW+AwV02tQvw5F5X7u0sO1pRe7BlvKfFG+H3v1/fQ5+Wrzldxog2JjUNrBS5a84tX6GBh6kPwrVAY85ky8pF9TT/9hfk6w3ie0uWdGjzrz22ODFbdg1sjbjGzL94Q5/kzvkX5qd1mC4aEIVvdN4tTua5AMkkeWYPzjtgCR+DUf9Xp9jLpGLWTLSfGciDpcbj8a1OWjD8Bvpc1VSUyVqsjmSlbSfbonMd2DCOvEf5GnMiFKEGCrx6VWHTvWk0jHyN1TzQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB2946.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(376002)(366004)(396003)(346002)(39860400002)(956004)(5660300002)(8676002)(26005)(54906003)(83380400001)(66476007)(44832011)(66556008)(4326008)(52116002)(36756003)(86362001)(8936002)(6486002)(316002)(16576012)(186003)(7416002)(966005)(2906002)(2616005)(6666004)(478600001)(66946007)(1076003)(66574015);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: Ya9zfJdCXbSDQr6Doz2wjJptaAcqCDZRgHze4aS42QIPSU4bIe714XWDPV7Vo/Ppj0pZwSi+nEvZYG5aJBshNFu4hRHaMEnttFZ/GBlKHXFAQldNC7gZi6EXIZ4TZha/zRUT/voF8PXw+ep4ryjcQcpgofEGsig++t7r4RB13fYtGLNWpOD0bO8AS6Cv70yB6m8plI/YAohMaU2MA2y2c4kwHU4/QW1MFUaHjSd+BVH8rT9mTqBJXHOQABcz9E9s2knn8Mjzclv3jTruqeZKoT1RLLhFKbDdSZ1ssUx9s2VNGMc3Oj6THe+EjWGSoIv7t6D/NVe1fDe2uhmZj5A6hfO1SwsEnvkcdlBOVKOS4LXZuVizqwM7kHqfqUKiS2psBxXDBr9hkJrMk4RRjtp8YpR087Gv70Q2OszEZCT6qNvBv0N3gBOCwXsWqPOI3+XWWmEllqEX2SKI42FOH+FTWIFjYeff+oPpkkKnCr1BRVh2Xfw0tLRdz3V3JNlp6ATKWfkg/rDEyDAJ48nEifgWHj1j9/QUew7C+32uSWTuAqqXxSVhwinjsPjd6BSrYXsiDu7CU+613rc5apmWJiWcbP/zSMBnw70qEotlDUaOCVs8IM+OO9eQgl1SbrPANW5H6k1L1cMll4sPTBeHLNIgsA==
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0b8635e4-cb26-4a64-a95b-08d84ec3c4fe
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB2946.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2020 22:10:00.5077
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2LJAX90YRG1A9x8msBlZ8RBaEw9k5dvdATK1IJEkxIXXlYUuCXjdHQH4k40dpwpui0TF2rTsvs0P3c5DNN2Brg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3169
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Later revisions of PPRs that post-date the original Family 17h events
+submission patch add these events.
 
->>>>>> This is indeed a regression.
->>>>>>
->>>>>> Perhaps we should also revert:
->>>>>> 12a0b6622107 ("nvme: don't hold nvmf_transports_rwsem for more 
->>>>>> than transport lookups")
->>>>>>
->>>>>> Which inherently caused this by removing the serialization of
->>>>>> .create_ctrl()...
->>>>>
->>>>> no, I believe the patch on the semaphore is correct. Otherwise - 
->>>>> things can be blocked a long time.. a minute (1 cmd timeout) or 
->>>>> even multiple minutes in the case where a command failure in core 
->>>>> layers effectively gets ignored and thus doesn't cause the error 
->>>>> path in the transport. There can be multiple /dev/nvme-fabrics 
->>>>> commands stacked up that can make the delays look much longer to 
->>>>> the last guy.
->>>>>
->>>>> as far as creation vs teardown... yeah, not fun, but there are 
->>>>> other ways to deal with it. FC: I got rid of the separate 
->>>>> create/reconnect threads a while ago thus the 
->>>>> return-control-while-reconnecting behavior, so I've had to deal 
->>>>> with it.  It's one area it'd be nice to see some convergence in 
->>>>> implementation again between transports.
->>>>
->>>> Doesn't fc have a bug there? in create_ctrl after flushing the
->>>> connect_work, what is telling it if delete is running in with it
->>>> (or that it already ran...)
->>>
->>> I guess I don't understand what the bug is you are thinking about. 
->>> Maybe there's a short period that the ctrl ptr is perhaps freed, thus 
->>> the pointer shouldn't be used - but I don't see it as almost 
->>> everything is simply looking at  the value of the pointer, not 
->>> dereferencing it.
->>
->> I'm referring to nvme_fc_init_ctrl, if delete happens while it
->> is waiting in flush_delayed_work(&ctrl->connect_work); won't you
->> dereference and return a controller that is possibly already
->> deleted/freed?
-> 
-> ok - that matches my "short period" and it is possible as there's one 
-> immediate printf that may dereference the ptr. After that, it's 
-> comparisons of the pointer value.  I can move the printf to avoid the 
-> issue.  That window's rather small.
+Specifically, they were not in this 2017 revision of the F17h PPR:
 
-But you also return back &ctrl->ctrl, that is another dereference, and
-what will make ctrl to be an ERR_PTR?
+Processor Programming Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors Rev 1.14 - April 15, 2017
 
-Anyway, we should probably come up with something more robust...
+But e.g., are included in this 2019 version of the PPR:
 
->>> I do have a bug or two  with delete association fighting with 
->>> create_association - but it's mainly due to nvme_fc_error_recovery 
->>> not the delete routine. I've reworked this area after seeing your 
->>> other patches and will be posting after some more testing.  But no 
->>> reason for synchronizing all ctrl creates.
->>
->> Is it that big of an issue? it should fail rather quickly shouldn't it?
-> 
-> not sure what you are asking.   if it's how long to fail the creation of 
-> a new association - it's at least 60s (an admin command timeout).
+Processor Programming Reference (PPR) for AMD Family 17h Model 18h, Revision B1 Processors Rev. 3.14 - Sep 26, 2019
 
-That's the worst case (admin command timeout), but is it the most common
-case?
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Fixes: 98c07a8f74f8 ("perf vendor events amd: perf PMU events for AMD Family 17h")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Vijay Thakkar <vijaythakkar@me.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Yunfeng Ye <yeyunfeng@huawei.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: "Martin Liška" <mliska@suse.cz>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Jon Grimm <jon.grimm@amd.com>
+Cc: Martin Jambor <mjambor@suse.cz>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: William Cohen <wcohen@redhat.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: linux-perf-users@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+---
+ .../pmu-events/arch/x86/amdzen1/cache.json     | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Would making the timeouts shorter in the initial connect make sense?
-Just throwing out ideas...
+diff --git a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
+index 404d4c569c01..695ed3ffa3a6 100644
+--- a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
++++ b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
+@@ -249,6 +249,24 @@
+     "BriefDescription": "Cycles with fill pending from L2. Total cycles spent with one or more fill requests in flight from L2.",
+     "UMask": "0x1"
+   },
++  {
++    "EventName": "l2_pf_hit_l2",
++    "EventCode": "0x70",
++    "BriefDescription": "L2 prefetch hit in L2.",
++    "UMask": "0xff"
++  },
++  {
++    "EventName": "l2_pf_miss_l2_hit_l3",
++    "EventCode": "0x71",
++    "BriefDescription": "L2 prefetcher hits in L3. Counts all L2 prefetches accepted by the L2 pipeline which miss the L2 cache and hit the L3.",
++    "UMask": "0xff"
++  },
++  {
++    "EventName": "l2_pf_miss_l2_l3",
++    "EventCode": "0x72",
++    "BriefDescription": "L2 prefetcher misses in L3. All L2 prefetches accepted by the L2 pipeline which miss the L2 and the L3 caches.",
++    "UMask": "0xff"
++  },
+   {
+     "EventName": "l3_request_g1.caching_l3_cache_accesses",
+     "EventCode": "0x01",
+-- 
+2.27.0
+
