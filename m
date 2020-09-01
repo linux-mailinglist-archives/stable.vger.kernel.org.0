@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCA6259CF0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8945259C7E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728917AbgIARVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:21:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54654 "EHLO mail.kernel.org"
+        id S1728665AbgIARQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727997AbgIAPMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:12:21 -0400
+        id S1729036AbgIAPO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4368D2078B;
-        Tue,  1 Sep 2020 15:12:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 182D0206FA;
+        Tue,  1 Sep 2020 15:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973140;
-        bh=5GNgPTtfXVvMA6ocoAn2mDIL7i+Q7oAG+au7SI1IFGI=;
+        s=default; t=1598973266;
+        bh=xAEgqohY3FdYqYTTjlQYaSeUB4UNZYS7CDwMTrmHEbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQL495QJSvNoKT0ikRti2AfZT6PwI+WZJNMljvmJWWUib1X5MCncAVvxi1+v1yiQv
-         BtcOrUygYNu46Z3Np6kNCCPlYB+SYzusgngF032Rk0Ai8+Fq4owQNpIZfB0DzJUHzd
-         yLmKF71KXJ1X03XcjcxzWe8J3UpVSk3e1MLJYO9g=
+        b=WoLm+cPtEYTShMdOTgAGcuwNvmeDBk6QjIvn69SK2hPSZPCy2pMaVq//sP76poYYR
+         nqAYDUBSuGXXw9r3NSZFUollfguVY2vD2QWDI/AD/kxQW6hGyqQ+vo9tKGBYsmjyMi
+         VvDnKELq7v7+6LCqeFfM1V5PakY5Cdz7qk2/kr1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH 4.4 04/62] bonding: show saner speed for broadcast mode
+        stable@vger.kernel.org, JiangYu <lnsyyj@hotmail.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/78] scsi: target: tcmu: Fix crash on ARM during cmd completion
 Date:   Tue,  1 Sep 2020 17:09:47 +0200
-Message-Id: <20200901150920.936373256@linuxfoundation.org>
+Message-Id: <20200901150925.297380646@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-[ Upstream commit 4ca0d9ac3fd8f9f90b72a15d8da2aca3ffb58418 ]
+[ Upstream commit 5a0c256d96f020e4771f6fd5524b80f89a2d3132 ]
 
-Broadcast mode bonds transmit a copy of all traffic simultaneously out of
-all interfaces, so the "speed" of the bond isn't really the aggregate of
-all interfaces, but rather, the speed of the slowest active interface.
+If tcmu_handle_completions() has to process a padding shorter than
+sizeof(struct tcmu_cmd_entry), the current call to
+tcmu_flush_dcache_range() with sizeof(struct tcmu_cmd_entry) as length
+param is wrong and causes crashes on e.g. ARM, because
+tcmu_flush_dcache_range() in this case calls
+flush_dcache_page(vmalloc_to_page(start)); with start being an invalid
+address above the end of the vmalloc'ed area.
 
-Also, the type of the speed field is u32, not unsigned long, so adjust
-that accordingly, as required to make min() function here without
-complaining about mismatching types.
+The fix is to use the minimum of remaining ring space and sizeof(struct
+tcmu_cmd_entry) as the length param.
 
-Fixes: bb5b052f751b ("bond: add support to read speed and duplex via ethtool")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The patch was tested on kernel 4.19.118.
+
+See https://bugzilla.kernel.org/show_bug.cgi?id=208045#c10
+
+Link: https://lore.kernel.org/r/20200629093756.8947-1-bstroesser@ts.fujitsu.com
+Tested-by: JiangYu <lnsyyj@hotmail.com>
+Acked-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/target/target_core_user.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4057,13 +4057,23 @@ static netdev_tx_t bond_start_xmit(struc
- 	return ret;
- }
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 1a83456a65a00..693fbb2858404 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -666,7 +666,14 @@ static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
+ 		struct tcmu_cmd_entry *entry = (void *) mb + CMDR_OFF + udev->cmdr_last_cleaned;
+ 		struct tcmu_cmd *cmd;
  
-+static u32 bond_mode_bcast_speed(struct slave *slave, u32 speed)
-+{
-+	if (speed == 0 || speed == SPEED_UNKNOWN)
-+		speed = slave->speed;
-+	else
-+		speed = min(speed, slave->speed);
-+
-+	return speed;
-+}
-+
- static int bond_ethtool_get_settings(struct net_device *bond_dev,
- 				     struct ethtool_cmd *ecmd)
- {
- 	struct bonding *bond = netdev_priv(bond_dev);
--	unsigned long speed = 0;
- 	struct list_head *iter;
- 	struct slave *slave;
-+	u32 speed = 0;
+-		tcmu_flush_dcache_range(entry, sizeof(*entry));
++		/*
++		 * Flush max. up to end of cmd ring since current entry might
++		 * be a padding that is shorter than sizeof(*entry)
++		 */
++		size_t ring_left = head_to_end(udev->cmdr_last_cleaned,
++					       udev->cmdr_size);
++		tcmu_flush_dcache_range(entry, ring_left < sizeof(*entry) ?
++					ring_left : sizeof(*entry));
  
- 	ecmd->duplex = DUPLEX_UNKNOWN;
- 	ecmd->port = PORT_OTHER;
-@@ -4075,8 +4085,13 @@ static int bond_ethtool_get_settings(str
- 	 */
- 	bond_for_each_slave(bond, slave, iter) {
- 		if (bond_slave_can_tx(slave)) {
--			if (slave->speed != SPEED_UNKNOWN)
--				speed += slave->speed;
-+			if (slave->speed != SPEED_UNKNOWN) {
-+				if (BOND_MODE(bond) == BOND_MODE_BROADCAST)
-+					speed = bond_mode_bcast_speed(slave,
-+								      speed);
-+				else
-+					speed += slave->speed;
-+			}
- 			if (ecmd->duplex == DUPLEX_UNKNOWN &&
- 			    slave->duplex != DUPLEX_UNKNOWN)
- 				ecmd->duplex = slave->duplex;
+ 		if (tcmu_hdr_get_op(entry->hdr.len_op) == TCMU_OP_PAD) {
+ 			UPDATE_HEAD(udev->cmdr_last_cleaned,
+-- 
+2.25.1
+
 
 
