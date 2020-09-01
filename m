@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBD7259320
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE34D259323
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729700AbgIAPVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42658 "EHLO mail.kernel.org"
+        id S1728732AbgIAPVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:21:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729693AbgIAPVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:21:42 -0400
+        id S1729154AbgIAPVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:21:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D39A820BED;
-        Tue,  1 Sep 2020 15:21:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F64D20BED;
+        Tue,  1 Sep 2020 15:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973702;
-        bh=d29t0xIX3Wuf1ezlJqMis22yC4srR/5mCFQQAfPtXsQ=;
+        s=default; t=1598973712;
+        bh=tVS2ZQ+Ws0jCOq4RwVouKorzH4DD8uDRN4VgE2azIpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdQLsqhbNOSiOVSrQsbNsEfoE4KbW6l2S8jpPB8O7s7Gcf2+RWb+RKOtbg3faekSg
-         WOxl8fe7MRDUIVX6KgCu3YuRKF8dleBEwCC9rYkWbsCaDXtG0Bk4Z//RjCpyYHJ/Ip
-         92StWCTPRDWcl2OpbMQHt7wryJpVcc65Dya3bKa8=
+        b=gAzbxd/Ar9W1DejTQAF2YQE5zG7ExDbZRfAFAR+rmtJjWQTiuu7/MFJ8oltp50RKG
+         hjcBHJi379HWzMKy10b4UykI9AplbPJtCdVABvoKFpXMRL9gqW+hs6da4JF9rReEFH
+         QfISuZb4/UssaYhQ1/5bQM7p+iHRTjxClox56DgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 013/125] mfd: intel-lpss: Add Intel Emmitsburg PCH PCI IDs
-Date:   Tue,  1 Sep 2020 17:09:28 +0200
-Message-Id: <20200901150935.230579512@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 017/125] blktrace: ensure our debugfs dir exists
+Date:   Tue,  1 Sep 2020 17:09:32 +0200
+Message-Id: <20200901150935.417995417@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -45,34 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit 3ea2e4eab64cefa06055bb0541fcdedad4b48565 ]
+[ Upstream commit b431ef837e3374da0db8ff6683170359aaa0859c ]
 
-Intel Emmitsburg PCH has the same LPSS than Intel Ice Lake.
-Add the new IDs to the list of supported devices.
+We make an assumption that a debugfs directory exists, but since
+this can fail ensure it exists before allowing blktrace setup to
+complete. Otherwise we end up stuffing blktrace files on the debugfs
+root directory. In the worst case scenario this *in theory* can create
+an eventual panic *iff* in the future a similarly named file is created
+prior on the debugfs root directory. This theoretical crash can happen
+due to a recursive removal followed by a specific dentry removal.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+This doesn't fix any known crash, however I have seen the files
+go into the main debugfs root directory in cases where the debugfs
+directory was not created due to other internal bugs with blktrace
+now fixed.
+
+blktrace is also completely useless without this directory, so
+this ensures to userspace we only setup blktrace if the kernel
+can stuff files where they are supposed to go into.
+
+debugfs directory creations typically aren't checked for, and we have
+maintainers doing sweep removals of these checks, but since we need this
+check to ensure proper userspace blktrace functionality we make sure
+to annotate the justification for the check.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/trace/blktrace.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index 742d6c1973f4f..adea7ff63132f 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -176,6 +176,9 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x1ac4), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
-+	/* EBG */
-+	{ PCI_VDEVICE(INTEL, 0x1bad), (kernel_ulong_t)&bxt_uart_info },
-+	{ PCI_VDEVICE(INTEL, 0x1bae), (kernel_ulong_t)&bxt_uart_info },
- 	/* GLK */
- 	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 7a4ca2deb39bc..1442f6152abc2 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -529,6 +529,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 	if (!dir)
+ 		goto err;
+ 
++	/*
++	 * As blktrace relies on debugfs for its interface the debugfs directory
++	 * is required, contrary to the usual mantra of not checking for debugfs
++	 * files or directories.
++	 */
++	if (IS_ERR_OR_NULL(dir)) {
++		pr_warn("debugfs_dir not present for %s so skipping\n",
++			buts->name);
++		ret = -ENOENT;
++		goto err;
++	}
++
+ 	bt->dev = dev;
+ 	atomic_set(&bt->dropped, 0);
+ 	INIT_LIST_HEAD(&bt->running_list);
 -- 
 2.25.1
 
