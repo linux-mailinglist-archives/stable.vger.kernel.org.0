@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 443C225936F
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD7F2592B8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730042AbgIAPZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49824 "EHLO mail.kernel.org"
+        id S1729271AbgIAPQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:16:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729781AbgIAPZY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:25:24 -0400
+        id S1729267AbgIAPQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:16:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4851206FA;
-        Tue,  1 Sep 2020 15:25:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36B70206FA;
+        Tue,  1 Sep 2020 15:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973922;
-        bh=7vW9pubFJ2lXT/pAXpSXlFiiGmSmzPr2BzVU76xukgM=;
+        s=default; t=1598973365;
+        bh=/UCB/PpDEnLE9Fta+4Tzj3SAueG/dBgdBs1/QLbgD8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OF1GcMRcveuex0/zK3txw31U0oci/8UgEt8A+Zsx+HM+eP9AUjl2oMwxCTxZvhZTg
-         6BmOX75cNfWU8tZsdvWAAFhaeRRVPLrevE+SOHhP3nXx6KZoQv7bQrgcl09YlqnxVb
-         xYGLUKK5HhkUAtZcttgxh/9FO3LQDjtKo2HO8nlA=
+        b=Z+2k4fIT32C3hn3PnEzulmXiCI6dQNzRP+ccFUYuxthmxkouUyvpngRU2gyM2TSf4
+         wUNovE9s6mpdi8dxq2j3y4BNhgQLE3v61JGvgP9ye7OkGeTSsBaNSv+t6ial1hIGOS
+         1q17NXvpEfeiT8/uwXDH9lyo9sFXPE2zUA+w5SpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/125] scsi: fcoe: Fix I/O path allocation
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Andrea Borgia <andrea@borgia.bo.it>
+Subject: [PATCH 4.9 49/78] HID: i2c-hid: Always sleep 60ms after I2C_HID_PWR_ON commands
 Date:   Tue,  1 Sep 2020 17:10:25 +0200
-Message-Id: <20200901150938.006852549@linuxfoundation.org>
+Message-Id: <20200901150927.196454030@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fa39ab5184d64563cd36f2fb5f0d3fbad83a432c ]
+commit eef4016243e94c438f177ca8226876eb873b9c75 upstream.
 
-ixgbe_fcoe_ddp_setup() can be called from the main I/O path and is called
-with a spin_lock held, so we have to use GFP_ATOMIC allocation instead of
-GFP_KERNEL.
+Before this commit i2c_hid_parse() consists of the following steps:
 
-Link: https://lore.kernel.org/r/1596831813-9839-1-git-send-email-michael.christie@oracle.com
-cc: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1. Send power on cmd
+2. usleep_range(1000, 5000)
+3. Send reset cmd
+4. Wait for reset to complete (device interrupt, or msleep(100))
+5. Send power on cmd
+6. Try to read HID descriptor
+
+Notice how there is an usleep_range(1000, 5000) after the first power-on
+command, but not after the second power-on command.
+
+Testing has shown that at least on the BMAX Y13 laptop's i2c-hid touchpad,
+not having a delay after the second power-on command causes the HID
+descriptor to read as all zeros.
+
+In case we hit this on other devices too, the descriptor being all zeros
+can be recognized by the following message being logged many, many times:
+
+hid-generic 0018:0911:5288.0002: unknown main item tag 0x0
+
+At the same time as the BMAX Y13's touchpad issue was debugged,
+Kai-Heng was working on debugging some issues with Goodix i2c-hid
+touchpads. It turns out that these need a delay after a PWR_ON command
+too, otherwise they stop working after a suspend/resume cycle.
+According to Goodix a delay of minimal 60ms is needed.
+
+Having multiple cases where we need a delay after sending the power-on
+command, seems to indicate that we should always sleep after the power-on
+command.
+
+This commit fixes the mentioned issues by moving the existing 1ms sleep to
+the i2c_hid_set_power() function and changing it to a 60ms sleep.
+
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208247
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-and-tested-by: Andrea Borgia <andrea@borgia.bo.it>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
-index ccd852ad62a4b..d50c5b55da180 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_fcoe.c
-@@ -192,7 +192,7 @@ static int ixgbe_fcoe_ddp_setup(struct net_device *netdev, u16 xid,
- 	}
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -407,6 +407,19 @@ static int i2c_hid_set_power(struct i2c_
+ 		dev_err(&client->dev, "failed to change power setting.\n");
  
- 	/* alloc the udl from per cpu ddp pool */
--	ddp->udl = dma_pool_alloc(ddp_pool->pool, GFP_KERNEL, &ddp->udp);
-+	ddp->udl = dma_pool_alloc(ddp_pool->pool, GFP_ATOMIC, &ddp->udp);
- 	if (!ddp->udl) {
- 		e_err(drv, "failed allocated ddp context\n");
- 		goto out_noddp_unmap;
--- 
-2.25.1
-
+ set_pwr_exit:
++
++	/*
++	 * The HID over I2C specification states that if a DEVICE needs time
++	 * after the PWR_ON request, it should utilise CLOCK stretching.
++	 * However, it has been observered that the Windows driver provides a
++	 * 1ms sleep between the PWR_ON and RESET requests.
++	 * According to Goodix Windows even waits 60 ms after (other?)
++	 * PWR_ON requests. Testing has confirmed that several devices
++	 * will not work properly without a delay after a PWR_ON request.
++	 */
++	if (!ret && power_state == I2C_HID_PWR_ON)
++		msleep(60);
++
+ 	return ret;
+ }
+ 
+@@ -428,15 +441,6 @@ static int i2c_hid_hwreset(struct i2c_cl
+ 	if (ret)
+ 		goto out_unlock;
+ 
+-	/*
+-	 * The HID over I2C specification states that if a DEVICE needs time
+-	 * after the PWR_ON request, it should utilise CLOCK stretching.
+-	 * However, it has been observered that the Windows driver provides a
+-	 * 1ms sleep between the PWR_ON and RESET requests and that some devices
+-	 * rely on this.
+-	 */
+-	usleep_range(1000, 5000);
+-
+ 	i2c_hid_dbg(ihid, "resetting...\n");
+ 
+ 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
 
 
