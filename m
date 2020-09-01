@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A80E2597A6
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1B02597A1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbgIAQQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:16:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38966 "EHLO mail.kernel.org"
+        id S1731946AbgIAQQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727951AbgIAPeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:13 -0400
+        id S1728415AbgIAPeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE25205F4;
-        Tue,  1 Sep 2020 15:34:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2A4520E65;
+        Tue,  1 Sep 2020 15:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974452;
-        bh=q9bZkLK6TRy5pq6ZaG5qqBVVi/g0i1JSivwPw7ASZCY=;
+        s=default; t=1598974455;
+        bh=KHsjzeFClu/PBCpyLqSj+E24Yre95oeen+xA2tfS3Tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1boBXUFdgho9lks2v6G8gtoq+xHLdBTHUTaLY3v/LFWJuz4cN1lcMzA0AJOmgdj4C
-         47ukTvph0+CbOb5739aU9232PMlQm6lcOX68ZEtFknTJgXd51SRCc5TBQ0fcq5cpc2
-         C7JChtr3Y1tQdc99i3s+S5gwxA0giSUq1Xqu87rs=
+        b=O0hl3Puk9e8axvxWqjT71pNmmVmSPNmbylNWE0t1Bb+Iv4uslDU2/0OwqabAS21G0
+         EVH757Ki4JnX2T8yBLWBBUycyd+ZnOppAKV2WymraXw3c159eDCxjPOAUSnwFrGkSK
+         wsV/rWzyKjkNaihrQtD7G7Iz0Q6GSJYklg8JvegI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 181/214] x86/hotplug: Silence APIC only after all interrupts are migrated
-Date:   Tue,  1 Sep 2020 17:11:01 +0200
-Message-Id: <20200901151001.634780204@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 182/214] drm/amdgpu: Fix buffer overflow in INFO ioctl
+Date:   Tue,  1 Sep 2020 17:11:02 +0200
+Message-Id: <20200901151001.680976580@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -45,92 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashok Raj <ashok.raj@intel.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 52d6b926aabc47643cd910c85edb262b7f44c168 upstream.
+commit b5b97cab55eb71daba3283c8b1d2cce456d511a1 upstream.
 
-There is a race when taking a CPU offline. Current code looks like this:
+The values for "se_num" and "sh_num" come from the user in the ioctl.
+They can be in the 0-255 range but if they're more than
+AMDGPU_GFX_MAX_SE (4) or AMDGPU_GFX_MAX_SH_PER_SE (2) then it results in
+an out of bounds read.
 
-native_cpu_disable()
-{
-	...
-	apic_soft_disable();
-	/*
-	 * Any existing set bits for pending interrupt to
-	 * this CPU are preserved and will be sent via IPI
-	 * to another CPU by fixup_irqs().
-	 */
-	cpu_disable_common();
-	{
-		....
-		/*
-		 * Race window happens here. Once local APIC has been
-		 * disabled any new interrupts from the device to
-		 * the old CPU are lost
-		 */
-		fixup_irqs(); // Too late to capture anything in IRR.
-		...
-	}
-}
-
-The fix is to disable the APIC *after* cpu_disable_common().
-
-Testing was done with a USB NIC that provided a source of frequent
-interrupts. A script migrated interrupts to a specific CPU and
-then took that CPU offline.
-
-Fixes: 60dcaad5736f ("x86/hotplug: Silence APIC and NMI when CPU is dead")
-Reported-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Evan Green <evgreen@chromium.org>
-Reviewed-by: Evan Green <evgreen@chromium.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/875zdarr4h.fsf@nanos.tec.linutronix.de/
-Link: https://lore.kernel.org/r/1598501530-45821-1-git-send-email-ashok.raj@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/smpboot.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1599,14 +1599,28 @@ int native_cpu_disable(void)
- 	if (ret)
- 		return ret;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -638,8 +638,12 @@ static int amdgpu_info_ioctl(struct drm_
+ 		 * in the bitfields */
+ 		if (se_num == AMDGPU_INFO_MMR_SE_INDEX_MASK)
+ 			se_num = 0xffffffff;
++		else if (se_num >= AMDGPU_GFX_MAX_SE)
++			return -EINVAL;
+ 		if (sh_num == AMDGPU_INFO_MMR_SH_INDEX_MASK)
+ 			sh_num = 0xffffffff;
++		else if (sh_num >= AMDGPU_GFX_MAX_SH_PER_SE)
++			return -EINVAL;
  
--	/*
--	 * Disable the local APIC. Otherwise IPI broadcasts will reach
--	 * it. It still responds normally to INIT, NMI, SMI, and SIPI
--	 * messages.
--	 */
--	apic_soft_disable();
- 	cpu_disable_common();
- 
-+        /*
-+         * Disable the local APIC. Otherwise IPI broadcasts will reach
-+         * it. It still responds normally to INIT, NMI, SMI, and SIPI
-+         * messages.
-+         *
-+         * Disabling the APIC must happen after cpu_disable_common()
-+         * which invokes fixup_irqs().
-+         *
-+         * Disabling the APIC preserves already set bits in IRR, but
-+         * an interrupt arriving after disabling the local APIC does not
-+         * set the corresponding IRR bit.
-+         *
-+         * fixup_irqs() scans IRR for set bits so it can raise a not
-+         * yet handled interrupt on the new destination CPU via an IPI
-+         * but obviously it can't do so for IRR bits which are not set.
-+         * IOW, interrupts arriving after disabling the local APIC will
-+         * be lost.
-+         */
-+	apic_soft_disable();
-+
- 	return 0;
- }
- 
+ 		if (info->read_mmr_reg.count > 128)
+ 			return -EINVAL;
 
 
