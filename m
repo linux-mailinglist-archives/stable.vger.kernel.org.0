@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A96CE259C1B
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5546259B95
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729402AbgIARLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:11:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
+        id S1728304AbgIAREY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729311AbgIAPQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:25 -0400
+        id S1729520AbgIAPTx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C3B4206FA;
-        Tue,  1 Sep 2020 15:16:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8354206EB;
+        Tue,  1 Sep 2020 15:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973383;
-        bh=W1ORujb5/xqtuO1rGmU0tZxlYYe49tnOPCCj3QgW8Uw=;
+        s=default; t=1598973592;
+        bh=JrrWF2n/r5gpO5uYUd1ev5i/91uKcI4fODkgRRDZZyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pW2c09wdbABSkbFugXA8KjVR/fPxFVoU3wqL+bjIPGQtOkT3Z0ssKnRQm11asfgez
-         81YWt+Oj7/sPUOfnheG74ehbjHgIA9mKtfu6c8e5jvLMc1avXKc5rFMb53JlPhdSEX
-         JbqeEWbsnlvS4KN0OEzq61g7WLR6rJQZhrtHMVgk=
+        b=w+KGrj/tmV3oltKORgNHY0qWRqnhKyS4RwyBMLlB1TbHQThzb7yH5AdZ/E+/kA6OE
+         EW4UWV27rAlAQ/shtWMbg5r0EdGyCD/isMRyVZraCkOledsvchUFF0gGDfuqNQHeJi
+         m4uupTzK4hxAbbJXmIa5ItNagygnN3WhV2dBNBcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Aleksey Makarov <amakarov@marvell.com>,
-        Peter Hurley <peter@hurleysoftware.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Christopher Covington <cov@codeaurora.org>
-Subject: [PATCH 4.9 56/78] serial: pl011: Fix oops on -EPROBE_DEFER
-Date:   Tue,  1 Sep 2020 17:10:32 +0200
-Message-Id: <20200901150927.566535277@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 59/91] btrfs: fix space cache memory leak after transaction abort
+Date:   Tue,  1 Sep 2020 17:10:33 +0200
+Message-Id: <20200901150931.054124780@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 27afac93e3bd7fa89749cf11da5d86ac9cde4dba upstream.
+commit bbc37d6e475eee8ffa2156ec813efc6bbb43c06d upstream.
 
-If probing of a pl011 gets deferred until after free_initmem(), an oops
-ensues because pl011_console_match() is called which has been freed.
+If a transaction aborts it can cause a memory leak of the pages array of
+a block group's io_ctl structure. The following steps explain how that can
+happen:
 
-Fix by removing the __init attribute from the function and those it
-calls.
+1) Transaction N is committing, currently in state TRANS_STATE_UNBLOCKED
+   and it's about to start writing out dirty extent buffers;
 
-Commit 10879ae5f12e ("serial: pl011: add console matching function")
-introduced pl011_console_match() not just for early consoles but
-regular preferred consoles, such as those added by acpi_parse_spcr().
-Regular consoles may be registered after free_initmem() for various
-reasons, one being deferred probing, another being dynamic enablement
-of serial ports using a DeviceTree overlay.
+2) Transaction N + 1 already started and another task, task A, just called
+   btrfs_commit_transaction() on it;
 
-Thus, pl011_console_match() must not be declared __init and the
-functions it calls mustn't either.
+3) Block group B was dirtied (extents allocated from it) by transaction
+   N + 1, so when task A calls btrfs_start_dirty_block_groups(), at the
+   very beginning of the transaction commit, it starts writeback for the
+   block group's space cache by calling btrfs_write_out_cache(), which
+   allocates the pages array for the block group's io_ctl with a call to
+   io_ctl_init(). Block group A is added to the io_list of transaction
+   N + 1 by btrfs_start_dirty_block_groups();
 
-Stack trace for posterity:
+4) While transaction N's commit is writing out the extent buffers, it gets
+   an IO error and aborts transaction N, also setting the file system to
+   RO mode;
 
-Unable to handle kernel paging request at virtual address 80c38b58
-Internal error: Oops: 8000000d [#1] PREEMPT SMP ARM
-PC is at pl011_console_match+0x0/0xfc
-LR is at register_console+0x150/0x468
-[<80187004>] (register_console)
-[<805a8184>] (uart_add_one_port)
-[<805b2b68>] (pl011_register_port)
-[<805b3ce4>] (pl011_probe)
-[<80569214>] (amba_probe)
-[<805ca088>] (really_probe)
-[<805ca2ec>] (driver_probe_device)
-[<805ca5b0>] (__device_attach_driver)
-[<805c8060>] (bus_for_each_drv)
-[<805c9dfc>] (__device_attach)
-[<805ca630>] (device_initial_probe)
-[<805c90a8>] (bus_probe_device)
-[<805c95a8>] (deferred_probe_work_func)
+5) Task A has already returned from btrfs_start_dirty_block_groups(), is at
+   btrfs_commit_transaction() and has set transaction N + 1 state to
+   TRANS_STATE_COMMIT_START. Immediately after that it checks that the
+   filesystem was turned to RO mode, due to transaction N's abort, and
+   jumps to the "cleanup_transaction" label. After that we end up at
+   btrfs_cleanup_one_transaction() which calls btrfs_cleanup_dirty_bgs().
+   That helper finds block group B in the transaction's io_list but it
+   never releases the pages array of the block group's io_ctl, resulting in
+   a memory leak.
 
-Fixes: 10879ae5f12e ("serial: pl011: add console matching function")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.10+
-Cc: Aleksey Makarov <amakarov@marvell.com>
-Cc: Peter Hurley <peter@hurleysoftware.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Christopher Covington <cov@codeaurora.org>
-Link: https://lore.kernel.org/r/f827ff09da55b8c57d316a1b008a137677b58921.1597315557.git.lukas@wunner.de
+In fact at the point when we are at btrfs_cleanup_dirty_bgs(), the pages
+array points to pages that were already released by us at
+__btrfs_write_out_cache() through the call to io_ctl_drop_pages(). We end
+up freeing the pages array only after waiting for the ordered extent to
+complete through btrfs_wait_cache_io(), which calls io_ctl_free() to do
+that. But in the transaction abort case we don't wait for the space cache's
+ordered extent to complete through a call to btrfs_wait_cache_io(), so
+that's why we end up with a memory leak - we wait for the ordered extent
+to complete indirectly by shutting down the work queues and waiting for
+any jobs in them to complete before returning from close_ctree().
+
+We can solve the leak simply by freeing the pages array right after
+releasing the pages (with the call to io_ctl_drop_pages()) at
+__btrfs_write_out_cache(), since we will never use it anymore after that
+and the pages array points to already released pages at that point, which
+is currently not a problem since no one will use it after that, but not a
+good practice anyway since it can easily lead to use-after-free issues.
+
+So fix this by freeing the pages array right after releasing the pages at
+__btrfs_write_out_cache().
+
+This issue can often be reproduced with test case generic/475 from fstests
+and kmemleak can detect it and reports it with the following trace:
+
+unreferenced object 0xffff9bbf009fa600 (size 512):
+  comm "fsstress", pid 38807, jiffies 4298504428 (age 22.028s)
+  hex dump (first 32 bytes):
+    00 a0 7c 4d 3d ed ff ff 40 a0 7c 4d 3d ed ff ff  ..|M=...@.|M=...
+    80 a0 7c 4d 3d ed ff ff c0 a0 7c 4d 3d ed ff ff  ..|M=.....|M=...
+  backtrace:
+    [<00000000f4b5cfe2>] __kmalloc+0x1a8/0x3e0
+    [<0000000028665e7f>] io_ctl_init+0xa7/0x120 [btrfs]
+    [<00000000a1f95b2d>] __btrfs_write_out_cache+0x86/0x4a0 [btrfs]
+    [<00000000207ea1b0>] btrfs_write_out_cache+0x7f/0xf0 [btrfs]
+    [<00000000af21f534>] btrfs_start_dirty_block_groups+0x27b/0x580 [btrfs]
+    [<00000000c3c23d44>] btrfs_commit_transaction+0xa6f/0xe70 [btrfs]
+    [<000000009588930c>] create_subvol+0x581/0x9a0 [btrfs]
+    [<000000009ef2fd7f>] btrfs_mksubvol+0x3fb/0x4a0 [btrfs]
+    [<00000000474e5187>] __btrfs_ioctl_snap_create+0x119/0x1a0 [btrfs]
+    [<00000000708ee349>] btrfs_ioctl_snap_create_v2+0xb0/0xf0 [btrfs]
+    [<00000000ea60106f>] btrfs_ioctl+0x12c/0x3130 [btrfs]
+    [<000000005c923d6d>] __x64_sys_ioctl+0x83/0xb0
+    [<0000000043ace2c9>] do_syscall_64+0x33/0x80
+    [<00000000904efbce>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ fs/btrfs/disk-io.c          |    1 +
+ fs/btrfs/free-space-cache.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2249,9 +2249,8 @@ pl011_console_write(struct console *co,
- 	clk_disable(uap->clk);
- }
- 
--static void __init
--pl011_console_get_options(struct uart_amba_port *uap, int *baud,
--			     int *parity, int *bits)
-+static void pl011_console_get_options(struct uart_amba_port *uap, int *baud,
-+				      int *parity, int *bits)
- {
- 	if (pl011_read(uap, REG_CR) & UART01x_CR_UARTEN) {
- 		unsigned int lcr_h, ibrd, fbrd;
-@@ -2284,7 +2283,7 @@ pl011_console_get_options(struct uart_am
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4344,6 +4344,7 @@ static void btrfs_cleanup_bg_io(struct b
+ 		cache->io_ctl.inode = NULL;
+ 		iput(inode);
  	}
++	ASSERT(cache->io_ctl.pages == NULL);
+ 	btrfs_put_block_group(cache);
  }
  
--static int __init pl011_console_setup(struct console *co, char *options)
-+static int pl011_console_setup(struct console *co, char *options)
- {
- 	struct uart_amba_port *uap;
- 	int baud = 38400;
-@@ -2352,8 +2351,8 @@ static int __init pl011_console_setup(st
-  *
-  *	Returns 0 if console matches; otherwise non-zero to use default matching
-  */
--static int __init pl011_console_match(struct console *co, char *name, int idx,
--				      char *options)
-+static int pl011_console_match(struct console *co, char *name, int idx,
-+			       char *options)
- {
- 	unsigned char iotype;
- 	resource_size_t addr;
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -1169,7 +1169,6 @@ static int __btrfs_wait_cache_io(struct
+ 	ret = update_cache_item(trans, root, inode, path, offset,
+ 				io_ctl->entries, io_ctl->bitmaps);
+ out:
+-	io_ctl_free(io_ctl);
+ 	if (ret) {
+ 		invalidate_inode_pages2(inode->i_mapping);
+ 		BTRFS_I(inode)->generation = 0;
+@@ -1334,6 +1333,7 @@ static int __btrfs_write_out_cache(struc
+ 	 * them out later
+ 	 */
+ 	io_ctl_drop_pages(io_ctl);
++	io_ctl_free(io_ctl);
+ 
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, 0,
+ 			     i_size_read(inode) - 1, &cached_state, GFP_NOFS);
 
 
