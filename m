@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81FC259BF7
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA17259C92
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731896AbgIARJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:09:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
+        id S1729375AbgIARRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:17:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729429AbgIAPRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:41 -0400
+        id S1728253AbgIAPOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D874A206FA;
-        Tue,  1 Sep 2020 15:17:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E488120BED;
+        Tue,  1 Sep 2020 15:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973460;
-        bh=FCRS7UzzFIMUcGKQQlyoII6eAdm6mOgLSsskEiSt7xs=;
+        s=default; t=1598973259;
+        bh=MeIYEIZnFslF9KhtWwf+thfT2YN1HWF9AV7ptaxvHD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cu7EdjRQl0F3Pmm32HvALQu+Y/bMnDBpZBC69FE39UdUtrm/Ri8BE1yhXfyB72zTv
-         gX9RViiRCjPwa/hTJvvaO6yIOHrakLZpBbfhDW/o2t4r75D++DL+ZxUSMkhivCab5q
-         rrQCvmqVYSdhZwhMgsaJW3bopmVdq/uayzftGlvQ=
+        b=GeAv4h8t0HDJlis0014SPNeMDeO32lebcY9z9rCOkghPtOA9JajypmauZ/2LBjHIP
+         g6vN0np2yX/bQ/TSU9qZYMgsl9J8SRAl6fE6P9JHsp0epE94wrpph3WyivBMzChwRE
+         7WwOUzfpTfPONajuiLLWJH7hOhqL9tDosf+jD7e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 60/78] writeback: Avoid skipping inode writeback
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 53/62] device property: Fix the secondary firmware node handling in set_primary_fwnode()
 Date:   Tue,  1 Sep 2020 17:10:36 +0200
-Message-Id: <20200901150927.794380135@linuxfoundation.org>
+Message-Id: <20200901150923.390825088@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,146 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 5afced3bf28100d81fb2fe7e98918632a08feaf5 upstream.
+commit c15e1bdda4365a5f17cdadf22bf1c1df13884a9e upstream.
 
-Inode's i_io_list list head is used to attach inode to several different
-lists - wb->{b_dirty, b_dirty_time, b_io, b_more_io}. When flush worker
-prepares a list of inodes to writeback e.g. for sync(2), it moves inodes
-to b_io list. Thus it is critical for sync(2) data integrity guarantees
-that inode is not requeued to any other writeback list when inode is
-queued for processing by flush worker. That's the reason why
-writeback_single_inode() does not touch i_io_list (unless the inode is
-completely clean) and why __mark_inode_dirty() does not touch i_io_list
-if I_SYNC flag is set.
+When the primary firmware node pointer is removed from a
+device (set to NULL) the secondary firmware node pointer,
+when it exists, is made the primary node for the device.
+However, the secondary firmware node pointer of the original
+primary firmware node is never cleared (set to NULL).
 
-However there are two flaws in the current logic:
+To avoid situation where the secondary firmware node pointer
+is pointing to a non-existing object, clearing it properly
+when the primary node is removed from a device in
+set_primary_fwnode().
 
-1) When inode has only I_DIRTY_TIME set but it is already queued in b_io
-list due to sync(2), concurrent __mark_inode_dirty(inode, I_DIRTY_SYNC)
-can still move inode back to b_dirty list resulting in skipping
-writeback of inode time stamps during sync(2).
-
-2) When inode is on b_dirty_time list and writeback_single_inode() races
-with __mark_inode_dirty() like:
-
-writeback_single_inode()		__mark_inode_dirty(inode, I_DIRTY_PAGES)
-  inode->i_state |= I_SYNC
-  __writeback_single_inode()
-					  inode->i_state |= I_DIRTY_PAGES;
-					  if (inode->i_state & I_SYNC)
-					    bail
-  if (!(inode->i_state & I_DIRTY_ALL))
-  - not true so nothing done
-
-We end up with I_DIRTY_PAGES inode on b_dirty_time list and thus
-standard background writeback will not writeback this inode leading to
-possible dirty throttling stalls etc. (thanks to Martijn Coenen for this
-analysis).
-
-Fix these problems by tracking whether inode is queued in b_io or
-b_more_io lists in a new I_SYNC_QUEUED flag. When this flag is set, we
-know flush worker has queued inode and we should not touch i_io_list.
-On the other hand we also know that once flush worker is done with the
-inode it will requeue the inode to appropriate dirty list. When
-I_SYNC_QUEUED is not set, __mark_inode_dirty() can (and must) move inode
-to appropriate dirty list.
-
-Reported-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Tested-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 97badf873ab6 ("device property: Make it possible to use secondary firmware nodes")
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c  |   17 ++++++++++++-----
- include/linux/fs.h |    8 ++++++--
- 2 files changed, 18 insertions(+), 7 deletions(-)
+ drivers/base/core.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -162,6 +162,7 @@ static void inode_io_list_del_locked(str
- 	assert_spin_locked(&wb->list_lock);
- 	assert_spin_locked(&inode->i_lock);
- 
-+	inode->i_state &= ~I_SYNC_QUEUED;
- 	list_del_init(&inode->i_io_list);
- 	wb_io_lists_depopulated(wb);
- }
-@@ -1103,6 +1104,7 @@ static void redirty_tail_locked(struct i
- 			inode->dirtied_when = jiffies;
- 	}
- 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
-+	inode->i_state &= ~I_SYNC_QUEUED;
- }
- 
- static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-@@ -1178,8 +1180,11 @@ static int move_expired_inodes(struct li
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
-+		spin_lock(&inode->i_lock);
- 		if (flags & EXPIRE_DIRTY_ATIME)
--			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
-+			inode->i_state |= I_DIRTY_TIME_EXPIRED;
-+		inode->i_state |= I_SYNC_QUEUED;
-+		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
- 			continue;
- 		if (sb && sb != inode->i_sb)
-@@ -1354,6 +1359,7 @@ static void requeue_inode(struct inode *
- 	} else if (inode->i_state & I_DIRTY_TIME) {
- 		inode->dirtied_when = jiffies;
- 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-+		inode->i_state &= ~I_SYNC_QUEUED;
- 	} else {
- 		/* The inode is clean. Remove from writeback lists. */
- 		inode_io_list_del_locked(inode, wb);
-@@ -2188,11 +2194,12 @@ void __mark_inode_dirty(struct inode *in
- 		inode->i_state |= flags;
- 
- 		/*
--		 * If the inode is being synced, just update its dirty state.
--		 * The unlocker will place the inode on the appropriate
--		 * superblock list, based upon its state.
-+		 * If the inode is queued for writeback by flush worker, just
-+		 * update its dirty state. Once the flush worker is done with
-+		 * the inode it will place it on the appropriate superblock
-+		 * list, based upon its state.
- 		 */
--		if (inode->i_state & I_SYNC)
-+		if (inode->i_state & I_SYNC_QUEUED)
- 			goto out_unlock_inode;
- 
- 		/*
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1954,6 +1954,10 @@ static inline bool HAS_UNMAPPED_ID(struc
-  *			wb stat updates to grab mapping->tree_lock.  See
-  *			inode_switch_wb_work_fn() for details.
-  *
-+ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
-+ *			Used to detect that mark_inode_dirty() should not move
-+ * 			inode between dirty lists.
-+ *
-  * Q: What is the difference between I_WILL_FREE and I_FREEING?
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2344,17 +2344,21 @@ static inline bool fwnode_is_primary(str
   */
- #define I_DIRTY_SYNC		(1 << 0)
-@@ -1971,9 +1975,9 @@ static inline bool HAS_UNMAPPED_ID(struc
- #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
- #define I_LINKABLE		(1 << 10)
- #define I_DIRTY_TIME		(1 << 11)
--#define __I_DIRTY_TIME_EXPIRED	12
--#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
-+#define I_DIRTY_TIME_EXPIRED	(1 << 12)
- #define I_WB_SWITCH		(1 << 13)
-+#define I_SYNC_QUEUED		(1 << 17)
+ void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode)
+ {
+-	if (fwnode) {
+-		struct fwnode_handle *fn = dev->fwnode;
++	struct fwnode_handle *fn = dev->fwnode;
  
- #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
- #define I_DIRTY_ALL (I_DIRTY | I_DIRTY_TIME)
++	if (fwnode) {
+ 		if (fwnode_is_primary(fn))
+ 			fn = fn->secondary;
+ 
+ 		fwnode->secondary = fn;
+ 		dev->fwnode = fwnode;
+ 	} else {
+-		dev->fwnode = fwnode_is_primary(dev->fwnode) ?
+-			dev->fwnode->secondary : NULL;
++		if (fwnode_is_primary(fn)) {
++			dev->fwnode = fn->secondary;
++			fn->secondary = NULL;
++		} else {
++			dev->fwnode = NULL;
++		}
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(set_primary_fwnode);
 
 
