@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF7B2596CE
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 669E62596B9
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731122AbgIAQGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52524 "EHLO mail.kernel.org"
+        id S1731651AbgIAQGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:06:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728421AbgIAPk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:40:56 -0400
+        id S1731518AbgIAPlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:41:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A47E02098B;
-        Tue,  1 Sep 2020 15:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D758E2078B;
+        Tue,  1 Sep 2020 15:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974855;
-        bh=RqdeLEbmMQXULoSZsQmjQtt6OU/wzOpttepJrcg+/Zc=;
+        s=default; t=1598974860;
+        bh=/27sC7EB6dOUKpZ1EvDls7WufVAls7KH71RT/HIZ86o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgf03aGc/9Tmg6NDlL7R/maAt9zs8hfHOEgsr78SbNWVd7iGppbNQw1u3laBs7LHL
-         U6vpTUi5//LQHSI5QErParolRhMBEECP3DDCPvAf1zs8ysbXUMo9QuW2fIsSEZ3PeD
-         /rrTJ2ZC3CXYrvU9aYexLySW/pJZd5gjLo5u3jLE=
+        b=flsE4dHbgOHkm6ElvPXRmb/2qA3TvUFUHluRPDlIqfrWXrYHUXBJUVP4MlBF0P5ZX
+         cF4lAq+75AX5JNv0jSDYMJAjMC002lQ5T5qyukTVGuljc6pW3P/oJ1k/ZIWaqhCqxK
+         BRay47k/u0yWLUpfQNlV8+rrRqyVAoYcjBUqGj/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 086/255] block: respect queue limit of max discard segment
-Date:   Tue,  1 Sep 2020 17:09:02 +0200
-Message-Id: <20200901151004.853971341@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 088/255] drm/msm/adreno: fix updating ring fence
+Date:   Tue,  1 Sep 2020 17:09:04 +0200
+Message-Id: <20200901151004.941979831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,62 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 943b40c832beb71115e38a1c4d99b640b5342738 ]
+[ Upstream commit f228af11dfa1d1616bc67f3a4119ab77c36181f1 ]
 
-When queue_max_discard_segments(q) is 1, blk_discard_mergable() will
-return false for discard request, then normal request merge is applied.
-However, only queue_max_segments() is checked, so max discard segment
-limit isn't respected.
+We need to set it to the most recent completed fence, not the most
+recent submitted.  Otherwise we have races where we think we can retire
+submits that the GPU is not finished with, if the GPU doesn't manage to
+overwrite the seqno before we look at it.
 
-Check max discard segment limit in the request merge code for fixing
-the issue.
+This can show up with hang recovery if one of the submits after the
+crashing submit also hangs after it is replayed.
 
-Discard request failure of virtio_blk is fixed.
-
-Fixes: 69840466086d ("block: fix the DISCARD request merge")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f97decac5f4c ("drm/msm: Support multiple ringbuffers")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-merge.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index f0b0bae075a0c..0b590907676af 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -534,10 +534,17 @@ int __blk_rq_map_sg(struct request_queue *q, struct request *rq,
- }
- EXPORT_SYMBOL(__blk_rq_map_sg);
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 5db06b5909438..e7b39f3ca33dc 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -396,7 +396,7 @@ int adreno_hw_init(struct msm_gpu *gpu)
+ 		ring->next = ring->start;
  
-+static inline unsigned int blk_rq_get_max_segments(struct request *rq)
-+{
-+	if (req_op(rq) == REQ_OP_DISCARD)
-+		return queue_max_discard_segments(rq->q);
-+	return queue_max_segments(rq->q);
-+}
-+
- static inline int ll_new_hw_segment(struct request *req, struct bio *bio,
- 		unsigned int nr_phys_segs)
- {
--	if (req->nr_phys_segments + nr_phys_segs > queue_max_segments(req->q))
-+	if (req->nr_phys_segments + nr_phys_segs > blk_rq_get_max_segments(req))
- 		goto no_merge;
+ 		/* reset completed fence seqno: */
+-		ring->memptrs->fence = ring->seqno;
++		ring->memptrs->fence = ring->fctx->completed_fence;
+ 		ring->memptrs->rptr = 0;
+ 	}
  
- 	if (blk_integrity_merge_bio(req->q, req, bio) == false)
-@@ -625,7 +632,7 @@ static int ll_merge_requests_fn(struct request_queue *q, struct request *req,
- 		return 0;
- 
- 	total_phys_segments = req->nr_phys_segments + next->nr_phys_segments;
--	if (total_phys_segments > queue_max_segments(q))
-+	if (total_phys_segments > blk_rq_get_max_segments(req))
- 		return 0;
- 
- 	if (blk_integrity_merge_rq(q, req, next) == false)
 -- 
 2.25.1
 
