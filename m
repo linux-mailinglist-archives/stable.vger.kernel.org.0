@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B25259382
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B28259311
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730130AbgIAP0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52534 "EHLO mail.kernel.org"
+        id S1729632AbgIAPUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:20:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730131AbgIAP0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:39 -0400
+        id S1729630AbgIAPUr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADC5B206FA;
-        Tue,  1 Sep 2020 15:26:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 271F820767;
+        Tue,  1 Sep 2020 15:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973999;
-        bh=jjDMnBfV2kf4oqJ8ZC0kEzNA16gpPYlYpFDeXHx93tc=;
+        s=default; t=1598973646;
+        bh=wQJh5oefg0jJJ1oQVcAo/I9Wd+i3NyiIy03FoMCF264=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK0tQUh1tsSVYRM0He7RZjnsFXOLVVoS+mECYVgaoV8D/259+kSKNPmw3Zr6nAzvM
-         U2kdQbFS1NHbieyoB28WWCJpc9BFkSL9hu9WeMsoChNn95zp/TOYx5LT5sU0LJG7Oo
-         eJJ5MBGnpWwa9hNZSJWhEJ1QUlXy5FX2a47gx0d8=
+        b=qe/asu1jK/6kwg30tZYWWMdaVLxqOMpTH1WcuqhGFQVXU9Siz9JoRED1LFKUkDf/H
+         mhLDk1mEJINXcyffdvsXNJnkFGo/S2xabyv7o9wLRBO96hsGa0EjOwWUyBenSkwuiY
+         FPgkYw2PpPqRW/N4BcnMolcGojxReibErxL6t56k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Utkarsh H Patel <utkarsh.h.patel@intel.com>,
-        Pengfei Xu <pengfei.xu@intel.com>
-Subject: [PATCH 4.19 101/125] PM: sleep: core: Fix the handling of pending runtime resume requests
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <mawilcox@microsoft.com>
+Subject: [PATCH 4.14 82/91] overflow.h: Add allocation size calculation helpers
 Date:   Tue,  1 Sep 2020 17:10:56 +0200
-Message-Id: <20200901150939.557264880@linuxfoundation.org>
+Message-Id: <20200901150932.248573619@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +43,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit e3eb6e8fba65094328b8dca635d00de74ba75b45 upstream.
+commit 610b15c50e86eb1e4b77274fabcaea29ac72d6a8 upstream.
 
-It has been reported that system-wide suspend may be aborted in the
-absence of any wakeup events due to unforseen interactions of it with
-the runtume PM framework.
+In preparation for replacing unchecked overflows for memory allocations,
+this creates helpers for the 3 most common calculations:
 
-One failing scenario is when there are multiple devices sharing an
-ACPI power resource and runtime-resume needs to be carried out for
-one of them during system-wide suspend (for example, because it needs
-to be reconfigured before the whole system goes to sleep).  In that
-case, the runtime-resume of that device involves turning the ACPI
-power resource "on" which in turn causes runtime-resume requests
-to be queued up for all of the other devices sharing it.  Those
-requests go to the runtime PM workqueue which is frozen during
-system-wide suspend, so they are not actually taken care of until
-the resume of the whole system, but the pm_runtime_barrier()
-call in __device_suspend() sees them and triggers system wakeup
-events for them which then cause the system-wide suspend to be
-aborted if wakeup source objects are in active use.
+array_size(a, b): 2-dimensional array
+array3_size(a, b, c): 3-dimensional array
+struct_size(ptr, member, n): struct followed by n-many trailing members
 
-Of course, the logic that leads to triggering those wakeup events is
-questionable in the first place, because clearly there are cases in
-which a pending runtime resume request for a device is not connected
-to any real wakeup events in any way (like the one above).  Moreover,
-it is racy, because the device may be resuming already by the time
-the pm_runtime_barrier() runs and so if the driver doesn't take care
-of signaling the wakeup event as appropriate, it will be lost.
-However, if the driver does take care of that, the extra
-pm_wakeup_event() call in the core is redundant.
+Each of these return SIZE_MAX on overflow instead of wrapping around.
 
-Accordingly, drop the conditional pm_wakeup_event() call fron
-__device_suspend() and make the latter call pm_runtime_barrier()
-alone.  Also modify the comment next to that call to reflect the new
-code and extend it to mention the need to avoid unwanted interactions
-between runtime PM and system-wide device suspend callbacks.
+(Additionally renames a variable named "array_size" to avoid future
+collision.)
 
-Fixes: 1e2ef05bb8cf8 ("PM: Limit race conditions between runtime PM and system sleep (v2)")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
-Tested-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
-Tested-by: Pengfei Xu <pengfei.xu@intel.com>
-Cc: All applicable <stable@vger.kernel.org>
+Co-developed-by: Matthew Wilcox <mawilcox@microsoft.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/power/main.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/md/dm-table.c    |   10 +++---
+ include/linux/overflow.h |   73 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+), 5 deletions(-)
 
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1751,13 +1751,17 @@ static int __device_suspend(struct devic
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -547,14 +547,14 @@ static int adjoin(struct dm_table *table
+  * On the other hand, dm-switch needs to process bulk data using messages and
+  * excessive use of GFP_NOIO could cause trouble.
+  */
+-static char **realloc_argv(unsigned *array_size, char **old_argv)
++static char **realloc_argv(unsigned *size, char **old_argv)
+ {
+ 	char **argv;
+ 	unsigned new_size;
+ 	gfp_t gfp;
+ 
+-	if (*array_size) {
+-		new_size = *array_size * 2;
++	if (*size) {
++		new_size = *size * 2;
+ 		gfp = GFP_KERNEL;
+ 	} else {
+ 		new_size = 8;
+@@ -562,8 +562,8 @@ static char **realloc_argv(unsigned *arr
+ 	}
+ 	argv = kmalloc(new_size * sizeof(*argv), gfp);
+ 	if (argv) {
+-		memcpy(argv, old_argv, *array_size * sizeof(*argv));
+-		*array_size = new_size;
++		memcpy(argv, old_argv, *size * sizeof(*argv));
++		*size = new_size;
  	}
  
- 	/*
--	 * If a device configured to wake up the system from sleep states
--	 * has been suspended at run time and there's a resume request pending
--	 * for it, this is equivalent to the device signaling wakeup, so the
--	 * system suspend operation should be aborted.
-+	 * Wait for possible runtime PM transitions of the device in progress
-+	 * to complete and if there's a runtime resume request pending for it,
-+	 * resume it before proceeding with invoking the system-wide suspend
-+	 * callbacks for it.
-+	 *
-+	 * If the system-wide suspend callbacks below change the configuration
-+	 * of the device, they must disable runtime PM for it or otherwise
-+	 * ensure that its runtime-resume callbacks will not be confused by that
-+	 * change in case they are invoked going forward.
- 	 */
--	if (pm_runtime_barrier(dev) && device_may_wakeup(dev))
--		pm_wakeup_event(dev, 0);
-+	pm_runtime_barrier(dev);
+ 	kfree(old_argv);
+--- a/include/linux/overflow.h
++++ b/include/linux/overflow.h
+@@ -233,4 +233,77 @@
+ 		(*_d >> _to_shift) != _a);				\
+ })
  
- 	if (pm_wakeup_pending()) {
- 		dev->power.direct_complete = false;
++/**
++ * array_size() - Calculate size of 2-dimensional array.
++ *
++ * @a: dimension one
++ * @b: dimension two
++ *
++ * Calculates size of 2-dimensional array: @a * @b.
++ *
++ * Returns: number of bytes needed to represent the array or SIZE_MAX on
++ * overflow.
++ */
++static inline __must_check size_t array_size(size_t a, size_t b)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(a, b, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++/**
++ * array3_size() - Calculate size of 3-dimensional array.
++ *
++ * @a: dimension one
++ * @b: dimension two
++ * @c: dimension three
++ *
++ * Calculates size of 3-dimensional array: @a * @b * @c.
++ *
++ * Returns: number of bytes needed to represent the array or SIZE_MAX on
++ * overflow.
++ */
++static inline __must_check size_t array3_size(size_t a, size_t b, size_t c)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(a, b, &bytes))
++		return SIZE_MAX;
++	if (check_mul_overflow(bytes, c, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++static inline __must_check size_t __ab_c_size(size_t n, size_t size, size_t c)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(n, size, &bytes))
++		return SIZE_MAX;
++	if (check_add_overflow(bytes, c, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++/**
++ * struct_size() - Calculate size of structure with trailing array.
++ * @p: Pointer to the structure.
++ * @member: Name of the array member.
++ * @n: Number of elements in the array.
++ *
++ * Calculates size of memory needed for structure @p followed by an
++ * array of @n @member elements.
++ *
++ * Return: number of bytes needed or SIZE_MAX on overflow.
++ */
++#define struct_size(p, member, n)					\
++	__ab_c_size(n,							\
++		    sizeof(*(p)->member) + __must_be_array((p)->member),\
++		    sizeof(*(p)))
++
+ #endif /* __LINUX_OVERFLOW_H */
 
 
