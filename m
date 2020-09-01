@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E059225929F
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 659E5259335
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbgIAPOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58694 "EHLO mail.kernel.org"
+        id S1728252AbgIAPWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:22:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729104AbgIAPOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:48 -0400
+        id S1728031AbgIAPWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1072320BED;
-        Tue,  1 Sep 2020 15:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 216C720FC3;
+        Tue,  1 Sep 2020 15:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973286;
-        bh=LXT+0zSYJyxAEU4f+ObSmkBhBntuegr0Bk9OT2PL9Y4=;
+        s=default; t=1598973772;
+        bh=Kz9asUNNlYXaYco+9LvQRlhSA4VTfF6ouDL4z9QMWmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPIHlhvfjT0MgSE3V0trppg5Qhz4NKWLYmIZQgN/Bvcp8NO9fC6eh0m4ajeL2haN2
-         Qbbd44mirt5EoSSwtuKJpWNDfG0D9FMhOtiT/CunMLTnO6qd2tZmDTptXCLusW+85p
-         TMtQA+twPoo2m5MyXT0PWomC6YPjfeiW2b/GXRbQ=
+        b=yKcIRRIwG5eqUwcy+ZfIWn8uo4uOjOFul2fwsZEyBXNoGsRkpvaFDQpKxyV0vDWLY
+         ESzJ24aahtu62aLc/ZwYLlROh+eRW9Lj2Nh6E6ORNfzD5MCgE1qUHDna0v8JkdWYFh
+         ZogVIzo1VoQErfL3SLHQ0YDE8RFK0ieZNhvfgoCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/78] scsi: lpfc: Fix shost refcount mismatch when deleting vport
-Date:   Tue,  1 Sep 2020 17:09:55 +0200
-Message-Id: <20200901150925.702408742@linuxfoundation.org>
+Subject: [PATCH 4.19 041/125] locking/lockdep: Fix overflow in presentation of average lock-time
+Date:   Tue,  1 Sep 2020 17:09:56 +0200
+Message-Id: <20200901150936.581434365@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dick Kennedy <dick.kennedy@broadcom.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 03dbfe0668e6692917ac278883e0586cd7f7d753 ]
+[ Upstream commit a7ef9b28aa8d72a1656fa6f0a01bbd1493886317 ]
 
-When vports are deleted, it is observed that there is memory/kthread
-leakage as the vport isn't fully being released.
+Though the number of lock-acquisitions is tracked as unsigned long, this
+is passed as the divisor to div_s64() which interprets it as a s32,
+giving nonsense values with more than 2 billion acquisitons. E.g.
 
-There is a shost reference taken in scsi_add_host_dma that is not released
-during scsi_remove_host. It was noticed that other drivers resolve this by
-doing a scsi_host_put after calling scsi_remove_host.
+  acquisitions   holdtime-min   holdtime-max holdtime-total   holdtime-avg
+  -------------------------------------------------------------------------
+    2350439395           0.07         353.38   649647067.36          0.-32
 
-The vport_delete routine is taking two references one that corresponds to
-an access to the scsi_host in the vport_delete routine and another that is
-released after the adapter mailbox command completes that destroys the VPI
-that corresponds to the vport.
-
-Remove one of the references taken such that the second reference that is
-put will complete the missing scsi_add_host_dma reference and the shost
-will be terminated.
-
-Link: https://lore.kernel.org/r/20200630215001.70793-8-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20200725185110.11588-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_vport.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ kernel/locking/lockdep_proc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_vport.c b/drivers/scsi/lpfc/lpfc_vport.c
-index e18bbc66e83b1..77cb16d8dfd35 100644
---- a/drivers/scsi/lpfc/lpfc_vport.c
-+++ b/drivers/scsi/lpfc/lpfc_vport.c
-@@ -624,27 +624,16 @@ lpfc_vport_delete(struct fc_vport *fc_vport)
- 		    vport->port_state < LPFC_VPORT_READY)
- 			return -EAGAIN;
- 	}
-+
- 	/*
--	 * This is a bit of a mess.  We want to ensure the shost doesn't get
--	 * torn down until we're done with the embedded lpfc_vport structure.
--	 *
--	 * Beyond holding a reference for this function, we also need a
--	 * reference for outstanding I/O requests we schedule during delete
--	 * processing.  But once we scsi_remove_host() we can no longer obtain
--	 * a reference through scsi_host_get().
--	 *
--	 * So we take two references here.  We release one reference at the
--	 * bottom of the function -- after delinking the vport.  And we
--	 * release the other at the completion of the unreg_vpi that get's
--	 * initiated after we've disposed of all other resources associated
--	 * with the port.
-+	 * Take early refcount for outstanding I/O requests we schedule during
-+	 * delete processing for unreg_vpi.  Always keep this before
-+	 * scsi_remove_host() as we can no longer obtain a reference through
-+	 * scsi_host_get() after scsi_host_remove as shost is set to SHOST_DEL.
- 	 */
- 	if (!scsi_host_get(shost))
- 		return VPORT_INVAL;
--	if (!scsi_host_get(shost)) {
--		scsi_host_put(shost);
--		return VPORT_INVAL;
--	}
-+
- 	lpfc_free_sysfs_attr(vport);
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index 6fcc4650f0c48..53cc3bb7025a5 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -394,7 +394,7 @@ static void seq_lock_time(struct seq_file *m, struct lock_time *lt)
+ 	seq_time(m, lt->min);
+ 	seq_time(m, lt->max);
+ 	seq_time(m, lt->total);
+-	seq_time(m, lt->nr ? div_s64(lt->total, lt->nr) : 0);
++	seq_time(m, lt->nr ? div64_u64(lt->total, lt->nr) : 0);
+ }
  
- 	lpfc_debugfs_terminate(vport);
-@@ -792,8 +781,9 @@ skip_logo:
- 		if (!(vport->vpi_state & LPFC_VPI_REGISTERED) ||
- 				lpfc_mbx_unreg_vpi(vport))
- 			scsi_host_put(shost);
--	} else
-+	} else {
- 		scsi_host_put(shost);
-+	}
- 
- 	lpfc_free_vpi(phba, vport->vpi);
- 	vport->work_port_events = 0;
+ static void seq_stats(struct seq_file *m, struct lock_stat_data *data)
 -- 
 2.25.1
 
