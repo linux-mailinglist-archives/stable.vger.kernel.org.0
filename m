@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C47259AE6
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD29259AD9
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729413AbgIAPYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:24:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47876 "EHLO mail.kernel.org"
+        id S1732405AbgIAQyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:54:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgIAPYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:24:12 -0400
+        id S1729942AbgIAPYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E4332078B;
-        Tue,  1 Sep 2020 15:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D09D720BED;
+        Tue,  1 Sep 2020 15:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973851;
-        bh=MJa/bBstqhgiUjANJkL9eFucASQAE47gKRqxka/23Ko=;
+        s=default; t=1598973854;
+        bh=0p65cccfP4lBE11HHV/k9lvfTWlftLTUIWY9epE+avk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bzXFnRG9rkcF4YO6rD08mEN4E1jarlIfpUI4jo7B44shrvo3VJ6lKhgIUSQTFhNR
-         qwQEVepH1dWvTQj/pq22JJajtWRXrC3pbxRTXU49hmeBclVFzlelvowEA4fYjAqJtP
-         j718nYqhFTBn9NmHDtMZXWOhMrdCgCZ1goP7MCbA=
+        b=VAxzYAwIsB37r/o7Sj/Dn7r5oR/SF48TO1st03OeXbMl48moAv1oemzLjDz0sJF/P
+         taiV6A+hxow4wiejBNatCX6u9L7wynUVg1uBuC9ihpafinzPDhIcrflb4MRHfJIY9o
+         L6gNh/Toxc7ESApTIv6q+J2h1L+L6PlVswPPwTqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bean Huo <beanhuo@micron.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/125] scsi: ufs: Clean up completed request without interrupt notification
-Date:   Tue,  1 Sep 2020 17:10:28 +0200
-Message-Id: <20200901150938.154200496@linuxfoundation.org>
+Subject: [PATCH 4.19 074/125] scsi: qla2xxx: Check if FW supports MQ before enabling
+Date:   Tue,  1 Sep 2020 17:10:29 +0200
+Message-Id: <20200901150938.205407874@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -47,54 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-[ Upstream commit b10178ee7fa88b68a9e8adc06534d2605cb0ec23 ]
+[ Upstream commit dffa11453313a115157b19021cc2e27ea98e624c ]
 
-If somehow no interrupt notification is raised for a completed request and
-its doorbell bit is cleared by host, UFS driver needs to cleanup its
-outstanding bit in ufshcd_abort(). Otherwise, system may behave abnormally
-in the following scenario:
+OS boot during Boot from SAN was stuck at dracut emergency shell after
+enabling NVMe driver parameter. For non-MQ support the driver was enabling
+MQ. Add a check to confirm if FW supports MQ.
 
-After ufshcd_abort() returns, this request will be requeued by SCSI layer
-with its outstanding bit set. Any future completed request will trigger
-ufshcd_transfer_req_compl() to handle all "completed outstanding bits". At
-this time the "abnormal outstanding bit" will be detected and the "requeued
-request" will be chosen to execute request post-processing flow. This is
-wrong because this request is still "alive".
-
-Link: https://lore.kernel.org/r/20200811141859.27399-2-huobean@gmail.com
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
+Link: https://lore.kernel.org/r/20200806111014.28434-9-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index d8c6fd2012757..eb10a5cacd90c 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5930,7 +5930,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 			/* command completed already */
- 			dev_err(hba->dev, "%s: cmd at tag %d successfully cleared from DB.\n",
- 				__func__, tag);
--			goto out;
-+			goto cleanup;
- 		} else {
- 			dev_err(hba->dev,
- 				"%s: no response from device. tag = %d, err %d\n",
-@@ -5964,6 +5964,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 		goto out;
- 	}
- 
-+cleanup:
- 	scsi_dma_unmap(cmd);
- 
- 	spin_lock_irqsave(host->host_lock, flags);
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index b56cf790587e5..e17ca7df8d0e4 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -1997,6 +1997,11 @@ skip_pio:
+ 	/* Determine queue resources */
+ 	ha->max_req_queues = ha->max_rsp_queues = 1;
+ 	ha->msix_count = QLA_BASE_VECTORS;
++
++	/* Check if FW supports MQ or not */
++	if (!(ha->fw_attributes & BIT_6))
++		goto mqiobase_exit;
++
+ 	if (!ql2xmqsupport || !ql2xnvmeenable ||
+ 	    (!IS_QLA25XX(ha) && !IS_QLA81XX(ha)))
+ 		goto mqiobase_exit;
 -- 
 2.25.1
 
