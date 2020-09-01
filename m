@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756322594BC
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDD02593BF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731580AbgIAPmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:42:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55710 "EHLO mail.kernel.org"
+        id S1730141AbgIAPaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731577AbgIAPmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:37 -0400
+        id S1729759AbgIAPaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCF14206EF;
-        Tue,  1 Sep 2020 15:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 109E4206C0;
+        Tue,  1 Sep 2020 15:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974957;
-        bh=6AVvTKUZefUGBfLQWA2niBSjSCOXjC6YCl26Eoyy9L8=;
+        s=default; t=1598974222;
+        bh=whkbtm8VN3E8r4nRvUNs2x9kFb8G9AFN0O5lxm10c/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxLw5rc2pyLm1B5awBP1RJOXnEeRetBYIM+jreyR0UNHTwwv0+kYiuDl4RWS3wnOe
-         MKUUbCLLWSG1zcMMWO10o5vODkGgGb4NUPZB7OkCowhI7a8MufYpOuxAY4w8YK6Ig1
-         oBsvBezkW0WYDgpTb2dAC/8iogM9w1v48Mrq3rRo=
+        b=VvzDsEdhv9PDAPh7pNAxtFFW9Xle207gbCNcqZhgLvYGUsSe/w7sGFJOnVqUqsT0V
+         daE1sYEeIfksX7REyMHulFAmKaFAwEsZNWgXpFerntGLUIlEgNILlrjUCo6p8IRmno
+         Meg928ydxG9nXL6uq0kJhxRCSHka8goGHB6f2ccI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 115/255] ext4: handle error of ext4_setup_system_zone() on remount
+Subject: [PATCH 5.4 091/214] EDAC: skx_common: get rid of unused type var
 Date:   Tue,  1 Sep 2020 17:09:31 +0200
-Message-Id: <20200901151006.237645078@linuxfoundation.org>
+Message-Id: <20200901150957.357136292@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-[ Upstream commit d176b1f62f242ab259ff665a26fbac69db1aecba ]
+[ Upstream commit f05390d30e20cccd8f8de981dee42bcdd8d2d137 ]
 
-ext4_setup_system_zone() can fail. Handle the failure in ext4_remount().
+	drivers/edac/skx_common.c: In function ‘skx_mce_output_error’:
+	drivers/edac/skx_common.c:478:8: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
+	  478 |  char *type, *optype;
+	      |        ^~~~
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Borislav Petkov <bp@alien8.de>
+Acked-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/edac/skx_common.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 85849e5b31b28..54d1c09329e55 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5716,7 +5716,10 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 		ext4_register_li_request(sb, first_not_zeroed);
+diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
+index 2177ad765bd16..4ca87723dcdcd 100644
+--- a/drivers/edac/skx_common.c
++++ b/drivers/edac/skx_common.c
+@@ -475,7 +475,7 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
+ 				 struct decoded_addr *res)
+ {
+ 	enum hw_event_mc_err_type tp_event;
+-	char *type, *optype;
++	char *optype;
+ 	bool ripv = GET_BITFIELD(m->mcgstatus, 0, 0);
+ 	bool overflow = GET_BITFIELD(m->status, 62, 62);
+ 	bool uncorrected_error = GET_BITFIELD(m->status, 61, 61);
+@@ -490,14 +490,11 @@ static void skx_mce_output_error(struct mem_ctl_info *mci,
+ 	if (uncorrected_error) {
+ 		core_err_cnt = 1;
+ 		if (ripv) {
+-			type = "FATAL";
+ 			tp_event = HW_EVENT_ERR_FATAL;
+ 		} else {
+-			type = "NON_FATAL";
+ 			tp_event = HW_EVENT_ERR_UNCORRECTED;
+ 		}
+ 	} else {
+-		type = "CORRECTED";
+ 		tp_event = HW_EVENT_ERR_CORRECTED;
  	}
  
--	ext4_setup_system_zone(sb);
-+	err = ext4_setup_system_zone(sb);
-+	if (err)
-+		goto restore_opts;
-+
- 	if (sbi->s_journal == NULL && !(old_sb_flags & SB_RDONLY)) {
- 		err = ext4_commit_super(sb, 1);
- 		if (err)
 -- 
 2.25.1
 
