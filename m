@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F4B2595B2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A746259417
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728408AbgIAPyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:54:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
+        id S1728663AbgIAPfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:35:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731920AbgIAPqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:46:13 -0400
+        id S1727903AbgIAPff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:35:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A2602064B;
-        Tue,  1 Sep 2020 15:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39D2C20866;
+        Tue,  1 Sep 2020 15:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975172;
-        bh=+ylZnX4/j8eti9Uf7Vpo8bft5YvKK0gCQkZdhkpNGqg=;
+        s=default; t=1598974534;
+        bh=kJroAU+bPWmuBWwjyzwkJDmAEwa1hWHKBm6/zt7PGJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLuK5vYc3MrtoimRmc3hg5qY9J7+OkkIoyNb+OYNBdfyxkwhsNphLoDdyuTByCm6e
-         A1bLDbBEWUywHrYIdc1EMRViAqdfzPBxTz62+w2qNdQlod+vuyF8VlqR4UV/LrTD44
-         zVprqSQBqXveQfeQlnbW6/BlnsiyBvepWgVPjOtk=
+        b=c2uDSOYMntUbW67lLDKrvSaBEvRWMxjKlzrGLQjSxwltBDugcXwAqbtbFPuzolq53
+         n/9gDUMmQItaFoNnpPK8/RhVnq8mProO++NviXE/U2Z/qesheoPL9nCs9Pb//zP5tW
+         m+NAighaVziHWmxUDoJDuFZtK82zOVoEHcYDTOnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.8 237/255] USB: Fix device driver race
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 213/214] libbpf: Fix build on ppc64le architecture
 Date:   Tue,  1 Sep 2020 17:11:33 +0200
-Message-Id: <20200901151012.108895365@linuxfoundation.org>
+Message-Id: <20200901151003.130906588@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bastien Nocera <hadess@hadess.net>
+From: Andrii Nakryiko <andriin@fb.com>
 
-commit d5643d2249b279077427b2c2b2ffae9b70c95b0b upstream.
+commit 3fb1a96a91120877488071a167d26d76be4be977 upstream.
 
-When a new device with a specialised device driver is plugged in, the
-new driver will be modprobe()'d but the driver core will attach the
-"generic" driver to the device.
+On ppc64le we get the following warning:
 
-After that, nothing will trigger a reprobe when the modprobe()'d device
-driver has finished initialising, as the device has the "generic"
-driver attached to it.
+  In file included from btf_dump.c:16:0:
+  btf_dump.c: In function ‘btf_dump_emit_struct_def’:
+  ../include/linux/kernel.h:20:17: error: comparison of distinct pointer types lacks a cast [-Werror]
+    (void) (&_max1 == &_max2);  \
+                   ^
+  btf_dump.c:882:11: note: in expansion of macro ‘max’
+      m_sz = max(0LL, btf__resolve_size(d->btf, m->type));
+             ^~~
 
-Trigger a reprobe ourselves when new specialised drivers get registered.
+Fix by explicitly casting to __s64, which is a return type from
+btf__resolve_size().
 
-Fixes: 88b7381a939d ("USB: Select better matching USB drivers when available")
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200818110445.509668-3-hadess@hadess.net
+Fixes: 702eddc77a90 ("libbpf: Handle GCC built-in types for Arm NEON")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200818164456.1181661-1-andriin@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/driver.c |   40 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
+ tools/lib/bpf/btf_dump.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/driver.c
-+++ b/drivers/usb/core/driver.c
-@@ -905,6 +905,35 @@ static int usb_uevent(struct device *dev
- 	return 0;
- }
- 
-+static bool is_dev_usb_generic_driver(struct device *dev)
-+{
-+	struct usb_device_driver *udd = dev->driver ?
-+		to_usb_device_driver(dev->driver) : NULL;
-+
-+	return udd == &usb_generic_driver;
-+}
-+
-+static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
-+{
-+	struct usb_device_driver *new_udriver = data;
-+	struct usb_device *udev;
-+	int ret;
-+
-+	if (!is_dev_usb_generic_driver(dev))
-+		return 0;
-+
-+	udev = to_usb_device(dev);
-+	if (usb_device_match_id(udev, new_udriver->id_table) == NULL &&
-+	    (!new_udriver->match || new_udriver->match(udev) != 0))
-+		return 0;
-+
-+	ret = device_reprobe(dev);
-+	if (ret && ret != -EPROBE_DEFER)
-+		dev_err(dev, "Failed to reprobe device (error %d)\n", ret);
-+
-+	return 0;
-+}
-+
- /**
-  * usb_register_device_driver - register a USB device (not interface) driver
-  * @new_udriver: USB operations for the device driver
-@@ -934,13 +963,20 @@ int usb_register_device_driver(struct us
- 
- 	retval = driver_register(&new_udriver->drvwrap.driver);
- 
--	if (!retval)
-+	if (!retval) {
- 		pr_info("%s: registered new device driver %s\n",
- 			usbcore_name, new_udriver->name);
--	else
-+		/*
-+		 * Check whether any device could be better served with
-+		 * this new driver
-+		 */
-+		bus_for_each_dev(&usb_bus_type, NULL, new_udriver,
-+				 __usb_bus_reprobe_drivers);
-+	} else {
- 		printk(KERN_ERR "%s: error %d registering device "
- 			"	driver %s\n",
- 			usbcore_name, retval, new_udriver->name);
-+	}
- 
- 	return retval;
- }
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -906,7 +906,7 @@ static void btf_dump_emit_struct_def(str
+ 			btf_dump_printf(d, ": %d", m_sz);
+ 			off = m_off + m_sz;
+ 		} else {
+-			m_sz = max(0LL, btf__resolve_size(d->btf, m->type));
++			m_sz = max((__s64)0, btf__resolve_size(d->btf, m->type));
+ 			off = m_off + m_sz * 8;
+ 		}
+ 		btf_dump_printf(d, ";");
 
 
