@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AADF8259BF2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC8B259CF4
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729595AbgIARJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
+        id S1728868AbgIARWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728670AbgIAPRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:48 -0400
+        id S1728548AbgIAPMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1068820767;
-        Tue,  1 Sep 2020 15:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 666D0206FA;
+        Tue,  1 Sep 2020 15:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973467;
-        bh=VaX1+Ny6L+YXxWnugwcXEPKB6ewm/BTnTiDqgAWIiVQ=;
+        s=default; t=1598973132;
+        bh=pEBxRSw3TqO7gZcYEZTN6mdPju5fZa/dT5DRrcxV4UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmBETSq3N0Rp9hw/xnVM61HhZSUje3V4oafbVsg0d53MopgSul3oyJ4DohESrGqAC
-         l1/Oac/F5Z3A+ba0MIb9k+xq+aAkRV696wq/zh+AFt44mdGLostZ3fmCo/iIj+RIP6
-         cdvCkahGFmTJMcisvquCZqMCEAFBtPvqu5CqO4jc=
+        b=RCnaAqf9WSwJDAqAuBd6vfW9Wk2q2LeVC93x2icdj215INImQd5fJEo85WL3uM3SV
+         xSIdQqThG58gU6pf3PhCXh8CnoWaZx4AvbRRpvQsdReaAh4wnaP2eDjeGBD/57ypid
+         c9RHFMFnQNBJ6mODxlxHpuk4GEpEUJenzRYSafC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/91] media: pci: ttpci: av7110: fix possible buffer overflow caused by bad DMA value in debiirq()
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Richard Alpe <richard.alpe@ericsson.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 02/62] tipc: fix uninit skb->data in tipc_nl_compat_dumpit()
 Date:   Tue,  1 Sep 2020 17:09:45 +0200
-Message-Id: <20200901150928.666814366@linuxfoundation.org>
+Message-Id: <20200901150920.835668850@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 6499a0db9b0f1e903d52f8244eacc1d4be00eea2 ]
+[ Upstream commit 47733f9daf4fe4f7e0eb9e273f21ad3a19130487 ]
 
-The value av7110->debi_virt is stored in DMA memory, and it is assigned
-to data, and thus data[0] can be modified at any time by malicious
-hardware. In this case, "if (data[0] < 2)" can be passed, but then
-data[0] can be changed into a large number, which may cause buffer
-overflow when the code "av7110->ci_slot[data[0]]" is used.
+__tipc_nl_compat_dumpit() has two callers, and it expects them to
+pass a valid nlmsghdr via arg->data. This header is artificial and
+crafted just for __tipc_nl_compat_dumpit().
 
-To fix this possible bug, data[0] is assigned to a local variable, which
-replaces the use of data[0].
+tipc_nl_compat_publ_dump() does so by putting a genlmsghdr as well
+as some nested attribute, TIPC_NLA_SOCK. But the other caller
+tipc_nl_compat_dumpit() does not, this leaves arg->data uninitialized
+on this call path.
 
-Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by just adding a similar nlmsghdr without any payload in
+tipc_nl_compat_dumpit().
+
+This bug exists since day 1, but the recent commit 6ea67769ff33
+("net: tipc: prepare attrs in __tipc_nl_compat_dumpit()") makes it
+easier to appear.
+
+Reported-and-tested-by: syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
+Fixes: d0796d1ef63d ("tipc: convert legacy nl bearer dump to nl compat")
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Cc: Richard Alpe <richard.alpe@ericsson.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/ttpci/av7110.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/tipc/netlink_compat.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/ttpci/av7110.c b/drivers/media/pci/ttpci/av7110.c
-index f46947d8adf8f..fcc053d95ae49 100644
---- a/drivers/media/pci/ttpci/av7110.c
-+++ b/drivers/media/pci/ttpci/av7110.c
-@@ -423,14 +423,15 @@ static void debiirq(unsigned long cookie)
- 	case DATA_CI_GET:
- 	{
- 		u8 *data = av7110->debi_virt;
-+		u8 data_0 = data[0];
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -250,8 +250,9 @@ err_out:
+ static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
+ 				 struct tipc_nl_compat_msg *msg)
+ {
+-	int err;
++	struct nlmsghdr *nlh;
+ 	struct sk_buff *arg;
++	int err;
  
--		if ((data[0] < 2) && data[2] == 0xff) {
-+		if (data_0 < 2 && data[2] == 0xff) {
- 			int flags = 0;
- 			if (data[5] > 0)
- 				flags |= CA_CI_MODULE_PRESENT;
- 			if (data[5] > 5)
- 				flags |= CA_CI_MODULE_READY;
--			av7110->ci_slot[data[0]].flags = flags;
-+			av7110->ci_slot[data_0].flags = flags;
- 		} else
- 			ci_get_data(&av7110->ci_rbuffer,
- 				    av7110->debi_virt,
--- 
-2.25.1
-
+ 	if (msg->req_type && (!msg->req_size ||
+ 			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+@@ -280,6 +281,15 @@ static int tipc_nl_compat_dumpit(struct
+ 		return -ENOMEM;
+ 	}
+ 
++	nlh = nlmsg_put(arg, 0, 0, tipc_genl_family.id, 0, NLM_F_MULTI);
++	if (!nlh) {
++		kfree_skb(arg);
++		kfree_skb(msg->rep);
++		msg->rep = NULL;
++		return -EMSGSIZE;
++	}
++	nlmsg_end(arg, nlh);
++
+ 	err = __tipc_nl_compat_dumpit(cmd, msg, arg);
+ 	if (err) {
+ 		kfree_skb(msg->rep);
 
 
