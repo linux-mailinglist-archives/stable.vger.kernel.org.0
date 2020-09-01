@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0317F259360
+	by mail.lfdr.de (Postfix) with ESMTP id 7A0E4259361
 	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729997AbgIAPZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:25:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49204 "EHLO mail.kernel.org"
+        id S1729986AbgIAPZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729993AbgIAPZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:25:02 -0400
+        id S1729305AbgIAPZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:25:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3FFC20FC3;
-        Tue,  1 Sep 2020 15:25:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 656032137B;
+        Tue,  1 Sep 2020 15:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973902;
-        bh=onWtOnOe38uujL9+85ri15ureODnZNtdVZRCOwH2QR4=;
+        s=default; t=1598973904;
+        bh=da5mPe30nUcNOQoq1fIwPodXLiDIbUHj0tXBSloG9us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2K4IOHwZuYsQj8iJ6Zrvud8iiT4kavBQUAo0pHTHv/lpjXLCVesI1J3uWj9lepiIx
-         536lZDw5mNK5SYREl3eWtPJG5lu754v9a1nu9sDGMKF6r1fAJeyOEpJdM/HMf4SDhf
-         w144s6Tjtzua0JDC0MYsgdIyj8maaumudh2jPH+4=
+        b=H10mamebhSHwk0hKEgNxPjzc4XxsgpJOg3W45fa2SjXs+GV7PfIOiFRWCnzqty9tm
+         VZ3CPyGX2XaQi89P7PxMTEVEhSPfdZ6nSJ+jE2m1TIoMAZjYzcXdXvr0UKPtWflQ8r
+         /RveOJXckB8Cay+XcqHVHT3F8dS1E42WAoZDmc1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH 4.19 091/125] serial: pl011: Dont leak amba_ports entry on driver register error
-Date:   Tue,  1 Sep 2020 17:10:46 +0200
-Message-Id: <20200901150939.045905828@linuxfoundation.org>
+        stable@vger.kernel.org, Valmer Huhn <valmer.huhn@concurrent-rt.com>
+Subject: [PATCH 4.19 092/125] serial: 8250_exar: Fix number of ports for Commtech PCIe cards
+Date:   Tue,  1 Sep 2020 17:10:47 +0200
+Message-Id: <20200901150939.097722773@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -43,52 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Valmer Huhn <valmer.huhn@concurrent-rt.com>
 
-commit 89efbe70b27dd325d8a8c177743a26b885f7faec upstream.
+commit c6b9e95dde7b54e6a53c47241201ab5a4035c320 upstream.
 
-pl011_probe() calls pl011_setup_port() to reserve an amba_ports[] entry,
-then calls pl011_register_port() to register the uart driver with the
-tty layer.
+The following in 8250_exar.c line 589 is used to determine the number
+of ports for each Exar board:
 
-If registration of the uart driver fails, the amba_ports[] entry is not
-released.  If this happens 14 times (value of UART_NR macro), then all
-amba_ports[] entries will have been leaked and driver probing is no
-longer possible.  (To be fair, that can only happen if the DeviceTree
-doesn't contain alias IDs since they cause the same entry to be used for
-a given port.)   Fix it.
+nr_ports = board->num_ports ? board->num_ports : pcidev->device & 0x0f;
 
-Fixes: ef2889f7ffee ("serial: pl011: Move uart_register_driver call to device")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.15+
-Cc: Tushar Behera <tushar.behera@linaro.org>
-Link: https://lore.kernel.org/r/138f8c15afb2f184d8102583f8301575566064a6.1597316167.git.lukas@wunner.de
+If the number of ports a card has is not explicitly specified, it defaults
+to the rightmost 4 bits of the PCI device ID. This is prone to error since
+not all PCI device IDs contain a number which corresponds to the number of
+ports that card provides.
+
+This particular case involves COMMTECH_4222PCIE, COMMTECH_4224PCIE and
+COMMTECH_4228PCIE cards with device IDs 0x0022, 0x0020 and 0x0021.
+Currently the multiport cards receive 2, 0 and 1 port instead of 2, 4 and
+8 ports respectively.
+
+To fix this, each Commtech Fastcom PCIe card is given a struct where the
+number of ports is explicitly specified. This ensures 'board->num_ports'
+is used instead of the default 'pcidev->device & 0x0f'.
+
+Fixes: d0aeaa83f0b0 ("serial: exar: split out the exar code from 8250_pci")
+Signed-off-by: Valmer Huhn <valmer.huhn@concurrent-rt.com>
+Tested-by: Valmer Huhn <valmer.huhn@concurrent-rt.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200813165255.GC345440@icarus.concurrent-rt.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_exar.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2593,7 +2593,7 @@ static int pl011_setup_port(struct devic
+--- a/drivers/tty/serial/8250/8250_exar.c
++++ b/drivers/tty/serial/8250/8250_exar.c
+@@ -638,6 +638,24 @@ static const struct exar8250_board pbn_e
+ 	.exit		= pci_xr17v35x_exit,
+ };
  
- static int pl011_register_port(struct uart_amba_port *uap)
- {
--	int ret;
-+	int ret, i;
++static const struct exar8250_board pbn_fastcom35x_2 = {
++	.num_ports	= 2,
++	.setup		= pci_xr17v35x_setup,
++	.exit		= pci_xr17v35x_exit,
++};
++
++static const struct exar8250_board pbn_fastcom35x_4 = {
++	.num_ports	= 4,
++	.setup		= pci_xr17v35x_setup,
++	.exit		= pci_xr17v35x_exit,
++};
++
++static const struct exar8250_board pbn_fastcom35x_8 = {
++	.num_ports	= 8,
++	.setup		= pci_xr17v35x_setup,
++	.exit		= pci_xr17v35x_exit,
++};
++
+ static const struct exar8250_board pbn_exar_XR17V4358 = {
+ 	.num_ports	= 12,
+ 	.setup		= pci_xr17v35x_setup,
+@@ -708,9 +726,9 @@ static const struct pci_device_id exar_p
+ 	EXAR_DEVICE(EXAR, EXAR_XR17V358, pbn_exar_XR17V35x),
+ 	EXAR_DEVICE(EXAR, EXAR_XR17V4358, pbn_exar_XR17V4358),
+ 	EXAR_DEVICE(EXAR, EXAR_XR17V8358, pbn_exar_XR17V8358),
+-	EXAR_DEVICE(COMMTECH, COMMTECH_4222PCIE, pbn_exar_XR17V35x),
+-	EXAR_DEVICE(COMMTECH, COMMTECH_4224PCIE, pbn_exar_XR17V35x),
+-	EXAR_DEVICE(COMMTECH, COMMTECH_4228PCIE, pbn_exar_XR17V35x),
++	EXAR_DEVICE(COMMTECH, COMMTECH_4222PCIE, pbn_fastcom35x_2),
++	EXAR_DEVICE(COMMTECH, COMMTECH_4224PCIE, pbn_fastcom35x_4),
++	EXAR_DEVICE(COMMTECH, COMMTECH_4228PCIE, pbn_fastcom35x_8),
  
- 	/* Ensure interrupts from this UART are masked and cleared */
- 	pl011_write(0, uap, REG_IMSC);
-@@ -2604,6 +2604,9 @@ static int pl011_register_port(struct ua
- 		if (ret < 0) {
- 			dev_err(uap->port.dev,
- 				"Failed to register AMBA-PL011 driver\n");
-+			for (i = 0; i < ARRAY_SIZE(amba_ports); i++)
-+				if (amba_ports[i] == uap)
-+					amba_ports[i] = NULL;
- 			return ret;
- 		}
- 	}
+ 	EXAR_DEVICE(COMMTECH, COMMTECH_4222PCI335, pbn_fastcom335_2),
+ 	EXAR_DEVICE(COMMTECH, COMMTECH_4224PCI335, pbn_fastcom335_4),
 
 
