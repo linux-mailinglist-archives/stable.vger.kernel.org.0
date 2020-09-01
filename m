@@ -2,129 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B0225993B
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1D2259AF2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732019AbgIAQgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36256 "EHLO
+        id S1730382AbgIAQzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729301AbgIAQgk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 12:36:40 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15FA5C061244;
-        Tue,  1 Sep 2020 09:36:39 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id y6so794645plk.10;
-        Tue, 01 Sep 2020 09:36:39 -0700 (PDT)
+        with ESMTP id S1728695AbgIAQzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 12:55:41 -0400
+Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F5D7C061244
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 09:55:38 -0700 (PDT)
+Received: by mail-oo1-xc44.google.com with SMTP id y30so459949ooj.3
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 09:55:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6LJNp3SfPZQzgGoLbBE6N8TqVacFA/OYrfyGljmiagI=;
-        b=ICh1zf3zGn7XnEwLtLXWBXdrXz03RkOwx69AHgL9W4kNO36ZTyq4x0oYmzBehu8awg
-         H4s2r0Y5X6xbC/FNLDnAb4GVLCb9yQdELSo/Q8tZoz5VxuM8t5v027lrHZfB1+jP7Fo7
-         dRkz81Zj6At5l+CA1aYdgCtRFFvWKsv0tjeGrrTSsJtP0EvC3uuvIl7/xaUtH4rcE9zV
-         HfK+Ue8YUa95CemaV+ILl9zRx3EnJ9mykPNSuoC6YwuXh0rEGidwyZdP2l8rfr8kytTk
-         nc3KvUvz21A03NC6SBXoZEdnC74IcgDh8hpd3eC1/ESEi3+YI5lYKq4kbyrz28E0LEIB
-         kLLg==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=v9975+hMWELTbAGvjMd+ItUOvowUKdGImeITiNZKzKE=;
+        b=o9lKL0BVvMWm1tgl9Is1duPG5UGxdnIw9uldI8xPl0uGpZA7catKjJrRgBEAZJ0kbq
+         m8OyAcQNAUHJJfw3kqhHlMddaLDwROFECYORDdwHm6W5cfivp+a9zNpn96v3HYUYlGkg
+         jQjw/3QtxH5+nxI9pfta4wg+mkkVdPSzhFJjEhrs3DFHKpKw+3c7PqQ8xR1xnrLkhUzT
+         Iuz5E6sFg7WjtaL9eBPRFLX7jtfdcOVNM83CJV4S2YSX38bqb6sxMse1As3kv26EQBWK
+         KSm3PZHlpGKIRmh/8ovguVfzz4Jfy3bagDaSf/eDiUM+ptjv9PXx88/gXF/jEmk5/7u/
+         W1Eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6LJNp3SfPZQzgGoLbBE6N8TqVacFA/OYrfyGljmiagI=;
-        b=Kt080CfEFZ4mbSheKf2P4tNa5zRn/janx73a4edNJzeGKzDPe1fcVTaAOxS7ST9cCV
-         TLEsAqNZ7+Td0FsWbhC9uiz5lSPd91o2JDVdRlgfg1eCW7zHQ9uFPSOfcINYiE2y172C
-         kSGpPQlGatHB3QMJ0TA5Wm2GyUYW9fKoW/gKB7K+qDCmpEO2GBrCkrsr9DiFF7DR8hH1
-         mboxqTJ4qALm7iHgOJXhwe6XxsmtChrRh0o7R44INS7qTDTIB8ljO5vYxzvs76656WjV
-         mWOEWHts7OqP5ZmmKnvNk0ZFnEM4aTiHlf3YtkpPvnXyzl9AMx12RPdM02l/v0UXIPex
-         twsg==
-X-Gm-Message-State: AOAM533OmNqv7bue68WcYgBmZEzae0InmlTWVL+HOwNv1a/RAbdpWwmG
-        4MP8hp2aOdVu4kz3xqYYIYs=
-X-Google-Smtp-Source: ABdhPJwjKrOK7WaCiEzd+HbASOS0a4uBs7I11ulx5TrI35FSx0o5kfHkjravTXJH/V/xrrCIgPhiAg==
-X-Received: by 2002:a17:90b:110:: with SMTP id p16mr2361655pjz.98.1598978198498;
-        Tue, 01 Sep 2020 09:36:38 -0700 (PDT)
-Received: from [192.168.1.3] (ip68-111-84-250.oc.oc.cox.net. [68.111.84.250])
-        by smtp.gmail.com with ESMTPSA id y7sm2452654pfm.68.2020.09.01.09.36.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2020 09:36:37 -0700 (PDT)
-Subject: Re: RFC: backport of commit a32c1c61212d
-To:     Doug Berger <opendmb@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Michal Hocko <mhocko@kernel.org>,
-        Olof Johansson <olof@lixom.net>,
-        Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
-        zhaoyang <huangzhaoyang@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Baoquan He <bhe@redhat.com>
-References: <bd960a80-c953-ad11-cdfd-1e48ffdce443@gmail.com>
- <20200901140018.GD397411@kroah.com>
- <4eb51ae0-427d-5359-2439-b38dc0d3b2e5@gmail.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <98f2309c-e674-c3fc-0c13-0bf85f123f8c@gmail.com>
-Date:   Tue, 1 Sep 2020 09:36:36 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.1.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=v9975+hMWELTbAGvjMd+ItUOvowUKdGImeITiNZKzKE=;
+        b=bU5SqwTwYUcI4MQQwOv67F4PmEO8rnH0rkRi1fj8Ny1ImobCQ7uNudN4PWkjejsSxr
+         1Rkrzh4ucbQIrK0MXxigU6UUdabGScI2jmfhi0BIjZ/UNNSqvi8wrkO7O4s37CIGUHHc
+         qghpM9w1Sz3nFtR9CNIS6c06n090EedHYO7nKhY4yA98AWOvlCKqNFkLT9lGkhFxxN3R
+         9Itol4aMTP0A4nmqAfo86ZArrTNj+waK6KwglhfzigYopHlAaUxCEXBTysngd70MxQYJ
+         dsoChJj8bVwbRFR9fsfQNmLsfpWvIXWZIDHl6Cujl7iH2XYdp0rmMvXjNKWDxcTy0VJp
+         S37w==
+X-Gm-Message-State: AOAM530Ir80VKeuul2wk0NqxhP4WQn3bOifqlh6WuGWgjjgqT45L9Ai5
+        suPxGJCYYA3/9WDoFJEVNRxYIg==
+X-Google-Smtp-Source: ABdhPJxXRLmSKBcnBlceznNDbZ4sBA5PnARmg8Fs8AUVLHlcApULxzxJqLOenz9NbmlqafxciiOaaw==
+X-Received: by 2002:a05:6820:384:: with SMTP id r4mr2009979ooj.62.1598979338069;
+        Tue, 01 Sep 2020 09:55:38 -0700 (PDT)
+Received: from yoga ([2605:6000:e5cb:c100:8898:14ff:fe6d:34e])
+        by smtp.gmail.com with ESMTPSA id 35sm273166oth.21.2020.09.01.09.55.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2020 09:55:37 -0700 (PDT)
+Date:   Tue, 1 Sep 2020 11:55:34 -0500
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Ansuel Smith <ansuelsmth@gmail.com>
+Cc:     Stanimir Varbanov <svarbanov@mm-sol.com>, stable@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI: qcom: Make sure PCIe is reset before init for rev
+ 2.1.0
+Message-ID: <20200901165534.GA3715@yoga>
+References: <20200901124955.137-1-ansuelsmth@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <4eb51ae0-427d-5359-2439-b38dc0d3b2e5@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200901124955.137-1-ansuelsmth@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue 01 Sep 07:49 CDT 2020, Ansuel Smith wrote:
 
+> Qsdk U-Boot can incorrectly leave the PCIe interface in an undefined
+> state if bootm command is used instead of bootipq. This is caused by the
+> not deinit of PCIe when bootm is called. Reset the PCIe before init
+> anyway to fix this U-Boot bug.
+> 
 
-On 9/1/2020 9:06 AM, Doug Berger wrote:
-> On 9/1/2020 7:00 AM, Greg Kroah-Hartman wrote:
+Looks sensible.
 
-[snip]
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-> Sorry for the confusion, but thanks for the reply.
-> 
-> There is functionality that exists in Linus' tree, but it is not the
-> result of a single commit that can be easily backported. I have been
-> unable to find anything in the documentation for submitting a patch to a
-> stable branch that covers this type of submission so I have sent this as
-> an RFC about process rather than a patch.
-> 
-> The upstream commit that ultimately results in the functional change is:
-> commit a32c1c61212d ("arm: simplify detection of memory zone boundaries")
-> 
-> That commit is dependent on other commits that aren't necessary for the
-> stable branches.
-> 
-> In my downstream kernel I would apply the single line patch included in
-> my original email, but it is not appropriate to apply that patch to
-> Linus' tree since the problem does not exist there.
-> 
-> This creates the situation where a simple patch could be applied to a
-> stable branch to improve its stability, but there is not a clear
-> upstream commit to reference.
-> 
-> My best guess at this point is to submit patches to the affected stable
-> branches like the one in my RFC and reference a32c1c61212d as the
-> upstream commit. This would be confusing to anyone that tried to compare
-> the submitted patch with the upstream patch since they
-> wouldn't look at all alike, but the fixes and upstream tags would define
-> the affected range in Linus' tree.
-> 
-> I would appreciate any guidance on how best to handle this kind of
-> situation.
+Regards,
+Bjorn
 
-You could submit various patches with [PATCH stable x.y] in the subject 
-to indicate they are targeting a specific stable branch, copy 
-stable@vger.kernel.org as well as all recipients in this email and see 
-if that works.
-
-Not sure if there is a more documented process than that.
--- 
-Florian
+> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+> Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+> Cc: stable@vger.kernel.org # v4.19+
+> ---
+>  drivers/pci/controller/dwc/pcie-qcom.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> index 3aac77a295ba..82336bbaf8dc 100644
+> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> @@ -302,6 +302,9 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
+>  	reset_control_assert(res->por_reset);
+>  	reset_control_assert(res->ext_reset);
+>  	reset_control_assert(res->phy_reset);
+> +
+> +	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
+> +
+>  	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
+>  }
+>  
+> @@ -314,6 +317,16 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+>  	u32 val;
+>  	int ret;
+>  
+> +	/* reset the PCIe interface as uboot can leave it undefined state */
+> +	reset_control_assert(res->pci_reset);
+> +	reset_control_assert(res->axi_reset);
+> +	reset_control_assert(res->ahb_reset);
+> +	reset_control_assert(res->por_reset);
+> +	reset_control_assert(res->ext_reset);
+> +	reset_control_assert(res->phy_reset);
+> +
+> +	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
+> +
+>  	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
+>  	if (ret < 0) {
+>  		dev_err(dev, "cannot enable regulators\n");
+> -- 
+> 2.27.0
+> 
