@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4E125968D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FB8259689
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729602AbgIAQER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54880 "EHLO mail.kernel.org"
+        id S1726913AbgIAQEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731252AbgIAPmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:13 -0400
+        id S1728474AbgIAPmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:42:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 391762064B;
-        Tue,  1 Sep 2020 15:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4123A206EB;
+        Tue,  1 Sep 2020 15:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974932;
-        bh=yHyrhqyRzo37n6XS5S+rgv5s3Y3LcuonABG1xHhiZc0=;
+        s=default; t=1598974943;
+        bh=zEVh5qL9qm/yB6jpYys63bBeSyhHRkjD+rP54dVUYwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ixpzo2XL8ji44SZl6wlvYXne2s/VxYxf5VgW5xCEMS8eYKKoZMsW/0EWinhyJqM9A
-         chFOkdY8+LzEz/tgD9KR+hWPkEl+Y4Atb0u8kNJjdtjGQNtH+dY80ELgqVaqBqQhrF
-         ky1KkO3mAwDFwE8Y+a4U9oaQDvTFvQcyASO/s0o4=
+        b=0WZSiJtEYiCoB7ouazKCjk6SQ1AOSWw9R2er6QgFEmiL+noDD+rLYoFFpoU0if3qM
+         wTdmUE4F9IU86skO5AsMQzD0nL24DZzPz/iDDF2JSX+nN8ijYcC0GH+X0I3dgvW+op
+         qS72X7poj4jTgbqUe2LKMaPwKah/IUPE4fxS5o10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
+        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
         Alain Volmat <alain.volmat@st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 118/255] spi: stm32h7: fix race condition at end of transfer
-Date:   Tue,  1 Sep 2020 17:09:34 +0200
-Message-Id: <20200901151006.382895121@linuxfoundation.org>
+Subject: [PATCH 5.8 120/255] spi: stm32: fix stm32_spi_prepare_mbr in case of odd clk_rate
+Date:   Tue,  1 Sep 2020 17:09:36 +0200
+Message-Id: <20200901151006.480047165@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,42 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Amelie Delaunay <amelie.delaunay@st.com>
 
-[ Upstream commit 135dd873d3c76d812ae64c668adef3f2c59ed27f ]
+[ Upstream commit 9cc61973bf9385b19ff5dda4a2a7e265fcba85e4 ]
 
-The caller of stm32_spi_transfer_one(), spi_transfer_one_message(),
-is waiting for us to call spi_finalize_current_transfer() and will
-eventually schedule a new transfer, if available.
-We should guarantee that the spi controller is really available
-before calling spi_finalize_current_transfer().
+Fix spi->clk_rate when it is odd to the nearest lowest even value because
+minimum SPI divider is 2.
 
-Move the call to spi_finalize_current_transfer() _after_ the call
-to stm32_spi_disable().
-
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Link: https://lore.kernel.org/r/1597043558-29668-2-git-send-email-alain.volmat@st.com
+Link: https://lore.kernel.org/r/1597043558-29668-4-git-send-email-alain.volmat@st.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-stm32.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 13f3d959759fb..fce679635829c 100644
+index 7f2113e7b3ddc..9b90a22543fd7 100644
 --- a/drivers/spi/spi-stm32.c
 +++ b/drivers/spi/spi-stm32.c
-@@ -972,8 +972,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 	spin_unlock_irqrestore(&spi->lock, flags);
+@@ -442,7 +442,8 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz,
+ {
+ 	u32 div, mbrdiv;
  
- 	if (end) {
--		spi_finalize_current_transfer(master);
- 		stm32h7_spi_disable(spi);
-+		spi_finalize_current_transfer(master);
- 	}
+-	div = DIV_ROUND_UP(spi->clk_rate, speed_hz);
++	/* Ensure spi->clk_rate is even */
++	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
  
- 	return IRQ_HANDLED;
+ 	/*
+ 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
 -- 
 2.25.1
 
