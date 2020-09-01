@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EB825994D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:38:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B85D52598EF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730508AbgIAQiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
+        id S1730606AbgIAPab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730052AbgIAP25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:28:57 -0400
+        id S1730588AbgIAPa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E48320684;
-        Tue,  1 Sep 2020 15:28:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B15B2206C0;
+        Tue,  1 Sep 2020 15:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974137;
-        bh=7FLAhkpdZYZNY6BxWLsZPdbDhw/khZFS6fnCA4pRsH0=;
+        s=default; t=1598974225;
+        bh=gwf4wWC0vORa2uGQfb3OiUSJDKLfwwSQvhew2ikLsvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEkvqByzKIU1s4qSUTXu1Vh0giOf3BdoESAkhwkco+gv/otoNHE/eztk5MsrQ88Jv
-         iGt9j1rrqNIOgud5d7o5JX9QoeJnioMaLQkK9xiW0XuUgY3ZE/L2EeuTM8Iiv6LEgF
-         BLKifyHHe3vVEX4dQZfU8sY3i//XK/l1kkcAGONg=
+        b=nqGQpLPdLRCATD8XbKESYA4F1z/NC/p/9xoYL+fAhh68a0xKbB/F8Y13eXcDBtLxq
+         9GfjIu/ZyBmdGBKcpn5GhqvStkxUDO+xaTkWDbKQ4O+ifvZGiG/dmXTWPur82lVd6f
+         tYTzdqjcpLhNia8WUQCX1AQ4rcVdnVz8VtHjsWgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Girish Basrur <gbasrur@marvell.com>,
-        Santosh Vernekar <svernekar@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Shyam Sundar <ssundar@marvell.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Changming Liu <charley.ashbringer@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/214] scsi: fcoe: Memory leak fix in fcoe_sysfs_fcf_del()
-Date:   Tue,  1 Sep 2020 17:08:57 +0200
-Message-Id: <20200901150955.715672069@linuxfoundation.org>
+Subject: [PATCH 5.4 063/214] USB: sisusbvga: Fix a potential UB casued by left shifting a negative value
+Date:   Tue,  1 Sep 2020 17:09:03 +0200
+Message-Id: <20200901150955.997013862@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -48,42 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Changming Liu <charley.ashbringer@gmail.com>
 
-[ Upstream commit e95b4789ff4380733006836d28e554dc296b2298 ]
+[ Upstream commit 2b53a19284f537168fb506f2f40d7fda40a01162 ]
 
-In fcoe_sysfs_fcf_del(), we first deleted the fcf from the list and then
-freed it if ctlr_dev was not NULL. This was causing a memory leak.
+The char buffer buf, receives data directly from user space,
+so its content might be negative and its elements are left
+shifted to form an unsigned integer.
 
-Free the fcf even if ctlr_dev is NULL.
+Since left shifting a negative value is undefined behavior, thus
+change the char to u8 to elimintate this UB.
 
-Link: https://lore.kernel.org/r/20200729081824.30996-3-jhasan@marvell.com
-Reviewed-by: Girish Basrur <gbasrur@marvell.com>
-Reviewed-by: Santosh Vernekar <svernekar@marvell.com>
-Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
-Reviewed-by: Shyam Sundar <ssundar@marvell.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Changming Liu <charley.ashbringer@gmail.com>
+Link: https://lore.kernel.org/r/20200711043018.928-1-charley.ashbringer@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_ctlr.c | 2 +-
+ drivers/usb/misc/sisusbvga/sisusb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_ctlr.c b/drivers/scsi/fcoe/fcoe_ctlr.c
-index 1791a393795da..07a0dadc75bf5 100644
---- a/drivers/scsi/fcoe/fcoe_ctlr.c
-+++ b/drivers/scsi/fcoe/fcoe_ctlr.c
-@@ -255,9 +255,9 @@ static void fcoe_sysfs_fcf_del(struct fcoe_fcf *new)
- 		WARN_ON(!fcf_dev);
- 		new->fcf_dev = NULL;
- 		fcoe_fcf_device_delete(fcf_dev);
--		kfree(new);
- 		mutex_unlock(&cdev->lock);
- 	}
-+	kfree(new);
- }
+diff --git a/drivers/usb/misc/sisusbvga/sisusb.c b/drivers/usb/misc/sisusbvga/sisusb.c
+index fc8a5da4a07c9..0734e6dd93862 100644
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -761,7 +761,7 @@ static int sisusb_write_mem_bulk(struct sisusb_usb_data *sisusb, u32 addr,
+ 	u8   swap8, fromkern = kernbuffer ? 1 : 0;
+ 	u16  swap16;
+ 	u32  swap32, flag = (length >> 28) & 1;
+-	char buf[4];
++	u8 buf[4];
  
- /**
+ 	/* if neither kernbuffer not userbuffer are given, assume
+ 	 * data in obuf
 -- 
 2.25.1
 
