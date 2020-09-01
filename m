@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A192599D9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D20B2599D5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729241AbgIAQop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S1729313AbgIAQoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:44:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730222AbgIAP1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:27:38 -0400
+        id S1729241AbgIAP1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:27:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 661F120FC3;
-        Tue,  1 Sep 2020 15:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EFF2206FA;
+        Tue,  1 Sep 2020 15:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974058;
-        bh=8Pg61fIioWlYYBGV+A7wRbD4ccpCCWwaJ8odDb87t7M=;
+        s=default; t=1598974060;
+        bh=PyOqTXxtUxabTkmpMdkhNJrd1Sig8VNDdxxFv41x27k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBb3FBS8UbjoahDN+lZL0Acv850KVZ3lfXV09MXCOW5sXhAs5Qfp0hB8a9o7/A0mQ
-         2Z5AKoc8JjGzHKeAiBDAtoRuJ8qKYTAIaxvRqIvmEzwXX/baZHaApwkJ/XdmrC61DC
-         bKOSm7kSPapmrzesNN6ZNhHoDojTXwj1bCe0s7lM=
+        b=CKH+yEHXA0wSze+Gjhr2MV3KTrW7oJ/xbfLLShdklRMOJq7IzVmEqjV+ZvIL9IegJ
+         0OdVKbne0MOJxeEnPbv7axjR/0PkBC+XmD46CpbxvHe3W6G51XuiamPuoKq6m+YIEW
+         o2ritCyZG8saE7coWJADCK7Eln01hzU6Yc4u7w+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        syzbot+a61aa19b0c14c8770bd9@syzkaller.appspotmail.com,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 004/214] net: Fix potential wrong skb->protocol in skb_vlan_untag()
-Date:   Tue,  1 Sep 2020 17:08:04 +0200
-Message-Id: <20200901150953.166700919@linuxfoundation.org>
+Subject: [PATCH 5.4 005/214] net: nexthop: dont allow empty NHA_GROUP
+Date:   Tue,  1 Sep 2020 17:08:05 +0200
+Message-Id: <20200901150953.214915664@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -43,34 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit 55eff0eb7460c3d50716ed9eccf22257b046ca92 ]
+[ Upstream commit eeaac3634ee0e3f35548be35275efeca888e9b23 ]
 
-We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). So
-we should pull VLAN_HLEN + sizeof(unsigned short) in skb_vlan_untag() or
-we may access the wrong data.
+Currently the nexthop code will use an empty NHA_GROUP attribute, but it
+requires at least 1 entry in order to function properly. Otherwise we
+end up derefencing null or random pointers all over the place due to not
+having any nh_grp_entry members allocated, nexthop code relies on having at
+least the first member present. Empty NHA_GROUP doesn't make any sense so
+just disallow it.
+Also add a WARN_ON for any future users of nexthop_create_group().
 
-Fixes: 0d5501c1c828 ("net: Always untag vlan-tagged traffic on input.")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+ BUG: kernel NULL pointer dereference, address: 0000000000000080
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP
+ CPU: 0 PID: 558 Comm: ip Not tainted 5.9.0-rc1+ #93
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+ RIP: 0010:fib_check_nexthop+0x4a/0xaa
+ Code: 0f 84 83 00 00 00 48 c7 02 80 03 f7 81 c3 40 80 fe fe 75 12 b8 ea ff ff ff 48 85 d2 74 6b 48 c7 02 40 03 f7 81 c3 48 8b 40 10 <48> 8b 80 80 00 00 00 eb 36 80 78 1a 00 74 12 b8 ea ff ff ff 48 85
+ RSP: 0018:ffff88807983ba00 EFLAGS: 00010213
+ RAX: 0000000000000000 RBX: ffff88807983bc00 RCX: 0000000000000000
+ RDX: ffff88807983bc00 RSI: 0000000000000000 RDI: ffff88807bdd0a80
+ RBP: ffff88807983baf8 R08: 0000000000000dc0 R09: 000000000000040a
+ R10: 0000000000000000 R11: ffff88807bdd0ae8 R12: 0000000000000000
+ R13: 0000000000000000 R14: ffff88807bea3100 R15: 0000000000000001
+ FS:  00007f10db393700(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000080 CR3: 000000007bd0f004 CR4: 00000000003706f0
+ Call Trace:
+  fib_create_info+0x64d/0xaf7
+  fib_table_insert+0xf6/0x581
+  ? __vma_adjust+0x3b6/0x4d4
+  inet_rtm_newroute+0x56/0x70
+  rtnetlink_rcv_msg+0x1e3/0x20d
+  ? rtnl_calcit.isra.0+0xb8/0xb8
+  netlink_rcv_skb+0x5b/0xac
+  netlink_unicast+0xfa/0x17b
+  netlink_sendmsg+0x334/0x353
+  sock_sendmsg_nosec+0xf/0x3f
+  ____sys_sendmsg+0x1a0/0x1fc
+  ? copy_msghdr_from_user+0x4c/0x61
+  ___sys_sendmsg+0x63/0x84
+  ? handle_mm_fault+0xa39/0x11b5
+  ? sockfd_lookup_light+0x72/0x9a
+  __sys_sendmsg+0x50/0x6e
+  do_syscall_64+0x54/0xbe
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7f10dacc0bb7
+ Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb cd 66 0f 1f 44 00 00 8b 05 9a 4b 2b 00 85 c0 75 2e 48 63 ff 48 63 d2 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 01 c3 48 8b 15 b1 f2 2a 00 f7 d8 64 89 02 48
+ RSP: 002b:00007ffcbe628bf8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 00007ffcbe628f80 RCX: 00007f10dacc0bb7
+ RDX: 0000000000000000 RSI: 00007ffcbe628c60 RDI: 0000000000000003
+ RBP: 000000005f41099c R08: 0000000000000001 R09: 0000000000000008
+ R10: 00000000000005e9 R11: 0000000000000246 R12: 0000000000000000
+ R13: 0000000000000000 R14: 00007ffcbe628d70 R15: 0000563a86c6e440
+ Modules linked in:
+ CR2: 0000000000000080
+
+CC: David Ahern <dsahern@gmail.com>
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Reported-by: syzbot+a61aa19b0c14c8770bd9@syzkaller.appspotmail.com
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/nexthop.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5317,8 +5317,8 @@ struct sk_buff *skb_vlan_untag(struct sk
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (unlikely(!skb))
- 		goto err_free;
--
--	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
-+	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
-+	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
- 		goto err_free;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -403,7 +403,7 @@ static int nh_check_attr_group(struct ne
+ 	struct nexthop_grp *nhg;
+ 	unsigned int i, j;
  
- 	vhdr = (struct vlan_hdr *)skb->data;
+-	if (len & (sizeof(struct nexthop_grp) - 1)) {
++	if (!len || len & (sizeof(struct nexthop_grp) - 1)) {
+ 		NL_SET_ERR_MSG(extack,
+ 			       "Invalid length for nexthop group attribute");
+ 		return -EINVAL;
+@@ -1105,6 +1105,9 @@ static struct nexthop *nexthop_create_gr
+ 	struct nexthop *nh;
+ 	int i;
+ 
++	if (WARN_ON(!num_nh))
++		return ERR_PTR(-EINVAL);
++
+ 	nh = nexthop_alloc();
+ 	if (!nh)
+ 		return ERR_PTR(-ENOMEM);
 
 
