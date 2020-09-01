@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F038259978
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC80D25997E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730377AbgIAP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56504 "EHLO mail.kernel.org"
+        id S1728905AbgIAQk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:40:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbgIAP2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:28:17 -0400
+        id S1730374AbgIAP2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:28:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0895D206FA;
-        Tue,  1 Sep 2020 15:28:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCE5A2078B;
+        Tue,  1 Sep 2020 15:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974096;
-        bh=zCZ33BklVnKYUEopkh/0KayWTmTcqi6YUqN1XavLMJY=;
+        s=default; t=1598974099;
+        bh=7FZAJo/+uUI6BJS+5wyb4cOcWYMWUtG8tjcjA1kyunU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lO7lCQfhrrUufeKh/Lfp1iGXEbpA0Zzd3oudhuTpcUsGyFM5ej1CFbvjs1/gEmi9E
-         9cqAJT+JCNJSq6KygX3TlkO6I5GaDDSwIMwpqqjit78kOl94xglhf0+GFJ4nq/zr9s
-         h2JmgGXhBn+gA+3LkuTRDVxTFkB6Lr2w55K3bp5E=
+        b=16MGaYpRZvYYxBMwfUILCGjhSBjtDlcwhnblz1vVUhDLK9Occ7pRoN4v3/uKDVL2E
+         GxlG6dCPu4hBHNid6OLblW2mehMcoVM7agyXjpC3XIw+FI89WQTrwwB5msB+W4DCJe
+         lCn+qSV1bBC/bJmdHxY0dNWvbFG5L6J1BYn5HBlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <fanpeng@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 043/214] mips/vdso: Fix resource leaks in genvdso.c
-Date:   Tue,  1 Sep 2020 17:08:43 +0200
-Message-Id: <20200901150955.029537171@linuxfoundation.org>
+        stable@vger.kernel.org, Kaige Li <likaige@loongson.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 044/214] ALSA: hda: Add support for Loongson 7A1000 controller
+Date:   Tue,  1 Sep 2020 17:08:44 +0200
+Message-Id: <20200901150955.077329411@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,96 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <fanpeng@loongson.cn>
+From: Kaige Li <likaige@loongson.cn>
 
-[ Upstream commit a859647b4e6bfeb192284d27d24b6a0c914cae1d ]
+[ Upstream commit 61eee4a7fc406f94e441778c3cecbbed30373c89 ]
 
-Close "fd" before the return of map_vdso() and close "out_file"
-in main().
+Add the new PCI ID 0x0014 0x7a07 to support Loongson 7A1000 controller.
 
-Signed-off-by: Peng Fan <fanpeng@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Kaige Li <likaige@loongson.cn>
+Link: https://lore.kernel.org/r/1594954292-1703-2-git-send-email-likaige@loongson.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/genvdso.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/pci/hda/hda_intel.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/vdso/genvdso.c b/arch/mips/vdso/genvdso.c
-index b66b6b1c4aeb9..8f581a2c8578b 100644
---- a/arch/mips/vdso/genvdso.c
-+++ b/arch/mips/vdso/genvdso.c
-@@ -122,6 +122,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (fstat(fd, &stat) != 0) {
- 		fprintf(stderr, "%s: Failed to stat '%s': %s\n", program_name,
- 			path, strerror(errno));
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -130,6 +131,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (addr == MAP_FAILED) {
- 		fprintf(stderr, "%s: Failed to map '%s': %s\n", program_name,
- 			path, strerror(errno));
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -139,6 +141,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
- 		fprintf(stderr, "%s: '%s' is not an ELF file\n", program_name,
- 			path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -150,6 +153,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	default:
- 		fprintf(stderr, "%s: '%s' has invalid ELF class\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -161,6 +165,7 @@ static void *map_vdso(const char *path, size_t *_size)
- 	default:
- 		fprintf(stderr, "%s: '%s' has invalid ELF data order\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
-@@ -168,15 +173,18 @@ static void *map_vdso(const char *path, size_t *_size)
- 		fprintf(stderr,
- 			"%s: '%s' has invalid ELF machine (expected EM_MIPS)\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	} else if (swap_uint16(ehdr->e_type) != ET_DYN) {
- 		fprintf(stderr,
- 			"%s: '%s' has invalid ELF type (expected ET_DYN)\n",
- 			program_name, path);
-+		close(fd);
- 		return NULL;
- 	}
- 
- 	*_size = stat.st_size;
-+	close(fd);
- 	return addr;
- }
- 
-@@ -280,10 +288,12 @@ int main(int argc, char **argv)
- 	/* Calculate and write symbol offsets to <output file> */
- 	if (!get_symbols(dbg_vdso_path, dbg_vdso)) {
- 		unlink(out_path);
-+		fclose(out_file);
- 		return EXIT_FAILURE;
- 	}
- 
- 	fprintf(out_file, "};\n");
-+	fclose(out_file);
- 
- 	return EXIT_SUCCESS;
- }
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 7353d2ec359ae..3a456410937b5 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2671,6 +2671,8 @@ static const struct pci_device_id azx_ids[] = {
+ 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_HDMI },
+ 	/* Zhaoxin */
+ 	{ PCI_DEVICE(0x1d17, 0x3288), .driver_data = AZX_DRIVER_ZHAOXIN },
++	/* Loongson */
++	{ PCI_DEVICE(0x0014, 0x7a07), .driver_data = AZX_DRIVER_GENERIC },
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, azx_ids);
 -- 
 2.25.1
 
