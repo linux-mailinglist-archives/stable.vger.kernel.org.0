@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4ADD2597A0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C5DC25979A
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731846AbgIAQQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:16:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
+        id S1728423AbgIAQQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727892AbgIAPeS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:18 -0400
+        id S1728653AbgIAPeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BED2214D8;
-        Tue,  1 Sep 2020 15:34:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80D462158C;
+        Tue,  1 Sep 2020 15:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974458;
-        bh=sYd7UG1zXyHqLLzJAP7DEigkw4yq1E2P1bguPau7YMU=;
+        s=default; t=1598974463;
+        bh=hzbE5Q8JyF3Til59Di3MlB4Ya08M9rfNAcyBI6sA62E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfA7ixHjBRbI/Y8j1bhMwim8Qbb91I5/tKxpBDO+rDYycIBhh4rLUbB3Ves6innAR
-         uXsdwGWcqAuisCeZXXvrLHgJqqWB2du71wXaxfW3NomHLuHw8+d37PivltT06T5UmK
-         Zc+t8h54RrE0nxar/K3lRbjESQ7gDa0oqEKflgRc=
+        b=ag2+NzW7ScGZcqbd3nG54F590TZ+r46dBjMog2OXaguRQCavBH6Ja1y1BLfQiikNB
+         /t5+eF9n7wFUlLF+Wd55l1VqVVnmY7SixzhMeorxS7lN4MBhcLb6drXXauHqe6kYuC
+         4U4+nw/f2ITC9+2Sxn9fC3Q4vXVGb581FTcdRiTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiansong Chen <Jiansong.Chen@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 183/214] drm/amdgpu/gfx10: refine mgcg setting
-Date:   Tue,  1 Sep 2020 17:11:03 +0200
-Message-Id: <20200901151001.720432959@linuxfoundation.org>
+Subject: [PATCH 5.4 185/214] drm/amd/pm: correct Vega10 swctf limit setting
+Date:   Tue,  1 Sep 2020 17:11:05 +0200
+Message-Id: <20200901151001.817656231@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,37 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit de7a1b0b8753e1b0000084f0e339ffab295d27ef upstream.
+commit b05d71b51078fc428c6b72582126d9d75d3c1f4c upstream.
 
-1. enable ENABLE_CGTS_LEGACY to fix specviewperf11 random hang.
-2. remove obsolete RLC_CGTT_SCLK_OVERRIDE workaround.
+Correct the Vega10 thermal swctf limit.
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1267
+
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -4094,10 +4094,8 @@ static void gfx_v10_0_update_medium_grai
- 		def = data = RREG32_SOC15(GC, 0, mmRLC_CGTT_MGCG_OVERRIDE);
- 		data &= ~(RLC_CGTT_MGCG_OVERRIDE__GRBM_CGTT_SCLK_OVERRIDE_MASK |
- 			  RLC_CGTT_MGCG_OVERRIDE__GFXIP_MGCG_OVERRIDE_MASK |
--			  RLC_CGTT_MGCG_OVERRIDE__GFXIP_MGLS_OVERRIDE_MASK);
--
--		/* only for Vega10 & Raven1 */
--		data |= RLC_CGTT_MGCG_OVERRIDE__RLC_CGTT_SCLK_OVERRIDE_MASK;
-+			  RLC_CGTT_MGCG_OVERRIDE__GFXIP_MGLS_OVERRIDE_MASK |
-+			  RLC_CGTT_MGCG_OVERRIDE__ENABLE_CGTS_LEGACY_MASK);
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
+@@ -364,6 +364,9 @@ int vega10_thermal_get_temperature(struc
+ static int vega10_thermal_set_temperature_range(struct pp_hwmgr *hwmgr,
+ 		struct PP_TemperatureRange *range)
+ {
++	struct phm_ppt_v2_information *pp_table_info =
++		(struct phm_ppt_v2_information *)(hwmgr->pptable);
++	struct phm_tdp_table *tdp_table = pp_table_info->tdp_table;
+ 	struct amdgpu_device *adev = hwmgr->adev;
+ 	int low = VEGA10_THERMAL_MINIMUM_ALERT_TEMP *
+ 			PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
+@@ -373,8 +376,8 @@ static int vega10_thermal_set_temperatur
  
- 		if (def != data)
- 			WREG32_SOC15(GC, 0, mmRLC_CGTT_MGCG_OVERRIDE, data);
+ 	if (low < range->min)
+ 		low = range->min;
+-	if (high > range->max)
+-		high = range->max;
++	if (high > tdp_table->usSoftwareShutdownTemp)
++		high = tdp_table->usSoftwareShutdownTemp;
+ 
+ 	if (low > high)
+ 		return -EINVAL;
 
 
