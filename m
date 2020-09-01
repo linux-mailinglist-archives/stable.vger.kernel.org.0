@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC3612595C6
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FAD259409
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731837AbgIAPp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:45:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33734 "EHLO mail.kernel.org"
+        id S1727956AbgIAPex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:34:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgIAPp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:45:26 -0400
+        id S1730069AbgIAPev (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 369732064B;
-        Tue,  1 Sep 2020 15:45:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E16A20866;
+        Tue,  1 Sep 2020 15:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975125;
-        bh=dd+JQCM5s98p+yXm7WOY0Kntz4sLoZOAfBCVDomQIWI=;
+        s=default; t=1598974490;
+        bh=jYb4GQxI7atbxo7wKSsAyMnuCDwEneApn0EWTOBjdjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWbnkK3xmOUHzmrgY6C+RCfbTJz8AIZqe3qU68HDhYMx7JOiSPqLckUHMFymCLqLD
-         mcTPRBP55IG5BJ7IhYDVO1Wao9L/d4hxqXobPcwDi3DHRhmAYiBIii0QGt+rUUDruw
-         C/2SsrOZhRkOq/UjjgfUpzZlOaR3HZuUkKss9uDc=
+        b=M+tEJ1QcGsSd5v67yH97HS1QfMbQ1cLwjl59xtGz0W/CT/HMqD8maugDyJtwfOA7+
+         grc7rKuViuZDL330pxEADFay0tJ8NTTC1BVJvt+9CYc4CToNUpmMD9CVl2qsRDntKG
+         DGl/0U4sa/kq6tE61ivK6VDHW/1poJK3K7HcaKIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.8 189/255] writeback: Fix sync livelock due to b_dirty_time processing
-Date:   Tue,  1 Sep 2020 17:10:45 +0200
-Message-Id: <20200901151009.744929597@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Raul Rangel <rrangel@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 166/214] serial: 8250: change lock order in serial8250_do_startup()
+Date:   Tue,  1 Sep 2020 17:10:46 +0200
+Message-Id: <20200901151000.930281293@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,193 +46,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
-commit f9cae926f35e8230330f28c7b743ad088611a8de upstream.
+commit 205d300aea75623e1ae4aa43e0d265ab9cf195fd upstream.
 
-When we are processing writeback for sync(2), move_expired_inodes()
-didn't set any inode expiry value (older_than_this). This can result in
-writeback never completing if there's steady stream of inodes added to
-b_dirty_time list as writeback rechecks dirty lists after each writeback
-round whether there's more work to be done. Fix the problem by using
-sync(2) start time is inode expiry value when processing b_dirty_time
-list similarly as for ordinarily dirtied inodes. This requires some
-refactoring of older_than_this handling which simplifies the code
-noticeably as a bonus.
+We have a number of "uart.port->desc.lock vs desc.lock->uart.port"
+lockdep reports coming from 8250 driver; this causes a bit of trouble
+to people, so let's fix it.
 
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-CC: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
+The problem is reverse lock order in two different call paths:
+
+chain #1:
+
+ serial8250_do_startup()
+  spin_lock_irqsave(&port->lock);
+   disable_irq_nosync(port->irq);
+    raw_spin_lock_irqsave(&desc->lock)
+
+chain #2:
+
+  __report_bad_irq()
+   raw_spin_lock_irqsave(&desc->lock)
+    for_each_action_of_desc()
+     printk()
+      spin_lock_irqsave(&port->lock);
+
+Fix this by changing the order of locks in serial8250_do_startup():
+ do disable_irq_nosync() first, which grabs desc->lock, and grab
+ uart->port after that, so that chain #1 and chain #2 have same lock
+ order.
+
+Full lockdep splat:
+
+ ======================================================
+ WARNING: possible circular locking dependency detected
+ 5.4.39 #55 Not tainted
+ ======================================================
+
+ swapper/0/0 is trying to acquire lock:
+ ffffffffab65b6c0 (console_owner){-...}, at: console_lock_spinning_enable+0x31/0x57
+
+ but task is already holding lock:
+ ffff88810a8e34c0 (&irq_desc_lock_class){-.-.}, at: __report_bad_irq+0x5b/0xba
+
+ which lock already depends on the new lock.
+
+ the existing dependency chain (in reverse order) is:
+
+ -> #2 (&irq_desc_lock_class){-.-.}:
+        _raw_spin_lock_irqsave+0x61/0x8d
+        __irq_get_desc_lock+0x65/0x89
+        __disable_irq_nosync+0x3b/0x93
+        serial8250_do_startup+0x451/0x75c
+        uart_startup+0x1b4/0x2ff
+        uart_port_activate+0x73/0xa0
+        tty_port_open+0xae/0x10a
+        uart_open+0x1b/0x26
+        tty_open+0x24d/0x3a0
+        chrdev_open+0xd5/0x1cc
+        do_dentry_open+0x299/0x3c8
+        path_openat+0x434/0x1100
+        do_filp_open+0x9b/0x10a
+        do_sys_open+0x15f/0x3d7
+        kernel_init_freeable+0x157/0x1dd
+        kernel_init+0xe/0x105
+        ret_from_fork+0x27/0x50
+
+ -> #1 (&port_lock_key){-.-.}:
+        _raw_spin_lock_irqsave+0x61/0x8d
+        serial8250_console_write+0xa7/0x2a0
+        console_unlock+0x3b7/0x528
+        vprintk_emit+0x111/0x17f
+        printk+0x59/0x73
+        register_console+0x336/0x3a4
+        uart_add_one_port+0x51b/0x5be
+        serial8250_register_8250_port+0x454/0x55e
+        dw8250_probe+0x4dc/0x5b9
+        platform_drv_probe+0x67/0x8b
+        really_probe+0x14a/0x422
+        driver_probe_device+0x66/0x130
+        device_driver_attach+0x42/0x5b
+        __driver_attach+0xca/0x139
+        bus_for_each_dev+0x97/0xc9
+        bus_add_driver+0x12b/0x228
+        driver_register+0x64/0xed
+        do_one_initcall+0x20c/0x4a6
+        do_initcall_level+0xb5/0xc5
+        do_basic_setup+0x4c/0x58
+        kernel_init_freeable+0x13f/0x1dd
+        kernel_init+0xe/0x105
+        ret_from_fork+0x27/0x50
+
+ -> #0 (console_owner){-...}:
+        __lock_acquire+0x118d/0x2714
+        lock_acquire+0x203/0x258
+        console_lock_spinning_enable+0x51/0x57
+        console_unlock+0x25d/0x528
+        vprintk_emit+0x111/0x17f
+        printk+0x59/0x73
+        __report_bad_irq+0xa3/0xba
+        note_interrupt+0x19a/0x1d6
+        handle_irq_event_percpu+0x57/0x79
+        handle_irq_event+0x36/0x55
+        handle_fasteoi_irq+0xc2/0x18a
+        do_IRQ+0xb3/0x157
+        ret_from_intr+0x0/0x1d
+        cpuidle_enter_state+0x12f/0x1fd
+        cpuidle_enter+0x2e/0x3d
+        do_idle+0x1ce/0x2ce
+        cpu_startup_entry+0x1d/0x1f
+        start_kernel+0x406/0x46a
+        secondary_startup_64+0xa4/0xb0
+
+ other info that might help us debug this:
+
+ Chain exists of:
+   console_owner --> &port_lock_key --> &irq_desc_lock_class
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&irq_desc_lock_class);
+                                lock(&port_lock_key);
+                                lock(&irq_desc_lock_class);
+   lock(console_owner);
+
+  *** DEADLOCK ***
+
+ 2 locks held by swapper/0/0:
+  #0: ffff88810a8e34c0 (&irq_desc_lock_class){-.-.}, at: __report_bad_irq+0x5b/0xba
+  #1: ffffffffab65b5c0 (console_lock){+.+.}, at: console_trylock_spinning+0x20/0x181
+
+ stack backtrace:
+ CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.39 #55
+ Hardware name: XXXXXX
+ Call Trace:
+  <IRQ>
+  dump_stack+0xbf/0x133
+  ? print_circular_bug+0xd6/0xe9
+  check_noncircular+0x1b9/0x1c3
+  __lock_acquire+0x118d/0x2714
+  lock_acquire+0x203/0x258
+  ? console_lock_spinning_enable+0x31/0x57
+  console_lock_spinning_enable+0x51/0x57
+  ? console_lock_spinning_enable+0x31/0x57
+  console_unlock+0x25d/0x528
+  ? console_trylock+0x18/0x4e
+  vprintk_emit+0x111/0x17f
+  ? lock_acquire+0x203/0x258
+  printk+0x59/0x73
+  __report_bad_irq+0xa3/0xba
+  note_interrupt+0x19a/0x1d6
+  handle_irq_event_percpu+0x57/0x79
+  handle_irq_event+0x36/0x55
+  handle_fasteoi_irq+0xc2/0x18a
+  do_IRQ+0xb3/0x157
+  common_interrupt+0xf/0xf
+  </IRQ>
+
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Fixes: 768aec0b5bcc ("serial: 8250: fix shared interrupts issues with SMP and RT kernels")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Raul Rangel <rrangel@google.com>
+BugLink: https://bugs.chromium.org/p/chromium/issues/detail?id=1114800
+Link: https://lore.kernel.org/lkml/CAHQZ30BnfX+gxjPm1DUd5psOTqbyDh4EJE=2=VAMW_VDafctkA@mail.gmail.com/T/#u
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200817022646.1484638-1-sergey.senozhatsky@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c                |   44 +++++++++++++++------------------------
- include/trace/events/writeback.h |   13 +++++------
- 2 files changed, 23 insertions(+), 34 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -42,7 +42,6 @@
- struct wb_writeback_work {
- 	long nr_pages;
- 	struct super_block *sb;
--	unsigned long *older_than_this;
- 	enum writeback_sync_modes sync_mode;
- 	unsigned int tagged_writepages:1;
- 	unsigned int for_kupdate:1;
-@@ -1234,16 +1233,13 @@ static bool inode_dirtied_after(struct i
- #define EXPIRE_DIRTY_ATIME 0x0001
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2198,6 +2198,10 @@ int serial8250_do_startup(struct uart_po
  
- /*
-- * Move expired (dirtied before work->older_than_this) dirty inodes from
-+ * Move expired (dirtied before dirtied_before) dirty inodes from
-  * @delaying_queue to @dispatch_queue.
-  */
- static int move_expired_inodes(struct list_head *delaying_queue,
- 			       struct list_head *dispatch_queue,
--			       int flags,
--			       struct wb_writeback_work *work)
-+			       int flags, unsigned long dirtied_before)
- {
--	unsigned long *older_than_this = NULL;
--	unsigned long expire_time;
- 	LIST_HEAD(tmp);
- 	struct list_head *pos, *node;
- 	struct super_block *sb = NULL;
-@@ -1251,16 +1247,9 @@ static int move_expired_inodes(struct li
- 	int do_sb_sort = 0;
- 	int moved = 0;
- 
--	if ((flags & EXPIRE_DIRTY_ATIME) == 0)
--		older_than_this = work->older_than_this;
--	else if (!work->for_sync) {
--		expire_time = jiffies - (dirtytime_expire_interval * HZ);
--		older_than_this = &expire_time;
--	}
- 	while (!list_empty(delaying_queue)) {
- 		inode = wb_inode(delaying_queue->prev);
--		if (older_than_this &&
--		    inode_dirtied_after(inode, *older_than_this))
-+		if (inode_dirtied_after(inode, dirtied_before))
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
-@@ -1306,18 +1295,22 @@ out:
-  *                                           |
-  *                                           +--> dequeue for IO
-  */
--static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work)
-+static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work,
-+		     unsigned long dirtied_before)
- {
- 	int moved;
-+	unsigned long time_expire_jif = dirtied_before;
- 
- 	assert_spin_locked(&wb->list_lock);
- 	list_splice_init(&wb->b_more_io, &wb->b_io);
--	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, work);
-+	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, dirtied_before);
-+	if (!work->for_sync)
-+		time_expire_jif = jiffies - dirtytime_expire_interval * HZ;
- 	moved += move_expired_inodes(&wb->b_dirty_time, &wb->b_io,
--				     EXPIRE_DIRTY_ATIME, work);
-+				     EXPIRE_DIRTY_ATIME, time_expire_jif);
- 	if (moved)
- 		wb_io_lists_populated(wb);
--	trace_writeback_queue_io(wb, work, moved);
-+	trace_writeback_queue_io(wb, work, dirtied_before, moved);
- }
- 
- static int write_inode(struct inode *inode, struct writeback_control *wbc)
-@@ -1829,7 +1822,7 @@ static long writeback_inodes_wb(struct b
- 	blk_start_plug(&plug);
- 	spin_lock(&wb->list_lock);
- 	if (list_empty(&wb->b_io))
--		queue_io(wb, &work);
-+		queue_io(wb, &work, jiffies);
- 	__writeback_inodes_wb(wb, &work);
- 	spin_unlock(&wb->list_lock);
- 	blk_finish_plug(&plug);
-@@ -1849,7 +1842,7 @@ static long writeback_inodes_wb(struct b
-  * takes longer than a dirty_writeback_interval interval, then leave a
-  * one-second gap.
-  *
-- * older_than_this takes precedence over nr_to_write.  So we'll only write back
-+ * dirtied_before takes precedence over nr_to_write.  So we'll only write back
-  * all dirty pages if they are all attached to "old" mappings.
-  */
- static long wb_writeback(struct bdi_writeback *wb,
-@@ -1857,14 +1850,11 @@ static long wb_writeback(struct bdi_writ
- {
- 	unsigned long wb_start = jiffies;
- 	long nr_pages = work->nr_pages;
--	unsigned long oldest_jif;
-+	unsigned long dirtied_before = jiffies;
- 	struct inode *inode;
- 	long progress;
- 	struct blk_plug plug;
- 
--	oldest_jif = jiffies;
--	work->older_than_this = &oldest_jif;
--
- 	blk_start_plug(&plug);
- 	spin_lock(&wb->list_lock);
- 	for (;;) {
-@@ -1898,14 +1888,14 @@ static long wb_writeback(struct bdi_writ
- 		 * safe.
+ 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
+ 		unsigned char iir1;
++
++		if (port->irqflags & IRQF_SHARED)
++			disable_irq_nosync(port->irq);
++
+ 		/*
+ 		 * Test for UARTs that do not reassert THRE when the
+ 		 * transmitter is idle and the interrupt has already
+@@ -2207,8 +2211,6 @@ int serial8250_do_startup(struct uart_po
+ 		 * allow register changes to become visible.
  		 */
- 		if (work->for_kupdate) {
--			oldest_jif = jiffies -
-+			dirtied_before = jiffies -
- 				msecs_to_jiffies(dirty_expire_interval * 10);
- 		} else if (work->for_background)
--			oldest_jif = jiffies;
-+			dirtied_before = jiffies;
+ 		spin_lock_irqsave(&port->lock, flags);
+-		if (up->port.irqflags & IRQF_SHARED)
+-			disable_irq_nosync(port->irq);
  
- 		trace_writeback_start(wb, work);
- 		if (list_empty(&wb->b_io))
--			queue_io(wb, work);
-+			queue_io(wb, work, dirtied_before);
- 		if (work->sb)
- 			progress = writeback_sb_inodes(work->sb, wb, work);
- 		else
---- a/include/trace/events/writeback.h
-+++ b/include/trace/events/writeback.h
-@@ -498,8 +498,9 @@ DEFINE_WBC_EVENT(wbc_writepage);
- TRACE_EVENT(writeback_queue_io,
- 	TP_PROTO(struct bdi_writeback *wb,
- 		 struct wb_writeback_work *work,
-+		 unsigned long dirtied_before,
- 		 int moved),
--	TP_ARGS(wb, work, moved),
-+	TP_ARGS(wb, work, dirtied_before, moved),
- 	TP_STRUCT__entry(
- 		__array(char,		name, 32)
- 		__field(unsigned long,	older)
-@@ -509,19 +510,17 @@ TRACE_EVENT(writeback_queue_io,
- 		__field(ino_t,		cgroup_ino)
- 	),
- 	TP_fast_assign(
--		unsigned long *older_than_this = work->older_than_this;
- 		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
--		__entry->older	= older_than_this ?  *older_than_this : 0;
--		__entry->age	= older_than_this ?
--				  (jiffies - *older_than_this) * 1000 / HZ : -1;
-+		__entry->older	= dirtied_before;
-+		__entry->age	= (jiffies - dirtied_before) * 1000 / HZ;
- 		__entry->moved	= moved;
- 		__entry->reason	= work->reason;
- 		__entry->cgroup_ino	= __trace_wb_assign_cgroup(wb);
- 	),
- 	TP_printk("bdi %s: older=%lu age=%ld enqueue=%d reason=%s cgroup_ino=%lu",
- 		__entry->name,
--		__entry->older,	/* older_than_this in jiffies */
--		__entry->age,	/* older_than_this in relative milliseconds */
-+		__entry->older,	/* dirtied_before in jiffies */
-+		__entry->age,	/* dirtied_before in relative milliseconds */
- 		__entry->moved,
- 		__print_symbolic(__entry->reason, WB_WORK_REASON),
- 		(unsigned long)__entry->cgroup_ino
+ 		wait_for_xmitr(up, UART_LSR_THRE);
+ 		serial_port_out_sync(port, UART_IER, UART_IER_THRI);
+@@ -2220,9 +2222,10 @@ int serial8250_do_startup(struct uart_po
+ 		iir = serial_port_in(port, UART_IIR);
+ 		serial_port_out(port, UART_IER, 0);
+ 
++		spin_unlock_irqrestore(&port->lock, flags);
++
+ 		if (port->irqflags & IRQF_SHARED)
+ 			enable_irq(port->irq);
+-		spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 		/*
+ 		 * If the interrupt is not reasserted, or we otherwise
 
 
