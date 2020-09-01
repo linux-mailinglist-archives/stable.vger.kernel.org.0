@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF35D259CFC
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74247259C54
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732718AbgIARWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54166 "EHLO mail.kernel.org"
+        id S1729167AbgIAPPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:15:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727855AbgIAPMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:12:03 -0400
+        id S1729160AbgIAPO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BAEE206FA;
-        Tue,  1 Sep 2020 15:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 324CE20FC3;
+        Tue,  1 Sep 2020 15:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973122;
-        bh=iwp4jh51/E3gWoJfH52vilAywRZ+X4+JsCcBlPWWAU4=;
+        s=default; t=1598973298;
+        bh=NX2BonOKPY9NrT2NnXW7e19NfLvwaMIpuyVIyomGOkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wMmc93EXvJ2ODXfR47vgtfpKKnvYPx46FMyIg8TLTd60hdNs82Y1HOQGiewuxiB9B
-         xhAWjLat0EOVWCH6yLwMeeE7Gx9rWjkCQxwiyrjyoLKSgwOTgz0o0DR4mpe7rB/bdQ
-         3fo5uJiuYaZ1tPzDxbpN1pCiSxJ3Cg1qtGEj+duI=
+        b=btkbPRsnkQU78uKnI0jguM9jMDHx/HMqGQ6T50wppUsZ/cCS7UeFhdtgy9XTxHdxp
+         K8oJO8QKuX04MdR9knc1+VUeVlV+lg0eygqfZXEyxJv2Nm3ZEpVMg4OxzZRcu2F5zz
+         zAdmBEqhrtl6Zpg+iuSLAiW5nb8+uOSGfEv5BfuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Reto Schneider <code@reto-schneider.ch>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/62] drm/amdgpu/display: fix ref count leak when pm_runtime_get_sync fails
+Subject: [PATCH 4.9 23/78] rtlwifi: rtl8192cu: Prevent leaking urb
 Date:   Tue,  1 Sep 2020 17:09:59 +0200
-Message-Id: <20200901150921.540588505@linuxfoundation.org>
+Message-Id: <20200901150925.906858416@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Reto Schneider <code@reto-schneider.ch>
 
-[ Upstream commit f79f94765f8c39db0b7dec1d335ab046aac03f20 ]
+[ Upstream commit 03128643eb5453a798db5770952c73dc64fcaf00 ]
 
-The call to pm_runtime_get_sync increments the counter even in case of
-failure, leading to incorrect ref count.
-In case of failure, decrement the ref count before returning.
+If usb_submit_urb fails the allocated urb should be unanchored and
+released.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Reto Schneider <code@reto-schneider.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200622132113.14508-3-code@reto-schneider.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 1f0e6ede120c4..1b3fda2331bee 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -734,8 +734,10 @@ amdgpu_connector_lvds_detect(struct drm_connector *connector, bool force)
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 93b22a5b6878e..e524573aa8a09 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -752,8 +752,11 @@ static int _rtl_usb_receive(struct ieee80211_hw *hw)
  
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
+ 		usb_anchor_urb(urb, &rtlusb->rx_submitted);
+ 		err = usb_submit_urb(urb, GFP_KERNEL);
+-		if (err)
++		if (err) {
++			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			goto err_out;
 +		}
+ 		usb_free_urb(urb);
  	}
- 
- 	if (encoder) {
-@@ -863,8 +865,10 @@ amdgpu_connector_vga_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	encoder = amdgpu_connector_best_single_encoder(connector);
-@@ -986,8 +990,10 @@ amdgpu_connector_dvi_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	if (!force && amdgpu_connector_check_hpd_status_unchanged(connector)) {
-@@ -1360,8 +1366,10 @@ amdgpu_connector_dp_detect(struct drm_connector *connector, bool force)
- 
- 	if (!drm_kms_helper_is_poll_worker()) {
- 		r = pm_runtime_get_sync(connector->dev->dev);
--		if (r < 0)
-+		if (r < 0) {
-+			pm_runtime_put_autosuspend(connector->dev->dev);
- 			return connector_status_disconnected;
-+		}
- 	}
- 
- 	if (!force && amdgpu_connector_check_hpd_status_unchanged(connector)) {
+ 	return 0;
 -- 
 2.25.1
 
