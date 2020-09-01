@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 298C4259AF7
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 364AA2598E3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729834AbgIAQzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47356 "EHLO mail.kernel.org"
+        id S1730687AbgIAQeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:34:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728695AbgIAPXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:23:55 -0400
+        id S1730479AbgIAPbI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:31:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46C3A20BED;
-        Tue,  1 Sep 2020 15:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8033020866;
+        Tue,  1 Sep 2020 15:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973834;
-        bh=CuavRm0CKBzQlhflULSq+Uof+b5mUZFbdVDsHUwhgfE=;
+        s=default; t=1598974268;
+        bh=8o1ia7Fk7UU6QLPzZBMU8sFpEz/+iYGN44b6+wNdW9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XChBdBYRBs4+VMu4fIpRDvSLB2nFYk6ccm7b15t2lAKXfx+7HVDochKKqZWFal1y9
-         ol7B+DJYXmg2Bzl0Ma4Gjr034g/4sN3kbhj1ZwnbR5k+El6A2WbcGd35wl87rlqlVf
-         09y463VSAOLgKWduDiQQ7vWf1ITzhZqVYsiH4pAA=
+        b=BvO4/qB+oEVeoXcHRtPy+hyluIkvKsQzSqkGFz4MEehKTjq9TITH88l7aofY+1obF
+         JnaSzdl5YzK65SGdIzDNIw39CxFWpQvsFcjkycBOOiOQcgqjEMSm0pILYfDC5dYk2T
+         FcJ8v2b34ckeJPX+jIq7yFQA42ceayNTaYa7u+Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 035/125] cec-api: prevent leaking memory through hole in structure
-Date:   Tue,  1 Sep 2020 17:09:50 +0200
-Message-Id: <20200901150936.284081905@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 111/214] i2c: rcar: in slave mode, clear NACK earlier
+Date:   Tue,  1 Sep 2020 17:09:51 +0200
+Message-Id: <20200901150958.301557647@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
+[ Upstream commit 914a7b3563b8fb92f976619bbd0fa3a4a708baae ]
 
-Fix this smatch warning:
+Currently, a NACK in slave mode is set/cleared when SCL is held low by
+the IP core right before the bit is about to be pushed out. This is too
+late for clearing and then a NACK from the previous byte is still used
+for the current one. Now, let's clear the NACK right after we detected
+the STOP condition following the NACK.
 
-drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
-'features')
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-api.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-rcar.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/cec/cec-api.c b/drivers/media/cec/cec-api.c
-index 4961573850d54..b2b3f779592fd 100644
---- a/drivers/media/cec/cec-api.c
-+++ b/drivers/media/cec/cec-api.c
-@@ -147,7 +147,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
- 	struct cec_log_addrs log_addrs;
- 
- 	mutex_lock(&adap->lock);
--	log_addrs = adap->log_addrs;
-+	/*
-+	 * We use memcpy here instead of assignment since there is a
-+	 * hole at the end of struct cec_log_addrs that an assignment
-+	 * might ignore. So when we do copy_to_user() we could leak
-+	 * one byte of memory.
-+	 */
-+	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
- 	if (!adap->is_configured)
- 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
- 		       sizeof(log_addrs.log_addr));
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 0b90aa0318df3..9c162a01a5849 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -587,6 +587,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ 	/* master sent stop */
+ 	if (ssr_filtered & SSR) {
+ 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
++		rcar_i2c_write(priv, ICSCR, SIE | SDBS); /* clear our NACK */
+ 		rcar_i2c_write(priv, ICSIER, SAR);
+ 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
+ 	}
 -- 
 2.25.1
 
