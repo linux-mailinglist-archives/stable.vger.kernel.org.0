@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC38259EDD
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 20:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C211259EF5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 21:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730340AbgIAS61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 14:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58282 "EHLO
+        id S1729055AbgIATJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 15:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728336AbgIAS6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 14:58:24 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA763C061244;
-        Tue,  1 Sep 2020 11:58:24 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id y6so997248plk.10;
-        Tue, 01 Sep 2020 11:58:24 -0700 (PDT)
+        with ESMTP id S1726107AbgIATJX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 15:09:23 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C40C061244;
+        Tue,  1 Sep 2020 12:09:21 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id gf14so1036615pjb.5;
+        Tue, 01 Sep 2020 12:09:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=Egkzc6e2Q4GbPtLeZeOCULkEnLy5OXPFzZB/7n/Y2E8=;
-        b=ViVWcIQpbdBaPCNOXuJV7psU4rp6f6j39vW8N8NGcspfPHUB+igEwzm2cmiGv9SOhP
-         fy3b3otQzVtQ8447D/Ud2x5HADT7J/oBpWcESVvKpH5B4nbJehYrgPK3E4A/kzAm0CbB
-         ZOnbLMoM19mHPIAPcUZrei3PgrYQgCgrLvAQWEYCf0lU+53dXfm4QKIceaKJ6dzZ9Qoo
-         x48+2vBHDhdD3uTO5htD1VLczyVZU3hzFsQajSsMY/Ga3npzSdvGyUCh5zbFTme+7/+a
-         WiaMOVUr+DJ1ml0+qchsCUhzRtFY8MvwbBwLaWivGE4Td44F36tl14QVcXaO3Mp5pugs
-         L4wg==
+        bh=Omnb0d0gIRmcYRZt3fhQq4f2pv4EkvShvamaZBFx4EY=;
+        b=CCT/eiAJnV891jqG/WV7Go1fkkjFdkAXr0RWWUrO80f9IQIdEW6roYmLQdeut3ro0y
+         FGTObufOrXfdbr4AsgzhkbO4Fs578rxzp/o5KgGPG7Pjz6+/ABNhGnQZwnLdVeaU4h0C
+         CJN8skPNCCLT6ZeraKBW61rVW7TqHSZE2mkYfgWVWPK6ufwdS0fplbuhEAze7AxNEz1Q
+         RNmvTAGbycfV9ij5Xwv5nk3tA8pMF6TUcZmfF7UW4FAJpGZc807Y3A7+eQqtr6tc0ljt
+         il1oeJH6R66cHvqLz4D56Mllv67HD0U0pRxq4gGEMafgiyixD5zS2mG40ztYvP8xiMAr
+         U8GQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=Egkzc6e2Q4GbPtLeZeOCULkEnLy5OXPFzZB/7n/Y2E8=;
-        b=c1ytjqlNA8O8mSzfpRTDJG1RCnz7v+TllSchSl1U2ulPAnh9OqCjRPthpTF7wrlGh6
-         nNHwWXTtlyBUxyUJlljTASYqoASyagzz8EPzrQ44nCKhHRT5Ys9+lIOmykEiOV03wkcK
-         38PSxw2xabsNRzW+oIm8N0S0ZJGJ5OjxWJAgvXfplFGaggzLEluRVE2EBtSdyII29Y1Y
-         /9iw3I4dbX6limjcXQINuLBw2rPVuFsDJqTsytV8gXpUNfPKbJ442SPSRwilY8Wjlzt4
-         WqZbhTKPXo41cPbMXyFhrEAuZw3PZW/XWAHlrKPPr8zK/lMfKCNMCwT+OgHNt5dR8y1N
-         5RZA==
-X-Gm-Message-State: AOAM533B5q1PEbMZmveqvTpYiIaO5D+SJ67cGXZsog5OR96h0sTUHudt
-        A2MSjd1vfKatn0ItvQlGBz3uyof5Tno=
-X-Google-Smtp-Source: ABdhPJxbvsTju367WrmAAxqFZ9z7yPHStmCPq1J9gqzHfE19gfSEoq012FQFPh/Sl18PiPfQyCAkPA==
-X-Received: by 2002:a17:902:d702:: with SMTP id w2mr2685896ply.53.1598986703989;
-        Tue, 01 Sep 2020 11:58:23 -0700 (PDT)
+        bh=Omnb0d0gIRmcYRZt3fhQq4f2pv4EkvShvamaZBFx4EY=;
+        b=AIiYDw8baSPztDkzYtcFblMMLB69GJaFUq954Znq1OpwbuOnAAJHBIWPhesvjSEZao
+         LY4PNp+MLOWLsLskrcMUjiNObQTxipLwzsE+eLJEzB1/bC6ViRQxQGozqT2WEj5aTlTI
+         Pd4NpF+LQu/gCUhRdZ6/DCWUC10UGmTq10D4C5+ep6/TrO5pTI3sVlheSl7rVWGfIzpR
+         XttU2MxyVB9RQLlltMtmF1bLaF41wGs6qD2M3FN7bx++TArPWLzGe+HXP2iXIimJEUMl
+         pGk625nYJHaIJpCFtJ8rj1bsU+l+k3mzAUdOvsCjp5Gc8QJBIbjPYOCeFwwl4NRzAtWp
+         kQGA==
+X-Gm-Message-State: AOAM533PAZFsaoTcsPNykAwYUxCatC3osisMplz8nL/49UA1J39km6ai
+        eH5R5jT/gDo+E/9EO7i4kB+XDexEY5A=
+X-Google-Smtp-Source: ABdhPJyv+76L/nc+Y+zE3Gy0H3/Hmxl6EeTKpsQxreQcjh0o5syqup+/fL1u64ZwDsvNceVXY119jw==
+X-Received: by 2002:a17:902:7048:: with SMTP id h8mr2634478plt.225.1598987361152;
+        Tue, 01 Sep 2020 12:09:21 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n128sm1489597pga.5.2020.09.01.11.58.22
+        by smtp.gmail.com with ESMTPSA id n24sm2941230pgk.59.2020.09.01.12.09.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2020 11:58:23 -0700 (PDT)
-Subject: Re: [PATCH 4.4 00/62] 4.4.235-rc1 review
+        Tue, 01 Sep 2020 12:09:20 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/214] 5.4.62-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -101,12 +101,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <76622586-3742-692a-c9de-994ac21c5257@roeck-us.net>
-Date:   Tue, 1 Sep 2020 11:58:21 -0700
+Message-ID: <694f63b6-c5a0-f434-5212-27f1cb7b5f2a@roeck-us.net>
+Date:   Tue, 1 Sep 2020 12:09:19 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -115,9 +115,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/1/20 8:09 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.235 release.
-> There are 62 patches in this series, all will be posted as a response
+On 9/1/20 8:08 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.62 release.
+> There are 214 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -125,15 +125,53 @@ On 9/1/20 8:09 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 
-Building powerpc:defconfig ... failed
+Building x86_64:tools/perf ... failed
 --------------
 Error log:
-arch/powerpc/perf/core-book3s.c: In function ‘record_and_restart’:
-arch/powerpc/perf/core-book3s.c:2045:7: error: implicit declaration of function ‘perf_event_account_interrupt’; did you mean ‘perf_event_interrupt’? [-Werror=implicit-function-declaration]
-   if (perf_event_account_interrupt(event))
+Warning: Kernel ABI header at 'tools/include/uapi/linux/kvm.h' differs from latest version at 'include/uapi/linux/kvm.h'
+Warning: Kernel ABI header at 'tools/include/uapi/linux/sched.h' differs from latest version at 'include/uapi/linux/sched.h'
+Warning: Kernel ABI header at 'tools/arch/x86/include/asm/cpufeatures.h' differs from latest version at 'arch/x86/include/asm/cpufeatures.h'
+Warning: Kernel ABI header at 'tools/arch/x86/include/uapi/asm/unistd.h' differs from latest version at 'arch/x86/include/uapi/asm/unistd.h'
+Makefile.config:846: No libcap found, disables capability support, please install libcap-devel/libcap-dev
+Makefile.config:958: No openjdk development package found, please install JDK package, e.g. openjdk-8-jdk, java-1.8.0-openjdk-devel
+  PERF_VERSION = 5.4.61.gf5583dd12e6f
+In file included from btf_dump.c:16:0:
+btf_dump.c: In function ‘btf_align_of’:
+tools/include/linux/kernel.h:53:17: error: comparison of distinct pointer types lacks a cast [-Werror]
+  (void) (&_min1 == &_min2);  \
+                 ^
+btf_dump.c:770:10: note: in expansion of macro ‘min’
+   return min(sizeof(void *), t->size);
+          ^~~
+cc1: all warnings being treated as errors
+make[7]: *** [/tmp/buildbot-builddir/tools/perf/staticobjs/btf_dump.o] Error 1
 
-Caused by commit 91d6f90ac6d5 ("powerpc/perf: Fix soft lockups due
-to missed interrupt accounting"). perf_event_account_interrupt()
-does not exist in v4.4.y.
+Bisect log below. Reverting the following two patches fixes the problem.
+
+497ef945f327 libbpf: Fix build on ppc64le architecture
+401834f55ce7 libbpf: Handle GCC built-in types for Arm NEON
 
 Guenter
+
+---
+$ git bisect log
+# bad: [f5583dd12e6fc8a3c11ae732f38bce8334e150a2] Linux 5.4.62-rc1
+# good: [6576d69aac94cd8409636dfa86e0df39facdf0d2] Linux 5.4.61
+git bisect start 'HEAD' 'v5.4.61'
+# good: [6c747bd0794c982b500bda7334ef55d9dabb6cc6] nvme-fc: Fix wrong return value in __nvme_fc_init_request()
+git bisect good 6c747bd0794c982b500bda7334ef55d9dabb6cc6
+# bad: [81b5698e6d9ecdc9569df8f4b93be70d587f5ddf] serial: samsung: Removes the IRQ not found warning
+git bisect bad 81b5698e6d9ecdc9569df8f4b93be70d587f5ddf
+# bad: [973679736caa8e1b39b68866535bdc7899a46f25] ASoC: wm8994: Avoid attempts to read unreadable registers
+git bisect bad 973679736caa8e1b39b68866535bdc7899a46f25
+# good: [1789df2a787c589dbe83bc3ed52af2abbc739d1b] ext4: correctly restore system zone info when remount fails
+git bisect good 1789df2a787c589dbe83bc3ed52af2abbc739d1b
+# good: [ba1fb0301a60cbded377e0f312c82847415a1820] drm/amd/powerplay: correct UVD/VCE PG state on custom pptable uploading
+git bisect good ba1fb0301a60cbded377e0f312c82847415a1820
+# bad: [1ef070d29e73a50e98a93d9a68f69cfef4247170] netfilter: avoid ipv6 -> nf_defrag_ipv6 module dependency
+git bisect bad 1ef070d29e73a50e98a93d9a68f69cfef4247170
+# bad: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Handle GCC built-in types for Arm NEON
+git bisect bad 401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c
+# good: [ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711] drm/amd/display: Switch to immediate mode for updating infopackets
+git bisect good ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711
+# first bad commit: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Handle GCC built-in types for Arm NEON
