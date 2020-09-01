@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B181F259ADB
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD916259AE1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732373AbgIAQyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48126 "EHLO mail.kernel.org"
+        id S1732355AbgIAQyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729954AbgIAPYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:24:19 -0400
+        id S1729560AbgIAPYW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE0DB20BED;
-        Tue,  1 Sep 2020 15:24:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CE462078B;
+        Tue,  1 Sep 2020 15:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973859;
-        bh=FeEjMst33F7XYwCjWK2Fc1/wB2pauHmPP9mbwrcIq84=;
+        s=default; t=1598973861;
+        bh=kjggIwyu8tGGql/uP4yWKtPejoz6uZLhw5z0iPKYxWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFa6mu99ZguvENe/TzT8OqyU8WoJv5Jh35BbgZH5lOtM/FJo5RU9kbNYDHLIb4G7Y
-         FZNaeRfDnGp+dq8kpBFd3XCXGsLF1aZKWO/PBGR2nPl2Qz+CDQFA/m0aIaJAdKvd0M
-         x+gaXwb2vxBbKcPaa1mXS0yqlMalJocp28XMVW8k=
+        b=gDkwGtl7o/MRDpXy6ukf06txuQFQJ0tKcDb+3bvhf9aNRFsPy3LeFPZLSi7nSozi0
+         PJztCRH8uUyxf26MqNw4tVxg7EX4VVPWaTtw+++oALK3b7zoHf97Jk42BFC06mD3mG
+         vCXJBuNdYM6jcog3qUukfMTgzMhvcwxx+4OD8VdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/125] Revert "scsi: qla2xxx: Fix crash on qla2x00_mailbox_command"
-Date:   Tue,  1 Sep 2020 17:10:31 +0200
-Message-Id: <20200901150938.307141874@linuxfoundation.org>
+Subject: [PATCH 4.19 077/125] macvlan: validate setting of multiple remote source MAC addresses
+Date:   Tue,  1 Sep 2020 17:10:32 +0200
+Message-Id: <20200901150938.355420686@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -47,45 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit de7e6194301ad31c4ce95395eb678e51a1b907e5 ]
+[ Upstream commit 8b61fba503904acae24aeb2bd5569b4d6544d48f ]
 
-FCoE adapter initialization failed for ISP8021 with the following patch
-applied. In addition, reproduction of the issue the patch originally tried
-to address has been unsuccessful.
+Remote source MAC addresses can be set on a 'source mode' macvlan
+interface via the IFLA_MACVLAN_MACADDR_DATA attribute. This commit
+tightens the validation of these MAC addresses to match the validation
+already performed when setting or adding a single MAC address via the
+IFLA_MACVLAN_MACADDR attribute.
 
-This reverts commit 3cb182b3fa8b7a61f05c671525494697cba39c6a.
+iproute2 uses IFLA_MACVLAN_MACADDR_DATA for its 'macvlan macaddr set'
+command, and IFLA_MACVLAN_MACADDR for its 'macvlan macaddr add' command,
+which demonstrates the inconsistent behaviour that this commit
+addresses:
 
-Link: https://lore.kernel.org/r/20200806111014.28434-11-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ # ip link add link eth0 name macvlan0 type macvlan mode source
+ # ip link set link dev macvlan0 type macvlan macaddr add 01:00:00:00:00:00
+ RTNETLINK answers: Cannot assign requested address
+ # ip link set link dev macvlan0 type macvlan macaddr set 01:00:00:00:00:00
+ # ip -d link show macvlan0
+ 5: macvlan0@eth0: <BROADCAST,MULTICAST,DYNAMIC,UP,LOWER_UP> mtu 1500 ...
+     link/ether 2e:ac:fd:2d:69:f8 brd ff:ff:ff:ff:ff:ff promiscuity 0
+     macvlan mode source remotes (1) 01:00:00:00:00:00 numtxqueues 1 ...
+
+With this change, the 'set' command will (rightly) fail in the same way
+as the 'add' command.
+
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/net/macvlan.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index ac5d2d34aeeae..07c5d7397d425 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -329,14 +329,6 @@ qla2x00_mailbox_command(scsi_qla_host_t *vha, mbx_cmd_t *mcp)
- 			if (time_after(jiffies, wait_time))
- 				break;
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 349123592af0f..e226a96da3a39 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1230,6 +1230,9 @@ static void macvlan_port_destroy(struct net_device *dev)
+ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[],
+ 			    struct netlink_ext_ack *extack)
+ {
++	struct nlattr *nla, *head;
++	int rem, len;
++
+ 	if (tb[IFLA_ADDRESS]) {
+ 		if (nla_len(tb[IFLA_ADDRESS]) != ETH_ALEN)
+ 			return -EINVAL;
+@@ -1277,6 +1280,20 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[],
+ 			return -EADDRNOTAVAIL;
+ 	}
  
--			/*
--			 * Check if it's UNLOADING, cause we cannot poll in
--			 * this case, or else a NULL pointer dereference
--			 * is triggered.
--			 */
--			if (unlikely(test_bit(UNLOADING, &base_vha->dpc_flags)))
--				return QLA_FUNCTION_TIMEOUT;
++	if (data[IFLA_MACVLAN_MACADDR_DATA]) {
++		head = nla_data(data[IFLA_MACVLAN_MACADDR_DATA]);
++		len = nla_len(data[IFLA_MACVLAN_MACADDR_DATA]);
++
++		nla_for_each_attr(nla, head, len, rem) {
++			if (nla_type(nla) != IFLA_MACVLAN_MACADDR ||
++			    nla_len(nla) != ETH_ALEN)
++				return -EINVAL;
++
++			if (!is_valid_ether_addr(nla_data(nla)))
++				return -EADDRNOTAVAIL;
++		}
++	}
++
+ 	if (data[IFLA_MACVLAN_MACADDR_COUNT])
+ 		return -EINVAL;
+ 
+@@ -1333,10 +1350,6 @@ static int macvlan_changelink_sources(struct macvlan_dev *vlan, u32 mode,
+ 		len = nla_len(data[IFLA_MACVLAN_MACADDR_DATA]);
+ 
+ 		nla_for_each_attr(nla, head, len, rem) {
+-			if (nla_type(nla) != IFLA_MACVLAN_MACADDR ||
+-			    nla_len(nla) != ETH_ALEN)
+-				continue;
 -
- 			/* Check for pending interrupts. */
- 			qla2x00_poll(ha->rsp_q_map[0]);
- 
+ 			addr = nla_data(nla);
+ 			ret = macvlan_hash_add_source(vlan, addr);
+ 			if (ret)
 -- 
 2.25.1
 
