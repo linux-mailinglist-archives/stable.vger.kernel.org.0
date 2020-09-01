@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35778259A7A
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA73259AB3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730383AbgIAQuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:50:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52434 "EHLO mail.kernel.org"
+        id S1732416AbgIAQww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729784AbgIAP0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:37 -0400
+        id S1730041AbgIAPZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:25:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2943C20684;
-        Tue,  1 Sep 2020 15:26:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63CA6206FA;
+        Tue,  1 Sep 2020 15:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973996;
-        bh=DG9OHfeW8F6tLrVgd2ohMmxBtikjb2q/Qyou/zTJanM=;
+        s=default; t=1598973930;
+        bh=YN6z6t1igdxdmPtWM9p/oZkiYtSvg0xJAQvZjA5iT0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCFzsBvPwrSo900z9U2+8Fl33Lw4G40ZmuvXccmf3QTSedcX0wE9PE0+5QZfFTV/W
-         s+qQ3tPq7XfFwdbpd033yvQvDZuQIiFoFYJ867gh29w5tq69p0A7ggKLPjIWASl3cn
-         /MAHTOSYebNU/Tr3JMkrHZX7ln8lTHDOgFbLUuJI=
+        b=ktkVQIX+G1hrOiRhMl7LCmFfvykxTBFMjXx9w/D1nbZKObX3SNQ+ad8Zle6bbD1Qt
+         4En5F01vNCnidjo6IX3+N1xMWRFCNqGir1ZvngYHlgh9tzo0q20O6XZjoWB4qZbYD7
+         lyaXuHHgHWSxGb3RRI8YUSjAHe4tk0vGw6D4RUK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 100/125] xhci: Always restore EP_SOFT_CLEAR_TOGGLE even if ep reset failed
-Date:   Tue,  1 Sep 2020 17:10:55 +0200
-Message-Id: <20200901150939.506712849@linuxfoundation.org>
+        stable@vger.kernel.org, qiuguorui1 <qiuguorui1@huawei.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 104/125] irqchip/stm32-exti: Avoid losing interrupts due to clearing pending bits by mistake
+Date:   Tue,  1 Sep 2020 17:10:59 +0200
+Message-Id: <20200901150939.704632067@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -43,55 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Hui <dinghui@sangfor.com.cn>
+From: qiuguorui1 <qiuguorui1@huawei.com>
 
-commit f1ec7ae6c9f8c016db320e204cb519a1da1581b8 upstream.
+commit e579076ac0a3bebb440fab101aef3c42c9f4c709 upstream.
 
-Some device drivers call libusb_clear_halt when target ep queue
-is not empty. (eg. spice client connected to qemu for usb redir)
+In the current code, when the eoi callback of the exti clears the pending
+bit of the current interrupt, it will first read the values of fpr and
+rpr, then logically OR the corresponding bit of the interrupt number,
+and finally write back to fpr and rpr.
 
-Before commit f5249461b504 ("xhci: Clear the host side toggle
-manually when endpoint is soft reset"), that works well.
-But now, we got the error log:
+We found through experiments that if two exti interrupts,
+we call them int1/int2, arrive almost at the same time. in our scenario,
+the time difference is 30 microseconds, assuming int1 is triggered first.
 
-    EP not empty, refuse reset
+there will be an extreme scenario: both int's pending bit are set to 1,
+the irq handle of int1 is executed first, and eoi handle is then executed,
+at this moment, all pending bits are cleared, but the int 2 has not
+finally been reported to the cpu yet, which eventually lost int2.
 
-xhci_endpoint_reset failed and left ep_state's EP_SOFT_CLEAR_TOGGLE
-bit still set
+According to stm32's TRM description about rpr and fpr: Writing a 1 to this
+bit will trigger a rising edge event on event x, Writing 0 has no
+effect.
 
-So all the subsequent urb sumbits to the ep will fail with the
-warn log:
+Therefore, when clearing the pending bit, we only need to clear the
+pending bit of the irq.
 
-    Can't enqueue URB while manually clearing toggle
-
-We need to clear ep_state EP_SOFT_CLEAR_TOGGLE bit after
-xhci_endpoint_reset, even if it failed.
-
-Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
-Cc: stable <stable@vger.kernel.org> # v4.17+
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200821091549.20556-4-mathias.nyman@linux.intel.com
+Fixes: 927abfc4461e7 ("irqchip/stm32: Add stm32mp1 support with hierarchy domain")
+Signed-off-by: qiuguorui1 <qiuguorui1@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # v4.18+
+Link: https://lore.kernel.org/r/20200820031629.15582-1-qiuguorui1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-stm32-exti.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -3154,10 +3154,11 @@ static void xhci_endpoint_reset(struct u
- 
- 	wait_for_completion(cfg_cmd->completion);
- 
--	ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
- 	xhci_free_command(xhci, cfg_cmd);
- cleanup:
- 	xhci_free_command(xhci, stop_cmd);
-+	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
-+		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
+--- a/drivers/irqchip/irq-stm32-exti.c
++++ b/drivers/irqchip/irq-stm32-exti.c
+@@ -382,6 +382,16 @@ static void stm32_irq_ack(struct irq_dat
+ 	irq_gc_unlock(gc);
  }
  
- static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
++/* directly set the target bit without reading first. */
++static inline void stm32_exti_write_bit(struct irq_data *d, u32 reg)
++{
++	struct stm32_exti_chip_data *chip_data = irq_data_get_irq_chip_data(d);
++	void __iomem *base = chip_data->host_data->base;
++	u32 val = BIT(d->hwirq % IRQS_PER_BANK);
++
++	writel_relaxed(val, base + reg);
++}
++
+ static inline u32 stm32_exti_set_bit(struct irq_data *d, u32 reg)
+ {
+ 	struct stm32_exti_chip_data *chip_data = irq_data_get_irq_chip_data(d);
+@@ -415,9 +425,9 @@ static void stm32_exti_h_eoi(struct irq_
+ 
+ 	raw_spin_lock(&chip_data->rlock);
+ 
+-	stm32_exti_set_bit(d, stm32_bank->rpr_ofst);
++	stm32_exti_write_bit(d, stm32_bank->rpr_ofst);
+ 	if (stm32_bank->fpr_ofst != UNDEF_REG)
+-		stm32_exti_set_bit(d, stm32_bank->fpr_ofst);
++		stm32_exti_write_bit(d, stm32_bank->fpr_ofst);
+ 
+ 	raw_spin_unlock(&chip_data->rlock);
+ 
 
 
