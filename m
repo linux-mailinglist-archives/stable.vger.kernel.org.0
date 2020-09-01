@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D2925937D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 041F125930E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730108AbgIAP02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51960 "EHLO mail.kernel.org"
+        id S1729627AbgIAPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729926AbgIAP0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:24 -0400
+        id S1728973AbgIAPUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35A08207D3;
-        Tue,  1 Sep 2020 15:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51A0820767;
+        Tue,  1 Sep 2020 15:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973983;
-        bh=VTehNHRiBgXL+UiN+N+yG0HswAI6mV0x1exACyyb66g=;
+        s=default; t=1598973636;
+        bh=1m5+nAWtOJJpl7AXJJibXT6CnuIrbMsK1htwmRQv/qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MN5vQrMHW01mvltdb4H2Ob//uXq4m0dM1BVr2TW935duJsbDPHFUu4BR9r+Hz1Iob
-         LbYOfvflTbjJGvx8ACY8cLvMbHvqU3kZ8k0vYjHMHKrJkSH1LlLXZiU/KjY8pENOnE
-         JhdRd7l/sL5UO7K1qBhalYrO9NHF0Glrsy63lyqw=
+        b=1lJnfhoMo9nSBe5iNWM5n+Vm91QmhxmqeC0NtCI3aKhif3SF1k5YGm8teSh0021Hw
+         DmTLsirpPrgo2VbTE0fp47F0OiOQXRts+OVLP4geUHJPo74/C3LGSjT+CxtZIHRmg+
+         swiEQUfkLesDuXbRpqKKxrOFB9XVV/ybtRkhZ1fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Shaposhnik <roman@zededa.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 097/125] XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.
-Date:   Tue,  1 Sep 2020 17:10:52 +0200
-Message-Id: <20200901150939.353773322@linuxfoundation.org>
+        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 4.14 79/91] USB: quirks: Add no-lpm quirk for another Raydium touchscreen
+Date:   Tue,  1 Sep 2020 17:10:53 +0200
+Message-Id: <20200901150932.106796842@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit c330fb1ddc0a922f044989492b7fcca77ee1db46 upstream.
+commit 5967116e8358899ebaa22702d09b0af57fef23e1 upstream.
 
-handler data is meant for interrupt handlers and not for storing irq chip
-specific information as some devices require handler data to store internal
-per interrupt information, e.g. pinctrl/GPIO chained interrupt handlers.
+There's another Raydium touchscreen needs the no-lpm quirk:
+[    1.339149] usb 1-9: New USB device found, idVendor=2386, idProduct=350e, bcdDevice= 0.00
+[    1.339150] usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.339151] usb 1-9: Product: Raydium Touch System
+[    1.339152] usb 1-9: Manufacturer: Raydium Corporation
+...
+[    6.450497] usb 1-9: can't set config #1, error -110
 
-This obviously creates a conflict of interests and crashes the machine
-because the XEN pointer is overwritten by the driver pointer.
-
-As the XEN data is not handler specific it should be stored in
-irqdesc::irq_data::chip_data instead.
-
-A simple sed s/irq_[sg]et_handler_data/irq_[sg]et_chip_data/ cures that.
-
-Cc: stable@vger.kernel.org
-Reported-by: Roman Shaposhnik <roman@zededa.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Roman Shaposhnik <roman@zededa.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/87lfi2yckt.fsf@nanos.tec.linutronix.de
-Signed-off-by: Juergen Gross <jgross@suse.com>
+BugLink: https://bugs.launchpad.net/bugs/1889446
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200731051622.28643-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/events/events_base.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/usb/core/quirks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -154,7 +154,7 @@ int get_evtchn_to_irq(unsigned evtchn)
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_handler_data(irq);
-+	return irq_get_chip_data(irq);
- }
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -299,6 +299,8 @@ static const struct usb_device_id usb_qu
  
- /* Constructors for packed IRQ information. */
-@@ -375,7 +375,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
+ 	{ USB_DEVICE(0x2386, 0x3119), .driver_info = USB_QUIRK_NO_LPM },
  
--	irq_set_handler_data(irq, info);
-+	irq_set_chip_data(irq, info);
++	{ USB_DEVICE(0x2386, 0x350e), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -424,14 +424,14 @@ static int __must_check xen_allocate_irq
- 
- static void xen_free_irq(unsigned irq)
- {
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
- 
- 	list_del(&info->list);
- 
--	irq_set_handler_data(irq, NULL);
-+	irq_set_chip_data(irq, NULL);
- 
- 	WARN_ON(info->refcnt > 0);
- 
-@@ -601,7 +601,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1105,7 +1105,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
-@@ -1139,7 +1139,7 @@ int evtchn_make_refcounted(unsigned int
- 	if (irq == -1)
- 		return -ENOENT;
- 
--	info = irq_get_handler_data(irq);
-+	info = irq_get_chip_data(irq);
- 
- 	if (!info)
- 		return -ENOENT;
-@@ -1167,7 +1167,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_handler_data(irq);
-+	info = irq_get_chip_data(irq);
- 
- 	if (!info)
- 		goto done;
 
 
