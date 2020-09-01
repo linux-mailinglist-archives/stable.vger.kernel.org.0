@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE91259678
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6D72597E8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726979AbgIAQCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S1731113AbgIAPci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:32:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731446AbgIAPnL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:43:11 -0400
+        id S1730728AbgIAPcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:32:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A9E2064B;
-        Tue,  1 Sep 2020 15:43:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E3EC205F4;
+        Tue,  1 Sep 2020 15:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974991;
-        bh=h68ZEXTEgHOBmJRPT4W4AKNXN5F2l6HFFOywB0QBYrs=;
+        s=default; t=1598974351;
+        bh=Xlt4LANXdOrhRf7zi/oAhoOIZdeFcPS4vzsgy5swhxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVXP+rFgGbvpzeHPpjSwMC+dOc+4P2FztW4rCbbo/IgLhQwNEYM2+Dw3ujLVWRCjM
-         Dlrug6QSU3eAn0HLQK9g7vjlqPOn95ILqwrcbCpOvcER3byDCLxHG279Vu9s12q4or
-         RzUODZMYglBcjhlw74jbON0+r9tq1+4naTwSqfdo=
+        b=XLP/HiNETWTCCDoEtvjFQg/1yMRILuKKULyCVq5vk6zCIS3jO1Q261p2104lnqND7
+         NonNxAafQxCmPBjb/Lqw2OzfAYcGY1IG0DzrsWCvtQnELooypkEUjiLK8XtwdLiV03
+         nlE7BY5YyvNhckWAfQ53XwQaDzTt1AJoc7j9LsOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.8 167/255] hwmon: (gsc-hwmon) Scale temperature to millidegrees
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 143/214] Revert "scsi: qla2xxx: Fix crash on qla2x00_mailbox_command"
 Date:   Tue,  1 Sep 2020 17:10:23 +0200
-Message-Id: <20200901151008.696784793@linuxfoundation.org>
+Message-Id: <20200901150959.831506820@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-commit c1ae18d313e24bc7833e1749dd36dba5d47f259c upstream.
+[ Upstream commit de7e6194301ad31c4ce95395eb678e51a1b907e5 ]
 
-The GSC registers report temperature in decidegrees celcius so we
-need to scale it to represent the hwmon sysfs API of millidegrees.
+FCoE adapter initialization failed for ISP8021 with the following patch
+applied. In addition, reproduction of the issue the patch originally tried
+to address has been unsuccessful.
 
-Cc: stable@vger.kernel.org
-Fixes: 3bce5377ef66 ("hwmon: Add Gateworks System Controller support")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Link: https://lore.kernel.org/r/1598548824-16898-1-git-send-email-tharvey@gateworks.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This reverts commit 3cb182b3fa8b7a61f05c671525494697cba39c6a.
 
+Link: https://lore.kernel.org/r/20200806111014.28434-11-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/gsc-hwmon.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/qla2xxx/qla_mbx.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/drivers/hwmon/gsc-hwmon.c
-+++ b/drivers/hwmon/gsc-hwmon.c
-@@ -172,6 +172,7 @@ gsc_hwmon_read(struct device *dev, enum
- 	case mode_temperature:
- 		if (tmp > 0x8000)
- 			tmp -= 0xffff;
-+		tmp *= 100; /* convert to millidegrees celsius */
- 		break;
- 	case mode_voltage_raw:
- 		tmp = clamp_val(tmp, 0, BIT(GSC_HWMON_RESOLUTION));
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index 62a16463f0254..c1631e42d35d1 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -335,14 +335,6 @@ qla2x00_mailbox_command(scsi_qla_host_t *vha, mbx_cmd_t *mcp)
+ 			if (time_after(jiffies, wait_time))
+ 				break;
+ 
+-			/*
+-			 * Check if it's UNLOADING, cause we cannot poll in
+-			 * this case, or else a NULL pointer dereference
+-			 * is triggered.
+-			 */
+-			if (unlikely(test_bit(UNLOADING, &base_vha->dpc_flags)))
+-				return QLA_FUNCTION_TIMEOUT;
+-
+ 			/* Check for pending interrupts. */
+ 			qla2x00_poll(ha->rsp_q_map[0]);
+ 
+-- 
+2.25.1
+
 
 
