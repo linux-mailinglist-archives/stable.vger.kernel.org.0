@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD96259B90
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9128F259B85
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728992AbgIARD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
+        id S1729594AbgIARDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729587AbgIAPUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:20:07 -0400
+        id S1729590AbgIAPUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A72DA206EB;
-        Tue,  1 Sep 2020 15:20:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09C0120767;
+        Tue,  1 Sep 2020 15:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973607;
-        bh=g9YrcRqLeklmgjCLiUIL82XQQAHuZdvNqGYie5hMeXE=;
+        s=default; t=1598973609;
+        bh=jSanhpfmu+54nj95N++yGFgD3ULnJXuEynxR2aByFL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsK0wZyVSL0BYszojPcLJWMpAm5hwNxYSkzAZrIaztDcLU6Q1Uqkli8YB9z/jcaIm
-         TzMY5WP0i9ISI0EDZPaNRXv5RPLklQDF6YAx2kgJTliT2skY/gbB4kejyG0a9hpwUQ
-         wuZcpnxVMPEcMgH56AtXvFH3V60Y5YyZAcMs+FmE=
+        b=uMI3AyIQXQo9JbT9FiJSztCnSr1JFpITETQCa/PjeFBPGD5m3kUpodD/hAjVzpo3n
+         y2wBf8YbZIFw3ChE2KUqhcMviccP6edCnvLWLHCQjhSLdrwfYf3oyI8miBbWV6456j
+         IAiADRG2ZpW9Z/j0lVqacMm9J0rWHHSnD+8QvlPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/91] media: davinci: vpif_capture: fix potential double free
-Date:   Tue,  1 Sep 2020 17:10:10 +0200
-Message-Id: <20200901150929.932971529@linuxfoundation.org>
+        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/91] KVM: arm64: Fix symbol dependency in __hyp_call_panic_nvhe
+Date:   Tue,  1 Sep 2020 17:10:11 +0200
+Message-Id: <20200901150929.981171314@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
 References: <20200901150928.096174795@linuxfoundation.org>
@@ -45,38 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: David Brazdil <dbrazdil@google.com>
 
-[ Upstream commit 602649eadaa0c977e362e641f51ec306bc1d365d ]
+[ Upstream commit b38b298aa4397e2dc74a89b4dd3eac9e59b64c96 ]
 
-In case of errors vpif_probe_complete() releases memory for vpif_obj.sd
-and unregisters the V4L2 device. But then this is done again by
-vpif_probe() itself. The patch removes the cleaning from
-vpif_probe_complete().
+__hyp_call_panic_nvhe contains inline assembly which did not declare
+its dependency on the __hyp_panic_string symbol.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The static-declared string has previously been kept alive because of a use in
+__hyp_call_panic_vhe. Fix this in preparation for separating the source files
+between VHE and nVHE when the two users land in two different compilation
+units. The static variable otherwise gets dropped when compiling the nVHE
+source file, causing an undefined symbol linker error later.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: David Brazdil <dbrazdil@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200625131420.71444-2-dbrazdil@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpif_capture.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm64/kvm/hyp/switch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/davinci/vpif_capture.c b/drivers/media/platform/davinci/vpif_capture.c
-index dc8fc2120b63f..acc52d28c5c45 100644
---- a/drivers/media/platform/davinci/vpif_capture.c
-+++ b/drivers/media/platform/davinci/vpif_capture.c
-@@ -1489,8 +1489,6 @@ probe_out:
- 		/* Unregister video device */
- 		video_unregister_device(&ch->video_dev);
- 	}
--	kfree(vpif_obj.sd);
--	v4l2_device_unregister(&vpif_obj.v4l2_dev);
+diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+index 4a8fdbb292863..0ad952e074457 100644
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -444,7 +444,7 @@ static void __hyp_text __hyp_call_panic_nvhe(u64 spsr, u64 elr, u64 par,
+ 	 * making sure it is a kernel address and not a PC-relative
+ 	 * reference.
+ 	 */
+-	asm volatile("ldr %0, =__hyp_panic_string" : "=r" (str_va));
++	asm volatile("ldr %0, =%1" : "=r" (str_va) : "S" (__hyp_panic_string));
  
- 	return err;
- }
+ 	__hyp_do_panic(str_va,
+ 		       spsr,  elr,
 -- 
 2.25.1
 
