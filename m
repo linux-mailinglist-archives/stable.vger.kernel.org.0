@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEEF2598E0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F33259B1E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730124AbgIAQeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34000 "EHLO mail.kernel.org"
+        id S1730693AbgIAQ55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:57:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbgIAPbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:31:14 -0400
+        id S1729378AbgIAPWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E842D20E65;
-        Tue,  1 Sep 2020 15:31:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8171206FA;
+        Tue,  1 Sep 2020 15:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974273;
-        bh=zJghPqTOz4KjJypckMiUtZEKpqYq+gHKZcLST6AiYMs=;
+        s=default; t=1598973765;
+        bh=CdsX10OOX4aiQ4PMa0R+6rZknsSIDJsbXagb4me3NZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNAqSQhF5xeBy2f5+qLyIP2hcBecYrcRNtCwTtMztPgltNaJz+OxJjy5hbCyby4fi
-         4MkpA8utT8ZqPpZt2ScBalZJqYd0qLreHKomwBnxj4CedLg4zNEtAbpNh3VAz4AMIx
-         UHiAG3bM6EszBse/O7G+CzMGK0D4XarznRO2rxnc=
+        b=KysTG/2L+HE8fMe3QaPVx3StYy9vLSawos81erT6wfbWycMZU4r8G2Yw4Tz/wcqTh
+         rAdZIW7uT73Ijbfd0xEkkWWipjH0Q1iGJnuYI6gq68SOOMt67zsZrioFRujXWJqxcA
+         MoejoklV/ZKjLYZFjzcH5c+2DIBvhFQf0m1DrFYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/214] usb: gadget: f_tcm: Fix some resource leaks in some error paths
-Date:   Tue,  1 Sep 2020 17:09:52 +0200
-Message-Id: <20200901150958.351717673@linuxfoundation.org>
+Subject: [PATCH 4.19 038/125] drm/nouveau/drm/noveau: fix reference count leak in nouveau_fbcon_open
+Date:   Tue,  1 Sep 2020 17:09:53 +0200
+Message-Id: <20200901150936.430244325@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
+[ Upstream commit bfad51c7633325b5d4b32444efe04329d53297b2 ]
 
-If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
-already allocated memory must be released.
+nouveau_fbcon_open() calls calls pm_runtime_get_sync() that
+increments the reference count. In case of failure, decrement the
+ref count before returning the error.
 
-Fix a mix-up in the code and free the correct requests.
-
-Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_tcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
-index 7f01f78b1d238..f6d203fec4955 100644
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -751,12 +751,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
- 		goto err_sts;
- 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index 406cb99af7f21..d4fe52ec4c966 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -189,8 +189,10 @@ nouveau_fbcon_open(struct fb_info *info, int user)
+ 	struct nouveau_fbdev *fbcon = info->par;
+ 	struct nouveau_drm *drm = nouveau_drm(fbcon->helper.dev);
+ 	int ret = pm_runtime_get_sync(drm->dev->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put(drm->dev->dev);
+ 		return ret;
++	}
  	return 0;
-+
- err_sts:
--	usb_ep_free_request(fu->ep_status, stream->req_status);
--	stream->req_status = NULL;
--err_out:
- 	usb_ep_free_request(fu->ep_out, stream->req_out);
- 	stream->req_out = NULL;
-+err_out:
-+	usb_ep_free_request(fu->ep_in, stream->req_in);
-+	stream->req_in = NULL;
- out:
- 	return -ENOMEM;
  }
+ 
 -- 
 2.25.1
 
