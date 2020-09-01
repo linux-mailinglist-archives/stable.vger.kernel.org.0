@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B112593F2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 585CA2594C3
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728142AbgIAPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
+        id S1731614AbgIAPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:42:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731167AbgIAPd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:26 -0400
+        id S1731605AbgIAPms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:42:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A994205F4;
-        Tue,  1 Sep 2020 15:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58AF0206EB;
+        Tue,  1 Sep 2020 15:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974405;
-        bh=TJXeZSGzwfNiVC7VyxV4h8RVxP7uqTTnzNYyvYWstFk=;
+        s=default; t=1598974967;
+        bh=sCJTz4ETlI4+R+RB8vLyddpBGTHF5UgwSqSaHFtRYAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hu0djrURqG6Eo3CobaGPRrdqkL57+nJyG+YLg6IOqkGl7FKqlanUpASgQDW8B0Wbq
-         NuGj+1guTp93HQxjOpXoUGMlgf4f/nMG4NbhjU/GtRiwIs326VHBMX7Fp72yT6AChS
-         5hNtbiSNLgnQUhQGg1ddovdGKrnXo5b/4Cj31QGQ=
+        b=fN5+CKIdO+iFi6RWFZMnUaH0w/MTEWm56wcobz/fM+dMAqdjiI8cKuRmvAGW954p2
+         1TxT9RicDo4jS3mE4JAb8S0sVuqm6Z6GaH84dM4eRwGSHCChBLohoVnxENfnwD64e7
+         nRP0BHftmOTa2X5paexOm+gs/ujitUDALfbZdFDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/214] s390/cio: add cond_resched() in the slow_eval_known_fn() loop
-Date:   Tue,  1 Sep 2020 17:10:13 +0200
-Message-Id: <20200901150959.357707885@linuxfoundation.org>
+Subject: [PATCH 5.8 159/255] bpf: Fix a rcu_sched stall issue with bpf task/task_file iterator
+Date:   Tue,  1 Sep 2020 17:10:15 +0200
+Message-Id: <20200901151008.309842218@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 0b8eb2ee9da1e8c9b8082f404f3948aa82a057b2 ]
+[ Upstream commit e679654a704e5bd676ea6446fa7b764cbabf168a ]
 
-The scanning through subchannels during the time of an event could
-take significant amount of time in case of platforms with lots of
-known subchannels. This might result in higher scheduling latencies
-for other tasks especially on systems with a single CPU. Add
-cond_resched() call, as the loop in slow_eval_known_fn() can be
-executed for a longer duration.
+In our production system, we observed rcu stalls when
+'bpftool prog` is running.
+  rcu: INFO: rcu_sched self-detected stall on CPU
+  rcu: \x097-....: (20999 ticks this GP) idle=302/1/0x4000000000000000 softirq=1508852/1508852 fqs=4913
+  \x09(t=21031 jiffies g=2534773 q=179750)
+  NMI backtrace for cpu 7
+  CPU: 7 PID: 184195 Comm: bpftool Kdump: loaded Tainted: G        W         5.8.0-00004-g68bfc7f8c1b4 #6
+  Hardware name: Quanta Twin Lakes MP/Twin Lakes Passive MP, BIOS F09_3A17 05/03/2019
+  Call Trace:
+  <IRQ>
+  dump_stack+0x57/0x70
+  nmi_cpu_backtrace.cold+0x14/0x53
+  ? lapic_can_unplug_cpu.cold+0x39/0x39
+  nmi_trigger_cpumask_backtrace+0xb7/0xc7
+  rcu_dump_cpu_stacks+0xa2/0xd0
+  rcu_sched_clock_irq.cold+0x1ff/0x3d9
+  ? tick_nohz_handler+0x100/0x100
+  update_process_times+0x5b/0x90
+  tick_sched_timer+0x5e/0xf0
+  __hrtimer_run_queues+0x12a/0x2a0
+  hrtimer_interrupt+0x10e/0x280
+  __sysvec_apic_timer_interrupt+0x51/0xe0
+  asm_call_on_stack+0xf/0x20
+  </IRQ>
+  sysvec_apic_timer_interrupt+0x6f/0x80
+  asm_sysvec_apic_timer_interrupt+0x12/0x20
+  RIP: 0010:task_file_seq_get_next+0x71/0x220
+  Code: 00 00 8b 53 1c 49 8b 7d 00 89 d6 48 8b 47 20 44 8b 18 41 39 d3 76 75 48 8b 4f 20 8b 01 39 d0 76 61 41 89 d1 49 39 c1 48 19 c0 <48> 8b 49 08 21 d0 48 8d 04 c1 4c 8b 08 4d 85 c9 74 46 49 8b 41 38
+  RSP: 0018:ffffc90006223e10 EFLAGS: 00000297
+  RAX: ffffffffffffffff RBX: ffff888f0d172388 RCX: ffff888c8c07c1c0
+  RDX: 00000000000f017b RSI: 00000000000f017b RDI: ffff888c254702c0
+  RBP: ffffc90006223e68 R08: ffff888be2a1c140 R09: 00000000000f017b
+  R10: 0000000000000002 R11: 0000000000100000 R12: ffff888f23c24118
+  R13: ffffc90006223e60 R14: ffffffff828509a0 R15: 00000000ffffffff
+  task_file_seq_next+0x52/0xa0
+  bpf_seq_read+0xb9/0x320
+  vfs_read+0x9d/0x180
+  ksys_read+0x5f/0xe0
+  do_syscall_64+0x38/0x60
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f8815f4f76e
+  Code: c0 e9 f6 fe ff ff 55 48 8d 3d 76 70 0a 00 48 89 e5 e8 36 06 02 00 66 0f 1f 44 00 00 64 8b 04 25 18 00 00 00 85 c0 75 14 0f 05 <48> 3d 00 f0 ff ff 77 52 c3 66 0f 1f 84 00 00 00 00 00 55 48 89 e5
+  RSP: 002b:00007fff8f9df578 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+  RAX: ffffffffffffffda RBX: 000000000170b9c0 RCX: 00007f8815f4f76e
+  RDX: 0000000000001000 RSI: 00007fff8f9df5b0 RDI: 0000000000000007
+  RBP: 00007fff8f9e05f0 R08: 0000000000000049 R09: 0000000000000010
+  R10: 00007f881601fa40 R11: 0000000000000246 R12: 00007fff8f9e05a8
+  R13: 00007fff8f9e05a8 R14: 0000000001917f90 R15: 000000000000e22e
 
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Note that `bpftool prog` actually calls a task_file bpf iterator
+program to establish an association between prog/map/link/btf anon
+files and processes.
+
+In the case where the above rcu stall occured, we had a process
+having 1587 tasks and each task having roughly 81305 files.
+This implied 129 million bpf prog invocations. Unfortunwtely none of
+these files are prog/map/link/btf files so bpf iterator/prog needs
+to traverse all these files and not able to return to user space
+since there are no seq_file buffer overflow.
+
+This patch fixed the issue in bpf_seq_read() to limit the number
+of visited objects. If the maximum number of visited objects is
+reached, no more objects will be visited in the current syscall.
+If there is nothing written in the seq_file buffer, -EAGAIN will
+return to the user so user can try again.
+
+The maximum number of visited objects is set at 1 million.
+In our Intel Xeon D-2191 2.3GHZ 18-core server, bpf_seq_read()
+visiting 1 million files takes around 0.18 seconds.
+
+We did not use cond_resched() since for some iterators, e.g.,
+netlink iterator, where rcu read_lock critical section spans between
+consecutive seq_ops->next(), which makes impossible to do cond_resched()
+in the key while loop of function bpf_seq_read().
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Link: https://lore.kernel.org/bpf/20200818222309.2181348-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/bpf/bpf_iter.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 831850435c23b..5734a78dbb8e6 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -677,6 +677,11 @@ static int slow_eval_known_fn(struct subchannel *sch, void *data)
- 		rc = css_evaluate_known_subchannel(sch, 1);
- 		if (rc == -EAGAIN)
- 			css_schedule_eval(sch->schid);
-+		/*
-+		 * The loop might take long time for platforms with lots of
-+		 * known devices. Allow scheduling here.
-+		 */
-+		cond_resched();
- 	}
- 	return 0;
+diff --git a/kernel/bpf/bpf_iter.c b/kernel/bpf/bpf_iter.c
+index dd612b80b9fea..3c18090cd73dc 100644
+--- a/kernel/bpf/bpf_iter.c
++++ b/kernel/bpf/bpf_iter.c
+@@ -64,6 +64,9 @@ static void bpf_iter_done_stop(struct seq_file *seq)
+ 	iter_priv->done_stop = true;
  }
+ 
++/* maximum visited objects before bailing out */
++#define MAX_ITER_OBJECTS	1000000
++
+ /* bpf_seq_read, a customized and simpler version for bpf iterator.
+  * no_llseek is assumed for this file.
+  * The following are differences from seq_read():
+@@ -76,7 +79,7 @@ static ssize_t bpf_seq_read(struct file *file, char __user *buf, size_t size,
+ {
+ 	struct seq_file *seq = file->private_data;
+ 	size_t n, offs, copied = 0;
+-	int err = 0;
++	int err = 0, num_objs = 0;
+ 	void *p;
+ 
+ 	mutex_lock(&seq->lock);
+@@ -132,6 +135,7 @@ static ssize_t bpf_seq_read(struct file *file, char __user *buf, size_t size,
+ 	while (1) {
+ 		loff_t pos = seq->index;
+ 
++		num_objs++;
+ 		offs = seq->count;
+ 		p = seq->op->next(seq, p, &seq->index);
+ 		if (pos == seq->index) {
+@@ -150,6 +154,15 @@ static ssize_t bpf_seq_read(struct file *file, char __user *buf, size_t size,
+ 		if (seq->count >= size)
+ 			break;
+ 
++		if (num_objs >= MAX_ITER_OBJECTS) {
++			if (offs == 0) {
++				err = -EAGAIN;
++				seq->op->stop(seq, p);
++				goto done;
++			}
++			break;
++		}
++
+ 		err = seq->op->show(seq, p);
+ 		if (err > 0) {
+ 			bpf_iter_dec_seq_num(seq);
 -- 
 2.25.1
 
