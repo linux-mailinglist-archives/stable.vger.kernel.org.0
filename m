@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5213F259C68
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1083C259B86
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbgIARPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59184 "EHLO mail.kernel.org"
+        id S1728680AbgIARDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729172AbgIAPPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:04 -0400
+        id S1727081AbgIAPUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12993206FA;
-        Tue,  1 Sep 2020 15:15:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B77762137B;
+        Tue,  1 Sep 2020 15:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973303;
-        bh=8kd2JWfylGbyX5junfsVFBIFiC5m0s7OyUEiuP3YRFk=;
+        s=default; t=1598973612;
+        bh=x7OVgJvlaRrLCQacPk05iX576FtirOsPaf9wehDa5GQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKkk0w124Z8OXZZvyiXBC+ciL7jZq8xULnDwiolbPsmWl934ohoq2Vcvpihh/BngE
-         cn6z/Q6NsqUE1fgmmuH1AkHPiUgTERPUaM7PpppBmmIFIwdvoXYJtzM9xX+FfHqTFf
-         y1bNw/h5e7hD/DSXrXe31deqcLlIS31pGNybNYH4=
+        b=U5hFaoDRL7TEbW3s9ht3diyv4+ViXetCgyVxCb0k1Wb5VivHT32H9IPufE+aw7172
+         3NfraqLLk9WodR8b6uqM359G09/0ivjVsxYwxggKGr0s3jjOJh9l3trsaE6VWHQV92
+         sh/Jt4dB3di7DusqwAg8w93s3mbQFM4hakeDdljM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Li Guifu <bluce.liguifu@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/78] cec-api: prevent leaking memory through hole in structure
-Date:   Tue,  1 Sep 2020 17:10:01 +0200
-Message-Id: <20200901150925.999428474@linuxfoundation.org>
+Subject: [PATCH 4.14 28/91] f2fs: fix use-after-free issue
+Date:   Tue,  1 Sep 2020 17:10:02 +0200
+Message-Id: <20200901150929.555103200@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-[ Upstream commit 6c42227c3467549ddc65efe99c869021d2f4a570 ]
+[ Upstream commit 99c787cfd2bd04926f1f553b30bd7dcea2caaba1 ]
 
-Fix this smatch warning:
+During umount, f2fs_put_super() unregisters procfs entries after
+f2fs_destroy_segment_manager(), it may cause use-after-free
+issue when umount races with procfs accessing, fix it by relocating
+f2fs_unregister_sysfs().
 
-drivers/media/cec/core/cec-api.c:156 cec_adap_g_log_addrs() warn: check that 'log_addrs' doesn't leak information (struct has a hole after
-'features')
+[Chao Yu: change commit title/message a bit]
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Li Guifu <bluce.liguifu@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/cec/cec-api.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/cec/cec-api.c b/drivers/staging/media/cec/cec-api.c
-index e274e2f223986..264bb7d1efcb8 100644
---- a/drivers/staging/media/cec/cec-api.c
-+++ b/drivers/staging/media/cec/cec-api.c
-@@ -141,7 +141,13 @@ static long cec_adap_g_log_addrs(struct cec_adapter *adap,
- 	struct cec_log_addrs log_addrs;
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 89319c3524061..990339c538b0a 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -782,6 +782,9 @@ static void f2fs_put_super(struct super_block *sb)
+ 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
+ 	int i;
  
- 	mutex_lock(&adap->lock);
--	log_addrs = adap->log_addrs;
-+	/*
-+	 * We use memcpy here instead of assignment since there is a
-+	 * hole at the end of struct cec_log_addrs that an assignment
-+	 * might ignore. So when we do copy_to_user() we could leak
-+	 * one byte of memory.
-+	 */
-+	memcpy(&log_addrs, &adap->log_addrs, sizeof(log_addrs));
- 	if (!adap->is_configured)
- 		memset(log_addrs.log_addr, CEC_LOG_ADDR_INVALID,
- 		       sizeof(log_addrs.log_addr));
++	/* unregister procfs/sysfs entries in advance to avoid race case */
++	f2fs_unregister_sysfs(sbi);
++
+ 	f2fs_quota_off_umount(sb);
+ 
+ 	/* prevent remaining shrinker jobs */
+@@ -834,8 +837,6 @@ static void f2fs_put_super(struct super_block *sb)
+ 
+ 	kfree(sbi->ckpt);
+ 
+-	f2fs_unregister_sysfs(sbi);
+-
+ 	sb->s_fs_info = NULL;
+ 	if (sbi->s_chksum_driver)
+ 		crypto_free_shash(sbi->s_chksum_driver);
 -- 
 2.25.1
 
