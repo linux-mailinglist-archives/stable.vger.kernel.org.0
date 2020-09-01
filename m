@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A10259BC8
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AAB6259C5E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbgIARGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37244 "EHLO mail.kernel.org"
+        id S1732525AbgIAROK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:14:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729224AbgIAPSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:18:46 -0400
+        id S1729191AbgIAPPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:15:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CED40206EB;
-        Tue,  1 Sep 2020 15:18:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C2A9206FA;
+        Tue,  1 Sep 2020 15:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973522;
-        bh=ySY7r+XvByWG/h02YkSpizvqYnRnOEsqEYmyDA8cBmk=;
+        s=default; t=1598973316;
+        bh=wyqBBs6DRhbv4mngafCrqfLALJJ6U+DOmckj9iMToVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y6vmabjuPvig7VT7NGFOdcavjYP7nyw0s7zAir8NCMFC/HEZdvNPIMrokWDIg28Vh
-         Y2wSzCUKYypOsMOVu6rm87uwIv6lr6jbQesY1qKhoqXetIkN6SbwOM2wXtUvMbq4rq
-         GNWN0AyAljj5qnm90+eH7+JYY9EHti3VjiNFEibY=
+        b=fARaCdoVZY+z3gDViQekFWHCkrtqnKSdk/xxRtbsR21n7TCGH8Y0fUbK43a1xLsW7
+         0X/8ga+bs4NSD3wWUDlFlZADoX25VIZAog+AFA0Teo9eu3mHJVrPKmvadJAM9/sben
+         fc1bhd3X/Tko6tFdCb/RJcAv7U9kNT9BZkVVC/Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/91] ASoC: tegra: Fix reference count leaks.
-Date:   Tue,  1 Sep 2020 17:09:41 +0200
-Message-Id: <20200901150928.487361828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/78] gre6: Fix reception with IP6_TNL_F_RCV_DSCP_COPY
+Date:   Tue,  1 Sep 2020 17:09:42 +0200
+Message-Id: <20200901150925.055262359@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit deca195383a6085be62cb453079e03e04d618d6e ]
+[ Upstream commit 272502fcb7cda01ab07fc2fcff82d1d2f73d43cc ]
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count if pm_runtime_put is not called in
-error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
+When receiving an IPv4 packet inside an IPv6 GRE packet, and the
+IP6_TNL_F_RCV_DSCP_COPY flag is set on the tunnel, the IPv4 header would
+get corrupted. This is due to the common ip6_tnl_rcv() function assuming
+that the inner header is always IPv6. This patch checks the tunnel
+protocol for IPv4 inner packets, but still defaults to IPv6.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20200613204422.24484-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 308edfdf1563 ("gre6: Cleanup GREv6 receive path, call common GRE functions")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/tegra/tegra30_ahub.c | 4 +++-
- sound/soc/tegra/tegra30_i2s.c  | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_tunnel.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/tegra/tegra30_ahub.c b/sound/soc/tegra/tegra30_ahub.c
-index 43679aeeb12be..88e838ac937dc 100644
---- a/sound/soc/tegra/tegra30_ahub.c
-+++ b/sound/soc/tegra/tegra30_ahub.c
-@@ -655,8 +655,10 @@ static int tegra30_ahub_resume(struct device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
- 	ret = regcache_sync(ahub->regmap_ahub);
- 	ret |= regcache_sync(ahub->regmap_apbif);
- 	pm_runtime_put(dev);
-diff --git a/sound/soc/tegra/tegra30_i2s.c b/sound/soc/tegra/tegra30_i2s.c
-index 0b176ea24914b..bf155c5092f06 100644
---- a/sound/soc/tegra/tegra30_i2s.c
-+++ b/sound/soc/tegra/tegra30_i2s.c
-@@ -551,8 +551,10 @@ static int tegra30_i2s_resume(struct device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
- 	ret = regcache_sync(i2s->regmap);
- 	pm_runtime_put(dev);
- 
--- 
-2.25.1
-
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -871,7 +871,15 @@ int ip6_tnl_rcv(struct ip6_tnl *t, struc
+ 		struct metadata_dst *tun_dst,
+ 		bool log_ecn_err)
+ {
+-	return __ip6_tnl_rcv(t, skb, tpi, NULL, ip6ip6_dscp_ecn_decapsulate,
++	int (*dscp_ecn_decapsulate)(const struct ip6_tnl *t,
++				    const struct ipv6hdr *ipv6h,
++				    struct sk_buff *skb);
++
++	dscp_ecn_decapsulate = ip6ip6_dscp_ecn_decapsulate;
++	if (tpi->proto == htons(ETH_P_IP))
++		dscp_ecn_decapsulate = ip4ip6_dscp_ecn_decapsulate;
++
++	return __ip6_tnl_rcv(t, skb, tpi, NULL, dscp_ecn_decapsulate,
+ 			     log_ecn_err);
+ }
+ EXPORT_SYMBOL(ip6_tnl_rcv);
 
 
