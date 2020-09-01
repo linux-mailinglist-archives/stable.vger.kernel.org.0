@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7350C259B0B
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612FB259B13
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729099AbgIAPX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:23:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46512 "EHLO mail.kernel.org"
+        id S1729636AbgIAQ5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729800AbgIAPX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:23:27 -0400
+        id S1729272AbgIAPXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:23:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CAED206FA;
-        Tue,  1 Sep 2020 15:23:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09799206FA;
+        Tue,  1 Sep 2020 15:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973806;
-        bh=I0kOzhv1g8NoCAaKgJBn0Xb3Tnk6vW4cGCeV6bycCBw=;
+        s=default; t=1598973809;
+        bh=YgC0YRxiUO8aFLyonSNozBZtblQ0WwwViSlbYTEgmFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foEKt4SmSfkDYcNZo0BgBYScSbKDa9gsKAs9vHtzS3Oxby0ufWnBcgjlXWQodb7pf
-         Ufv2HN0bPV4I6/2YEf/37TIMgXqy4vs1z0tr9yXS+8LEV4nGtSBM2CcQ1gPiY1/Lq5
-         1QtSDV7Ls3AF+Ma/H0pvP+vXBiUYj/f5QjBRDJGU=
+        b=o7JDLNRNUoPZ107GH3O8VZ8xNRMQdS/17AOTQ4spmZgaFPcL41qpLqzMX2UgRf3no
+         iP4x0WZ0QrhbnqG8tHPbO1bxGRgf5kpULYBIR1lH7/g0ruhCIKueENnPFBwqzNlOMf
+         Jlyj41fNfMLDmhEDddtlFReBCIOdXQlmvZqxdxSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/125] drm/msm/adreno: fix updating ring fence
-Date:   Tue,  1 Sep 2020 17:10:09 +0200
-Message-Id: <20200901150937.201029823@linuxfoundation.org>
+Subject: [PATCH 4.19 055/125] nvme-fc: Fix wrong return value in __nvme_fc_init_request()
+Date:   Tue,  1 Sep 2020 17:10:10 +0200
+Message-Id: <20200901150937.251719140@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -44,40 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit f228af11dfa1d1616bc67f3a4119ab77c36181f1 ]
+[ Upstream commit f34448cd0dc697723fb5f4118f8431d9233b370d ]
 
-We need to set it to the most recent completed fence, not the most
-recent submitted.  Otherwise we have races where we think we can retire
-submits that the GPU is not finished with, if the GPU doesn't manage to
-overwrite the seqno before we look at it.
+On an error exit path, a negative error code should be returned
+instead of a positive return value.
 
-This can show up with hang recovery if one of the submits after the
-crashing submit also hangs after it is replayed.
-
-Fixes: f97decac5f4c ("drm/msm: Support multiple ringbuffers")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: e399441de9115 ("nvme-fabrics: Add host support for FC transport")
+Cc: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/fc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-index 93d70f4a2154e..c9f831604558f 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-@@ -221,7 +221,7 @@ int adreno_hw_init(struct msm_gpu *gpu)
- 		ring->next = ring->start;
- 
- 		/* reset completed fence seqno: */
--		ring->memptrs->fence = ring->seqno;
-+		ring->memptrs->fence = ring->fctx->completed_fence;
- 		ring->memptrs->rptr = 0;
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index ed43b06353a39..bb3b447c56468 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -1716,7 +1716,7 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
+ 	if (fc_dma_mapping_error(ctrl->lport->dev, op->fcp_req.cmddma)) {
+ 		dev_err(ctrl->dev,
+ 			"FCP Op failed - cmdiu dma mapping failed.\n");
+-		ret = EFAULT;
++		ret = -EFAULT;
+ 		goto out_on_error;
  	}
  
+@@ -1726,7 +1726,7 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
+ 	if (fc_dma_mapping_error(ctrl->lport->dev, op->fcp_req.rspdma)) {
+ 		dev_err(ctrl->dev,
+ 			"FCP Op failed - rspiu dma mapping failed.\n");
+-		ret = EFAULT;
++		ret = -EFAULT;
+ 	}
+ 
+ 	atomic_set(&op->state, FCPOP_STATE_IDLE);
 -- 
 2.25.1
 
