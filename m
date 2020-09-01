@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DDDF25964D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCFA2596C5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:08:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731814AbgIAQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
+        id S1729054AbgIAPk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725949AbgIAQAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 12:00:30 -0400
+        id S1726892AbgIAPkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:40:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADAC8206A5;
-        Tue,  1 Sep 2020 16:00:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C798205F4;
+        Tue,  1 Sep 2020 15:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598976029;
-        bh=s0ggdQsQRTUXjPSnRMT/mKNOR2wQJ4J6Duk4z7ey7AI=;
+        s=default; t=1598974823;
+        bh=6ceRjbOi00aeiPyiExOHXrxLa2Uo8I/yzUXIHx6fLpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsvPncwcm3jI4EyLvjTW2QYsiyRTjLAqhWxlaD5W8JvYgCi+YpBHV6e2y1ScXX5Jm
-         glJwFJaqKkOAZqLBmYp47x/+Fw3dRw3DuBqG059ynwh1Rm7kzFKw2fOKLZAbhR2Fhc
-         hpbCIbUZFSpe1Z3+trSxJQYSXHZWqlsIX+5gYXBQ=
+        b=lkTKIcSnr94wfda9H7fqmNLzgVG7KtEgt06todWGkwuF/C8g90WobmaXWScKX1O+g
+         NPi3XkGgsQwt/l9w/Rm2XMjq8CGb81sQ8fkCjjDLRW/0mP35DYP7xozxi+NJZ5wbYZ
+         4vOnq28WfRmS2uIqvgwYcTbWQfavcKOFfwXQuU2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 103/255] vdpa: ifcvf: free config irq in ifcvf_free_irq()
-Date:   Tue,  1 Sep 2020 17:09:19 +0200
-Message-Id: <20200901151005.649123147@linuxfoundation.org>
+Subject: [PATCH 5.8 104/255] usb: gadget: f_tcm: Fix some resource leaks in some error paths
+Date:   Tue,  1 Sep 2020 17:09:20 +0200
+Message-Id: <20200901151005.696699394@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,66 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2b9f28d5e8efad34f472542315911c5ee9a65b6c ]
+[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
 
-We don't free config irq in ifcvf_free_irq() which will trigger a
-BUG() in pci core since we try to free the vectors that has an
-action. Fixing this by recording the config irq in ifcvf_hw structure
-and free it in ifcvf_free_irq().
+If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
+already allocated memory must be released.
 
-Fixes: e7991f376a4d ("ifcvf: implement config interrupt in IFCVF")
-Cc: Zhu Lingshan <lingshan.zhu@intel.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20200723091254.20617-2-jasowang@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Fixes: e7991f376a4d ("ifcvf: implement config interrupt in IFCVF")
-Cc: Zhu Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com">&lt;lingshan.zhu@intel.com&gt;</a>
-Signed-off-by: Jason Wang <a class="moz-txt-link-rfc2396E" href="mailto:jasowang@redhat.com">&lt;jasowang@redhat.com&gt;</a>
+Fix a mix-up in the code and free the correct requests.
+
+Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_base.h | 2 +-
- drivers/vdpa/ifcvf/ifcvf_main.c | 5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/f_tcm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-index f4554412e607f..29efa75cdfce5 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -84,7 +84,7 @@ struct ifcvf_hw {
- 	void __iomem * const *base;
- 	char config_msix_name[256];
- 	struct vdpa_callback config_cb;
--
-+	unsigned int config_irq;
- };
+diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
+index eaf556ceac32b..0a45b4ef66a67 100644
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -753,12 +753,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
+ 		goto err_sts;
  
- struct ifcvf_adapter {
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index ae7110955a44d..7a6d899e541df 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -53,6 +53,7 @@ static void ifcvf_free_irq(struct ifcvf_adapter *adapter, int queues)
- 	for (i = 0; i < queues; i++)
- 		devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
- 
-+	devm_free_irq(&pdev->dev, vf->config_irq, vf);
- 	ifcvf_free_irq_vectors(pdev);
+ 	return 0;
++
+ err_sts:
+-	usb_ep_free_request(fu->ep_status, stream->req_status);
+-	stream->req_status = NULL;
+-err_out:
+ 	usb_ep_free_request(fu->ep_out, stream->req_out);
+ 	stream->req_out = NULL;
++err_out:
++	usb_ep_free_request(fu->ep_in, stream->req_in);
++	stream->req_in = NULL;
+ out:
+ 	return -ENOMEM;
  }
- 
-@@ -72,8 +73,8 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 	snprintf(vf->config_msix_name, 256, "ifcvf[%s]-config\n",
- 		 pci_name(pdev));
- 	vector = 0;
--	irq = pci_irq_vector(pdev, vector);
--	ret = devm_request_irq(&pdev->dev, irq,
-+	vf->config_irq = pci_irq_vector(pdev, vector);
-+	ret = devm_request_irq(&pdev->dev, vf->config_irq,
- 			       ifcvf_config_changed, 0,
- 			       vf->config_msix_name, vf);
- 	if (ret) {
 -- 
 2.25.1
 
