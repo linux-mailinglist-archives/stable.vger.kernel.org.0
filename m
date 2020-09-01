@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF342598F3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E915259AFB
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730638AbgIAPaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33362 "EHLO mail.kernel.org"
+        id S1729838AbgIAPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730112AbgIAPaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:55 -0400
+        id S1728772AbgIAPXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:23:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F85206EB;
-        Tue,  1 Sep 2020 15:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E4822100A;
+        Tue,  1 Sep 2020 15:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974254;
-        bh=5nlWCuWIm7npu4Fda4YzVL0ATK2lwj9iiU7vzapDB98=;
+        s=default; t=1598973817;
+        bh=9GAM1JHzIGSIwGdTlGYAZyH2tlkRvjrRR++SfcBfyMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTMoElE6UTLnSDtbZQWx+CH3g8K/ffPDadRsKbjx1qSUq5a08QMaYjv/JDmuqpTl8
-         D9N0kA8WNu26evNHKeec4IJ1agogFJKKgKlV5vKOkctXY+SqpJKTjz1MeOE2fMcPDp
-         aVRZ08/Op/U5xJtHmCx3D+1D23sZnywIiLGD/E3g=
+        b=pTij4m6ut12vw7XsqfAwv3QPhq8j6n/d0o7OfgJsOr8xvqUECMWXbrKfmBw7xH2T4
+         L+2+ZBkKyhoO5XWDjP1V5iyr1z+oECu6VPe1TiMvONmeecB224iyGg1QKUXB04r2nb
+         drdA9Eu1myHGMdIyul+syShxB7CwKSlQ18X97dl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/214] blkcg: fix memleak for iolatency
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 031/125] PCI: Fix pci_create_slot() reference count leak
 Date:   Tue,  1 Sep 2020 17:09:46 +0200
-Message-Id: <20200901150958.067453405@linuxfoundation.org>
+Message-Id: <20200901150936.086735627@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 27029b4b18aa5d3b060f0bf2c26dae254132cfce ]
+[ Upstream commit 8a94644b440eef5a7b9c104ac8aa7a7f413e35e5 ]
 
-Normally, blkcg_iolatency_exit() will free related memory in iolatency
-when cleanup queue. But if blk_throtl_init() return error and queue init
-fail, blkcg_iolatency_exit() will not do that for us. Then it cause
-memory leak.
+kobject_init_and_add() takes a reference even when it fails.  If it returns
+an error, kobject_put() must be called to clean up the memory associated
+with the object.
 
-Fixes: d70675121546 ("block: introduce blk-iolatency io controller")
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+When kobject_init_and_add() fails, call kobject_put() instead of kfree().
+
+b8eb718348b8 ("net-sysfs: Fix reference count leak in
+rx|netdev_queue_add_kobject") fixed a similar problem.
+
+Link: https://lore.kernel.org/r/20200528021322.1984-1-wu000273@umn.edu
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pci/slot.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 1eb8895be4c6b..0c7addcd19859 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1219,13 +1219,15 @@ int blkcg_init_queue(struct request_queue *q)
- 	if (preloaded)
- 		radix_tree_preload_end();
+diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+index a32897f83ee51..fb7478b6c4f9d 100644
+--- a/drivers/pci/slot.c
++++ b/drivers/pci/slot.c
+@@ -303,13 +303,16 @@ placeholder:
+ 	slot_name = make_slot_name(name);
+ 	if (!slot_name) {
+ 		err = -ENOMEM;
++		kfree(slot);
+ 		goto err;
+ 	}
  
--	ret = blk_iolatency_init(q);
-+	ret = blk_throtl_init(q);
- 	if (ret)
- 		goto err_destroy_all;
- 
--	ret = blk_throtl_init(q);
--	if (ret)
-+	ret = blk_iolatency_init(q);
-+	if (ret) {
-+		blk_throtl_exit(q);
- 		goto err_destroy_all;
+ 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
+ 				   "%s", slot_name);
+-	if (err)
++	if (err) {
++		kobject_put(&slot->kobj);
+ 		goto err;
 +	}
- 	return 0;
  
- err_destroy_all:
+ 	INIT_LIST_HEAD(&slot->list);
+ 	list_add(&slot->list, &parent->slots);
+@@ -328,7 +331,6 @@ out:
+ 	mutex_unlock(&pci_slot_mutex);
+ 	return slot;
+ err:
+-	kfree(slot);
+ 	slot = ERR_PTR(err);
+ 	goto out;
+ }
 -- 
 2.25.1
 
