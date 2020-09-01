@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C18F259C20
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C218C259B91
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbgIARLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:11:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33148 "EHLO mail.kernel.org"
+        id S1727853AbgIAREF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728826AbgIAPQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:27 -0400
+        id S1729285AbgIAPUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35FFE206EB;
-        Tue,  1 Sep 2020 15:16:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A9E0206EB;
+        Tue,  1 Sep 2020 15:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973386;
-        bh=JcKkK6SjWJoKNYSJyFxdo3JBVP64FhLpgWA1lDUivaU=;
+        s=default; t=1598973599;
+        bh=1yPzK9t3GFlkQwdBVi7C7ZW6wopToJk1Y05XWH4ziTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oI/3HZcRL+OxyuieevM9RH/2h87tzp+mvcPWZY3NSMshCGtdGav3mHYIz/Br/AKmU
-         5KCY9SgJOEc9jzJ1xaf5MX5m3ur4NjZD2CGKZRuorag0sG24O1l9rB2+3nUruzaV2H
-         XVj5NE16f+fzf9yP7wEWoL5VTgFY2lHgZqvlZKE4=
+        b=oIFwFnHN+RMAAjbm/qgq0Takxe2fUlqtymzSk3pKmWKmDB7VVRb6ZLDsmCpgPqKwh
+         rc7ID21SufDpn/RIRi6NssKw5slOhFwqvYfXuFUkqraL3cU2x0nFjTAWH2v0JLuHFt
+         Kw+QFJYyWutliVGWC3IJiCsS3SHkfnXovJlF6C4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeff Layton <jlayton@kernel.org>,
         Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 30/78] ceph: fix potential mdsc use-after-free crash
-Date:   Tue,  1 Sep 2020 17:10:06 +0200
-Message-Id: <20200901150926.247880633@linuxfoundation.org>
+Subject: [PATCH 4.14 33/91] ceph: fix potential mdsc use-after-free crash
+Date:   Tue,  1 Sep 2020 17:10:07 +0200
+Message-Id: <20200901150929.790388450@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 3139fbd4c34e3..4ec5a109df82b 100644
+index f36ddfea4997e..06109314d93c8 100644
 --- a/fs/ceph/mds_client.c
 +++ b/fs/ceph/mds_client.c
-@@ -3386,6 +3386,9 @@ static void delayed_work(struct work_struct *work)
+@@ -3518,6 +3518,9 @@ static void delayed_work(struct work_struct *work)
  	dout("mdsc delayed_work\n");
  	ceph_check_delayed_caps(mdsc);
  
@@ -83,7 +83,7 @@ index 3139fbd4c34e3..4ec5a109df82b 100644
  	mutex_lock(&mdsc->mutex);
  	renew_interval = mdsc->mdsmap->m_session_timeout >> 2;
  	renew_caps = time_after_eq(jiffies, HZ*renew_interval +
-@@ -3717,7 +3720,16 @@ void ceph_mdsc_force_umount(struct ceph_mds_client *mdsc)
+@@ -3851,7 +3854,16 @@ void ceph_mdsc_force_umount(struct ceph_mds_client *mdsc)
  static void ceph_mdsc_stop(struct ceph_mds_client *mdsc)
  {
  	dout("stop\n");
