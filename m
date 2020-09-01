@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 658772598FD
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 978D2259AEF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730758AbgIAQfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:35:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33476 "EHLO mail.kernel.org"
+        id S1732366AbgIAQze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730453AbgIAPa6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:58 -0400
+        id S1729423AbgIAPXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:23:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB4C1207D3;
-        Tue,  1 Sep 2020 15:30:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 228192078B;
+        Tue,  1 Sep 2020 15:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974257;
-        bh=+twnufWi3x03h1AwFfniqv5oWUZjz95y+3fwKNyHuQQ=;
+        s=default; t=1598973829;
+        bh=jLrsiqJFchZqsU3JqhX9Hjb//ucy/rBP5Iv1hlCWZl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvSh2j3VXXRIcI3IGPOERQ1AX6Ad/ypcxtsT+EKOWgh9fvMFtJqI9w4eob/FoT8sS
-         J/xHzr3ZqykS49UBI0VLiHorNINgqnMuSAhsXv3UsqBcqmYdk8GV4+OVupW5xBt2iu
-         PwGYFCw7UcxNMiGaY6qDltQzQuWTFN0uKZF3rzck=
+        b=e6wzTfm/p8/Cn7Y9IjjpaEmEtLS7ekeJrYR+oLYsspegFpP7gUCabVqnN517rNYJE
+         YSo9mfGHHd+kivDK6kl67ZvCd1EvD3kbSGeLuM+KF/9oet308VtgcTgY19ledL/9b9
+         v6hh5A0Rxx506xN4JyLG9AQ5WAifH/9SlSoFgD4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Reto Schneider <code@reto-schneider.ch>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/214] nvme-fc: Fix wrong return value in __nvme_fc_init_request()
-Date:   Tue,  1 Sep 2020 17:09:47 +0200
-Message-Id: <20200901150958.117349119@linuxfoundation.org>
+Subject: [PATCH 4.19 033/125] rtlwifi: rtl8192cu: Prevent leaking urb
+Date:   Tue,  1 Sep 2020 17:09:48 +0200
+Message-Id: <20200901150936.185344758@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Reto Schneider <code@reto-schneider.ch>
 
-[ Upstream commit f34448cd0dc697723fb5f4118f8431d9233b370d ]
+[ Upstream commit 03128643eb5453a798db5770952c73dc64fcaf00 ]
 
-On an error exit path, a negative error code should be returned
-instead of a positive return value.
+If usb_submit_urb fails the allocated urb should be unanchored and
+released.
 
-Fixes: e399441de9115 ("nvme-fabrics: Add host support for FC transport")
-Cc: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Reto Schneider <code@reto-schneider.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200622132113.14508-3-code@reto-schneider.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 83ac88924f253..dce4d6782ceb1 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -1740,7 +1740,7 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
- 	if (fc_dma_mapping_error(ctrl->lport->dev, op->fcp_req.cmddma)) {
- 		dev_err(ctrl->dev,
- 			"FCP Op failed - cmdiu dma mapping failed.\n");
--		ret = EFAULT;
-+		ret = -EFAULT;
- 		goto out_on_error;
- 	}
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 1893640555c1e..3d6c0d8c71d7e 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -739,8 +739,11 @@ static int _rtl_usb_receive(struct ieee80211_hw *hw)
  
-@@ -1750,7 +1750,7 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
- 	if (fc_dma_mapping_error(ctrl->lport->dev, op->fcp_req.rspdma)) {
- 		dev_err(ctrl->dev,
- 			"FCP Op failed - rspiu dma mapping failed.\n");
--		ret = EFAULT;
-+		ret = -EFAULT;
+ 		usb_anchor_urb(urb, &rtlusb->rx_submitted);
+ 		err = usb_submit_urb(urb, GFP_KERNEL);
+-		if (err)
++		if (err) {
++			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			goto err_out;
++		}
+ 		usb_free_urb(urb);
  	}
- 
- 	atomic_set(&op->state, FCPOP_STATE_IDLE);
+ 	return 0;
 -- 
 2.25.1
 
