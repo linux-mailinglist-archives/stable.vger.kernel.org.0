@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC46425948D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04242593C0
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbgIAPlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:41:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52588 "EHLO mail.kernel.org"
+        id S1730608AbgIAPac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731516AbgIAPk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:40:58 -0400
+        id S1730603AbgIAPa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32D55206EF;
-        Tue,  1 Sep 2020 15:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3152D205F4;
+        Tue,  1 Sep 2020 15:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974857;
-        bh=fIHIM0NwOWuvBqLrNo02Cp7DkkhrsMdirJnurd7PR9E=;
+        s=default; t=1598974227;
+        bh=ljQvRiNJ+zD+RqKxPXtXqrXymWeeZshRIjfMSdfN9Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZRGggsI/1nB6HuuvX8PyQryDuACLFlYfP5SSiI4fpgSvCL9izZIrm31ConDHgoNh
-         bjnIvUlevUe7PH1rFKCsWQl1xTUOZZCVCq0eN314jcKxPPoRT67xIXjCBGRhx38fI3
-         D630ZpY1mvIn57hy3hfHW7+XWB4V9JUiTaTv09PM=
+        b=J8DyjFnjaBoRm4SjPQ7riQ4CDyamvLCpg/iSVK/gJtvmen+N64/FsKyiJqhbvnsQH
+         ZEmieEDQSHNrs5mkmVJ9Ngj1m0tHbxZBlUA4kemk2hDOfnRTTluPfRaz5cytoPDqw+
+         orKeMXekB1G/9+rEyi2Onvl4s8Tuglgtzkjr0vvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Changpeng Liu <changpeng.liu@intel.com>,
-        Daniel Verkamp <dverkamp@chromium.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 087/255] block: virtio_blk: fix handling single range discard request
-Date:   Tue,  1 Sep 2020 17:09:03 +0200
-Message-Id: <20200901151004.895777425@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 064/214] brcmfmac: Set timeout value when configuring power save
+Date:   Tue,  1 Sep 2020 17:09:04 +0200
+Message-Id: <20200901150956.046718353@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,80 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit af822aa68fbdf0a480a17462ed70232998127453 ]
+[ Upstream commit 3dc05ffb04436020f63138186dbc4f37bd938552 ]
 
-1f23816b8eb8 ("virtio_blk: add discard and write zeroes support") starts
-to support multi-range discard for virtio-blk. However, the virtio-blk
-disk may report max discard segment as 1, at least that is exactly what
-qemu is doing.
+Set the timeout value as per cfg80211's set_power_mgmt() request. If the
+requested value value is left undefined we set it to 2 seconds, the
+maximum supported value.
 
-So far, block layer switches to normal request merge if max discard segment
-limit is 1, and multiple bios can be merged to single segment. This way may
-cause memory corruption in virtblk_setup_discard_write_zeroes().
-
-Fix the issue by handling single max discard segment in straightforward
-way.
-
-Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Changpeng Liu <changpeng.liu@intel.com>
-Cc: Daniel Verkamp <dverkamp@chromium.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200721112302.22718-1-nsaenzjulienne@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c   | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 980df853ee497..99991b6a6f0ed 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -126,16 +126,31 @@ static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
- 	if (!range)
- 		return -ENOMEM;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index e3ebb7abbdaed..4ca50353538ef 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -82,6 +82,8 @@
  
--	__rq_for_each_bio(bio, req) {
--		u64 sector = bio->bi_iter.bi_sector;
--		u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
--
--		range[n].flags = cpu_to_le32(flags);
--		range[n].num_sectors = cpu_to_le32(num_sectors);
--		range[n].sector = cpu_to_le64(sector);
--		n++;
-+	/*
-+	 * Single max discard segment means multi-range discard isn't
-+	 * supported, and block layer only runs contiguity merge like
-+	 * normal RW request. So we can't reply on bio for retrieving
-+	 * each range info.
-+	 */
-+	if (queue_max_discard_segments(req->q) == 1) {
-+		range[0].flags = cpu_to_le32(flags);
-+		range[0].num_sectors = cpu_to_le32(blk_rq_sectors(req));
-+		range[0].sector = cpu_to_le64(blk_rq_pos(req));
-+		n = 1;
-+	} else {
-+		__rq_for_each_bio(bio, req) {
-+			u64 sector = bio->bi_iter.bi_sector;
-+			u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
+ #define BRCMF_ND_INFO_TIMEOUT		msecs_to_jiffies(2000)
+ 
++#define BRCMF_PS_MAX_TIMEOUT_MS		2000
 +
-+			range[n].flags = cpu_to_le32(flags);
-+			range[n].num_sectors = cpu_to_le32(num_sectors);
-+			range[n].sector = cpu_to_le64(sector);
-+			n++;
-+		}
+ #define BRCMF_ASSOC_PARAMS_FIXED_SIZE \
+ 	(sizeof(struct brcmf_assoc_params_le) - sizeof(u16))
+ 
+@@ -2789,6 +2791,12 @@ brcmf_cfg80211_set_power_mgmt(struct wiphy *wiphy, struct net_device *ndev,
+ 		else
+ 			bphy_err(drvr, "error (%d)\n", err);
  	}
- 
-+	WARN_ON_ONCE(n != segments);
 +
- 	req->special_vec.bv_page = virt_to_page(range);
- 	req->special_vec.bv_offset = offset_in_page(range);
- 	req->special_vec.bv_len = sizeof(*range) * segments;
++	err = brcmf_fil_iovar_int_set(ifp, "pm2_sleep_ret",
++				min_t(u32, timeout, BRCMF_PS_MAX_TIMEOUT_MS));
++	if (err)
++		bphy_err(drvr, "Unable to set pm timeout, (%d)\n", err);
++
+ done:
+ 	brcmf_dbg(TRACE, "Exit\n");
+ 	return err;
 -- 
 2.25.1
 
