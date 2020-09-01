@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4002598ED
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403E62598EE
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbgIAPaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:30:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60316 "EHLO mail.kernel.org"
+        id S1730604AbgIAPaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgIAPaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:30:14 -0400
+        id S1730596AbgIAPaS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D9EA214D8;
-        Tue,  1 Sep 2020 15:30:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F087207D3;
+        Tue,  1 Sep 2020 15:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974212;
-        bh=ycmxk5i8ePmn3f3t0OuO4dy8MaL56n5jOKzwYUsc690=;
+        s=default; t=1598974217;
+        bh=ALYJ0PwkIOyn+zIbpSyguYiW+bBvfEuoxI+K2epU1AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRjAm45hdirNS5OK3eYnhG8AMN4kq0LMMbYiGrvnNO5fXWWW8Eytu55h/OVR3VR3H
-         pkzrTAjCRa0aNbhZqUOHHFvPdh21qwQB6lbjw56t35t2Jx7yLzOVQCf/Cv7ZSn5aZh
-         afQvy0FhKlH+ZioAjJ+bFs13fo2VezyhMAkk/f04=
+        b=kjhrix+2SAHM8z9sT1Egxjsm13cbtuSmPnTrbcmwrZ8MHpJkt1DHkWE+hGNgoD/QR
+         PTWNgFJAK9eX4EP5PkUfv2B8x4reLk4xLBsbB+U1E/hwYfNnXe9oQ0J1C0spszWBjR
+         saQ1fbOaUHqvPZEOM6i0VWb4m4U+Ir8QfmsT4vQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stylon Wang <stylon.wang@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/214] drm/amd/display: Fix dmesg warning from setting abm level
-Date:   Tue,  1 Sep 2020 17:09:28 +0200
-Message-Id: <20200901150957.215018098@linuxfoundation.org>
+Subject: [PATCH 5.4 089/214] mm/vunmap: add cond_resched() in vunmap_pmd_range
+Date:   Tue,  1 Sep 2020 17:09:29 +0200
+Message-Id: <20200901150957.259958320@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -46,61 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+[ Upstream commit e47110e90584a22e9980510b00d0dfad3a83354e ]
 
-[ Upstream commit c5892a10218214d729699ab61bad6fc109baf0ce ]
+Like zap_pte_range add cond_resched so that we can avoid softlockups as
+reported below.  On non-preemptible kernel with large I/O map region (like
+the one we get when using persistent memory with sector mode), an unmap of
+the namespace can report below softlockups.
 
-[Why]
-Setting abm level does not correctly update CRTC state. As a result
-no surface update is added to dc stream state and triggers warning.
+22724.027334] watchdog: BUG: soft lockup - CPU#49 stuck for 23s! [ndctl:50777]
+ NIP [c0000000000dc224] plpar_hcall+0x38/0x58
+ LR [c0000000000d8898] pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+    flush_hash_page+0x114/0x200
+    hpte_need_flush+0x2dc/0x540
+    vunmap_page_range+0x538/0x6f0
+    free_unmap_vmap_area+0x30/0x70
+    remove_vm_area+0xfc/0x140
+    __vunmap+0x68/0x270
+    __iounmap.part.0+0x34/0x60
+    memunmap+0x54/0x70
+    release_nodes+0x28c/0x300
+    device_release_driver_internal+0x16c/0x280
+    unbind_store+0x124/0x170
+    drv_attr_store+0x44/0x60
+    sysfs_kf_write+0x64/0x90
+    kernfs_fop_write+0x1b0/0x290
+    __vfs_write+0x3c/0x70
+    vfs_write+0xd8/0x260
+    ksys_write+0xdc/0x130
+    system_call+0x5c/0x70
 
-[How]
-Correctly update CRTC state when setting abm level property.
-
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200807075933.310240-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 23 +++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ mm/vmalloc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 3eb77f343bbfa..247f53d41993d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7306,6 +7306,29 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 	if (ret)
- 		goto fail;
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index ad4d00bd79147..5797e1eeaa7e6 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -85,6 +85,8 @@ static void vunmap_pmd_range(pud_t *pud, unsigned long addr, unsigned long end)
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+ 		vunmap_pte_range(pmd, addr, next);
++
++		cond_resched();
+ 	} while (pmd++, addr = next, addr != end);
+ }
  
-+	/* Check connector changes */
-+	for_each_oldnew_connector_in_state(state, connector, old_con_state, new_con_state, i) {
-+		struct dm_connector_state *dm_old_con_state = to_dm_connector_state(old_con_state);
-+		struct dm_connector_state *dm_new_con_state = to_dm_connector_state(new_con_state);
-+
-+		/* Skip connectors that are disabled or part of modeset already. */
-+		if (!old_con_state->crtc && !new_con_state->crtc)
-+			continue;
-+
-+		if (!new_con_state->crtc)
-+			continue;
-+
-+		new_crtc_state = drm_atomic_get_crtc_state(state, new_con_state->crtc);
-+		if (IS_ERR(new_crtc_state)) {
-+			ret = PTR_ERR(new_crtc_state);
-+			goto fail;
-+		}
-+
-+		if (dm_old_con_state->abm_level !=
-+		    dm_new_con_state->abm_level)
-+			new_crtc_state->connectors_changed = true;
-+	}
-+
- #if defined(CONFIG_DRM_AMD_DC_DCN)
- 	if (adev->asic_type >= CHIP_NAVI10) {
- 		for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
 -- 
 2.25.1
 
