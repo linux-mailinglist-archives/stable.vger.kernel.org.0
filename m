@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C864259BDA
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBBF259B3B
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729467AbgIARIH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:08:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36228 "EHLO mail.kernel.org"
+        id S1729726AbgIAPWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:22:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728827AbgIAPSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:18:10 -0400
+        id S1729723AbgIAPWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 907D1206EB;
-        Tue,  1 Sep 2020 15:18:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC6762078B;
+        Tue,  1 Sep 2020 15:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973490;
-        bh=6U3tpnVDynBvNo+gSnrFfnNkeZUzIxS3spDzXru5xkM=;
+        s=default; t=1598973725;
+        bh=yQyMBT46SZoHadtKSXflaksZ1z3AR/88HqAFqwP552I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvP5HychZ4rJUsfBkxsNMZEHS6qChIRCZHqF5qGLpppkcGo5Jm8X86MnTe6JD1bnQ
-         XvbQz2Hg1baP6+mZ6QB8AQmupOVKPpoz35T170Xi1zOTUTRM6JMEUCWYxLHIXuU91J
-         3EMT4lb1sXbhDC3XP8eKBG//cK4EVsLXNb8OD3Sg=
+        b=ncFSQ0tK3W1K5V3sHknm+LFwNVoJJz2KFkrU+GexDxhiqerPkcN9sYMoSp/ociGAC
+         ZFNDUkA8Nq/UDGSFO8gJxjaE8TBAp7l+/X0OM/eTdm4oqRf5B3GuEyD+er1I7861o+
+         ai/XBIH6IHk5dxjGB09MRKGEgdl4WwTzr5nBWzxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 02/91] net: Fix potential wrong skb->protocol in skb_vlan_untag()
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 021/125] drm/radeon: fix multiple reference count leak
 Date:   Tue,  1 Sep 2020 17:09:36 +0200
-Message-Id: <20200901150928.238578130@linuxfoundation.org>
+Message-Id: <20200901150935.604482804@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 55eff0eb7460c3d50716ed9eccf22257b046ca92 ]
+[ Upstream commit 6f2e8acdb48ed166b65d47837c31b177460491ec ]
 
-We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). So
-we should pull VLAN_HLEN + sizeof(unsigned short) in skb_vlan_untag() or
-we may access the wrong data.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Fixes: 0d5501c1c828 ("net: Always untag vlan-tagged traffic on input.")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/radeon_connectors.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5053,8 +5053,8 @@ struct sk_buff *skb_vlan_untag(struct sk
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (unlikely(!skb))
- 		goto err_free;
--
--	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN)))
-+	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
-+	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short))))
- 		goto err_free;
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index de656f5553839..b9927101e8450 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -882,8 +882,10 @@ radeon_lvds_detect(struct drm_connector *connector, bool force)
  
- 	vhdr = (struct vlan_hdr *)skb->data;
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (encoder) {
+@@ -1028,8 +1030,10 @@ radeon_vga_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1166,8 +1170,10 @@ radeon_tv_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	encoder = radeon_best_single_encoder(connector);
+@@ -1250,8 +1256,10 @@ radeon_dvi_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (radeon_connector->detected_hpd_without_ddc) {
+@@ -1665,8 +1673,10 @@ radeon_dp_detect(struct drm_connector *connector, bool force)
+ 
+ 	if (!drm_kms_helper_is_poll_worker()) {
+ 		r = pm_runtime_get_sync(connector->dev->dev);
+-		if (r < 0)
++		if (r < 0) {
++			pm_runtime_put_autosuspend(connector->dev->dev);
+ 			return connector_status_disconnected;
++		}
+ 	}
+ 
+ 	if (!force && radeon_check_hpd_status_unchanged(connector)) {
+-- 
+2.25.1
+
 
 
