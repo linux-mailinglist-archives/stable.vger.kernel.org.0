@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 127602592AD
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89DE12592DD
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:18:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729211AbgIAPPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59684 "EHLO mail.kernel.org"
+        id S1729446AbgIAPSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729205AbgIAPPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:24 -0400
+        id S1729419AbgIAPRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BF8E206FA;
-        Tue,  1 Sep 2020 15:15:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8262151B;
+        Tue,  1 Sep 2020 15:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973323;
-        bh=rf6r7FGrSusW9nyMm5YZNR5hcVa8B0478aduwuw7Vwc=;
+        s=default; t=1598973470;
+        bh=l58UeMdt58IB+x76B7v0N/wZQsYhLLAl8Lj5oZQQp3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IFwS+WC0AWp3Ip1VGethaUmBGaRYvnPgt1EjHXXsMmPwHWXNmtgnNugwM4HlUXFKv
-         l9OS2uHPoHLp/rYQ2FYB6f1gakza4UAK1N0iy/OY7O2/8DUXGOpX4pb9TAklHbPjVq
-         jgnXMSIe5weeJJF7xwKhsSJUQQgp5XtNMNFCAKxE=
+        b=JT38Q8sWZmvUomxG8GRuO+HJcK4BjMbg5z8hMg6pOtJk/t2lLLkCUIjoYU8EBsXJo
+         7DwAteKqGTh1hkJZ8uM/x6hycvPwNJ4ZnOIS0KFjfRQ1OmONywHqpehxYadGUa/nom
+         SyTdtFXcOV4RPAcvsftZj2qQ4qiNneZlunD5zGzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/78] arm64: dts: qcom: msm8916: Pull down PDM GPIOs during sleep
-Date:   Tue,  1 Sep 2020 17:09:45 +0200
-Message-Id: <20200901150925.197140912@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/91] blktrace: ensure our debugfs dir exists
+Date:   Tue,  1 Sep 2020 17:09:46 +0200
+Message-Id: <20200901150928.715876880@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit e2ee9edc282961783d519c760bbaa20fed4dec38 ]
+[ Upstream commit b431ef837e3374da0db8ff6683170359aaa0859c ]
 
-The original qcom kernel changed the PDM GPIOs to be pull-down
-during sleep at some point. Reportedly this was done because
-there was some "leakage at PDM outputs during sleep":
+We make an assumption that a debugfs directory exists, but since
+this can fail ensure it exists before allowing blktrace setup to
+complete. Otherwise we end up stuffing blktrace files on the debugfs
+root directory. In the worst case scenario this *in theory* can create
+an eventual panic *iff* in the future a similarly named file is created
+prior on the debugfs root directory. This theoretical crash can happen
+due to a recursive removal followed by a specific dentry removal.
 
-  https://source.codeaurora.org/quic/la/kernel/msm-3.10/commit/?id=0f87e08c1cd3e6484a6f7fb3e74e37340bdcdee0
+This doesn't fix any known crash, however I have seen the files
+go into the main debugfs root directory in cases where the debugfs
+directory was not created due to other internal bugs with blktrace
+now fixed.
 
-I cannot say how effective this is, but everything seems to work
-fine with this change so let's apply the same to mainline just
-to be sure.
+blktrace is also completely useless without this directory, so
+this ensures to userspace we only setup blktrace if the kernel
+can stuff files where they are supposed to go into.
 
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200605185916.318494-3-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+debugfs directory creations typically aren't checked for, and we have
+maintainers doing sweep removals of these checks, but since we need this
+check to ensure proper userspace blktrace functionality we make sure
+to annotate the justification for the check.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916-pins.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-index fabc0cebe2aa2..1f9ff2cea2151 100644
---- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
-@@ -555,7 +555,7 @@
- 				pins = "gpio63", "gpio64", "gpio65", "gpio66",
- 				       "gpio67", "gpio68";
- 				drive-strength = <2>;
--				bias-disable;
-+				bias-pull-down;
- 			};
- 		};
- 	};
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 9a55c5bc52434..987daf9cc6e54 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -541,6 +541,18 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 	if (!dir)
+ 		goto err;
+ 
++	/*
++	 * As blktrace relies on debugfs for its interface the debugfs directory
++	 * is required, contrary to the usual mantra of not checking for debugfs
++	 * files or directories.
++	 */
++	if (IS_ERR_OR_NULL(dir)) {
++		pr_warn("debugfs_dir not present for %s so skipping\n",
++			buts->name);
++		ret = -ENOENT;
++		goto err;
++	}
++
+ 	bt->dev = dev;
+ 	atomic_set(&bt->dropped, 0);
+ 	INIT_LIST_HEAD(&bt->running_list);
 -- 
 2.25.1
 
