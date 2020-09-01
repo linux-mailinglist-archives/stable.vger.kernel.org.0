@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06FD259C58
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F38E259CB4
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731892AbgIARNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
+        id S1729740AbgIARTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:19:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728397AbgIAPPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:36 -0400
+        id S1728911AbgIAPNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 731DB20767;
-        Tue,  1 Sep 2020 15:15:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E8B206FA;
+        Tue,  1 Sep 2020 15:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973331;
-        bh=LyCZN+BCUo30IxZJg+bDtUMGCtyQ45xLHCyexBR9wzQ=;
+        s=default; t=1598973231;
+        bh=x9qmWIb7ii94WAkjC2xfg9tVw85RQyIp0sudVBq6X5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KU6nWNsL2IXWeDr0Bjglg17sfY5/DuZckDqstxvT1JbLJZTcBNPT+iw7+MyMDbTi3
-         bfN2y728KMF3vy9E1ABMUcvOvVsW/CiqiwK4jYejm56xCstR/7/X042ZWIdwRl78aQ
-         aI1SfDWBux5Sr/twTf7z4hu96K9g1yyjO63hY4q4=
+        b=CbctLP8mMvtm2d2e1K9Ajg+50/sEX05tQX6dFFqXI/bcX3R7NrvnvHcuwLS3Al17b
+         d9psbkyLl3gc0OUFIbIE2b6cFM0hkS9GoshPzS5racbuvUaIITgb0Wco+Fnm2BYLx5
+         394CPg8mFKv8yfTf8fysUiIq9Tjhr84rY2hUZXVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Elena Petrova <lenaptr@google.com>,
-        Marco Elver <elver@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Walter Wu <walter-zh.wu@mediatek.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, Jeremy Kerr <jk@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 37/78] efi: provide empty efi_enter_virtual_mode implementation
+Subject: [PATCH 4.4 30/62] powerpc/spufs: add CONFIG_COREDUMP dependency
 Date:   Tue,  1 Sep 2020 17:10:13 +0200
-Message-Id: <20200901150926.592332088@linuxfoundation.org>
+Message-Id: <20200901150922.233961954@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 2c547f9da0539ad1f7ef7f08c8c82036d61b011a ]
+[ Upstream commit b648a5132ca3237a0f1ce5d871fff342b0efcf8a ]
 
-When CONFIG_EFI is not enabled, we might get an undefined reference to
-efi_enter_virtual_mode() error, if this efi_enabled() call isn't inlined
-into start_kernel().  This happens in particular, if start_kernel() is
-annodated with __no_sanitize_address.
+The kernel test robot pointed out a slightly different error message
+after recent commit 5456ffdee666 ("powerpc/spufs: simplify spufs core
+dumping") to spufs for a configuration that never worked:
+
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_proxydma_info_dump':
+>> file.c:(.text+0x4c68): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_dma_info_dump':
+   file.c:(.text+0x4d70): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_wbox_info_dump':
+   file.c:(.text+0x4df4): undefined reference to `.dump_emit'
+
+Add a Kconfig dependency to prevent this from happening again.
 
 Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Elena Petrova <lenaptr@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Walter Wu <walter-zh.wu@mediatek.com>
-Link: http://lkml.kernel.org/r/6514652d3a32d3ed33d6eb5c91d0af63bf0d1a0c.1596544734.git.andreyknvl@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200706132302.3885935-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/efi.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/platforms/cell/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 02c4f16685b69..69605956beb85 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -910,7 +910,11 @@ extern void *efi_get_pal_addr (void);
- extern void efi_map_pal_code (void);
- extern void efi_memmap_walk (efi_freemem_callback_t callback, void *arg);
- extern void efi_gettimeofday (struct timespec64 *ts);
-+#ifdef CONFIG_EFI
- extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
-+#else
-+static inline void efi_enter_virtual_mode (void) {}
-+#endif
- #ifdef CONFIG_X86
- extern void efi_late_init(void);
- extern void efi_free_boot_services(void);
+diff --git a/arch/powerpc/platforms/cell/Kconfig b/arch/powerpc/platforms/cell/Kconfig
+index 429fc59d2a476..9acca9c79ef62 100644
+--- a/arch/powerpc/platforms/cell/Kconfig
++++ b/arch/powerpc/platforms/cell/Kconfig
+@@ -50,6 +50,7 @@ config SPU_FS
+ 	tristate "SPU file system"
+ 	default m
+ 	depends on PPC_CELL
++	depends on COREDUMP
+ 	select SPU_BASE
+ 	select MEMORY_HOTPLUG
+ 	help
 -- 
 2.25.1
 
