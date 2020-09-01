@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDE12595B8
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4DF22595B5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731658AbgIAPpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S1731905AbgIAPpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:45:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731898AbgIAPpr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:45:47 -0400
+        id S1731902AbgIAPpu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:45:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CC6C206FA;
-        Tue,  1 Sep 2020 15:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEB312098B;
+        Tue,  1 Sep 2020 15:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975146;
-        bh=Oz7t0NWmXB5bAB+zgwUm8UAx3M15rm8xgTdMeCo8jq0=;
+        s=default; t=1598975149;
+        bh=oX8ApIi0k5X6UEuGO37U34c3eMFNvHUXh3JOga1C+tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ztx4czgjq82g3UKgmTp/FWYSvD5vXYxmoOGWfuSfjWdAvqLPORuoyUE9zkQ/85/JW
-         k72veLDszYlSUDKVQCTLgJsEl9gqTte1PLyLVA1VbFsDpA2aa9qoKnyCa8hK/YAMX9
-         mEK3vocNThdkxzVqbH08tac7QlfK1WaP50wfjLsE=
+        b=DU/NrQc9cGjcpTqoN/fEcEevipmwduEHXEsBx/lryAnDGcUqPaq5fhk3iN1fZgZh2
+         l3ugzmc/ovyJ874G+3iJOKJ7HYZ3ZYNoZGGi+VkEG0dWO5Wjd7mzTHPMDhE/HhMcxg
+         /4ZP1Fjad74NwKFWU+U89X+MM83+OKJW+PvWMNsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Kees Cook <keescook@chromium.org>,
         Brooke Basile <brookebasile@gmail.com>,
         Felipe Balbi <balbi@kernel.org>, stable <stable@kernel.org>
-Subject: [PATCH 5.8 228/255] USB: gadget: u_f: add overflow checks to VLA macros
-Date:   Tue,  1 Sep 2020 17:11:24 +0200
-Message-Id: <20200901151011.684588719@linuxfoundation.org>
+Subject: [PATCH 5.8 229/255] USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()
+Date:   Tue,  1 Sep 2020 17:11:25 +0200
+Message-Id: <20200901151011.731595437@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -48,83 +47,176 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brooke Basile <brookebasile@gmail.com>
 
-commit b1cd1b65afba95971fa457dfdb2c941c60d38c5b upstream.
+commit 2b74b0a04d3e9f9f08ff026e5663dce88ff94e52 upstream.
 
-size can potentially hold an overflowed value if its assigned expression
-is left unchecked, leading to a smaller than needed allocation when
-vla_group_size() is used by callers to allocate memory.
-To fix this, add a test for saturation before declaring variables and an
-overflow check to (n) * sizeof(type).
-If the expression results in overflow, vla_group_size() will return SIZE_MAX.
+Some values extracted by ncm_unwrap_ntb() could possibly lead to several
+different out of bounds reads of memory.  Specifically the values passed
+to netdev_alloc_skb_ip_align() need to be checked so that memory is not
+overflowed.
+
+Resolve this by applying bounds checking to a number of different
+indexes and lengths of the structure parsing logic.
 
 Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Brooke Basile <brookebasile@gmail.com>
 Acked-by: Felipe Balbi <balbi@kernel.org>
 Cc: stable <stable@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/u_f.h |   38 +++++++++++++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c |   81 ++++++++++++++++++++++++++++++------
+ 1 file changed, 69 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/gadget/u_f.h
-+++ b/drivers/usb/gadget/u_f.h
-@@ -14,6 +14,7 @@
- #define __U_F_H__
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -1181,12 +1181,15 @@ static int ncm_unwrap_ntb(struct gether
+ 	int		ndp_index;
+ 	unsigned	dg_len, dg_len2;
+ 	unsigned	ndp_len;
++	unsigned	block_len;
+ 	struct sk_buff	*skb2;
+ 	int		ret = -EINVAL;
+-	unsigned	max_size = le32_to_cpu(ntb_parameters.dwNtbOutMaxSize);
++	unsigned	ntb_max = le32_to_cpu(ntb_parameters.dwNtbOutMaxSize);
++	unsigned	frame_max = le16_to_cpu(ecm_desc.wMaxSegmentSize);
+ 	const struct ndp_parser_opts *opts = ncm->parser_opts;
+ 	unsigned	crc_len = ncm->is_crc ? sizeof(uint32_t) : 0;
+ 	int		dgram_counter;
++	bool		ndp_after_header;
  
- #include <linux/usb/gadget.h>
-+#include <linux/overflow.h>
+ 	/* dwSignature */
+ 	if (get_unaligned_le32(tmp) != opts->nth_sign) {
+@@ -1205,25 +1208,37 @@ static int ncm_unwrap_ntb(struct gether
+ 	}
+ 	tmp++; /* skip wSequence */
  
- /* Variable Length Array Macros **********************************************/
- #define vla_group(groupname) size_t groupname##__next = 0
-@@ -21,21 +22,36 @@
++	block_len = get_ncm(&tmp, opts->block_length);
+ 	/* (d)wBlockLength */
+-	if (get_ncm(&tmp, opts->block_length) > max_size) {
++	if (block_len > ntb_max) {
+ 		INFO(port->func.config->cdev, "OUT size exceeded\n");
+ 		goto err;
+ 	}
  
- #define vla_item(groupname, type, name, n) \
- 	size_t groupname##_##name##__offset = ({			       \
--		size_t align_mask = __alignof__(type) - 1;		       \
--		size_t offset = (groupname##__next + align_mask) & ~align_mask;\
--		size_t size = (n) * sizeof(type);			       \
--		groupname##__next = offset + size;			       \
-+		size_t offset = 0;					       \
-+		if (groupname##__next != SIZE_MAX) {			       \
-+			size_t align_mask = __alignof__(type) - 1;	       \
-+			size_t offset = (groupname##__next + align_mask)       \
-+					 & ~align_mask;			       \
-+			size_t size = array_size(n, sizeof(type));	       \
-+			if (check_add_overflow(offset, size,		       \
-+					       &groupname##__next)) {          \
-+				groupname##__next = SIZE_MAX;		       \
-+				offset = 0;				       \
-+			}						       \
-+		}							       \
- 		offset;							       \
- 	})
+ 	ndp_index = get_ncm(&tmp, opts->ndp_index);
++	ndp_after_header = false;
  
- #define vla_item_with_sz(groupname, type, name, n) \
--	size_t groupname##_##name##__sz = (n) * sizeof(type);		       \
--	size_t groupname##_##name##__offset = ({			       \
--		size_t align_mask = __alignof__(type) - 1;		       \
--		size_t offset = (groupname##__next + align_mask) & ~align_mask;\
--		size_t size = groupname##_##name##__sz;			       \
--		groupname##__next = offset + size;			       \
--		offset;							       \
-+	size_t groupname##_##name##__sz = array_size(n, sizeof(type));	        \
-+	size_t groupname##_##name##__offset = ({			        \
-+		size_t offset = 0;						\
-+		if (groupname##__next != SIZE_MAX) {				\
-+			size_t align_mask = __alignof__(type) - 1;		\
-+			size_t offset = (groupname##__next + align_mask)	\
-+					 & ~align_mask;				\
-+			if (check_add_overflow(offset, groupname##_##name##__sz,\
-+							&groupname##__next)) {	\
-+				groupname##__next = SIZE_MAX;			\
-+				offset = 0;					\
-+			}							\
-+		}								\
-+		offset;								\
- 	})
+ 	/* Run through all the NDP's in the NTB */
+ 	do {
+-		/* NCM 3.2 */
+-		if (((ndp_index % 4) != 0) &&
+-				(ndp_index < opts->nth_size)) {
++		/*
++		 * NCM 3.2
++		 * dwNdpIndex
++		 */
++		if (((ndp_index % 4) != 0) ||
++				(ndp_index < opts->nth_size) ||
++				(ndp_index > (block_len -
++					      opts->ndp_size))) {
+ 			INFO(port->func.config->cdev, "Bad index: %#X\n",
+ 			     ndp_index);
+ 			goto err;
+ 		}
++		if (ndp_index == opts->nth_size)
++			ndp_after_header = true;
  
- #define vla_ptr(ptr, groupname, name) \
+-		/* walk through NDP */
++		/*
++		 * walk through NDP
++		 * dwSignature
++		 */
+ 		tmp = (void *)(skb->data + ndp_index);
+ 		if (get_unaligned_le32(tmp) != ncm->ndp_sign) {
+ 			INFO(port->func.config->cdev, "Wrong NDP SIGN\n");
+@@ -1234,14 +1249,15 @@ static int ncm_unwrap_ntb(struct gether
+ 		ndp_len = get_unaligned_le16(tmp++);
+ 		/*
+ 		 * NCM 3.3.1
++		 * wLength
+ 		 * entry is 2 items
+ 		 * item size is 16/32 bits, opts->dgram_item_len * 2 bytes
+ 		 * minimal: struct usb_cdc_ncm_ndpX + normal entry + zero entry
+ 		 * Each entry is a dgram index and a dgram length.
+ 		 */
+ 		if ((ndp_len < opts->ndp_size
+-				+ 2 * 2 * (opts->dgram_item_len * 2))
+-				|| (ndp_len % opts->ndplen_align != 0)) {
++				+ 2 * 2 * (opts->dgram_item_len * 2)) ||
++				(ndp_len % opts->ndplen_align != 0)) {
+ 			INFO(port->func.config->cdev, "Bad NDP length: %#X\n",
+ 			     ndp_len);
+ 			goto err;
+@@ -1258,8 +1274,21 @@ static int ncm_unwrap_ntb(struct gether
+ 
+ 		do {
+ 			index = index2;
++			/* wDatagramIndex[0] */
++			if ((index < opts->nth_size) ||
++					(index > block_len - opts->dpe_size)) {
++				INFO(port->func.config->cdev,
++				     "Bad index: %#X\n", index);
++				goto err;
++			}
++
+ 			dg_len = dg_len2;
+-			if (dg_len < 14 + crc_len) { /* ethernet hdr + crc */
++			/*
++			 * wDatagramLength[0]
++			 * ethernet hdr + crc or larger than max frame size
++			 */
++			if ((dg_len < 14 + crc_len) ||
++					(dg_len > frame_max)) {
+ 				INFO(port->func.config->cdev,
+ 				     "Bad dgram length: %#X\n", dg_len);
+ 				goto err;
+@@ -1283,6 +1312,37 @@ static int ncm_unwrap_ntb(struct gether
+ 			index2 = get_ncm(&tmp, opts->dgram_item_len);
+ 			dg_len2 = get_ncm(&tmp, opts->dgram_item_len);
+ 
++			if (index2 == 0 || dg_len2 == 0)
++				break;
++
++			/* wDatagramIndex[1] */
++			if (ndp_after_header) {
++				if (index2 < opts->nth_size + opts->ndp_size) {
++					INFO(port->func.config->cdev,
++					     "Bad index: %#X\n", index2);
++					goto err;
++				}
++			} else {
++				if (index2 < opts->nth_size + opts->dpe_size) {
++					INFO(port->func.config->cdev,
++					     "Bad index: %#X\n", index2);
++					goto err;
++				}
++			}
++			if (index2 > block_len - opts->dpe_size) {
++				INFO(port->func.config->cdev,
++				     "Bad index: %#X\n", index2);
++				goto err;
++			}
++
++			/* wDatagramLength[1] */
++			if ((dg_len2 < 14 + crc_len) ||
++					(dg_len2 > frame_max)) {
++				INFO(port->func.config->cdev,
++				     "Bad dgram length: %#X\n", dg_len);
++				goto err;
++			}
++
+ 			/*
+ 			 * Copy the data into a new skb.
+ 			 * This ensures the truesize is correct
+@@ -1299,9 +1359,6 @@ static int ncm_unwrap_ntb(struct gether
+ 			ndp_len -= 2 * (opts->dgram_item_len * 2);
+ 
+ 			dgram_counter++;
+-
+-			if (index2 == 0 || dg_len2 == 0)
+-				break;
+ 		} while (ndp_len > 2 * (opts->dgram_item_len * 2));
+ 	} while (ndp_index);
+ 
 
 
