@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE5F259BAF
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DE1259CD7
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbgIARFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38066 "EHLO mail.kernel.org"
+        id S1729118AbgIARUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729407AbgIAPTP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:19:15 -0400
+        id S1728829AbgIAPM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1FA8207D3;
-        Tue,  1 Sep 2020 15:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98BB62078B;
+        Tue,  1 Sep 2020 15:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973552;
-        bh=5jkb5ORFpuR8LeeWXfWRUo27oTfjZ/NpAkPvzWqZAxg=;
+        s=default; t=1598973175;
+        bh=09Wqh4L9or5jeLtdxk2mtE42QNDtQ7tzYcsmQ3nsWK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBTrlgKAeJTA/qveSLeTNkjivw6nmErzmixWerWcgFGXG/Eh/J6k9XyPNs3XPb0/c
-         WoqsPS5AqE1E4AHXEohP1O8faw0ewoxQVOaONagcnVcQ8JFKyNDu68RQ6XQ2HVeW1d
-         GVNVtpFAqK9GgyzcNOADVA9vtaAGRn03L31w0/DA=
+        b=iAdG7wquEbk40k3TERdDy9SSchkZxXSECIMXcXYQyPzjxvdVrOwgBVbzjfmLzVeBz
+         ZeoflKDFvkAiObi8dJSrRJfjMH/gHOT+Gm68x0Vll0t7P0USYTy0d7l8b/ZbBR0tnh
+         cg3Jz41Tvz97nVVQIITVouZP9Ink9uoW/wyk9Mvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 45/91] i2c: rcar: in slave mode, clear NACK earlier
-Date:   Tue,  1 Sep 2020 17:10:19 +0200
-Message-Id: <20200901150930.374217439@linuxfoundation.org>
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Andy Teng <andy.teng@mediatek.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 37/62] scsi: ufs: Fix possible infinite loop in ufshcd_hold
+Date:   Tue,  1 Sep 2020 17:10:20 +0200
+Message-Id: <20200901150922.610356896@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 914a7b3563b8fb92f976619bbd0fa3a4a708baae ]
+[ Upstream commit 93b6c5db06028a3b55122bbb74d0715dd8ca4ae0 ]
 
-Currently, a NACK in slave mode is set/cleared when SCL is held low by
-the IP core right before the bit is about to be pushed out. This is too
-late for clearing and then a NACK from the previous byte is still used
-for the current one. Now, let's clear the NACK right after we detected
-the STOP condition following the NACK.
+In ufshcd_suspend(), after clk-gating is suspended and link is set
+as Hibern8 state, ufshcd_hold() is still possibly invoked before
+ufshcd_suspend() returns. For example, MediaTek's suspend vops may
+issue UIC commands which would call ufshcd_hold() during the command
+issuing flow.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Now if UFSHCD_CAP_HIBERN8_WITH_CLK_GATING capability is enabled,
+then ufshcd_hold() may enter infinite loops because there is no
+clk-ungating work scheduled or pending. In this case, ufshcd_hold()
+shall just bypass, and keep the link as Hibern8 state.
+
+Link: https://lore.kernel.org/r/20200809050734.18740-1-stanley.chu@mediatek.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Co-developed-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Andy Teng <andy.teng@mediatek.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufshcd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index ed0f068109785..d5d0809a6283c 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -545,6 +545,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- 	/* master sent stop */
- 	if (ssr_filtered & SSR) {
- 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
-+		rcar_i2c_write(priv, ICSCR, SIE | SDBS); /* clear our NACK */
- 		rcar_i2c_write(priv, ICSIER, SAR);
- 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index d15cd7a02f9b4..d7a0a64f64536 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -575,6 +575,7 @@ unblock_reqs:
+ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ {
+ 	int rc = 0;
++	bool flush_result;
+ 	unsigned long flags;
+ 
+ 	if (!ufshcd_is_clkgating_allowed(hba))
+@@ -601,7 +602,9 @@ start:
+ 				break;
+ 			}
+ 			spin_unlock_irqrestore(hba->host->host_lock, flags);
+-			flush_work(&hba->clk_gating.ungate_work);
++			flush_result = flush_work(&hba->clk_gating.ungate_work);
++			if (hba->clk_gating.is_suspended && !flush_result)
++				goto out;
+ 			spin_lock_irqsave(hba->host->host_lock, flags);
+ 			goto start;
+ 		}
 -- 
 2.25.1
 
