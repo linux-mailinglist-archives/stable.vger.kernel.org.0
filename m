@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E947259B60
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 016A0259C9D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729855AbgIARA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41642 "EHLO mail.kernel.org"
+        id S1729010AbgIAPOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:14:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729402AbgIAPVJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:21:09 -0400
+        id S1729007AbgIAPN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0614206FA;
-        Tue,  1 Sep 2020 15:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF553206EB;
+        Tue,  1 Sep 2020 15:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973669;
-        bh=zhgQvzd9WGYemK0tA6PXpmnGY1fwRmaxSlZXCyx0CAo=;
+        s=default; t=1598973239;
+        bh=+bnBL3MGrBJAv8hplTWu8YL7eEhU7qYBZycfW4Qv6rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrfpdObO6T95P/5qO1WHJPJJaVxQwrw+y7ocaYXn/1K0oKktf0D9I77Qzka6XMRzT
-         ZYgHN5nMsnqNk5XCIWtlrI5l6jTiEQtgOY4WdJCWYs/0AQxqtc9X7zkkqEkkBLTJ4k
-         gliEAShbCO+S4i1TFDufIrle1JGGoimDp2f5M5uU=
+        b=Z4f0ypCX4EwXGDXyHaLcQn9w/K5xWboHS3ycnoMxS0u9f4T2JHbkDwktYnM3EyxW3
+         6j6m/YW2GYC3Zrm73WSCa4ISxUuhdCPIhAM3nsq7KJgWouekkpjR8P6fM+jCELS8IO
+         MZDIzXtXRJ7Xbu/y6heT7rIWlyJyofw8yzGDbZXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Tamseel Shams <m.shams@samsung.com>
-Subject: [PATCH 4.14 64/91] serial: samsung: Removes the IRQ not found warning
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>
+Subject: [PATCH 4.4 55/62] usb: uas: Add quirk for PNY Pro Elite
 Date:   Tue,  1 Sep 2020 17:10:38 +0200
-Message-Id: <20200901150931.331859762@linuxfoundation.org>
+Message-Id: <20200901150923.502234652@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamseel Shams <m.shams@samsung.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 8c6c378b0cbe0c9f1390986b5f8ffb5f6ff7593b upstream.
+commit 9a469bc9f32dd33c7aac5744669d21a023a719cd upstream.
 
-In few older Samsung SoCs like s3c2410, s3c2412
-and s3c2440, UART IP is having 2 interrupt lines.
-However, in other SoCs like s3c6400, s5pv210,
-exynos5433, and exynos4210 UART is having only 1
-interrupt line. Due to this, "platform_get_irq(platdev, 1)"
-call in the driver gives the following false-positive error:
-"IRQ index 1 not found" on newer SoC's.
+PNY Pro Elite USB 3.1 Gen 2 device (SSD) doesn't respond to ATA_12
+pass-through command (i.e. it just hangs). If it doesn't support this
+command, it should respond properly to the host. Let's just add a quirk
+to be able to move forward with other operations.
 
-This patch adds the condition to check for Tx interrupt
-only for the those SoC's which have 2 interrupt lines.
-
-Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Tamseel Shams <m.shams@samsung.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200810030021.45348-1-m.shams@samsung.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Link: https://lore.kernel.org/r/2b0585228b003eedcc82db84697b31477df152e0.1597803605.git.thinhn@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/samsung.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -1733,9 +1733,11 @@ static int s3c24xx_serial_init_port(stru
- 		ourport->tx_irq = ret + 1;
- 	}
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -155,6 +155,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
  
--	ret = platform_get_irq(platdev, 1);
--	if (ret > 0)
--		ourport->tx_irq = ret;
-+	if (!s3c24xx_serial_has_interrupt_mask(port)) {
-+		ret = platform_get_irq(platdev, 1);
-+		if (ret > 0)
-+			ourport->tx_irq = ret;
-+	}
- 	/*
- 	 * DMA is currently supported only on DT platforms, if DMA properties
- 	 * are specified.
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
+ /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+ UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
+ 		"VIA",
 
 
