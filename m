@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4911825927F
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49FEB25936D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728844AbgIAPNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        id S1730034AbgIAPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728812AbgIAPND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:03 -0400
+        id S1730029AbgIAPZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:25:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0774D20FC3;
-        Tue,  1 Sep 2020 15:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A26B206FA;
+        Tue,  1 Sep 2020 15:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973182;
-        bh=mg5iWGS1BY1vJNmmAxsLZKacHGgFFjwrUb8e8RjDbV8=;
+        s=default; t=1598973919;
+        bh=z7HQxv9VSgRcd7nBu9ujYpFT8TnEHBX4hITSL08r+ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyGQI1dn3WJ0zom3eYKGqKjdYn6uDsRLckrLj3pGA4iz3RfRW00TdHjH6NhvOdtGd
-         +/FdflVZ7L9zTaWnCNlEG9r3AO32vHBAGX+HgLN65NKOkXn7z1jud4dAU3kGHEtWCD
-         Ec/mRr6ig8ctT/3o3OPCNWn1hjthx3FoId3bPOjM=
+        b=D0niYYpJ0LRiNMW1WKGFR0hdV/JVFlbIWUh158q9N1Q/vwBVlHdlZ1Fbqrj94v8uY
+         yk2xK0KvBYZWA0i1Yvd27ud/U9PHDqnaEVGnIE0Qxpcf1o2XhTVJx9klvFbCsmVOH7
+         BVvXk+ZJtA4GyRivyjO4fEnQbKRFtVMZJEoT79Lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 40/62] fbcon: prevent user font height or width change from causing potential out-of-bounds access
-Date:   Tue,  1 Sep 2020 17:10:23 +0200
-Message-Id: <20200901150922.753818663@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 069/125] ASoC: wm8994: Avoid attempts to read unreadable registers
+Date:   Tue,  1 Sep 2020 17:10:24 +0200
+Message-Id: <20200901150937.959924308@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-commit 39b3cffb8cf3111738ea993e2757ab382253d86a upstream.
+[ Upstream commit f082bb59b72039a2326ec1a44496899fb8aa6d0e ]
 
-Add a check to fbcon_resize() to ensure that a possible change to user font
-height or user font width will not allow a font data out-of-bounds access.
-NOTE: must use original charcount in calculation as font charcount can
-change and cannot be used to determine the font data allocated size.
+The driver supports WM1811, WM8994, WM8958 devices but according to
+documentation and the regmap definitions the WM8958_DSP2_* registers
+are only available on WM8958. In current code these registers are
+being accessed as if they were available on all the three chips.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-1-git-send-email-george.kennedy@oracle.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When starting playback on WM1811 CODEC multiple errors like:
+"wm8994-codec wm8994-codec: ASoC: error at soc_component_read_no_lock on wm8994-codec: -5"
+can be seen, which is caused by attempts to read an unavailable
+WM8958_DSP2_PROGRAM register. The issue has been uncovered by recent
+commit "e2329ee ASoC: soc-component: add soc_component_err()".
 
+This patch adds a check in wm8958_aif_ev() callback so the DSP2 handling
+is only done for WM8958.
+
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200731173834.23832-1-s.nawrocki@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/console/fbcon.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm8958-dsp2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/video/console/fbcon.c
-+++ b/drivers/video/console/fbcon.c
-@@ -2117,6 +2117,9 @@ static void updatescrollmode(struct disp
- 	}
- }
- 
-+#define PITCH(w) (((w) + 7) >> 3)
-+#define CALC_FONTSZ(h, p, c) ((h) * (p) * (c)) /* size = height * pitch * charcount */
-+
- static int fbcon_resize(struct vc_data *vc, unsigned int width, 
- 			unsigned int height, unsigned int user)
+diff --git a/sound/soc/codecs/wm8958-dsp2.c b/sound/soc/codecs/wm8958-dsp2.c
+index 108e8bf42a346..f0a409504a13b 100644
+--- a/sound/soc/codecs/wm8958-dsp2.c
++++ b/sound/soc/codecs/wm8958-dsp2.c
+@@ -419,8 +419,12 @@ int wm8958_aif_ev(struct snd_soc_dapm_widget *w,
+ 		  struct snd_kcontrol *kcontrol, int event)
  {
-@@ -2126,6 +2129,24 @@ static int fbcon_resize(struct vc_data *
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
++	struct wm8994 *control = dev_get_drvdata(component->dev->parent);
+ 	int i;
  
-+	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+		int size;
-+		int pitch = PITCH(vc->vc_font.width);
++	if (control->type != WM8958)
++		return 0;
 +
-+		/*
-+		 * If user font, ensure that a possible change to user font
-+		 * height or width will not allow a font data out-of-bounds access.
-+		 * NOTE: must use original charcount in calculation as font
-+		 * charcount can change and cannot be used to determine the
-+		 * font data allocated size.
-+		 */
-+		if (pitch <= 0)
-+			return -EINVAL;
-+		size = CALC_FONTSZ(vc->vc_font.height, pitch, FNTCHARCNT(vc->vc_font.data));
-+		if (size > FNTSIZE(vc->vc_font.data))
-+			return -EINVAL;
-+	}
-+
- 	virt_w = FBCON_SWAP(ops->rotate, width, height);
- 	virt_h = FBCON_SWAP(ops->rotate, height, width);
- 	virt_fw = FBCON_SWAP(ops->rotate, vc->vc_font.width,
-@@ -2587,7 +2608,7 @@ static int fbcon_set_font(struct vc_data
- 	int size;
- 	int i, csum;
- 	u8 *new_data, *data = font->data;
--	int pitch = (font->width+7) >> 3;
-+	int pitch = PITCH(font->width);
- 
- 	/* Is there a reason why fbconsole couldn't handle any charcount >256?
- 	 * If not this check should be changed to charcount < 256 */
-@@ -2603,7 +2624,7 @@ static int fbcon_set_font(struct vc_data
- 	if (fbcon_invalid_charcount(info, charcount))
- 		return -EINVAL;
- 
--	size = h * pitch * charcount;
-+	size = CALC_FONTSZ(h, pitch, charcount);
- 
- 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
- 
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+ 	case SND_SOC_DAPM_PRE_PMU:
+-- 
+2.25.1
+
 
 
