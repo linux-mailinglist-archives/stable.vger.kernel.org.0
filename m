@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47C3259303
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FBB425928C
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbgIAPUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:20:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
+        id S1728861AbgIAPNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729583AbgIAPUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:20:02 -0400
+        id S1728944AbgIAPNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B309420767;
-        Tue,  1 Sep 2020 15:20:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25EA2206FA;
+        Tue,  1 Sep 2020 15:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973602;
-        bh=HLpcYm022fsWDy3FXUhFyjTS+Kk9jiUppDpx58YYbJI=;
+        s=default; t=1598973219;
+        bh=5CE2VeFnJFV+DsK2+ilItzzAgkQ63gk5C0GCI9RpE+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySZntvPr2uzPM92nQr65WwRsZnOMr3L8jqRMavZS9yS3sqIC3qgm+3jTqbE3gNboO
-         JyVg9XiSjfsLAQFV+r6C6kPpVLVuvPDRwjmkM7tB5Zh+5OONSCRrvPJWp1jCgSnZtp
-         yZhz/VoB/wopHUcDdq1OdOhcmq/ejUPrciFF6B88=
+        b=A+288OQduX/9XZBly+Vl67M9Qq5V9kShK2v3heUw19CA5WdTNf7+KAdRXLf7Pm9i4
+         qei4+8Ghk2FLU/0+FWPUXJ54xwRnA7jucZ5Wsx4fBm1/1lKU4RIm1l1KZ7WnOEp1cs
+         tVPbNPcxzR9fM2rXb1KWSqL5wh37nqARvhmsmQl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Girish Basrur <gbasrur@marvell.com>,
-        Santosh Vernekar <svernekar@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Shyam Sundar <ssundar@marvell.com>,
-        Javed Hasan <jhasan@marvell.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/91] scsi: fcoe: Memory leak fix in fcoe_sysfs_fcf_del()
+Subject: [PATCH 4.4 25/62] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
 Date:   Tue,  1 Sep 2020 17:10:08 +0200
-Message-Id: <20200901150929.840422181@linuxfoundation.org>
+Message-Id: <20200901150921.998015647@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit e95b4789ff4380733006836d28e554dc296b2298 ]
+[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
 
-In fcoe_sysfs_fcf_del(), we first deleted the fcf from the list and then
-freed it if ctlr_dev was not NULL. This was causing a memory leak.
+If scsi_host_lookup() fails we will jump to put_host which may cause a
+panic. Jump to exit_set_fnode instead.
 
-Free the fcf even if ctlr_dev is NULL.
-
-Link: https://lore.kernel.org/r/20200729081824.30996-3-jhasan@marvell.com
-Reviewed-by: Girish Basrur <gbasrur@marvell.com>
-Reviewed-by: Santosh Vernekar <svernekar@marvell.com>
-Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
-Reviewed-by: Shyam Sundar <ssundar@marvell.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_ctlr.c | 2 +-
+ drivers/scsi/scsi_transport_iscsi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_ctlr.c b/drivers/scsi/fcoe/fcoe_ctlr.c
-index d95ba1a07ba3b..eaab59afd90c7 100644
---- a/drivers/scsi/fcoe/fcoe_ctlr.c
-+++ b/drivers/scsi/fcoe/fcoe_ctlr.c
-@@ -267,9 +267,9 @@ static void fcoe_sysfs_fcf_del(struct fcoe_fcf *new)
- 		WARN_ON(!fcf_dev);
- 		new->fcf_dev = NULL;
- 		fcoe_fcf_device_delete(fcf_dev);
--		kfree(new);
- 		mutex_unlock(&cdev->lock);
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index de10b461ec7ef..4903640316480 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -3192,7 +3192,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
+ 		pr_err("%s could not find host no %u\n",
+ 		       __func__, ev->u.set_flashnode.host_no);
+ 		err = -ENODEV;
+-		goto put_host;
++		goto exit_set_fnode;
  	}
-+	kfree(new);
- }
  
- /**
+ 	idx = ev->u.set_flashnode.flashnode_idx;
 -- 
 2.25.1
 
