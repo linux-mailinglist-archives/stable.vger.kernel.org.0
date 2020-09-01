@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045FF2592AF
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D08C259300
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728808AbgIAPPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:15:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
+        id S1729572AbgIAPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729208AbgIAPPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:36 -0400
+        id S1729256AbgIAPTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 258E3206FA;
-        Tue,  1 Sep 2020 15:15:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3D0E207D3;
+        Tue,  1 Sep 2020 15:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973328;
-        bh=y7+3mb3F1IV1P7eyHp4J62UIqOIDN8ka/C+d2ylHIHE=;
+        s=default; t=1598973587;
+        bh=VASL87ppPiboOQq6qJXQxxe2/VsGTwKQP8c1PE8NMyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tP2al5vRdw06hXPz/obVU2eXQxNB7iQ7Tr1Xt0vAiUCORoVsW4Nazh+hG1UADNpAz
-         llRzxpBt+rrIEN9Tj8MMxLcsoPtBgH7pFV4bJgk5L8YIFNenhZNLhWFysli0tQctie
-         8yX1xm5eYMl7QYylnCsA4eQD8Qx8y9sTfOSoDeH8=
+        b=X9r7vYY9Q9ZJjq1EvmeXccqzV9mKjlSmtdRhuy6DCX3aq8yvol0eIdhGPPnfBtG8O
+         fuj8Y126FyAkqUw+lyesilZIxuWcDg5bY4NlIR/8DtG5rAgabQOP6Yt/Rjp7T/MhXU
+         7Sh4875SGInz+rysZo5lQRGzk+AVGgBVT7OO+t8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/78] locking/lockdep: Fix overflow in presentation of average lock-time
-Date:   Tue,  1 Sep 2020 17:10:04 +0200
-Message-Id: <20200901150926.151655527@linuxfoundation.org>
+Subject: [PATCH 4.14 31/91] locking/lockdep: Fix overflow in presentation of average lock-time
+Date:   Tue,  1 Sep 2020 17:10:05 +0200
+Message-Id: <20200901150929.697107049@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index 75d80809c48c9..09bad6cbb95cf 100644
+index 8b2ef15e35524..06c02cd0ff577 100644
 --- a/kernel/locking/lockdep_proc.c
 +++ b/kernel/locking/lockdep_proc.c
-@@ -425,7 +425,7 @@ static void seq_lock_time(struct seq_file *m, struct lock_time *lt)
+@@ -430,7 +430,7 @@ static void seq_lock_time(struct seq_file *m, struct lock_time *lt)
  	seq_time(m, lt->min);
  	seq_time(m, lt->max);
  	seq_time(m, lt->total);
