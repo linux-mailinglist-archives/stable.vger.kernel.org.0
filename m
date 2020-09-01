@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1C525941D
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D81225959E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731221AbgIAPfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42082 "EHLO mail.kernel.org"
+        id S1729613AbgIAPyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:54:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729712AbgIAPfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:35:51 -0400
+        id S1731958AbgIAPqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:46:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19F0B2158C;
-        Tue,  1 Sep 2020 15:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F026206EF;
+        Tue,  1 Sep 2020 15:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974550;
-        bh=nen8rbwTQ4JvbkPLYxyfVe+jS2BIf74BjMDoianqLnA=;
+        s=default; t=1598975211;
+        bh=u8zMHey+yOMxaEFYU2TU2BQcMfx2dnwt8ZGCM9UlWV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgudOl1DW/RiGO5FYSahr0Y1ium08pXA+L64a6fo6O70icjGelnbwPQ/xdqEWAZ9M
-         G1WsCuQRmsUc6IVms5kcq9bwYf/BwuWtAy+imG81rtW9xEPZPU0MxOOZUuppRXoc5V
-         onAD27HpIb6rjR40Tg0Lc6NEEpUr4KIMvSgJkODA=
+        b=nnNkRpCAoFatjj9jDjrWu7RLGsxdapEXh2wbFOIq0aHVBs1XPHHJ/nASJ1QB39EfI
+         MR5tIWaE5y1CIseH59rF5iChtrlw7MAkt2yywb40aVroMENV5gAE0qav0YRG2mHd/M
+         F5NJXzxWSHlfL4atNGrJG3G3FEQDj4cVeMRjht54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.4 198/214] USB: cdc-acm: rework notification_buffer resizing
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+c2c3302f9c601a4b1be2@syzkaller.appspotmail.com
+Subject: [PATCH 5.8 222/255] USB: yurex: Fix bad gfp argument
 Date:   Tue,  1 Sep 2020 17:11:18 +0200
-Message-Id: <20200901151002.432063894@linuxfoundation.org>
+Message-Id: <20200901151011.375309996@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
+References: <20200901151000.800754757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,99 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit f4b9d8a582f738c24ebeabce5cc15f4b8159d74e upstream.
+commit f176ede3a3bde5b398a6777a7f9ff091baa2d3ff upstream.
 
-Clang static analysis reports this error
+The syzbot fuzzer identified a bug in the yurex driver: It passes
+GFP_KERNEL as a memory-allocation flag to usb_submit_urb() at a time
+when its state is TASK_INTERRUPTIBLE, not TASK_RUNNING:
 
-cdc-acm.c:409:3: warning: Use of memory after it is freed
-        acm_process_notification(acm, (unsigned char *)dr);
+do not call blocking ops when !TASK_RUNNING; state=1 set at [<00000000370c7c68>] prepare_to_wait+0xb1/0x2a0 kernel/sched/wait.c:247
+WARNING: CPU: 1 PID: 340 at kernel/sched/core.c:7253 __might_sleep+0x135/0x190
+kernel/sched/core.c:7253
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 1 PID: 340 Comm: syz-executor677 Not tainted 5.8.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
+01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xf6/0x16e lib/dump_stack.c:118
+ panic+0x2aa/0x6e1 kernel/panic.c:231
+ __warn.cold+0x20/0x50 kernel/panic.c:600
+ report_bug+0x1bd/0x210 lib/bug.c:198
+ handle_bug+0x41/0x80 arch/x86/kernel/traps.c:234
+ exc_invalid_op+0x14/0x40 arch/x86/kernel/traps.c:254
+ asm_exc_invalid_op+0x12/0x20 arch/x86/include/asm/idtentry.h:536
+RIP: 0010:__might_sleep+0x135/0x190 kernel/sched/core.c:7253
+Code: 65 48 8b 1c 25 40 ef 01 00 48 8d 7b 10 48 89 fe 48 c1 ee 03 80 3c 06 00 75
+2b 48 8b 73 10 48 c7 c7 e0 9e 06 86 e8 ed 12 f6 ff <0f> 0b e9 46 ff ff ff e8 1f
+b2 4b 00 e9 29 ff ff ff e8 15 b2 4b 00
+RSP: 0018:ffff8881cdb77a28 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881c6458000 RCX: 0000000000000000
+RDX: ffff8881c6458000 RSI: ffffffff8129ec93 RDI: ffffed1039b6ef37
+RBP: ffffffff86fdade2 R08: 0000000000000001 R09: ffff8881db32f54f
+R10: 0000000000000000 R11: 0000000030343354 R12: 00000000000001f2
+R13: 0000000000000000 R14: 0000000000000068 R15: ffffffff83c1b1aa
+ slab_pre_alloc_hook.constprop.0+0xea/0x200 mm/slab.h:498
+ slab_alloc_node mm/slub.c:2816 [inline]
+ slab_alloc mm/slub.c:2900 [inline]
+ kmem_cache_alloc_trace+0x46/0x220 mm/slub.c:2917
+ kmalloc include/linux/slab.h:554 [inline]
+ dummy_urb_enqueue+0x7a/0x880 drivers/usb/gadget/udc/dummy_hcd.c:1251
+ usb_hcd_submit_urb+0x2b2/0x22d0 drivers/usb/core/hcd.c:1547
+ usb_submit_urb+0xb4e/0x13e0 drivers/usb/core/urb.c:570
+ yurex_write+0x3ea/0x820 drivers/usb/misc/yurex.c:495
 
-There are three problems, the first one is that dr is not reset
+This patch changes the call to use GFP_ATOMIC instead of GFP_KERNEL.
 
-The variable dr is set with
-
-if (acm->nb_index)
-	dr = (struct usb_cdc_notification *)acm->notification_buffer;
-
-But if the notification_buffer is too small it is resized with
-
-		if (acm->nb_size) {
-			kfree(acm->notification_buffer);
-			acm->nb_size = 0;
-		}
-		alloc_size = roundup_pow_of_two(expected_size);
-		/*
-		 * kmalloc ensures a valid notification_buffer after a
-		 * use of kfree in case the previous allocation was too
-		 * small. Final freeing is done on disconnect.
-		 */
-		acm->notification_buffer =
-			kmalloc(alloc_size, GFP_ATOMIC);
-
-dr should point to the new acm->notification_buffer.
-
-The second problem is any data in the notification_buffer is lost
-when the pointer is freed.  In the normal case, the current data
-is accumulated in the notification_buffer here.
-
-	memcpy(&acm->notification_buffer[acm->nb_index],
-	       urb->transfer_buffer, copy_size);
-
-When a resize happens, anything before
-notification_buffer[acm->nb_index] is garbage.
-
-The third problem is the acm->nb_index is not reset on a
-resizing buffer error.
-
-So switch resizing to using krealloc and reassign dr and
-reset nb_index.
-
-Fixes: ea2583529cd1 ("cdc-acm: reassemble fragmented notifications")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20200801152154.20683-1-trix@redhat.com
+Reported-and-tested-by: syzbot+c2c3302f9c601a4b1be2@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200810182954.GB307778@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/usb/misc/yurex.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -378,21 +378,19 @@ static void acm_ctrl_irq(struct urb *urb
- 	if (current_size < expected_size) {
- 		/* notification is transmitted fragmented, reassemble */
- 		if (acm->nb_size < expected_size) {
--			if (acm->nb_size) {
--				kfree(acm->notification_buffer);
--				acm->nb_size = 0;
--			}
-+			u8 *new_buffer;
- 			alloc_size = roundup_pow_of_two(expected_size);
--			/*
--			 * kmalloc ensures a valid notification_buffer after a
--			 * use of kfree in case the previous allocation was too
--			 * small. Final freeing is done on disconnect.
--			 */
--			acm->notification_buffer =
--				kmalloc(alloc_size, GFP_ATOMIC);
--			if (!acm->notification_buffer)
-+			/* Final freeing is done on disconnect. */
-+			new_buffer = krealloc(acm->notification_buffer,
-+					      alloc_size, GFP_ATOMIC);
-+			if (!new_buffer) {
-+				acm->nb_index = 0;
- 				goto exit;
-+			}
-+
-+			acm->notification_buffer = new_buffer;
- 			acm->nb_size = alloc_size;
-+			dr = (struct usb_cdc_notification *)acm->notification_buffer;
- 		}
- 
- 		copy_size = min(current_size,
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -492,7 +492,7 @@ static ssize_t yurex_write(struct file *
+ 	prepare_to_wait(&dev->waitq, &wait, TASK_INTERRUPTIBLE);
+ 	dev_dbg(&dev->interface->dev, "%s - submit %c\n", __func__,
+ 		dev->cntl_buffer[0]);
+-	retval = usb_submit_urb(dev->cntl_urb, GFP_KERNEL);
++	retval = usb_submit_urb(dev->cntl_urb, GFP_ATOMIC);
+ 	if (retval >= 0)
+ 		timeout = schedule_timeout(YUREX_WRITE_TIMEOUT);
+ 	finish_wait(&dev->waitq, &wait);
 
 
