@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B4B259B00
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0AA52598D5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729380AbgIAPXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:23:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
+        id S1730708AbgIAPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:31:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728512AbgIAPW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:22:58 -0400
+        id S1730702AbgIAPb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:31:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED34D206FA;
-        Tue,  1 Sep 2020 15:22:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A13D21534;
+        Tue,  1 Sep 2020 15:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973777;
-        bh=aTZLwlQyCFvyZkMxkLIwGuWolRH0Yckkp2Be1TpzaLg=;
+        s=default; t=1598974288;
+        bh=eYhWix2xUao8vCB3n9SUDaOvJAJW8cGFpF+RV79FK3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nOupszr60dzc+wPwanokuJf2icf+iSWF113/zfFFEKIoGnUr+3+5KrIUNuYZKuyt
-         gV0O4m/riYRsQOu09tFn68MFrOiHBSkqJSMPGgj8bBNYqduzW35PhYJIw9y7XmkvwS
-         D1rXJX57RVHr49PE+ApUPhKtuzvFELiF26O4RQCY=
+        b=iaPa9u+P+18Cp7TESoFEaYO99uip6r1S8Llj9LH7kxEc9+sbcKd7FF5/xn+BOVfsm
+         iY0NmrmEnhK2+56fvIukj94i84UckTEMtfLhl8NPa0XljElD/yfwPfbl92RfMXGgKA
+         Zpq4ILkPeXWJenb1D6Ex1UsGkHy/3W0MrqDJCnPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/125] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 118/214] ext4: handle option set by mount flags correctly
 Date:   Tue,  1 Sep 2020 17:09:58 +0200
-Message-Id: <20200901150936.674229985@linuxfoundation.org>
+Message-Id: <20200901150958.640838738@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
+[ Upstream commit f25391ebb475d3ffb3aa61bb90e3594c841749ef ]
 
-If scsi_host_lookup() fails we will jump to put_host which may cause a
-panic. Jump to exit_set_fnode instead.
+Currently there is a problem with mount options that can be both set by
+vfs using mount flags or by a string parsing in ext4.
 
-Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+i_version/iversion options gets lost after remount, for example
+
+$ mount -o i_version /dev/pmem0 /mnt
+$ grep pmem0 /proc/self/mountinfo | grep i_version
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,seclabel,i_version
+$ mount -o remount,ro /mnt
+$ grep pmem0 /proc/self/mountinfo | grep i_version
+
+nolazytime gets ignored by ext4 on remount, for example
+
+$ mount -o lazytime /dev/pmem0 /mnt
+$ grep pmem0 /proc/self/mountinfo | grep lazytime
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,lazytime,seclabel
+$ mount -o remount,nolazytime /mnt
+$ grep pmem0 /proc/self/mountinfo | grep lazytime
+310 95 259:0 / /mnt rw,relatime shared:163 - ext4 /dev/pmem0 rw,lazytime,seclabel
+
+Fix it by applying the SB_LAZYTIME and SB_I_VERSION flags from *flags to
+s_flags before we parse the option and use the resulting state of the
+same flags in *flags at the end of successful remount.
+
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200723150526.19931-1-lczerner@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/super.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 04d095488c764..6983473011980 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -3172,7 +3172,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
- 		pr_err("%s could not find host no %u\n",
- 		       __func__, ev->u.set_flashnode.host_no);
- 		err = -ENODEV;
--		goto put_host;
-+		goto exit_set_fnode;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 76c5529394395..92a6741c4bdd9 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5342,7 +5342,7 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ {
+ 	struct ext4_super_block *es;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+-	unsigned long old_sb_flags;
++	unsigned long old_sb_flags, vfs_flags;
+ 	struct ext4_mount_options old_opts;
+ 	int enable_quota = 0;
+ 	ext4_group_t g;
+@@ -5385,6 +5385,14 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 	if (sbi->s_journal && sbi->s_journal->j_task->io_context)
+ 		journal_ioprio = sbi->s_journal->j_task->io_context->ioprio;
+ 
++	/*
++	 * Some options can be enabled by ext4 and/or by VFS mount flag
++	 * either way we need to make sure it matches in both *flags and
++	 * s_flags. Copy those selected flags from *flags to s_flags
++	 */
++	vfs_flags = SB_LAZYTIME | SB_I_VERSION;
++	sb->s_flags = (sb->s_flags & ~vfs_flags) | (*flags & vfs_flags);
++
+ 	if (!parse_options(data, sb, NULL, &journal_ioprio, 1)) {
+ 		err = -EINVAL;
+ 		goto restore_opts;
+@@ -5438,9 +5446,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
  	}
  
- 	idx = ev->u.set_flashnode.flashnode_idx;
+-	if (*flags & SB_LAZYTIME)
+-		sb->s_flags |= SB_LAZYTIME;
+-
+ 	if ((bool)(*flags & SB_RDONLY) != sb_rdonly(sb)) {
+ 		if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED) {
+ 			err = -EROFS;
+@@ -5580,7 +5585,13 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 	}
+ #endif
+ 
+-	*flags = (*flags & ~SB_LAZYTIME) | (sb->s_flags & SB_LAZYTIME);
++	/*
++	 * Some options can be enabled by ext4 and/or by VFS mount flag
++	 * either way we need to make sure it matches in both *flags and
++	 * s_flags. Copy those selected flags from s_flags to *flags
++	 */
++	*flags = (*flags & ~vfs_flags) | (sb->s_flags & vfs_flags);
++
+ 	ext4_msg(sb, KERN_INFO, "re-mounted. Opts: %s", orig_data);
+ 	kfree(orig_data);
+ 	return 0;
 -- 
 2.25.1
 
