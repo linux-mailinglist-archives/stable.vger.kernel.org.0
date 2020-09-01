@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8945259C7E
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B576259BE5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbgIARQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
+        id S1729133AbgIAPSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729036AbgIAPO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:27 -0400
+        id S1729436AbgIAPRx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:17:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 182D0206FA;
-        Tue,  1 Sep 2020 15:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39E04214F1;
+        Tue,  1 Sep 2020 15:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973266;
-        bh=xAEgqohY3FdYqYTTjlQYaSeUB4UNZYS7CDwMTrmHEbM=;
+        s=default; t=1598973472;
+        bh=qy/zy7/k3qprHoSgslxOorRcVvl71aW5F34JsIVxdt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoLm+cPtEYTShMdOTgAGcuwNvmeDBk6QjIvn69SK2hPSZPCy2pMaVq//sP76poYYR
-         nqAYDUBSuGXXw9r3NSZFUollfguVY2vD2QWDI/AD/kxQW6hGyqQ+vo9tKGBYsmjyMi
-         VvDnKELq7v7+6LCqeFfM1V5PakY5Cdz7qk2/kr1M=
+        b=lSphPAGaVVE4y7+n6hIIX6dUfKz5RW/XgesJJCn5vht/9xBhLv6PuCHJiokHUWj0X
+         +cE5lf0oDHoUgc1p/QI2+zkMGNSb4mtwxh9Dx1dp33xWtVCbqNG4tVhMbGHu/TS7ii
+         LuAMOwapWwjNTCadxneMv4bzhmqbx+eeVETj5/SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bodo Stroesser <bstroesser@ts.fujitsu.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/78] scsi: target: tcmu: Fix crash on ARM during cmd completion
+Subject: [PATCH 4.14 13/91] scsi: target: tcmu: Fix crash on ARM during cmd completion
 Date:   Tue,  1 Sep 2020 17:09:47 +0200
-Message-Id: <20200901150925.297380646@linuxfoundation.org>
+Message-Id: <20200901150928.768711010@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 1a83456a65a00..693fbb2858404 100644
+index c4a5fb6f038fc..96601fda47b18 100644
 --- a/drivers/target/target_core_user.c
 +++ b/drivers/target/target_core_user.c
-@@ -666,7 +666,14 @@ static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
+@@ -997,7 +997,14 @@ static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
  		struct tcmu_cmd_entry *entry = (void *) mb + CMDR_OFF + udev->cmdr_last_cleaned;
  		struct tcmu_cmd *cmd;
  
