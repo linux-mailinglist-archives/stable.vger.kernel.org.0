@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 358D02598D0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CEC6259B09
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726586AbgIAQcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35172 "EHLO mail.kernel.org"
+        id S1729792AbgIAPXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730740AbgIAPbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:31:47 -0400
+        id S1729790AbgIAPXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:23:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4BA821534;
-        Tue,  1 Sep 2020 15:31:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51E1320FC3;
+        Tue,  1 Sep 2020 15:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974307;
-        bh=PGgPonbuMctZ14if7l7JBzf62pDMSbaJSGT+E013UtI=;
+        s=default; t=1598973794;
+        bh=wWrsBSoomeH4DSGAdrpLjOIFXXCeyh5X5tzUvZwC4SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4pC+mvfzKKmJnGoYyS+JcX4vpBTNmIFpRT610SnSiWd3Z1eruFnT5p6RnBN+F2DG
-         PsyyepljvlVcpWcZT74u96v8gIQscotXaMwtTLSMt4H96uEV5t5VRVTnRR4QqKDmnw
-         3ZgfQ/NaJ3Aiv83sX0N/0nSIl8ioCoGMzPMk0CP0=
+        b=zI9xAoc5HCacW4dOXTG+y4GMHIugpHvvUQkretbzDa3WHfbCauP5NRKyMyE8B9mmM
+         7OkQq12gZXZ6rZfdfJaeNr32ACE9hPuc2V+KQXOIMjBpy5qAwgQ4b3ajPqNiiPVvD6
+         +L076+l7zqKRt644UOhYxmRo9fgYZ3+FwNT6O2uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
-        Alain Volmat <alain.volmat@st.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jeremy Kerr <jk@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/214] spi: stm32: fix stm32_spi_prepare_mbr in case of odd clk_rate
+Subject: [PATCH 4.19 049/125] powerpc/spufs: add CONFIG_COREDUMP dependency
 Date:   Tue,  1 Sep 2020 17:10:04 +0200
-Message-Id: <20200901150958.924939081@linuxfoundation.org>
+Message-Id: <20200901150936.951624858@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
-References: <20200901150952.963606936@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@st.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9cc61973bf9385b19ff5dda4a2a7e265fcba85e4 ]
+[ Upstream commit b648a5132ca3237a0f1ce5d871fff342b0efcf8a ]
 
-Fix spi->clk_rate when it is odd to the nearest lowest even value because
-minimum SPI divider is 2.
+The kernel test robot pointed out a slightly different error message
+after recent commit 5456ffdee666 ("powerpc/spufs: simplify spufs core
+dumping") to spufs for a configuration that never worked:
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Link: https://lore.kernel.org/r/1597043558-29668-4-git-send-email-alain.volmat@st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_proxydma_info_dump':
+>> file.c:(.text+0x4c68): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_dma_info_dump':
+   file.c:(.text+0x4d70): undefined reference to `.dump_emit'
+   powerpc64-linux-ld: arch/powerpc/platforms/cell/spufs/file.o: in function `.spufs_wbox_info_dump':
+   file.c:(.text+0x4df4): undefined reference to `.dump_emit'
+
+Add a Kconfig dependency to prevent this from happening again.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200706132302.3885935-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/cell/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index f092bc8e00819..50ef03a8252d7 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -443,7 +443,8 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz,
- {
- 	u32 div, mbrdiv;
- 
--	div = DIV_ROUND_UP(spi->clk_rate, speed_hz);
-+	/* Ensure spi->clk_rate is even */
-+	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
- 
- 	/*
- 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
+diff --git a/arch/powerpc/platforms/cell/Kconfig b/arch/powerpc/platforms/cell/Kconfig
+index 9f5958f169234..741a8fa8a3e6b 100644
+--- a/arch/powerpc/platforms/cell/Kconfig
++++ b/arch/powerpc/platforms/cell/Kconfig
+@@ -46,6 +46,7 @@ config SPU_FS
+ 	tristate "SPU file system"
+ 	default m
+ 	depends on PPC_CELL
++	depends on COREDUMP
+ 	select SPU_BASE
+ 	help
+ 	  The SPU file system is used to access Synergistic Processing
 -- 
 2.25.1
 
