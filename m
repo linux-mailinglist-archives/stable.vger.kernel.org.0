@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63925259C06
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4510E259B6D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727786AbgIARKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34586 "EHLO mail.kernel.org"
+        id S1729763AbgIARBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729376AbgIAPRP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:17:15 -0400
+        id S1728949AbgIAPUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:20:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 021AC2100A;
-        Tue,  1 Sep 2020 15:17:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5613207D3;
+        Tue,  1 Sep 2020 15:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973435;
-        bh=OkHyNzl9xUn+d4iYpHmmhglnStq2FibL0dceBF1zm7s=;
+        s=default; t=1598973644;
+        bh=KZR/Ez5I0vI5NACVotVlfYFD1yU907tuWKBtUQ3nkUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6cwa7j5gSiohv6LIk118WrmEfzwaT+ClXg1/MtrnVUK6dkKsd7STHY+iaUB4oFYD
-         RSBinfF93V2RzJQQLI2PXUz+LfFKVBZwJBmlCab2YGM/yY4H01VB3tCVYPo47PCF7D
-         o4cjygUzBg6e+32fVnFtk4sV4jVsGbKLfTaSJyOQ=
+        b=UcY9vQhaUODWVr3vpnczWrcn4I/xk4FbPNv+/pvZTkCQw7QhUDuJYZ8YQpllLje2W
+         qqPT+8w5RpvjYhBJp/HyoSPt0yWJhH2Bj8MuNRE6ccuWXqSpmr4wQB2NNrPvDtE/dc
+         E9HbkVo6JT0LA6wvafTBIwvh6q3v3HoFF332T1Nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.9 77/78] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
-Date:   Tue,  1 Sep 2020 17:10:53 +0200
-Message-Id: <20200901150928.604384200@linuxfoundation.org>
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
+        Tang Bin <tangbin@cmss.chinamobile.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.14 81/91] usb: host: ohci-exynos: Fix error handling in exynos_ohci_probe()
+Date:   Tue,  1 Sep 2020 17:10:55 +0200
+Message-Id: <20200901150932.202252736@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-commit 25a097f5204675550afb879ee18238ca917cba7a upstream.
+commit 1d4169834628d18b2392a2da92b7fbf5e8e2ce89 upstream.
 
-`uref->usage_index` is not always being properly checked, causing
-hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+exynos_ohci_probe(). And when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant
+message here.
 
-Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 62194244cf87 ("USB: Add Samsung Exynos OHCI diver")
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200826144931.1828-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/usbhid/hiddev.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/ohci-exynos.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -554,12 +554,16 @@ static noinline int hiddev_ioctl_usage(s
+--- a/drivers/usb/host/ohci-exynos.c
++++ b/drivers/usb/host/ohci-exynos.c
+@@ -166,9 +166,8 @@ skip_phy:
+ 	hcd->rsrc_len = resource_size(res);
  
- 		switch (cmd) {
- 		case HIDIOCGUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			uref->value = field->value[uref->usage_index];
- 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
- 				goto fault;
- 			goto goodreturn;
- 
- 		case HIDIOCSUSAGE:
-+			if (uref->usage_index >= field->report_count)
-+				goto inval;
- 			field->value[uref->usage_index] = uref->value;
- 			goto goodreturn;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		dev_err(&pdev->dev, "Failed to get IRQ\n");
+-		err = -ENODEV;
++	if (irq < 0) {
++		err = irq;
+ 		goto fail_io;
+ 	}
  
 
 
