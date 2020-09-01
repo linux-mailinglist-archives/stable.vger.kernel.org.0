@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0151259296
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:14:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A24825932A
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbgIAPO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:14:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58022 "EHLO mail.kernel.org"
+        id S1729740AbgIAPWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729031AbgIAPOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:22 -0400
+        id S1729729AbgIAPWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52C35206FA;
-        Tue,  1 Sep 2020 15:14:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B566207D3;
+        Tue,  1 Sep 2020 15:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973261;
-        bh=GJJPdSkny/5XoFP8yqKRzTNzBrHdn7FiGouB1ZnnFas=;
+        s=default; t=1598973728;
+        bh=M+nUuRe8hfsIApV9MzOHdhi6+SBq9VChMN1EMS94pPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdCpnnisWAQ5ELQfKBj2r+MXSJwulZPXb4eKbENxcYsh4L23PFL2QizBpA1FNIU8I
-         ecLBXW74DtX2666potWFe446S6ZdZWsQOiM8h/ojZI1UdF8EQ+ihQvRYqIioORxyEG
-         +d9DTQCkQ8ifmF9TpdCeD6YZ7lR2N9M7CJL/ne6I=
+        b=r2JG3TbcF1W5ODaBYeq98KqbJ2n4jJWe0f4aBn46ydWutCoT1dYifbNijHELDXPAd
+         2BTRxa4KnbmDJAX37iV2EkgncGUxcwyXSFkeBItW9Mdfc940RxNgDCbMKIb215nwXQ
+         yWcLxAtZDrerPmwLhGEDK5zmOCe5P55B8sooJBSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 01/78] bonding: fix a potential double-unregister
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 022/125] drm/amdgpu: fix ref count leak in amdgpu_driver_open_kms
 Date:   Tue,  1 Sep 2020 17:09:37 +0200
-Message-Id: <20200901150924.768910776@linuxfoundation.org>
+Message-Id: <20200901150935.656457363@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,43 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 832707021666411d04795c564a4adea5d6b94f17 ]
+[ Upstream commit 9ba8923cbbe11564dd1bf9f3602add9a9cfbb5c6 ]
 
-When we tear down a network namespace, we unregister all
-the netdevices within it. So we may queue a slave device
-and a bonding device together in the same unregister queue.
+in amdgpu_driver_open_kms the call to pm_runtime_get_sync increments the
+counter even in case of failure, leading to incorrect
+ref count. In case of failure, decrement the ref count before returning.
 
-If the only slave device is non-ethernet, it would
-automatically unregister the bonding device as well. Thus,
-we may end up unregistering the bonding device twice.
-
-Workaround this special case by checking reg_state.
-
-Fixes: 9b5e383c11b0 ("net: Introduce unregister_netdevice_many()")
-Reported-by: syzbot+af23e7f3e0a7e10c8b67@syzkaller.appspotmail.com
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c |    3 ++-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1985,7 +1985,8 @@ static int  bond_release_and_destroy(str
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+index bb41936df0d97..2beaaf4bee687 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -835,7 +835,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
  
- 	ret = bond_release(bond_dev, slave_dev);
--	if (ret == 0 && !bond_has_slaves(bond)) {
-+	if (ret == 0 && !bond_has_slaves(bond) &&
-+	    bond_dev->reg_state != NETREG_UNREGISTERING) {
- 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
- 		netdev_info(bond_dev, "Destroying bond %s\n",
- 			    bond_dev->name);
+ 	r = pm_runtime_get_sync(dev->dev);
+ 	if (r < 0)
+-		return r;
++		goto pm_put;
+ 
+ 	fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
+ 	if (unlikely(!fpriv)) {
+@@ -883,6 +883,7 @@ error_pasid:
+ 
+ out_suspend:
+ 	pm_runtime_mark_last_busy(dev->dev);
++pm_put:
+ 	pm_runtime_put_autosuspend(dev->dev);
+ 
+ 	return r;
+-- 
+2.25.1
+
 
 
