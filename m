@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D83259C3A
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2396E259CD6
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbgIARNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:13:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
+        id S1728725AbgIAPMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728764AbgIAPPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:15:39 -0400
+        id S1728772AbgIAPMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:12:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8565920767;
-        Tue,  1 Sep 2020 15:15:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E0D20FC3;
+        Tue,  1 Sep 2020 15:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973339;
-        bh=jJ9s4BRQTppGhHlywkzlUypq+zFkvImt/Sm5IUwmriI=;
+        s=default; t=1598973165;
+        bh=YA9SAC4hbgAcBHAWJSqFO1oKOHxNYxvn4wl6v9KzTZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ckGz+uiaFWYMRJQIGIMVmvtkv8KCsEHhPjo3HrHIcoX5qFRnxf8TNdzlO8hl37/x
-         lD9eRbB/o9DdRdOSza2dcxDlqFnUIdTO+vYs9Z53ZJAVUp2d18+cFKyDb/1o4TvUDz
-         zsSfraY8jSUula6qRMDZekSMJIvR9H4cFleaDV+Q=
+        b=I9bNyQyPXaNQGz9gg672iuGYCxzgKnrWl1duw+FqkuIosl0jrycIrE5AAhXUmGe95
+         Rx6ZvlIkjg0kjhouVHBKcgngh27APLG1K4ZQgVHeCkiyTopAJqtb7Hqp87T3MJej5v
+         e8VNRiBjL3yqNrFv04Usm0ISdn4ZuroevrJmngjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 40/78] usb: gadget: f_tcm: Fix some resource leaks in some error paths
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 33/62] i2c: rcar: in slave mode, clear NACK earlier
 Date:   Tue,  1 Sep 2020 17:10:16 +0200
-Message-Id: <20200901150926.740293283@linuxfoundation.org>
+Message-Id: <20200901150922.378777512@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
+[ Upstream commit 914a7b3563b8fb92f976619bbd0fa3a4a708baae ]
 
-If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
-already allocated memory must be released.
+Currently, a NACK in slave mode is set/cleared when SCL is held low by
+the IP core right before the bit is about to be pushed out. This is too
+late for clearing and then a NACK from the previous byte is still used
+for the current one. Now, let's clear the NACK right after we detected
+the STOP condition following the NACK.
 
-Fix a mix-up in the code and free the correct requests.
-
-Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_tcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
-index d2351139342f6..7e8e262b36297 100644
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -751,12 +751,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
- 		goto err_sts;
- 
- 	return 0;
-+
- err_sts:
--	usb_ep_free_request(fu->ep_status, stream->req_status);
--	stream->req_status = NULL;
--err_out:
- 	usb_ep_free_request(fu->ep_out, stream->req_out);
- 	stream->req_out = NULL;
-+err_out:
-+	usb_ep_free_request(fu->ep_in, stream->req_in);
-+	stream->req_in = NULL;
- out:
- 	return -ENOMEM;
- }
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index ddfb08a3e6c20..00b3178c36a7a 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -393,6 +393,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ 	/* master sent stop */
+ 	if (ssr_filtered & SSR) {
+ 		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
++		rcar_i2c_write(priv, ICSCR, SIE | SDBS); /* clear our NACK */
+ 		rcar_i2c_write(priv, ICSIER, SAR);
+ 		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
+ 	}
 -- 
 2.25.1
 
