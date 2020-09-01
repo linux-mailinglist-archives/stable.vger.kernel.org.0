@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5905F259748
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC55259768
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbgIAQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
+        id S1728314AbgIAQN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:13:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728586AbgIAPgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:36:38 -0400
+        id S1728054AbgIAPgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:36:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7024321582;
-        Tue,  1 Sep 2020 15:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75CB320E65;
+        Tue,  1 Sep 2020 15:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974598;
-        bh=G7Bxe3htfLyEMy8okKHuhNIpEbesWGNFyZOsNYvkWzo=;
+        s=default; t=1598974569;
+        bh=rHHGcYV8JungSDFr7AkEIceiV4sani6jasI+xEnahjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Og/k1uQvuzkRMfyApZDoJnWHV01OAo9/iD9NlhkcpHk2r6a5Rq6vui+EsN9jp9T++
-         36saOWl1vhr9kSpC53EyGjPVV0IrHNVAK8u1ESg4doQjglDQ/TX8MgvAMdDTVi17iN
-         U09GLhSRJw2e/WQtaoWTDmD/dyRRC5L4PXt4X9dU=
+        b=h1gW6zNlDd7fNUink6nDFAwY8xP0IS/CDqueZ2bQqVXEV/5sl0enzxRfsibSIGW3g
+         AMDbfHtzwJO2G1G3NrAoDMtH8URT3NPZHWlyfkrT4fAIfD9Pxm6RhDWtTo2twu8OBT
+         19d3YgHdp9IVRoEnAi9tkU8punSjLIRIzyhD5d0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 009/255] ASoC: img: Fix a reference count leak in img_i2s_in_set_fmt
-Date:   Tue,  1 Sep 2020 17:07:45 +0200
-Message-Id: <20200901151001.258014167@linuxfoundation.org>
+Subject: [PATCH 5.8 012/255] mfd: intel-lpss: Add Intel Emmitsburg PCH PCI IDs
+Date:   Tue,  1 Sep 2020 17:07:48 +0200
+Message-Id: <20200901151001.394832980@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,39 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit c4c59b95b7f7d4cef5071b151be2dadb33f3287b ]
+[ Upstream commit 3ea2e4eab64cefa06055bb0541fcdedad4b48565 ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code, causing incorrect ref count if
-pm_runtime_put_noidle() is not called in error handling paths.
-Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
+Intel Emmitsburg PCH has the same LPSS than Intel Ice Lake.
+Add the new IDs to the list of supported devices.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Link: https://lore.kernel.org/r/20200614033749.2975-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/img/img-i2s-in.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mfd/intel-lpss-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
-index e30b66b94bf67..0843235d73c91 100644
---- a/sound/soc/img/img-i2s-in.c
-+++ b/sound/soc/img/img-i2s-in.c
-@@ -343,8 +343,10 @@ static int img_i2s_in_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 	chan_control_mask = IMG_I2S_IN_CH_CTL_CLK_TRANS_MASK;
- 
- 	ret = pm_runtime_get_sync(i2s->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(i2s->dev);
- 		return ret;
-+	}
- 
- 	for (i = 0; i < i2s->active_channels; i++)
- 		img_i2s_in_ch_disable(i2s, i);
+diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+index 046222684b8b2..17bcadc00a11c 100644
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -201,6 +201,9 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x1ac4), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
++	/* EBG */
++	{ PCI_VDEVICE(INTEL, 0x1bad), (kernel_ulong_t)&bxt_uart_info },
++	{ PCI_VDEVICE(INTEL, 0x1bae), (kernel_ulong_t)&bxt_uart_info },
+ 	/* GLK */
+ 	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
 -- 
 2.25.1
 
