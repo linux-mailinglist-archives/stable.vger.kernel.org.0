@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B808C259BB0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D50F259C37
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728941AbgIARFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
+        id S1729230AbgIARMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729409AbgIAPTP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:19:15 -0400
+        id S1729148AbgIAPPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:15:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5294E20BED;
-        Tue,  1 Sep 2020 15:19:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01A7F20767;
+        Tue,  1 Sep 2020 15:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973554;
-        bh=LbRaIABWxaST1ouu9VXVnN8c3Rez24/P2Vaz4bEXpsM=;
+        s=default; t=1598973349;
+        bh=p8BE7X+nZ6st4U/GVQwBf0Sc/g1a6v51AjLXWy+aJXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onEoY/dcNN/mME+326PugwcgalrcRokcyL1pIm95GJX/7KbRK6Xyjx1VqIx1sDqUX
-         DB5PcVKsnqX1ZRCKpHpkSzvFUU/XralqnlPKeU9MwL8fAuhqnsj5uOe82iRUTXyLA+
-         E3AJBwC5/rsoMYi1DYqixaySoH3gODezgtNKWdv0=
+        b=OEZqYXW8UbF4cn/VEbjD3crpCh5iDN568k850oFxgxtMlQtpzGN3A8qxFV49uhuiv
+         biQfk7hGIu/GaYpX3hHZL7G0TnWv4iESTZ7peRKrzy/hzYQstinnmBvblEs+5UJryy
+         oJFlCk62meAFk9vYkVBesrT4EDKPvIdAqdSb54G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 46/91] usb: gadget: f_tcm: Fix some resource leaks in some error paths
+Subject: [PATCH 4.9 44/78] s390/cio: add cond_resched() in the slow_eval_known_fn() loop
 Date:   Tue,  1 Sep 2020 17:10:20 +0200
-Message-Id: <20200901150930.427798423@linuxfoundation.org>
+Message-Id: <20200901150926.958300203@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 07c8434150f4eb0b65cae288721c8af1080fde17 ]
+[ Upstream commit 0b8eb2ee9da1e8c9b8082f404f3948aa82a057b2 ]
 
-If a memory allocation fails within a 'usb_ep_alloc_request()' call, the
-already allocated memory must be released.
+The scanning through subchannels during the time of an event could
+take significant amount of time in case of platforms with lots of
+known subchannels. This might result in higher scheduling latencies
+for other tasks especially on systems with a single CPU. Add
+cond_resched() call, as the loop in slow_eval_known_fn() can be
+executed for a longer duration.
 
-Fix a mix-up in the code and free the correct requests.
-
-Fixes: c52661d60f63 ("usb-gadget: Initial merge of target module for UASP + BOT")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_tcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/s390/cio/css.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
-index a82e2bd5ea34d..c41d09166a1d6 100644
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -751,12 +751,13 @@ static int uasp_alloc_stream_res(struct f_uas *fu, struct uas_stream *stream)
- 		goto err_sts;
- 
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 39a2b0cde9e42..d81fdcd6a1fe0 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -529,6 +529,11 @@ static int slow_eval_known_fn(struct subchannel *sch, void *data)
+ 		rc = css_evaluate_known_subchannel(sch, 1);
+ 		if (rc == -EAGAIN)
+ 			css_schedule_eval(sch->schid);
++		/*
++		 * The loop might take long time for platforms with lots of
++		 * known devices. Allow scheduling here.
++		 */
++		cond_resched();
+ 	}
  	return 0;
-+
- err_sts:
--	usb_ep_free_request(fu->ep_status, stream->req_status);
--	stream->req_status = NULL;
--err_out:
- 	usb_ep_free_request(fu->ep_out, stream->req_out);
- 	stream->req_out = NULL;
-+err_out:
-+	usb_ep_free_request(fu->ep_in, stream->req_in);
-+	stream->req_in = NULL;
- out:
- 	return -ENOMEM;
  }
 -- 
 2.25.1
