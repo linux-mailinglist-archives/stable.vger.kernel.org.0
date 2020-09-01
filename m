@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBB425928C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9302592C1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbgIAPNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56848 "EHLO mail.kernel.org"
+        id S1729339AbgIAPQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728944AbgIAPNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:40 -0400
+        id S1729338AbgIAPQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:16:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25EA2206FA;
-        Tue,  1 Sep 2020 15:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 817D8207D3;
+        Tue,  1 Sep 2020 15:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973219;
-        bh=5CE2VeFnJFV+DsK2+ilItzzAgkQ63gk5C0GCI9RpE+c=;
+        s=default; t=1598973400;
+        bh=rcAnEbv7j0JSH/T+QJdGBSad0kuDwnM2WtUjOF/zEb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+288OQduX/9XZBly+Vl67M9Qq5V9kShK2v3heUw19CA5WdTNf7+KAdRXLf7Pm9i4
-         qei4+8Ghk2FLU/0+FWPUXJ54xwRnA7jucZ5Wsx4fBm1/1lKU4RIm1l1KZ7WnOEp1cs
-         tVPbNPcxzR9fM2rXb1KWSqL5wh37nqARvhmsmQl0=
+        b=yvy1L8O/Y0Hn4+LvU+k5ZY+Wqos96uHyZhiSABuckbL88zBuYrfL5EtdcJtOsW+95
+         Yp2T5m0bKyVtlTvJGDyqMUFKpY/YlF++b53rKEn7YYCjQ6s2wRO/v9kNpTb38Sw2Y3
+         ZBBN2afz7wfZGqaE9L9QCU7pFwJZQUTm91pQ7aX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
+        Borislav Petkov <bp@suse.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 25/62] scsi: iscsi: Do not put host in iscsi_set_flashnode_param()
+Subject: [PATCH 4.9 32/78] EDAC/ie31200: Fallback if host bridge device is already initialized
 Date:   Tue,  1 Sep 2020 17:10:08 +0200
-Message-Id: <20200901150921.998015647@linuxfoundation.org>
+Message-Id: <20200901150926.352567987@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +47,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Jason Baron <jbaron@akamai.com>
 
-[ Upstream commit 68e12e5f61354eb42cfffbc20a693153fc39738e ]
+[ Upstream commit 709ed1bcef12398ac1a35c149f3e582db04456c2 ]
 
-If scsi_host_lookup() fails we will jump to put_host which may cause a
-panic. Jump to exit_set_fnode instead.
+The Intel uncore driver may claim some of the pci ids from ie31200 which
+means that the ie31200 edac driver will not initialize them as part of
+pci_register_driver().
 
-Link: https://lore.kernel.org/r/20200615081226.183068-1-jingxiangfeng@huawei.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Let's add a fallback for this case to 'pci_get_device()' to get a
+reference on the device such that it can still be configured. This is
+similar in approach to other edac drivers.
+
+Signed-off-by: Jason Baron <jbaron@akamai.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/1594923911-10885-1-git-send-email-jbaron@akamai.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/ie31200_edac.c | 50 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 47 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index de10b461ec7ef..4903640316480 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -3192,7 +3192,7 @@ static int iscsi_set_flashnode_param(struct iscsi_transport *transport,
- 		pr_err("%s could not find host no %u\n",
- 		       __func__, ev->u.set_flashnode.host_no);
- 		err = -ENODEV;
--		goto put_host;
-+		goto exit_set_fnode;
- 	}
+diff --git a/drivers/edac/ie31200_edac.c b/drivers/edac/ie31200_edac.c
+index 1c88d97074951..3438b98e60948 100644
+--- a/drivers/edac/ie31200_edac.c
++++ b/drivers/edac/ie31200_edac.c
+@@ -145,6 +145,8 @@
+ 	(n << (28 + (2 * skl) - PAGE_SHIFT))
  
- 	idx = ev->u.set_flashnode.flashnode_idx;
+ static int nr_channels;
++static struct pci_dev *mci_pdev;
++static int ie31200_registered = 1;
+ 
+ struct ie31200_priv {
+ 	void __iomem *window;
+@@ -512,12 +514,16 @@ fail_free:
+ static int ie31200_init_one(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
+ {
+-	edac_dbg(0, "MC:\n");
++	int rc;
+ 
++	edac_dbg(0, "MC:\n");
+ 	if (pci_enable_device(pdev) < 0)
+ 		return -EIO;
++	rc = ie31200_probe1(pdev, ent->driver_data);
++	if (rc == 0 && !mci_pdev)
++		mci_pdev = pci_dev_get(pdev);
+ 
+-	return ie31200_probe1(pdev, ent->driver_data);
++	return rc;
+ }
+ 
+ static void ie31200_remove_one(struct pci_dev *pdev)
+@@ -526,6 +532,8 @@ static void ie31200_remove_one(struct pci_dev *pdev)
+ 	struct ie31200_priv *priv;
+ 
+ 	edac_dbg(0, "\n");
++	pci_dev_put(mci_pdev);
++	mci_pdev = NULL;
+ 	mci = edac_mc_del_mc(&pdev->dev);
+ 	if (!mci)
+ 		return;
+@@ -574,17 +582,53 @@ static struct pci_driver ie31200_driver = {
+ 
+ static int __init ie31200_init(void)
+ {
++	int pci_rc, i;
++
+ 	edac_dbg(3, "MC:\n");
+ 	/* Ensure that the OPSTATE is set correctly for POLL or NMI */
+ 	opstate_init();
+ 
+-	return pci_register_driver(&ie31200_driver);
++	pci_rc = pci_register_driver(&ie31200_driver);
++	if (pci_rc < 0)
++		goto fail0;
++
++	if (!mci_pdev) {
++		ie31200_registered = 0;
++		for (i = 0; ie31200_pci_tbl[i].vendor != 0; i++) {
++			mci_pdev = pci_get_device(ie31200_pci_tbl[i].vendor,
++						  ie31200_pci_tbl[i].device,
++						  NULL);
++			if (mci_pdev)
++				break;
++		}
++		if (!mci_pdev) {
++			edac_dbg(0, "ie31200 pci_get_device fail\n");
++			pci_rc = -ENODEV;
++			goto fail1;
++		}
++		pci_rc = ie31200_init_one(mci_pdev, &ie31200_pci_tbl[i]);
++		if (pci_rc < 0) {
++			edac_dbg(0, "ie31200 init fail\n");
++			pci_rc = -ENODEV;
++			goto fail1;
++		}
++	}
++	return 0;
++
++fail1:
++	pci_unregister_driver(&ie31200_driver);
++fail0:
++	pci_dev_put(mci_pdev);
++
++	return pci_rc;
+ }
+ 
+ static void __exit ie31200_exit(void)
+ {
+ 	edac_dbg(3, "MC:\n");
+ 	pci_unregister_driver(&ie31200_driver);
++	if (!ie31200_registered)
++		ie31200_remove_one(mci_pdev);
+ }
+ 
+ module_init(ie31200_init);
 -- 
 2.25.1
 
