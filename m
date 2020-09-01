@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 700E92594DF
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B112593F2
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731302AbgIAPoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:44:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58886 "EHLO mail.kernel.org"
+        id S1728142AbgIAPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730539AbgIAPoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:44:02 -0400
+        id S1731167AbgIAPd0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:33:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 406A6206EB;
-        Tue,  1 Sep 2020 15:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A994205F4;
+        Tue,  1 Sep 2020 15:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975041;
-        bh=JrO0rNYfZZRRiSSWbnJS7Bxk9mHDi4/rY9wiVVge+Hs=;
+        s=default; t=1598974405;
+        bh=TJXeZSGzwfNiVC7VyxV4h8RVxP7uqTTnzNYyvYWstFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0v/GySt8gd9kHtOOJM8ZKVdvreG/+LrzEcKs0bpHNwf7XJKeXc9EnUDHlURiK4L60
-         gs44Anh1uxeg/Bz9OxPuM7cxYk5jmJRU4oIuvO+p5751DoqUTYF1TSk29HxEfDlJtY
-         RX0aatnVkGpam8iyhiGkgbHFhDttqjaGTPWsgQCs=
+        b=hu0djrURqG6Eo3CobaGPRrdqkL57+nJyG+YLg6IOqkGl7FKqlanUpASgQDW8B0Wbq
+         NuGj+1guTp93HQxjOpXoUGMlgf4f/nMG4NbhjU/GtRiwIs326VHBMX7Fp72yT6AChS
+         5hNtbiSNLgnQUhQGg1ddovdGKrnXo5b/4Cj31QGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sumera Priyadarsini <sylphrenadin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 156/255] net: gianfar: Add of_node_put() before goto statement
-Date:   Tue,  1 Sep 2020 17:10:12 +0200
-Message-Id: <20200901151008.164431671@linuxfoundation.org>
+Subject: [PATCH 5.4 133/214] s390/cio: add cond_resched() in the slow_eval_known_fn() loop
+Date:   Tue,  1 Sep 2020 17:10:13 +0200
+Message-Id: <20200901150959.357707885@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumera Priyadarsini <sylphrenadin@gmail.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
+[ Upstream commit 0b8eb2ee9da1e8c9b8082f404f3948aa82a057b2 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-reference count of the previous node, however when control
-is transferred from the middle of the loop, as in the case of
-a return or break or goto, there is no decrement thus ultimately
-resulting in a memory leak.
+The scanning through subchannels during the time of an event could
+take significant amount of time in case of platforms with lots of
+known subchannels. This might result in higher scheduling latencies
+for other tasks especially on systems with a single CPU. Add
+cond_resched() call, as the loop in slow_eval_known_fn() can be
+executed for a longer duration.
 
-Fix a potential memory leak in gianfar.c by inserting of_node_put()
-before the goto statement.
-
-Issue found with Coccinelle.
-
-Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/cio/css.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index b513b8c5c3b5e..41dd3d0f34524 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -750,8 +750,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
- 				continue;
- 
- 			err = gfar_parse_group(child, priv, model);
--			if (err)
-+			if (err) {
-+				of_node_put(child);
- 				goto err_grp_init;
-+			}
- 		}
- 	} else { /* SQ_SG_MODE */
- 		err = gfar_parse_group(np, priv, model);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 831850435c23b..5734a78dbb8e6 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -677,6 +677,11 @@ static int slow_eval_known_fn(struct subchannel *sch, void *data)
+ 		rc = css_evaluate_known_subchannel(sch, 1);
+ 		if (rc == -EAGAIN)
+ 			css_schedule_eval(sch->schid);
++		/*
++		 * The loop might take long time for platforms with lots of
++		 * known devices. Allow scheduling here.
++		 */
++		cond_resched();
+ 	}
+ 	return 0;
+ }
 -- 
 2.25.1
 
