@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1282597D9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074182597D0
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbgIAQUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
+        id S1729248AbgIAQTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:19:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730105AbgIAPdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:02 -0400
+        id S1729970AbgIAPdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:33:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78E47214D8;
-        Tue,  1 Sep 2020 15:33:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1D8121582;
+        Tue,  1 Sep 2020 15:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974382;
-        bh=FkIxEoVikIjB8wovQ0EjGe2UmPhGYdgloKQCPZ5u37k=;
+        s=default; t=1598974387;
+        bh=AzNGg2nq28/lTN+ASedXkC4irmXDlIwcllZxgVPPSnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHW1umSakcoIV9W0vauY/j4Jmg8XnmRQ1FdsMFOAxRjW8z3EVFD1Ac5sVB2iTR2/I
-         YsGMaxlp/LK5sYq7qDF9IhKMlrADbvsbJAB/82eA0mVyAKvcTkwQZEw6J0QpknFg9X
-         EQs6eGyKQJxa7Dc6a72y7v7x8vxo6G9OZOz16A+E=
+        b=TSbzbWlgHDrl9umDpfrImbldHqFJpiNYmSpAeQPNFGFlEG8vTnLRAAD/rGljLRtE7
+         E9E0G2gYoLEMhtDyDtb8X/SKJQyYfcY3jdGABQz748bGOmMbWqccfQAn0NfJQ6r7Ph
+         k05VCNm6vr6+7UrEylyzmdX9hm9lz/3Rf/BtBKa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 154/214] btrfs: check the right error variable in btrfs_del_dir_entries_in_log
-Date:   Tue,  1 Sep 2020 17:10:34 +0200
-Message-Id: <20200901151000.348251171@linuxfoundation.org>
+Subject: [PATCH 5.4 155/214] btrfs: fix space cache memory leak after transaction abort
+Date:   Tue,  1 Sep 2020 17:10:35 +0200
+Message-Id: <20200901151000.395577107@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,55 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit fb2fecbad50964b9f27a3b182e74e437b40753ef upstream.
+commit bbc37d6e475eee8ffa2156ec813efc6bbb43c06d upstream.
 
-With my new locking code dbench is so much faster that I tripped over a
-transaction abort from ENOSPC.  This turned out to be because
-btrfs_del_dir_entries_in_log was checking for ret == -ENOSPC, but this
-function sets err on error, and returns err.  So instead of properly
-marking the inode as needing a full commit, we were returning -ENOSPC
-and aborting in __btrfs_unlink_inode.  Fix this by checking the proper
-variable so that we return the correct thing in the case of ENOSPC.
+If a transaction aborts it can cause a memory leak of the pages array of
+a block group's io_ctl structure. The following steps explain how that can
+happen:
 
-The ENOENT needs to be checked, because btrfs_lookup_dir_item_index()
-can return -ENOENT if the dir item isn't in the tree log (which would
-happen if we hadn't fsync'ed this guy).  We actually handle that case in
-__btrfs_unlink_inode, so it's an expected error to get back.
+1) Transaction N is committing, currently in state TRANS_STATE_UNBLOCKED
+   and it's about to start writing out dirty extent buffers;
 
-Fixes: 4a500fd178c8 ("Btrfs: Metadata ENOSPC handling for tree log")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note and comment about ENOENT ]
+2) Transaction N + 1 already started and another task, task A, just called
+   btrfs_commit_transaction() on it;
+
+3) Block group B was dirtied (extents allocated from it) by transaction
+   N + 1, so when task A calls btrfs_start_dirty_block_groups(), at the
+   very beginning of the transaction commit, it starts writeback for the
+   block group's space cache by calling btrfs_write_out_cache(), which
+   allocates the pages array for the block group's io_ctl with a call to
+   io_ctl_init(). Block group A is added to the io_list of transaction
+   N + 1 by btrfs_start_dirty_block_groups();
+
+4) While transaction N's commit is writing out the extent buffers, it gets
+   an IO error and aborts transaction N, also setting the file system to
+   RO mode;
+
+5) Task A has already returned from btrfs_start_dirty_block_groups(), is at
+   btrfs_commit_transaction() and has set transaction N + 1 state to
+   TRANS_STATE_COMMIT_START. Immediately after that it checks that the
+   filesystem was turned to RO mode, due to transaction N's abort, and
+   jumps to the "cleanup_transaction" label. After that we end up at
+   btrfs_cleanup_one_transaction() which calls btrfs_cleanup_dirty_bgs().
+   That helper finds block group B in the transaction's io_list but it
+   never releases the pages array of the block group's io_ctl, resulting in
+   a memory leak.
+
+In fact at the point when we are at btrfs_cleanup_dirty_bgs(), the pages
+array points to pages that were already released by us at
+__btrfs_write_out_cache() through the call to io_ctl_drop_pages(). We end
+up freeing the pages array only after waiting for the ordered extent to
+complete through btrfs_wait_cache_io(), which calls io_ctl_free() to do
+that. But in the transaction abort case we don't wait for the space cache's
+ordered extent to complete through a call to btrfs_wait_cache_io(), so
+that's why we end up with a memory leak - we wait for the ordered extent
+to complete indirectly by shutting down the work queues and waiting for
+any jobs in them to complete before returning from close_ctree().
+
+We can solve the leak simply by freeing the pages array right after
+releasing the pages (with the call to io_ctl_drop_pages()) at
+__btrfs_write_out_cache(), since we will never use it anymore after that
+and the pages array points to already released pages at that point, which
+is currently not a problem since no one will use it after that, but not a
+good practice anyway since it can easily lead to use-after-free issues.
+
+So fix this by freeing the pages array right after releasing the pages at
+__btrfs_write_out_cache().
+
+This issue can often be reproduced with test case generic/475 from fstests
+and kmemleak can detect it and reports it with the following trace:
+
+unreferenced object 0xffff9bbf009fa600 (size 512):
+  comm "fsstress", pid 38807, jiffies 4298504428 (age 22.028s)
+  hex dump (first 32 bytes):
+    00 a0 7c 4d 3d ed ff ff 40 a0 7c 4d 3d ed ff ff  ..|M=...@.|M=...
+    80 a0 7c 4d 3d ed ff ff c0 a0 7c 4d 3d ed ff ff  ..|M=.....|M=...
+  backtrace:
+    [<00000000f4b5cfe2>] __kmalloc+0x1a8/0x3e0
+    [<0000000028665e7f>] io_ctl_init+0xa7/0x120 [btrfs]
+    [<00000000a1f95b2d>] __btrfs_write_out_cache+0x86/0x4a0 [btrfs]
+    [<00000000207ea1b0>] btrfs_write_out_cache+0x7f/0xf0 [btrfs]
+    [<00000000af21f534>] btrfs_start_dirty_block_groups+0x27b/0x580 [btrfs]
+    [<00000000c3c23d44>] btrfs_commit_transaction+0xa6f/0xe70 [btrfs]
+    [<000000009588930c>] create_subvol+0x581/0x9a0 [btrfs]
+    [<000000009ef2fd7f>] btrfs_mksubvol+0x3fb/0x4a0 [btrfs]
+    [<00000000474e5187>] __btrfs_ioctl_snap_create+0x119/0x1a0 [btrfs]
+    [<00000000708ee349>] btrfs_ioctl_snap_create_v2+0xb0/0xf0 [btrfs]
+    [<00000000ea60106f>] btrfs_ioctl+0x12c/0x3130 [btrfs]
+    [<000000005c923d6d>] __x64_sys_ioctl+0x83/0xb0
+    [<0000000043ace2c9>] do_syscall_64+0x33/0x80
+    [<00000000904efbce>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/btrfs/disk-io.c          |    1 +
+ fs/btrfs/free-space-cache.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3473,11 +3473,13 @@ fail:
- 	btrfs_free_path(path);
- out_unlock:
- 	mutex_unlock(&dir->log_mutex);
--	if (ret == -ENOSPC) {
-+	if (err == -ENOSPC) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 0;
--	} else if (ret < 0)
--		btrfs_abort_transaction(trans, ret);
-+		err = 0;
-+	} else if (err < 0 && err != -ENOENT) {
-+		/* ENOENT can be returned if the entry hasn't been fsynced yet */
-+		btrfs_abort_transaction(trans, err);
-+	}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4477,6 +4477,7 @@ static void btrfs_cleanup_bg_io(struct b
+ 		cache->io_ctl.inode = NULL;
+ 		iput(inode);
+ 	}
++	ASSERT(cache->io_ctl.pages == NULL);
+ 	btrfs_put_block_group(cache);
+ }
  
- 	btrfs_end_log_trans(root);
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -1166,7 +1166,6 @@ static int __btrfs_wait_cache_io(struct
+ 	ret = update_cache_item(trans, root, inode, path, offset,
+ 				io_ctl->entries, io_ctl->bitmaps);
+ out:
+-	io_ctl_free(io_ctl);
+ 	if (ret) {
+ 		invalidate_inode_pages2(inode->i_mapping);
+ 		BTRFS_I(inode)->generation = 0;
+@@ -1329,6 +1328,7 @@ static int __btrfs_write_out_cache(struc
+ 	 * them out later
+ 	 */
+ 	io_ctl_drop_pages(io_ctl);
++	io_ctl_free(io_ctl);
  
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, 0,
+ 			     i_size_read(inode) - 1, &cached_state);
 
 
