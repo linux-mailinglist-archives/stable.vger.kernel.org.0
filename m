@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B635425951C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D8D2595A1
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731952AbgIAPqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:46:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36756 "EHLO mail.kernel.org"
+        id S1732031AbgIAPyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:54:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730581AbgIAPqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:46:42 -0400
+        id S1726323AbgIAPqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:46:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03143206FA;
-        Tue,  1 Sep 2020 15:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 865EB206EB;
+        Tue,  1 Sep 2020 15:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975201;
-        bh=5oVvWcrZ767oERhJ8xsKzlCDXFR23KpVPFON8pBBBmg=;
+        s=default; t=1598975204;
+        bh=DZveWCP/S5NghbgnM0iimMiVKVfDLqRuyg/VHFJHzzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EfcTBV0mXfMFvfm18BrBErA3hyHG2PQhlgRvLTchaLSC/bcAVhDo7JLK4DN1TjRXe
-         rXu5MoMZLveZW8kswVl+PacocWl55GFzWoFFDbcNJXTjm4O7f+i1j2cV1ldj/Vym0a
-         g6WFAt6RP23MlpVjiG2J5xsyqxF24HXJ182Y6b+A=
+        b=r6dzihfvasRJoxopgCXogJcFpQETYKZnDTY5kpUOCMDfFO76L+lW2py8LjBCsSksv
+         hezuQcV8jLyLQD7nN3hsAS+StR/O2KUbErKUYRPREnFe3NjOuepa/ncjvBARn+dZoj
+         bYy/HtoVgiAxVOQOi2nZtFjYY/KeZ8xDLV94fMks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.8 218/255] drm/amd/pm: correct Vega10 swctf limit setting
-Date:   Tue,  1 Sep 2020 17:11:14 +0200
-Message-Id: <20200901151011.147038614@linuxfoundation.org>
+Subject: [PATCH 5.8 219/255] drm/amd/pm: correct Vega12 swctf limit setting
+Date:   Tue,  1 Sep 2020 17:11:15 +0200
+Message-Id: <20200901151011.194877502@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -45,11 +45,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Evan Quan <evan.quan@amd.com>
 
-commit b05d71b51078fc428c6b72582126d9d75d3c1f4c upstream.
+commit e0ffd340249699ad27a6c91abdfa3e89f7823941 upstream.
 
-Correct the Vega10 thermal swctf limit.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1267
+Correct the Vega12 thermal swctf limit.
 
 Signed-off-by: Evan Quan <evan.quan@amd.com>
 Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
@@ -58,29 +56,28 @@ Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-@@ -363,6 +363,9 @@ int vega10_thermal_get_temperature(struc
- static int vega10_thermal_set_temperature_range(struct pp_hwmgr *hwmgr,
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c
+@@ -170,6 +170,8 @@ int vega12_thermal_get_temperature(struc
+ static int vega12_thermal_set_temperature_range(struct pp_hwmgr *hwmgr,
  		struct PP_TemperatureRange *range)
  {
-+	struct phm_ppt_v2_information *pp_table_info =
-+		(struct phm_ppt_v2_information *)(hwmgr->pptable);
-+	struct phm_tdp_table *tdp_table = pp_table_info->tdp_table;
++	struct phm_ppt_v3_information *pptable_information =
++		(struct phm_ppt_v3_information *)hwmgr->pptable;
  	struct amdgpu_device *adev = hwmgr->adev;
- 	int low = VEGA10_THERMAL_MINIMUM_ALERT_TEMP *
+ 	int low = VEGA12_THERMAL_MINIMUM_ALERT_TEMP *
  			PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
-@@ -372,8 +375,8 @@ static int vega10_thermal_set_temperatur
+@@ -179,8 +181,8 @@ static int vega12_thermal_set_temperatur
  
  	if (low < range->min)
  		low = range->min;
 -	if (high > range->max)
 -		high = range->max;
-+	if (high > tdp_table->usSoftwareShutdownTemp)
-+		high = tdp_table->usSoftwareShutdownTemp;
++	if (high > pptable_information->us_software_shutdown_temp)
++		high = pptable_information->us_software_shutdown_temp;
  
  	if (low > high)
  		return -EINVAL;
