@@ -2,121 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDF5258DB6
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 13:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B66E258E8C
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 14:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727977AbgIALzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 07:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40316 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727962AbgIALyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 07:54:55 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D712206FA;
-        Tue,  1 Sep 2020 11:54:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598961289;
-        bh=aHAuWJuf8BhyohJZ8xzi9pyGZ29N3vyPH5UuwrwdZTw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=r2LMNv2qHjtMdJAvfCl5+naFvKjEgd0eWtP9fcXgURlPTYOlLgqWKVkvnYnyIOIEk
-         G3XA4Ec1nMUbbRfvz9gGkzlXaYKV8yE5Mbttg9Fl/LRmIAJv/RBJpVfrjXPkuP58nZ
-         YNni8fmtwpKaFnAm/r9bx0HZ6uufBHNw5eEz1UE0=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1kD4sB-008GKw-N4; Tue, 01 Sep 2020 12:54:47 +0100
+        id S1728090AbgIAMuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 08:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727025AbgIAMuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 08:50:03 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DA6C061245;
+        Tue,  1 Sep 2020 05:50:02 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id e23so1469624eja.3;
+        Tue, 01 Sep 2020 05:50:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TeP2OMTnX08luhi/Cf+M20naxDcFqoHuSCfrsdvdbQs=;
+        b=u25gocfmHvWnUENdqC+EIpRNM7WAVhgZnDdK3HH5Qvx421X8HpAscJvCHSrUvXoFem
+         2i+K90Pqxe4XtoYu0IwUtCBOXD3e2LwPCRTofmLnNytjINMAUxdoFO/JRauOrDWnwVZy
+         y/gj0c7sGeDgJI1T+ivYt07SorAAWwGokZNSYFm/bFA7Rzh9mGvIV9YD5h+g5XP/ha/r
+         Yw7XoMIr1h0Mss+DEjXaXvYAIrgN5+0neD+CLwe/eVTJMpYXac568ktpjfxUviTyVciX
+         oc4mC0ypWa3ZYWRmghWNVvXaCEFhyRAm1q30sl3bZIrwl5BsPgT7dJwOv5eOQhkFyhXc
+         JC/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TeP2OMTnX08luhi/Cf+M20naxDcFqoHuSCfrsdvdbQs=;
+        b=ro6Cajyh96x8VoDqBKsu0RXELWFFzLTzGlwVFIgF8KLgqJYMZahEX8cuQdROLdwbQL
+         XUc1uZssn0Cujj/RYV8ecPsGdE5MWm1RoRzW+P/ovJUDUPTih8+tboKmYKY4ZIlNrhCk
+         tcvP0bWiGXLLlqAcIpAp9G+KCjYgBstLZnWuxf+Sn3u+ZqfY2xppIS3h8VFGy1hn6+Jd
+         p9yA02H6+aTk+AA0wp4sZ6ZQ+WyaBtyG5iYNVDx643af9l52fLG4GNt4JdGhASTUvaD3
+         O+wzMKjJE35dkfoPBasMbREewFjnyN70sxMXuFuCzFHoiZ5S5rRRX/wN4Hw3ts2UFcS0
+         GSrg==
+X-Gm-Message-State: AOAM532RgIvBG6emHclXys7xU+rtwu/+NvVZcucMNOec9fexTsD4qjKX
+        wWpLl3LYaZxNkGakazPCiqE=
+X-Google-Smtp-Source: ABdhPJwd22fDSrMBk6KGt7ZiNC578JKHfx4PFTxHyLD3s9thWNGwOYt2JHqd5L9J5spk0LQZTWNGZA==
+X-Received: by 2002:a17:906:3755:: with SMTP id e21mr1294445ejc.39.1598964601056;
+        Tue, 01 Sep 2020 05:50:01 -0700 (PDT)
+Received: from Ansuel-XPS.localdomain (host-95-235-252-96.retail.telecomitalia.it. [95.235.252.96])
+        by smtp.googlemail.com with ESMTPSA id t12sm1068724edy.61.2020.09.01.05.49.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2020 05:50:00 -0700 (PDT)
+From:   Ansuel Smith <ansuelsmth@gmail.com>
+To:     Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>, stable@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] PCI: qcom: Make sure PCIe is reset before init for rev 2.1.0
+Date:   Tue,  1 Sep 2020 14:49:54 +0200
+Message-Id: <20200901124955.137-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
 Content-Transfer-Encoding: 8bit
-Date:   Tue, 01 Sep 2020 12:54:47 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     =?UTF-8?Q?Andr=C3=A9_Przywara?= <andre.przywara@arm.com>
-Cc:     stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH stable v5.4 1/3] KVM: arm64: Add kvm_extable for
- vaxoricism code
-In-Reply-To: <746764b0-7d63-b154-df02-7ca64a36ffcd@arm.com>
-References: <20200901094923.52486-1-andre.przywara@arm.com>
- <20200901094923.52486-2-andre.przywara@arm.com>
- <79d6944d383945608b685a2d0f9d9b2c@kernel.org>
- <746764b0-7d63-b154-df02-7ca64a36ffcd@arm.com>
-User-Agent: Roundcube Webmail/1.4.8
-Message-ID: <ab5e986b5d405af3e0cbfc5681cad45f@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: andre.przywara@arm.com, stable@vger.kernel.org, james.morse@arm.com, catalin.marinas@arm.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-09-01 12:17, André Przywara wrote:
-> On 01/09/2020 12:12, Marc Zyngier wrote:
->> Hi Andre,
->> 
->> On 2020-09-01 10:49, Andre Przywara wrote:
->>> From: James Morse <james.morse@arm.com>
->>> 
->>> commit e9ee186bb735bfc17fa81dbc9aebf268aee5b41e upstream.
->>> 
->>> KVM has a one instruction window where it will allow an SError 
->>> exception
->>> to be consumed by the hypervisor without treating it as a hypervisor 
->>> bug.
->>> This is used to consume asynchronous external abort that were caused 
->>> by
->>> the guest.
->>> 
->>> As we are about to add another location that survives unexpected
->>> exceptions,
->>> generalise this code to make it behave like the host's extable.
->>> 
->>> KVM's version has to be mapped to EL2 to be accessible on nVHE 
->>> systems.
->>> 
->>> The SError vaxorcism code is a one instruction window, so has two 
->>> entries
->>> in the extable. Because the KVM code is copied for VHE and nVHE, we
->>> end up
->>> with four entries, half of which correspond with code that isn't 
->>> mapped.
->>> 
->>> Cc: <stable@vger.kernel.org> # 5.4.x
->>> Cc: Marc Zyngier <maz@kernel.org>
->>> Signed-off-by: James Morse <james.morse@arm.com>
->>> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
->> 
->> Can you make sure these patches do carry the sign-off chain as we have
->> in mainline? In particular, this is missing:
->> 
->>     Reviewed-by: Marc Zyngier <maz@kernel.org>
->>     Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
->> 
->> You can add your own SoB after this.
-> 
-> Sure, I wasn't sure your review would apply to this version as well. I
-> took the backports from James' kernel.org repo, where they were lacking
-> any of those tags.
-> So shall I copy all the tags from mainline to all backport versions? Or
-> only to those where the changes were trivial? The backports to before
-> 5.3 seem to be more involved.
+Qsdk U-Boot can incorrectly leave the PCIe interface in an undefined
+state if bootm command is used instead of bootipq. This is caused by the
+not deinit of PCIe when bootm is called. Reset the PCIe before init
+anyway to fix this U-Boot bug.
 
-My understanding is that the commit log should stay as close to the
-original as possible, with potential additions to indicate deviations
-from the upstream patch.
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Cc: stable@vger.kernel.org # v4.19+
+---
+ drivers/pci/controller/dwc/pcie-qcom.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-I'm happy to *add* another RB once I have reviewed the patch, just
-like I add another SoB when I backport a patch on which I signed-off
-the first place.
-
-Thanks,
-
-         M.
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 3aac77a295ba..82336bbaf8dc 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -302,6 +302,9 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
+ 	reset_control_assert(res->por_reset);
+ 	reset_control_assert(res->ext_reset);
+ 	reset_control_assert(res->phy_reset);
++
++	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
++
+ 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
+ }
+ 
+@@ -314,6 +317,16 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	u32 val;
+ 	int ret;
+ 
++	/* reset the PCIe interface as uboot can leave it undefined state */
++	reset_control_assert(res->pci_reset);
++	reset_control_assert(res->axi_reset);
++	reset_control_assert(res->ahb_reset);
++	reset_control_assert(res->por_reset);
++	reset_control_assert(res->ext_reset);
++	reset_control_assert(res->phy_reset);
++
++	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
++
+ 	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot enable regulators\n");
 -- 
-Jazz is not dead. It just smells funny...
+2.27.0
+
