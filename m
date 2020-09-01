@@ -2,164 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA932258CE1
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 12:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 315CD258D41
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 13:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725989AbgIAKf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 06:35:58 -0400
-Received: from foss.arm.com ([217.140.110.172]:40212 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgIAKfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 06:35:55 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2C7F21045;
-        Tue,  1 Sep 2020 03:35:55 -0700 (PDT)
-Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 633CB3F71F;
-        Tue,  1 Sep 2020 03:35:54 -0700 (PDT)
-From:   Andre Przywara <andre.przywara@arm.com>
-To:     stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH stable v5.8 2/2] KVM: arm64: Survive synchronous exceptions caused by AT instructions
-Date:   Tue,  1 Sep 2020 11:35:46 +0100
-Message-Id: <20200901103546.53302-3-andre.przywara@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200901103546.53302-1-andre.przywara@arm.com>
-References: <20200901103546.53302-1-andre.przywara@arm.com>
+        id S1726078AbgIALOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 07:14:23 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41812 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726929AbgIALOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 07:14:18 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 081B2xXE021249;
+        Tue, 1 Sep 2020 07:05:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=xXWHJPjAJlz3TybqT9CscGwSEJpGhYi9Z4DQ9I5Cebw=;
+ b=dK+g3nPbtCX+mi/9VqDIlKsayT5XBPcLexGA1J8R0Y6kEapzKyRghjRtxYVbmCjwgtXi
+ /OAl65LQ7GLTOU+jRjV9ayjTXE/eVP0BLV9HT0Iw/FKVHgZodDUK1Y7VgEwXBV0/FsXh
+ e0yc0K4PflokZ1/e+YTtNrzb++ouK87NeXYwMLkvp0lzxs3NeNtlOsV1k64Ml2HNqs8g
+ DCs+Eodswe+cOAuCOl2d7dK6RPFr5TrwcVFmBVjiPMr3g/WmjYhqPBxwxMJLMCoMLUJT
+ xTwMWYcZ09sxKM5OwAuKDYhGe6tflAw0WY806hxg+jgbEKOFP+kB6AUdCG+DEZ29NxhV 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 339m1qhqrk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 07:05:33 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 081B3nJr023217;
+        Tue, 1 Sep 2020 07:05:31 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 339m1qhqf6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 07:05:26 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 081B3XUH027732;
+        Tue, 1 Sep 2020 11:05:09 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 337en8ba5k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Sep 2020 11:05:09 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 081B576Q17039682
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Sep 2020 11:05:07 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26B9BAE056;
+        Tue,  1 Sep 2020 11:05:07 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 10363AE05F;
+        Tue,  1 Sep 2020 11:05:06 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.77.139])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Sep 2020 11:05:05 +0000 (GMT)
+Message-ID: <ae06c113ec91442e293f2466cae3dd1b81f241eb.camel@linux.ibm.com>
+Subject: Re: [PATCH 07/11] evm: Set IMA_CHANGE_XATTR/ATTR bit if
+ EVM_ALLOW_METADATA_WRITES is set
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>,
+        "mjg59@google.com" <mjg59@google.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Tue, 01 Sep 2020 07:05:05 -0400
+In-Reply-To: <a5e6a5acf2274a6d844b275dacfbabb8@huawei.com>
+References: <20200618160329.1263-2-roberto.sassu@huawei.com>
+         <20200618160458.1579-7-roberto.sassu@huawei.com>
+         <67cafcf63daf8e418871eb5302e7327ba851e253.camel@linux.ibm.com>
+         <a5e6a5acf2274a6d844b275dacfbabb8@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-01_08:2020-09-01,2020-09-01 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 spamscore=0 bulkscore=0
+ mlxlogscore=999 impostorscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009010091
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+On Tue, 2020-09-01 at 09:08 +0000, Roberto Sassu wrote:
+> > From: Mimi Zohar [mailto:zohar@linux.ibm.com]
+> > Sent: Monday, August 24, 2020 2:18 PM
+> > On Thu, 2020-06-18 at 18:04 +0200, Roberto Sassu wrote:
+> > > When EVM_ALLOW_METADATA_WRITES is set, EVM allows any operation
+> > on
+> > > metadata. Its main purpose is to allow users to freely set metadata when
+> > > they are protected by a portable signature, until the HMAC key is loaded.
+> > >
+> > > However, IMA is not notified about metadata changes and, after the first
+> > > appraisal, always allows access to the files without checking metadata
+> > > again.
+> > 
+> > ^after the first successful appraisal
+> > >
+> > > This patch checks in evm_reset_status() if EVM_ALLOW_METADATA
+> > WRITES is
+> > > enabled and if it is, sets the IMA_CHANGE_XATTR/ATTR bits depending on
+> > the
+> > > operation performed. At the next appraisal, metadata are revalidated.
+> > 
+> > EVM modifying IMA bits crosses the boundary between EVM and IMA.
+> > There
+> > is already an IMA post_setattr hook.  IMA could reset its own bit
+> > there.  If necessary EVM could export as a function it's status info.
+> 
+> I wouldn't try to guess in IMA when EVM resets its status. We would have
+> to duplicate the logic to check if an EVM key is loaded, if the passed xattr
+> is a POSIX ACL, ...
 
-commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
+Agreed, but IMA could call an EVM function.
 
-KVM doesn't expect any synchronous exceptions when executing, any such
-exception leads to a panic(). AT instructions access the guest page
-tables, and can cause a synchronous external abort to be taken.
+> 
+> I think it is better to set a flag, maybe a new one, directly in EVM, to notify
+> the integrity subsystem that iint->evm_status is no longer valid.
+> 
+> If the EVM flag is set, IMA would reset the appraisal flags, as it uses
+> iint->evm_status for appraisal. We can consider to reset also the measure
+> flags when we have a template that includes file metadata.
 
-The arm-arm is unclear on what should happen if the guest has configured
-the hardware update of the access-flag, and a memory type in TCR_EL1 that
-does not support atomic operations. B2.2.6 "Possible implementation
-restrictions on using atomic instructions" from DDI0487F.a lists
-synchronous external abort as a possible behaviour of atomic instructions
-that target memory that isn't writeback cacheable, but the page table
-walker may behave differently.
+When would IMA read the EVM flag?   Who would reset the flag?  At what
+point would it be reset?   Just as EVM shouldn't be resetting the IMA
+flag, IMA shouldn't be resetting the EVM flag.
 
-Make KVM robust to synchronous exceptions caused by AT instructions.
-Add a get_user() style helper for AT instructions that returns -EFAULT
-if an exception was generated.
-
-While KVM's version of the exception table mixes synchronous and
-asynchronous exceptions, only one of these can occur at each location.
-
-Re-enter the guest when the AT instructions take an exception on the
-assumption the guest will take the same exception. This isn't guaranteed
-to make forward progress, as the AT instructions may always walk the page
-tables, but guest execution may use the translation cached in the TLB.
-
-This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
-entry when an asynchronous exception is pending"), KVM will return to the
-host to process IRQs allowing the rest of the system to keep running.
-
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org # v5.8
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
----
- arch/arm64/include/asm/kvm_asm.h | 28 ++++++++++++++++++++++++++++
- arch/arm64/kvm/hyp/hyp-entry.S   | 14 ++++++++++----
- arch/arm64/kvm/hyp/switch.c      |  8 ++++----
- 3 files changed, 42 insertions(+), 8 deletions(-)
-
-diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-index 7f09543b7c9a..2eff49d81be2 100644
---- a/arch/arm64/include/asm/kvm_asm.h
-+++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -121,6 +121,34 @@ extern char __smccc_workaround_1_smc[__SMCCC_WORKAROUND_1_SMC_SZ];
- 		*__hyp_this_cpu_ptr(sym);				\
- 	 })
- 
-+#define __KVM_EXTABLE(from, to)						\
-+	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
-+	"	.align		3\n"					\
-+	"	.long		(" #from " - .), (" #to " - .)\n"	\
-+	"	.popsection\n"
-+
-+
-+#define __kvm_at(at_op, addr)						\
-+( { 									\
-+	int __kvm_at_err = 0;						\
-+	u64 spsr, elr;							\
-+	asm volatile(							\
-+	"	mrs	%1, spsr_el2\n"					\
-+	"	mrs	%2, elr_el2\n"					\
-+	"1:	at	"at_op", %3\n"					\
-+	"	isb\n"							\
-+	"	b	9f\n"						\
-+	"2:	msr	spsr_el2, %1\n"					\
-+	"	msr	elr_el2, %2\n"					\
-+	"	mov	%w0, %4\n"					\
-+	"9:\n"								\
-+	__KVM_EXTABLE(1b, 2b)						\
-+	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
-+	: "r" (addr), "i" (-EFAULT));					\
-+	__kvm_at_err;							\
-+} )
-+
-+
- #else /* __ASSEMBLY__ */
- 
- .macro hyp_adr_this_cpu reg, sym, tmp
-diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
-index ca2e34063e59..741f7cbaeb79 100644
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -166,13 +166,19 @@ el1_error:
- 	b	__guest_exit
- 
- el2_sync:
--	/* Check for illegal exception return, otherwise panic */
-+	/* Check for illegal exception return */
- 	mrs	x0, spsr_el2
-+	tbnz	x0, #20, 1f
- 
--	/* if this was something else, then panic! */
--	tst	x0, #PSR_IL_BIT
--	b.eq	__hyp_panic
-+	save_caller_saved_regs_vect
-+	stp     x29, x30, [sp, #-16]!
-+	bl	kvm_unexpected_el2_exception
-+	ldp     x29, x30, [sp], #16
-+	restore_caller_saved_regs_vect
-+
-+	eret
- 
-+1:
- 	/* Let's attempt a recovery from the illegal exception return */
- 	get_vcpu_ptr	x1, x0
- 	mov	x0, #ARM_EXCEPTION_IL
-diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index 814f5f7119ed..97987342629a 100644
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -303,10 +303,10 @@ static bool __hyp_text __translate_far_to_hpfar(u64 far, u64 *hpfar)
- 	 * saved the guest context yet, and we may return early...
- 	 */
- 	par = read_sysreg(par_el1);
--	asm volatile("at s1e1r, %0" : : "r" (far));
--	isb();
--
--	tmp = read_sysreg(par_el1);
-+	if (!__kvm_at("s1e1r", far))
-+		tmp = read_sysreg(par_el1);
-+	else
-+		tmp = SYS_PAR_EL1_F; /* back to the guest */
- 	write_sysreg(par, par_el1);
- 
- 	if (unlikely(tmp & SYS_PAR_EL1_F))
--- 
-2.17.1
+Mimi
 
