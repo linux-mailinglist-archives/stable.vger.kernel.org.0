@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85935259C71
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E068259BCD
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729135AbgIAPOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:14:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58760 "EHLO mail.kernel.org"
+        id S1728561AbgIARH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:07:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728764AbgIAPOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:50 -0400
+        id S1727786AbgIAPSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:18:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66AB3206FA;
-        Tue,  1 Sep 2020 15:14:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989A9206FA;
+        Tue,  1 Sep 2020 15:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973288;
-        bh=VBnpavIvqKRm9y/bhO7kKV9M1J0DcjiXg++eXLPozXQ=;
+        s=default; t=1598973517;
+        bh=TkDQcsAX3HHNrBrO+Mb/QHzzrFQRrw+VNf7CO+9GGfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7xShHs2i3TDaO1fUMy9Lx0zLnFZHhzI1lRkFWobltCxH21G1Sz3fG/3THkUQMmom
-         KG3s5TOf8UmDdDG7WBX4wudEa1eoSJRQRvfUmXlbOwYy4vL1sMo+hGUNqy/7iFLRvq
-         Grl1ZNSk/LcSWT0qQ65JUsYeAVv9wIxIa/rQtdxo=
+        b=ERWxrLomp9X8FyQidWrVwFafeFDEOdimE5hPP0addmqlm425ujenPhtOni984e0dj
+         len/kwR2jNYjabMmxPIb5GzQmnXP5CryprnNDH70ZdgopIiiQ3sJM1SBzSzgQi5p9H
+         AOyi6XaRBdjS5gFgr8r5IwiK3+wclLx+lECpgVBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH 4.9 02/78] bonding: show saner speed for broadcast mode
-Date:   Tue,  1 Sep 2020 17:09:38 +0200
-Message-Id: <20200901150924.836925701@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 05/91] gre6: Fix reception with IP6_TNL_F_RCV_DSCP_COPY
+Date:   Tue,  1 Sep 2020 17:09:39 +0200
+Message-Id: <20200901150928.383698607@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit 4ca0d9ac3fd8f9f90b72a15d8da2aca3ffb58418 ]
+[ Upstream commit 272502fcb7cda01ab07fc2fcff82d1d2f73d43cc ]
 
-Broadcast mode bonds transmit a copy of all traffic simultaneously out of
-all interfaces, so the "speed" of the bond isn't really the aggregate of
-all interfaces, but rather, the speed of the slowest active interface.
+When receiving an IPv4 packet inside an IPv6 GRE packet, and the
+IP6_TNL_F_RCV_DSCP_COPY flag is set on the tunnel, the IPv4 header would
+get corrupted. This is due to the common ip6_tnl_rcv() function assuming
+that the inner header is always IPv6. This patch checks the tunnel
+protocol for IPv4 inner packets, but still defaults to IPv6.
 
-Also, the type of the speed field is u32, not unsigned long, so adjust
-that accordingly, as required to make min() function here without
-complaining about mismatching types.
-
-Fixes: bb5b052f751b ("bond: add support to read speed and duplex via ethtool")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Fixes: 308edfdf1563 ("gre6: Cleanup GREv6 receive path, call common GRE functions")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ net/ipv6/ip6_tunnel.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4132,13 +4132,23 @@ static netdev_tx_t bond_start_xmit(struc
- 	return ret;
- }
- 
-+static u32 bond_mode_bcast_speed(struct slave *slave, u32 speed)
-+{
-+	if (speed == 0 || speed == SPEED_UNKNOWN)
-+		speed = slave->speed;
-+	else
-+		speed = min(speed, slave->speed);
-+
-+	return speed;
-+}
-+
- static int bond_ethtool_get_settings(struct net_device *bond_dev,
- 				     struct ethtool_cmd *ecmd)
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -872,7 +872,15 @@ int ip6_tnl_rcv(struct ip6_tnl *t, struc
+ 		struct metadata_dst *tun_dst,
+ 		bool log_ecn_err)
  {
- 	struct bonding *bond = netdev_priv(bond_dev);
--	unsigned long speed = 0;
- 	struct list_head *iter;
- 	struct slave *slave;
-+	u32 speed = 0;
- 
- 	ecmd->duplex = DUPLEX_UNKNOWN;
- 	ecmd->port = PORT_OTHER;
-@@ -4150,8 +4160,13 @@ static int bond_ethtool_get_settings(str
- 	 */
- 	bond_for_each_slave(bond, slave, iter) {
- 		if (bond_slave_can_tx(slave)) {
--			if (slave->speed != SPEED_UNKNOWN)
--				speed += slave->speed;
-+			if (slave->speed != SPEED_UNKNOWN) {
-+				if (BOND_MODE(bond) == BOND_MODE_BROADCAST)
-+					speed = bond_mode_bcast_speed(slave,
-+								      speed);
-+				else
-+					speed += slave->speed;
-+			}
- 			if (ecmd->duplex == DUPLEX_UNKNOWN &&
- 			    slave->duplex != DUPLEX_UNKNOWN)
- 				ecmd->duplex = slave->duplex;
+-	return __ip6_tnl_rcv(t, skb, tpi, NULL, ip6ip6_dscp_ecn_decapsulate,
++	int (*dscp_ecn_decapsulate)(const struct ip6_tnl *t,
++				    const struct ipv6hdr *ipv6h,
++				    struct sk_buff *skb);
++
++	dscp_ecn_decapsulate = ip6ip6_dscp_ecn_decapsulate;
++	if (tpi->proto == htons(ETH_P_IP))
++		dscp_ecn_decapsulate = ip4ip6_dscp_ecn_decapsulate;
++
++	return __ip6_tnl_rcv(t, skb, tpi, NULL, dscp_ecn_decapsulate,
+ 			     log_ecn_err);
+ }
+ EXPORT_SYMBOL(ip6_tnl_rcv);
 
 
