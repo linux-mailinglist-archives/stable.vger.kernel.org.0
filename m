@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224692597B3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0697C2597A9
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729607AbgIAQRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:17:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S1731151AbgIAQQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:16:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbgIAPdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:33:41 -0400
+        id S1728604AbgIAPd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:33:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7401521548;
-        Tue,  1 Sep 2020 15:33:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A09520E65;
+        Tue,  1 Sep 2020 15:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974421;
-        bh=VEbWXJsL5nvU8RWQzRCLenQMrZBHfB295gfdp1uzQcw=;
+        s=default; t=1598974436;
+        bh=LrFyfFDXc9/jLnZm3rg0fByB+NJEn1pQKELGSz4xFsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kh1bUKbPcpy/SP8FPVoFLtpyIoXBLYKd/Gj9vDjt98NUnljg8o4euZyUSqUdmybBV
-         zUFRXPZhpKY927tX/jmNRxndZGaMXk2uBsdB0QRVU0jxig+alpj4mPc+2AYLz+k9RD
-         /OpD952tGWsYRTCBGhIq4g+K2VR7pwJVu2pNP090=
+        b=XYvKVSN7E2iB4163ZTolk+BROOAHx1304cWfYqBqEeq3T0wmkR3165MnCDg1lfpbD
+         jWZNu6Mui4n8J8+VJU5vOoRgD4xe62QxXbPHIKf+Aj+iYKbeOBK7p/UTw66HocCQkC
+         fnJS8HCpE4+AiyGQRuauBWjOeNR1SRqAzhD8a2vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Shaposhnik <roman@zededa.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 170/214] XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.
-Date:   Tue,  1 Sep 2020 17:10:50 +0200
-Message-Id: <20200901151001.119702265@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 176/214] powerpc/perf: Fix crashes with generic_compat_pmu & BHRB
+Date:   Tue,  1 Sep 2020 17:10:56 +0200
+Message-Id: <20200901151001.413630837@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,107 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit c330fb1ddc0a922f044989492b7fcca77ee1db46 upstream.
+commit b460b512417ae9c8b51a3bdcc09020cd6c60ff69 upstream.
 
-handler data is meant for interrupt handlers and not for storing irq chip
-specific information as some devices require handler data to store internal
-per interrupt information, e.g. pinctrl/GPIO chained interrupt handlers.
+The bhrb_filter_map ("The Branch History Rolling Buffer") callback is
+only defined in raw CPUs' power_pmu structs. The "architected" CPUs
+use generic_compat_pmu, which does not have this callback, and crashes
+occur if a user tries to enable branch stack for an event.
 
-This obviously creates a conflict of interests and crashes the machine
-because the XEN pointer is overwritten by the driver pointer.
+This add a NULL pointer check for bhrb_filter_map() which behaves as
+if the callback returned an error.
 
-As the XEN data is not handler specific it should be stored in
-irqdesc::irq_data::chip_data instead.
+This does not add the same check for config_bhrb() as the only caller
+checks for cpuhw->bhrb_users which remains zero if bhrb_filter_map==0.
 
-A simple sed s/irq_[sg]et_handler_data/irq_[sg]et_chip_data/ cures that.
-
-Cc: stable@vger.kernel.org
-Reported-by: Roman Shaposhnik <roman@zededa.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Roman Shaposhnik <roman@zededa.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/87lfi2yckt.fsf@nanos.tec.linutronix.de
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: be80e758d0c2 ("powerpc/perf: Add generic compat mode pmu driver")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200602025612.62707-1-aik@ozlabs.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/events/events_base.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/perf/core-book3s.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -155,7 +155,7 @@ int get_evtchn_to_irq(unsigned evtchn)
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_handler_data(irq);
-+	return irq_get_chip_data(irq);
- }
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -1522,9 +1522,16 @@ nocheck:
+ 	ret = 0;
+  out:
+ 	if (has_branch_stack(event)) {
+-		power_pmu_bhrb_enable(event);
+-		cpuhw->bhrb_filter = ppmu->bhrb_filter_map(
+-					event->attr.branch_sample_type);
++		u64 bhrb_filter = -1;
++
++		if (ppmu->bhrb_filter_map)
++			bhrb_filter = ppmu->bhrb_filter_map(
++				event->attr.branch_sample_type);
++
++		if (bhrb_filter != -1) {
++			cpuhw->bhrb_filter = bhrb_filter;
++			power_pmu_bhrb_enable(event);
++		}
+ 	}
  
- /* Constructors for packed IRQ information. */
-@@ -376,7 +376,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
+ 	perf_pmu_enable(event->pmu);
+@@ -1846,7 +1853,6 @@ static int power_pmu_event_init(struct p
+ 	int n;
+ 	int err;
+ 	struct cpu_hw_events *cpuhw;
+-	u64 bhrb_filter;
  
--	irq_set_handler_data(irq, info);
-+	irq_set_chip_data(irq, info);
- 
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -425,14 +425,14 @@ static int __must_check xen_allocate_irq
- 
- static void xen_free_irq(unsigned irq)
- {
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
- 
- 	list_del(&info->list);
- 
--	irq_set_handler_data(irq, NULL);
-+	irq_set_chip_data(irq, NULL);
- 
- 	WARN_ON(info->refcnt > 0);
- 
-@@ -602,7 +602,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1106,7 +1106,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_handler_data(irq);
-+	struct irq_info *info = irq_get_chip_data(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
-@@ -1140,7 +1140,7 @@ int evtchn_make_refcounted(unsigned int
- 	if (irq == -1)
+ 	if (!ppmu)
  		return -ENOENT;
+@@ -1952,7 +1958,10 @@ static int power_pmu_event_init(struct p
+ 	err = power_check_constraints(cpuhw, events, cflags, n + 1);
  
--	info = irq_get_handler_data(irq);
-+	info = irq_get_chip_data(irq);
+ 	if (has_branch_stack(event)) {
+-		bhrb_filter = ppmu->bhrb_filter_map(
++		u64 bhrb_filter = -1;
++
++		if (ppmu->bhrb_filter_map)
++			bhrb_filter = ppmu->bhrb_filter_map(
+ 					event->attr.branch_sample_type);
  
- 	if (!info)
- 		return -ENOENT;
-@@ -1168,7 +1168,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_handler_data(irq);
-+	info = irq_get_chip_data(irq);
- 
- 	if (!info)
- 		goto done;
+ 		if (bhrb_filter == -1) {
 
 
