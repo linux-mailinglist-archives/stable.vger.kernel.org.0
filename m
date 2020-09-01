@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74A2259C27
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 687D3259CC6
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbgIAPQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:16:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60676 "EHLO mail.kernel.org"
+        id S1728869AbgIAPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729255AbgIAPQA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:00 -0400
+        id S1728861AbgIAPNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B261320767;
-        Tue,  1 Sep 2020 15:15:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3BDA2078B;
+        Tue,  1 Sep 2020 15:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973360;
-        bh=0aYOyJLFu4Wv5vEpEX4FeNcSW03GWsGp9oUJZGmRMAU=;
+        s=default; t=1598973187;
+        bh=0IHfMM1s3befRcEn9mSaFSTKf4HKZA9VqVK3eO/CPXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncIFeqje5e0Mo/XBMc7rPw1wMTUp1zqWub3DKjRNAYoPNCuPS+iybcYU85vgI3EqJ
-         LGtW5Ewps0hF7GY3q7AaGDXP10RVhcDL0NmKqVgJfq+uDqxEJhm5Xlliht9fwsxfBh
-         IlToeE80yQZPUv0gpwxdKzRzpXjvGzd7UUQslUok=
+        b=q3ZCXnOdggcAUXwtaMr5BXzALKFEyqAbQlT32pumxV+clVlleHvOji2xJPQl1y9SY
+         5dIcKhe3HzcYewUWo1zKLqT3ShUpRmkGAhFbsUTQJgIgj+Uxp5qpouOGm919u3ET4X
+         CgwkzY9QJkvto5RMB03t9fq088kdqjX174pXXKOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sumera Priyadarsini <sylphrenadin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 47/78] net: gianfar: Add of_node_put() before goto statement
-Date:   Tue,  1 Sep 2020 17:10:23 +0200
-Message-Id: <20200901150927.103393451@linuxfoundation.org>
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>
+Subject: [PATCH 4.4 41/62] USB: lvtest: return proper error code in probe
+Date:   Tue,  1 Sep 2020 17:10:24 +0200
+Message-Id: <20200901150922.799754719@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
-References: <20200901150924.680106554@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumera Priyadarsini <sylphrenadin@gmail.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
+commit 531412492ce93ea29b9ca3b4eb5e3ed771f851dd upstream.
 
-Every iteration of for_each_available_child_of_node() decrements
-reference count of the previous node, however when control
-is transferred from the middle of the loop, as in the case of
-a return or break or goto, there is no decrement thus ultimately
-resulting in a memory leak.
+lvs_rh_probe() can return some nonnegative value from usb_control_msg()
+when it is less than "USB_DT_HUB_NONVAR_SIZE + 2" that is considered as
+a failure. Make lvs_rh_probe() return -EINVAL in this case.
 
-Fix a potential memory leak in gianfar.c by inserting of_node_put()
-before the goto statement.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Issue found with Coccinelle.
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200805090643.3432-1-novikov@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/misc/lvstest.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index b665d27f8e299..95ab44aa0eeab 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -844,8 +844,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
- 				continue;
+--- a/drivers/usb/misc/lvstest.c
++++ b/drivers/usb/misc/lvstest.c
+@@ -396,7 +396,7 @@ static int lvs_rh_probe(struct usb_inter
+ 			USB_DT_SS_HUB_SIZE, USB_CTRL_GET_TIMEOUT);
+ 	if (ret < (USB_DT_HUB_NONVAR_SIZE + 2)) {
+ 		dev_err(&hdev->dev, "wrong root hub descriptor read %d\n", ret);
+-		return ret;
++		return ret < 0 ? ret : -EINVAL;
+ 	}
  
- 			err = gfar_parse_group(child, priv, model);
--			if (err)
-+			if (err) {
-+				of_node_put(child);
- 				goto err_grp_init;
-+			}
- 		}
- 	} else { /* SQ_SG_MODE */
- 		err = gfar_parse_group(np, priv, model);
--- 
-2.25.1
-
+ 	/* submit urb to poll interrupt endpoint */
 
 
