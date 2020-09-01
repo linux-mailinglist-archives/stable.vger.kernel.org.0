@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDB8259792
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D795E259782
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729282AbgIAQPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
+        id S1730552AbgIAPes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:34:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729232AbgIAPel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:34:41 -0400
+        id S1728387AbgIAPen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:34:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1017F205F4;
-        Tue,  1 Sep 2020 15:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B42A20866;
+        Tue,  1 Sep 2020 15:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974480;
-        bh=2zFgQ/EK2UjnFNqLNvQO5Li4cdQ+2xUr2yjlL79tAYc=;
+        s=default; t=1598974483;
+        bh=onWtOnOe38uujL9+85ri15ureODnZNtdVZRCOwH2QR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0jb/4Y/m5Upi3IqoM3dpClmi28Ra6ZuYXBlotuDnjQIIAOjLQopbmMz5/GRTDnkU
-         Uj4FIVCOdwGrl4qto0Gvk+tPn69JiuqI/U76rSxKMtNiRIytms8RExGst3Vnjr/zXi
-         kUX3+zXL+w4OBflyDa7kgI2scSb11zcjiqN9CDhc=
+        b=vF23FAoSqvCZnBbDo+FZbMGnRXGFlziVXOioVKOqphkZMNWgzjm748mRAj8tLZjRx
+         TnYBUxuHpgvDM7ZdL5NBwUYBH8/nHj0/T1PH/K+P9czWiQWf6U3JL1QXnLsJohTdSU
+         GtQRdXnMI4WaWu+cRdMMwudmOXoGSljxBTHxcOfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Aleksey Makarov <amakarov@marvell.com>,
-        Peter Hurley <peter@hurleysoftware.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Christopher Covington <cov@codeaurora.org>
-Subject: [PATCH 5.4 162/214] serial: pl011: Fix oops on -EPROBE_DEFER
-Date:   Tue,  1 Sep 2020 17:10:42 +0200
-Message-Id: <20200901151000.735976266@linuxfoundation.org>
+        Tushar Behera <tushar.behera@linaro.org>
+Subject: [PATCH 5.4 163/214] serial: pl011: Dont leak amba_ports entry on driver register error
+Date:   Tue,  1 Sep 2020 17:10:43 +0200
+Message-Id: <20200901151000.785511843@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -48,91 +45,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 27afac93e3bd7fa89749cf11da5d86ac9cde4dba upstream.
+commit 89efbe70b27dd325d8a8c177743a26b885f7faec upstream.
 
-If probing of a pl011 gets deferred until after free_initmem(), an oops
-ensues because pl011_console_match() is called which has been freed.
+pl011_probe() calls pl011_setup_port() to reserve an amba_ports[] entry,
+then calls pl011_register_port() to register the uart driver with the
+tty layer.
 
-Fix by removing the __init attribute from the function and those it
-calls.
+If registration of the uart driver fails, the amba_ports[] entry is not
+released.  If this happens 14 times (value of UART_NR macro), then all
+amba_ports[] entries will have been leaked and driver probing is no
+longer possible.  (To be fair, that can only happen if the DeviceTree
+doesn't contain alias IDs since they cause the same entry to be used for
+a given port.)   Fix it.
 
-Commit 10879ae5f12e ("serial: pl011: add console matching function")
-introduced pl011_console_match() not just for early consoles but
-regular preferred consoles, such as those added by acpi_parse_spcr().
-Regular consoles may be registered after free_initmem() for various
-reasons, one being deferred probing, another being dynamic enablement
-of serial ports using a DeviceTree overlay.
-
-Thus, pl011_console_match() must not be declared __init and the
-functions it calls mustn't either.
-
-Stack trace for posterity:
-
-Unable to handle kernel paging request at virtual address 80c38b58
-Internal error: Oops: 8000000d [#1] PREEMPT SMP ARM
-PC is at pl011_console_match+0x0/0xfc
-LR is at register_console+0x150/0x468
-[<80187004>] (register_console)
-[<805a8184>] (uart_add_one_port)
-[<805b2b68>] (pl011_register_port)
-[<805b3ce4>] (pl011_probe)
-[<80569214>] (amba_probe)
-[<805ca088>] (really_probe)
-[<805ca2ec>] (driver_probe_device)
-[<805ca5b0>] (__device_attach_driver)
-[<805c8060>] (bus_for_each_drv)
-[<805c9dfc>] (__device_attach)
-[<805ca630>] (device_initial_probe)
-[<805c90a8>] (bus_probe_device)
-[<805c95a8>] (deferred_probe_work_func)
-
-Fixes: 10879ae5f12e ("serial: pl011: add console matching function")
+Fixes: ef2889f7ffee ("serial: pl011: Move uart_register_driver call to device")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.10+
-Cc: Aleksey Makarov <amakarov@marvell.com>
-Cc: Peter Hurley <peter@hurleysoftware.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Christopher Covington <cov@codeaurora.org>
-Link: https://lore.kernel.org/r/f827ff09da55b8c57d316a1b008a137677b58921.1597315557.git.lukas@wunner.de
+Cc: stable@vger.kernel.org # v3.15+
+Cc: Tushar Behera <tushar.behera@linaro.org>
+Link: https://lore.kernel.org/r/138f8c15afb2f184d8102583f8301575566064a6.1597316167.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/tty/serial/amba-pl011.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 --- a/drivers/tty/serial/amba-pl011.c
 +++ b/drivers/tty/serial/amba-pl011.c
-@@ -2252,9 +2252,8 @@ pl011_console_write(struct console *co,
- 	clk_disable(uap->clk);
- }
+@@ -2593,7 +2593,7 @@ static int pl011_setup_port(struct devic
  
--static void __init
--pl011_console_get_options(struct uart_amba_port *uap, int *baud,
--			     int *parity, int *bits)
-+static void pl011_console_get_options(struct uart_amba_port *uap, int *baud,
-+				      int *parity, int *bits)
+ static int pl011_register_port(struct uart_amba_port *uap)
  {
- 	if (pl011_read(uap, REG_CR) & UART01x_CR_UARTEN) {
- 		unsigned int lcr_h, ibrd, fbrd;
-@@ -2287,7 +2286,7 @@ pl011_console_get_options(struct uart_am
+-	int ret;
++	int ret, i;
+ 
+ 	/* Ensure interrupts from this UART are masked and cleared */
+ 	pl011_write(0, uap, REG_IMSC);
+@@ -2604,6 +2604,9 @@ static int pl011_register_port(struct ua
+ 		if (ret < 0) {
+ 			dev_err(uap->port.dev,
+ 				"Failed to register AMBA-PL011 driver\n");
++			for (i = 0; i < ARRAY_SIZE(amba_ports); i++)
++				if (amba_ports[i] == uap)
++					amba_ports[i] = NULL;
+ 			return ret;
+ 		}
  	}
- }
- 
--static int __init pl011_console_setup(struct console *co, char *options)
-+static int pl011_console_setup(struct console *co, char *options)
- {
- 	struct uart_amba_port *uap;
- 	int baud = 38400;
-@@ -2355,8 +2354,8 @@ static int __init pl011_console_setup(st
-  *
-  *	Returns 0 if console matches; otherwise non-zero to use default matching
-  */
--static int __init pl011_console_match(struct console *co, char *name, int idx,
--				      char *options)
-+static int pl011_console_match(struct console *co, char *name, int idx,
-+			       char *options)
- {
- 	unsigned char iotype;
- 	resource_size_t addr;
 
 
