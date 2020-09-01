@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B6C259BAA
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5785A259CC8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbgIARFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
+        id S1728814AbgIAPNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729547AbgIAPTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:19:40 -0400
+        id S1728875AbgIAPNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F07C1215A4;
-        Tue,  1 Sep 2020 15:19:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD4A206FA;
+        Tue,  1 Sep 2020 15:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973577;
-        bh=vJr+chEqIzqZPZ+PRsXl/2RaVUEPlrN/pdSNATEKF0Q=;
+        s=default; t=1598973197;
+        bh=/n3LStJnKPhmQsWi2OERGM1VspQY3skebgmnoMp75Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/pTrGsmqBzo13s6BZXJomVoYt57YZlo3uIpVocfWkdBiB8nN1ZzfnEZJG0IsGSUX
-         +uqKpYrUl+qhOjpaeTmZ3j5R6YHq/jpix9nFbZFFVJjYLn4SSpnKv9zb/3C09qrnFT
-         pXtNus0lI6iwaRdrdJfarca6MbLYbtds5eLkQxgE=
+        b=ptbUoSuAgAVmtakUTsyM20sMK6owQMeBtK47Y83dYus9eB6ahS9gSa36PcmbRpFGI
+         /YmuKUpTUU73UaXZtDKKFuhnOuJHpVrrrA3M6/zXncwCQ8VBO3KyegjSKdT/KkeRw0
+         wU9kbZq/MI4+JRCcnCb5GQhabbx4VVWt1h/9Owq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/91] scsi: ufs: Improve interrupt handling for shared interrupts
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Tushar Behera <tushar.behera@linaro.org>
+Subject: [PATCH 4.4 45/62] serial: pl011: Dont leak amba_ports entry on driver register error
 Date:   Tue,  1 Sep 2020 17:10:28 +0200
-Message-Id: <20200901150930.800468667@linuxfoundation.org>
+Message-Id: <20200901150923.002698347@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
+References: <20200901150920.697676718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 127d5f7c4b653b8be5eb3b2c7bbe13728f9003ff ]
+commit 89efbe70b27dd325d8a8c177743a26b885f7faec upstream.
 
-For shared interrupts, the interrupt status might be zero, so check that
-first.
+pl011_probe() calls pl011_setup_port() to reserve an amba_ports[] entry,
+then calls pl011_register_port() to register the uart driver with the
+tty layer.
 
-Link: https://lore.kernel.org/r/20200811133936.19171-2-adrian.hunter@intel.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If registration of the uart driver fails, the amba_ports[] entry is not
+released.  If this happens 14 times (value of UART_NR macro), then all
+amba_ports[] entries will have been leaked and driver probing is no
+longer possible.  (To be fair, that can only happen if the DeviceTree
+doesn't contain alias IDs since they cause the same entry to be used for
+a given port.)   Fix it.
+
+Fixes: ef2889f7ffee ("serial: pl011: Move uart_register_driver call to device")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.15+
+Cc: Tushar Behera <tushar.behera@linaro.org>
+Link: https://lore.kernel.org/r/138f8c15afb2f184d8102583f8301575566064a6.1597316167.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/ufs/ufshcd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/serial/amba-pl011.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3b4214feae971..619fe46fcc5f0 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5373,7 +5373,7 @@ static void ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
-  */
- static irqreturn_t ufshcd_intr(int irq, void *__hba)
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2332,7 +2332,7 @@ static int pl011_setup_port(struct devic
+ 
+ static int pl011_register_port(struct uart_amba_port *uap)
  {
--	u32 intr_status, enabled_intr_status;
-+	u32 intr_status, enabled_intr_status = 0;
- 	irqreturn_t retval = IRQ_NONE;
- 	struct ufs_hba *hba = __hba;
- 	int retries = hba->nutrs;
-@@ -5387,7 +5387,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 	 * read, make sure we handle them by checking the interrupt status
- 	 * again in a loop until we process all of the reqs before returning.
- 	 */
--	do {
-+	while (intr_status && retries--) {
- 		enabled_intr_status =
- 			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
- 		if (intr_status)
-@@ -5398,7 +5398,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+-	int ret;
++	int ret, i;
+ 
+ 	/* Ensure interrupts from this UART are masked and cleared */
+ 	writew(0, uap->port.membase + UART011_IMSC);
+@@ -2343,6 +2343,9 @@ static int pl011_register_port(struct ua
+ 		if (ret < 0) {
+ 			dev_err(uap->port.dev,
+ 				"Failed to register AMBA-PL011 driver\n");
++			for (i = 0; i < ARRAY_SIZE(amba_ports); i++)
++				if (amba_ports[i] == uap)
++					amba_ports[i] = NULL;
+ 			return ret;
  		}
- 
- 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
--	} while (intr_status && --retries);
-+	}
- 
- 	spin_unlock(hba->host->host_lock);
- 	return retval;
--- 
-2.25.1
-
+ 	}
 
 
