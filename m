@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F51225946C
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8062259452
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731312AbgIAPjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
+        id S1731380AbgIAPiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728236AbgIAPje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:39:34 -0400
+        id S1728597AbgIAPiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:38:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3238221582;
-        Tue,  1 Sep 2020 15:39:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CCB420866;
+        Tue,  1 Sep 2020 15:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974773;
-        bh=vcsLtRlmQDLhSf0waVJGVw8YjZj3t5CkOONNkB6ufRM=;
+        s=default; t=1598974697;
+        bh=7FLAhkpdZYZNY6BxWLsZPdbDhw/khZFS6fnCA4pRsH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVCIZKnpgJ3kJJ7fO2CVwzoOpjybX7O2grplXcU/sBlNFN6UE2IlJTwI4ff82DsTZ
-         HYhBv9cqrwgDYa4o7yp+8WVWM+7ohe5JV+VRM4UxyZWJbr2vGVfrifCvNWSK8lISdV
-         YPRK8pQvDnTeiH9LqhcU6zK92jVGrMi/eLf945Eg=
+        b=kbdHlD+N9MNcefZTs1OdtspWl/JY/KbJQ+JLxlfm/CZ2m4k9YtCc2gdbF5UrjM+NK
+         SZTMoB7Eshvn8HaHXqpp4RNGcTEiEtNITnIFhUxPTk3WJytMrufjM7/UDoBK2tus12
+         FPqwnhKfXQIAA8vVqs4ZpK81B1If4O6rri6MaAdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Girish Basrur <gbasrur@marvell.com>,
+        Santosh Vernekar <svernekar@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 055/255] btrfs: make btrfs_qgroup_check_reserved_leak take btrfs_inode
-Date:   Tue,  1 Sep 2020 17:08:31 +0200
-Message-Id: <20200901151003.362523900@linuxfoundation.org>
+Subject: [PATCH 5.8 060/255] scsi: fcoe: Memory leak fix in fcoe_sysfs_fcf_del()
+Date:   Tue,  1 Sep 2020 17:08:36 +0200
+Message-Id: <20200901151003.601543217@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -44,89 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit cfdd45921571eb24073e0737fa0bd44b4218f914 ]
+[ Upstream commit e95b4789ff4380733006836d28e554dc296b2298 ]
 
-vfs_inode is used only for the inode number everything else requires
-btrfs_inode.
+In fcoe_sysfs_fcf_del(), we first deleted the fcf from the list and then
+freed it if ctlr_dev was not NULL. This was causing a memory leak.
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ use btrfs_ino ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Free the fcf even if ctlr_dev is NULL.
+
+Link: https://lore.kernel.org/r/20200729081824.30996-3-jhasan@marvell.com
+Reviewed-by: Girish Basrur <gbasrur@marvell.com>
+Reviewed-by: Santosh Vernekar <svernekar@marvell.com>
+Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c  |  2 +-
- fs/btrfs/qgroup.c | 14 +++++++-------
- fs/btrfs/qgroup.h |  2 +-
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/scsi/fcoe/fcoe_ctlr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 7ba1218b1630e..d932844d0e80a 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8640,7 +8640,7 @@ void btrfs_destroy_inode(struct inode *inode)
- 			btrfs_put_ordered_extent(ordered);
- 		}
+diff --git a/drivers/scsi/fcoe/fcoe_ctlr.c b/drivers/scsi/fcoe/fcoe_ctlr.c
+index 1791a393795da..07a0dadc75bf5 100644
+--- a/drivers/scsi/fcoe/fcoe_ctlr.c
++++ b/drivers/scsi/fcoe/fcoe_ctlr.c
+@@ -255,9 +255,9 @@ static void fcoe_sysfs_fcf_del(struct fcoe_fcf *new)
+ 		WARN_ON(!fcf_dev);
+ 		new->fcf_dev = NULL;
+ 		fcoe_fcf_device_delete(fcf_dev);
+-		kfree(new);
+ 		mutex_unlock(&cdev->lock);
  	}
--	btrfs_qgroup_check_reserved_leak(inode);
-+	btrfs_qgroup_check_reserved_leak(BTRFS_I(inode));
- 	inode_tree_del(inode);
- 	btrfs_drop_extent_cache(BTRFS_I(inode), 0, (u64)-1, 0);
- 	btrfs_inode_clear_file_extent_range(BTRFS_I(inode), 0, (u64)-1);
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 5bd4089ad0e1a..574a669894774 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3742,7 +3742,7 @@ void btrfs_qgroup_convert_reserved_meta(struct btrfs_root *root, int num_bytes)
-  * Check qgroup reserved space leaking, normally at destroy inode
-  * time
-  */
--void btrfs_qgroup_check_reserved_leak(struct inode *inode)
-+void btrfs_qgroup_check_reserved_leak(struct btrfs_inode *inode)
- {
- 	struct extent_changeset changeset;
- 	struct ulist_node *unode;
-@@ -3750,19 +3750,19 @@ void btrfs_qgroup_check_reserved_leak(struct inode *inode)
- 	int ret;
++	kfree(new);
+ }
  
- 	extent_changeset_init(&changeset);
--	ret = clear_record_extent_bits(&BTRFS_I(inode)->io_tree, 0, (u64)-1,
-+	ret = clear_record_extent_bits(&inode->io_tree, 0, (u64)-1,
- 			EXTENT_QGROUP_RESERVED, &changeset);
- 
- 	WARN_ON(ret < 0);
- 	if (WARN_ON(changeset.bytes_changed)) {
- 		ULIST_ITER_INIT(&iter);
- 		while ((unode = ulist_next(&changeset.range_changed, &iter))) {
--			btrfs_warn(BTRFS_I(inode)->root->fs_info,
--				"leaking qgroup reserved space, ino: %lu, start: %llu, end: %llu",
--				inode->i_ino, unode->val, unode->aux);
-+			btrfs_warn(inode->root->fs_info,
-+		"leaking qgroup reserved space, ino: %llu, start: %llu, end: %llu",
-+				btrfs_ino(inode), unode->val, unode->aux);
- 		}
--		btrfs_qgroup_free_refroot(BTRFS_I(inode)->root->fs_info,
--				BTRFS_I(inode)->root->root_key.objectid,
-+		btrfs_qgroup_free_refroot(inode->root->fs_info,
-+				inode->root->root_key.objectid,
- 				changeset.bytes_changed, BTRFS_QGROUP_RSV_DATA);
- 
- 	}
-diff --git a/fs/btrfs/qgroup.h b/fs/btrfs/qgroup.h
-index 1bc6544594690..406366f20cb0a 100644
---- a/fs/btrfs/qgroup.h
-+++ b/fs/btrfs/qgroup.h
-@@ -399,7 +399,7 @@ void btrfs_qgroup_free_meta_all_pertrans(struct btrfs_root *root);
-  */
- void btrfs_qgroup_convert_reserved_meta(struct btrfs_root *root, int num_bytes);
- 
--void btrfs_qgroup_check_reserved_leak(struct inode *inode);
-+void btrfs_qgroup_check_reserved_leak(struct btrfs_inode *inode);
- 
- /* btrfs_qgroup_swapped_blocks related functions */
- void btrfs_qgroup_init_swapped_blocks(
+ /**
 -- 
 2.25.1
 
