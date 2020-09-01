@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47040259338
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F13B82592E8
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728546AbgIAPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
+        id S1729199AbgIAPSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728356AbgIAPWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:22:55 -0400
+        id S1729490AbgIAPSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:18:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A952100A;
-        Tue,  1 Sep 2020 15:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5CF9206EB;
+        Tue,  1 Sep 2020 15:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973774;
-        bh=MIVUOK3HxiuUZbTe7inbBzil0JS6McGj3V8WosP6408=;
+        s=default; t=1598973502;
+        bh=Lj8KoI+teNo/4KtB8pvPKE4MgbiKSTb6IqPldKFfLw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IwALW5H3/z5p5uG+3V7n9rawHegxfkysnMaFuJ65puWlfk+CBtWKhSssACtluwRE
-         PGYALsqoBUL0PnBN45fBC4TD8E1l1FaRMwUyye8wrkoRgxQl2Az/0QbrluRH+sqgjY
-         xQ7M9PcccwZVm2sM+rdSHiWq2myGnMlstzt/bgVA=
+        b=uxhUgHf1q/MMyIJVB3js1P7HQTtr5rsQ3CeKYWA/Zbe+WBNHX5muwE4Rknqy0LERi
+         jwNvb9LNgXEyIT2XyNl8VZlOgL+6jjp9ajn2z+BZ3sc4+ylPkEWPn9z9I1N+I4gqRn
+         Oi7Yqwpkz4221+ZvnFXv7AytHIYxUTYQx1kfGzQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/125] btrfs: file: reserve qgroup space after the hole punch range is locked
-Date:   Tue,  1 Sep 2020 17:09:57 +0200
-Message-Id: <20200901150936.630009657@linuxfoundation.org>
+Subject: [PATCH 4.14 24/91] PCI: Fix pci_create_slot() reference count leak
+Date:   Tue,  1 Sep 2020 17:09:58 +0200
+Message-Id: <20200901150929.361696281@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit a7f8b1c2ac21bf081b41264c9cfd6260dffa6246 ]
+[ Upstream commit 8a94644b440eef5a7b9c104ac8aa7a7f413e35e5 ]
 
-The incoming qgroup reserved space timing will move the data reservation
-to ordered extent completely.
+kobject_init_and_add() takes a reference even when it fails.  If it returns
+an error, kobject_put() must be called to clean up the memory associated
+with the object.
 
-However in btrfs_punch_hole_lock_range() will call
-btrfs_invalidate_page(), which will clear QGROUP_RESERVED bit for the
-range.
+When kobject_init_and_add() fails, call kobject_put() instead of kfree().
 
-In current stage it's OK, but if we're making ordered extents handle the
-reserved space, then btrfs_punch_hole_lock_range() can clear the
-QGROUP_RESERVED bit before we submit ordered extent, leading to qgroup
-reserved space leakage.
+b8eb718348b8 ("net-sysfs: Fix reference count leak in
+rx|netdev_queue_add_kobject") fixed a similar problem.
 
-So here change the timing to make reserve data space after
-btrfs_punch_hole_lock_range().
-The new timing is fine for either current code or the new code.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20200528021322.1984-1-wu000273@umn.edu
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/slot.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index dc1841855a69a..646152f305843 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3010,14 +3010,14 @@ reserve_space:
- 		if (ret < 0)
- 			goto out;
- 		space_reserved = true;
--		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
--						alloc_start, bytes_to_reserve);
--		if (ret)
--			goto out;
- 		ret = btrfs_punch_hole_lock_range(inode, lockstart, lockend,
- 						  &cached_state);
- 		if (ret)
- 			goto out;
-+		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
-+						alloc_start, bytes_to_reserve);
-+		if (ret)
-+			goto out;
- 		ret = btrfs_prealloc_file_range(inode, mode, alloc_start,
- 						alloc_end - alloc_start,
- 						i_blocksize(inode),
+diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+index e42909524deed..379925fc49d4e 100644
+--- a/drivers/pci/slot.c
++++ b/drivers/pci/slot.c
+@@ -303,13 +303,16 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
+ 	slot_name = make_slot_name(name);
+ 	if (!slot_name) {
+ 		err = -ENOMEM;
++		kfree(slot);
+ 		goto err;
+ 	}
+ 
+ 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
+ 				   "%s", slot_name);
+-	if (err)
++	if (err) {
++		kobject_put(&slot->kobj);
+ 		goto err;
++	}
+ 
+ 	INIT_LIST_HEAD(&slot->list);
+ 	list_add(&slot->list, &parent->slots);
+@@ -328,7 +331,6 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
+ 	mutex_unlock(&pci_slot_mutex);
+ 	return slot;
+ err:
+-	kfree(slot);
+ 	slot = ERR_PTR(err);
+ 	goto out;
+ }
 -- 
 2.25.1
 
