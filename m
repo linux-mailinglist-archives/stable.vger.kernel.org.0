@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB4E259CC9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AB8D259C1D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728405AbgIARTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56422 "EHLO mail.kernel.org"
+        id S1729318AbgIARLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727990AbgIAPNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:22 -0400
+        id S1729306AbgIAPQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:16:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B4D216C4;
-        Tue,  1 Sep 2020 15:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99225206EB;
+        Tue,  1 Sep 2020 15:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973202;
-        bh=tuclfC2n6eSkApmklnVXwE3XVCDNPnrHxJckzXjbm1k=;
+        s=default; t=1598973381;
+        bh=muIJpAqjN9l4sXIKn38QABc9+61+aNu4DOnpPsWhrNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUQ5yJxurB9u4jTnj92xNR2sC4y1dUQ0a2wDNp07ePwbFFGf0Dd2IPIWnjhEbDOMF
-         2aGYnbix+XcKa/VHzkS54Gzcxd7bRFnRdgMpm+LmWttdJA6XxD/+iZ8w+X+HYX3rrN
-         8HTHyrjqnifpGG5ec2+qTpw0O2WSxYdq3Apv2Aws=
+        b=aw5hQCuZsaC3ZbwYQLo33aZCiQ+XPArJEE2IJOPck3AS3qLRuFkp4ix64FfTAZCDG
+         HloTGB/CLx9IphpU20BaJBicyHkfyYi2QvwRzRNGbXh8GXgC8RdNk7QLEydvoitb7w
+         gwc02AGcisifM7FHCjTHCdtSY/6qm/j2fZ5B1CCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.4 47/62] writeback: Protect inode->i_io_list with inode->i_lock
-Date:   Tue,  1 Sep 2020 17:10:30 +0200
-Message-Id: <20200901150923.092862691@linuxfoundation.org>
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Tamseel Shams <m.shams@samsung.com>
+Subject: [PATCH 4.9 55/78] serial: samsung: Removes the IRQ not found warning
+Date:   Tue,  1 Sep 2020 17:10:31 +0200
+Message-Id: <20200901150927.514317187@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tamseel Shams <m.shams@samsung.com>
 
-commit b35250c0816c7cf7d0a8de92f5fafb6a7508a708 upstream.
+commit 8c6c378b0cbe0c9f1390986b5f8ffb5f6ff7593b upstream.
 
-Currently, operations on inode->i_io_list are protected by
-wb->list_lock. In the following patches we'll need to maintain
-consistency between inode->i_state and inode->i_io_list so change the
-code so that inode->i_lock protects also all inode's i_io_list handling.
+In few older Samsung SoCs like s3c2410, s3c2412
+and s3c2440, UART IP is having 2 interrupt lines.
+However, in other SoCs like s3c6400, s5pv210,
+exynos5433, and exynos4210 UART is having only 1
+interrupt line. Due to this, "platform_get_irq(platdev, 1)"
+call in the driver gives the following false-positive error:
+"IRQ index 1 not found" on newer SoC's.
 
-Reviewed-by: Martijn Coenen <maco@android.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-CC: stable@vger.kernel.org # Prerequisite for "writeback: Avoid skipping inode writeback"
-Signed-off-by: Jan Kara <jack@suse.cz>
+This patch adds the condition to check for Tx interrupt
+only for the those SoC's which have 2 interrupt lines.
+
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Tamseel Shams <m.shams@samsung.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200810030021.45348-1-m.shams@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/tty/serial/samsung.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -160,6 +160,7 @@ static void inode_io_list_del_locked(str
- 				     struct bdi_writeback *wb)
- {
- 	assert_spin_locked(&wb->list_lock);
-+	assert_spin_locked(&inode->i_lock);
- 
- 	list_del_init(&inode->i_io_list);
- 	wb_io_lists_depopulated(wb);
-@@ -1034,7 +1035,9 @@ void inode_io_list_del(struct inode *ino
- 	struct bdi_writeback *wb;
- 
- 	wb = inode_to_wb_and_lock_list(inode);
-+	spin_lock(&inode->i_lock);
- 	inode_io_list_del_locked(inode, wb);
-+	spin_unlock(&inode->i_lock);
- 	spin_unlock(&wb->list_lock);
- }
- 
-@@ -1047,8 +1050,10 @@ void inode_io_list_del(struct inode *ino
-  * the case then the inode must have been redirtied while it was being written
-  * out and we don't reset its dirtied_when.
-  */
--static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
- {
-+	assert_spin_locked(&inode->i_lock);
-+
- 	if (!list_empty(&wb->b_dirty)) {
- 		struct inode *tail;
- 
-@@ -1059,6 +1064,13 @@ static void redirty_tail(struct inode *i
- 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
- }
- 
-+static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+{
-+	spin_lock(&inode->i_lock);
-+	redirty_tail_locked(inode, wb);
-+	spin_unlock(&inode->i_lock);
-+}
-+
- /*
-  * requeue inode for re-scanning after bdi->b_io list is exhausted.
-  */
-@@ -1269,7 +1281,7 @@ static void requeue_inode(struct inode *
- 		 * writeback is not making progress due to locked
- 		 * buffers. Skip this inode for now.
- 		 */
--		redirty_tail(inode, wb);
-+		redirty_tail_locked(inode, wb);
- 		return;
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -1725,9 +1725,11 @@ static int s3c24xx_serial_init_port(stru
+ 		ourport->tx_irq = ret + 1;
  	}
  
-@@ -1289,7 +1301,7 @@ static void requeue_inode(struct inode *
- 			 * retrying writeback of the dirty page/inode
- 			 * that cannot be performed immediately.
- 			 */
--			redirty_tail(inode, wb);
-+			redirty_tail_locked(inode, wb);
- 		}
- 	} else if (inode->i_state & I_DIRTY) {
- 		/*
-@@ -1297,7 +1309,7 @@ static void requeue_inode(struct inode *
- 		 * such as delayed allocation during submission or metadata
- 		 * updates after data IO completion.
- 		 */
--		redirty_tail(inode, wb);
-+		redirty_tail_locked(inode, wb);
- 	} else if (inode->i_state & I_DIRTY_TIME) {
- 		inode->dirtied_when = jiffies;
- 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-@@ -1543,8 +1555,8 @@ static long writeback_sb_inodes(struct s
- 		 */
- 		spin_lock(&inode->i_lock);
- 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
-+			redirty_tail_locked(inode, wb);
- 			spin_unlock(&inode->i_lock);
--			redirty_tail(inode, wb);
- 			continue;
- 		}
- 		if ((inode->i_state & I_SYNC) && wbc.sync_mode != WB_SYNC_ALL) {
+-	ret = platform_get_irq(platdev, 1);
+-	if (ret > 0)
+-		ourport->tx_irq = ret;
++	if (!s3c24xx_serial_has_interrupt_mask(port)) {
++		ret = platform_get_irq(platdev, 1);
++		if (ret > 0)
++			ourport->tx_irq = ret;
++	}
+ 	/*
+ 	 * DMA is currently supported only on DT platforms, if DMA properties
+ 	 * are specified.
 
 
