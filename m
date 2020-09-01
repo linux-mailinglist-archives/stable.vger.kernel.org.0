@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31D92592F6
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66431259351
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgIAPTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:19:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37762 "EHLO mail.kernel.org"
+        id S1729944AbgIAPYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:24:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbgIAPTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:19:05 -0400
+        id S1729201AbgIAPYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C5AA206FA;
-        Tue,  1 Sep 2020 15:19:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 367B92100A;
+        Tue,  1 Sep 2020 15:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973544;
-        bh=m5M8Awz22GmrEwV0BJ4+h7A02qBUcB/cu5vWpcC9nPo=;
+        s=default; t=1598973844;
+        bh=jJzN0qvUgOE1cdUaazlXbpW9jjzT4Ui/+dJXl3ovzjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRRYGMaGUDD1DSXWiG/2TWIWskuRx0KWozTXcv2F0xs/vTXvJdGk/DGl0ikdNxRyO
-         sXyiUZv68wuecrPYxZZtaJXodO03wlINQ9MKjP0Eo/4BBgy1P3l7uhOCEfJV93g8qZ
-         aFYFG+R9Kpq0ExsBm91dJWMYQorvZ6Of0PN+EQjo=
+        b=DBSTd633kkcAEJT8+SyfE6IoI/DdtpYXW4mxw04BSfnR2Dr4oGAX70+0fVq1OZGW0
+         wujUup4queHN0hM/qG2jOoPKvSDyDZRzhM2S1KN6e7ysKyAbjaJx9isiJPVTNwK+7C
+         B5E7CEMFsPIWGZ+BiCjz5qeQWU/tHQ7//fxcK+xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/91] media: gpio-ir-tx: improve precision of transmitted signal due to scheduling
-Date:   Tue,  1 Sep 2020 17:10:16 +0200
-Message-Id: <20200901150930.228808263@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 062/125] jbd2: abort journal if free a async write error metadata buffer
+Date:   Tue,  1 Sep 2020 17:10:17 +0200
+Message-Id: <20200901150937.613171075@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit ea8912b788f8144e7d32ee61e5ccba45424bef83 ]
+[ Upstream commit c044f3d8360d2ecf831ba2cc9f08cf9fb2c699fb ]
 
-usleep_range() may take longer than the max argument due to scheduling,
-especially under load. This is causing random errors in the transmitted
-IR. Remove the usleep_range() in favour of busy-looping with udelay().
+If we free a metadata buffer which has been failed to async write out
+in the background, the jbd2 checkpoint procedure will not detect this
+failure in jbd2_log_do_checkpoint(), so it may lead to filesystem
+inconsistency after cleanup journal tail. This patch abort the journal
+if free a buffer has write_io_error flag to prevent potential further
+inconsistency.
 
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20200620025427.1756360-5-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/gpio-ir-tx.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ fs/jbd2/transaction.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/media/rc/gpio-ir-tx.c b/drivers/media/rc/gpio-ir-tx.c
-index cd476cab97820..4e70b67ccd181 100644
---- a/drivers/media/rc/gpio-ir-tx.c
-+++ b/drivers/media/rc/gpio-ir-tx.c
-@@ -87,13 +87,8 @@ static int gpio_ir_tx(struct rc_dev *dev, unsigned int *txbuf,
- 			// space
- 			edge = ktime_add_us(edge, txbuf[i]);
- 			delta = ktime_us_delta(edge, ktime_get());
--			if (delta > 10) {
--				spin_unlock_irqrestore(&gpio_ir->lock, flags);
--				usleep_range(delta, delta + 10);
--				spin_lock_irqsave(&gpio_ir->lock, flags);
--			} else if (delta > 0) {
-+			if (delta > 0)
- 				udelay(delta);
--			}
- 		} else {
- 			// pulse
- 			ktime_t last = ktime_add_us(edge, txbuf[i]);
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index 5a0de78a5d71a..8c305593fb51f 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2009,6 +2009,7 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+ {
+ 	struct buffer_head *head;
+ 	struct buffer_head *bh;
++	bool has_write_io_error = false;
+ 	int ret = 0;
+ 
+ 	J_ASSERT(PageLocked(page));
+@@ -2033,11 +2034,26 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+ 		jbd_unlock_bh_state(bh);
+ 		if (buffer_jbd(bh))
+ 			goto busy;
++
++		/*
++		 * If we free a metadata buffer which has been failed to
++		 * write out, the jbd2 checkpoint procedure will not detect
++		 * this failure and may lead to filesystem inconsistency
++		 * after cleanup journal tail.
++		 */
++		if (buffer_write_io_error(bh)) {
++			pr_err("JBD2: Error while async write back metadata bh %llu.",
++			       (unsigned long long)bh->b_blocknr);
++			has_write_io_error = true;
++		}
+ 	} while ((bh = bh->b_this_page) != head);
+ 
+ 	ret = try_to_free_buffers(page);
+ 
+ busy:
++	if (has_write_io_error)
++		jbd2_journal_abort(journal, -EIO);
++
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
