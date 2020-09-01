@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0DA3259A8E
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0568E259A7E
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbgIAQun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51486 "EHLO mail.kernel.org"
+        id S1732311AbgIAQuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:50:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730097AbgIAP0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:26:18 -0400
+        id S1730104AbgIAP00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:26:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE5A1207D3;
-        Tue,  1 Sep 2020 15:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9901206FA;
+        Tue,  1 Sep 2020 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973978;
-        bh=OI0NzzzDJKC+6IsFfD5Kf/D25Uho3/6XEAE5a6N26ys=;
+        s=default; t=1598973986;
+        bh=KZqOG/D8Kv+NwvA7W2O63q9QsMqSBbOK6JsY9OwhER8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opFgJOpWZT4a9xpGqQVZkrAa/S9DyPKsthql2NzwN1H1ZvwMojsS2vxW29ZZ1kDVT
-         gFLvF3hBZHLlTD7jArPxenhMI9o9XMR277/SF5M6kraeqUCEmZvYa60+jYVd6Y3mDr
-         IktGLj+sbl19IYD87w2ab1NpP4oeQXyn5sy4eKg0=
+        b=bh+omNmYvpJBcj5KC1h+pXuCWwjsSwE4A0dNA0LBxRbi7RJcALQpR1wAY3k7jdwno
+         23PL3nVewpprYjnafTWpKWlmZPVPbbUdhYMige8H9xlEDRoN/YbHDYPXVjNjb4QTuf
+         kBxMzIleB1Dzi1v9MtdGbceeHxE3mRaK85Jcupt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 122/125] usb: dwc3: gadget: Handle ZLP for sg requests
-Date:   Tue,  1 Sep 2020 17:11:17 +0200
-Message-Id: <20200901150940.589544202@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 124/125] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
+Date:   Tue,  1 Sep 2020 17:11:19 +0200
+Message-Id: <20200901150940.687698839@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -44,64 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit bc9a2e226ea95e1699f7590845554de095308b75 ]
+commit 25a097f5204675550afb879ee18238ca917cba7a upstream.
 
-Currently dwc3 doesn't handle usb_request->zero for SG requests. This
-change checks and prepares extra TRBs for the ZLP for SG requests.
+`uref->usage_index` is not always being properly checked, causing
+hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
 
-Cc: <stable@vger.kernel.org> # v4.5+
-Fixes: 04c03d10e507 ("usb: dwc3: gadget: handle request->zero")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/dwc3/gadget.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/hid/usbhid/hiddev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 9f6b430773000..7bf2573dd459e 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1104,6 +1104,35 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 					req->request.stream_id,
- 					req->request.short_not_ok,
- 					req->request.no_interrupt);
-+		} else if (req->request.zero && req->request.length &&
-+			   !usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-+			   !rem && !chain) {
-+			struct dwc3	*dwc = dep->dwc;
-+			struct dwc3_trb	*trb;
-+
-+			req->needs_extra_trb = true;
-+
-+			/* Prepare normal TRB */
-+			dwc3_prepare_one_trb(dep, req, trb_length, true, i);
-+
-+			/* Prepare one extra TRB to handle ZLP */
-+			trb = &dep->trb_pool[dep->trb_enqueue];
-+			req->num_trbs++;
-+			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
-+					       !req->direction, 1,
-+					       req->request.stream_id,
-+					       req->request.short_not_ok,
-+					       req->request.no_interrupt);
-+
-+			/* Prepare one more TRB to handle MPS alignment */
-+			if (!req->direction) {
-+				trb = &dep->trb_pool[dep->trb_enqueue];
-+				req->num_trbs++;
-+				__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp,
-+						       false, 1, req->request.stream_id,
-+						       req->request.short_not_ok,
-+						       req->request.no_interrupt);
-+			}
- 		} else {
- 			dwc3_prepare_one_trb(dep, req, trb_length, chain, i);
- 		}
--- 
-2.25.1
-
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -532,12 +532,16 @@ static noinline int hiddev_ioctl_usage(s
+ 
+ 		switch (cmd) {
+ 		case HIDIOCGUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			uref->value = field->value[uref->usage_index];
+ 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
+ 				goto fault;
+ 			goto goodreturn;
+ 
+ 		case HIDIOCSUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			field->value[uref->usage_index] = uref->value;
+ 			goto goodreturn;
+ 
 
 
