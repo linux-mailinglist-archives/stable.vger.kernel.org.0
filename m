@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDBD2596E7
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E472596AE
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731550AbgIAQIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:08:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49318 "EHLO mail.kernel.org"
+        id S1731546AbgIAQFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:05:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731123AbgIAPjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:39:24 -0400
+        id S1730107AbgIAPlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:41:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A815E205F4;
-        Tue,  1 Sep 2020 15:39:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7F4620866;
+        Tue,  1 Sep 2020 15:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974763;
-        bh=6dFFkWLzbNIBlnnV8OfPIGc8YaZCwGt/Hzc0zWiY8oE=;
+        s=default; t=1598974872;
+        bh=zqlxkH3Q4VQCcQyRUikAFrSKPx/FDhjPsglot8WfhGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvmKQYvkm9xj2c8N+ymzRzBDNzeWFGCZCiLgadJ9UB+sqkUVIMvBmXHT9pwABue32
-         B55rrcrK145ChaJAlvHXPUaiRBysjCU5Lk6Zn/ka95E5qXetM2hm2cDjXTwR5znPVq
-         Kj60g4llLctoJl/NFMvdza/uXdaf1Ac1ypHm4pnY=
+        b=z0DB3yYN4xT/Nlkl4A5RJzIm+xZiOGlK4Ke7ZzgFGipGtFCn9sjd9eHB12AbuVdsh
+         JNJrtiv1muQWZFJRpBZxzmuj7qxRtXLtlf8ertx0Bl8q7UOceSq9axbEHeQRRSIiz2
+         mSpJz+IyJfLmtJqpsB8kfkd9RRv7wGeG/llHZHOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>,
-        Ansuel Smith <ansuelsmth@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 080/255] PCI: qcom: Change duplicate PCI reset to phy reset
-Date:   Tue,  1 Sep 2020 17:08:56 +0200
-Message-Id: <20200901151004.566480498@linuxfoundation.org>
+Subject: [PATCH 5.8 082/255] PM / devfreq: Fix the wrong end with semicolon
+Date:   Tue,  1 Sep 2020 17:08:58 +0200
+Message-Id: <20200901151004.663705919@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -47,80 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Sahu <absahu@codeaurora.org>
+From: Chanwoo Choi <cw00.choi@samsung.com>
 
-[ Upstream commit dd58318c019f10bc94db36df66af6c55d4c0cbba ]
+[ Upstream commit 27a69714450f5c9288cec2b20f1ae4f7ad34dacf ]
 
-The deinit issues reset_control_assert for PCI twice and does not contain
-phy reset.
+Fix the wrong grammar at the end of code line by using semicolon.
 
-Link: https://lore.kernel.org/r/20200615210608.21469-4-ansuelsmth@gmail.com
-Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable vger.kernel.org
+Fixes: 490a421bc575 ("PM / devfreq: Add debugfs support with devfreq_summary file")
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/devfreq/devfreq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index aa25a3040f7cc..20c917327a8bd 100644
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -298,14 +298,14 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
- {
- 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 46c84dce6544a..5f8d94e812c8f 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -1690,9 +1690,9 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
+ #endif
  
-+	clk_disable_unprepare(res->phy_clk);
- 	reset_control_assert(res->pci_reset);
- 	reset_control_assert(res->axi_reset);
- 	reset_control_assert(res->ahb_reset);
- 	reset_control_assert(res->por_reset);
--	reset_control_assert(res->pci_reset);
-+	reset_control_assert(res->phy_reset);
- 	clk_disable_unprepare(res->iface_clk);
- 	clk_disable_unprepare(res->core_clk);
--	clk_disable_unprepare(res->phy_clk);
- 	clk_disable_unprepare(res->aux_clk);
- 	clk_disable_unprepare(res->ref_clk);
- 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
-@@ -344,12 +344,6 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 		goto err_clk_core;
- 	}
+ 		mutex_lock(&devfreq->lock);
+-		cur_freq = devfreq->previous_freq,
++		cur_freq = devfreq->previous_freq;
+ 		get_freq_range(devfreq, &min_freq, &max_freq);
+-		polling_ms = devfreq->profile->polling_ms,
++		polling_ms = devfreq->profile->polling_ms;
+ 		mutex_unlock(&devfreq->lock);
  
--	ret = clk_prepare_enable(res->phy_clk);
--	if (ret) {
--		dev_err(dev, "cannot prepare/enable phy clock\n");
--		goto err_clk_phy;
--	}
--
- 	ret = clk_prepare_enable(res->aux_clk);
- 	if (ret) {
- 		dev_err(dev, "cannot prepare/enable aux clock\n");
-@@ -422,6 +416,12 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 		return ret;
- 	}
- 
-+	ret = clk_prepare_enable(res->phy_clk);
-+	if (ret) {
-+		dev_err(dev, "cannot prepare/enable phy clock\n");
-+		goto err_deassert_ahb;
-+	}
-+
- 	/* wait for clock acquisition */
- 	usleep_range(1000, 1500);
- 
-@@ -439,8 +439,6 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- err_clk_ref:
- 	clk_disable_unprepare(res->aux_clk);
- err_clk_aux:
--	clk_disable_unprepare(res->phy_clk);
--err_clk_phy:
- 	clk_disable_unprepare(res->core_clk);
- err_clk_core:
- 	clk_disable_unprepare(res->iface_clk);
+ 		seq_printf(s,
 -- 
 2.25.1
 
