@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03117259332
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A593C25932D
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbgIAPWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:22:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
+        id S1729751AbgIAPWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:22:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729436AbgIAPW2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:22:28 -0400
+        id S1729319AbgIAPWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:22:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7FC02078B;
-        Tue,  1 Sep 2020 15:22:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35A992078B;
+        Tue,  1 Sep 2020 15:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973748;
-        bh=LTpcdGUdrNMBt0bBiTpjmc6wBB+nuNBOZ7692tTaEh4=;
+        s=default; t=1598973750;
+        bh=UOtZjuljHBr0vFhBKp/fHjfYQa6YVxhQd7vR8X2cHLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0Han/akQCtphMXFEvnpRKCB1TUS/yxqyoASfj4+a/L8WbyiOlQaPJ+Q6GH9TzJKW
-         DUwrpwaU4EqkDHYY6U6TyjiuIY/76695WRacLrU/3iwX9B2v+wHJBQ/E+a0ZcztfH8
-         uT/PmJnx2BXLZOqxYu/UXlfgKrXz45mdtIAPGiaU=
+        b=j5O6/sutUqbaF+7opLPlvYMhzlFKSkzHoxddjzx2NCyAhYWJjx/+bozc0qI70Khls
+         9d6iBx4OMil+aJgPQaYtl+1R9LdLTNzVHTDNKimfYj8TwNxuIs/HioKfmC35RWw2kc
+         Bp0KRt6oLUlHhLuVhvfPwa8D/5mDHdY0oq41KdjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 005/125] net/smc: Prevent kernel-infoleak in __smc_diag_dump()
-Date:   Tue,  1 Sep 2020 17:09:20 +0200
-Message-Id: <20200901150934.850085928@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Richard Alpe <richard.alpe@ericsson.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 006/125] tipc: fix uninit skb->data in tipc_nl_compat_dumpit()
+Date:   Tue,  1 Sep 2020 17:09:21 +0200
+Message-Id: <20200901150934.898610362@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -45,49 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit ce51f63e63c52a4e1eee4dd040fb0ba0af3b43ab ]
+[ Upstream commit 47733f9daf4fe4f7e0eb9e273f21ad3a19130487 ]
 
-__smc_diag_dump() is potentially copying uninitialized kernel stack memory
-into socket buffers, since the compiler may leave a 4-byte hole near the
-beginning of `struct smcd_diag_dmbinfo`. Fix it by initializing `dinfo`
-with memset().
+__tipc_nl_compat_dumpit() has two callers, and it expects them to
+pass a valid nlmsghdr via arg->data. This header is artificial and
+crafted just for __tipc_nl_compat_dumpit().
 
-Fixes: 4b1b7d3b30a6 ("net/smc: add SMC-D diag support")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+tipc_nl_compat_publ_dump() does so by putting a genlmsghdr as well
+as some nested attribute, TIPC_NLA_SOCK. But the other caller
+tipc_nl_compat_dumpit() does not, this leaves arg->data uninitialized
+on this call path.
+
+Fix this by just adding a similar nlmsghdr without any payload in
+tipc_nl_compat_dumpit().
+
+This bug exists since day 1, but the recent commit 6ea67769ff33
+("net: tipc: prepare attrs in __tipc_nl_compat_dumpit()") makes it
+easier to appear.
+
+Reported-and-tested-by: syzbot+0e7181deafa7e0b79923@syzkaller.appspotmail.com
+Fixes: d0796d1ef63d ("tipc: convert legacy nl bearer dump to nl compat")
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Cc: Richard Alpe <richard.alpe@ericsson.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/smc_diag.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/tipc/netlink_compat.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -169,13 +169,15 @@ static int __smc_diag_dump(struct sock *
- 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_connection *conn = &smc->conn;
--		struct smcd_diag_dmbinfo dinfo = {
--			.linkid = *((u32 *)conn->lgr->id),
--			.peer_gid = conn->lgr->peer_gid,
--			.my_gid = conn->lgr->smcd->local_gid,
--			.token = conn->rmb_desc->token,
--			.peer_token = conn->peer_token
--		};
-+		struct smcd_diag_dmbinfo dinfo;
-+
-+		memset(&dinfo, 0, sizeof(dinfo));
-+
-+		dinfo.linkid = *((u32 *)conn->lgr->id);
-+		dinfo.peer_gid = conn->lgr->peer_gid;
-+		dinfo.my_gid = conn->lgr->smcd->local_gid;
-+		dinfo.token = conn->rmb_desc->token;
-+		dinfo.peer_token = conn->peer_token;
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -255,8 +255,9 @@ err_out:
+ static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
+ 				 struct tipc_nl_compat_msg *msg)
+ {
+-	int err;
++	struct nlmsghdr *nlh;
+ 	struct sk_buff *arg;
++	int err;
  
- 		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
- 			goto errout;
+ 	if (msg->req_type && (!msg->req_size ||
+ 			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+@@ -285,6 +286,15 @@ static int tipc_nl_compat_dumpit(struct
+ 		return -ENOMEM;
+ 	}
+ 
++	nlh = nlmsg_put(arg, 0, 0, tipc_genl_family.id, 0, NLM_F_MULTI);
++	if (!nlh) {
++		kfree_skb(arg);
++		kfree_skb(msg->rep);
++		msg->rep = NULL;
++		return -EMSGSIZE;
++	}
++	nlmsg_end(arg, nlh);
++
+ 	err = __tipc_nl_compat_dumpit(cmd, msg, arg);
+ 	if (err) {
+ 		kfree_skb(msg->rep);
 
 
