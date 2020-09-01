@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D8F259286
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472E9259287
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbgIAPNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56524 "EHLO mail.kernel.org"
+        id S1728903AbgIAPNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:13:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbgIAPN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:28 -0400
+        id S1728820AbgIAPNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:13:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFD7B2078B;
-        Tue,  1 Sep 2020 15:13:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48EBE2100A;
+        Tue,  1 Sep 2020 15:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973207;
-        bh=uPUjYNP/EIWjnr1nSwyT00Tk2mxoP7sNVLkNPFhY0eM=;
+        s=default; t=1598973209;
+        bh=Lryw0f1Nbw9zOBSfGU+aYbC7z1GWIMz3wMR7aAvU97E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6NL6XZRPStSa5CdlqOWmk0S/1oi+4u6Aze9gLOfV7hM8Rr4SjhGX1sijGRyR+Ty7
-         mukMi4Fv7xcsThdwRG/vWAsRPud+sY34TQl5eHcZWNfDyurEqkdvT29cdvXMdMbiZm
-         y183d99U/berpSjxBilzRhdFVrm0qknrTO0tnqgY=
+        b=r4oWSbahtE37tMwQhnNVGqDHPpeQBCQuzepITKiBL+rPlZ5Bk+U2ji80szi+25n6v
+         GIrqqsxHR/HbHxuW1HfOWpm5S8W9BGL11CMRkB8PEKwH/y7OfjNrLUW2bSaU1VxpWq
+         mrGbviZ+F8V4drcgk3QcGVd3I8CJuCsZ4bHfIhaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.4 49/62] writeback: Fix sync livelock due to b_dirty_time processing
-Date:   Tue,  1 Sep 2020 17:10:32 +0200
-Message-Id: <20200901150923.194885340@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Shaposhnik <roman@zededa.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 50/62] XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.
+Date:   Tue,  1 Sep 2020 17:10:33 +0200
+Message-Id: <20200901150923.247002384@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
 References: <20200901150920.697676718@linuxfoundation.org>
@@ -43,193 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit f9cae926f35e8230330f28c7b743ad088611a8de upstream.
+commit c330fb1ddc0a922f044989492b7fcca77ee1db46 upstream.
 
-When we are processing writeback for sync(2), move_expired_inodes()
-didn't set any inode expiry value (older_than_this). This can result in
-writeback never completing if there's steady stream of inodes added to
-b_dirty_time list as writeback rechecks dirty lists after each writeback
-round whether there's more work to be done. Fix the problem by using
-sync(2) start time is inode expiry value when processing b_dirty_time
-list similarly as for ordinarily dirtied inodes. This requires some
-refactoring of older_than_this handling which simplifies the code
-noticeably as a bonus.
+handler data is meant for interrupt handlers and not for storing irq chip
+specific information as some devices require handler data to store internal
+per interrupt information, e.g. pinctrl/GPIO chained interrupt handlers.
 
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-CC: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
+This obviously creates a conflict of interests and crashes the machine
+because the XEN pointer is overwritten by the driver pointer.
+
+As the XEN data is not handler specific it should be stored in
+irqdesc::irq_data::chip_data instead.
+
+A simple sed s/irq_[sg]et_handler_data/irq_[sg]et_chip_data/ cures that.
+
+Cc: stable@vger.kernel.org
+Reported-by: Roman Shaposhnik <roman@zededa.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Roman Shaposhnik <roman@zededa.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/87lfi2yckt.fsf@nanos.tec.linutronix.de
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c                |   44 +++++++++++++++------------------------
- include/trace/events/writeback.h |   13 +++++------
- 2 files changed, 23 insertions(+), 34 deletions(-)
+ drivers/xen/events/events_base.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -45,7 +45,6 @@ struct wb_completion {
- struct wb_writeback_work {
- 	long nr_pages;
- 	struct super_block *sb;
--	unsigned long *older_than_this;
- 	enum writeback_sync_modes sync_mode;
- 	unsigned int tagged_writepages:1;
- 	unsigned int for_kupdate:1;
-@@ -1109,16 +1108,13 @@ static bool inode_dirtied_after(struct i
- #define EXPIRE_DIRTY_ATIME 0x0001
- 
- /*
-- * Move expired (dirtied before work->older_than_this) dirty inodes from
-+ * Move expired (dirtied before dirtied_before) dirty inodes from
-  * @delaying_queue to @dispatch_queue.
-  */
- static int move_expired_inodes(struct list_head *delaying_queue,
- 			       struct list_head *dispatch_queue,
--			       int flags,
--			       struct wb_writeback_work *work)
-+			       int flags, unsigned long dirtied_before)
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -155,7 +155,7 @@ int get_evtchn_to_irq(unsigned evtchn)
+ /* Get info for IRQ */
+ struct irq_info *info_for_irq(unsigned irq)
  {
--	unsigned long *older_than_this = NULL;
--	unsigned long expire_time;
- 	LIST_HEAD(tmp);
- 	struct list_head *pos, *node;
- 	struct super_block *sb = NULL;
-@@ -1126,16 +1122,9 @@ static int move_expired_inodes(struct li
- 	int do_sb_sort = 0;
- 	int moved = 0;
- 
--	if ((flags & EXPIRE_DIRTY_ATIME) == 0)
--		older_than_this = work->older_than_this;
--	else if (!work->for_sync) {
--		expire_time = jiffies - (dirtytime_expire_interval * HZ);
--		older_than_this = &expire_time;
--	}
- 	while (!list_empty(delaying_queue)) {
- 		inode = wb_inode(delaying_queue->prev);
--		if (older_than_this &&
--		    inode_dirtied_after(inode, *older_than_this))
-+		if (inode_dirtied_after(inode, dirtied_before))
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
-@@ -1181,18 +1170,22 @@ out:
-  *                                           |
-  *                                           +--> dequeue for IO
-  */
--static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work)
-+static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work,
-+		     unsigned long dirtied_before)
- {
- 	int moved;
-+	unsigned long time_expire_jif = dirtied_before;
- 
- 	assert_spin_locked(&wb->list_lock);
- 	list_splice_init(&wb->b_more_io, &wb->b_io);
--	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, work);
-+	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, dirtied_before);
-+	if (!work->for_sync)
-+		time_expire_jif = jiffies - dirtytime_expire_interval * HZ;
- 	moved += move_expired_inodes(&wb->b_dirty_time, &wb->b_io,
--				     EXPIRE_DIRTY_ATIME, work);
-+				     EXPIRE_DIRTY_ATIME, time_expire_jif);
- 	if (moved)
- 		wb_io_lists_populated(wb);
--	trace_writeback_queue_io(wb, work, moved);
-+	trace_writeback_queue_io(wb, work, dirtied_before, moved);
+-	return irq_get_handler_data(irq);
++	return irq_get_chip_data(irq);
  }
  
- static int write_inode(struct inode *inode, struct writeback_control *wbc)
-@@ -1703,7 +1696,7 @@ static long writeback_inodes_wb(struct b
- 	blk_start_plug(&plug);
- 	spin_lock(&wb->list_lock);
- 	if (list_empty(&wb->b_io))
--		queue_io(wb, &work);
-+		queue_io(wb, &work, jiffies);
- 	__writeback_inodes_wb(wb, &work);
- 	spin_unlock(&wb->list_lock);
- 	blk_finish_plug(&plug);
-@@ -1723,7 +1716,7 @@ static long writeback_inodes_wb(struct b
-  * takes longer than a dirty_writeback_interval interval, then leave a
-  * one-second gap.
-  *
-- * older_than_this takes precedence over nr_to_write.  So we'll only write back
-+ * dirtied_before takes precedence over nr_to_write.  So we'll only write back
-  * all dirty pages if they are all attached to "old" mappings.
-  */
- static long wb_writeback(struct bdi_writeback *wb,
-@@ -1731,14 +1724,11 @@ static long wb_writeback(struct bdi_writ
+ /* Constructors for packed IRQ information. */
+@@ -384,7 +384,7 @@ static void xen_irq_init(unsigned irq)
+ 	info->type = IRQT_UNBOUND;
+ 	info->refcnt = -1;
+ 
+-	irq_set_handler_data(irq, info);
++	irq_set_chip_data(irq, info);
+ 
+ 	list_add_tail(&info->list, &xen_irq_list_head);
+ }
+@@ -433,14 +433,14 @@ static int __must_check xen_allocate_irq
+ 
+ static void xen_free_irq(unsigned irq)
  {
- 	unsigned long wb_start = jiffies;
- 	long nr_pages = work->nr_pages;
--	unsigned long oldest_jif;
-+	unsigned long dirtied_before = jiffies;
- 	struct inode *inode;
- 	long progress;
- 	struct blk_plug plug;
+-	struct irq_info *info = irq_get_handler_data(irq);
++	struct irq_info *info = irq_get_chip_data(irq);
  
--	oldest_jif = jiffies;
--	work->older_than_this = &oldest_jif;
--
- 	blk_start_plug(&plug);
- 	spin_lock(&wb->list_lock);
- 	for (;;) {
-@@ -1772,14 +1762,14 @@ static long wb_writeback(struct bdi_writ
- 		 * safe.
- 		 */
- 		if (work->for_kupdate) {
--			oldest_jif = jiffies -
-+			dirtied_before = jiffies -
- 				msecs_to_jiffies(dirty_expire_interval * 10);
- 		} else if (work->for_background)
--			oldest_jif = jiffies;
-+			dirtied_before = jiffies;
+ 	if (WARN_ON(!info))
+ 		return;
  
- 		trace_writeback_start(wb, work);
- 		if (list_empty(&wb->b_io))
--			queue_io(wb, work);
-+			queue_io(wb, work, dirtied_before);
- 		if (work->sb)
- 			progress = writeback_sb_inodes(work->sb, wb, work);
- 		else
---- a/include/trace/events/writeback.h
-+++ b/include/trace/events/writeback.h
-@@ -390,8 +390,9 @@ DEFINE_WBC_EVENT(wbc_writepage);
- TRACE_EVENT(writeback_queue_io,
- 	TP_PROTO(struct bdi_writeback *wb,
- 		 struct wb_writeback_work *work,
-+		 unsigned long dirtied_before,
- 		 int moved),
--	TP_ARGS(wb, work, moved),
-+	TP_ARGS(wb, work, dirtied_before, moved),
- 	TP_STRUCT__entry(
- 		__array(char,		name, 32)
- 		__field(unsigned long,	older)
-@@ -401,19 +402,17 @@ TRACE_EVENT(writeback_queue_io,
- 		__dynamic_array(char, cgroup, __trace_wb_cgroup_size(wb))
- 	),
- 	TP_fast_assign(
--		unsigned long *older_than_this = work->older_than_this;
- 		strncpy(__entry->name, dev_name(wb->bdi->dev), 32);
--		__entry->older	= older_than_this ?  *older_than_this : 0;
--		__entry->age	= older_than_this ?
--				  (jiffies - *older_than_this) * 1000 / HZ : -1;
-+		__entry->older	= dirtied_before;
-+		__entry->age	= (jiffies - dirtied_before) * 1000 / HZ;
- 		__entry->moved	= moved;
- 		__entry->reason	= work->reason;
- 		__trace_wb_assign_cgroup(__get_str(cgroup), wb);
- 	),
- 	TP_printk("bdi %s: older=%lu age=%ld enqueue=%d reason=%s cgroup=%s",
- 		__entry->name,
--		__entry->older,	/* older_than_this in jiffies */
--		__entry->age,	/* older_than_this in relative milliseconds */
-+		__entry->older,	/* dirtied_before in jiffies */
-+		__entry->age,	/* dirtied_before in relative milliseconds */
- 		__entry->moved,
- 		__print_symbolic(__entry->reason, WB_WORK_REASON),
- 		__get_str(cgroup)
+ 	list_del(&info->list);
+ 
+-	irq_set_handler_data(irq, NULL);
++	irq_set_chip_data(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
+@@ -610,7 +610,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
+ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	int evtchn = evtchn_from_irq(irq);
+-	struct irq_info *info = irq_get_handler_data(irq);
++	struct irq_info *info = irq_get_chip_data(irq);
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -1114,7 +1114,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
+ 
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id)
+ {
+-	struct irq_info *info = irq_get_handler_data(irq);
++	struct irq_info *info = irq_get_chip_data(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+@@ -1148,7 +1148,7 @@ int evtchn_make_refcounted(unsigned int
+ 	if (irq == -1)
+ 		return -ENOENT;
+ 
+-	info = irq_get_handler_data(irq);
++	info = irq_get_chip_data(irq);
+ 
+ 	if (!info)
+ 		return -ENOENT;
+@@ -1176,7 +1176,7 @@ int evtchn_get(unsigned int evtchn)
+ 	if (irq == -1)
+ 		goto done;
+ 
+-	info = irq_get_handler_data(irq);
++	info = irq_get_chip_data(irq);
+ 
+ 	if (!info)
+ 		goto done;
 
 
