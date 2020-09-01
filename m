@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 962012592C8
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 045FF2592AF
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729352AbgIAPQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:16:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33920 "EHLO mail.kernel.org"
+        id S1728808AbgIAPPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:15:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728963AbgIAPQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:16:53 -0400
+        id S1729208AbgIAPPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:15:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E7A0206FA;
-        Tue,  1 Sep 2020 15:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 258E3206FA;
+        Tue,  1 Sep 2020 15:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973412;
-        bh=uJ5hr/BkApOEtAIV5QvXoZdJrm3MvhcHt22zyFLzypM=;
+        s=default; t=1598973328;
+        bh=y7+3mb3F1IV1P7eyHp4J62UIqOIDN8ka/C+d2ylHIHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckFVjyVLuwknXvDQTQxYyKYReXiP2wBozmLEIaBmVJHGGZsZg+bIEZVQZV60RuINj
-         kjC/QUmRzkmW8DqzgVxEeh9k8YthOxfQEDrHtV5wYFRB7CA637V8gnghFRtCKARQWT
-         TF6WSoKJA05Cv6XOffOYrK/xl4kRUD16BDmZYKuk=
+        b=tP2al5vRdw06hXPz/obVU2eXQxNB7iQ7Tr1Xt0vAiUCORoVsW4Nazh+hG1UADNpAz
+         llRzxpBt+rrIEN9Tj8MMxLcsoPtBgH7pFV4bJgk5L8YIFNenhZNLhWFysli0tQctie
+         8yX1xm5eYMl7QYylnCsA4eQD8Qx8y9sTfOSoDeH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 27/78] drm/nouveau: Fix reference count leak in nouveau_connector_detect
-Date:   Tue,  1 Sep 2020 17:10:03 +0200
-Message-Id: <20200901150926.102452767@linuxfoundation.org>
+Subject: [PATCH 4.9 28/78] locking/lockdep: Fix overflow in presentation of average lock-time
+Date:   Tue,  1 Sep 2020 17:10:04 +0200
+Message-Id: <20200901150926.151655527@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
 References: <20200901150924.680106554@linuxfoundation.org>
@@ -44,37 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 990a1162986e8eff7ca18cc5a0e03b4304392ae2 ]
+[ Upstream commit a7ef9b28aa8d72a1656fa6f0a01bbd1493886317 ]
 
-nouveau_connector_detect() calls pm_runtime_get_sync and in turn
-increments the reference count. In case of failure, decrement the
-ref count before returning the error.
+Though the number of lock-acquisitions is tracked as unsigned long, this
+is passed as the divisor to div_s64() which interprets it as a s32,
+giving nonsense values with more than 2 billion acquisitons. E.g.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+  acquisitions   holdtime-min   holdtime-max holdtime-total   holdtime-avg
+  -------------------------------------------------------------------------
+    2350439395           0.07         353.38   649647067.36          0.-32
+
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20200725185110.11588-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/locking/lockdep_proc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 5bfae1f972c74..0061deca290a4 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -281,8 +281,10 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
- 		pm_runtime_get_noresume(dev->dev);
- 	} else {
- 		ret = pm_runtime_get_sync(dev->dev);
--		if (ret < 0 && ret != -EACCES)
-+		if (ret < 0 && ret != -EACCES) {
-+			pm_runtime_put_autosuspend(dev->dev);
- 			return conn_status;
-+		}
- 	}
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index 75d80809c48c9..09bad6cbb95cf 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -425,7 +425,7 @@ static void seq_lock_time(struct seq_file *m, struct lock_time *lt)
+ 	seq_time(m, lt->min);
+ 	seq_time(m, lt->max);
+ 	seq_time(m, lt->total);
+-	seq_time(m, lt->nr ? div_s64(lt->total, lt->nr) : 0);
++	seq_time(m, lt->nr ? div64_u64(lt->total, lt->nr) : 0);
+ }
  
- 	nv_encoder = nouveau_connector_ddc_detect(connector);
+ static void seq_stats(struct seq_file *m, struct lock_stat_data *data)
 -- 
 2.25.1
 
