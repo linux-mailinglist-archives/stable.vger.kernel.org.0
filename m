@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C392594D7
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243EA2593E5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731678AbgIAPni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:43:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57828 "EHLO mail.kernel.org"
+        id S1729227AbgIAPc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:32:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731669AbgIAPng (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:43:36 -0400
+        id S1731144AbgIAPc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:32:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 099D42064B;
-        Tue,  1 Sep 2020 15:43:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54C8E20E65;
+        Tue,  1 Sep 2020 15:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975015;
-        bh=Pq7Rp7diZuREN6AIJZX1rfHwnop0pd6ShYCnutIsfbs=;
+        s=default; t=1598974376;
+        bh=jbo9dTLCVn9GjanCcLLAnzad3me4gNbwqGBH7gudVxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkYkG9oBoo5RglC+K2+UzJKKNJrrvPtQ7VsTYd+F9hBjvtXVD4HmdUtM+wKN9oPIZ
-         ADgyRSTI1O4xD59sXE267eF0WwEUAI3Yj7bdu1u4nFuj+PE/kFOpAyZgqFdIEEKm5k
-         mZv4uOUcFYXY/C8noKG5suFQ1olMsK6fuYjRyRIA=
+        b=kASw8oi0tZ68Kulo8nvgRW1Fd48wGtk2iZiNT5qgE8o5346PHBoNjt8MxcIMrAo2u
+         0S1QnmXtZfC2DvFxixbpnLcT+WoJDI0nv8gh98drWnDngwhEy45gKQC/F7DGE3Q2Qt
+         8FMh5Ck8GbtCFus8pTS86Di6JK2kt2MLEglPiEwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Subject: [PATCH 5.8 176/255] fbcon: prevent user font height or width change from causing potential out-of-bounds access
+        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
+        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        David Jeffery <djeffery@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 152/214] blk-mq: order adding requests to hctx->dispatch and checking SCHED_RESTART
 Date:   Tue,  1 Sep 2020 17:10:32 +0200
-Message-Id: <20200901151009.122008546@linuxfoundation.org>
+Message-Id: <20200901151000.248894276@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +46,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 39b3cffb8cf3111738ea993e2757ab382253d86a upstream.
+commit d7d8535f377e9ba87edbf7fbbd634ac942f3f54f upstream.
 
-Add a check to fbcon_resize() to ensure that a possible change to user font
-height or user font width will not allow a font data out-of-bounds access.
-NOTE: must use original charcount in calculation as font charcount can
-change and cannot be used to determine the font data allocated size.
+SCHED_RESTART code path is relied to re-run queue for dispatch requests
+in hctx->dispatch. Meantime the SCHED_RSTART flag is checked when adding
+requests to hctx->dispatch.
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+38a3699c7eaf165b97a6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/1596213192-6635-1-git-send-email-george.kennedy@oracle.com
+memory barriers have to be used for ordering the following two pair of OPs:
+
+1) adding requests to hctx->dispatch and checking SCHED_RESTART in
+blk_mq_dispatch_rq_list()
+
+2) clearing SCHED_RESTART and checking if there is request in hctx->dispatch
+in blk_mq_sched_restart().
+
+Without the added memory barrier, either:
+
+1) blk_mq_sched_restart() may miss requests added to hctx->dispatch meantime
+blk_mq_dispatch_rq_list() observes SCHED_RESTART, and not run queue in
+dispatch side
+
+or
+
+2) blk_mq_dispatch_rq_list still sees SCHED_RESTART, and not run queue
+in dispatch side, meantime checking if there is request in
+hctx->dispatch from blk_mq_sched_restart() is missed.
+
+IO hang in ltp/fs_fill test is reported by kernel test robot:
+
+	https://lkml.org/lkml/2020/7/26/77
+
+Turns out it is caused by the above out-of-order OPs. And the IO hang
+can't be observed any more after applying this patch.
+
+Fixes: bd166ef183c2 ("blk-mq-sched: add framework for MQ capable IO schedulers")
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: David Jeffery <djeffery@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/core/fbcon.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ block/blk-mq-sched.c |    9 +++++++++
+ block/blk-mq.c       |    9 +++++++++
+ 2 files changed, 18 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2191,6 +2191,9 @@ static void updatescrollmode(struct fbco
- 	}
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -77,6 +77,15 @@ void blk_mq_sched_restart(struct blk_mq_
+ 		return;
+ 	clear_bit(BLK_MQ_S_SCHED_RESTART, &hctx->state);
+ 
++	/*
++	 * Order clearing SCHED_RESTART and list_empty_careful(&hctx->dispatch)
++	 * in blk_mq_run_hw_queue(). Its pair is the barrier in
++	 * blk_mq_dispatch_rq_list(). So dispatch code won't see SCHED_RESTART,
++	 * meantime new request added to hctx->dispatch is missed to check in
++	 * blk_mq_run_hw_queue().
++	 */
++	smp_mb();
++
+ 	blk_mq_run_hw_queue(hctx, true);
  }
  
-+#define PITCH(w) (((w) + 7) >> 3)
-+#define CALC_FONTSZ(h, p, c) ((h) * (p) * (c)) /* size = height * pitch * charcount */
-+
- static int fbcon_resize(struct vc_data *vc, unsigned int width, 
- 			unsigned int height, unsigned int user)
- {
-@@ -2200,6 +2203,24 @@ static int fbcon_resize(struct vc_data *
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1319,6 +1319,15 @@ bool blk_mq_dispatch_rq_list(struct requ
+ 		spin_unlock(&hctx->lock);
  
-+	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+		int size;
-+		int pitch = PITCH(vc->vc_font.width);
+ 		/*
++		 * Order adding requests to hctx->dispatch and checking
++		 * SCHED_RESTART flag. The pair of this smp_mb() is the one
++		 * in blk_mq_sched_restart(). Avoid restart code path to
++		 * miss the new added requests to hctx->dispatch, meantime
++		 * SCHED_RESTART is observed here.
++		 */
++		smp_mb();
 +
 +		/*
-+		 * If user font, ensure that a possible change to user font
-+		 * height or width will not allow a font data out-of-bounds access.
-+		 * NOTE: must use original charcount in calculation as font
-+		 * charcount can change and cannot be used to determine the
-+		 * font data allocated size.
-+		 */
-+		if (pitch <= 0)
-+			return -EINVAL;
-+		size = CALC_FONTSZ(vc->vc_font.height, pitch, FNTCHARCNT(vc->vc_font.data));
-+		if (size > FNTSIZE(vc->vc_font.data))
-+			return -EINVAL;
-+	}
-+
- 	virt_w = FBCON_SWAP(ops->rotate, width, height);
- 	virt_h = FBCON_SWAP(ops->rotate, height, width);
- 	virt_fw = FBCON_SWAP(ops->rotate, vc->vc_font.width,
-@@ -2652,7 +2673,7 @@ static int fbcon_set_font(struct vc_data
- 	int size;
- 	int i, csum;
- 	u8 *new_data, *data = font->data;
--	int pitch = (font->width+7) >> 3;
-+	int pitch = PITCH(font->width);
- 
- 	/* Is there a reason why fbconsole couldn't handle any charcount >256?
- 	 * If not this check should be changed to charcount < 256 */
-@@ -2668,7 +2689,7 @@ static int fbcon_set_font(struct vc_data
- 	if (fbcon_invalid_charcount(info, charcount))
- 		return -EINVAL;
- 
--	size = h * pitch * charcount;
-+	size = CALC_FONTSZ(h, pitch, charcount);
- 
- 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
- 
+ 		 * If SCHED_RESTART was set by the caller of this function and
+ 		 * it is no longer set that means that it was cleared by another
+ 		 * thread and hence that a queue rerun is needed.
 
 
