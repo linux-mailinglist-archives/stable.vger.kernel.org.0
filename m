@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93820259355
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E62062592FD
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgIAPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:24:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
+        id S1729564AbgIAPTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729498AbgIAPYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:24:18 -0400
+        id S1729020AbgIAPTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:19:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 325122078B;
-        Tue,  1 Sep 2020 15:24:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95B3206EB;
+        Tue,  1 Sep 2020 15:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973856;
-        bh=2lroPYKvHDnCdHwfqA2E7nbTMTuzp4zdCEnhzGfJip8=;
+        s=default; t=1598973582;
+        bh=HcQS+VMvWdRoEZwki/4Ya7RkFs+DvHo1w0eac91M6eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9cnxbOxpCcaHS2Yh6uFQC5fgz6ZZZFT8p82muza9GCcfkyA9QUYm4bC9CJ/dAOu+
-         +/hV/lt1kNxcri9gptv2XCGeQoBMbyyI3I3qqxNpt/lReesoShXD0gudGdlY4uPpX6
-         Eh7nlwDZBgTW94R92n5sgDSdwokUQAzc3iBLpQOg=
+        b=pmiZTCOPJObB+8GNtcIdYslCOBrLOIL5NHi+jctjKiKSA1c2RVs2omjAUgnoG5G1N
+         rmftDSz8SDfTxc11KcHc09AjwWx/WI3rIVTrV0HXNiq/QDbU7j7tbp4O9UhBVXn/lb
+         Pm5g11q1OnX79+COjJ2yIQgBvSZyT89wXDpZuZ9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sumera Priyadarsini <sylphrenadin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/125] scsi: qla2xxx: Fix null pointer access during disconnect from subsystem
+Subject: [PATCH 4.14 56/91] net: gianfar: Add of_node_put() before goto statement
 Date:   Tue,  1 Sep 2020 17:10:30 +0200
-Message-Id: <20200901150938.261417049@linuxfoundation.org>
+Message-Id: <20200901150930.898406813@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
-References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Sumera Priyadarsini <sylphrenadin@gmail.com>
 
-[ Upstream commit 83949613fac61e8e37eadf8275bf072342302f4e ]
+[ Upstream commit 989e4da042ca4a56bbaca9223d1a93639ad11e17 ]
 
-NVMEAsync command is being submitted to QLA while the same NVMe controller
-is in the middle of reset. The reset path has deleted the association and
-freed aen_op->fcp_req.private. Add a check for this private pointer before
-issuing the command.
+Every iteration of for_each_available_child_of_node() decrements
+reference count of the previous node, however when control
+is transferred from the middle of the loop, as in the case of
+a return or break or goto, there is no decrement thus ultimately
+resulting in a memory leak.
 
-...
- 6 [ffffb656ca11fce0] page_fault at ffffffff8c00114e
-    [exception RIP: qla_nvme_post_cmd+394]
-    RIP: ffffffffc0d012ba  RSP: ffffb656ca11fd98  RFLAGS: 00010206
-    RAX: ffff8fb039eda228  RBX: ffff8fb039eda200  RCX: 00000000000da161
-    RDX: ffffffffc0d4d0f0  RSI: ffffffffc0d26c9b  RDI: ffff8fb039eda220
-    RBP: 0000000000000013   R8: ffff8fb47ff6aa80   R9: 0000000000000002
-    R10: 0000000000000000  R11: ffffb656ca11fdc8  R12: ffff8fb27d04a3b0
-    R13: ffff8fc46dd98a58  R14: 0000000000000000  R15: ffff8fc4540f0000
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- 7 [ffffb656ca11fe08] nvme_fc_start_fcp_op at ffffffffc0241568 [nvme_fc]
- 8 [ffffb656ca11fe50] nvme_fc_submit_async_event at ffffffffc0241901 [nvme_fc]
- 9 [ffffb656ca11fe68] nvme_async_event_work at ffffffffc014543d [nvme_core]
-10 [ffffb656ca11fe98] process_one_work at ffffffff8b6cd437
-11 [ffffb656ca11fed8] worker_thread at ffffffff8b6cdcef
-12 [ffffb656ca11ff10] kthread at ffffffff8b6d3402
-13 [ffffb656ca11ff50] ret_from_fork at ffffffff8c000255
+Fix a potential memory leak in gianfar.c by inserting of_node_put()
+before the goto statement.
 
---
-PID: 37824  TASK: ffff8fb033063d80  CPU: 20  COMMAND: "kworker/u97:451"
- 0 [ffffb656ce1abc28] __schedule at ffffffff8be629e3
- 1 [ffffb656ce1abcc8] schedule at ffffffff8be62fe8
- 2 [ffffb656ce1abcd0] schedule_timeout at ffffffff8be671ed
- 3 [ffffb656ce1abd70] wait_for_completion at ffffffff8be639cf
- 4 [ffffb656ce1abdd0] flush_work at ffffffff8b6ce2d5
- 5 [ffffb656ce1abe70] nvme_stop_ctrl at ffffffffc0144900 [nvme_core]
- 6 [ffffb656ce1abe80] nvme_fc_reset_ctrl_work at ffffffffc0243445 [nvme_fc]
- 7 [ffffb656ce1abe98] process_one_work at ffffffff8b6cd437
- 8 [ffffb656ce1abed8] worker_thread at ffffffff8b6cdb50
- 9 [ffffb656ce1abf10] kthread at ffffffff8b6d3402
-10 [ffffb656ce1abf50] ret_from_fork at ffffffff8c000255
+Issue found with Coccinelle.
 
-Link: https://lore.kernel.org/r/20200806111014.28434-10-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sumera Priyadarsini <sylphrenadin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/freescale/gianfar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 5590d6e8b5762..3e2f8ce1d9a97 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -477,6 +477,11 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
- 	struct nvme_private *priv = fd->private;
- 	struct qla_nvme_rport *qla_rport = rport->private;
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index e4a2c74a9b47e..6b95334e172d1 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -844,8 +844,10 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
+ 				continue;
  
-+	if (!priv) {
-+		/* nvme association has been torn down */
-+		return rval;
-+	}
-+
- 	fcport = qla_rport->fcport;
- 
- 	vha = fcport->vha;
+ 			err = gfar_parse_group(child, priv, model);
+-			if (err)
++			if (err) {
++				of_node_put(child);
+ 				goto err_grp_init;
++			}
+ 		}
+ 	} else { /* SQ_SG_MODE */
+ 		err = gfar_parse_group(np, priv, model);
 -- 
 2.25.1
 
