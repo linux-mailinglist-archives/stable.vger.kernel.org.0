@@ -2,128 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1D2259AF2
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA44259B49
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgIAQzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728695AbgIAQzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 12:55:41 -0400
-Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F5D7C061244
-        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 09:55:38 -0700 (PDT)
-Received: by mail-oo1-xc44.google.com with SMTP id y30so459949ooj.3
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 09:55:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=v9975+hMWELTbAGvjMd+ItUOvowUKdGImeITiNZKzKE=;
-        b=o9lKL0BVvMWm1tgl9Is1duPG5UGxdnIw9uldI8xPl0uGpZA7catKjJrRgBEAZJ0kbq
-         m8OyAcQNAUHJJfw3kqhHlMddaLDwROFECYORDdwHm6W5cfivp+a9zNpn96v3HYUYlGkg
-         jQjw/3QtxH5+nxI9pfta4wg+mkkVdPSzhFJjEhrs3DFHKpKw+3c7PqQ8xR1xnrLkhUzT
-         Iuz5E6sFg7WjtaL9eBPRFLX7jtfdcOVNM83CJV4S2YSX38bqb6sxMse1As3kv26EQBWK
-         KSm3PZHlpGKIRmh/8ovguVfzz4Jfy3bagDaSf/eDiUM+ptjv9PXx88/gXF/jEmk5/7u/
-         W1Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=v9975+hMWELTbAGvjMd+ItUOvowUKdGImeITiNZKzKE=;
-        b=bU5SqwTwYUcI4MQQwOv67F4PmEO8rnH0rkRi1fj8Ny1ImobCQ7uNudN4PWkjejsSxr
-         1Rkrzh4ucbQIrK0MXxigU6UUdabGScI2jmfhi0BIjZ/UNNSqvi8wrkO7O4s37CIGUHHc
-         qghpM9w1Sz3nFtR9CNIS6c06n090EedHYO7nKhY4yA98AWOvlCKqNFkLT9lGkhFxxN3R
-         9Itol4aMTP0A4nmqAfo86ZArrTNj+waK6KwglhfzigYopHlAaUxCEXBTysngd70MxQYJ
-         dsoChJj8bVwbRFR9fsfQNmLsfpWvIXWZIDHl6Cujl7iH2XYdp0rmMvXjNKWDxcTy0VJp
-         S37w==
-X-Gm-Message-State: AOAM530Ir80VKeuul2wk0NqxhP4WQn3bOifqlh6WuGWgjjgqT45L9Ai5
-        suPxGJCYYA3/9WDoFJEVNRxYIg==
-X-Google-Smtp-Source: ABdhPJxXRLmSKBcnBlceznNDbZ4sBA5PnARmg8Fs8AUVLHlcApULxzxJqLOenz9NbmlqafxciiOaaw==
-X-Received: by 2002:a05:6820:384:: with SMTP id r4mr2009979ooj.62.1598979338069;
-        Tue, 01 Sep 2020 09:55:38 -0700 (PDT)
-Received: from yoga ([2605:6000:e5cb:c100:8898:14ff:fe6d:34e])
-        by smtp.gmail.com with ESMTPSA id 35sm273166oth.21.2020.09.01.09.55.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2020 09:55:37 -0700 (PDT)
-Date:   Tue, 1 Sep 2020 11:55:34 -0500
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Ansuel Smith <ansuelsmth@gmail.com>
-Cc:     Stanimir Varbanov <svarbanov@mm-sol.com>, stable@vger.kernel.org,
-        Andy Gross <agross@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI: qcom: Make sure PCIe is reset before init for rev
- 2.1.0
-Message-ID: <20200901165534.GA3715@yoga>
-References: <20200901124955.137-1-ansuelsmth@gmail.com>
+        id S1729685AbgIAQ7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:59:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42344 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729484AbgIAPVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:21:33 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF2FF20BED;
+        Tue,  1 Sep 2020 15:21:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598973692;
+        bh=poQNJrzrDvhFPWx10cxsYYI+35zh4WAvnQL6BWr19hI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0c85XNzThJPz0s9NhQlAIYjQgvmNmCm+4RO5hIcj/qjdlIiQWhVUeIScLANSYttRq
+         7Kh+O5sgFbEhuEBeD0OYPr1Cx/f98HKIIaSq2tq6vFO6Dwke/tGEZoQdPcxfaaYkSh
+         yhgu0pJ0rzWDckAS6Xsx6EPw+n0TVWqmHfvrNf6g=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Alistair Popple <alistair@popple.id.au>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.19 001/125] powerpc/64s: Dont init FSCR_DSCR in __init_FSCR()
+Date:   Tue,  1 Sep 2020 17:09:16 +0200
+Message-Id: <20200901150934.653860750@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200901124955.137-1-ansuelsmth@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 01 Sep 07:49 CDT 2020, Ansuel Smith wrote:
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-> Qsdk U-Boot can incorrectly leave the PCIe interface in an undefined
-> state if bootm command is used instead of bootipq. This is caused by the
-> not deinit of PCIe when bootm is called. Reset the PCIe before init
-> anyway to fix this U-Boot bug.
-> 
+commit 0828137e8f16721842468e33df0460044a0c588b upstream.
 
-Looks sensible.
+__init_FSCR() was added originally in commit 2468dcf641e4 ("powerpc:
+Add support for context switching the TAR register") (Feb 2013), and
+only set FSCR_TAR.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+At that point FSCR (Facility Status and Control Register) was not
+context switched, so the setting was permanent after boot.
 
-Regards,
-Bjorn
+Later we added initialisation of FSCR_DSCR to __init_FSCR(), in commit
+54c9b2253d34 ("powerpc: Set DSCR bit in FSCR setup") (Mar 2013), again
+that was permanent after boot.
 
-> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-> Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-> Cc: stable@vger.kernel.org # v4.19+
-> ---
->  drivers/pci/controller/dwc/pcie-qcom.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-> index 3aac77a295ba..82336bbaf8dc 100644
-> --- a/drivers/pci/controller/dwc/pcie-qcom.c
-> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-> @@ -302,6 +302,9 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
->  	reset_control_assert(res->por_reset);
->  	reset_control_assert(res->ext_reset);
->  	reset_control_assert(res->phy_reset);
-> +
-> +	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
-> +
->  	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
->  }
->  
-> @@ -314,6 +317,16 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
->  	u32 val;
->  	int ret;
->  
-> +	/* reset the PCIe interface as uboot can leave it undefined state */
-> +	reset_control_assert(res->pci_reset);
-> +	reset_control_assert(res->axi_reset);
-> +	reset_control_assert(res->ahb_reset);
-> +	reset_control_assert(res->por_reset);
-> +	reset_control_assert(res->ext_reset);
-> +	reset_control_assert(res->phy_reset);
-> +
-> +	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
-> +
->  	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
->  	if (ret < 0) {
->  		dev_err(dev, "cannot enable regulators\n");
-> -- 
-> 2.27.0
-> 
+Then commit 2517617e0de6 ("powerpc: Fix context switch DSCR on
+POWER8") (Aug 2013) added a limited context switch of FSCR, just the
+FSCR_DSCR bit was context switched based on thread.dscr_inherit. That
+commit said "This clears the H/FSCR DSCR bit initially", but it
+didn't, it left the initialisation of FSCR_DSCR in __init_FSCR().
+However the initial context switch from init_task to pid 1 would clear
+FSCR_DSCR because thread.dscr_inherit was 0.
+
+That commit also introduced the requirement that FSCR_DSCR be clear
+for user processes, so that we can take the facility unavailable
+interrupt in order to manage dscr_inherit.
+
+Then in commit 152d523e6307 ("powerpc: Create context switch helpers
+save_sprs() and restore_sprs()") (Dec 2015) FSCR was added to
+thread_struct. However it still wasn't fully context switched, we just
+took the existing value and set FSCR_DSCR if the new thread had
+dscr_inherit set. FSCR was still initialised at boot to FSCR_DSCR |
+FSCR_TAR, but that value was not propagated into the thread_struct, so
+the initial context switch set FSCR_DSCR back to 0.
+
+Finally commit b57bd2de8c6c ("powerpc: Improve FSCR init and context
+switching") (Jun 2016) added a full context switch of the FSCR, and
+added an initialisation of init_task.thread.fscr to FSCR_TAR |
+FSCR_EBB, but omitted FSCR_DSCR.
+
+The end result is that swapper runs with FSCR_DSCR set because of the
+initialisation in __init_FSCR(), but no other processes do, they use
+the value from init_task.thread.fscr.
+
+Having FSCR_DSCR set for swapper allows it to access SPR 3 from
+userspace, but swapper never runs userspace, so it has no useful
+effect. It's also confusing to have the value initialised in two
+places to two different values.
+
+So remove FSCR_DSCR from __init_FSCR(), this at least gets us to the
+point where there's a single value of FSCR, even if it's still set in
+two places.
+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Tested-by: Alistair Popple <alistair@popple.id.au>
+Link: https://lore.kernel.org/r/20200527145843.2761782-1-mpe@ellerman.id.au
+Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/powerpc/kernel/cpu_setup_power.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/powerpc/kernel/cpu_setup_power.S
++++ b/arch/powerpc/kernel/cpu_setup_power.S
+@@ -183,7 +183,7 @@ __init_LPCR_ISA300:
+ 
+ __init_FSCR:
+ 	mfspr	r3,SPRN_FSCR
+-	ori	r3,r3,FSCR_TAR|FSCR_DSCR|FSCR_EBB
++	ori	r3,r3,FSCR_TAR|FSCR_EBB
+ 	mtspr	SPRN_FSCR,r3
+ 	blr
+ 
+
+
