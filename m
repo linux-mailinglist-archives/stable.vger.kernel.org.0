@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB84259284
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93820259355
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728893AbgIAPNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56178 "EHLO mail.kernel.org"
+        id S1729707AbgIAPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:24:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728885AbgIAPNP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:13:15 -0400
+        id S1729498AbgIAPYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:24:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14D9E2078B;
-        Tue,  1 Sep 2020 15:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 325122078B;
+        Tue,  1 Sep 2020 15:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973194;
-        bh=mh5pmd+ydcLQgSPEm3k6W6nzqyhZ2EDwNOyI/0lDTcg=;
+        s=default; t=1598973856;
+        bh=2lroPYKvHDnCdHwfqA2E7nbTMTuzp4zdCEnhzGfJip8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJgzTaKsTOIdCOQzrwkVr/S024O4t5XDC6HbcpQJw6K450tofU2Ryt0cDewJWaoxu
-         XKKrezkQzEnDuLDNjz+OOUb8Pcn3HZ/3Uj0aa8ZxszlCc/Z6T0u6y4mfgiOKGAeEv0
-         4se580sIO/h6AOajlLFFA08khO3Y0IncRA2efZWI=
+        b=z9cnxbOxpCcaHS2Yh6uFQC5fgz6ZZZFT8p82muza9GCcfkyA9QUYm4bC9CJ/dAOu+
+         +/hV/lt1kNxcri9gptv2XCGeQoBMbyyI3I3qqxNpt/lReesoShXD0gudGdlY4uPpX6
+         Eh7nlwDZBgTW94R92n5sgDSdwokUQAzc3iBLpQOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Tamseel Shams <m.shams@samsung.com>
-Subject: [PATCH 4.4 44/62] serial: samsung: Removes the IRQ not found warning
-Date:   Tue,  1 Sep 2020 17:10:27 +0200
-Message-Id: <20200901150922.953840554@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 075/125] scsi: qla2xxx: Fix null pointer access during disconnect from subsystem
+Date:   Tue,  1 Sep 2020 17:10:30 +0200
+Message-Id: <20200901150938.261417049@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+References: <20200901150934.576210879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamseel Shams <m.shams@samsung.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 8c6c378b0cbe0c9f1390986b5f8ffb5f6ff7593b upstream.
+[ Upstream commit 83949613fac61e8e37eadf8275bf072342302f4e ]
 
-In few older Samsung SoCs like s3c2410, s3c2412
-and s3c2440, UART IP is having 2 interrupt lines.
-However, in other SoCs like s3c6400, s5pv210,
-exynos5433, and exynos4210 UART is having only 1
-interrupt line. Due to this, "platform_get_irq(platdev, 1)"
-call in the driver gives the following false-positive error:
-"IRQ index 1 not found" on newer SoC's.
+NVMEAsync command is being submitted to QLA while the same NVMe controller
+is in the middle of reset. The reset path has deleted the association and
+freed aen_op->fcp_req.private. Add a check for this private pointer before
+issuing the command.
 
-This patch adds the condition to check for Tx interrupt
-only for the those SoC's which have 2 interrupt lines.
+...
+ 6 [ffffb656ca11fce0] page_fault at ffffffff8c00114e
+    [exception RIP: qla_nvme_post_cmd+394]
+    RIP: ffffffffc0d012ba  RSP: ffffb656ca11fd98  RFLAGS: 00010206
+    RAX: ffff8fb039eda228  RBX: ffff8fb039eda200  RCX: 00000000000da161
+    RDX: ffffffffc0d4d0f0  RSI: ffffffffc0d26c9b  RDI: ffff8fb039eda220
+    RBP: 0000000000000013   R8: ffff8fb47ff6aa80   R9: 0000000000000002
+    R10: 0000000000000000  R11: ffffb656ca11fdc8  R12: ffff8fb27d04a3b0
+    R13: ffff8fc46dd98a58  R14: 0000000000000000  R15: ffff8fc4540f0000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ 7 [ffffb656ca11fe08] nvme_fc_start_fcp_op at ffffffffc0241568 [nvme_fc]
+ 8 [ffffb656ca11fe50] nvme_fc_submit_async_event at ffffffffc0241901 [nvme_fc]
+ 9 [ffffb656ca11fe68] nvme_async_event_work at ffffffffc014543d [nvme_core]
+10 [ffffb656ca11fe98] process_one_work at ffffffff8b6cd437
+11 [ffffb656ca11fed8] worker_thread at ffffffff8b6cdcef
+12 [ffffb656ca11ff10] kthread at ffffffff8b6d3402
+13 [ffffb656ca11ff50] ret_from_fork at ffffffff8c000255
 
-Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Tamseel Shams <m.shams@samsung.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200810030021.45348-1-m.shams@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+--
+PID: 37824  TASK: ffff8fb033063d80  CPU: 20  COMMAND: "kworker/u97:451"
+ 0 [ffffb656ce1abc28] __schedule at ffffffff8be629e3
+ 1 [ffffb656ce1abcc8] schedule at ffffffff8be62fe8
+ 2 [ffffb656ce1abcd0] schedule_timeout at ffffffff8be671ed
+ 3 [ffffb656ce1abd70] wait_for_completion at ffffffff8be639cf
+ 4 [ffffb656ce1abdd0] flush_work at ffffffff8b6ce2d5
+ 5 [ffffb656ce1abe70] nvme_stop_ctrl at ffffffffc0144900 [nvme_core]
+ 6 [ffffb656ce1abe80] nvme_fc_reset_ctrl_work at ffffffffc0243445 [nvme_fc]
+ 7 [ffffb656ce1abe98] process_one_work at ffffffff8b6cd437
+ 8 [ffffb656ce1abed8] worker_thread at ffffffff8b6cdb50
+ 9 [ffffb656ce1abf10] kthread at ffffffff8b6d3402
+10 [ffffb656ce1abf50] ret_from_fork at ffffffff8c000255
 
+Link: https://lore.kernel.org/r/20200806111014.28434-10-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_nvme.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -1719,9 +1719,11 @@ static int s3c24xx_serial_init_port(stru
- 		ourport->tx_irq = ret + 1;
- 	}
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index 5590d6e8b5762..3e2f8ce1d9a97 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -477,6 +477,11 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
+ 	struct nvme_private *priv = fd->private;
+ 	struct qla_nvme_rport *qla_rport = rport->private;
  
--	ret = platform_get_irq(platdev, 1);
--	if (ret > 0)
--		ourport->tx_irq = ret;
-+	if (!s3c24xx_serial_has_interrupt_mask(port)) {
-+		ret = platform_get_irq(platdev, 1);
-+		if (ret > 0)
-+			ourport->tx_irq = ret;
++	if (!priv) {
++		/* nvme association has been torn down */
++		return rval;
 +	}
- 	/*
- 	 * DMA is currently supported only on DT platforms, if DMA properties
- 	 * are specified.
++
+ 	fcport = qla_rport->fcport;
+ 
+ 	vha = fcport->vha;
+-- 
+2.25.1
+
 
 
