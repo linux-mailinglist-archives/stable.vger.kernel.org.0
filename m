@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CEA259BE3
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A52259C78
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729046AbgIAPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
+        id S1729131AbgIARP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 13:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729448AbgIAPSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:18:03 -0400
+        id S1729058AbgIAPOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:14:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 340ED206FA;
-        Tue,  1 Sep 2020 15:18:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0582220BED;
+        Tue,  1 Sep 2020 15:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973482;
-        bh=lGnFVNogcwK2R3awunYTUFbCd5LOFn/2/DNqbrRJYP8=;
+        s=default; t=1598973276;
+        bh=jEefKI7xzDuYVvaI23wtm8xvKtlPTIbJs28ypFe/4Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKB3h7c/7PvltZRprXwQq9+YRu/je8zIdS/BenLjQVDuGthp6u5ZJmPSsy/KEuBxi
-         DUUPs+d4WHZYqy27wbbQKsCDf6kQyt52hdAqYsuFY5LI9yGFGrpUDm8owOM982Xx8+
-         mw+a43o8jj0ufRpcV7r+qylHu34n4phKxBOWWmQ4=
+        b=JP94T3wl/oiFJQvcV+G8YUJMq12Vv3azxsFC9+KVa01N6JSXJBU5da1GR+Td2dJEB
+         y996y/KtyDGOuHid1fpc1EomzUWO3gcXdLM3hURsWpGTcYlPVSl+XEXfsqk3vGLe4r
+         P+AJZX4c1oopR8SvoyobgzyTcl9cwd+001Gk9r9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Navid Emamdoost <navid.emamdoost@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/91] drm/amdgpu: fix ref count leak in amdgpu_driver_open_kms
+Subject: [PATCH 4.9 15/78] drm/amdgpu: fix ref count leak in amdgpu_driver_open_kms
 Date:   Tue,  1 Sep 2020 17:09:51 +0200
-Message-Id: <20200901150928.970600746@linuxfoundation.org>
+Message-Id: <20200901150925.498282766@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
-References: <20200901150928.096174795@linuxfoundation.org>
+In-Reply-To: <20200901150924.680106554@linuxfoundation.org>
+References: <20200901150924.680106554@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index 22d9ec80a2ffd..b7ee5008b8a2a 100644
+index ab5134d920d96..96fc1566f28e5 100644
 --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
 +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -785,7 +785,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+@@ -543,7 +543,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
  
  	r = pm_runtime_get_sync(dev->dev);
  	if (r < 0)
@@ -73,7 +73,7 @@ index 22d9ec80a2ffd..b7ee5008b8a2a 100644
  
  	fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
  	if (unlikely(!fpriv)) {
-@@ -824,6 +824,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+@@ -566,6 +566,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
  
  out_suspend:
  	pm_runtime_mark_last_busy(dev->dev);
