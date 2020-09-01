@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 231182594B9
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:42:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B082593C5
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729007AbgIAPme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:42:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55530 "EHLO mail.kernel.org"
+        id S1730628AbgIAPas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731566AbgIAPmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:42:32 -0400
+        id S1728903AbgIAPap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:30:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6573C2064B;
-        Tue,  1 Sep 2020 15:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F09C207D3;
+        Tue,  1 Sep 2020 15:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974951;
-        bh=FpnvJsQ/MFxUvX0nLrEfcR+kiwscTrNVnhbkPdBa00g=;
+        s=default; t=1598974244;
+        bh=WdnpDlkzTQsxN4919At8IGyxFiDcqFVjfe6E6UOUb4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOnu1130Uq3TBMr8Wf/2FDvKejCPShoOVaDjMBLBbtdeS1ASDMPa9vwaSaWK0N4D2
-         VcQdPc2IKtHVjYDiDWEuTyn2TPnqTJnjFLkPY6o6Kfe1gOvaLIwIAl6CMoMSQebgYD
-         WVQyON9gaUfSGZXTnOJBwVOdzD1JKq3BdYc3/FnY=
+        b=Zl0xKS1tKwe2wODF9uR94n6h83xocOd3L11Emzvx5Ek3R05/pqny+1jrpsEc5fVk5
+         gXWOYzP0nm0bUNrQW9vP8ZoW1JLi6Rvk95o8VP3HJpPKDT+fp443oGoAUKVT6Udnla
+         6YZe4MYFaP0kJG2+dYtyOYO4+fbSoxnnesIThVgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 123/255] drm/amd/powerplay: correct UVD/VCE PG state on custom pptable uploading
-Date:   Tue,  1 Sep 2020 17:09:39 +0200
-Message-Id: <20200901151006.623759292@linuxfoundation.org>
+Subject: [PATCH 5.4 102/214] block: Fix page_is_mergeable() for compound pages
+Date:   Tue,  1 Sep 2020 17:09:42 +0200
+Message-Id: <20200901150957.887959537@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
-References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
+References: <20200901150952.963606936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 2c5b8080d810d98e3e59617680218499b17c84a1 ]
+[ Upstream commit d81665198b83e55a28339d1f3e4890ed8a434556 ]
 
-The UVD/VCE PG state is managed by UVD and VCE IP. It's error-prone to
-assume the bootup state in SMU based on the dpm status.
+If we pass in an offset which is larger than PAGE_SIZE, then
+page_is_mergeable() thinks it's not mergeable with the previous bio_vec,
+leading to a large number of bio_vecs being used.  Use a slightly more
+obvious test that the two pages are compatible with each other.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 52d52d1c98a9 ("block: only allow contiguous page structs in a bio_vec")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c | 6 ------
- 1 file changed, 6 deletions(-)
+ block/bio.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
-index b7f3f8b62c2ac..9bd2874a122b4 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
-@@ -1640,12 +1640,6 @@ static void vega20_init_powergate_state(struct pp_hwmgr *hwmgr)
+diff --git a/block/bio.c b/block/bio.c
+index 94d697217887a..87505a93bcff6 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -683,8 +683,8 @@ static inline bool page_is_mergeable(const struct bio_vec *bv,
+ 		struct page *page, unsigned int len, unsigned int off,
+ 		bool *same_page)
+ {
+-	phys_addr_t vec_end_addr = page_to_phys(bv->bv_page) +
+-		bv->bv_offset + bv->bv_len - 1;
++	size_t bv_end = bv->bv_offset + bv->bv_len;
++	phys_addr_t vec_end_addr = page_to_phys(bv->bv_page) + bv_end - 1;
+ 	phys_addr_t page_addr = page_to_phys(page);
  
- 	data->uvd_power_gated = true;
- 	data->vce_power_gated = true;
--
--	if (data->smu_features[GNLD_DPM_UVD].enabled)
--		data->uvd_power_gated = false;
--
--	if (data->smu_features[GNLD_DPM_VCE].enabled)
--		data->vce_power_gated = false;
+ 	if (vec_end_addr + 1 != page_addr + off)
+@@ -693,9 +693,9 @@ static inline bool page_is_mergeable(const struct bio_vec *bv,
+ 		return false;
+ 
+ 	*same_page = ((vec_end_addr & PAGE_MASK) == page_addr);
+-	if (!*same_page && pfn_to_page(PFN_DOWN(vec_end_addr)) + 1 != page)
+-		return false;
+-	return true;
++	if (*same_page)
++		return true;
++	return (bv->bv_page + bv_end / PAGE_SIZE) == (page + off / PAGE_SIZE);
  }
  
- static int vega20_enable_dpm_tasks(struct pp_hwmgr *hwmgr)
+ static bool bio_try_merge_pc_page(struct request_queue *q, struct bio *bio,
 -- 
 2.25.1
 
