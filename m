@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F94D2598D8
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5222598DA
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730706AbgIAPb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34424 "EHLO mail.kernel.org"
+        id S1729532AbgIAQeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:34:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730367AbgIAPbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:31:25 -0400
+        id S1730029AbgIAPb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:31:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BBD520E65;
-        Tue,  1 Sep 2020 15:31:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0AFF20866;
+        Tue,  1 Sep 2020 15:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598974283;
-        bh=2Mvp88UjQddlB8u06dLtNxt1+sjYDAKsbNoZDsLDV6Q=;
+        s=default; t=1598974286;
+        bh=jOLWPXhtVbQojFkMlCNxaLLUR8fKNV7LxXom8aJxz/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpOGJzrIvfMWKBA7MioiOZjMAC7JLshHVidk0auPFfL16zJ2Bhm9rVVXsL4c/bU9q
-         ejlFLamBq09YA0TMt0FJte/qKX+BXb/lON+9dyHImR4/i3oJXm6H4UrNoVXeatqnTo
-         hdqXXpT9tkto6rDwXYVcLaz1xd/VWoS0lKlMZGyU=
+        b=kRTkShe7kvV4zkmI9GGKO5cO5TSPM4+QRDO41xyoySR6n+ksWNh6+e4+vrUT5a+Ax
+         5smd6sh2AprfRuJQ8ynfE3bJbyxCeCPToaf36BqRhnXnqDcVo5DJoJvqfqURJtL7oT
+         AqQq5cnoq+lo4odrcShyfCXY49ErDbC6LdTlxgIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Andreas Dilger <adilger@dilger.ca>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
         Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/214] ext4: handle read only external journal device
-Date:   Tue,  1 Sep 2020 17:09:56 +0200
-Message-Id: <20200901150958.543471021@linuxfoundation.org>
+Subject: [PATCH 5.4 117/214] jbd2: abort journal if free a async write error metadata buffer
+Date:   Tue,  1 Sep 2020 17:09:57 +0200
+Message-Id: <20200901150958.593490171@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150952.963606936@linuxfoundation.org>
 References: <20200901150952.963606936@linuxfoundation.org>
@@ -44,181 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 273108fa5015eeffc4bacfa5ce272af3434b96e4 ]
+[ Upstream commit c044f3d8360d2ecf831ba2cc9f08cf9fb2c699fb ]
 
-Ext4 uses blkdev_get_by_dev() to get the block_device for journal device
-which does check to see if the read-only block device was opened
-read-only.
+If we free a metadata buffer which has been failed to async write out
+in the background, the jbd2 checkpoint procedure will not detect this
+failure in jbd2_log_do_checkpoint(), so it may lead to filesystem
+inconsistency after cleanup journal tail. This patch abort the journal
+if free a buffer has write_io_error flag to prevent potential further
+inconsistency.
 
-As a result ext4 will hapily proceed mounting the file system with
-external journal on read-only device. This is bad as we would not be
-able to use the journal leading to errors later on.
-
-Instead of simply failing to mount file system in this case, treat it in
-a similar way we treat internal journal on read-only device. Allow to
-mount with -o noload in read-only mode.
-
-This can be reproduced easily like this:
-
-mke2fs -F -O journal_dev $JOURNAL_DEV 100M
-mkfs.$FSTYPE -F -J device=$JOURNAL_DEV $FS_DEV
-blockdev --setro $JOURNAL_DEV
-mount $FS_DEV $MNT
-touch $MNT/file
-umount $MNT
-
-leading to error like this
-
-[ 1307.318713] ------------[ cut here ]------------
-[ 1307.323362] generic_make_request: Trying to write to read-only block-device dm-2 (partno 0)
-[ 1307.331741] WARNING: CPU: 36 PID: 3224 at block/blk-core.c:855 generic_make_request_checks+0x2c3/0x580
-[ 1307.341041] Modules linked in: ext4 mbcache jbd2 rfkill intel_rapl_msr intel_rapl_common isst_if_commd
-[ 1307.419445] CPU: 36 PID: 3224 Comm: jbd2/dm-2 Tainted: G        W I       5.8.0-rc5 #2
-[ 1307.427359] Hardware name: Dell Inc. PowerEdge R740/01KPX8, BIOS 2.3.10 08/15/2019
-[ 1307.434932] RIP: 0010:generic_make_request_checks+0x2c3/0x580
-[ 1307.440676] Code: 94 03 00 00 48 89 df 48 8d 74 24 08 c6 05 cf 2b 18 01 01 e8 7f a4 ff ff 48 c7 c7 50e
-[ 1307.459420] RSP: 0018:ffffc0d70eb5fb48 EFLAGS: 00010286
-[ 1307.464646] RAX: 0000000000000000 RBX: ffff9b33b2978300 RCX: 0000000000000000
-[ 1307.471780] RDX: ffff9b33e12a81e0 RSI: ffff9b33e1298000 RDI: ffff9b33e1298000
-[ 1307.478913] RBP: ffff9b7b9679e0c0 R08: 0000000000000837 R09: 0000000000000024
-[ 1307.486044] R10: 0000000000000000 R11: ffffc0d70eb5f9f0 R12: 0000000000000400
-[ 1307.493177] R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
-[ 1307.500308] FS:  0000000000000000(0000) GS:ffff9b33e1280000(0000) knlGS:0000000000000000
-[ 1307.508396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1307.514142] CR2: 000055eaf4109000 CR3: 0000003dee40a006 CR4: 00000000007606e0
-[ 1307.521273] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1307.528407] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 1307.535538] PKRU: 55555554
-[ 1307.538250] Call Trace:
-[ 1307.540708]  generic_make_request+0x30/0x340
-[ 1307.544985]  submit_bio+0x43/0x190
-[ 1307.548393]  ? bio_add_page+0x62/0x90
-[ 1307.552068]  submit_bh_wbc+0x16a/0x190
-[ 1307.555833]  jbd2_write_superblock+0xec/0x200 [jbd2]
-[ 1307.560803]  jbd2_journal_update_sb_log_tail+0x65/0xc0 [jbd2]
-[ 1307.566557]  jbd2_journal_commit_transaction+0x2ae/0x1860 [jbd2]
-[ 1307.572566]  ? check_preempt_curr+0x7a/0x90
-[ 1307.576756]  ? update_curr+0xe1/0x1d0
-[ 1307.580421]  ? account_entity_dequeue+0x7b/0xb0
-[ 1307.584955]  ? newidle_balance+0x231/0x3d0
-[ 1307.589056]  ? __switch_to_asm+0x42/0x70
-[ 1307.592986]  ? __switch_to_asm+0x36/0x70
-[ 1307.596918]  ? lock_timer_base+0x67/0x80
-[ 1307.600851]  kjournald2+0xbd/0x270 [jbd2]
-[ 1307.604873]  ? finish_wait+0x80/0x80
-[ 1307.608460]  ? commit_timeout+0x10/0x10 [jbd2]
-[ 1307.612915]  kthread+0x114/0x130
-[ 1307.616152]  ? kthread_park+0x80/0x80
-[ 1307.619816]  ret_from_fork+0x22/0x30
-[ 1307.623400] ---[ end trace 27490236265b1630 ]---
-
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20200717090605.2612-1-lczerner@redhat.com
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20200620025427.1756360-5-yi.zhang@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 51 ++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 18 deletions(-)
+ fs/jbd2/transaction.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index bd4feafcff294..76c5529394395 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4943,6 +4943,7 @@ static int ext4_load_journal(struct super_block *sb,
- 	dev_t journal_dev;
- 	int err = 0;
- 	int really_read_only;
-+	int journal_dev_ro;
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index 0b663269771d4..90453309345d5 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2077,6 +2077,7 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+ {
+ 	struct buffer_head *head;
+ 	struct buffer_head *bh;
++	bool has_write_io_error = false;
+ 	int ret = 0;
  
- 	if (WARN_ON_ONCE(!ext4_has_feature_journal(sb)))
- 		return -EFSCORRUPTED;
-@@ -4955,7 +4956,31 @@ static int ext4_load_journal(struct super_block *sb,
- 	} else
- 		journal_dev = new_decode_dev(le32_to_cpu(es->s_journal_dev));
- 
--	really_read_only = bdev_read_only(sb->s_bdev);
-+	if (journal_inum && journal_dev) {
-+		ext4_msg(sb, KERN_ERR,
-+			 "filesystem has both journal inode and journal device!");
-+		return -EINVAL;
-+	}
+ 	J_ASSERT(PageLocked(page));
+@@ -2101,11 +2102,26 @@ int jbd2_journal_try_to_free_buffers(journal_t *journal,
+ 		jbd_unlock_bh_state(bh);
+ 		if (buffer_jbd(bh))
+ 			goto busy;
 +
-+	if (journal_inum) {
-+		journal = ext4_get_journal(sb, journal_inum);
-+		if (!journal)
-+			return -EINVAL;
-+	} else {
-+		journal = ext4_get_dev_journal(sb, journal_dev);
-+		if (!journal)
-+			return -EINVAL;
-+	}
++		/*
++		 * If we free a metadata buffer which has been failed to
++		 * write out, the jbd2 checkpoint procedure will not detect
++		 * this failure and may lead to filesystem inconsistency
++		 * after cleanup journal tail.
++		 */
++		if (buffer_write_io_error(bh)) {
++			pr_err("JBD2: Error while async write back metadata bh %llu.",
++			       (unsigned long long)bh->b_blocknr);
++			has_write_io_error = true;
++		}
+ 	} while ((bh = bh->b_this_page) != head);
+ 
+ 	ret = try_to_free_buffers(page);
+ 
+ busy:
++	if (has_write_io_error)
++		jbd2_journal_abort(journal, -EIO);
 +
-+	journal_dev_ro = bdev_read_only(journal->j_dev);
-+	really_read_only = bdev_read_only(sb->s_bdev) | journal_dev_ro;
-+
-+	if (journal_dev_ro && !sb_rdonly(sb)) {
-+		ext4_msg(sb, KERN_ERR,
-+			 "journal device read-only, try mounting with '-o ro'");
-+		err = -EROFS;
-+		goto err_out;
-+	}
- 
- 	/*
- 	 * Are we loading a blank journal or performing recovery after a
-@@ -4970,27 +4995,14 @@ static int ext4_load_journal(struct super_block *sb,
- 				ext4_msg(sb, KERN_ERR, "write access "
- 					"unavailable, cannot proceed "
- 					"(try mounting with noload)");
--				return -EROFS;
-+				err = -EROFS;
-+				goto err_out;
- 			}
- 			ext4_msg(sb, KERN_INFO, "write access will "
- 			       "be enabled during recovery");
- 		}
- 	}
- 
--	if (journal_inum && journal_dev) {
--		ext4_msg(sb, KERN_ERR, "filesystem has both journal "
--		       "and inode journals!");
--		return -EINVAL;
--	}
--
--	if (journal_inum) {
--		if (!(journal = ext4_get_journal(sb, journal_inum)))
--			return -EINVAL;
--	} else {
--		if (!(journal = ext4_get_dev_journal(sb, journal_dev)))
--			return -EINVAL;
--	}
--
- 	if (!(journal->j_flags & JBD2_BARRIER))
- 		ext4_msg(sb, KERN_INFO, "barriers disabled");
- 
-@@ -5010,8 +5022,7 @@ static int ext4_load_journal(struct super_block *sb,
- 
- 	if (err) {
- 		ext4_msg(sb, KERN_ERR, "error loading journal");
--		jbd2_journal_destroy(journal);
--		return err;
-+		goto err_out;
- 	}
- 
- 	EXT4_SB(sb)->s_journal = journal;
-@@ -5031,6 +5042,10 @@ static int ext4_load_journal(struct super_block *sb,
- 	}
- 
- 	return 0;
-+
-+err_out:
-+	jbd2_journal_destroy(journal);
-+	return err;
+ 	return ret;
  }
  
- static int ext4_commit_super(struct super_block *sb, int sync)
 -- 
 2.25.1
 
