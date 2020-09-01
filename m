@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 841F6259C93
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C3F259B34
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 19:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729477AbgIARRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 13:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57758 "EHLO mail.kernel.org"
+        id S1729675AbgIAPVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:21:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729019AbgIAPOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:14:12 -0400
+        id S1729236AbgIAPVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:21:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 893DF20FC3;
-        Tue,  1 Sep 2020 15:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C234206FA;
+        Tue,  1 Sep 2020 15:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973252;
-        bh=YprBujwCNjdQBe6mfhfGwFK2UYFCsqQ4kKCODmIigBg=;
+        s=default; t=1598973684;
+        bh=haMngcYoHsu/t+/mS4mejSu6pXO3QuqXEo3Pm1l24Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvv7RXVfm8ZFvWl/T3vGpz8fHgl89yZ37rNpofuekcYCXJtDYOB/iZDiHv3nlYm8n
-         hwVVbSq3XEJ7VZB8w6xW9EIWULWtRw9LUp07PSPFTRLnamJSXsH4zhaulHJTdqwzFR
-         +5Hak4FYYikqlUAmYXMC72QuibFO/DNwct59h8sU=
+        b=dlfwCZl1xF79FdHoFG4IxRc9QzdNvmoaWJ+7zF2p9lFTMdJhXCZz0JM27YumbVBfP
+         CtDu049rI4g063pIWyGA0mrp87TsNPpFKad3+7ZryneY8o1CtOXftokgXapU/pwwYn
+         daIlXBcXIxn/fh02wZvKeSiroMKPEl6PP1c6Dm1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 60/62] btrfs: check the right error variable in btrfs_del_dir_entries_in_log
+        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 69/91] writeback: Protect inode->i_io_list with inode->i_lock
 Date:   Tue,  1 Sep 2020 17:10:43 +0200
-Message-Id: <20200901150923.751316659@linuxfoundation.org>
+Message-Id: <20200901150931.602200418@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200901150920.697676718@linuxfoundation.org>
-References: <20200901150920.697676718@linuxfoundation.org>
+In-Reply-To: <20200901150928.096174795@linuxfoundation.org>
+References: <20200901150928.096174795@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit fb2fecbad50964b9f27a3b182e74e437b40753ef ]
+commit b35250c0816c7cf7d0a8de92f5fafb6a7508a708 upstream.
 
-With my new locking code dbench is so much faster that I tripped over a
-transaction abort from ENOSPC.  This turned out to be because
-btrfs_del_dir_entries_in_log was checking for ret == -ENOSPC, but this
-function sets err on error, and returns err.  So instead of properly
-marking the inode as needing a full commit, we were returning -ENOSPC
-and aborting in __btrfs_unlink_inode.  Fix this by checking the proper
-variable so that we return the correct thing in the case of ENOSPC.
+Currently, operations on inode->i_io_list are protected by
+wb->list_lock. In the following patches we'll need to maintain
+consistency between inode->i_state and inode->i_io_list so change the
+code so that inode->i_lock protects also all inode's i_io_list handling.
 
-The ENOENT needs to be checked, because btrfs_lookup_dir_item_index()
-can return -ENOENT if the dir item isn't in the tree log (which would
-happen if we hadn't fsync'ed this guy).  We actually handle that case in
-__btrfs_unlink_inode, so it's an expected error to get back.
+Reviewed-by: Martijn Coenen <maco@android.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+CC: stable@vger.kernel.org # Prerequisite for "writeback: Avoid skipping inode writeback"
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 4a500fd178c8 ("Btrfs: Metadata ENOSPC handling for tree log")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note and comment about ENOENT ]
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/fs-writeback.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 820d3b5bc4150..8f0f91de436d5 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3169,11 +3169,13 @@ int btrfs_del_dir_entries_in_log(struct btrfs_trans_handle *trans,
- 	btrfs_free_path(path);
- out_unlock:
- 	mutex_unlock(&BTRFS_I(dir)->log_mutex);
--	if (ret == -ENOSPC) {
-+	if (err == -ENOSPC) {
- 		btrfs_set_log_full_commit(root->fs_info, trans);
--		ret = 0;
--	} else if (ret < 0)
--		btrfs_abort_transaction(trans, root, ret);
-+		err = 0;
-+	} else if (err < 0 && err != -ENOENT) {
-+		/* ENOENT can be returned if the entry hasn't been fsynced yet */
-+		btrfs_abort_transaction(trans, root, err);
-+	}
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -160,6 +160,7 @@ static void inode_io_list_del_locked(str
+ 				     struct bdi_writeback *wb)
+ {
+ 	assert_spin_locked(&wb->list_lock);
++	assert_spin_locked(&inode->i_lock);
  
- 	btrfs_end_log_trans(root);
+ 	list_del_init(&inode->i_io_list);
+ 	wb_io_lists_depopulated(wb);
+@@ -1039,7 +1040,9 @@ void inode_io_list_del(struct inode *ino
+ 	struct bdi_writeback *wb;
  
--- 
-2.25.1
-
+ 	wb = inode_to_wb_and_lock_list(inode);
++	spin_lock(&inode->i_lock);
+ 	inode_io_list_del_locked(inode, wb);
++	spin_unlock(&inode->i_lock);
+ 	spin_unlock(&wb->list_lock);
+ }
+ 
+@@ -1088,8 +1091,10 @@ void sb_clear_inode_writeback(struct ino
+  * the case then the inode must have been redirtied while it was being written
+  * out and we don't reset its dirtied_when.
+  */
+-static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
++static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
+ {
++	assert_spin_locked(&inode->i_lock);
++
+ 	if (!list_empty(&wb->b_dirty)) {
+ 		struct inode *tail;
+ 
+@@ -1100,6 +1105,13 @@ static void redirty_tail(struct inode *i
+ 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
+ }
+ 
++static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
++{
++	spin_lock(&inode->i_lock);
++	redirty_tail_locked(inode, wb);
++	spin_unlock(&inode->i_lock);
++}
++
+ /*
+  * requeue inode for re-scanning after bdi->b_io list is exhausted.
+  */
+@@ -1310,7 +1322,7 @@ static void requeue_inode(struct inode *
+ 		 * writeback is not making progress due to locked
+ 		 * buffers. Skip this inode for now.
+ 		 */
+-		redirty_tail(inode, wb);
++		redirty_tail_locked(inode, wb);
+ 		return;
+ 	}
+ 
+@@ -1330,7 +1342,7 @@ static void requeue_inode(struct inode *
+ 			 * retrying writeback of the dirty page/inode
+ 			 * that cannot be performed immediately.
+ 			 */
+-			redirty_tail(inode, wb);
++			redirty_tail_locked(inode, wb);
+ 		}
+ 	} else if (inode->i_state & I_DIRTY) {
+ 		/*
+@@ -1338,7 +1350,7 @@ static void requeue_inode(struct inode *
+ 		 * such as delayed allocation during submission or metadata
+ 		 * updates after data IO completion.
+ 		 */
+-		redirty_tail(inode, wb);
++		redirty_tail_locked(inode, wb);
+ 	} else if (inode->i_state & I_DIRTY_TIME) {
+ 		inode->dirtied_when = jiffies;
+ 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
+@@ -1585,8 +1597,8 @@ static long writeback_sb_inodes(struct s
+ 		 */
+ 		spin_lock(&inode->i_lock);
+ 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
++			redirty_tail_locked(inode, wb);
+ 			spin_unlock(&inode->i_lock);
+-			redirty_tail(inode, wb);
+ 			continue;
+ 		}
+ 		if ((inode->i_state & I_SYNC) && wbc.sync_mode != WB_SYNC_ALL) {
 
 
