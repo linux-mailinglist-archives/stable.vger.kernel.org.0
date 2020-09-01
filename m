@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BED259513
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB7C259518
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 17:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731691AbgIAPqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 11:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35998 "EHLO mail.kernel.org"
+        id S1729584AbgIAPqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 11:46:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731939AbgIAPqV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:46:21 -0400
+        id S1731534AbgIAPqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:46:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC6B92078B;
-        Tue,  1 Sep 2020 15:46:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6ECCB2098B;
+        Tue,  1 Sep 2020 15:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598975180;
-        bh=kA71fcJpkNopAAf52LgGtHDj8v411drt7EX2rOGPScw=;
+        s=default; t=1598975182;
+        bh=l4focxuKvS5PXArvX2t0M5gdbzXy9qeIo+SGurkiYAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJdE6Tls+4P0spW3VJrV3xtuXAlkCSj/7Vi8lV1a1OiJCA4CgpWa9uPIv2ba3yjCI
-         nRMafetBv8oX+N4gE7WRKNLNuSHyJm5QJWKUeZWXxSwXcdGhMlputwkprq61LMb0w9
-         I48z6+fkeOkBFMHKDtCm7nzhXn2GZij0AkkK9lPg=
+        b=KwGOaB6y+A2731q66BrZYB1GstVSGPwFfA9UycNelFyWUgyxgvpZfWyJEe/GoRrTj
+         ae3qOAMC16QVKPjRJu3Kq+NAFPpAzDjNVmw/vFY7EwDlQhKuYAJCllbO+PflkxIbOH
+         4wCdqNC9do1rKaCLbh5dYUeF+jdSu0Z7VX8oO2Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.8 240/255] usb: typec: ucsi: Rework ppm_lock handling
-Date:   Tue,  1 Sep 2020 17:11:36 +0200
-Message-Id: <20200901151012.253319597@linuxfoundation.org>
+Subject: [PATCH 5.8 241/255] usb: typec: ucsi: Hold con->lock for the entire duration of ucsi_register_port()
+Date:   Tue,  1 Sep 2020 17:11:37 +0200
+Message-Id: <20200901151012.298868418@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 References: <20200901151000.800754757@linuxfoundation.org>
@@ -46,186 +46,147 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit 25794e3079d2a98547b6bf5764ef0240aa89b798 upstream.
+commit bed97b30968ba354035a020989df0623e52b5536 upstream.
 
-The ppm_lock really only needs to be hold during 2 functions:
-ucsi_reset_ppm() and ucsi_run_command().
+Commit 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race
+during registration") made the ucsi code hold con->lock in
+ucsi_register_displayport(). But we really don't want any interactions
+with the connector to run before the port-registration process is fully
+complete.
 
-Push the taking of the lock down into these 2 functions, renaming
-ucsi_run_command() to ucsi_send_command() which was an existing
-wrapper already taking the lock for its callers.
-
-This simplifies things for the callers and removes the difference
-between ucsi_send_command() and ucsi_run_command() which has led
-to various locking bugs in the past.
+This commit moves the taking of con->lock from ucsi_register_displayport()
+into ucsi_register_port() to achieve this.
 
 Cc: stable@vger.kernel.org
+Fixes: 081da1325d35 ("usb: typec: ucsi: displayport: Fix a potential race during registration")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200809141904.4317-4-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20200809141904.4317-5-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/ucsi/ucsi.c |   56 ++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 34 deletions(-)
+ drivers/usb/typec/ucsi/displayport.c |    9 +--------
+ drivers/usb/typec/ucsi/ucsi.c        |   31 ++++++++++++++++++++++---------
+ 2 files changed, 23 insertions(+), 17 deletions(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -146,42 +146,33 @@ static int ucsi_exec_command(struct ucsi
- 	return UCSI_CCI_LENGTH(cci);
- }
+--- a/drivers/usb/typec/ucsi/displayport.c
++++ b/drivers/usb/typec/ucsi/displayport.c
+@@ -288,8 +288,6 @@ struct typec_altmode *ucsi_register_disp
+ 	struct typec_altmode *alt;
+ 	struct ucsi_dp *dp;
  
--static int ucsi_run_command(struct ucsi *ucsi, u64 command,
--			    void *data, size_t size)
-+int ucsi_send_command(struct ucsi *ucsi, u64 command,
-+		      void *data, size_t size)
- {
- 	u8 length;
- 	int ret;
+-	mutex_lock(&con->lock);
+-
+ 	/* We can't rely on the firmware with the capabilities. */
+ 	desc->vdo |= DP_CAP_DP_SIGNALING | DP_CAP_RECEPTACLE;
  
--	WARN_ON(!mutex_is_locked(&ucsi->ppm_lock));
-+	mutex_lock(&ucsi->ppm_lock);
+@@ -298,15 +296,12 @@ struct typec_altmode *ucsi_register_disp
+ 	desc->vdo |= all_assignments << 16;
  
- 	ret = ucsi_exec_command(ucsi, command);
- 	if (ret < 0)
--		return ret;
-+		goto out;
+ 	alt = typec_port_register_altmode(con->port, desc);
+-	if (IS_ERR(alt)) {
+-		mutex_unlock(&con->lock);
++	if (IS_ERR(alt))
+ 		return alt;
+-	}
  
- 	length = ret;
- 
- 	if (data) {
- 		ret = ucsi->ops->read(ucsi, UCSI_MESSAGE_IN, data, size);
- 		if (ret)
--			return ret;
-+			goto out;
+ 	dp = devm_kzalloc(&alt->dev, sizeof(*dp), GFP_KERNEL);
+ 	if (!dp) {
+ 		typec_unregister_altmode(alt);
+-		mutex_unlock(&con->lock);
+ 		return ERR_PTR(-ENOMEM);
  	}
  
- 	ret = ucsi_acknowledge_command(ucsi);
- 	if (ret)
--		return ret;
--
--	return length;
--}
-+		goto out;
+@@ -319,7 +314,5 @@ struct typec_altmode *ucsi_register_disp
+ 	alt->ops = &ucsi_displayport_ops;
+ 	typec_altmode_set_drvdata(alt, dp);
  
--int ucsi_send_command(struct ucsi *ucsi, u64 command,
--		      void *retval, size_t size)
--{
--	int ret;
+-	mutex_unlock(&con->lock);
 -
--	mutex_lock(&ucsi->ppm_lock);
--	ret = ucsi_run_command(ucsi, command, retval, size);
-+	ret = length;
-+out:
- 	mutex_unlock(&ucsi->ppm_lock);
--
- 	return ret;
+ 	return alt;
  }
- EXPORT_SYMBOL_GPL(ucsi_send_command);
-@@ -738,20 +729,24 @@ static int ucsi_reset_ppm(struct ucsi *u
- 	u32 cci;
- 	int ret;
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -898,12 +898,15 @@ static int ucsi_register_port(struct ucs
+ 	con->num = index + 1;
+ 	con->ucsi = ucsi;
  
-+	mutex_lock(&ucsi->ppm_lock);
++	/* Delay other interactions with the con until registration is complete */
++	mutex_lock(&con->lock);
 +
- 	ret = ucsi->ops->async_write(ucsi, UCSI_CONTROL, &command,
- 				     sizeof(command));
+ 	/* Get connector capability */
+ 	command = UCSI_GET_CONNECTOR_CAPABILITY;
+ 	command |= UCSI_CONNECTOR_NUMBER(con->num);
+ 	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
  	if (ret < 0)
 -		return ret;
 +		goto out;
  
- 	tmo = jiffies + msecs_to_jiffies(UCSI_TIMEOUT_MS);
+ 	if (con->cap.op_mode & UCSI_CONCAP_OPMODE_DRP)
+ 		cap->data = TYPEC_PORT_DRD;
+@@ -935,26 +938,32 @@ static int ucsi_register_port(struct ucs
  
- 	do {
--		if (time_is_before_jiffies(tmo))
--			return -ETIMEDOUT;
-+		if (time_is_before_jiffies(tmo)) {
-+			ret = -ETIMEDOUT;
-+			goto out;
+ 	ret = ucsi_register_port_psy(con);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	/* Register the connector */
+ 	con->port = typec_register_port(ucsi->dev, cap);
+-	if (IS_ERR(con->port))
+-		return PTR_ERR(con->port);
++	if (IS_ERR(con->port)) {
++		ret = PTR_ERR(con->port);
++		goto out;
++	}
+ 
+ 	/* Alternate modes */
+ 	ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_CON);
+-	if (ret)
++	if (ret) {
+ 		dev_err(ucsi->dev, "con%d: failed to register alt modes\n",
+ 			con->num);
++		goto out;
++	}
+ 
+ 	/* Get the status */
+ 	command = UCSI_GET_CONNECTOR_STATUS | UCSI_CONNECTOR_NUMBER(con->num);
+ 	ret = ucsi_send_command(ucsi, command, &con->status, sizeof(con->status));
+ 	if (ret < 0) {
+ 		dev_err(ucsi->dev, "con%d: failed to get status\n", con->num);
+-		return 0;
++		ret = 0;
++		goto out;
+ 	}
++	ret = 0; /* ucsi_send_command() returns length on success */
+ 
+ 	switch (UCSI_CONSTAT_PARTNER_TYPE(con->status.flags)) {
+ 	case UCSI_CONSTAT_PARTNER_TYPE_UFP:
+@@ -979,17 +988,21 @@ static int ucsi_register_port(struct ucs
+ 
+ 	if (con->partner) {
+ 		ret = ucsi_register_altmodes(con, UCSI_RECIPIENT_SOP);
+-		if (ret)
++		if (ret) {
+ 			dev_err(ucsi->dev,
+ 				"con%d: failed to register alternate modes\n",
+ 				con->num);
+-		else
++			ret = 0;
++		} else {
+ 			ucsi_altmode_update_active(con);
 +		}
+ 	}
  
- 		ret = ucsi->ops->read(ucsi, UCSI_CCI, &cci, sizeof(cci));
- 		if (ret)
--			return ret;
-+			goto out;
- 
- 		/* If the PPM is still doing something else, reset it again. */
- 		if (cci & ~UCSI_CCI_RESET_COMPLETE) {
-@@ -759,13 +754,15 @@ static int ucsi_reset_ppm(struct ucsi *u
- 						     &command,
- 						     sizeof(command));
- 			if (ret < 0)
--				return ret;
-+				goto out;
- 		}
- 
- 		msleep(20);
- 	} while (!(cci & UCSI_CCI_RESET_COMPLETE));
+ 	trace_ucsi_register_port(con->num, &con->status);
  
 -	return 0;
 +out:
-+	mutex_unlock(&ucsi->ppm_lock);
++	mutex_unlock(&con->lock);
 +	return ret;
  }
  
- static int ucsi_role_cmd(struct ucsi_connector *con, u64 command)
-@@ -777,9 +774,7 @@ static int ucsi_role_cmd(struct ucsi_con
- 		u64 c;
- 
- 		/* PPM most likely stopped responding. Resetting everything. */
--		mutex_lock(&con->ucsi->ppm_lock);
- 		ucsi_reset_ppm(con->ucsi);
--		mutex_unlock(&con->ucsi->ppm_lock);
- 
- 		c = UCSI_SET_NOTIFICATION_ENABLE | con->ucsi->ntfy;
- 		ucsi_send_command(con->ucsi, c, NULL, 0);
-@@ -1010,8 +1005,6 @@ int ucsi_init(struct ucsi *ucsi)
- 	int ret;
- 	int i;
- 
--	mutex_lock(&ucsi->ppm_lock);
--
- 	/* Reset the PPM */
- 	ret = ucsi_reset_ppm(ucsi);
- 	if (ret) {
-@@ -1022,13 +1015,13 @@ int ucsi_init(struct ucsi *ucsi)
- 	/* Enable basic notifications */
- 	ucsi->ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
- 	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
--	ret = ucsi_run_command(ucsi, command, NULL, 0);
-+	ret = ucsi_send_command(ucsi, command, NULL, 0);
- 	if (ret < 0)
- 		goto err_reset;
- 
- 	/* Get PPM capabilities */
- 	command = UCSI_GET_CAPABILITY;
--	ret = ucsi_run_command(ucsi, command, &ucsi->cap, sizeof(ucsi->cap));
-+	ret = ucsi_send_command(ucsi, command, &ucsi->cap, sizeof(ucsi->cap));
- 	if (ret < 0)
- 		goto err_reset;
- 
-@@ -1045,8 +1038,6 @@ int ucsi_init(struct ucsi *ucsi)
- 		goto err_reset;
- 	}
- 
--	mutex_unlock(&ucsi->ppm_lock);
--
- 	/* Register all connectors */
- 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
- 		ret = ucsi_register_port(ucsi, i);
-@@ -1072,12 +1063,9 @@ err_unregister:
- 		con->port = NULL;
- 	}
- 
--	mutex_lock(&ucsi->ppm_lock);
- err_reset:
- 	ucsi_reset_ppm(ucsi);
- err:
--	mutex_unlock(&ucsi->ppm_lock);
--
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(ucsi_init);
+ /**
 
 
