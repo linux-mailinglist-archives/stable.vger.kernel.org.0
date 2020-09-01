@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD41259AC0
-	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F74259AC9
+	for <lists+stable@lfdr.de>; Tue,  1 Sep 2020 18:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729827AbgIAQxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 12:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48840 "EHLO mail.kernel.org"
+        id S1730511AbgIAQyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 12:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729978AbgIAPYv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729070AbgIAPYv (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 1 Sep 2020 11:24:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 551432137B;
-        Tue,  1 Sep 2020 15:24:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C35C920FC3;
+        Tue,  1 Sep 2020 15:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598973886;
-        bh=f6lO3xg2CEAK8IFQzL3VVhnmLwv5uiETfBxCMqaaiKk=;
+        s=default; t=1598973889;
+        bh=CvSkdwDg6PRknrGxMyqrHFPTdy7TeeZG/HZYNd6mZRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJQUlxVTHSpEluvuUAti7eL/XZSLP7+1IuwNdYJRAf0A/L+ISeYtz5IDARX2hKnMV
-         qsRWxZ0iiTv5HUzqxw/O8w2XW4p/wmIbeC/Njdm19a5mD/jYpn/p1uBI6zUIGWcnGY
-         sIpXJlQtkFNqg5RlFYKEshsYlE5DUm1GYz8dI63Q=
+        b=tKoukL++EDMwYQ1LDNIZX8HfKH3hrY9qTu4nRpIcTb9SD53rG5ZTfLLlBPDvm55m/
+         1Y/EMFpzlMfnAgbEnFf/vbQUAO83YWyp8/BV4bLOyMq2R/VRtzH+UfOXasEpvFbRs/
+         Ia+/8nJF+eGnizRbZCPXrRV6Oc6Twd8vCzV9B8Zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>
-Subject: [PATCH 4.19 086/125] USB: lvtest: return proper error code in probe
-Date:   Tue,  1 Sep 2020 17:10:41 +0200
-Message-Id: <20200901150938.791800840@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+9116ecc1978ca3a12f43@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 4.19 087/125] vt: defer kfree() of vc_screenbuf in vc_do_resize()
+Date:   Tue,  1 Sep 2020 17:10:42 +0200
+Message-Id: <20200901150938.837990318@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
 References: <20200901150934.576210879@linuxfoundation.org>
@@ -42,35 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 531412492ce93ea29b9ca3b4eb5e3ed771f851dd upstream.
+commit f8d1653daec02315e06d30246cff4af72e76e54e upstream.
 
-lvs_rh_probe() can return some nonnegative value from usb_control_msg()
-when it is less than "USB_DT_HUB_NONVAR_SIZE + 2" that is considered as
-a failure. Make lvs_rh_probe() return -EINVAL in this case.
+syzbot is reporting UAF bug in set_origin() from vc_do_resize() [1], for
+vc_do_resize() calls kfree(vc->vc_screenbuf) before calling set_origin().
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Unfortunately, in set_origin(), vc->vc_sw->con_set_origin() might access
+vc->vc_pos when scroll is involved in order to manipulate cursor, but
+vc->vc_pos refers already released vc->vc_screenbuf until vc->vc_pos gets
+updated based on the result of vc->vc_sw->con_set_origin().
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Preserving old buffer and tolerating outdated vc members until set_origin()
+completes would be easier than preventing vc->vc_sw->con_set_origin() from
+accessing outdated vc members.
+
+[1] https://syzkaller.appspot.com/bug?id=6649da2081e2ebdc65c0642c214b27fe91099db3
+
+Reported-by: syzbot <syzbot+9116ecc1978ca3a12f43@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200805090643.3432-1-novikov@ispras.ru
+Link: https://lore.kernel.org/r/1596034621-4714-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/lvstest.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vt.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/lvstest.c
-+++ b/drivers/usb/misc/lvstest.c
-@@ -429,7 +429,7 @@ static int lvs_rh_probe(struct usb_inter
- 			USB_DT_SS_HUB_SIZE, USB_CTRL_GET_TIMEOUT);
- 	if (ret < (USB_DT_HUB_NONVAR_SIZE + 2)) {
- 		dev_err(&hdev->dev, "wrong root hub descriptor read %d\n", ret);
--		return ret;
-+		return ret < 0 ? ret : -EINVAL;
- 	}
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1199,7 +1199,7 @@ static int vc_do_resize(struct tty_struc
+ 	unsigned int old_rows, old_row_size, first_copied_row;
+ 	unsigned int new_cols, new_rows, new_row_size, new_screen_size;
+ 	unsigned int user;
+-	unsigned short *newscreen;
++	unsigned short *oldscreen, *newscreen;
+ 	struct uni_screen *new_uniscr = NULL;
  
- 	/* submit urb to poll interrupt endpoint */
+ 	WARN_CONSOLE_UNLOCKED();
+@@ -1297,10 +1297,11 @@ static int vc_do_resize(struct tty_struc
+ 	if (new_scr_end > new_origin)
+ 		scr_memsetw((void *)new_origin, vc->vc_video_erase_char,
+ 			    new_scr_end - new_origin);
+-	kfree(vc->vc_screenbuf);
++	oldscreen = vc->vc_screenbuf;
+ 	vc->vc_screenbuf = newscreen;
+ 	vc->vc_screenbuf_size = new_screen_size;
+ 	set_origin(vc);
++	kfree(oldscreen);
+ 
+ 	/* do part of a reset_terminal() */
+ 	vc->vc_top = 0;
 
 
