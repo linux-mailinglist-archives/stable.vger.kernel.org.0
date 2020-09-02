@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFEB425A899
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 11:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E86025A89A
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 11:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726268AbgIBJ3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 05:29:14 -0400
-Received: from foss.arm.com ([217.140.110.172]:34212 "EHLO foss.arm.com"
+        id S1726140AbgIBJ3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 05:29:17 -0400
+Received: from foss.arm.com ([217.140.110.172]:34218 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726140AbgIBJ3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726226AbgIBJ3O (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 2 Sep 2020 05:29:14 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3CDA3101E;
-        Wed,  2 Sep 2020 02:29:13 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1EB6931B;
+        Wed,  2 Sep 2020 02:29:14 -0700 (PDT)
 Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8DEFC3F68F;
-        Wed,  2 Sep 2020 02:29:12 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6FB163F68F;
+        Wed,  2 Sep 2020 02:29:13 -0700 (PDT)
 From:   Andre Przywara <andre.przywara@arm.com>
 To:     stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>, Marc Zyngier <maz@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH stable v5.8 v2 1/2] KVM: arm64: Add kvm_extable for vaxorcism code
-Date:   Wed,  2 Sep 2020 10:29:03 +0100
-Message-Id: <20200902092904.122477-2-andre.przywara@arm.com>
+Subject: [PATCH stable v5.8 v2 2/2] KVM: arm64: Survive synchronous exceptions caused by AT instructions
+Date:   Wed,  2 Sep 2020 10:29:04 +0100
+Message-Id: <20200902092904.122477-3-andre.przywara@arm.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200902092904.122477-1-andre.przywara@arm.com>
 References: <20200902092904.122477-1-andre.przywara@arm.com>
@@ -34,244 +34,133 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit e9ee186bb735bfc17fa81dbc9aebf268aee5b41e upstream.
+commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
 
-KVM has a one instruction window where it will allow an SError exception
-to be consumed by the hypervisor without treating it as a hypervisor bug.
-This is used to consume asynchronous external abort that were caused by
-the guest.
+KVM doesn't expect any synchronous exceptions when executing, any such
+exception leads to a panic(). AT instructions access the guest page
+tables, and can cause a synchronous external abort to be taken.
 
-As we are about to add another location that survives unexpected exceptions,
-generalise this code to make it behave like the host's extable.
+The arm-arm is unclear on what should happen if the guest has configured
+the hardware update of the access-flag, and a memory type in TCR_EL1 that
+does not support atomic operations. B2.2.6 "Possible implementation
+restrictions on using atomic instructions" from DDI0487F.a lists
+synchronous external abort as a possible behaviour of atomic instructions
+that target memory that isn't writeback cacheable, but the page table
+walker may behave differently.
 
-KVM's version has to be mapped to EL2 to be accessible on nVHE systems.
+Make KVM robust to synchronous exceptions caused by AT instructions.
+Add a get_user() style helper for AT instructions that returns -EFAULT
+if an exception was generated.
 
-The SError vaxorcism code is a one instruction window, so has two entries
-in the extable. Because the KVM code is copied for VHE and nVHE, we end up
-with four entries, half of which correspond with code that isn't mapped.
+While KVM's version of the exception table mixes synchronous and
+asynchronous exceptions, only one of these can occur at each location.
 
-Cc: <stable@vger.kernel.org> # v5.8
+Re-enter the guest when the AT instructions take an exception on the
+assumption the guest will take the same exception. This isn't guaranteed
+to make forward progress, as the AT instructions may always walk the page
+tables, but guest execution may use the translation cached in the TLB.
+
+This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
+entry when an asynchronous exception is pending"), KVM will return to the
+host to process IRQs allowing the rest of the system to keep running.
+
+Cc: stable@vger.kernel.org # v5.8
 Signed-off-by: James Morse <james.morse@arm.com>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 ---
- arch/arm64/include/asm/kvm_asm.h | 15 ++++++++++
- arch/arm64/kernel/vmlinux.lds.S  |  8 +++++
- arch/arm64/kvm/hyp/entry.S       | 15 ++++++----
- arch/arm64/kvm/hyp/hyp-entry.S   | 51 +++++++++++++++++++-------------
- arch/arm64/kvm/hyp/switch.c      | 31 +++++++++++++++++++
- 5 files changed, 94 insertions(+), 26 deletions(-)
+ arch/arm64/include/asm/kvm_asm.h | 28 ++++++++++++++++++++++++++++
+ arch/arm64/kvm/hyp/hyp-entry.S   | 14 ++++++++++----
+ arch/arm64/kvm/hyp/switch.c      |  8 ++++----
+ 3 files changed, 42 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-index 352aaebf4198..7f09543b7c9a 100644
+index 7f09543b7c9a..2eff49d81be2 100644
 --- a/arch/arm64/include/asm/kvm_asm.h
 +++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -146,6 +146,21 @@ extern char __smccc_workaround_1_smc[__SMCCC_WORKAROUND_1_SMC_SZ];
- 	kern_hyp_va	\vcpu
- .endm
+@@ -121,6 +121,34 @@ extern char __smccc_workaround_1_smc[__SMCCC_WORKAROUND_1_SMC_SZ];
+ 		*__hyp_this_cpu_ptr(sym);				\
+ 	 })
  
-+/*
-+ * KVM extable for unexpected exceptions.
-+ * In the same format _asm_extable, but output to a different section so that
-+ * it can be mapped to EL2. The KVM version is not sorted. The caller must
-+ * ensure:
-+ * x18 has the hypervisor value to allow any Shadow-Call-Stack instrumented
-+ * code to write to it, and that SPSR_EL2 and ELR_EL2 are restored by the fixup.
-+ */
-+.macro	_kvm_extable, from, to
-+	.pushsection	__kvm_ex_table, "a"
-+	.align		3
-+	.long		(\from - .), (\to - .)
-+	.popsection
-+.endm
++#define __KVM_EXTABLE(from, to)						\
++	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
++	"	.align		3\n"					\
++	"	.long		(" #from " - .), (" #to " - .)\n"	\
++	"	.popsection\n"
 +
- #endif
- 
- #endif /* __ARM_KVM_ASM_H__ */
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index 5423ffe0a987..1417a9042d13 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -21,6 +21,13 @@ ENTRY(_text)
- 
- jiffies = jiffies_64;
- 
 +
-+#define HYPERVISOR_EXTABLE					\
-+	. = ALIGN(SZ_8);					\
-+	__start___kvm_ex_table = .;				\
-+	*(__kvm_ex_table)					\
-+	__stop___kvm_ex_table = .;
++#define __kvm_at(at_op, addr)						\
++( { 									\
++	int __kvm_at_err = 0;						\
++	u64 spsr, elr;							\
++	asm volatile(							\
++	"	mrs	%1, spsr_el2\n"					\
++	"	mrs	%2, elr_el2\n"					\
++	"1:	at	"at_op", %3\n"					\
++	"	isb\n"							\
++	"	b	9f\n"						\
++	"2:	msr	spsr_el2, %1\n"					\
++	"	msr	elr_el2, %2\n"					\
++	"	mov	%w0, %4\n"					\
++	"9:\n"								\
++	__KVM_EXTABLE(1b, 2b)						\
++	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
++	: "r" (addr), "i" (-EFAULT));					\
++	__kvm_at_err;							\
++} )
 +
- #define HYPERVISOR_TEXT					\
- 	/*						\
- 	 * Align to 4 KB so that			\
-@@ -36,6 +43,7 @@ jiffies = jiffies_64;
- 	__hyp_idmap_text_end = .;			\
- 	__hyp_text_start = .;				\
- 	*(.hyp.text)					\
-+	HYPERVISOR_EXTABLE				\
- 	__hyp_text_end = .;
- 
- #define IDMAP_TEXT					\
-diff --git a/arch/arm64/kvm/hyp/entry.S b/arch/arm64/kvm/hyp/entry.S
-index 90186cf6473e..c2e6da356408 100644
---- a/arch/arm64/kvm/hyp/entry.S
-+++ b/arch/arm64/kvm/hyp/entry.S
-@@ -198,20 +198,23 @@ alternative_endif
- 	// This is our single instruction exception window. A pending
- 	// SError is guaranteed to occur at the earliest when we unmask
- 	// it, and at the latest just after the ISB.
--	.global	abort_guest_exit_start
- abort_guest_exit_start:
- 
- 	isb
- 
--	.global	abort_guest_exit_end
- abort_guest_exit_end:
- 
- 	msr	daifset, #4	// Mask aborts
-+	ret
 +
-+	_kvm_extable	abort_guest_exit_start, 9997f
-+	_kvm_extable	abort_guest_exit_end, 9997f
-+9997:
-+	msr	daifset, #4	// Mask aborts
-+	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
+ #else /* __ASSEMBLY__ */
  
--	// If the exception took place, restore the EL1 exception
--	// context so that we can report some information.
--	// Merge the exception code with the SError pending bit.
--	tbz	x0, #ARM_EXIT_WITH_SERROR_BIT, 1f
-+	// restore the EL1 exception context so that we can report some
-+	// information. Merge the exception code with the SError pending bit.
- 	msr	elr_el2, x2
- 	msr	esr_el2, x3
- 	msr	spsr_el2, x4
+ .macro hyp_adr_this_cpu reg, sym, tmp
 diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
-index 9c5cfb04170e..ca2e34063e59 100644
+index ca2e34063e59..741f7cbaeb79 100644
 --- a/arch/arm64/kvm/hyp/hyp-entry.S
 +++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -15,6 +15,30 @@
- #include <asm/kvm_mmu.h>
- #include <asm/mmu.h>
+@@ -166,13 +166,19 @@ el1_error:
+ 	b	__guest_exit
  
-+.macro save_caller_saved_regs_vect
-+	/* x0 and x1 were saved in the vector entry */
-+	stp	x2, x3,   [sp, #-16]!
-+	stp	x4, x5,   [sp, #-16]!
-+	stp	x6, x7,   [sp, #-16]!
-+	stp	x8, x9,   [sp, #-16]!
-+	stp	x10, x11, [sp, #-16]!
-+	stp	x12, x13, [sp, #-16]!
-+	stp	x14, x15, [sp, #-16]!
-+	stp	x16, x17, [sp, #-16]!
-+.endm
-+
-+.macro restore_caller_saved_regs_vect
-+	ldp	x16, x17, [sp], #16
-+	ldp	x14, x15, [sp], #16
-+	ldp	x12, x13, [sp], #16
-+	ldp	x10, x11, [sp], #16
-+	ldp	x8, x9,   [sp], #16
-+	ldp	x6, x7,   [sp], #16
-+	ldp	x4, x5,   [sp], #16
-+	ldp	x2, x3,   [sp], #16
-+	ldp	x0, x1,   [sp], #16
-+.endm
-+
- 	.text
- 	.pushsection	.hyp.text, "ax"
+ el2_sync:
+-	/* Check for illegal exception return, otherwise panic */
++	/* Check for illegal exception return */
+ 	mrs	x0, spsr_el2
++	tbnz	x0, #20, 1f
  
-@@ -156,27 +180,14 @@ el2_sync:
- 
- 
- el2_error:
--	ldp	x0, x1, [sp], #16
+-	/* if this was something else, then panic! */
+-	tst	x0, #PSR_IL_BIT
+-	b.eq	__hyp_panic
 +	save_caller_saved_regs_vect
 +	stp     x29, x30, [sp, #-16]!
-+
 +	bl	kvm_unexpected_el2_exception
-+
 +	ldp     x29, x30, [sp], #16
 +	restore_caller_saved_regs_vect
++
++	eret
  
--	/*
--	 * Only two possibilities:
--	 * 1) Either we come from the exit path, having just unmasked
--	 *    PSTATE.A: change the return code to an EL2 fault, and
--	 *    carry on, as we're already in a sane state to handle it.
--	 * 2) Or we come from anywhere else, and that's a bug: we panic.
--	 *
--	 * For (1), x0 contains the original return code and x1 doesn't
--	 * contain anything meaningful at that stage. We can reuse them
--	 * as temp registers.
--	 * For (2), who cares?
--	 */
--	mrs	x0, elr_el2
--	adr	x1, abort_guest_exit_start
--	cmp	x0, x1
--	adr	x1, abort_guest_exit_end
--	ccmp	x0, x1, #4, ne
--	b.ne	__hyp_panic
--	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
- 	eret
- 	sb
- 
++1:
+ 	/* Let's attempt a recovery from the illegal exception return */
+ 	get_vcpu_ptr	x1, x0
+ 	mov	x0, #ARM_EXCEPTION_IL
 diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index db1c4487d95d..814f5f7119ed 100644
+index 814f5f7119ed..97987342629a 100644
 --- a/arch/arm64/kvm/hyp/switch.c
 +++ b/arch/arm64/kvm/hyp/switch.c
-@@ -14,6 +14,7 @@
+@@ -303,10 +303,10 @@ static bool __hyp_text __translate_far_to_hpfar(u64 far, u64 *hpfar)
+ 	 * saved the guest context yet, and we may return early...
+ 	 */
+ 	par = read_sysreg(par_el1);
+-	asm volatile("at s1e1r, %0" : : "r" (far));
+-	isb();
+-
+-	tmp = read_sysreg(par_el1);
++	if (!__kvm_at("s1e1r", far))
++		tmp = read_sysreg(par_el1);
++	else
++		tmp = SYS_PAR_EL1_F; /* back to the guest */
+ 	write_sysreg(par, par_el1);
  
- #include <asm/barrier.h>
- #include <asm/cpufeature.h>
-+#include <asm/extable.h>
- #include <asm/kprobes.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_emulate.h>
-@@ -24,6 +25,9 @@
- #include <asm/processor.h>
- #include <asm/thread_info.h>
- 
-+extern struct exception_table_entry __start___kvm_ex_table;
-+extern struct exception_table_entry __stop___kvm_ex_table;
-+
- /* Check whether the FP regs were dirtied while in the host-side run loop: */
- static bool __hyp_text update_fp_enabled(struct kvm_vcpu *vcpu)
- {
-@@ -934,3 +938,30 @@ void __hyp_text __noreturn hyp_panic(struct kvm_cpu_context *host_ctxt)
- 
- 	unreachable();
- }
-+
-+asmlinkage void __hyp_text kvm_unexpected_el2_exception(void)
-+{
-+	unsigned long addr, fixup;
-+	struct kvm_cpu_context *host_ctxt;
-+	struct exception_table_entry *entry, *end;
-+	unsigned long elr_el2 = read_sysreg(elr_el2);
-+
-+	entry = hyp_symbol_addr(__start___kvm_ex_table);
-+	end = hyp_symbol_addr(__stop___kvm_ex_table);
-+	host_ctxt = &__hyp_this_cpu_ptr(kvm_host_data)->host_ctxt;
-+
-+	while (entry < end) {
-+		addr = (unsigned long)&entry->insn + entry->insn;
-+		fixup = (unsigned long)&entry->fixup + entry->fixup;
-+
-+		if (addr != elr_el2) {
-+			entry++;
-+			continue;
-+		}
-+
-+		write_sysreg(fixup, elr_el2);
-+		return;
-+	}
-+
-+	hyp_panic(host_ctxt);
-+}
+ 	if (unlikely(tmp & SYS_PAR_EL1_F))
 -- 
 2.17.1
 
