@@ -2,51 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0125A25A92C
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 12:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 620AF25A912
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 12:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbgIBKMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 06:12:14 -0400
-Received: from 94637-75753.cloudwaysapps.com ([138.197.78.220]:41338 "EHLO
-        94637-75753.cloudwaysapps.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726140AbgIBKMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 06:12:13 -0400
-Received: from Shop01 (94637-75753.cloudwaysapps.com [127.0.0.1])
-        by 94637-75753.cloudwaysapps.com (Postfix) with SMTP id 3AE262471C;
-        Mon, 31 Aug 2020 23:26:59 +0000 (UTC)
-Received: from [229.117.48.5] by Shop01 with ESMTP id <746672-74144>; Tue, 01 Sep 2020 00:22:09 +0000
-Message-ID: <91p6w-50mw0f90$18@0j18z>
-From:   "Nassir Uddin" <fkinneyofd@tampabay.rr.com>
-Reply-To: "Nassir Uddin" <fkinneyofd@tampabay.rr.com>
-To:     st3vp@jane.uh.edu
-Subject: Dear Sir/Madam
-Date:   Tue, 01 Sep 20 00:22:09 GMT
-X-Mailer: Microsoft Outlook, Build 10.0.2627
+        id S1726323AbgIBKG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 06:06:26 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45400 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726140AbgIBKGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 06:06:25 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5A51B1C0B7F; Wed,  2 Sep 2020 12:06:22 +0200 (CEST)
+Date:   Wed, 2 Sep 2020 12:06:21 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 000/125] 4.19.143-rc1 review
+Message-ID: <20200902100621.GA3765@duo.ucw.cz>
+References: <20200901150934.576210879@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary=".E_E7A215_FE5BD6.C4B_.A"
-X-Priority: 3
-X-MSMail-Priority: Normal
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Disposition: inline
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---.E_E7A215_FE5BD6.C4B_.A
-Content-Type: text/plain;
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Dear Sir/Madam,
+Hi!
 
-We are an Investment/Project Service Company.
-We are looking for Partners that will part with us in a project that is ec=
-onomically viable and financially profitable with zero risk.
+> This is the start of the stable review cycle for the 4.19.143 release.
+> There are 125 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Thu, 03 Sep 2020 15:09:01 +0000.
+> Anything received after that time might be too late.
 
-Kindly express your interest to partner with us.
+CIP testing did not find any problems (test:x86_siemens failure is
+because those boards are offline).
 
-Regards.
-Nassir Uddin
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/1=
+84417281
 
---.E_E7A215_FE5BD6.C4B_.A--
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
+--fUYQa+Pmc3FrFX/N
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX09unQAKCRAw5/Bqldv6
+8uwDAJ94+FOoyrW/2r1HEeD/3MO6GLKSGgCfR69oxpgEIHb2nPL4gfsjwJvlFx8=
+=fGY7
+-----END PGP SIGNATURE-----
+
+--fUYQa+Pmc3FrFX/N--
