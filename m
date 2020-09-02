@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B628725B338
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 19:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8538D25B33C
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 19:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbgIBRyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 13:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44032 "EHLO
+        id S1726489AbgIBRzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 13:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbgIBRx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 13:53:59 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2B1C061244;
-        Wed,  2 Sep 2020 10:53:59 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id mm21so166262pjb.4;
-        Wed, 02 Sep 2020 10:53:59 -0700 (PDT)
+        with ESMTP id S1727842AbgIBRzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 13:55:19 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DFFC061245
+        for <stable@vger.kernel.org>; Wed,  2 Sep 2020 10:55:18 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id z25so6732663iol.10
+        for <stable@vger.kernel.org>; Wed, 02 Sep 2020 10:55:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2c5F6S3X96hyhdqG4dHZ2yS+M0WB1TvN9cfvaXXm7WQ=;
-        b=XE7hzgI4u1UxO+RUCpIrm6WyqeFvJIAkd0NMJhMPvnZLkcTZb8I+PNOiNWqNkUVarF
-         QyXEOdtLRlGW5uLGCkz2+2k5A5snx3aMphGS4OnwnJCpuXJPIU8/ZFvcJWcPkiG9LICu
-         V3ICoo08udx/Lx3gNL/P7lEBKSPMKbrDeNfk9d3xbwYxIA+3b98i/4r1oPAMzK8BUiIr
-         5qTzjz925QvMYWl2UxTs8P/D+pbKmN6qVQSMC47SV45nN+pAbwxm/7bfn+CEsTlr1ePE
-         SEHbeM5iZgAvQMtqzb5vzBA1sfGo+eWD1Qg3n2AXA4+nbriwMMxlJinovKnlN9exeoQy
-         L67w==
+        bh=lF4pWhsByTOqyLOv5Bpsnjv77SPv18a7OvunkXhgK6g=;
+        b=QZwigp9rDr7WwPU/I1qts5FEAk31WkqDNDl8N+DvmtO2nQx96vJeTzuFumkhiOBQkd
+         WKdGpg1Q/loZr6Kd20KwOSbKfa09huVjkEz+HjFtFxdkd7vP/XhEY3mAMCT+4hgEaMNU
+         fQ05n1cD9A/6dqL5TCY4CIWdCXrKB33hP9ys1eguvw5U4QzsPatrjXO+hRQ+/IKI6wnC
+         xbRTWOuga0s9JGaGms7n7S+GRWQKjvWmasMgqRlBSg9iP47FORwWJJKUTdRkvs6hjap7
+         jIhKiR2GVHEGY9YvGhgDJ7nNADwhMV1IUdI1oRNMcU1NUTBpL92rqpJIegcI1c91483A
+         WzfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=2c5F6S3X96hyhdqG4dHZ2yS+M0WB1TvN9cfvaXXm7WQ=;
-        b=QEjvpr/rP4hbPmN7dnDdNrHw7JwyOk5zsXbOYXi30Ij8GqUdAOnguYtcn0Z/AqZcdL
-         5JxmSuwJr995Hb2Cdw+tT2qlNmNnHCvwwwGgkRP7YO5tmfXSm6oM+4HFbZRZmZDr6o5D
-         WWRegG/iuN/HDPRd2ENph4gP/RIZ/RywbGfYoK//6dWvd3sSzAQkSozehQAhZWMOmw9Z
-         c4iHqzbWboVCPi6C67YxLejPmY2lX6UeiGnOxVMftpcN6Lstp2j2Cj4VBN34CqUptuMY
-         bkmzeZdlwsTIVt+jOWMLYIAao1Prreu6BRcaKsakPBBtTUKrhGpZMnvvA5WEBdLOwuYW
-         fvgA==
-X-Gm-Message-State: AOAM532H1K/LZvEzyHegzMMMZ5XkD9UtDU8uQHINOB36lc6rew2MZW7p
-        EmXFJ874bYuSlLwHeeD/Sr0XVEzLoiA=
-X-Google-Smtp-Source: ABdhPJyLcGBW8spXoDF8OgVqTNVgZxXgwqHtUhnbdMkv+OlmbCt43BHMuh69We2fm9QsFQqwzhFGzA==
-X-Received: by 2002:a17:90b:364c:: with SMTP id nh12mr3090546pjb.182.1599069238388;
-        Wed, 02 Sep 2020 10:53:58 -0700 (PDT)
-Received: from [10.230.30.107] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id j19sm151578pfi.51.2020.09.02.10.53.56
+        bh=lF4pWhsByTOqyLOv5Bpsnjv77SPv18a7OvunkXhgK6g=;
+        b=gxWCtOz+RNfyOUcT/buUKemUTCN95d+1RyPPXybfAUqhJcHp4rh1T0H+b7+CSgjPVP
+         E0UIm94XZx0mpeCnp831Yyqa6wa5/bAJveLojZ+D11zUH33f7dVamOuHKPNg7xjrndbG
+         ESefl7Djt2bjXEbpyEmHgqHp0wfl4GEVd+ZNyhbjAOgJClFiY4jv8xcY5eLZIRaevONV
+         rdgMOHoR4XH8ppVQxYUcqAbGCNbJiXz4AzmzLfYM0dh9PnvbhV6iAM8/7UfgmXtraJrT
+         Rxh6u3fufOtCoMAdZkS5lHk/ts9XmRDzZV6XB+eIR8wqK8NSYyIV/BNyyw5/ks/KFL8b
+         quiw==
+X-Gm-Message-State: AOAM5317ZvN9Gm/1Fgrtt6HWa8rDASvkiv6GHnllG1wGkqn5acio9dVH
+        RLFi3qs+uUxYSqu4QLLx/9dsS8xt+jXRwMUt
+X-Google-Smtp-Source: ABdhPJypzj6dCXiSRVbMCqcI0gl9vjF/pJGbjYaoT1JJlIicw1aUuWkEtaw2iUzf3mJ52pOGevMZTA==
+X-Received: by 2002:a05:6638:69d:: with SMTP id i29mr4340471jab.138.1599069317884;
+        Wed, 02 Sep 2020 10:55:17 -0700 (PDT)
+Received: from [192.168.1.57] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id p124sm126225iof.19.2020.09.02.10.55.16
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2020 10:53:57 -0700 (PDT)
-Subject: Re: [PATCH] net: bcmgenet: fix mask check in bcmgenet_validate_flow()
-To:     Denis Efremov <efremov@linux.com>, Doug Berger <opendmb@gmail.com>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20200902111845.9915-1-efremov@linux.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <34fb3dbf-9715-967a-1151-0b096327c97b@gmail.com>
-Date:   Wed, 2 Sep 2020 10:53:54 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.1.1
+        Wed, 02 Sep 2020 10:55:17 -0700 (PDT)
+Subject: Re: [PATCH V2] block: allow for_each_bvec to support zero len bvec
+To:     Ming Lei <ming.lei@redhat.com>
+Cc:     linux-block@vger.kernel.org,
+        syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
+References: <20200817100055.2495905-1-ming.lei@redhat.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <fd90b22f-dd5f-15ef-2a9b-648a3260cea7@kernel.dk>
+Date:   Wed, 2 Sep 2020 11:55:16 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200902111845.9915-1-efremov@linux.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20200817100055.2495905-1-ming.lei@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -71,17 +71,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 9/2/2020 4:18 AM, Denis Efremov wrote:
-> VALIDATE_MASK(eth_mask->h_source) is checked twice in a row in
-> bcmgenet_validate_flow(). Add VALIDATE_MASK(eth_mask->h_dest)
-> instead.
+On 8/17/20 4:00 AM, Ming Lei wrote:
+> Block layer usually doesn't support or allow zero-length bvec. Since
+> commit 1bdc76aea115 ("iov_iter: use bvec iterator to implement
+> iterate_bvec()"), iterate_bvec() switches to bvec iterator. However,
+> Al mentioned that 'Zero-length segments are not disallowed' in iov_iter.
 > 
-> Fixes: 3e370952287c ("net: bcmgenet: add support for ethtool rxnfc flows")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Denis Efremov <efremov@linux.com>
+> Fixes for_each_bvec() so that it can move on after seeing one zero
+> length bvec.
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Applied, thanks.
+
 -- 
-Florian
+Jens Axboe
+
