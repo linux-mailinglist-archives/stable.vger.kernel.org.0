@@ -2,20 +2,20 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E8125AA31
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 13:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7259125AA5D
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 13:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726323AbgIBL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 07:26:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43666 "EHLO mx2.suse.de"
+        id S1726183AbgIBLcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 07:32:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:46644 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726124AbgIBL01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Sep 2020 07:26:27 -0400
+        id S1726167AbgIBLcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Sep 2020 07:32:06 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 46DC0B18C;
-        Wed,  2 Sep 2020 11:26:26 +0000 (UTC)
-Date:   Wed, 2 Sep 2020 13:26:24 +0200
+        by mx2.suse.de (Postfix) with ESMTP id E84D4B18C;
+        Wed,  2 Sep 2020 11:32:05 +0000 (UTC)
+Date:   Wed, 2 Sep 2020 13:32:04 +0200
 From:   Michal Hocko <mhocko@suse.com>
 To:     Vlastimil Babka <vbabka@suse.cz>
 Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
@@ -35,7 +35,7 @@ Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
-Message-ID: <20200902112624.GC4617@dhcp22.suse.cz>
+Message-ID: <20200902113204.GD4617@dhcp22.suse.cz>
 References: <20200127173453.2089565-1-guro@fb.com>
  <20200130020626.GA21973@in.ibm.com>
  <20200130024135.GA14994@xps.DHCP.thefacebook.com>
@@ -54,49 +54,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Wed 02-09-20 11:53:00, Vlastimil Babka wrote:
-> On 8/28/20 6:47 PM, Pavel Tatashin wrote:
-> > There appears to be another problem that is related to the
-> > cgroup_mutex -> mem_hotplug_lock deadlock described above.
-> > 
-> > In the original deadlock that I described, the workaround is to
-> > replace crash dump from piping to Linux traditional save to files
-> > method. However, after trying this workaround, I still observed
-> > hardware watchdog resets during machine  shutdown.
-> > 
-> > The new problem occurs for the following reason: upon shutdown systemd
-> > calls a service that hot-removes memory, and if hot-removing fails for
-> 
-> Why is that hotremove even needed if we're shutting down? Are there any
-> (virtualization?) platforms where it makes some difference over plain
-> shutdown/restart?
+> >> > > Thread #2: ccs killer kthread
+> >> > >    css_killed_work_fn
+> >> > >      cgroup_mutex  <- Grab this Mutex
+> >> > >      mem_cgroup_css_offline
+> >> > >        memcg_offline_kmem.part
+> >> > >           memcg_deactivate_kmem_caches
+> >> > >             get_online_mems
+> >> > >               mem_hotplug_lock <- waits for Thread#1 to get read access
 
-Yes this sounds quite dubious.
-
-> > some reason systemd kills that service after timeout. However, systemd
-> > is never able to kill the service, and we get hardware reset caused by
-> > watchdog or a hang during shutdown:
-> > 
-> > Thread #1: memory hot-remove systemd service
-> > Loops indefinitely, because if there is something still to be migrated
-> > this loop never terminates. However, this loop can be terminated via
-> > signal from systemd after timeout.
-> > __offline_pages()
-> >       do {
-> >           pfn = scan_movable_pages(pfn, end_pfn);
-> >                   # Returns 0, meaning there is nothing available to
-> >                   # migrate, no page is PageLRU(page)
-> >           ...
-> >           ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
-> >                                             NULL, check_pages_isolated_cb);
-> >                   # Returns -EBUSY, meaning there is at least one PFN that
-> >                   # still has to be migrated.
-> >       } while (ret);
-
-This shouldn't really happen. What does prevent from this to proceed?
-Did you manage to catch the specific pfn and what is it used for?
-start_isolate_page_range and scan_movable_pages should fail if there is
-any memory that cannot be migrated permanently. This is something that
-we should focus on when debugging.
+And one more thing. THis has been brought up several times already.
+Maybe I have forgoten but why do we take hotplug locks in this path in
+the first place? Memory hotplug notifier takes slab_mutex so this
+shouldn't be really needed.
 -- 
 Michal Hocko
 SUSE Labs
