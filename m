@@ -2,87 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9657125B09A
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 18:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE76B25B1AB
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 18:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbgIBQCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 12:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        id S1727048AbgIBQ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 12:29:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbgIBQCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 12:02:40 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F0F1C061244
-        for <stable@vger.kernel.org>; Wed,  2 Sep 2020 09:02:40 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id b16so26624pjp.0
-        for <stable@vger.kernel.org>; Wed, 02 Sep 2020 09:02:40 -0700 (PDT)
+        with ESMTP id S1726771AbgIBQ26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 12:28:58 -0400
+Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B51C061245
+        for <stable@vger.kernel.org>; Wed,  2 Sep 2020 09:28:58 -0700 (PDT)
+Received: by mail-ua1-x944.google.com with SMTP id g11so1774466ual.2
+        for <stable@vger.kernel.org>; Wed, 02 Sep 2020 09:28:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
-        b=ZNu/DrX8XiCWl0YuTUSW87lsdCLSSSIVQQ3tzg2gv/AnmPzSf/WKEFo8NbSSB/I8Dd
-         22BnM8d6TDlFRM6/mDd4W1U9Hiv98JBm/LmolPGaKFmYGDEarftNh01I8SXQDHp1j2GX
-         57nK05uWfbwW8V3QlwZZEUcShuKGc2TS57eHEF1TwdDSHvtHHXvsEq3qlRAEtxHVLB41
-         816CpvSrAy6cXyWi6nXXjsdVcNZ66T14q7v0ouETprA68kVdt+spceE/QFCYWSZJtlNq
-         QD3R0z2STEVRhnDhEylCVrNYszbMUdMIf61POFUppBQq4DbSTECc/IrG3Ik1KyemF6Kr
-         ViYA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=IlfJS7zeotd/+1Rr3gwcEKhVi7P2PvhQ1n7v6H4jbZQ=;
+        b=xtBWX7vshRH+6rOY6TNLdhDE2rxo1x0tv9VqNSxDWb0f0wJlEFTWf69+WAHt8hL3ih
+         CgmklVbcPwleWq73o0Z6nXcdqbFS6MKX7+uzvVeJWcbZ7W0lxEKKRaggVfEZ0j2bUPvy
+         RILeLrEOnxoa64QLGRR+tb2vqGN0/zfDZVJ5QqeOy7L5Qp0I2AxRkiwoNc0q4srYQI4a
+         lzngMnyReO+7Yj/C7QpxWGqLlM2uHPABc8B+4B3x7hYb8bVqF6nAq4nMOD1SZpUe/c5w
+         ZIJd2qnJZ43KEkAcWPgkb/ZX/hL0irBFbwB4y58S1MdMRsiuoO54DZUepNDBHePrwras
+         KD8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
-        b=M6aEBhZMUlQTZZW6XwL85+e4P1iX/FbwgQS9bNQuEp3eMtBEzd/Bv5VGM7hEAKmYEr
-         13tDbq7lgA7Ubdq0tNzfTyeqqZJrzeTn1slniDPoyUKoeaGk8Z42Qd4IYAk0lo/qGSyP
-         SII760oOD26gznx7XYlBDijOVz2cKL/jiVwJbK9X5XjSz1vRpG75HsmSarRlWtCNQBo0
-         5e5fT5atUaf9HEEDveLk1g1S95FL1fIu+ZNt2Ekspkt7+yPqR7F4CAOMIg3ufRJPbeqn
-         kBnRguID1g0cD+6kHBI0S8vhrqDCcRhfdMrQLr/+PZNS8tl0X5dJ+xzudhvc5lTiDSX0
-         yLcQ==
-X-Gm-Message-State: AOAM533ylxaHJo7+tHecaDCDkDk60MVJPbgt/cVZRpHT2IfkopZgW95C
-        AC+bHEjGDBCGFkohZRjZFi4XeaFv0nrT+d5UFp8=
-X-Google-Smtp-Source: ABdhPJxsP18yvidaa88B9+u2BJEiwR5Ls7OBiZfvwYqzerdbk84OAmqaQHDGtqAtyfaXOzuJO6eT3yjLZclPVT88jfc=
-X-Received: by 2002:a17:902:c192:: with SMTP id d18mr662055pld.36.1599062559829;
- Wed, 02 Sep 2020 09:02:39 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=IlfJS7zeotd/+1Rr3gwcEKhVi7P2PvhQ1n7v6H4jbZQ=;
+        b=fUlBdjmyYpuMwuGDmAKTCK0ZTugv9NE4M5fc+Oxn16lIS84O+yYTQ3Hq/XxXnu2egh
+         F5f4qE5SGMbb+Ws0awchpi6pBEBBBMsfWRD6MK5YCUamg8ArudNd+n1TETfHLP+EvNmP
+         Fv1gpJn+ozMmSNSGOKIp81i9kJPAr1VhtDWCAQkOCqqq5Mel3g4SY9jOClgH5h3/fSoq
+         ll/HCJHnlWKl7ju3/r1mxaHZndz641xk4K6gvADDv2tyXZgPjnWqN+o35icpKltVT2iu
+         JdbRvu/HyI4nlQnVh7Xo7K1b/Um147AJnsjtrpPwr4pq5siaCf51nIZXpnYyMcanwjYp
+         zQQQ==
+X-Gm-Message-State: AOAM532zm1I6yVlMelZa0MLwOVeubpEmBTo1XJ6JpROsKqQWoL4jicsE
+        8dgxg3oAJUqpfQbzMtbtH2GwRlJEXwt1hFbIF2UhEQ==
+X-Google-Smtp-Source: ABdhPJxoLnXYw6a1Sz1Fjo0jN8iWcYARzogsNzcZCmrOaug25U1FmQGYyjIJMh0pap9Hhy47bKUzb6msIrjwpnwy6xY=
+X-Received: by 2002:ab0:679a:: with SMTP id v26mr5811948uar.27.1599064136956;
+ Wed, 02 Sep 2020 09:28:56 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a17:90b:1951:0:0:0:0 with HTTP; Wed, 2 Sep 2020 09:02:39
- -0700 (PDT)
-From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
-Date:   Wed, 2 Sep 2020 17:02:39 +0100
-X-Google-Sender-Auth: c4eyftnnNeVh8PAy410jQ2_L7pQ
-Message-ID: <CAO5pteZ0hxF+LWo1hgiqoybUW4-R=bkdj7vFGn__FATJzY-5Qw@mail.gmail.com>
-Subject: Greetings My Dear, Please I Need Your Help.
-To:     undisclosed-recipients:;
+References: <20200902074837.329205434@linuxfoundation.org>
+In-Reply-To: <20200902074837.329205434@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 2 Sep 2020 21:58:45 +0530
+Message-ID: <CA+G9fYv0oEqJQPJUhLAHX5wWrfZbhS6-cQOL8_Ex=d4tWAcHsQ@mail.gmail.com>
+Subject: Re: [PATCH 5.8 000/253] 5.8.6-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings My Dear,
+On Wed, 2 Sep 2020 at 13:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.8.6 release.
+> There are 253 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 04 Sep 2020 07:47:48 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.8.6-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.8.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-    I sent this mail praying it will found you in a good condition of
-health, since I myself are in a very critical health condition in
-which I  sleep every night without knowing if I may be alive to see
-the next day. I am Mrs. Monika John  Carlsen from Denmark wife of late
-Mr John Carlsen, a widow suffering from long time illness. I have some
-funds I inherited from my late husband, the sum of (eleven million
-dollars) my Doctor told me recently that I have serious sickness which
-is cancer problem. What disturbs me most is my stroke sickness. Having
-known my condition, I decided to donate this fund to a good person
-that will utilize it the way i am going to instruct herein. I need a
-very honest and God fearing person who can claim this money and use it
-for Charity works, for orphanages, widows and also  build schools for
-less privileges that will be named after my late husband if possible
-and to promote the word of God and the effort that the house of God is
-maintained.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I do not want a situation where this money will be used in an ungodly
-manner. That's why I'm taking this decision. I'm not afraid of death
-so I know where I'm going. I accept this decision because I do not
-have any child who will inherit this money after I die. Please I want
-your sincerely and urgent answer to know if you will be able to
-execute this project, and I will give you more information on how the
-fund will be transferred to your bank account. I am waiting for your
-reply.
+Summary
+------------------------------------------------------------------------
 
-May God Bless you,
-Mrs. Monika John  Carlsen
+kernel: 5.8.6-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.8.y
+git commit: 650d8f2a3b44d1fe3f6d569a5bf38e4501a4c90f
+git describe: v5.8.5-254-g650d8f2a3b44
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.8-oe/bui=
+ld/v5.8.5-254-g650d8f2a3b44
+
+No regressions (compared to build v5.8.5)
+
+No fixes (compared to build v5.8.5)
+
+Ran 39936 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
