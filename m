@@ -2,286 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E6125A1FD
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 01:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBA025A223
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 02:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgIAXn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 19:43:28 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:42115 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726167AbgIAXn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 19:43:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599003805;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=y3AIg4jOzdjWWkFTIo9yUEYHiAP4XtJXx3PrYBTV/r8=;
-        b=OS9WxEFDH0fVpxbVgraS58bX1b4qzmIO+JNxDjnChYK8ErLN67or1JmgfJzYBwPuEOL3vd
-        bOsge2qJVNrGqisxDSr7dTqVs19Ntu4Q5bh8P+IbY2fHKZg6js7Dr+psF0vOVg54q7KtuJ
-        ayboxhxgqqFLLewitvYKxG3jff4BmkY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-101-91AhM17qMu6CCS1g56xpzg-1; Tue, 01 Sep 2020 19:43:21 -0400
-X-MC-Unique: 91AhM17qMu6CCS1g56xpzg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D0AB010066FF;
-        Tue,  1 Sep 2020 23:43:19 +0000 (UTC)
-Received: from Whitewolf.redhat.com (ovpn-119-108.rdu2.redhat.com [10.10.119.108])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E3BBD5D9CC;
-        Tue,  1 Sep 2020 23:43:17 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     nouveau@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Airlie <airlied@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Nirmoy Das <nirmoy.aiemd@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, James Jones <jajones@nvidia.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        dri-devel@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
-        GEFORCE/QUADRO GPUS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v4] drm/nouveau/kms/nv50-: Program notifier offset before requesting disp caps
-Date:   Tue,  1 Sep 2020 19:42:26 -0400
-Message-Id: <20200901234240.197917-1-lyude@redhat.com>
-In-Reply-To: <20200901233842.196818-1-lyude@redhat.com>
-References: <20200901233842.196818-1-lyude@redhat.com>
+        id S1726193AbgIBABz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 20:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726173AbgIBABy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 20:01:54 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67582C061244
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 17:01:54 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id o20so1788485pfp.11
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 17:01:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=SUd5OBWmb4twpsDXcovuk1+7mDMags4RX62eeDKc/j4=;
+        b=SIPn8cavJLZmGaqVbpSzNC79gtGkxz7L8SNrd1P28xvoptEqQGw4rDZs4+azyE0Vn3
+         lH+/QkjXfGcA8S0+Iz0Z9ETZXh+hl+IVW1jgJP4pjOV9z4dgb+dFHGbDDcqURQ5niZtn
+         ag1p/zowYHvS4DO2NVk0LHefLkYprvIdjbYTQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=SUd5OBWmb4twpsDXcovuk1+7mDMags4RX62eeDKc/j4=;
+        b=ArMrc/jj0rPx7oj2dTb8XBiGJjNQP+uJ9JWcdD8xihFXFd814bjX9fkAEqYSMWgCzJ
+         N791Z6fW8J8HZ5ChtJyYPYiD7mgzgTLQOCQ8ozg9IKajAN5rQuXIyrt7MIuCE9yEnpw+
+         SYyeFGiUzXlutiPuWMm0QQYcZ9b6A2lalL2pLMBDVNglGnJiLK/ErK8ea4CylcXdft0J
+         ec5eiw66IWBIe+ve/mx9hOUsi+FS1ag1XcU0vwspGyE48D/+0krHjzUw3TPmS+hM4lDy
+         XyUk129KBscUA1aVgkIIH+e2OgxjlSipm2DXM0sFv+2q1KGOPiCI1ew5bFmP+sQe6Fe+
+         taUg==
+X-Gm-Message-State: AOAM533lLEjrrQdXtrLlZat3YsjeQ4wSuWOmu9xTpiG0jbXGRvCco9ME
+        Ib7m36y30AL0QuMRS95j/ffi5esIOT1+eA==
+X-Google-Smtp-Source: ABdhPJzPaKvhg/U0wjf0jcoHxmLVETNP2MUiSLNBY70mczbJJMMlqJTGY+Qvfmv/G9cyo+zxoeOxCw==
+X-Received: by 2002:a63:541e:: with SMTP id i30mr3684911pgb.47.1599004913647;
+        Tue, 01 Sep 2020 17:01:53 -0700 (PDT)
+Received: from [10.230.128.89] ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id g32sm3152900pgl.89.2020.09.01.17.01.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Sep 2020 17:01:52 -0700 (PDT)
+Subject: Re: [PATCH] nvme: Revert: Fix controller creation races with teardown
+ flow
+To:     Sagi Grimberg <sagi@grimberg.me>, linux-nvme@lists.infradead.org
+Cc:     Israel Rukshin <israelr@mellanox.com>, stable@vger.kernel.org,
+        Keith Busch <kbusch@kernel.org>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>
+References: <20200828190150.34455-1-james.smart@broadcom.com>
+ <0867c437-1521-c0c9-d7fa-6a615d88105a@grimberg.me>
+ <a73cd06b-b319-d55f-1465-4263e08900ae@broadcom.com>
+ <741ec2a7-7a38-9432-33fb-58227bf1f1f1@grimberg.me>
+ <7f43e9db-974a-5e98-76a6-ed2f3bd0dc92@broadcom.com>
+ <4aaad97e-03b5-5c22-af8e-ae7624e78991@grimberg.me>
+ <f7d0c08f-2a34-fffa-7962-d0641bc579fd@broadcom.com>
+ <7e78b2e6-d103-23a1-a9ab-d12336a9c089@grimberg.me>
+From:   James Smart <james.smart@broadcom.com>
+Message-ID: <e1df5a4a-702e-eea0-d52d-ec5f0de1422d@broadcom.com>
+Date:   Tue, 1 Sep 2020 17:01:50 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.2.0
 MIME-Version: 1.0
+In-Reply-To: <7e78b2e6-d103-23a1-a9ab-d12336a9c089@grimberg.me>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Not entirely sure why this never came up when I originally tested this
-(maybe some BIOSes already have this setup?) but the ->caps_init vfunc
-appears to cause the display engine to throw an exception on driver
-init, at least on my ThinkPad P72:
 
-nouveau 0000:01:00.0: disp: chid 0 mthd 008c data 00000000 0000508c 0000102b
 
-This is magic nvidia speak for "You need to have the DMA notifier offset
-programmed before you can call NV507D_GET_CAPABILITIES." So, let's fix
-this by doing that, and also perform an update afterwards to prevent
-racing with the GPU when reading capabilities.
+On 9/1/2020 3:01 PM, Sagi Grimberg wrote:
+>
+> But you also return back &ctrl->ctrl, that is another dereference, and
+> what will make ctrl to be an ERR_PTR?
+>
+> Anyway, we should probably come up with something more robust...
 
-v2:
-* Don't just program the DMA notifier offset, make sure to actually
-  perform an update
-v3:
-* Don't call UPDATE()
-* Actually read the correct notifier fields, as apparently the
-  CAPABILITIES_DONE field lives in a different location than the main
-  NV_DISP_CORE_NOTIFIER_1 field. As well, 907d+ use a different
-  CAPABILITIES_DONE field then pre-907d cards.
-v4:
-* Don't forget to check the return value of core507d_read_caps()
+ok
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 4a2cb4181b07 ("drm/nouveau/kms/nv50-: Probe SOR and PIOR caps for DP interlacing support")
-Cc: <stable@vger.kernel.org> # v5.8+
----
- drivers/gpu/drm/nouveau/dispnv50/core.h       |  2 +
- drivers/gpu/drm/nouveau/dispnv50/core507d.c   | 37 ++++++++++++++++++-
- drivers/gpu/drm/nouveau/dispnv50/core907d.c   | 36 +++++++++++++++++-
- drivers/gpu/drm/nouveau/dispnv50/core917d.c   |  2 +-
- drivers/gpu/drm/nouveau/dispnv50/disp.h       |  2 +
- .../drm/nouveau/include/nvhw/class/cl507d.h   |  5 ++-
- .../drm/nouveau/include/nvhw/class/cl907d.h   |  4 ++
- 7 files changed, 83 insertions(+), 5 deletions(-)
+>
+>> not sure what you are asking.   if it's how long to fail the creation 
+>> of a new association - it's at least 60s (an admin command timeout).
+>
+> That's the worst case (admin command timeout), but is it the most common
+> case?
+>
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/core.h b/drivers/gpu/drm/nouveau/dispnv50/core.h
-index 498622c0c670d..b789139e5fff6 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/core.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/core.h
-@@ -44,6 +44,7 @@ int core507d_new_(const struct nv50_core_func *, struct nouveau_drm *, s32,
- 		  struct nv50_core **);
- int core507d_init(struct nv50_core *);
- void core507d_ntfy_init(struct nouveau_bo *, u32);
-+int core507d_read_caps(struct nv50_disp *disp, u32 offset);
- int core507d_caps_init(struct nouveau_drm *, struct nv50_disp *);
- int core507d_ntfy_wait_done(struct nouveau_bo *, u32, struct nvif_device *);
- int core507d_update(struct nv50_core *, u32 *, bool);
-@@ -55,6 +56,7 @@ extern const struct nv50_outp_func pior507d;
- int core827d_new(struct nouveau_drm *, s32, struct nv50_core **);
- 
- int core907d_new(struct nouveau_drm *, s32, struct nv50_core **);
-+int core907d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp);
- extern const struct nv50_outp_func dac907d;
- extern const struct nv50_outp_func sor907d;
- 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/core507d.c b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
-index ad1f09a143aa4..d0f2b80a32103 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/core507d.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
-@@ -75,18 +75,51 @@ core507d_ntfy_init(struct nouveau_bo *bo, u32 offset)
- }
- 
- int
--core507d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
-+core507d_read_caps(struct nv50_disp *disp, u32 offset)
- {
- 	struct nvif_push *push = disp->core->chan.push;
- 	int ret;
- 
--	if ((ret = PUSH_WAIT(push, 2)))
-+	ret = PUSH_WAIT(push, 4);
-+	if (ret)
- 		return ret;
- 
-+	PUSH_MTHD(push, NV507D, SET_NOTIFIER_CONTROL,
-+		  NVDEF(NV507D, SET_NOTIFIER_CONTROL, MODE, WRITE) |
-+		  NVVAL(NV507D, SET_NOTIFIER_CONTROL, OFFSET, offset >> 2) |
-+		  NVDEF(NV507D, SET_NOTIFIER_CONTROL, NOTIFY, ENABLE));
- 	PUSH_MTHD(push, NV507D, GET_CAPABILITIES, 0x00000000);
-+
- 	return PUSH_KICK(push);
- }
- 
-+int
-+core507d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
-+{
-+	struct nv50_core *core = disp->core;
-+	struct nouveau_bo *bo = disp->sync;
-+	s64 time;
-+	int ret;
-+
-+	NVBO_WR32(bo, NV50_DISP_CAPS_NTFY1, NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1,
-+				      NVDEF(NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1, DONE, FALSE));
-+
-+	ret = core507d_read_caps(disp, NV50_DISP_CAPS_NTFY1);
-+	if (ret < 0)
-+		return ret;
-+
-+	time = nvif_msec(core->chan.base.device, 2000ULL,
-+			 if (NVBO_TD32(bo, NV50_DISP_CAPS_NTFY1,
-+				       NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1, DONE, ==, TRUE))
-+				 break;
-+			 usleep_range(1, 2);
-+			 );
-+	if (time < 0)
-+		NV_ERROR(drm, "core caps notifier timeout\n");
-+
-+	return 0;
-+}
-+
- int
- core507d_init(struct nv50_core *core)
- {
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/core907d.c b/drivers/gpu/drm/nouveau/dispnv50/core907d.c
-index b17c03529c784..45505a18aca17 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/core907d.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/core907d.c
-@@ -22,11 +22,45 @@
- #include "core.h"
- #include "head.h"
- 
-+#include <nvif/push507c.h>
-+#include <nvif/timer.h>
-+
-+#include <nvhw/class/cl907d.h>
-+
-+#include "nouveau_bo.h"
-+
-+int
-+core907d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
-+{
-+	struct nv50_core *core = disp->core;
-+	struct nouveau_bo *bo = disp->sync;
-+	s64 time;
-+	int ret;
-+
-+	NVBO_WR32(bo, NV50_DISP_CAPS_NTFY4, NV907D_CORE_NOTIFIER_3, CAPABILITIES_4,
-+				      NVDEF(NV907D_CORE_NOTIFIER_3, CAPABILITIES_4, DONE, FALSE));
-+
-+	ret = core507d_read_caps(disp, NV50_DISP_CAPS_NTFY4);
-+	if (ret < 0)
-+		return ret;
-+
-+	time = nvif_msec(core->chan.base.device, 2000ULL,
-+			 if (NVBO_TD32(bo, NV50_DISP_CAPS_NTFY4,
-+				       NV907D_CORE_NOTIFIER_3, CAPABILITIES_4, DONE, ==, TRUE))
-+				 break;
-+			 usleep_range(1, 2);
-+			 );
-+	if (time < 0)
-+		NV_ERROR(drm, "core caps notifier timeout\n");
-+
-+	return 0;
-+}
-+
- static const struct nv50_core_func
- core907d = {
- 	.init = core507d_init,
- 	.ntfy_init = core507d_ntfy_init,
--	.caps_init = core507d_caps_init,
-+	.caps_init = core907d_caps_init,
- 	.ntfy_wait_done = core507d_ntfy_wait_done,
- 	.update = core507d_update,
- 	.head = &head907d,
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/core917d.c b/drivers/gpu/drm/nouveau/dispnv50/core917d.c
-index 66846f3720805..1cd3a2a35dfb7 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/core917d.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/core917d.c
-@@ -26,7 +26,7 @@ static const struct nv50_core_func
- core917d = {
- 	.init = core507d_init,
- 	.ntfy_init = core507d_ntfy_init,
--	.caps_init = core507d_caps_init,
-+	.caps_init = core907d_caps_init,
- 	.ntfy_wait_done = core507d_ntfy_wait_done,
- 	.update = core507d_update,
- 	.head = &head917d,
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.h b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-index 92bddc0836171..a59051bd070d7 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-@@ -16,6 +16,8 @@ struct nv50_disp {
- 
- #define NV50_DISP_SYNC(c, o)                                ((c) * 0x040 + (o))
- #define NV50_DISP_CORE_NTFY                       NV50_DISP_SYNC(0      , 0x00)
-+#define NV50_DISP_CAPS_NTFY1                      NV50_DISP_SYNC(0      , 0x01)
-+#define NV50_DISP_CAPS_NTFY4                      NV50_DISP_SYNC(0      , 0x04)
- #define NV50_DISP_WNDW_SEM0(c)                    NV50_DISP_SYNC(1 + (c), 0x00)
- #define NV50_DISP_WNDW_SEM1(c)                    NV50_DISP_SYNC(1 + (c), 0x10)
- #define NV50_DISP_WNDW_NTFY(c)                    NV50_DISP_SYNC(1 + (c), 0x20)
-diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
-index 2e444bac701dd..6a463f308b64f 100644
---- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
-+++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
-@@ -32,7 +32,10 @@
- #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_DONE_TRUE                               0x00000001
- #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_R0                                      15:1
- #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_TIMESTAMP                               29:16
--
-+#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1                                       0x00000001
-+#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE                                  0:0
-+#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE_FALSE                            0x00000000
-+#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE_TRUE                             0x00000001
- 
- // class methods
- #define NV507D_UPDATE                                                           (0x00000080)
-diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
-index 34bc3eafac7d1..79aff6ff31385 100644
---- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
-+++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
-@@ -24,6 +24,10 @@
- #ifndef _cl907d_h_
- #define _cl907d_h_
- 
-+#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4                                       0x00000004
-+#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE                                  0:0
-+#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE_FALSE                            0x00000000
-+#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE_TRUE                             0x00000001
- #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20                             0x00000014
- #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20_SINGLE_LVDS18               0:0
- #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20_SINGLE_LVDS18_FALSE         0x00000000
--- 
-2.26.2
+Yes - as it currently corresponds to packet drops.  command failures are 
+rare. FC has a feature to speed this up but it's not widely implemented yet.
+
+> Would making the timeouts shorter in the initial connect make sense?
+> Just throwing out ideas...
+
+I'd enjoy a reduced time regardless. But the main concern is how long we 
+have the systemd processes blocked.
+
+-- james
 
