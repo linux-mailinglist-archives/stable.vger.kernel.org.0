@@ -2,151 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4F925A454
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 06:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DA625A4EE
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 07:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725808AbgIBEQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 00:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59478 "EHLO
+        id S1726301AbgIBFSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 01:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbgIBEQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 00:16:09 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EB4C061245
-        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 21:16:09 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id v15so1880329pgh.6
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 21:16:08 -0700 (PDT)
+        with ESMTP id S1726021AbgIBFSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 01:18:05 -0400
+Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B3FC061244
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 22:18:04 -0700 (PDT)
+Received: by mail-vs1-xe41.google.com with SMTP id y3so1919281vsn.1
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 22:18:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YjuQEk1m++l8+VgRagE9HCI6EDDx7NljlOmBUw7K6jE=;
-        b=rw759oD7fSY02fi35ImzrcQcE892StuRZ7BzmV2Nyic6E859zO2UlxVlj5GwrsqRCe
-         /Np64c4+tiehj4WkuyJodDepUwpoHkJi28vWgoGhhEZ7AmOnJFPtBcC2Cq1zXoPwzC2T
-         Jo8SCS2jwGDkI5lyiEx0ltSoWJiiDfPF09VmCCGhM+y15oj5qu6Gl/jYz4vCYL5QXQuX
-         PlN+wpxjx1qr5UI56qJP6kIQ5PuDm6NmTFiQKhPQyuhKqN0PyGgYUzJviKxdyDibdKWt
-         09jZhB9fp/ct4XzZWfT5MzPXmVRmRWxvNAs/PQKXa9ty7CZFQRCToA8Qx5RIFY6dQDjh
-         syjQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zJ3a1CRJV+7fxasgMykvqa8xqbnuraayRBZc80JsMEI=;
+        b=eKxd4d2F2VdE7gfHAI/dEV9na+W4P2zSvAwyEgxJmXM2hkWkYC58a0hC+FdMfJbT8W
+         PLvs/Aqu2bBpizq/pzEM5qdv439TudmNs3GzD7/Gn2FPdSaVr8Xzr0i5t+4RhtfBRrC3
+         +QFDnK6TZHKzI4uZKDb0nsZ4hgp0re2zQpNBu7eugWUjZXA45ZZEwf6uk9cYwlm5ekhF
+         yJA/kTNvmmdzysJzh+oumx4Gq58eJy2M3v89mH1FZHyLE82rMjt84cL8UkyqZVgcLXhX
+         /iFJDonnC/NK8rDfnqlOHwFw+TA379AI1AkNZBHPtFWD7XuTpG7jJ/XOmSo/KJs657Tf
+         ptLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YjuQEk1m++l8+VgRagE9HCI6EDDx7NljlOmBUw7K6jE=;
-        b=gf5hzp+5lOoB0NT2EjEDde+85gCKixCMd0YrQDtUZg9dDg/ItbEKFcs7IN7MWU+aU6
-         lZ9BhsdTK+QeXC0wJsOZlFqraJh2qiLsq8Gti/eTOkYVVKPEGASLgchOhIJW0RRGLWqk
-         XbgwZG90I0PLb6xB3ZB+rbHSnzqxrzb7+xeO7WYwey/i7py9g8B8I0cmgjR7h55vbn8x
-         N4Fgo5EW0NLtxxtgP6kvG8amxHybCT0nvytgRuLIGijTTo7m3RfifL1LWrA9bQhEbwR0
-         bGPhYQI+94bsb3GpToXEQ61W6e2WG1/wCxDgbV+ZVC2kEn/CbCijHiMhIPqfIcPmcwui
-         SRYg==
-X-Gm-Message-State: AOAM531cQVmd5gSsG7wFZ3YeUydMNSIqWbXnp8pn6jkgGnB7Wjc9Q+yY
-        2fxytKfSAc3klxNl3e/oolvwxBDWPy/7gg==
-X-Google-Smtp-Source: ABdhPJxkYNhpuDRKo12BK397uJNblMB8taTb9JDBABcjU97i4j3G3oM8HvwGtq2T7nsipNYvm06yVQ==
-X-Received: by 2002:a62:6847:: with SMTP id d68mr1490556pfc.110.1599020167776;
-        Tue, 01 Sep 2020 21:16:07 -0700 (PDT)
-Received: from [10.2.202.243] ([61.120.150.74])
-        by smtp.gmail.com with ESMTPSA id a5sm3711965pfb.26.2020.09.01.21.16.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2020 21:16:07 -0700 (PDT)
-Subject: Re: [PATCH] iscsi-target: fix hang in iscsit_access_np() when getting
- tpg->np_login_sem
-To:     Michael Christie <michael.christie@oracle.com>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200729130343.24976-1-houpu@bytedance.com>
- <24875CC6-70FA-477D-BB74-51FBFDD96732@oracle.com>
-From:   Hou Pu <houpu@bytedance.com>
-Message-ID: <e655c868-966d-1846-6bd8-19671cf966d4@bytedance.com>
-Date:   Wed, 2 Sep 2020 12:16:03 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.11.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zJ3a1CRJV+7fxasgMykvqa8xqbnuraayRBZc80JsMEI=;
+        b=ndIRWWZsnF3uDHot5TkvQQSuOg2wem/HhchJ4e+U0CrS7uO/pLAl/5VNmH9p1gtdd3
+         f9pU57sizoUenQjtic+ew/WcpIdjLBcUJ4fRnLHtGyqrRjtaR/2W6NlzU7GjDzpF7i49
+         MLzaGsD5o2/vGJZijWS6LX20J/GXMfKcPhsQUrRR6hyzVd0EEoYlPKeOijMEcs20FAYg
+         3TXzppUylsR06tRmKRoxVCSUhOsb1BLd6EJZagP8F9xO/1rd4zllulaDCwChKOUIoGsO
+         YH2qR6p/phOH/G6B9gmVaYFSRX0xgZdXlU1JO3WvYwvPKysifem3WHL4xqA0AGCSe2wX
+         Sj5w==
+X-Gm-Message-State: AOAM532BbKv9kyHjVG2Q+manL5O3xcetQkB9KfF8soSjldXxJv5fU8V4
+        UXW7kXwXtKt0u83TVw92VOPK/z+6+L9bj9+7UPWJqA==
+X-Google-Smtp-Source: ABdhPJzTI6yI0sgigh5knK9fSxCILYGU4r2D2EaAYXHA5LDwR4SuhmFqaF6nykK0Wm0kLJ/JMMa3KCGsmhCE7to+MpM=
+X-Received: by 2002:a67:e9d4:: with SMTP id q20mr4082829vso.83.1599023883523;
+ Tue, 01 Sep 2020 22:18:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <24875CC6-70FA-477D-BB74-51FBFDD96732@oracle.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200901150952.963606936@linuxfoundation.org> <694f63b6-c5a0-f434-5212-27f1cb7b5f2a@roeck-us.net>
+In-Reply-To: <694f63b6-c5a0-f434-5212-27f1cb7b5f2a@roeck-us.net>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 2 Sep 2020 10:47:51 +0530
+Message-ID: <CA+G9fYtoxNSRKncYBnc=LgYVJTW51rQGAgnLaWwhYZT==VeqAA@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/214] 5.4.62-rc1 review
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 2 Sep 2020 at 00:39, Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> On 9/1/20 8:08 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.62 release.
+> > There are 214 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 03 Sep 2020 15:09:01 +0000.
+> > Anything received after that time might be too late.
+> >
+>
+> Building x86_64:tools/perf ... failed
+> --------------
+> Error log:
+> Warning: Kernel ABI header at 'tools/include/uapi/linux/kvm.h' differs fr=
+om latest version at 'include/uapi/linux/kvm.h'
+> Warning: Kernel ABI header at 'tools/include/uapi/linux/sched.h' differs =
+from latest version at 'include/uapi/linux/sched.h'
+> Warning: Kernel ABI header at 'tools/arch/x86/include/asm/cpufeatures.h' =
+differs from latest version at 'arch/x86/include/asm/cpufeatures.h'
+> Warning: Kernel ABI header at 'tools/arch/x86/include/uapi/asm/unistd.h' =
+differs from latest version at 'arch/x86/include/uapi/asm/unistd.h'
+> Makefile.config:846: No libcap found, disables capability support, please=
+ install libcap-devel/libcap-dev
+> Makefile.config:958: No openjdk development package found, please install=
+ JDK package, e.g. openjdk-8-jdk, java-1.8.0-openjdk-devel
+>   PERF_VERSION =3D 5.4.61.gf5583dd12e6f
+> In file included from btf_dump.c:16:0:
+> btf_dump.c: In function =E2=80=98btf_align_of=E2=80=99:
+> tools/include/linux/kernel.h:53:17: error: comparison of distinct pointer=
+ types lacks a cast [-Werror]
+>   (void) (&_min1 =3D=3D &_min2);  \
+>                  ^
+> btf_dump.c:770:10: note: in expansion of macro =E2=80=98min=E2=80=99
+>    return min(sizeof(void *), t->size);
+>           ^~~
+> cc1: all warnings being treated as errors
+> make[7]: *** [/tmp/buildbot-builddir/tools/perf/staticobjs/btf_dump.o] Er=
+ror 1
 
+This perf build break noticed and reported on mailing list [1]
 
-On 2020/9/2 10:57 AM, Michael Christie wrote:
-> 
-> 
->> On Jul 29, 2020, at 8:03 AM, Hou Pu <houpu@bytedance.com> wrote:
->>
->> The iscsi target login thread might stuck in following stack:
->>
->> cat /proc/`pidof iscsi_np`/stack
->> [<0>] down_interruptible+0x42/0x50
->> [<0>] iscsit_access_np+0xe3/0x167
->> [<0>] iscsi_target_locate_portal+0x695/0x8ac
->> [<0>] __iscsi_target_login_thread+0x855/0xb82
->> [<0>] iscsi_target_login_thread+0x2f/0x5a
->> [<0>] kthread+0xfa/0x130
->> [<0>] ret_from_fork+0x1f/0x30
->>
->> This could be reproduced by following steps:
->> 1. Initiator A try to login iqn1-tpg1 on port 3260. After finishing
->>    PDU exchange in the login thread and before the negotiation is
->>    finished, at this time the network link is down. In a production
->>    environment, this could happen. I could emulated it by bring
->>    the network card down in the initiator node by ifconfig eth0 down.
->>    (Now A could never finish this login. And tpg->np_login_sem is
->>    hold by it).
->> 2. Initiator B try to login iqn2-tpg1 on port 3260. After finishing
->>    PDU exchange in the login thread. The target expect to process
->>    remaining login PDUs in workqueue context.
->> 3. Initiator A' try to re-login to iqn1-tpg1 on port 3260 from
->>    a new socket. It will wait for tpg->np_login_sem with
->>    np->np_login_timer loaded to wait for at most 15 second.
->>    (Because the lock is held by A. A never gets a change to
->>    release tpg->np_login_sem. so A' should finally get timeout).
->> 4. Before A' got timeout. Initiator B gets negotiation failed and
->>    calls iscsi_target_login_drop()->iscsi_target_login_sess_out().
->>    The np->np_login_timer is canceled. And initiator A' will hang
->>    there forever. Because A' is now in the login thread. All other
->>    login requests could not be serviced.
-> 
-> iqn1 and iqn1 are different targets right? It’s not clear to me how when initiator B fails negotiation that it cancels the timer for the portal under a different iqn/target.
+>
+> Bisect log below. Reverting the following two patches fixes the problem.
+>
+> 497ef945f327 libbpf: Fix build on ppc64le architecture
+> 401834f55ce7 libbpf: Handle GCC built-in types for Arm NEON
+>
+> Guenter
+>
+> ---
+> $ git bisect log
+> # bad: [f5583dd12e6fc8a3c11ae732f38bce8334e150a2] Linux 5.4.62-rc1
+> # good: [6576d69aac94cd8409636dfa86e0df39facdf0d2] Linux 5.4.61
+> git bisect start 'HEAD' 'v5.4.61'
+> # good: [6c747bd0794c982b500bda7334ef55d9dabb6cc6] nvme-fc: Fix wrong ret=
+urn value in __nvme_fc_init_request()
+> git bisect good 6c747bd0794c982b500bda7334ef55d9dabb6cc6
+> # bad: [81b5698e6d9ecdc9569df8f4b93be70d587f5ddf] serial: samsung: Remove=
+s the IRQ not found warning
+> git bisect bad 81b5698e6d9ecdc9569df8f4b93be70d587f5ddf
+> # bad: [973679736caa8e1b39b68866535bdc7899a46f25] ASoC: wm8994: Avoid att=
+empts to read unreadable registers
+> git bisect bad 973679736caa8e1b39b68866535bdc7899a46f25
+> # good: [1789df2a787c589dbe83bc3ed52af2abbc739d1b] ext4: correctly restor=
+e system zone info when remount fails
+> git bisect good 1789df2a787c589dbe83bc3ed52af2abbc739d1b
+> # good: [ba1fb0301a60cbded377e0f312c82847415a1820] drm/amd/powerplay: cor=
+rect UVD/VCE PG state on custom pptable uploading
+> git bisect good ba1fb0301a60cbded377e0f312c82847415a1820
+> # bad: [1ef070d29e73a50e98a93d9a68f69cfef4247170] netfilter: avoid ipv6 -=
+> nf_defrag_ipv6 module dependency
+> git bisect bad 1ef070d29e73a50e98a93d9a68f69cfef4247170
+> # bad: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Handle GCC buil=
+t-in types for Arm NEON
+> git bisect bad 401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c
+> # good: [ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711] drm/amd/display: Switc=
+h to immediate mode for updating infopackets
+> git bisect good ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711
+> # first bad commit: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Ha=
+ndle GCC built-in types for Arm NEON
 
-iqn1-tpg1 in step1 and step3 are same one. (same target volume)
-iqn2-tpg1 in step2 is a different volume on the same host.
-The configuration likes below:
+[1] https://lore.kernel.org/stable/CA+G9fYvsNkxvs7hdCB3LC9W+rP8hBa3F1fG3951=
+S+xHfiOJwNA@mail.gmail.com/
 
-iqn1-tpg1:
-root@storageXXX:/sys/kernel/config/target/iscsi# ls 
-iqn.2010-10.org.openstack\:volume-00e50deb-5296-4f18-xxxx-106f96a880c8/tpgt_1/np/
-10.129.77.16:3260
-
-iqn2-tpg1:
-root@storageXXX:/sys/kernel/config/target/iscsi# ls 
-iqn.2010-10.org.openstack\:volume-86af15c6-c529-4715-xxxx-3c9ca068635d/tpgt_1/np/
-10.129.77.16:3260
-
-(I could provide more is needed)
-
-> 
-> Is iqn2-tpg1->np1 a different struct than iqn1-tpg1-np1? I mean iscsit_get_tpg_from_np would return a different np struct for initiator B and for A?
-> 
-
-iscsit_get_tpg_from_np() returned different struct iscsi_portal_group
-for initiator A and B. But struct iscsi_np is shared by them.
-Because they have the same portal(ip address and port).
-
-
-Thanks,
-Hou
-
-
-
-
-
-
-
-
-
-
+- Naresh
