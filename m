@@ -2,74 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E02025A918
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 12:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939E325A91C
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 12:08:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726586AbgIBKHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 06:07:54 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:45512 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726140AbgIBKHw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 06:07:52 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E205B1C0B7F; Wed,  2 Sep 2020 12:07:49 +0200 (CEST)
-Date:   Wed, 2 Sep 2020 12:07:48 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/61] 4.4.235-rc2 review
-Message-ID: <20200902100748.GB3765@duo.ucw.cz>
-References: <20200902074814.459749499@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="V0207lvV8h4k8FAm"
-Content-Disposition: inline
-In-Reply-To: <20200902074814.459749499@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726183AbgIBKI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 06:08:28 -0400
+Received: from foss.arm.com ([217.140.110.172]:34834 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbgIBKI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Sep 2020 06:08:28 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AE255D6E;
+        Wed,  2 Sep 2020 03:08:27 -0700 (PDT)
+Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 084FA3F66F;
+        Wed,  2 Sep 2020 03:08:26 -0700 (PDT)
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     stable@vger.kernel.org
+Cc:     James Morse <james.morse@arm.com>, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH stable v4.19 0/4] KVM: arm64: Fix AT instruction handling
+Date:   Wed,  2 Sep 2020 11:08:17 +0100
+Message-Id: <20200902100821.149574-1-andre.przywara@arm.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In some architectural corner cases, AT instructions can generate an
+exception, which KVM is not really ready to handle properly.
+Teach the code to handle this situation gracefully.
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a backport of the respective upstream patches to v4.19(.142).
+James prepared and tested these already, but we were lacking the upstream
+commit IDs so far.
+I am sending this on his behalf, since he is off this week.
 
-Hi!
+The original patches contained stable tags, but with a prerequisite
+patch in v5.3. Patch 2/4 is a backport of this one, patches 1/4 and 3/4
+needed some massaging to apply and work on 4.19.
 
-> This is the start of the stable review cycle for the 4.4.235 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Fri, 04 Sep 2020 07:47:57 +0000.
-> Anything received after that time might be too late.
+Cheers,
+Andre.
 
-CIP testing did not find any problems.
+James Morse (4):
+  KVM: arm64: Add kvm_extable for vaxorcism code
+  KVM: arm64: Defer guest entry when an asynchronous exception is pending
+  KVM: arm64: Survive synchronous exceptions caused by AT instructions
+  KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/1=
-84683545
+ arch/arm64/include/asm/kvm_arm.h |  3 +-
+ arch/arm64/include/asm/kvm_asm.h | 43 ++++++++++++++++++++++
+ arch/arm64/kernel/vmlinux.lds.S  |  8 ++++
+ arch/arm64/kvm/hyp/entry.S       | 31 +++++++++++++---
+ arch/arm64/kvm/hyp/hyp-entry.S   | 63 +++++++++++++++++++++-----------
+ arch/arm64/kvm/hyp/switch.c      | 39 ++++++++++++++++++--
+ 6 files changed, 154 insertions(+), 33 deletions(-)
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+-- 
+2.17.1
 
---V0207lvV8h4k8FAm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX09u9AAKCRAw5/Bqldv6
-8k8XAKC9SFLASD4DclvwZTPgwQpd5l8YWwCfVpcwWAwQJTE91Secfch5Ph11i/U=
-=srbG
------END PGP SIGNATURE-----
-
---V0207lvV8h4k8FAm--
