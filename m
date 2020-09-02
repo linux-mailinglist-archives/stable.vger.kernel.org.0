@@ -2,83 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE6925AA1F
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 13:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E8125AA31
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 13:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgIBLTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 07:19:14 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:46032 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgIBLTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 07:19:13 -0400
-Received: by mail-lj1-f196.google.com with SMTP id c2so5373430ljj.12;
-        Wed, 02 Sep 2020 04:19:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sIqApshDOtTxlo5FK8DhBC+GEPu//rVe7EZe6AlqDB0=;
-        b=mXfRi7nPl2saIhJRyJ0d888xpn6ibcJVbojEc+k2Ap9MyLEnY0oFxzknNNB0i2LaIx
-         NdXrnFRTi3PpMaJcnEMiilmrp+QxTNyj3fQI6JUWxT5SrBe0oGKpLPR4w4bJ1ClBA86T
-         wrSgBt4CDoLxt1StCZbf2Uv/fProBV+ZKuADX5RR6H1w/muUNZZ7B4QTVJFIywTbhIGH
-         PyL7LRmiGWGMSSTZZ/+MS0lT+Eyee7bjfzD81FybkKt52IWjKqSd5Hs5Z0BQUUMf/hmi
-         ckEL15CsbfOnp+QfC2JH2/jbN79hQCi0aOEVQrpUr3hBR0o0AIe97/6ZX05+QfRUp3cP
-         tDTg==
-X-Gm-Message-State: AOAM532PaR0nsDLf7JDMlqlqCI8icuaV89x2XhYLwx4za64+QTLQpVCs
-        kFvRpqTo7C3DPw6Mj7asBK8anv6NExM=
-X-Google-Smtp-Source: ABdhPJxxkPw6jkHz1bBom1/zQNxuNhpGQd3XWzcNVPjJ0/ap1nFPYYKYWNKtXDnbixx9Dbl5Af7dFA==
-X-Received: by 2002:a2e:91d2:: with SMTP id u18mr3039908ljg.436.1599045550650;
-        Wed, 02 Sep 2020 04:19:10 -0700 (PDT)
-Received: from localhost.localdomain (broadband-37-110-38-130.ip.moscow.rt.ru. [37.110.38.130])
-        by smtp.googlemail.com with ESMTPSA id n62sm465066lfa.82.2020.09.02.04.19.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2020 04:19:09 -0700 (PDT)
-From:   Denis Efremov <efremov@linux.com>
-To:     Doug Berger <opendmb@gmail.com>
-Cc:     Denis Efremov <efremov@linux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] net: bcmgenet: fix mask check in bcmgenet_validate_flow()
-Date:   Wed,  2 Sep 2020 14:18:45 +0300
-Message-Id: <20200902111845.9915-1-efremov@linux.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726323AbgIBL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 07:26:28 -0400
+Received: from mx2.suse.de ([195.135.220.15]:43666 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726124AbgIBL01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Sep 2020 07:26:27 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 46DC0B18C;
+        Wed,  2 Sep 2020 11:26:26 +0000 (UTC)
+Date:   Wed, 2 Sep 2020 13:26:24 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Roman Gushchin <guro@fb.com>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
+Message-ID: <20200902112624.GC4617@dhcp22.suse.cz>
+References: <20200127173453.2089565-1-guro@fb.com>
+ <20200130020626.GA21973@in.ibm.com>
+ <20200130024135.GA14994@xps.DHCP.thefacebook.com>
+ <CA+CK2bCQcnTpzq2wGFa3D50PtKwBoWbDBm56S9y8c+j+pD+KSw@mail.gmail.com>
+ <20200813000416.GA1592467@carbon.dhcp.thefacebook.com>
+ <CA+CK2bDDToW=Q5RgeWkoN3_rUr3pyWGVb9MraTzM+DM3OZ+tdg@mail.gmail.com>
+ <CA+CK2bBEHFuLLg79_h6bv4Vey+B0B2YXyBxTBa=Le12OKbNdwA@mail.gmail.com>
+ <6469324e-afa2-18b4-81fb-9e96466c1bf3@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6469324e-afa2-18b4-81fb-9e96466c1bf3@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VALIDATE_MASK(eth_mask->h_source) is checked twice in a row in
-bcmgenet_validate_flow(). Add VALIDATE_MASK(eth_mask->h_dest)
-instead.
+On Wed 02-09-20 11:53:00, Vlastimil Babka wrote:
+> On 8/28/20 6:47 PM, Pavel Tatashin wrote:
+> > There appears to be another problem that is related to the
+> > cgroup_mutex -> mem_hotplug_lock deadlock described above.
+> > 
+> > In the original deadlock that I described, the workaround is to
+> > replace crash dump from piping to Linux traditional save to files
+> > method. However, after trying this workaround, I still observed
+> > hardware watchdog resets during machine  shutdown.
+> > 
+> > The new problem occurs for the following reason: upon shutdown systemd
+> > calls a service that hot-removes memory, and if hot-removing fails for
+> 
+> Why is that hotremove even needed if we're shutting down? Are there any
+> (virtualization?) platforms where it makes some difference over plain
+> shutdown/restart?
 
-Fixes: 3e370952287c ("net: bcmgenet: add support for ethtool rxnfc flows")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
-I'm not sure that h_dest check is required here, it's only my guess.
-Compile tested only.
+Yes this sounds quite dubious.
 
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > some reason systemd kills that service after timeout. However, systemd
+> > is never able to kill the service, and we get hardware reset caused by
+> > watchdog or a hang during shutdown:
+> > 
+> > Thread #1: memory hot-remove systemd service
+> > Loops indefinitely, because if there is something still to be migrated
+> > this loop never terminates. However, this loop can be terminated via
+> > signal from systemd after timeout.
+> > __offline_pages()
+> >       do {
+> >           pfn = scan_movable_pages(pfn, end_pfn);
+> >                   # Returns 0, meaning there is nothing available to
+> >                   # migrate, no page is PageLRU(page)
+> >           ...
+> >           ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
+> >                                             NULL, check_pages_isolated_cb);
+> >                   # Returns -EBUSY, meaning there is at least one PFN that
+> >                   # still has to be migrated.
+> >       } while (ret);
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 0ca8436d2e9d..be85dad2e3bc 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1364,7 +1364,7 @@ static int bcmgenet_validate_flow(struct net_device *dev,
- 	case ETHER_FLOW:
- 		eth_mask = &cmd->fs.m_u.ether_spec;
- 		/* don't allow mask which isn't valid */
--		if (VALIDATE_MASK(eth_mask->h_source) ||
-+		if (VALIDATE_MASK(eth_mask->h_dest) ||
- 		    VALIDATE_MASK(eth_mask->h_source) ||
- 		    VALIDATE_MASK(eth_mask->h_proto)) {
- 			netdev_err(dev, "rxnfc: Unsupported mask\n");
+This shouldn't really happen. What does prevent from this to proceed?
+Did you manage to catch the specific pfn and what is it used for?
+start_isolate_page_range and scan_movable_pages should fail if there is
+any memory that cannot be migrated permanently. This is something that
+we should focus on when debugging.
 -- 
-2.26.2
-
+Michal Hocko
+SUSE Labs
