@@ -2,97 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0502425B217
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 18:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 100DE25B231
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 18:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbgIBQvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 12:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
+        id S1728073AbgIBQ5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 12:57:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726467AbgIBQvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 12:51:54 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F23C061244;
-        Wed,  2 Sep 2020 09:51:53 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id w186so2824266pgb.8;
-        Wed, 02 Sep 2020 09:51:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=MDQ6zE/6jTTf94dZqMVJJO0yNqdkkuqD2ZIum9z6agY=;
-        b=D5HWNcO3fqSJb2fbmO436H6p2IureVMKox8lMGdkpsJhCIMWALwgteR47zQ1PL3OED
-         Bpfsbk08mMDQOTjkhJuz9QB3VeBDJIp/nxBTfxyK1tW/R4JXw8LSoyigApMMxm86XSul
-         6ZcIlk1BD124Jr1n4VhtpEw6k3aNgpEl0c4lGTlhdmiXiXxqkMd9qCN5R8qwzJzStnbs
-         YyNv/rgNhoi98eXPOuhel175ds+TbLZkyUZt/rmjN7eAmcLBgUXDsaGCaJyWWP8OFvvJ
-         XYhfM9jWPa/tvpa4vyrpBac7u5u7dMhPhHXqqioay6s92XxVCqvl+NR/eEN1CwPWyW8K
-         ofDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=MDQ6zE/6jTTf94dZqMVJJO0yNqdkkuqD2ZIum9z6agY=;
-        b=A9vVVJ+9s1Pm4JZIskIrmf2AIHjhKADPP08f5E6yFhSHozF118gMz80hK9ZXfnIVn5
-         9xweXw/AWe0ZPzJbghXd0pCeo3QI/dLm6hPZ7hSiYUjxyq7WKVVxwstF9En0z5O3D4ll
-         AnYH1NHrBbZGZPlC9oAdfj9HOdfjHCwvHRMKIJzRK7RXaCQ7EO/qhao0Jmysr3gBsfmY
-         lo2h/n8J5R1YS8wzhA7OteTnqlh/BbC9pP7idS6dKD5/MBO3OfLwrLpy32TzFa5vSQzN
-         3rShTflbYH3NxT/tk4KPes6u0XZhZsiwZAwtoRgE9Z8KK0DsDNQHjauELxZsEglwXd41
-         ujPQ==
-X-Gm-Message-State: AOAM531X7JOsmg6h6D+sJvql1kjiucn3F8nAZjm3GsFrhT/ft52FHQ7Q
-        /1v0HPPUGLJ+C7w0FKG89bI=
-X-Google-Smtp-Source: ABdhPJxXmqTQh+bXXErTrtCeqxkYMajb6H/4VNuRUQ6RN0T/bivgtsl8lU1x28vNKFgT7k4c/QI+9g==
-X-Received: by 2002:a63:fe06:: with SMTP id p6mr2544230pgh.337.1599065513033;
-        Wed, 02 Sep 2020 09:51:53 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m188sm26713pfd.56.2020.09.02.09.51.52
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 02 Sep 2020 09:51:52 -0700 (PDT)
-Date:   Wed, 2 Sep 2020 09:51:51 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/253] 5.8.6-rc2 review
-Message-ID: <20200902165151.GF56237@roeck-us.net>
-References: <20200902074837.329205434@linuxfoundation.org>
+        with ESMTP id S1726310AbgIBQ5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 12:57:02 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEDC5C061244;
+        Wed,  2 Sep 2020 09:57:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Kt6lC69jtDUmQkH0re64HecwS3W6LIg6JZ3PvsNLKNU=; b=AQFYevxzS8D2m7F+nkGeA+e6rQ
+        OWV0LQ1lhehxooqel3ozGpK8vlogIUig7Q3fhC5CcDYVR4ps9AOIE9xXUzTlRgdViUff/9yVarO8D
+        WJIaYB8Pb2ZxWb+RkwTP9IoTP3FzVVrYXI0qmrLvzRms5zvdkbL3hwEzLvfUh5KGtR9XgwpCRJiwj
+        MhkGZtBulygSqCQLSUzBPDpsIrGZgisp6+13I6g0Io2tPWtQt1ef3JN/b1B06hRpNmkd7Gz9CjZPt
+        N4w2tR5O+sWvoOhmO0SCMITRmPHQIJtjX5h5cdCh7SPHrnUFmtqFIhkKVCJS3aQkN/vjslcll4WmB
+        h7Iznk+Q==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kDW44-0000XA-Sd; Wed, 02 Sep 2020 16:56:53 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 44F563011C6;
+        Wed,  2 Sep 2020 18:56:52 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 2E72E2B997071; Wed,  2 Sep 2020 18:56:52 +0200 (CEST)
+Date:   Wed, 2 Sep 2020 18:56:52 +0200
+From:   peterz@infradead.org
+To:     Nadav Amit <namit@vmware.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86 <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86/special_insn: reverse __force_order logic
+Message-ID: <20200902165652.GO1362448@hirez.programming.kicks-ass.net>
+References: <20200901161857.566142-1-namit@vmware.com>
+ <20200902125402.GG1362448@hirez.programming.kicks-ass.net>
+ <1E3FD845-E71A-4518-A0BF-FAD31CBC3E28@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200902074837.329205434@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1E3FD845-E71A-4518-A0BF-FAD31CBC3E28@vmware.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 09:49:11AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.6 release.
-> There are 253 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 04 Sep 2020 07:47:48 +0000.
-> Anything received after that time might be too late.
-> 
+On Wed, Sep 02, 2020 at 03:32:18PM +0000, Nadav Amit wrote:
 
-Build results:
-	total: 154 pass: 153 fail: 1
-Failed builds:
-	powerpc:allmodconfig
-Qemu test results:
-	total: 430 pass: 430 fail: 0
+> Thanks for pointer. I did not see the discussion, and embarrassingly, I have
+> also never figured out how to reply on lkml emails without registering to
+> lkml.
 
-The build failure is:
-
-Inconsistent kallsyms data
-Try make KALLSYMS_EXTRA_PASS=1 as a workaround
-
-The suggested workaround doesn't help. I see the problem in mainline
-and in -next as well, and it is elusive (meaning it is not easy to
-reproduce). Given that, it is not an immediate concern.
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+The lore.kernel.org thing I pointed you to allows you to download an
+mbox with the email in (see the very bottom of the page). Use your
+favorite MUA to open it and reply :-)
