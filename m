@@ -2,154 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59DA625A4EE
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 07:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E07025A525
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 07:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726301AbgIBFSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 01:18:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
+        id S1726212AbgIBFpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 01:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726021AbgIBFSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 01:18:05 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B3FC061244
-        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 22:18:04 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id y3so1919281vsn.1
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 22:18:04 -0700 (PDT)
+        with ESMTP id S1725774AbgIBFpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 01:45:06 -0400
+Received: from mail-vk1-xa42.google.com (mail-vk1-xa42.google.com [IPv6:2607:f8b0:4864:20::a42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B481C061244
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 22:45:06 -0700 (PDT)
+Received: by mail-vk1-xa42.google.com with SMTP id n193so938814vkf.12
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 22:45:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zJ3a1CRJV+7fxasgMykvqa8xqbnuraayRBZc80JsMEI=;
-        b=eKxd4d2F2VdE7gfHAI/dEV9na+W4P2zSvAwyEgxJmXM2hkWkYC58a0hC+FdMfJbT8W
-         PLvs/Aqu2bBpizq/pzEM5qdv439TudmNs3GzD7/Gn2FPdSaVr8Xzr0i5t+4RhtfBRrC3
-         +QFDnK6TZHKzI4uZKDb0nsZ4hgp0re2zQpNBu7eugWUjZXA45ZZEwf6uk9cYwlm5ekhF
-         yJA/kTNvmmdzysJzh+oumx4Gq58eJy2M3v89mH1FZHyLE82rMjt84cL8UkyqZVgcLXhX
-         /iFJDonnC/NK8rDfnqlOHwFw+TA379AI1AkNZBHPtFWD7XuTpG7jJ/XOmSo/KJs657Tf
-         ptLg==
+         :cc;
+        bh=3/Xek+aHJ1oV+/IRX9g/TNwyAOedPvUNfL3S5dPG/BE=;
+        b=pWeCaUwgspRSRjIOPFTl5saGeyVvo3wFZ0lHctrmXK6LaY0E5sEejX7ovnxDXDsAsl
+         2SmtwFX3FjfXTE0RsrywFV/i+81sJaHckdo5q4pAJQsMv8hRN7bPT/Fq82lDs9OT15vH
+         PPWQAzABxPUbrfIMoZRS3Eqa818CJZtty8JUGgNW4rJgMGGM0O4nSPJUX2zoQq9F5Z5M
+         i/OopyoZOJyJA8RO851+DAjrU3LFc/Ien0GwQjZnf4qbCLC+wrkzIK9EmXLnNuIR5fbN
+         iX3/j4fid7C4r0gHGrhVrvdC+AnI08XWRJpOWuSUyAlVKl3etSjUJZ3SSAwMAIkqc/Ar
+         isUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zJ3a1CRJV+7fxasgMykvqa8xqbnuraayRBZc80JsMEI=;
-        b=ndIRWWZsnF3uDHot5TkvQQSuOg2wem/HhchJ4e+U0CrS7uO/pLAl/5VNmH9p1gtdd3
-         f9pU57sizoUenQjtic+ew/WcpIdjLBcUJ4fRnLHtGyqrRjtaR/2W6NlzU7GjDzpF7i49
-         MLzaGsD5o2/vGJZijWS6LX20J/GXMfKcPhsQUrRR6hyzVd0EEoYlPKeOijMEcs20FAYg
-         3TXzppUylsR06tRmKRoxVCSUhOsb1BLd6EJZagP8F9xO/1rd4zllulaDCwChKOUIoGsO
-         YH2qR6p/phOH/G6B9gmVaYFSRX0xgZdXlU1JO3WvYwvPKysifem3WHL4xqA0AGCSe2wX
-         Sj5w==
-X-Gm-Message-State: AOAM532BbKv9kyHjVG2Q+manL5O3xcetQkB9KfF8soSjldXxJv5fU8V4
-        UXW7kXwXtKt0u83TVw92VOPK/z+6+L9bj9+7UPWJqA==
-X-Google-Smtp-Source: ABdhPJzTI6yI0sgigh5knK9fSxCILYGU4r2D2EaAYXHA5LDwR4SuhmFqaF6nykK0Wm0kLJ/JMMa3KCGsmhCE7to+MpM=
-X-Received: by 2002:a67:e9d4:: with SMTP id q20mr4082829vso.83.1599023883523;
- Tue, 01 Sep 2020 22:18:03 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=3/Xek+aHJ1oV+/IRX9g/TNwyAOedPvUNfL3S5dPG/BE=;
+        b=beFW2X7E35c2iktS1LX7if9hSjY3lTzvilhf9py2/0J+t81gaAIjG946tNKKroFvH7
+         ai40VnR7AJClR4AZIiwFM2dHM6uQkJcv/JnT6gnbDB/7Z5f17O8R7319HEtjN/pC3OrQ
+         r+IL+ZEy1lyzXnq7LNil1HfNCgXvk+Kn21CoU1bNAVZK6j6GBt0bBQpLG1bqN5A1aosh
+         8RVQ6OzrW/z2p4GjbqOWvvtA66OA9PVeugMAjVhWmhNvYokhZFxjDM+GaxueYJpbVaRt
+         CS21dEPPrCuwh6LOJndt3i8qEvGQF37A+3S/nY4G4gn4AnkYaWZ7iVcK15j7t6ib134C
+         B9oA==
+X-Gm-Message-State: AOAM533BSdwctZc6TXeAYv2MWdwprVJiVhsSRReIqRnfnJXBGvxzdaeN
+        e+4N6GQL8a+WeGVekqbaIx0nTyZ/S/7r9KrReSA6jQ==
+X-Google-Smtp-Source: ABdhPJz35iMbbKWurAIhsbjOySH/ZZUKjNUocr7QXr2PmB7sPue60+rLanIr6NVsFJm+azlokdwEBEQL+Ep20bsc1Kg=
+X-Received: by 2002:ac5:c8b9:: with SMTP id o25mr4183591vkl.51.1599025505408;
+ Tue, 01 Sep 2020 22:45:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200901150952.963606936@linuxfoundation.org> <694f63b6-c5a0-f434-5212-27f1cb7b5f2a@roeck-us.net>
-In-Reply-To: <694f63b6-c5a0-f434-5212-27f1cb7b5f2a@roeck-us.net>
+References: <20200901151000.800754757@linuxfoundation.org>
+In-Reply-To: <20200901151000.800754757@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 2 Sep 2020 10:47:51 +0530
-Message-ID: <CA+G9fYtoxNSRKncYBnc=LgYVJTW51rQGAgnLaWwhYZT==VeqAA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/214] 5.4.62-rc1 review
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
+Date:   Wed, 2 Sep 2020 11:14:54 +0530
+Message-ID: <CA+G9fYt+NW7w_NSmqhgQYEmWR_Yo0XDGj1skSoCSqUeLfDPu_A@mail.gmail.com>
+Subject: Re: [PATCH 5.8 000/255] 5.8.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
         Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        linux- stable <stable@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>, X86 ML <x86@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2 Sep 2020 at 00:39, Guenter Roeck <linux@roeck-us.net> wrote:
+On Tue, 1 Sep 2020 at 21:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On 9/1/20 8:08 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.62 release.
-> > There are 214 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 03 Sep 2020 15:09:01 +0000.
-> > Anything received after that time might be too late.
-> >
+> This is the start of the stable review cycle for the 5.8.6 release.
+> There are 255 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Building x86_64:tools/perf ... failed
-> --------------
-> Error log:
-> Warning: Kernel ABI header at 'tools/include/uapi/linux/kvm.h' differs fr=
-om latest version at 'include/uapi/linux/kvm.h'
-> Warning: Kernel ABI header at 'tools/include/uapi/linux/sched.h' differs =
-from latest version at 'include/uapi/linux/sched.h'
-> Warning: Kernel ABI header at 'tools/arch/x86/include/asm/cpufeatures.h' =
-differs from latest version at 'arch/x86/include/asm/cpufeatures.h'
-> Warning: Kernel ABI header at 'tools/arch/x86/include/uapi/asm/unistd.h' =
-differs from latest version at 'arch/x86/include/uapi/asm/unistd.h'
-> Makefile.config:846: No libcap found, disables capability support, please=
- install libcap-devel/libcap-dev
-> Makefile.config:958: No openjdk development package found, please install=
- JDK package, e.g. openjdk-8-jdk, java-1.8.0-openjdk-devel
->   PERF_VERSION =3D 5.4.61.gf5583dd12e6f
-> In file included from btf_dump.c:16:0:
-> btf_dump.c: In function =E2=80=98btf_align_of=E2=80=99:
-> tools/include/linux/kernel.h:53:17: error: comparison of distinct pointer=
- types lacks a cast [-Werror]
->   (void) (&_min1 =3D=3D &_min2);  \
->                  ^
-> btf_dump.c:770:10: note: in expansion of macro =E2=80=98min=E2=80=99
->    return min(sizeof(void *), t->size);
->           ^~~
-> cc1: all warnings being treated as errors
-> make[7]: *** [/tmp/buildbot-builddir/tools/perf/staticobjs/btf_dump.o] Er=
-ror 1
+> Responses should be made by Thu, 03 Sep 2020 15:09:01 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.6-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-This perf build break noticed and reported on mailing list [1]
+While running LTP CVE test suite on i386 this BUG triggered
+after the known warning. Please find below full test log link [1].
+This was reported on the mailing list on next-20200811 but
+did not get any reply [2].
 
->
-> Bisect log below. Reverting the following two patches fixes the problem.
->
-> 497ef945f327 libbpf: Fix build on ppc64le architecture
-> 401834f55ce7 libbpf: Handle GCC built-in types for Arm NEON
->
-> Guenter
->
-> ---
-> $ git bisect log
-> # bad: [f5583dd12e6fc8a3c11ae732f38bce8334e150a2] Linux 5.4.62-rc1
-> # good: [6576d69aac94cd8409636dfa86e0df39facdf0d2] Linux 5.4.61
-> git bisect start 'HEAD' 'v5.4.61'
-> # good: [6c747bd0794c982b500bda7334ef55d9dabb6cc6] nvme-fc: Fix wrong ret=
-urn value in __nvme_fc_init_request()
-> git bisect good 6c747bd0794c982b500bda7334ef55d9dabb6cc6
-> # bad: [81b5698e6d9ecdc9569df8f4b93be70d587f5ddf] serial: samsung: Remove=
-s the IRQ not found warning
-> git bisect bad 81b5698e6d9ecdc9569df8f4b93be70d587f5ddf
-> # bad: [973679736caa8e1b39b68866535bdc7899a46f25] ASoC: wm8994: Avoid att=
-empts to read unreadable registers
-> git bisect bad 973679736caa8e1b39b68866535bdc7899a46f25
-> # good: [1789df2a787c589dbe83bc3ed52af2abbc739d1b] ext4: correctly restor=
-e system zone info when remount fails
-> git bisect good 1789df2a787c589dbe83bc3ed52af2abbc739d1b
-> # good: [ba1fb0301a60cbded377e0f312c82847415a1820] drm/amd/powerplay: cor=
-rect UVD/VCE PG state on custom pptable uploading
-> git bisect good ba1fb0301a60cbded377e0f312c82847415a1820
-> # bad: [1ef070d29e73a50e98a93d9a68f69cfef4247170] netfilter: avoid ipv6 -=
-> nf_defrag_ipv6 module dependency
-> git bisect bad 1ef070d29e73a50e98a93d9a68f69cfef4247170
-> # bad: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Handle GCC buil=
-t-in types for Arm NEON
-> git bisect bad 401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c
-> # good: [ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711] drm/amd/display: Switc=
-h to immediate mode for updating infopackets
-> git bisect good ccb6e88cd42a9cb65bde705f7f8e7c9822dcb711
-> # first bad commit: [401834f55ce7f86bf2c0f8fdd8fbf9e1baf19f1c] libbpf: Ha=
-ndle GCC built-in types for Arm NEON
+[  138.177043] ------------[ cut here ]------------
+[  138.181675] WARNING: CPU: 1 PID: 8301 at mm/mremap.c:230
+move_page_tables+0x6ef/0x720
+[  138.189515] Modules linked in: x86_pkg_temp_thermal
+[  138.194436] CPU: 1 PID: 8301 Comm: true Not tainted 5.8.6-rc1 #1
+[  138.194437] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.2 05/23/2018
+[  138.194439] EIP: move_page_tables+0x6ef/0x720
 
-[1] https://lore.kernel.org/stable/CA+G9fYvsNkxvs7hdCB3LC9W+rP8hBa3F1fG3951=
-S+xHfiOJwNA@mail.gmail.com/
+<>
 
-- Naresh
+[  802.156512] BUG: unable to handle page fault for address: fe402000
+[  802.162703] #PF: supervisor write access in kernel mode
+[  802.167927] #PF: error_code(0x0002) - not-present page
+[  802.173064] *pde = 23e61067 *pte = 64b32163
+[  802.177329] Oops: 0002 [#1] SMP
+[  802.180469] CPU: 1 PID: 13118 Comm: cve-2017-17053 Tainted: G
+ W         5.8.6-rc1 #1
+[  802.188811] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.2 05/23/2018
+[  802.196199] EIP: memcpy+0x14/0x30
+[  802.199517] Code: e8 a1 72 c5 ff 0f 31 31 c3 59 58 eb 85 cc cc cc
+cc cc cc cc cc cc 3e 8d 74 26 00 55 89 e5 57 89 c7 56 89 d6 53 89 cb
+c1 e9 02 <f3> a5 89 d9 83 e1 03 74 02 f3 a4 5b 5e 5f 5d c3 8d b4 26 00
+00 00
+[  802.218259] EAX: fe402000 EBX: 00010000 ECX: 00004000 EDX: fb3dd000
+[  802.224518] ESI: fb3dd000 EDI: fe402000 EBP: ea799ddc ESP: ea799dd0
+[  802.230773] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010206
+[  802.237551] CR0: 80050033 CR2: fe402000 CR3: 1eee9000 CR4: 003406d0
+[  802.243809] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+[  802.250065] DR6: fffe0ff0 DR7: 00000400
+[  802.253897] Call Trace:
+[  802.256345]  ldt_dup_context+0x6b/0x90
+[  802.260093]  dup_mm+0x2b3/0x480
+[  802.263230]  copy_process+0x13d6/0x1650
+[  802.267062]  _do_fork+0x7b/0x3b0
+[  802.270284]  ? set_next_entity+0xa9/0x250
+[  802.274290]  __ia32_sys_clone+0x77/0xa0
+[  802.278119]  do_syscall_32_irqs_on+0x3d/0x250
+[  802.282472]  ? do_fast_syscall_32+0x2d/0xc0
+[  802.286656]  ? trace_hardirqs_on+0x30/0xf0
+[  802.290746]  ? trace_hardirqs_off_finish+0x32/0xa0
+[  802.295533]  ? do_SYSENTER_32+0x15/0x20
+[  802.299371]  do_fast_syscall_32+0x49/0xc0
+[  802.303374]  do_SYSENTER_32+0x15/0x20
+[  802.307032]  entry_SYSENTER_32+0x9f/0xf2
+[  802.310956] EIP: 0xb7fbb549
+[  802.313747] Code: 03 74 c0 01 10 05 03 74 b8 01 10 06 03 74 b4 01
+10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 51 52 55 89 e5 0f
+34 cd 80 <5d> 5a 59 c3 90 90 90 90 8d 76 00 58 b8 77 00 00 00 cd 80 90
+8d 76
+[  802.332483] EAX: ffffffda EBX: 01200011 ECX: 00000000 EDX: 00000000
+[  802.338742] ESI: 00000000 EDI: b7dbdba8 EBP: b7dbd348 ESP: b7dbd2f0
+[  802.344998] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b EFLAGS: 00000246
+[  802.351776] Modules linked in: algif_hash x86_pkg_temp_thermal
+[  802.357608] CR2: 00000000fe402000
+[  802.360920] ---[ end trace ea48459ba50c2a87 ]---
+[  802.365542] EIP: memcpy+0x14/0x30
+[  802.368858] Code: e8 a1 72 c5 ff 0f 31 31 c3 59 58 eb 85 cc cc cc
+cc cc cc cc cc cc 3e 8d 74 26 00 55 89 e5 57 89 c7 56 89 d6 53 89 cb
+c1 e9 02 <f3> a5 89 d9 83 e1 03 74 02 f3 a4 5b 5e 5f 5d c3 8d b4 26 00
+00 00
+[  802.387593] EAX: fe402000 EBX: 00010000 ECX: 00004000 EDX: fb3dd000
+[  802.393852] ESI: fb3dd000 EDI: fe402000 EBP: ea799ddc ESP: ea799dd0
+[  802.400107] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010206
+[  802.406887] CR0: 80050033 CR2: fe402000 CR3: 1eee9000 CR4: 003406d0
+[  802.413143] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+[  802.419400] DR6: fffe0ff0 DR7: 00000400
+
+full test log,
+[1] https://qa-reports.linaro.org/lkft/linux-stable-rc-5.8-oe/build/v5.8.5-256-gad57c5b5e64d/testrun/3148295/suite/linux-log-parser/test/check-kernel-bug-1727425/log
+
+[2] https://lore.kernel.org/linux-mm/CA+G9fYsiNgoh09h0paf1+UTKhPnn490QCoLB2dRFhMT+Cjh9RA@mail.gmail.com/
+
+--
+Linaro LKFT
+https://lkft.linaro.org
