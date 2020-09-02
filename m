@@ -2,110 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F38F525AB48
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 14:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA1625AB5C
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 14:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbgIBMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 08:43:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726724AbgIBMnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 08:43:01 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DC8C061245
-        for <stable@vger.kernel.org>; Wed,  2 Sep 2020 05:42:53 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id nw23so6431157ejb.4
-        for <stable@vger.kernel.org>; Wed, 02 Sep 2020 05:42:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SccKNTt3YC7XbTuW2H30Zmdads/idBqIfZTM94c1dTk=;
-        b=V8U7jhgODsB8A//a8e72+JnBkGzNrjWlf+cOescmbiJ3DdRRPUNnX7AH0GN4CKTzGQ
-         +/DnJnNFfFFBJdJNHpWGYydROSt6ust0nCR9krxGx1RYNVxs3B9Vt6pXMrhZ8ezZilSg
-         5iMLITForaLMdJBbuQ8/D4kKbKs5exxbDRNVJo9rsu4teVNsFhLVlefNJLDkf5vnWjK6
-         zCRx5PQacyjnr2low+ElUA4KMRIwH64tKzzsty1u/A5yrzKTSqH1Y5b+yFxgftrNkQrZ
-         nsrBzKgtGopGLoDGEl4qx5f3eYHngO7vqpj+i4F57egPLI66c960+Mpld71TPJl37vP/
-         c1sA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SccKNTt3YC7XbTuW2H30Zmdads/idBqIfZTM94c1dTk=;
-        b=GzfpTCDqQZn/eCsrub7CoRpr983n13eZwcWf8/yRTNk9zyaJmZnwziS5lzE1+IPQra
-         XJ0lBzvs6gTzLarG90X+N2wWjTzBWewitrxNgC9jnQTEmEVk5mw9hoCuZIQHqMdhQ+3Q
-         ZzXbVqrKQ93sT/Poh0dSVDGdP/BsAW0FmmG0I6GzDPsjnBzotvD+4vUod7qAT+cjMK8F
-         UAdNYI0sadPr34X0yIFEIAI/HyH/d0YvLqF4vbcr8P5jAqQQgvxusFt7Y2xy7xuQf123
-         oB5WQqHVaVK+/bSue3uuqsbc1zNKrxb97TU4fw572Ahi9HrhUZwZPYxIrOFb7n3EJH1A
-         /sZg==
-X-Gm-Message-State: AOAM533a4WPU7nD0VgVrsWOUS5dwQsa97bopb1J/SZ7drqgGfNnweclW
-        qDZtiniCWxJE78DBheu58JKWY0UPDBwc3JA81q3q7Q==
-X-Google-Smtp-Source: ABdhPJx66UO5GHi9sHXGjEoebE3qu+qT1iXTpFKwiHny0D+6C+OPmtHNdkot7yilBnEj0otgEXsEp/WbFvPk7azEl3E=
-X-Received: by 2002:a17:906:715b:: with SMTP id z27mr2767202ejj.166.1599050569831;
- Wed, 02 Sep 2020 05:42:49 -0700 (PDT)
+        id S1726686AbgIBMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 08:46:04 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:52485 "EHLO
+        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726377AbgIBMqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Sep 2020 08:46:03 -0400
+Received: from [IPv6:2601:646:8600:3281:f4fe:3463:b171:987] ([IPv6:2601:646:8600:3281:f4fe:3463:b171:987])
+        (authenticated bits=0)
+        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id 082CjNHl286057
+        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+        Wed, 2 Sep 2020 05:45:24 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 082CjNHl286057
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+        s=2020082401; t=1599050725;
+        bh=1L5g91MJAcj7QUziBqImNRQTt5Ah9En7w62HAgc0uE0=;
+        h=Date:In-Reply-To:References:Subject:To:CC:From:From;
+        b=CvK7d6SUEjfdK1IfphrxnoCfXwnQJBP6SwlCHK4ABib3Vdd6JqcjpCtwEhohsM8Gh
+         KLNsod0CmxXp0+bSaDd63TyGgKDO44M5ac59G1pifdjH+uKI+pKMMbme+3iawhV3TP
+         XJnRMaCTy26mQEwAASdgUActJK1vVwZ2rEv+rUg08tMKFfligMb0dR5GAM74rSb80a
+         u4x+GheoxBj4ADhh7RrR4s4Plch3/0ezLjfZ1p3NpqTpF23VAQAqI+vI8Z+WMq07GZ
+         fB4oXl2Czz6BKNMbnYtj2JlH8hgSu8AsqXDk6LGcs4JvkdsTwvcxxYcoOrwZ0kDB/E
+         yiL5lC6LXbo1w==
+Date:   Wed, 02 Sep 2020 05:45:15 -0700
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20200901161857.566142-1-namit@vmware.com>
+References: <20200901161857.566142-1-namit@vmware.com>
 MIME-Version: 1.0
-References: <6469324e-afa2-18b4-81fb-9e96466c1bf3@suse.cz> <A8A8D5FE-86C3-40B4-919C-5FF2A134F366@redhat.com>
-In-Reply-To: <A8A8D5FE-86C3-40B4-919C-5FF2A134F366@redhat.com>
-From:   Pavel Tatashin <pasha.tatashin@soleen.com>
-Date:   Wed, 2 Sep 2020 08:42:13 -0400
-Message-ID: <CA+CK2bAebg4PALh3_-49MXGJ-FNP3hE98wHZd5uEC-q7wG6Vmg@mail.gmail.com>
-Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
-To:     David Hildenbrand <dhildenb@redhat.com>
-Cc:     Vlastimil Babka <vbabka@suse.cz>, Roman Gushchin <guro@fb.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Hildenbrand <david@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] x86/special_insn: reverse __force_order logic
+To:     Nadav Amit <nadav.amit@gmail.com>, linux-kernel@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>
+CC:     Nadav Amit <namit@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>, stable@vger.kernel.org
+From:   hpa@zytor.com
+Message-ID: <493788DD-A9BE-4D48-94D1-2E3B8AE6BA4E@zytor.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> > Am 02.09.2020 um 11:53 schrieb Vlastimil Babka <vbabka@suse.cz>:
-> >
-> > =EF=BB=BFOn 8/28/20 6:47 PM, Pavel Tatashin wrote:
-> >> There appears to be another problem that is related to the
-> >> cgroup_mutex -> mem_hotplug_lock deadlock described above.
-> >>
-> >> In the original deadlock that I described, the workaround is to
-> >> replace crash dump from piping to Linux traditional save to files
-> >> method. However, after trying this workaround, I still observed
-> >> hardware watchdog resets during machine  shutdown.
-> >>
-> >> The new problem occurs for the following reason: upon shutdown systemd
-> >> calls a service that hot-removes memory, and if hot-removing fails for
-> >
-> > Why is that hotremove even needed if we're shutting down? Are there any
-> > (virtualization?) platforms where it makes some difference over plain
-> > shutdown/restart?
+On September 1, 2020 9:18:57 AM PDT, Nadav Amit <nadav=2Eamit@gmail=2Ecom> =
+wrote:
+>From: Nadav Amit <namit@vmware=2Ecom>
 >
-> If all it=E2=80=98s doing is offlining random memory that sounds unnecess=
-ary and dangerous. Any pointers to this service so we can figure out what i=
-t=E2=80=98s doing and why? (Arch? Hypervisor?)
+>The __force_order logic seems to be inverted=2E __force_order is
+>supposedly used to manipulate the compiler to use its memory
+>dependencies analysis to enforce orders between CR writes and reads=2E
+>Therefore, the memory should behave as a "CR": when the CR is read, the
+>memory should be "read" by the inline assembly, and __force_order
+>should
+>be an output=2E When the CR is written, the memory should be "written"=2E
+>
+>This change should allow to remove the "volatile" qualifier from CR
+>reads at a later patch=2E
+>
+>While at it, remove the extra new-line from the inline assembly, as it
+>only confuses GCC when it estimates the cost of the inline assembly=2E
+>
+>Cc: Thomas Gleixner <tglx@linutronix=2Ede>
+>Cc: Ingo Molnar <mingo@redhat=2Ecom>
+>Cc: Borislav Petkov <bp@alien8=2Ede>
+>Cc: x86@kernel=2Eorg
+>Cc: "H=2E Peter Anvin" <hpa@zytor=2Ecom>
+>Cc: Peter Zijlstra <peterz@infradead=2Eorg>
+>Cc: Andy Lutomirski <luto@kernel=2Eorg>
+>Cc: Kees Cook <keescook@chromium=2Eorg>
+>Cc: stable@vger=2Ekernel=2Eorg
+>Signed-off-by: Nadav Amit <namit@vmware=2Ecom>
+>
+>---
+>
+>Unless I misunderstand the logic, __force_order should also be used by
+>rdpkru() and wrpkru() which do not have dependency on __force_order=2E I
+>also did not understand why native_write_cr0() has R/W dependency on
+>__force_order, and why native_write_cr4() no longer has any dependency
+>on __force_order=2E
+>---
+> arch/x86/include/asm/special_insns=2Eh | 14 +++++++-------
+> 1 file changed, 7 insertions(+), 7 deletions(-)
+>
+>diff --git a/arch/x86/include/asm/special_insns=2Eh
+>b/arch/x86/include/asm/special_insns=2Eh
+>index 5999b0b3dd4a=2E=2Edff5e5b01a3c 100644
+>--- a/arch/x86/include/asm/special_insns=2Eh
+>+++ b/arch/x86/include/asm/special_insns=2Eh
+>@@ -24,32 +24,32 @@ void native_write_cr0(unsigned long val);
+> static inline unsigned long native_read_cr0(void)
+> {
+> 	unsigned long val;
+>-	asm volatile("mov %%cr0,%0\n\t" : "=3Dr" (val), "=3Dm" (__force_order))=
+;
+>+	asm volatile("mov %%cr0,%0" : "=3Dr" (val) : "m" (__force_order));
+> 	return val;
+> }
+>=20
+> static __always_inline unsigned long native_read_cr2(void)
+> {
+> 	unsigned long val;
+>-	asm volatile("mov %%cr2,%0\n\t" : "=3Dr" (val), "=3Dm" (__force_order))=
+;
+>+	asm volatile("mov %%cr2,%0" : "=3Dr" (val) : "m" (__force_order));
+> 	return val;
+> }
+>=20
+> static __always_inline void native_write_cr2(unsigned long val)
+> {
+>-	asm volatile("mov %0,%%cr2": : "r" (val), "m" (__force_order));
+>+	asm volatile("mov %1,%%cr2" : "=3Dm" (__force_order) : "r" (val));
+> }
+>=20
+> static inline unsigned long __native_read_cr3(void)
+> {
+> 	unsigned long val;
+>-	asm volatile("mov %%cr3,%0\n\t" : "=3Dr" (val), "=3Dm" (__force_order))=
+;
+>+	asm volatile("mov %%cr3,%0" : "=3Dr" (val) : "m" (__force_order));
+> 	return val;
+> }
+>=20
+> static inline void native_write_cr3(unsigned long val)
+> {
+>-	asm volatile("mov %0,%%cr3": : "r" (val), "m" (__force_order));
+>+	asm volatile("mov %1,%%cr3" : "=3Dm" (__force_order) : "r" (val));
+> }
+>=20
+> static inline unsigned long native_read_cr4(void)
+>@@ -64,10 +64,10 @@ static inline unsigned long native_read_cr4(void)
+> 	asm volatile("1: mov %%cr4, %0\n"
+> 		     "2:\n"
+> 		     _ASM_EXTABLE(1b, 2b)
+>-		     : "=3Dr" (val), "=3Dm" (__force_order) : "0" (0));
+>+		     : "=3Dr" (val) : "m" (__force_order), "0" (0));
+> #else
+> 	/* CR4 always exists on x86_64=2E */
+>-	asm volatile("mov %%cr4,%0\n\t" : "=3Dr" (val), "=3Dm" (__force_order))=
+;
+>+	asm volatile("mov %%cr4,%0" : "=3Dr" (val) : "m" (__force_order));
+> #endif
+> 	return val;
+> }
 
-Hi David,
+This seems reasonable to me, and I fully agree with you that the logic see=
+ms to be just plain wrong (and unnoticed since all volatile operations are =
+strictly ordered anyway), but you better not remove the volatile from cr2 r=
+ead=2E=2E=2E unlike the other CRs that one is written by hardware and so ge=
+nuinely is volatile=2E
 
-This is how we are using it at Microsoft: there is  a very large
-number of small memory machines (8G each) with low downtime
-requirements (reboot must be under a second). There is also a large
-state ~2G of memory that we need to transfer during reboot, otherwise
-it is very expensive to recreate the state. We have 2G of system
-memory memory reserved as a pmem in the device tree, and use it to
-pass information across reboots. Once the information is not needed we
-hot-add that memory and use it during runtime, before shutdown we
-hot-remove the 2G, save the program state on it, and do the reboot.
-
-Pasha
+However, I do believe "=3Dm" is at least theoretically wrong=2E You are on=
+ly writing *part* of the total state represented by this token (you can thi=
+nk of it as equivalent to a bitop), so it should be "+m"=2E
+--=20
+Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
