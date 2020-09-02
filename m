@@ -2,106 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBA025A223
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 02:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2FD225A280
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 03:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgIBABz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Sep 2020 20:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726173AbgIBABy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 20:01:54 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67582C061244
-        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 17:01:54 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id o20so1788485pfp.11
-        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 17:01:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=SUd5OBWmb4twpsDXcovuk1+7mDMags4RX62eeDKc/j4=;
-        b=SIPn8cavJLZmGaqVbpSzNC79gtGkxz7L8SNrd1P28xvoptEqQGw4rDZs4+azyE0Vn3
-         lH+/QkjXfGcA8S0+Iz0Z9ETZXh+hl+IVW1jgJP4pjOV9z4dgb+dFHGbDDcqURQ5niZtn
-         ag1p/zowYHvS4DO2NVk0LHefLkYprvIdjbYTQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=SUd5OBWmb4twpsDXcovuk1+7mDMags4RX62eeDKc/j4=;
-        b=ArMrc/jj0rPx7oj2dTb8XBiGJjNQP+uJ9JWcdD8xihFXFd814bjX9fkAEqYSMWgCzJ
-         N791Z6fW8J8HZ5ChtJyYPYiD7mgzgTLQOCQ8ozg9IKajAN5rQuXIyrt7MIuCE9yEnpw+
-         SYyeFGiUzXlutiPuWMm0QQYcZ9b6A2lalL2pLMBDVNglGnJiLK/ErK8ea4CylcXdft0J
-         ec5eiw66IWBIe+ve/mx9hOUsi+FS1ag1XcU0vwspGyE48D/+0krHjzUw3TPmS+hM4lDy
-         XyUk129KBscUA1aVgkIIH+e2OgxjlSipm2DXM0sFv+2q1KGOPiCI1ew5bFmP+sQe6Fe+
-         taUg==
-X-Gm-Message-State: AOAM533lLEjrrQdXtrLlZat3YsjeQ4wSuWOmu9xTpiG0jbXGRvCco9ME
-        Ib7m36y30AL0QuMRS95j/ffi5esIOT1+eA==
-X-Google-Smtp-Source: ABdhPJzPaKvhg/U0wjf0jcoHxmLVETNP2MUiSLNBY70mczbJJMMlqJTGY+Qvfmv/G9cyo+zxoeOxCw==
-X-Received: by 2002:a63:541e:: with SMTP id i30mr3684911pgb.47.1599004913647;
-        Tue, 01 Sep 2020 17:01:53 -0700 (PDT)
-Received: from [10.230.128.89] ([192.19.228.250])
-        by smtp.gmail.com with ESMTPSA id g32sm3152900pgl.89.2020.09.01.17.01.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2020 17:01:52 -0700 (PDT)
-Subject: Re: [PATCH] nvme: Revert: Fix controller creation races with teardown
- flow
-To:     Sagi Grimberg <sagi@grimberg.me>, linux-nvme@lists.infradead.org
-Cc:     Israel Rukshin <israelr@mellanox.com>, stable@vger.kernel.org,
-        Keith Busch <kbusch@kernel.org>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>
-References: <20200828190150.34455-1-james.smart@broadcom.com>
- <0867c437-1521-c0c9-d7fa-6a615d88105a@grimberg.me>
- <a73cd06b-b319-d55f-1465-4263e08900ae@broadcom.com>
- <741ec2a7-7a38-9432-33fb-58227bf1f1f1@grimberg.me>
- <7f43e9db-974a-5e98-76a6-ed2f3bd0dc92@broadcom.com>
- <4aaad97e-03b5-5c22-af8e-ae7624e78991@grimberg.me>
- <f7d0c08f-2a34-fffa-7962-d0641bc579fd@broadcom.com>
- <7e78b2e6-d103-23a1-a9ab-d12336a9c089@grimberg.me>
-From:   James Smart <james.smart@broadcom.com>
-Message-ID: <e1df5a4a-702e-eea0-d52d-ec5f0de1422d@broadcom.com>
-Date:   Tue, 1 Sep 2020 17:01:50 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.2.0
+        id S1726193AbgIBBG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Sep 2020 21:06:29 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:57016 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726167AbgIBBG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Sep 2020 21:06:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599008787;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zsRdbWM7f98X5EgxemT6G330tQwn+fiPlPc5hDyvjCw=;
+        b=K/81SfPborkkXs4nH2qPSZ0n7fL3KJsEDz00yx/nUnZG/KiYYRvRHJ2jNDvIdeU3rL3/F6
+        DNZcb9l/E4Taa53fSSIw+u0GpPAtTu5jmJomd2zZ+76wBSmQwStrirXpERgTnFSOoG6d5H
+        vqcNvzFkeKqAXpKb2svtqSvbK1okRwA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-291-vccdlPmRN7-vEc3WmZS7rA-1; Tue, 01 Sep 2020 21:06:23 -0400
+X-MC-Unique: vccdlPmRN7-vEc3WmZS7rA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 051251888A24;
+        Wed,  2 Sep 2020 01:06:21 +0000 (UTC)
+Received: from T590 (ovpn-12-189.pek2.redhat.com [10.72.12.189])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 23B1A7C584;
+        Wed,  2 Sep 2020 01:06:13 +0000 (UTC)
+Date:   Wed, 2 Sep 2020 09:06:09 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org,
+        syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH V2] block: allow for_each_bvec to support zero len bvec
+Message-ID: <20200902010609.GA317674@T590>
+References: <20200817100055.2495905-1-ming.lei@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <7e78b2e6-d103-23a1-a9ab-d12336a9c089@grimberg.me>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200817100055.2495905-1-ming.lei@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 17, 2020 at 06:00:55PM +0800, Ming Lei wrote:
+> Block layer usually doesn't support or allow zero-length bvec. Since
+> commit 1bdc76aea115 ("iov_iter: use bvec iterator to implement
+> iterate_bvec()"), iterate_bvec() switches to bvec iterator. However,
+> Al mentioned that 'Zero-length segments are not disallowed' in iov_iter.
+> 
+> Fixes for_each_bvec() so that it can move on after seeing one zero
+> length bvec.
+> 
+> Signed-off-by: Ming Lei <ming.lei@redhat.com>
+> Link: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg2262077.html
+> Fixes: 1bdc76aea115 ("iov_iter: use bvec iterator to implement iterate_bvec()")
+> Reported-by: syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>
+> Tested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: <stable@vger.kernel.org>
+> ---
+> V2:
+> 	- fix reported-by tag
+> 
+>  include/linux/bvec.h | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/bvec.h b/include/linux/bvec.h
+> index ac0c7299d5b8..9c4fab5f22a7 100644
+> --- a/include/linux/bvec.h
+> +++ b/include/linux/bvec.h
+> @@ -117,11 +117,18 @@ static inline bool bvec_iter_advance(const struct bio_vec *bv,
+>  	return true;
+>  }
+>  
+> +static inline void bvec_iter_skip_zero_bvec(struct bvec_iter *iter)
+> +{
+> +	iter->bi_bvec_done = 0;
+> +	iter->bi_idx++;
+> +}
+> +
+>  #define for_each_bvec(bvl, bio_vec, iter, start)			\
+>  	for (iter = (start);						\
+>  	     (iter).bi_size &&						\
+>  		((bvl = bvec_iter_bvec((bio_vec), (iter))), 1);	\
+> -	     bvec_iter_advance((bio_vec), &(iter), (bvl).bv_len))
+> +	     (bvl).bv_len ? bvec_iter_advance((bio_vec), &(iter),	\
+> +		     (bvl).bv_len) : bvec_iter_skip_zero_bvec(&(iter)))
+>  
+>  /* for iterating one bio from start to end */
+>  #define BVEC_ITER_ALL_INIT (struct bvec_iter)				\
+> -- 
+> 2.25.2
+> 
 
+Hello Jens,
 
-On 9/1/2020 3:01 PM, Sagi Grimberg wrote:
->
-> But you also return back &ctrl->ctrl, that is another dereference, and
-> what will make ctrl to be an ERR_PTR?
->
-> Anyway, we should probably come up with something more robust...
+Looks at least two reports can be fixed by this patch, so could you
+take a look?
 
-ok
-
->
->> not sure what you are asking.   if it's how long to fail the creation 
->> of a new association - it's at least 60s (an admin command timeout).
->
-> That's the worst case (admin command timeout), but is it the most common
-> case?
->
-
-Yes - as it currently corresponds to packet drops.  command failures are 
-rare. FC has a feature to speed this up but it's not widely implemented yet.
-
-> Would making the timeouts shorter in the initial connect make sense?
-> Just throwing out ideas...
-
-I'd enjoy a reduced time regardless. But the main concern is how long we 
-have the systemd processes blocked.
-
--- james
+Thanks,
+Ming
 
