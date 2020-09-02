@@ -2,93 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E6D25A993
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 12:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE6925AA1F
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 13:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726177AbgIBKjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 06:39:19 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:49570 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726210AbgIBKjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 06:39:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599043152;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=K8IAkgTE/fwEs9nIZM+CoUsncWzQn4mbPIMrHlPysyw=;
-        b=K+ovdZQN2LT4gYLOAprZL+RvKIu2OUc4BjDxsFE3fmm7cfApVEUy/B3RIXdaxVrkkmJi1y
-        HiiFd/4Hw8Ps8JVl/Rttz8Sa7RWAmW+i+AkCWQZ/7CUGMscjvajPs2h7V1K2nj26yOayv3
-        mazsS6i+J0+l/GYdZsL0xChR0RD3gg8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-108-htpOL-5rP3-FO1HruBKlNg-1; Wed, 02 Sep 2020 06:39:10 -0400
-X-MC-Unique: htpOL-5rP3-FO1HruBKlNg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 247131005504;
-        Wed,  2 Sep 2020 10:39:08 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DE9CB7EEB4;
-        Wed,  2 Sep 2020 10:39:07 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 643F218095FF;
-        Wed,  2 Sep 2020 10:39:07 +0000 (UTC)
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: base64
-From:   David Hildenbrand <dhildenb@redhat.com>
+        id S1726247AbgIBLTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 07:19:14 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:46032 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726183AbgIBLTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 07:19:13 -0400
+Received: by mail-lj1-f196.google.com with SMTP id c2so5373430ljj.12;
+        Wed, 02 Sep 2020 04:19:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sIqApshDOtTxlo5FK8DhBC+GEPu//rVe7EZe6AlqDB0=;
+        b=mXfRi7nPl2saIhJRyJ0d888xpn6ibcJVbojEc+k2Ap9MyLEnY0oFxzknNNB0i2LaIx
+         NdXrnFRTi3PpMaJcnEMiilmrp+QxTNyj3fQI6JUWxT5SrBe0oGKpLPR4w4bJ1ClBA86T
+         wrSgBt4CDoLxt1StCZbf2Uv/fProBV+ZKuADX5RR6H1w/muUNZZ7B4QTVJFIywTbhIGH
+         PyL7LRmiGWGMSSTZZ/+MS0lT+Eyee7bjfzD81FybkKt52IWjKqSd5Hs5Z0BQUUMf/hmi
+         ckEL15CsbfOnp+QfC2JH2/jbN79hQCi0aOEVQrpUr3hBR0o0AIe97/6ZX05+QfRUp3cP
+         tDTg==
+X-Gm-Message-State: AOAM532PaR0nsDLf7JDMlqlqCI8icuaV89x2XhYLwx4za64+QTLQpVCs
+        kFvRpqTo7C3DPw6Mj7asBK8anv6NExM=
+X-Google-Smtp-Source: ABdhPJxxkPw6jkHz1bBom1/zQNxuNhpGQd3XWzcNVPjJ0/ap1nFPYYKYWNKtXDnbixx9Dbl5Af7dFA==
+X-Received: by 2002:a2e:91d2:: with SMTP id u18mr3039908ljg.436.1599045550650;
+        Wed, 02 Sep 2020 04:19:10 -0700 (PDT)
+Received: from localhost.localdomain (broadband-37-110-38-130.ip.moscow.rt.ru. [37.110.38.130])
+        by smtp.googlemail.com with ESMTPSA id n62sm465066lfa.82.2020.09.02.04.19.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Sep 2020 04:19:09 -0700 (PDT)
+From:   Denis Efremov <efremov@linux.com>
+To:     Doug Berger <opendmb@gmail.com>
+Cc:     Denis Efremov <efremov@linux.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] net: bcmgenet: fix mask check in bcmgenet_validate_flow()
+Date:   Wed,  2 Sep 2020 14:18:45 +0300
+Message-Id: <20200902111845.9915-1-efremov@linux.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
-Date:   Wed, 2 Sep 2020 06:39:07 -0400 (EDT)
-Message-Id: <A8A8D5FE-86C3-40B4-919C-5FF2A134F366@redhat.com>
-References: <6469324e-afa2-18b4-81fb-9e96466c1bf3@suse.cz>
-Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Roman Gushchin <guro@fb.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Hildenbrand <david@redhat.com>
-In-Reply-To: <6469324e-afa2-18b4-81fb-9e96466c1bf3@suse.cz>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Thread-Topic: The new cgroup slab memory controller
-Thread-Index: 6Y0CdB2ht3ejeo8nqIlGbso/nBgHtw==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gQW0gMDIuMDkuMjAyMCB1bSAxMTo1MyBzY2hyaWViIFZsYXN0aW1pbCBCYWJrYSA8dmJh
-YmthQHN1c2UuY3o+Og0KPiANCj4g77u/T24gOC8yOC8yMCA2OjQ3IFBNLCBQYXZlbCBUYXRhc2hp
-biB3cm90ZToNCj4+IFRoZXJlIGFwcGVhcnMgdG8gYmUgYW5vdGhlciBwcm9ibGVtIHRoYXQgaXMg
-cmVsYXRlZCB0byB0aGUNCj4+IGNncm91cF9tdXRleCAtPiBtZW1faG90cGx1Z19sb2NrIGRlYWRs
-b2NrIGRlc2NyaWJlZCBhYm92ZS4NCj4+IA0KPj4gSW4gdGhlIG9yaWdpbmFsIGRlYWRsb2NrIHRo
-YXQgSSBkZXNjcmliZWQsIHRoZSB3b3JrYXJvdW5kIGlzIHRvDQo+PiByZXBsYWNlIGNyYXNoIGR1
-bXAgZnJvbSBwaXBpbmcgdG8gTGludXggdHJhZGl0aW9uYWwgc2F2ZSB0byBmaWxlcw0KPj4gbWV0
-aG9kLiBIb3dldmVyLCBhZnRlciB0cnlpbmcgdGhpcyB3b3JrYXJvdW5kLCBJIHN0aWxsIG9ic2Vy
-dmVkDQo+PiBoYXJkd2FyZSB3YXRjaGRvZyByZXNldHMgZHVyaW5nIG1hY2hpbmUgIHNodXRkb3du
-Lg0KPj4gDQo+PiBUaGUgbmV3IHByb2JsZW0gb2NjdXJzIGZvciB0aGUgZm9sbG93aW5nIHJlYXNv
-bjogdXBvbiBzaHV0ZG93biBzeXN0ZW1kDQo+PiBjYWxscyBhIHNlcnZpY2UgdGhhdCBob3QtcmVt
-b3ZlcyBtZW1vcnksIGFuZCBpZiBob3QtcmVtb3ZpbmcgZmFpbHMgZm9yDQo+IA0KPiBXaHkgaXMg
-dGhhdCBob3RyZW1vdmUgZXZlbiBuZWVkZWQgaWYgd2UncmUgc2h1dHRpbmcgZG93bj8gQXJlIHRo
-ZXJlIGFueQ0KPiAodmlydHVhbGl6YXRpb24/KSBwbGF0Zm9ybXMgd2hlcmUgaXQgbWFrZXMgc29t
-ZSBkaWZmZXJlbmNlIG92ZXIgcGxhaW4NCj4gc2h1dGRvd24vcmVzdGFydD8NCg0KSWYgYWxsIGl0
-4oCYcyBkb2luZyBpcyBvZmZsaW5pbmcgcmFuZG9tIG1lbW9yeSB0aGF0IHNvdW5kcyB1bm5lY2Vz
-c2FyeSBhbmQgZGFuZ2Vyb3VzLiBBbnkgcG9pbnRlcnMgdG8gdGhpcyBzZXJ2aWNlIHNvIHdlIGNh
-biBmaWd1cmUgb3V0IHdoYXQgaXTigJhzIGRvaW5nIGFuZCB3aHk/IChBcmNoPyBIeXBlcnZpc29y
-Pyk=
+VALIDATE_MASK(eth_mask->h_source) is checked twice in a row in
+bcmgenet_validate_flow(). Add VALIDATE_MASK(eth_mask->h_dest)
+instead.
+
+Fixes: 3e370952287c ("net: bcmgenet: add support for ethtool rxnfc flows")
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+---
+I'm not sure that h_dest check is required here, it's only my guess.
+Compile tested only.
+
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 0ca8436d2e9d..be85dad2e3bc 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1364,7 +1364,7 @@ static int bcmgenet_validate_flow(struct net_device *dev,
+ 	case ETHER_FLOW:
+ 		eth_mask = &cmd->fs.m_u.ether_spec;
+ 		/* don't allow mask which isn't valid */
+-		if (VALIDATE_MASK(eth_mask->h_source) ||
++		if (VALIDATE_MASK(eth_mask->h_dest) ||
+ 		    VALIDATE_MASK(eth_mask->h_source) ||
+ 		    VALIDATE_MASK(eth_mask->h_proto)) {
+ 			netdev_err(dev, "rxnfc: Unsupported mask\n");
+-- 
+2.26.2
 
