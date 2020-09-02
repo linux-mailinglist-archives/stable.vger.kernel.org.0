@@ -2,212 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4844D25A57C
-	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 08:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F88525A5D9
+	for <lists+stable@lfdr.de>; Wed,  2 Sep 2020 08:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgIBGXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 02:23:32 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27670 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726140AbgIBGXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 02:23:32 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 082621uU021263;
-        Wed, 2 Sep 2020 02:23:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : reply-to : references : mime-version : content-type
- : in-reply-to; s=pp1; bh=Qoo4IPgfjGzssjVtjDecsDGFzDuZljj645sp3n19IaQ=;
- b=FKLWkUaYmaDDGRCPmW6AiVXlRQwEum0XLB/Qbih2sfc8MsvgT3yFXHrktrnUK8ooiLT5
- q16zgY1PRo69SH8H8dZXSDFM2YsmW6S/3UqnVI+qMShDOYQBtDVtNeI44c/0j3VnW2m4
- qQrBCuBh4wlrQUBJ5ijPEczRoqbAQwGKlIPoxabMmh3TXAh/mFU0HiogTJWW+ihlLvBx
- u2scS7Nn6K2SFJs9SDgVyV4AO3DhUPJqlDDAw+thRBFb/ZL7p5BrtsBpigbXPLuDopI0
- eVQzzcyR0rjEUNL8dWV/csnc6SEbdM778vTDNpR3msaTlpBYdblFj01QsU8U8Va6loUH Zg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33a4kqa2n0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Sep 2020 02:23:22 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08262Fm4021867;
-        Wed, 2 Sep 2020 02:23:21 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33a4kqa2mf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Sep 2020 02:23:21 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0826J5Gt015660;
-        Wed, 2 Sep 2020 06:23:19 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 337en82naq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Sep 2020 06:23:19 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0826Lklu64487890
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Sep 2020 06:21:46 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7FE31AE045;
-        Wed,  2 Sep 2020 06:23:17 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 21629AE053;
-        Wed,  2 Sep 2020 06:23:14 +0000 (GMT)
-Received: from in.ibm.com (unknown [9.85.95.25])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed,  2 Sep 2020 06:23:13 +0000 (GMT)
-Date:   Wed, 2 Sep 2020 11:53:11 +0530
-From:   Bharata B Rao <bharata@linux.ibm.com>
-To:     Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc:     Roman Gushchin <guro@fb.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v2 00/28] The new cgroup slab memory controller
-Message-ID: <20200902062311.GB52094@in.ibm.com>
-Reply-To: bharata@linux.ibm.com
-References: <20200127173453.2089565-1-guro@fb.com>
- <20200130020626.GA21973@in.ibm.com>
- <20200130024135.GA14994@xps.DHCP.thefacebook.com>
- <CA+CK2bCQcnTpzq2wGFa3D50PtKwBoWbDBm56S9y8c+j+pD+KSw@mail.gmail.com>
- <20200813000416.GA1592467@carbon.dhcp.thefacebook.com>
- <CA+CK2bDDToW=Q5RgeWkoN3_rUr3pyWGVb9MraTzM+DM3OZ+tdg@mail.gmail.com>
- <CA+CK2bBEHFuLLg79_h6bv4Vey+B0B2YXyBxTBa=Le12OKbNdwA@mail.gmail.com>
- <20200901052819.GA52094@in.ibm.com>
- <CA+CK2bDZW4F-Y7PDiVZ_Jdbw8F5GCa26JRSXyxFbdu-Q6dEpRg@mail.gmail.com>
+        id S1726510AbgIBGyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 02:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55428 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726380AbgIBGyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 02:54:22 -0400
+Received: from mail-vs1-xe42.google.com (mail-vs1-xe42.google.com [IPv6:2607:f8b0:4864:20::e42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D3BC061245
+        for <stable@vger.kernel.org>; Tue,  1 Sep 2020 23:54:20 -0700 (PDT)
+Received: by mail-vs1-xe42.google.com with SMTP id x203so2001744vsc.11
+        for <stable@vger.kernel.org>; Tue, 01 Sep 2020 23:54:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Vhp4TBShjCV1me8EDYCfySOAMSAS8lYcbunrcZn7Wuo=;
+        b=ChUCzmCrmTWWil9nFTF+aELI2x9e/0P9Rz70oeBWoLzpvRjumW86qHw86q7i5cN+Z5
+         m3I/p3xFWe9cF2sJmRdok1A0vdCdG5vmJ4UXEXv3zirNZRD/4Q3kfOVUWxzvjB8uqVxe
+         RApz5STBZWF5IkLpiR41Ypu6PdRBq6DaBMJZvj3WYMA2fV4v2PkhmdyOPwdXaObHwCZ5
+         LwFxnp27vo/xN8n0qlxjcnM1md/uJ7TodDfDiEJa8scsa2mrqBwyrIg+nmzHMeF7qNX+
+         pDWp7wnSPEM5QlBbcE3UrAxzTukG3rk1xTmujm5KG8MNMTp9po9/wNnIVFndwoHwAOss
+         15bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Vhp4TBShjCV1me8EDYCfySOAMSAS8lYcbunrcZn7Wuo=;
+        b=SW1uMd4EfqhlSOlyijB8DB9bmGY8ZXM3y9NyfmYgT/4xDjcKymJh7CU/LHtCkSVgkz
+         eOdKIdnnzCXsrd1Ufyk3dsfxFtvnBdH5LzpQ22ksAef7m5KvOhs8H7D6jPyhgvZHma9T
+         uJLzGUxyHaXjR5/K2a/s/JDYpw+iO+jnItZg0Lnf9lwOCWB+MO/JZNukPSUId29R7xAS
+         gvZtT6kOG85h0SGwRL22mwX6Y/9/rACojl9tB0gdz5LR9/N3T3EZ2FhJWfFcVS/p8FP2
+         EdkbA+IbI4Y9Jxa2yAn4prNI7HFbUNWR+9wW582eaMX/cQcTAASQSxD4xIw63vWvEuAP
+         GA8g==
+X-Gm-Message-State: AOAM533blkH8/XyhTIA39dyKPTt8tibXD43krDS0IiE3un95qpgAbPzw
+        HHoMi5eF0YI8WUF8svuf4e9iS8C7EvMWwDtI1AjIGg==
+X-Google-Smtp-Source: ABdhPJx7/e1kvmkDZb4nH3IgfU+g17SjpnV49f01cfwMOBWmLZ2cKW7/U/2ALRtbhDXZOtZkojSTexn0j6y9f0N790w=
+X-Received: by 2002:a67:7f4c:: with SMTP id a73mr4249398vsd.154.1599029659615;
+ Tue, 01 Sep 2020 23:54:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+CK2bDZW4F-Y7PDiVZ_Jdbw8F5GCa26JRSXyxFbdu-Q6dEpRg@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-02_03:2020-09-01,2020-09-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- suspectscore=0 impostorscore=0 phishscore=0 mlxscore=0 priorityscore=1501
- clxscore=1015 adultscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009020052
+References: <20200901150934.576210879@linuxfoundation.org>
+In-Reply-To: <20200901150934.576210879@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 2 Sep 2020 12:24:08 +0530
+Message-ID: <CA+G9fYsOqEBFcFpYPijST_-Do=9kr=Mnv_j4Dkb09RZM3QmTYA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/125] 4.19.143-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 01, 2020 at 08:52:05AM -0400, Pavel Tatashin wrote:
-> On Tue, Sep 1, 2020 at 1:28 AM Bharata B Rao <bharata@linux.ibm.com> wrote:
-> >
-> > On Fri, Aug 28, 2020 at 12:47:03PM -0400, Pavel Tatashin wrote:
-> > > There appears to be another problem that is related to the
-> > > cgroup_mutex -> mem_hotplug_lock deadlock described above.
-> > >
-> > > In the original deadlock that I described, the workaround is to
-> > > replace crash dump from piping to Linux traditional save to files
-> > > method. However, after trying this workaround, I still observed
-> > > hardware watchdog resets during machine  shutdown.
-> > >
-> > > The new problem occurs for the following reason: upon shutdown systemd
-> > > calls a service that hot-removes memory, and if hot-removing fails for
-> > > some reason systemd kills that service after timeout. However, systemd
-> > > is never able to kill the service, and we get hardware reset caused by
-> > > watchdog or a hang during shutdown:
-> > >
-> > > Thread #1: memory hot-remove systemd service
-> > > Loops indefinitely, because if there is something still to be migrated
-> > > this loop never terminates. However, this loop can be terminated via
-> > > signal from systemd after timeout.
-> > > __offline_pages()
-> > >       do {
-> > >           pfn = scan_movable_pages(pfn, end_pfn);
-> > >                   # Returns 0, meaning there is nothing available to
-> > >                   # migrate, no page is PageLRU(page)
-> > >           ...
-> > >           ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
-> > >                                             NULL, check_pages_isolated_cb);
-> > >                   # Returns -EBUSY, meaning there is at least one PFN that
-> > >                   # still has to be migrated.
-> > >       } while (ret);
-> > >
-> > > Thread #2: ccs killer kthread
-> > >    css_killed_work_fn
-> > >      cgroup_mutex  <- Grab this Mutex
-> > >      mem_cgroup_css_offline
-> > >        memcg_offline_kmem.part
-> > >           memcg_deactivate_kmem_caches
-> > >             get_online_mems
-> > >               mem_hotplug_lock <- waits for Thread#1 to get read access
-> > >
-> > > Thread #3: systemd
-> > > ksys_read
-> > >  vfs_read
-> > >    __vfs_read
-> > >      seq_read
-> > >        proc_single_show
-> > >          proc_cgroup_show
-> > >            mutex_lock -> wait for cgroup_mutex that is owned by Thread #2
-> > >
-> > > Thus, thread #3 systemd stuck, and unable to deliver timeout interrupt
-> > > to thread #1.
-> > >
-> > > The proper fix for both of the problems is to avoid cgroup_mutex ->
-> > > mem_hotplug_lock ordering that was recently fixed in the mainline but
-> > > still present in all stable branches. Unfortunately, I do not see a
-> > > simple fix in how to remove mem_hotplug_lock from
-> > > memcg_deactivate_kmem_caches without using Roman's series that is too
-> > > big for stable.
-> >
-> > We too are seeing this on Power systems when stress-testing memory
-> > hotplug, but with the following call trace (from hung task timer)
-> > instead of Thread #2 above:
-> >
-> > __switch_to
-> > __schedule
-> > schedule
-> > percpu_rwsem_wait
-> > __percpu_down_read
-> > get_online_mems
-> > memcg_create_kmem_cache
-> > memcg_kmem_cache_create_func
-> > process_one_work
-> > worker_thread
-> > kthread
-> > ret_from_kernel_thread
-> >
-> > While I understand that Roman's new slab controller patchset will fix
-> > this, I also wonder if infinitely looping in the memory unplug path
-> > with mem_hotplug_lock held is the right thing to do? Earlier we had
-> > a few other exit possibilities in this path (like max retries etc)
-> > but those were removed by commits:
-> >
-> > 72b39cfc4d75: mm, memory_hotplug: do not fail offlining too early
-> > ecde0f3e7f9e: mm, memory_hotplug: remove timeout from __offline_memory
-> >
-> > Or, is the user-space test is expected to induce a signal back-off when
-> > unplug doesn't complete within a reasonable amount of time?
-> 
-> Hi Bharata,
-> 
-> Thank you for your input, it looks like you are experiencing the same
-> problems that I observed.
-> 
-> What I found is that the reason why our machines did not complete
-> hot-remove within the given time is because of this bug:
-> https://lore.kernel.org/linux-mm/20200901124615.137200-1-pasha.tatashin@soleen.com
-> 
-> Could you please try it and see if that helps for your case?
+On Tue, 1 Sep 2020 at 20:53, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.143 release.
+> There are 125 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 03 Sep 2020 15:09:01 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.143-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I am on an old codebase that already has the fix that you are proposing,
-so I might be seeing someother issue which I will debug further.
 
-So looks like the loop in __offline_pages() had a call to
-drain_all_pages() before it was removed by
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-c52e75935f8d: mm: remove extra drain pages on pcp list
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Regards,
-Bharata.
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.143-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: ae6e3cc29bb4eca8baf48409319aa290efcba5f5
+git describe: v4.19.142-126-gae6e3cc29bb4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.142-126-gae6e3cc29bb4
+
+No regressions (compared to build v4.19.142)
+
+No fixes (compared to build v4.19.142)
+
+Ran 35939 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cve-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-mm-tests
+* network-basic-tests
+* ltp-fs-tests
+* ltp-ipc-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* igt-gpu-tools
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
