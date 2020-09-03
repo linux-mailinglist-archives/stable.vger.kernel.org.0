@@ -2,232 +2,318 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD3625B9F9
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 07:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2F825BA03
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 07:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725943AbgICFCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 01:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33622 "EHLO
+        id S1725943AbgICFQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 01:16:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725919AbgICFCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 01:02:46 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E4CC061245
-        for <stable@vger.kernel.org>; Wed,  2 Sep 2020 22:02:46 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id y3so1046208vsn.1
-        for <stable@vger.kernel.org>; Wed, 02 Sep 2020 22:02:46 -0700 (PDT)
+        with ESMTP id S1725919AbgICFQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 01:16:08 -0400
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11719C061244;
+        Wed,  2 Sep 2020 22:16:07 -0700 (PDT)
+Received: by mail-yb1-xb41.google.com with SMTP id v78so1301269ybv.5;
+        Wed, 02 Sep 2020 22:16:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=z7HUFQqmgdU8aA4cxSgMuOMzfLXK0ilDk0Apd5kUyh8=;
-        b=SHpt84o+XBRzfnfl7PXACuPew2iCK770L2IfH6IBn/R8rpPFYL5TD6U748C/Q7wWFs
-         +K8WIOTb+zKHcampOpiDSzBzqfeEGgIRzcjuW6TP6UxbjA7HdPc0UezGIYLO6Sw+SoyN
-         dhQ4N0xkVkkuJqWE7G7PkvZar/Xe+zaUEFjLfjgbl0yFvSiq2CmsF3gucGBoiaPnBzVa
-         Pa9TlDlTthKaM3zypFy2CYf7lBviK14HfXZ3HjLIIHj+pvXFSFfCWt5dYv9noN5493MO
-         svy5fIj1uYT6pPbSZYSltO3oNHiBPKRVNffKf+xY7/5reF3qxYCu4xHfnEBjGV4Sqllr
-         n5HA==
+         :cc;
+        bh=2+/DSu106qnmvl/Gl7z3TDH0nfRFWr55e6SABDbtirw=;
+        b=ntNxCOXFPZxD/sbYWXwlqJFA06hhjVdbIWOVQ9VZrlYljNeA3z9aCUPjZ+UobpMNNr
+         pMdKY0Ruq6khtWsxD0CPaiim9OyuZ7aOuXBrmZInawDk3dD2/1+j+c48IHmrpDxRschY
+         /mH4I39GwLlU2pdXUqX73x0snxsn1VAYZssjvqVdX5hcwypN2sfVwMWa9h2q64EQa1x0
+         u2TavbFQmVywIVkW90+IVTx7h64Ien1YlveT5KnnEx2ga/p5i99z1qPBIBPpA0igNG03
+         YMN+cR1he+N3ewXBYmJfMmLrgEuvOIcBJnhURWOJrCD/vfHSYA7WHjfdCwLzJO4JT9Kb
+         3geQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=z7HUFQqmgdU8aA4cxSgMuOMzfLXK0ilDk0Apd5kUyh8=;
-        b=LP6Um2SrH+WMDDcFTa3hC3BQGoQaXCA4qew9uY7kup49Qig3qFYnU4vMlNQhgYfOom
-         UdqmOtoDvJNJzxiUyCJMNLiG1TLsna8YTNb92A5Y+J4Q1LinrpWdq6C2hbza+58c37o4
-         XV6ZghF9j7W+SsWCd8CODOaNBwGpXhC5uVui2pQULKJ0fQgT0aFxhZrCJajxn6SruAEG
-         8fD8+l92zS6S+iNSyBYnX1jJi+yLjaEvquc6cbhMuoqvgpEx7EAZcl1PTqpBXOCnXjQo
-         wndPmBEN6sME1c6yALuHjOM3ku2KPmz/Jc7NY/qomkmgO6FEsDLcJue9BgvKirqGUlaw
-         IlKA==
-X-Gm-Message-State: AOAM532NhoLS9jr9uoXua5AA9cJ/jCbpD4jWhcaiOqhZCJH9mHizPfBP
-        s9u45JcnFoTG9YJ86MvVuK0iHzxIoUJNIJJryA1b/A==
-X-Google-Smtp-Source: ABdhPJzmz6sTvss+05sD4rC3K2xrvF2iwZDvzg+8Ejpym6/zbGwz8nJMesRTw1l7ivkFrMKNB+a7X1BgW/+nme0iAjk=
-X-Received: by 2002:a67:1204:: with SMTP id 4mr569860vss.40.1599109365380;
- Wed, 02 Sep 2020 22:02:45 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=2+/DSu106qnmvl/Gl7z3TDH0nfRFWr55e6SABDbtirw=;
+        b=KPTsD5yN/9/RzBQ7VmnOhdLozZ1CVm6kRSEtxT/NBmLxTgrv0B7i8g4QFOZMe/Cbpc
+         zoU/1aY/FfLaewn6bP47Z9uKXhU9F1n6aBNKq0JbYOsd7qH+jK/QJvw1huuerEKSqy/1
+         E7nmHCkDIOr6qDb4dc75dU+Gan26WkZOAmtMVLe3pGYmTgr25sq7IZ2YR125yiL6KmjN
+         z/VXrZh8xIWGvD++Rqcjodf6QSRTL0o3GVK8ZonkwTP2qRX5utV0DkgqaeJ+pEnjCdOF
+         ozU3w2y1eoF+Z2MIElXpHLJ9jD2JeK6Ucew4HzsKbVllpp9NvdBtSQYejiiQAG+XRzgA
+         qh9Q==
+X-Gm-Message-State: AOAM533aTg/ym9tuppLysA+YNSktAWGUeaHqNbO8pDo+p18/XJZZn0uu
+        U5SnWgD7jhwxI52ZtzII4GoZPUwVK5wWM/ZZDTs=
+X-Google-Smtp-Source: ABdhPJxkj7rRBNuFY/WQV4ywl0uo3VNUAiVlXYwI3xiP1n6LKHr0tHpfnYcLG1drZOMcofuEWu98GW9Pgk9nyCCHaV8=
+X-Received: by 2002:a25:6d04:: with SMTP id i4mr315460ybc.283.1599110167120;
+ Wed, 02 Sep 2020 22:16:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200902074814.459749499@linuxfoundation.org>
-In-Reply-To: <20200902074814.459749499@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 3 Sep 2020 10:32:33 +0530
-Message-ID: <CA+G9fYv9XKBtKDKR8POjibYN_tkdorT3TFe5fhvehji_SOQ2Rw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/61] 4.4.235-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+References: <20200901233842.196818-1-lyude@redhat.com> <20200901234240.197917-1-lyude@redhat.com>
+In-Reply-To: <20200901234240.197917-1-lyude@redhat.com>
+From:   Ben Skeggs <skeggsb@gmail.com>
+Date:   Thu, 3 Sep 2020 15:15:56 +1000
+Message-ID: <CACAvsv5vk_43xZF0nVZ0eTmfz_WiE0uTPzdKKFzS03uF7-kynA@mail.gmail.com>
+Subject: Re: [Nouveau] [PATCH v4] drm/nouveau/kms/nv50-: Program notifier
+ offset before requesting disp caps
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     ML nouveau <nouveau@lists.freedesktop.org>,
+        "open list:DRM DRIVER FOR NVIDIA GEFORCE/QUADRO GPUS" 
+        <dri-devel@lists.freedesktop.org>, David Airlie <airlied@linux.ie>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Nirmoy Das <nirmoy.aiemd@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2 Sep 2020 at 13:18, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Wed, 2 Sep 2020 at 09:43, Lyude Paul <lyude@redhat.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.4.235 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Not entirely sure why this never came up when I originally tested this
+> (maybe some BIOSes already have this setup?) but the ->caps_init vfunc
+> appears to cause the display engine to throw an exception on driver
+> init, at least on my ThinkPad P72:
 >
-> Responses should be made by Fri, 04 Sep 2020 07:47:57 +0000.
-> Anything received after that time might be too late.
+> nouveau 0000:01:00.0: disp: chid 0 mthd 008c data 00000000 0000508c 0000102b
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.235-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
+> This is magic nvidia speak for "You need to have the DMA notifier offset
+> programmed before you can call NV507D_GET_CAPABILITIES." So, let's fix
+> this by doing that, and also perform an update afterwards to prevent
+> racing with the GPU when reading capabilities.
 >
-> thanks,
+> v2:
+> * Don't just program the DMA notifier offset, make sure to actually
+>   perform an update
+> v3:
+> * Don't call UPDATE()
+> * Actually read the correct notifier fields, as apparently the
+>   CAPABILITIES_DONE field lives in a different location than the main
+>   NV_DISP_CORE_NOTIFIER_1 field. As well, 907d+ use a different
+>   CAPABILITIES_DONE field then pre-907d cards.
+> v4:
+> * Don't forget to check the return value of core507d_read_caps()
 >
-> greg k-h
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Fixes: 4a2cb4181b07 ("drm/nouveau/kms/nv50-: Probe SOR and PIOR caps for DP interlacing support")
+> Cc: <stable@vger.kernel.org> # v5.8+
+> ---
+>  drivers/gpu/drm/nouveau/dispnv50/core.h       |  2 +
+>  drivers/gpu/drm/nouveau/dispnv50/core507d.c   | 37 ++++++++++++++++++-
+>  drivers/gpu/drm/nouveau/dispnv50/core907d.c   | 36 +++++++++++++++++-
+>  drivers/gpu/drm/nouveau/dispnv50/core917d.c   |  2 +-
+>  drivers/gpu/drm/nouveau/dispnv50/disp.h       |  2 +
+>  .../drm/nouveau/include/nvhw/class/cl507d.h   |  5 ++-
+>  .../drm/nouveau/include/nvhw/class/cl907d.h   |  4 ++
+>  7 files changed, 83 insertions(+), 5 deletions(-)
 >
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/core.h b/drivers/gpu/drm/nouveau/dispnv50/core.h
+> index 498622c0c670d..b789139e5fff6 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/core.h
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/core.h
+> @@ -44,6 +44,7 @@ int core507d_new_(const struct nv50_core_func *, struct nouveau_drm *, s32,
+>                   struct nv50_core **);
+>  int core507d_init(struct nv50_core *);
+>  void core507d_ntfy_init(struct nouveau_bo *, u32);
+> +int core507d_read_caps(struct nv50_disp *disp, u32 offset);
+>  int core507d_caps_init(struct nouveau_drm *, struct nv50_disp *);
+>  int core507d_ntfy_wait_done(struct nouveau_bo *, u32, struct nvif_device *);
+>  int core507d_update(struct nv50_core *, u32 *, bool);
+> @@ -55,6 +56,7 @@ extern const struct nv50_outp_func pior507d;
+>  int core827d_new(struct nouveau_drm *, s32, struct nv50_core **);
+>
+>  int core907d_new(struct nouveau_drm *, s32, struct nv50_core **);
+> +int core907d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp);
+>  extern const struct nv50_outp_func dac907d;
+>  extern const struct nv50_outp_func sor907d;
+>
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/core507d.c b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> index ad1f09a143aa4..d0f2b80a32103 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/core507d.c
+> @@ -75,18 +75,51 @@ core507d_ntfy_init(struct nouveau_bo *bo, u32 offset)
+>  }
+>
+>  int
+> -core507d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
+> +core507d_read_caps(struct nv50_disp *disp, u32 offset)
+>  {
+>         struct nvif_push *push = disp->core->chan.push;
+>         int ret;
+>
+> -       if ((ret = PUSH_WAIT(push, 2)))
+> +       ret = PUSH_WAIT(push, 4);
+> +       if (ret)
+>                 return ret;
+>
+> +       PUSH_MTHD(push, NV507D, SET_NOTIFIER_CONTROL,
+> +                 NVDEF(NV507D, SET_NOTIFIER_CONTROL, MODE, WRITE) |
+> +                 NVVAL(NV507D, SET_NOTIFIER_CONTROL, OFFSET, offset >> 2) |
+> +                 NVDEF(NV507D, SET_NOTIFIER_CONTROL, NOTIFY, ENABLE));
+>         PUSH_MTHD(push, NV507D, GET_CAPABILITIES, 0x00000000);
+Can you send a SET_NOTIFIER_CONTROL_NOTIFY_DISABLE after
+GET_CAPABILITIES() too please :)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> +
+>         return PUSH_KICK(push);
+>  }
+>
+> +int
+> +core507d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
+> +{
+> +       struct nv50_core *core = disp->core;
+> +       struct nouveau_bo *bo = disp->sync;
+> +       s64 time;
+> +       int ret;
+> +
+> +       NVBO_WR32(bo, NV50_DISP_CAPS_NTFY1, NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1,
+> +                                     NVDEF(NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1, DONE, FALSE));
+You don't need these NV50_DISP_CAPS_NTFYx thingies.  These offsets are
+already encoded in NVIDIA's headers
+(NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1 is an offset), you're adding
+an additional offset by doing this.  Just use NV50_DISP_CORE_NTFY in
+all these places, and let NVIDIA's headers do the rest.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The additional offset in these macros are meant for when there's
+multiple structures packed into a single nouveau_bo at different
+offsets.
 
-Summary
-------------------------------------------------------------------------
+It doesn't actually matter here, because it gets divided away.  But
+for core907d, you're actually reading CAPABILITIES_5 (which, weirdly,
+seems to contain an identical value).
 
-kernel: 4.4.235-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 279089e8e4d583d11574ccfa4a5ded543cba96cd
-git describe: v4.4.234-62-g279089e8e4d5
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.234-62-g279089e8e4d5
-
-No regressions (compared to build v4.4.234)
-
-No fixes (compared to build v4.4.234)
-
-
-Ran 17120 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest/net
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.235-rc2
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.235-rc2-hikey-20200902-803
-git commit: 4e984a08e49b4aa772d7681bfaeb091bd7a7b4b9
-git describe: 4.4.235-rc2-hikey-20200902-803
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.235-rc2-hikey-20200902-803
-
-
-No regressions (compared to build 4.4.235-rc1-hikey-20200901-802)
-
-
-No fixes (compared to build 4.4.235-rc1-hikey-20200901-802)
-
-Ran 1822 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+> +
+> +       ret = core507d_read_caps(disp, NV50_DISP_CAPS_NTFY1);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       time = nvif_msec(core->chan.base.device, 2000ULL,
+> +                        if (NVBO_TD32(bo, NV50_DISP_CAPS_NTFY1,
+> +                                      NV_DISP_CORE_NOTIFIER_1, CAPABILITIES_1, DONE, ==, TRUE))
+> +                                break;
+> +                        usleep_range(1, 2);
+> +                        );
+> +       if (time < 0)
+> +               NV_ERROR(drm, "core caps notifier timeout\n");
+> +
+> +       return 0;
+> +}
+> +
+>  int
+>  core507d_init(struct nv50_core *core)
+>  {
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/core907d.c b/drivers/gpu/drm/nouveau/dispnv50/core907d.c
+> index b17c03529c784..45505a18aca17 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/core907d.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/core907d.c
+> @@ -22,11 +22,45 @@
+>  #include "core.h"
+>  #include "head.h"
+>
+> +#include <nvif/push507c.h>
+> +#include <nvif/timer.h>
+> +
+> +#include <nvhw/class/cl907d.h>
+> +
+> +#include "nouveau_bo.h"
+> +
+> +int
+> +core907d_caps_init(struct nouveau_drm *drm, struct nv50_disp *disp)
+> +{
+> +       struct nv50_core *core = disp->core;
+> +       struct nouveau_bo *bo = disp->sync;
+> +       s64 time;
+> +       int ret;
+> +
+> +       NVBO_WR32(bo, NV50_DISP_CAPS_NTFY4, NV907D_CORE_NOTIFIER_3, CAPABILITIES_4,
+> +                                     NVDEF(NV907D_CORE_NOTIFIER_3, CAPABILITIES_4, DONE, FALSE));
+> +
+> +       ret = core507d_read_caps(disp, NV50_DISP_CAPS_NTFY4);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       time = nvif_msec(core->chan.base.device, 2000ULL,
+> +                        if (NVBO_TD32(bo, NV50_DISP_CAPS_NTFY4,
+> +                                      NV907D_CORE_NOTIFIER_3, CAPABILITIES_4, DONE, ==, TRUE))
+> +                                break;
+> +                        usleep_range(1, 2);
+> +                        );
+> +       if (time < 0)
+> +               NV_ERROR(drm, "core caps notifier timeout\n");
+> +
+> +       return 0;
+> +}
+> +
+>  static const struct nv50_core_func
+>  core907d = {
+>         .init = core507d_init,
+>         .ntfy_init = core507d_ntfy_init,
+> -       .caps_init = core507d_caps_init,
+> +       .caps_init = core907d_caps_init,
+>         .ntfy_wait_done = core507d_ntfy_wait_done,
+>         .update = core507d_update,
+>         .head = &head907d,
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/core917d.c b/drivers/gpu/drm/nouveau/dispnv50/core917d.c
+> index 66846f3720805..1cd3a2a35dfb7 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/core917d.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/core917d.c
+> @@ -26,7 +26,7 @@ static const struct nv50_core_func
+>  core917d = {
+>         .init = core507d_init,
+>         .ntfy_init = core507d_ntfy_init,
+> -       .caps_init = core507d_caps_init,
+> +       .caps_init = core907d_caps_init,
+>         .ntfy_wait_done = core507d_ntfy_wait_done,
+>         .update = core507d_update,
+>         .head = &head917d,
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.h b/drivers/gpu/drm/nouveau/dispnv50/disp.h
+> index 92bddc0836171..a59051bd070d7 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/disp.h
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/disp.h
+> @@ -16,6 +16,8 @@ struct nv50_disp {
+>
+>  #define NV50_DISP_SYNC(c, o)                                ((c) * 0x040 + (o))
+>  #define NV50_DISP_CORE_NTFY                       NV50_DISP_SYNC(0      , 0x00)
+> +#define NV50_DISP_CAPS_NTFY1                      NV50_DISP_SYNC(0      , 0x01)
+> +#define NV50_DISP_CAPS_NTFY4                      NV50_DISP_SYNC(0      , 0x04)
+>  #define NV50_DISP_WNDW_SEM0(c)                    NV50_DISP_SYNC(1 + (c), 0x00)
+>  #define NV50_DISP_WNDW_SEM1(c)                    NV50_DISP_SYNC(1 + (c), 0x10)
+>  #define NV50_DISP_WNDW_NTFY(c)                    NV50_DISP_SYNC(1 + (c), 0x20)
+> diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
+> index 2e444bac701dd..6a463f308b64f 100644
+> --- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
+> +++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl507d.h
+> @@ -32,7 +32,10 @@
+>  #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_DONE_TRUE                               0x00000001
+>  #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_R0                                      15:1
+>  #define NV_DISP_CORE_NOTIFIER_1_COMPLETION_0_TIMESTAMP                               29:16
+> -
+> +#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1                                       0x00000001
+> +#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE                                  0:0
+> +#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE_FALSE                            0x00000000
+> +#define NV_DISP_CORE_NOTIFIER_1_CAPABILITIES_1_DONE_TRUE                             0x00000001
+>
+>  // class methods
+>  #define NV507D_UPDATE                                                           (0x00000080)
+> diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
+> index 34bc3eafac7d1..79aff6ff31385 100644
+> --- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
+> +++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl907d.h
+> @@ -24,6 +24,10 @@
+>  #ifndef _cl907d_h_
+>  #define _cl907d_h_
+>
+> +#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4                                       0x00000004
+> +#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE                                  0:0
+> +#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE_FALSE                            0x00000000
+> +#define NV907D_CORE_NOTIFIER_3_CAPABILITIES_4_DONE_TRUE                             0x00000001
+>  #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20                             0x00000014
+>  #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20_SINGLE_LVDS18               0:0
+>  #define NV907D_CORE_NOTIFIER_3_CAPABILITIES_CAP_SOR0_20_SINGLE_LVDS18_FALSE         0x00000000
+> --
+> 2.26.2
+>
+> _______________________________________________
+> Nouveau mailing list
+> Nouveau@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/nouveau
