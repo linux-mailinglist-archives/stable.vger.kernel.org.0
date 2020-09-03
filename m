@@ -2,75 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD76225C386
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 16:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCDE25C51B
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 17:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgICOxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 10:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729189AbgICOw5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Sep 2020 10:52:57 -0400
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1503020BED
-        for <stable@vger.kernel.org>; Thu,  3 Sep 2020 14:52:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599144768;
-        bh=jcI1wB3uEmJxhTvzRxmimv0PrE1TOxCdeThQ+yqZv1U=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=eY/nd+MMiPngAnCXlXF0YoRMhSv0LYKp0VauSpqAAY27HPu/zlGPBlgUxAh9AtDJM
-         TeHhjkpq03iNW2yj8d/81P0amZDHMr9VV23PkBK4uEjxNQjEubJ58uYwzY9umP/XKo
-         cwoYuxZZsgm7Al2wF0p9/KriRKc2SeRUkr2G8Fr4=
-Received: by mail-wr1-f43.google.com with SMTP id t10so3606140wrv.1
-        for <stable@vger.kernel.org>; Thu, 03 Sep 2020 07:52:48 -0700 (PDT)
-X-Gm-Message-State: AOAM531tytwgJ5/qV1ok8ExXHwdPkPjeSILdIsZEUw1dROIDVOBRNP6h
-        hPBq6K2cKxgyB9NLT3fb0M45MGvJtCi2rg7Qt6JFrQ==
-X-Google-Smtp-Source: ABdhPJx3YyX1cRpc56KwXkACUYF87VTzQngvZGkcWK/fNLMxQ/No8ECF13MUK2M5YiZsCco+ja/S+ONnOgSZ+wP+L3A=
-X-Received: by 2002:a05:6000:11c5:: with SMTP id i5mr2968557wrx.18.1599144766547;
- Thu, 03 Sep 2020 07:52:46 -0700 (PDT)
+        id S1728412AbgICLXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 07:23:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726678AbgICLW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 07:22:27 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4FFEC061251
+        for <stable@vger.kernel.org>; Thu,  3 Sep 2020 04:21:30 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id x2so2166056ilm.0
+        for <stable@vger.kernel.org>; Thu, 03 Sep 2020 04:21:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=7sHcH5dHB5M/r8aJgv+GiRQ5s8sI9YcH2NRYOFmnXg4=;
+        b=u7cMC0+G8lkgODS6FTOx5LSlIK3g7dHOtqKCZpb75zGulIRAyToBbgseyNqKfSe+b7
+         etMDnFf2iR5jomKor47aRwhBUibApC066BTM77OT3DDnjhypiEubeLD4zSGFVh+gjz1v
+         TpkhMLBmXWrySoo3w6sKKLhGtLte8zubTCiLEKM4il9i+0vSiMxmonk3bCObE8Mv30Wc
+         sl4tBSE4rAhAkSBrzKukgmNOeVBrZ8euEtJfcg5mGJZqZJV8prewDQ+QZEnz9l0LUJqB
+         J5QhEN3dJ7b8vrjNQzhgeiaUP7bIaySbnynXVn2F6a55Z6sUlGNFRrva2Q4OQawcjy23
+         24PQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=7sHcH5dHB5M/r8aJgv+GiRQ5s8sI9YcH2NRYOFmnXg4=;
+        b=uhnQmxoGSuRkD5tZYLqmkw/Qn+M2YGa0g7Dtqlyh/sMVquYMq9ea1VfYDQ+q+SRooP
+         DqICOBMRn+hNgp/J9KOtV0uBvbkpHW4Au6Sm2Rfk2/roPxDi0AFUDqQZ53bp88i9j5fo
+         j+LCpqSkRjCh+Hy1AqPLcN8QQypIingaw6fBR3B7Cf8F6pjUVH1Td0RpF+LuS7KG7O6j
+         X6dxBHi4tm2P4dHuWDF8P6qUPBe0XXgA3O1ggfeB4Lz4gCnQj4gya5WtmdYPhQM/JriN
+         9hUBAZqjZ90Zwg5naKad7NtETWWqSA/vBfrwFlN3GlV9NH3klOfgxa51J6ToGhuSoxMF
+         7ULA==
+X-Gm-Message-State: AOAM5309C3dsy9sdn91WLJ6qN2pID60Svlb71c1Xf8Zu+287CiGHpZY/
+        zUFDFj/O2bk4Bbwz3LXwuel5jui4IsKrrVlI2CM=
+X-Google-Smtp-Source: ABdhPJxBts/4TQul5s0KtgO8aYJSKzeCnOWQqZj4bk9S5NIuKAr3Hdk0xTGODpBYFbBJGGCfHiUUYWoNdIPaCMNss9k=
+X-Received: by 2002:a92:3204:: with SMTP id z4mr2577185ile.254.1599132090003;
+ Thu, 03 Sep 2020 04:21:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200902155904.17544-1-joro@8bytes.org>
-In-Reply-To: <20200902155904.17544-1-joro@8bytes.org>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Thu, 3 Sep 2020 07:52:35 -0700
-X-Gmail-Original-Message-ID: <CALCETrWAk-zVKKjvrq+fRAX5HKhdHF36h+jY+91_tQOa67xozA@mail.gmail.com>
-Message-ID: <CALCETrWAk-zVKKjvrq+fRAX5HKhdHF36h+jY+91_tQOa67xozA@mail.gmail.com>
-Subject: Re: [PATCH] x86/mm/32: Bring back vmalloc faulting on x86_32
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     X86 ML <x86@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        stable <stable@vger.kernel.org>
+Received: by 2002:a92:4190:0:0:0:0:0 with HTTP; Thu, 3 Sep 2020 04:21:29 -0700 (PDT)
+From:   Tricia Smith <triciatricia841@gmail.com>
+Date:   Thu, 3 Sep 2020 15:51:29 +0430
+X-Google-Sender-Auth: l02F5lHg_U7BCpbGJu2dqVxLkBA
+Message-ID: <CAFf=bpb6nxPPS2arjr6u1yD60nH_bSr4dvh9-hsoWOaMw_X4ig@mail.gmail.com>
+Subject: Re: Hello
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 2, 2020 at 8:59 AM Joerg Roedel <joro@8bytes.org> wrote:
->
-> From: Joerg Roedel <jroedel@suse.de>
->
-> One can not simply remove vmalloc faulting on x86-32. Upstream
->
->         commit: 7f0a002b5a21 ("x86/mm: remove vmalloc faulting")
->
-> removed it on x86 alltogether because previously the
-> arch_sync_kernel_mappings() interface was introduced. This interface
-> added synchronization of vmalloc/ioremap page-table updates to all
-> page-tables in the system at creation time and was thought to make
-> vmalloc faulting obsolete.
->
-> But that assumption was incredibly naive.
-
-Does this mean we can get rid of arch_sync_kernel_mappings()?  Or
-should we consider adding some locking to make it non-racy again?
-
--Andy
+Hi Dear, I am Miss Tricia Smith the only Daughter/Child of late Mr and
+Mrs William Smith. Please i have something very important and
+confidential to discuss with you.
