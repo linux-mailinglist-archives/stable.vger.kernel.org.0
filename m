@@ -2,79 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5813525BE74
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 11:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDBC25C118
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 14:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbgICJaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 05:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39986 "EHLO mail.kernel.org"
+        id S1728871AbgICMdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 08:33:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726448AbgICJaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Sep 2020 05:30:16 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        id S1728870AbgICMbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Sep 2020 08:31:00 -0400
+Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9C92206A5;
-        Thu,  3 Sep 2020 09:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B148206EB;
+        Thu,  3 Sep 2020 12:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599125415;
-        bh=KosBvZ2ZTa7Xg9GtfSbx7BaPsKV8Kkp0Wu8B3hg74m8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WBDDNk12GzaLnUvYawbRTJAmHR5wg9Ld1tqFFIdVQS2c0aQ8Ai8Cas+fjfaLbGzOS
-         +fQEjC5Yx0gIHeybH2OVb7ut1axJSke7K9mnfuSMNhrGdpT6m3oscSUWLNaDzALdve
-         B/hIhxF3oB3lFpdzqJvpthvwb5VcKSlID+rc5Xvs=
-Date:   Thu, 3 Sep 2020 11:30:39 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.8 000/253] 5.8.6-rc2 review
-Message-ID: <20200903093039.GE2220117@kroah.com>
-References: <20200902074837.329205434@linuxfoundation.org>
- <CA+G9fYv0oEqJQPJUhLAHX5wWrfZbhS6-cQOL8_Ex=d4tWAcHsQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYv0oEqJQPJUhLAHX5wWrfZbhS6-cQOL8_Ex=d4tWAcHsQ@mail.gmail.com>
+        s=default; t=1599136212;
+        bh=eunyv/HknvHb/uAaQzyGdVLYoqaDhb6CX5U85mhlJa8=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=T0VYeiseKzH9juYe8/zSeDH+9GY9TyeVsawU4smSAd9ClhNIJnGWet6kCH13n5Pt1
+         B0GnlRDhQ8i/5M8tHhQ5U9zKfzXVMORWpH9JV7DZXHZgwOxhGwXxop9HkhbdI/9V/A
+         zVcQj54mRRO6GngMrIjT26Pg2kIe2w8xpWvQcIzg=
+Date:   Thu, 03 Sep 2020 12:30:11 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
+In-Reply-To: <037e16f184c6823752635e8d9d643f69e05682ff.1599096763.git.thinhn@synopsys.com>
+References: <037e16f184c6823752635e8d9d643f69e05682ff.1599096763.git.thinhn@synopsys.com>
+Message-Id: <20200903123012.8B148206EB@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 09:58:45PM +0530, Naresh Kamboju wrote:
-> On Wed, 2 Sep 2020 at 13:18, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.8.6 release.
-> > There are 253 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 04 Sep 2020 07:47:48 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.6-rc2.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
-> 
-> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Hi
 
-Thanks for testing all of these and letting me know.
+[This is an automated email]
 
-greg k-h
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)").
+
+The bot has tested the following trees: v5.8.5, v5.4.61.
+
+v5.8.5: Build OK!
+v5.4.61: Failed to apply! Possible dependencies:
+    2e6e9e4b2ed7 ("usb: dwc3: gadget: Refactor TRB completion handler")
+    3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
+    b6842d4938c3 ("usb: dwc3: gadget: Check for in-progress END_TRANSFER")
+    d9feef974e0d ("usb: dwc3: gadget: Continue to process pending requests")
+    e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
