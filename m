@@ -2,69 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C4A25B778
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 01:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B163D25B85A
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 03:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbgIBX7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Sep 2020 19:59:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbgIBX7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Sep 2020 19:59:48 -0400
-Received: from localhost (unknown [70.37.104.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726526AbgICBm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Sep 2020 21:42:57 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:50692 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726177AbgICBmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Sep 2020 21:42:54 -0400
+Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F76A206F8;
-        Wed,  2 Sep 2020 23:59:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599091188;
-        bh=XzkbUniJSxkCIQdUyyrVHwyUPTM03iMXc14/JCTEQCU=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=Kg0JctmZd/poMrNdrOeV+szP56X9rL1g8im8CLcEBmqaYhlBPoVtowR3A10HGahcn
-         a5GxO5AdKcGoZduUIQ3rZl8G9xwASWrQPihAd7mSdi74aPWLloRYdBWAz0BbPberXS
-         ODx8f4JLizsTleUewVN9uisn7865BCeaAZM4krxA=
-Date:   Wed, 02 Sep 2020 23:59:47 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-To:     Andy Lutomirski <luto@kernel.org>
-To:     x86@kernel.org
-Cc:     linux-kernel@vger.kernel.org, Kyle Huey <me@kylehuey.com>
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 02/13] x86/debug: Allow a single level of #DB recursion
-In-Reply-To: <20200902133200.726584153@infradead.org>
-References: <20200902133200.726584153@infradead.org>
-Message-Id: <20200902235948.2F76A206F8@mail.kernel.org>
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id A6D10C00B2;
+        Thu,  3 Sep 2020 01:42:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1599097373; bh=1UIyxk96xT7j81Ue2i1Pp0leyDJRlUXaTtX35F3xV5s=;
+        h=Date:From:Subject:To:Cc:From;
+        b=cRs3UEcakkIDElaqkYd9SZsclCbBLXqy5cZDWDugDhtWNZDLohZsnww18SgBn+6IF
+         VjssnhcuWCWNThwp2g+T78wp2uGhX5rTjzQkcFXALC1VR3qkqHk3KD28qLsNxFr6v3
+         +cHNm/o5ZtYu9WB3y97oEmwH2Y9HW4UonllxiSMeJ4JKm2zclK+/9JCNRBXlw11vRp
+         07D1XsLlOgmbnJ/0QQzQ0DCQ5QMwAZCF5jhsmPvWjk7jY2koyQ6QMA8ECs7BHYJ1Vo
+         Nx68SJUkK/Oc+WLXvWQnRCFL5H+ZBUqIpbHxehK+BCk+YnrooVpQH5EfH7OiRQJDuW
+         jdYs1SEGk/XkQ==
+Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id C39E7A005E;
+        Thu,  3 Sep 2020 01:42:51 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Wed, 02 Sep 2020 18:42:51 -0700
+Date:   Wed, 02 Sep 2020 18:42:51 -0700
+Message-Id: <cover.1599096763.git.thinhn@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH v2 0/2] usb: dwc3: gadget: Fix halt/clear_stall handling
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+This series fixes a couple of driver issues handling ClearFeature(halt)
+request:
 
-[This is an automated email]
+1) A function driver often uses set_halt() to reject a class driver protocol
+command. After set_halt(), the endpoint will be stalled. It can queue new
+requests while the endpoint is stalled. However, dwc3 currently drops those
+requests after CLEAR_STALL. The driver should only drop started requests. Keep
+the pending requests in the pending list to resume and process them after the
+host issues ClearFeature(Halt) to the endpoint.
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 9f58fdde95c9 ("x86/db: Split out dr6/7 handling").
+2) DWC3 should issue CLEAR_STALL command _after_ END_TRANSFER command completes.
 
-The bot has tested the following trees: v5.8.5.
-
-v5.8.5: Failed to apply! Possible dependencies:
-    0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
-    27d6b4d14f5c ("x86/entry: Use generic syscall entry function")
-    517e499227be ("x86/entry: Cleanup idtentry_entry/exit_user")
-    8d5ea35c5e91 ("x86/entry: Consolidate check_user_regs()")
-    a377ac1cd9d7 ("x86/entry: Move user return notifier out of loop")
-    b037b09b9058 ("x86/entry: Rename idtentry_enter/exit_cond_rcu() to idtentry_enter/exit()")
-    ba1f2b2eaa2a ("x86/entry: Fix NMI vs IRQ state tracking")
+Changes in v2:
+- Rebased on 5.9-rc3
+- Remove a cleanup patch so this series can be merged to 5.9-rcX
+- Account for wedged endpoint
+- Account for CLEAR_FEATURE on stopped endpoints with pending requests
+  (END_TRANSFER command won't be issued for stopped endpoints, so just kick
+  pending request right after CLEAR_STALL)
 
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+Thinh Nguyen (2):
+  usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
+  usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command
 
-How should we proceed with this patch?
+ drivers/usb/dwc3/core.h   |  1 +
+ drivers/usb/dwc3/ep0.c    | 16 +++++++++++
+ drivers/usb/dwc3/gadget.c | 56 ++++++++++++++++++++++++++++++---------
+ drivers/usb/dwc3/gadget.h |  1 +
+ 4 files changed, 61 insertions(+), 13 deletions(-)
 
+
+base-commit: f75aef392f869018f78cfedf3c320a6b3fcfda6b
 -- 
-Thanks
-Sasha
+2.28.0
+
