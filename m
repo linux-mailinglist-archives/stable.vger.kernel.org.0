@@ -2,97 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51A925C650
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 18:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FD425C76E
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 18:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbgICQM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 12:12:58 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42265 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728129AbgICQM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 12:12:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599149576;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jb6az/wiJ7iQDSTih1JXhdvoZ61BGF79Va40zCSQyzA=;
-        b=geW/g40yDeDIbj7/OKMAZUouSn0P3eu2QWuNVSTreqDcrmP5mRAkS4gEXXTXNfkTtPohzH
-        CaoduUS7WCDikCl3Zjup3bbh8vbHAQo2g6ZHHJD503mVGqfosOE9NxOFBGE7uVYQvu5HCq
-        Tx3FUlfT3cuCcglN5y0MzrjtfGfmYjU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-74-vX8ldPkDOVm1ZQ9ioxF1lw-1; Thu, 03 Sep 2020 12:12:54 -0400
-X-MC-Unique: vX8ldPkDOVm1ZQ9ioxF1lw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09A5480B702;
-        Thu,  3 Sep 2020 16:12:52 +0000 (UTC)
-Received: from treble (ovpn-117-249.rdu2.redhat.com [10.10.117.249])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 067215C1C2;
-        Thu,  3 Sep 2020 16:12:47 +0000 (UTC)
-Date:   Thu, 3 Sep 2020 11:12:45 -0500
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Huey <me@kylehuey.com>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Robert O'Callahan <rocallahan@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 02/13] x86/debug: Allow a single level of #DB recursion
-Message-ID: <20200903161245.dp56m3p3oimgppcf@treble>
-References: <20200902132549.496605622@infradead.org>
- <20200902133200.726584153@infradead.org>
+        id S1726025AbgICQtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 12:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726327AbgICQti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 12:49:38 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB240C061244
+        for <stable@vger.kernel.org>; Thu,  3 Sep 2020 09:49:37 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id p65so2447279qtd.2
+        for <stable@vger.kernel.org>; Thu, 03 Sep 2020 09:49:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=scmZhUKw6wEX4tQ7KQvZeaMgVJVaSOCrsxNfsdSmovY=;
+        b=Yi8KQAsI1jYuurqbDZQbWw3PgRT4UvNg5u2JWrj2gx9RkXJJe90WyqOH4Es9G0JxST
+         sq03bpRXt2fT9w7jGnziZEUWCBikarcBTBYLebIzLs8R2vVbUX6o4KvZBGHecik7kxj1
+         UQLHNV9Et/y5McoJjhdrE+oJOzZsVC33cIS3ZbaghbQinNSEuosdrNiaCBGfcHePk4X8
+         z8mVePYHunbgOE4aemGKpqGXqTZZxsCTt7c2sNPFtvRNYZxpijR6349OMP/MKfv5WAuP
+         o32h/OBF1hmmteb2F4rfcAzNCP51HzlPKBHsijSAgo2bWDNWQRe2OdTbnMVYZWP71UOS
+         VJxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=scmZhUKw6wEX4tQ7KQvZeaMgVJVaSOCrsxNfsdSmovY=;
+        b=cWnP9KdTYchLJe0mTy2aGY3nCDMBW2B8Z7G+7au1Bpcy8zLsxAQU309NuPJ+aenfkO
+         PPdl2jcCc28bXIzZEWtt6rA3nH7DQWIwfmLBq9BtnHJGsg5SdUGwMI+rcuR3Bx6zzcXS
+         r+wH7TWAvT6uB9Lww2j524zH8UUEWTv/MfA6VK3YiefV9lEp27TaxY2vnJUeuPWPF5nH
+         WiDg47UEkzUlaroU1nBLA9nzSups5cz27Ah5EXQvfJsC1+4VdmMPIRqEcPd++hvljcdS
+         C+7tqg369eff4GOh82NMHFhMOHDdleayw7BF464EAQZxMTFu699hjMEj7OdGI4r0UvmL
+         qoSA==
+X-Gm-Message-State: AOAM531nx1DYpvwjNG+Mn0FG9OEgUno76nSIU0VVUdhy9QWhDirQyW8D
+        q3pBK16JrWQCvbGdaItzy4cwlDy5nQcIx/GQD9g=
+X-Google-Smtp-Source: ABdhPJxd22tO2y7zRwiSMM5buUOwGaIXzY2ia5aIUTDB4K+qAU4hQakItN6T8NbyrY9dIY5As11cZ+oEW8epkO6NbD0=
+X-Received: by 2002:aed:3aa5:: with SMTP id o34mr4584323qte.359.1599151777105;
+ Thu, 03 Sep 2020 09:49:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200902133200.726584153@infradead.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Received: by 2002:aed:36c1:0:0:0:0:0 with HTTP; Thu, 3 Sep 2020 09:49:36 -0700 (PDT)
+Reply-To: cynthiamatanga60@gmail.com
+From:   Cynthia Matanga <cynthiamatanga1@gmail.com>
+Date:   Thu, 3 Sep 2020 17:49:36 +0100
+Message-ID: <CAKh9_wvZVt2g7OMEW9u9GQsvv8nvjm5tn_WdUJ8-VyB+kFtCcg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 03:25:51PM +0200, Peter Zijlstra wrote:
-> @@ -863,6 +849,18 @@ static void handle_debug(struct pt_regs
->  static __always_inline void exc_debug_kernel(struct pt_regs *regs,
->  					     unsigned long dr6)
->  {
-> +	/*
-> +	 * Disable breakpoints during exception handling; recursive exceptions
-> +	 * are exceedingly 'fun'.
-> +	 *
-> +	 * Since this function is NOKPROBE, and that also applies to
-> +	 * HW_BREAKPOINT_X, we can't hit a breakpoint before this (XXX except a
-> +	 * HW_BREAKPOINT_W on our stack)
-> +	 *
-> +	 * Entry text is excluded for HW_BP_X and cpu_entry_area, which
-> +	 * includes the entry stack is excluded for everything.
-> +	 */
-
-I know this comment was copy/pasted, but I had to stare at the last
-paragraph like one of those 3D paintings they used to have at the mall.
-
-Recommended rewording:
-
-	 * HW_BREAKPOINT_X is disallowed for entry text; all breakpoints
-	 * are disallowed for cpu_entry_area (which includes the entry
-	 * stack).
-
--- 
-Josh
-
+I am Franklin Douglas
+My Father was Top Politician Before he died in auto Motor Accident
+Last years 2019,
+Before his death he told me that he deposited $4.500.000.00, in one of
+The Bank Here,
+Please i Will Need your  Assistance for investing the money in hotel
+Business or estate management in your country if you are willing to work with me
+reply back, for more details,
+Thanks
+Franklin Douglas
