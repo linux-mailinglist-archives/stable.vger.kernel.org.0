@@ -2,75 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E345225BE72
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 11:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5813525BE74
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 11:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726368AbgICJaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 05:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
+        id S1726047AbgICJaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 05:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726047AbgICJaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Sep 2020 05:30:05 -0400
+        id S1726448AbgICJaQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Sep 2020 05:30:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C15C9206C0;
-        Thu,  3 Sep 2020 09:30:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9C92206A5;
+        Thu,  3 Sep 2020 09:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599125403;
-        bh=yuXQhqJRp97Dk8GmAowisGG0EVBX6hEwX82YbZahov4=;
+        s=default; t=1599125415;
+        bh=KosBvZ2ZTa7Xg9GtfSbx7BaPsKV8Kkp0Wu8B3hg74m8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NODYlADCYtxuZqB1uyYhPLnpKSj89EMLHAN3KOQeNvw5GSxRJtdP+OneqzJEvJvWl
-         6p6FRxtRewBM4jmoF4bDqSwfRIHcCUHBMbYr54kGlnLb9Y6Uofcf3TJtSEu7JQoQhj
-         tx9QZiDbNjx7dVyY74y+4stKuLXcNTA2vfPnDpWQ=
-Date:   Thu, 3 Sep 2020 11:30:27 +0200
+        b=WBDDNk12GzaLnUvYawbRTJAmHR5wg9Ld1tqFFIdVQS2c0aQ8Ai8Cas+fjfaLbGzOS
+         +fQEjC5Yx0gIHeybH2OVb7ut1axJSke7K9mnfuSMNhrGdpT6m3oscSUWLNaDzALdve
+         B/hIhxF3oB3lFpdzqJvpthvwb5VcKSlID+rc5Xvs=
+Date:   Thu, 3 Sep 2020 11:30:39 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Subject: Re: [PATCH 5.8 000/253] 5.8.6-rc2 review
-Message-ID: <20200903093027.GD2220117@kroah.com>
+Message-ID: <20200903093039.GE2220117@kroah.com>
 References: <20200902074837.329205434@linuxfoundation.org>
- <20200902165151.GF56237@roeck-us.net>
+ <CA+G9fYv0oEqJQPJUhLAHX5wWrfZbhS6-cQOL8_Ex=d4tWAcHsQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200902165151.GF56237@roeck-us.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYv0oEqJQPJUhLAHX5wWrfZbhS6-cQOL8_Ex=d4tWAcHsQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 09:51:51AM -0700, Guenter Roeck wrote:
-> On Wed, Sep 02, 2020 at 09:49:11AM +0200, Greg Kroah-Hartman wrote:
+On Wed, Sep 02, 2020 at 09:58:45PM +0530, Naresh Kamboju wrote:
+> On Wed, 2 Sep 2020 at 13:18, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
 > > This is the start of the stable review cycle for the 5.8.6 release.
 > > There are 253 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
-> > 
+> >
 > > Responses should be made by Fri, 04 Sep 2020 07:47:48 +0000.
 > > Anything received after that time might be too late.
-> > 
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.6-rc2.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 > 
-> Build results:
-> 	total: 154 pass: 153 fail: 1
-> Failed builds:
-> 	powerpc:allmodconfig
-> Qemu test results:
-> 	total: 430 pass: 430 fail: 0
-> 
-> The build failure is:
-> 
-> Inconsistent kallsyms data
-> Try make KALLSYMS_EXTRA_PASS=1 as a workaround
-> 
-> The suggested workaround doesn't help. I see the problem in mainline
-> and in -next as well, and it is elusive (meaning it is not easy to
-> reproduce). Given that, it is not an immediate concern.
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 Thanks for testing all of these and letting me know.
 
