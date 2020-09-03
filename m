@@ -2,75 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5347625C3E6
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 17:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD76225C386
+	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 16:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgICPAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 11:00:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53747 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728409AbgICOGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 10:06:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599141961;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=CRM5SDuyNkyo2LaLrW1Sn25CKUsI02PlDXJ3rHe+Ca0=;
-        b=gmeIcB5AxzZTdDpclejsQUCrH7H+zIRhbAUXmpWrUSM29+s+zwo1UwkR4mBxDc1fEqfD7T
-        CgIsugwfmsmuB7b3ilqnrhAhlsBG38JPXnQHOJG7dQPuZhCh/dn+bXmywO1CtaHO3S2T7E
-        ychBSWM9FPo/Uk/t5cV2PDOOOb4UjJ4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-39-cE6VzjKJNmuEUzUKyLYZWQ-1; Thu, 03 Sep 2020 10:03:52 -0400
-X-MC-Unique: cE6VzjKJNmuEUzUKyLYZWQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1729081AbgICOxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 10:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729189AbgICOw5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Sep 2020 10:52:57 -0400
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C3D9E18B9F86;
-        Thu,  3 Sep 2020 14:03:47 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.114])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 4F9A65C22B;
-        Thu,  3 Sep 2020 14:03:27 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Thu,  3 Sep 2020 16:03:47 +0200 (CEST)
-Date:   Thu, 3 Sep 2020 16:03:26 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     mhocko@suse.com, christian.brauner@ubuntu.com, mingo@kernel.org,
-        peterz@infradead.org, tglx@linutronix.de, esyr@redhat.com,
-        christian@kellner.me, areber@redhat.com, shakeelb@google.com,
-        cyphar@cyphar.com, adobriyan@gmail.com, akpm@linux-foundation.org,
-        ebiederm@xmission.com, gladkov.alexey@gmail.com, walken@google.com,
-        daniel.m.jordan@oracle.com, avagin@gmail.com,
-        bernd.edlinger@hotmail.de, john.johansen@canonical.com,
-        laoar.shao@gmail.com, timmurray@google.com, minchan@kernel.org,
-        kernel-team@android.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-mm@kvack.org, Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 1/1] mm, oom_adj: don't loop through tasks in
- __set_oom_adj when not necessary
-Message-ID: <20200903140324.GH4386@redhat.com>
-References: <20200902012558.2335613-1-surenb@google.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 1503020BED
+        for <stable@vger.kernel.org>; Thu,  3 Sep 2020 14:52:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599144768;
+        bh=jcI1wB3uEmJxhTvzRxmimv0PrE1TOxCdeThQ+yqZv1U=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=eY/nd+MMiPngAnCXlXF0YoRMhSv0LYKp0VauSpqAAY27HPu/zlGPBlgUxAh9AtDJM
+         TeHhjkpq03iNW2yj8d/81P0amZDHMr9VV23PkBK4uEjxNQjEubJ58uYwzY9umP/XKo
+         cwoYuxZZsgm7Al2wF0p9/KriRKc2SeRUkr2G8Fr4=
+Received: by mail-wr1-f43.google.com with SMTP id t10so3606140wrv.1
+        for <stable@vger.kernel.org>; Thu, 03 Sep 2020 07:52:48 -0700 (PDT)
+X-Gm-Message-State: AOAM531tytwgJ5/qV1ok8ExXHwdPkPjeSILdIsZEUw1dROIDVOBRNP6h
+        hPBq6K2cKxgyB9NLT3fb0M45MGvJtCi2rg7Qt6JFrQ==
+X-Google-Smtp-Source: ABdhPJx3YyX1cRpc56KwXkACUYF87VTzQngvZGkcWK/fNLMxQ/No8ECF13MUK2M5YiZsCco+ja/S+ONnOgSZ+wP+L3A=
+X-Received: by 2002:a05:6000:11c5:: with SMTP id i5mr2968557wrx.18.1599144766547;
+ Thu, 03 Sep 2020 07:52:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200902012558.2335613-1-surenb@google.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20200902155904.17544-1-joro@8bytes.org>
+In-Reply-To: <20200902155904.17544-1-joro@8bytes.org>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Thu, 3 Sep 2020 07:52:35 -0700
+X-Gmail-Original-Message-ID: <CALCETrWAk-zVKKjvrq+fRAX5HKhdHF36h+jY+91_tQOa67xozA@mail.gmail.com>
+Message-ID: <CALCETrWAk-zVKKjvrq+fRAX5HKhdHF36h+jY+91_tQOa67xozA@mail.gmail.com>
+Subject: Re: [PATCH] x86/mm/32: Bring back vmalloc faulting on x86_32
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     X86 ML <x86@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/01, Suren Baghdasaryan wrote:
+On Wed, Sep 2, 2020 at 8:59 AM Joerg Roedel <joro@8bytes.org> wrote:
 >
->  fs/proc/base.c                 |  3 +--
->  include/linux/oom.h            |  1 +
->  include/linux/sched/coredump.h |  1 +
->  kernel/fork.c                  | 21 +++++++++++++++++++++
->  mm/oom_kill.c                  |  2 ++
->  5 files changed, 26 insertions(+), 2 deletions(-)
+> From: Joerg Roedel <jroedel@suse.de>
+>
+> One can not simply remove vmalloc faulting on x86-32. Upstream
+>
+>         commit: 7f0a002b5a21 ("x86/mm: remove vmalloc faulting")
+>
+> removed it on x86 alltogether because previously the
+> arch_sync_kernel_mappings() interface was introduced. This interface
+> added synchronization of vmalloc/ioremap page-table updates to all
+> page-tables in the system at creation time and was thought to make
+> vmalloc faulting obsolete.
+>
+> But that assumption was incredibly naive.
 
-Acked-by: Oleg Nesterov <oleg@redhat.com>
+Does this mean we can get rid of arch_sync_kernel_mappings()?  Or
+should we consider adding some locking to make it non-racy again?
 
+-Andy
