@@ -2,150 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADE525E1E2
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 21:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8098325E1ED
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 21:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgIDTS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 15:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727792AbgIDTSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 15:18:55 -0400
-Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62A5A208CA;
-        Fri,  4 Sep 2020 19:18:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599247134;
-        bh=r1W+FDL0N2JbSaXM09U2olvU+2IazujrmTKEKN7XGCE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gdHozSgaYHu1p9+x78KMilXM9wfNS77hr7aaE3CE+810s8miAMJfNCLoNIY1I/4ZB
-         Zyi/HrESlM7XWCLOJ8fobfFF2HAarYOoDXYvfcroMGxnAKJxUSPtd1QuyLQ/f23pVN
-         WEfmxlTOlWK4VZnL2QKjLg3JVFOBZnwkQRK4Q/uk=
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id 470A640D3D; Fri,  4 Sep 2020 16:18:52 -0300 (-03)
-Date:   Fri, 4 Sep 2020 16:18:52 -0300
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Kim Phillips <kim.phillips@amd.com>
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Vijay Thakkar <vijaythakkar@me.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        John Garry <john.garry@huawei.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Yunfeng Ye <yeyunfeng@huawei.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Martin =?utf-8?B?TGnFoWth?= <mliska@suse.cz>,
-        Borislav Petkov <bp@suse.de>, Jon Grimm <jon.grimm@amd.com>,
-        Martin Jambor <mjambor@suse.cz>,
-        Michael Petlan <mpetlan@redhat.com>,
-        William Cohen <wcohen@redhat.com>,
-        Stephane Eranian <eranian@google.com>,
-        Ian Rogers <irogers@google.com>,
-        linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1726406AbgIDTXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 15:23:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726221AbgIDTXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 15:23:25 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D408FC061244;
+        Fri,  4 Sep 2020 12:23:24 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id c3so1346690plz.5;
+        Fri, 04 Sep 2020 12:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=jo2LrNWEgpQNYtSAG1LE6gXG+UXK/dBbbm524XiWLvQ=;
+        b=BH4oPuFdRexT4P8uDX741Yv/+sZA1vdnpjjln90GMw7atpftoe+93ct8XXeIcVCnwd
+         sffSx6PBIsTefeSul8A8gg3h4zqNOortt3F/rFE+Z2mnfE9N2bm0WATpviihAjfEeWzf
+         8if2Ss1IWb0KVD3DsMyDI0o8W1r0yb9JHpmrz/884/leu8QAgCp8oDQt0Htz9mnleZLv
+         amizuo9mokRE9NCabAnnDkfrtb+N0IOovgMzMLERhQFJeV7nkVn/ekY6hfm2cyvGD4D0
+         FB5MbNAtRC/bxphvLNRSSz3eqc72rNqgUYkbh0YliNCUSbfHyrT2pHdMJSaUgXesRKF5
+         zNFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=jo2LrNWEgpQNYtSAG1LE6gXG+UXK/dBbbm524XiWLvQ=;
+        b=uJ/lzd6L/YtfPpQYCFWj4pVnWpjYdYDihov9eHxs3NkvD/x1h1GnakpadyEGPIX315
+         N77ZG6PkFNijswwbcUAz5ZlYSvzldpLlu3fM7niFc5vgH1722GYQU3LLTTL5XcYYI1/l
+         yjXqK4lDxr9KH3j6+Kz1fDC4w4SMbagE6KhY0KHGvEBvw8ityOgpXdqCcrkVyRV2CW2Z
+         onpJV1HBQO3Jo+OAG2mef9prYo13ECqb9g/8cFzS3CkACik4nuzZpfWW7LHsAro9puxw
+         WHINH/vqcmOUpokqTXJHehDLM6uz1R21sCEZtVERIROBD3Y7xXSBleVsi2QCYBVELa4R
+         WnWw==
+X-Gm-Message-State: AOAM5339ha50eqlmX8H2r0I1e8Meu34Y2mJv2Zs2aarTTEaxIt4+VB1x
+        FCQRq56aJ741K6rOJinXRYg=
+X-Google-Smtp-Source: ABdhPJy+ubz9CdiTuEnQdhUjSGxr2R/t9AssWYIt5Ekmo+hyYet5x2rhHoqXjQk2TZbZDJ2pcxszvg==
+X-Received: by 2002:a17:90a:9503:: with SMTP id t3mr9571333pjo.171.1599247404237;
+        Fri, 04 Sep 2020 12:23:24 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l78sm187272pfd.26.2020.09.04.12.23.23
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 04 Sep 2020 12:23:23 -0700 (PDT)
+Date:   Fri, 4 Sep 2020 12:23:22 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] perf vendor events amd: Add L2 Prefetch events for
- zen1
-Message-ID: <20200904191852.GE3753976@kernel.org>
-References: <20200901220944.277505-1-kim.phillips@amd.com>
+Subject: Re: [PATCH 5.4 00/16] 5.4.63-rc1 review
+Message-ID: <20200904192322.GA211974@roeck-us.net>
+References: <20200904120257.203708503@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200901220944.277505-1-kim.phillips@amd.com>
-X-Url:  http://acmel.wordpress.com
+In-Reply-To: <20200904120257.203708503@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Tue, Sep 01, 2020 at 05:09:41PM -0500, Kim Phillips escreveu:
-> Later revisions of PPRs that post-date the original Family 17h events
-> submission patch add these events.
+On Fri, Sep 04, 2020 at 03:29:53PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.63 release.
+> There are 16 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Specifically, they were not in this 2017 revision of the F17h PPR:
-> 
-> Processor Programming Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors Rev 1.14 - April 15, 2017
-> 
-> But e.g., are included in this 2019 version of the PPR:
-> 
-> Processor Programming Reference (PPR) for AMD Family 17h Model 18h, Revision B1 Processors Rev. 3.14 - Sep 26, 2019
-
-
-Thanks, applied.
-
-- Arnaldo
- 
-> Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-> Fixes: 98c07a8f74f8 ("perf vendor events amd: perf PMU events for AMD Family 17h")
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Cc: Vijay Thakkar <vijaythakkar@me.com>
-> Cc: Andi Kleen <ak@linux.intel.com>
-> Cc: John Garry <john.garry@huawei.com>
-> Cc: Kan Liang <kan.liang@linux.intel.com>
-> Cc: Yunfeng Ye <yeyunfeng@huawei.com>
-> Cc: Jin Yao <yao.jin@linux.intel.com>
-> Cc: "Martin Liška" <mliska@suse.cz>
-> Cc: Borislav Petkov <bp@suse.de>
-> Cc: Jon Grimm <jon.grimm@amd.com>
-> Cc: Martin Jambor <mjambor@suse.cz>
-> Cc: Michael Petlan <mpetlan@redhat.com>
-> Cc: William Cohen <wcohen@redhat.com>
-> Cc: Stephane Eranian <eranian@google.com>
-> Cc: Ian Rogers <irogers@google.com>
-> Cc: linux-perf-users@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> ---
->  .../pmu-events/arch/x86/amdzen1/cache.json     | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
-> 
-> diff --git a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-> index 404d4c569c01..695ed3ffa3a6 100644
-> --- a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-> +++ b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-> @@ -249,6 +249,24 @@
->      "BriefDescription": "Cycles with fill pending from L2. Total cycles spent with one or more fill requests in flight from L2.",
->      "UMask": "0x1"
->    },
-> +  {
-> +    "EventName": "l2_pf_hit_l2",
-> +    "EventCode": "0x70",
-> +    "BriefDescription": "L2 prefetch hit in L2.",
-> +    "UMask": "0xff"
-> +  },
-> +  {
-> +    "EventName": "l2_pf_miss_l2_hit_l3",
-> +    "EventCode": "0x71",
-> +    "BriefDescription": "L2 prefetcher hits in L3. Counts all L2 prefetches accepted by the L2 pipeline which miss the L2 cache and hit the L3.",
-> +    "UMask": "0xff"
-> +  },
-> +  {
-> +    "EventName": "l2_pf_miss_l2_l3",
-> +    "EventCode": "0x72",
-> +    "BriefDescription": "L2 prefetcher misses in L3. All L2 prefetches accepted by the L2 pipeline which miss the L2 and the L3 caches.",
-> +    "UMask": "0xff"
-> +  },
->    {
->      "EventName": "l3_request_g1.caching_l3_cache_accesses",
->      "EventCode": "0x01",
-> -- 
-> 2.27.0
+> Responses should be made by Sun, 06 Sep 2020 12:02:48 +0000.
+> Anything received after that time might be too late.
 > 
 
--- 
+Build results:
+	total: 157 pass: 157 fail: 0
+Qemu test results:
+	total: 430 pass: 430 fail: 0
 
-- Arnaldo
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
