@@ -2,150 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E531425D30D
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 09:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B6D25D41E
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 10:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728195AbgIDHy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 03:54:56 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50960 "EHLO mx2.suse.de"
+        id S1729953AbgIDI7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 04:59:02 -0400
+Received: from mx2.suse.de ([195.135.220.15]:37376 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726151AbgIDHyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 03:54:55 -0400
+        id S1729898AbgIDI67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 04:58:59 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B9F3FAD03;
-        Fri,  4 Sep 2020 07:54:53 +0000 (UTC)
-Date:   Fri, 4 Sep 2020 09:54:52 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     akpm@linux-foundation.org
-Cc:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        rientjes@google.com, richard.weiyang@gmail.com, osalvador@suse.de,
-        david@redhat.com, pasha.tatashin@soleen.com, linux-mm@kvack.org
-Subject: Re: +
- mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
- added to -mm tree
-Message-ID: <20200904075452.GE15277@dhcp22.suse.cz>
-References: <20200903192901.PWYfu%akpm@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200903192901.PWYfu%akpm@linux-foundation.org>
+        by mx2.suse.de (Postfix) with ESMTP id 79B9AAFC1;
+        Fri,  4 Sep 2020 08:58:58 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id BB5C41E12AF; Fri,  4 Sep 2020 10:58:56 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     <linux-ext4@vger.kernel.org>, <linux-block@vger.kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        yebin <yebin10@huawei.com>, Andreas Dilger <adilger@dilger.ca>,
+        Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] fs: Don't invalidate page buffers in block_write_full_page()
+Date:   Fri,  4 Sep 2020 10:58:51 +0200
+Message-Id: <20200904085852.5639-2-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200904085852.5639-1-jack@suse.cz>
+References: <20200904085852.5639-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 03-09-20 12:29:01, Andrew Morton wrote:
-> From: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Subject: mm/memory_hotplug: drain per-cpu pages again during memory offline
-> 
-> There is a race during page offline that can lead to infinite loop:
-> a page never ends up on a buddy list and __offline_pages() keeps
-> retrying infinitely or until a termination signal is received.
-> 
-> Thread#1 - a new process:
-> 
-> load_elf_binary
->  begin_new_exec
->   exec_mmap
->    mmput
->     exit_mmap
->      tlb_finish_mmu
->       tlb_flush_mmu
->        release_pages
->         free_unref_page_list
->          free_unref_page_prepare
->           set_pcppage_migratetype(page, migratetype);
->              // Set page->index migration type below  MIGRATE_PCPTYPES
-> 
-> Thread#2 - hot-removes memory
-> __offline_pages
->   start_isolate_page_range
->     set_migratetype_isolate
->       set_pageblock_migratetype(page, MIGRATE_ISOLATE);
->         Set migration type to MIGRATE_ISOLATE-> set
->         drain_all_pages(zone);
->              // drain per-cpu page lists to buddy allocator.
-> 
-> Thread#1 - continue
->          free_unref_page_commit
->            migratetype = get_pcppage_migratetype(page);
->               // get old migration type
->            list_add(&page->lru, &pcp->lists[migratetype]);
->               // add new page to already drained pcp list
-> 
-> Thread#2
-> Never drains pcp again, and therefore gets stuck in the loop.
-> 
-> The fix is to try to drain per-cpu lists again after
-> check_pages_isolated_cb() fails.
-> 
-> Link: https://lkml.kernel.org/r/20200903140032.380431-1-pasha.tatashin@soleen.com
-> Fixes: c52e75935f8d ("mm: remove extra drain pages on pcp list")
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Acked-by: David Rientjes <rientjes@google.com>
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Wei Yang <richard.weiyang@gmail.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+If block_write_full_page() is called for a page that is beyond current
+inode size, it will truncate page buffers for the page and return 0.
+This logic has been added in 2.5.62 in commit 81eb69062588 ("fix ext3
+BUG due to race with truncate") in history.git tree to fix a problem
+with ext3 in data=ordered mode. This particular problem doesn't exist
+anymore because ext3 is long gone and ext4 handles ordered data
+differently. Also normally buffers are invalidated by truncate code and
+there's no need to specially handle this in ->writepage() code.
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+This invalidation of page buffers in block_write_full_page() is causing
+issues to filesystems (e.g. ext4 or ocfs2) when block device is shrunk
+under filesystem's hands and metadata buffers get discarded while being
+tracked by the journalling layer. Although it is obviously "not
+supported" it can cause kernel crashes like:
 
-> ---
-> 
->  mm/memory_hotplug.c |   14 ++++++++++++++
->  mm/page_isolation.c |    8 ++++++++
->  2 files changed, 22 insertions(+)
-> 
-> --- a/mm/memory_hotplug.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-> +++ a/mm/memory_hotplug.c
-> @@ -1575,6 +1575,20 @@ static int __ref __offline_pages(unsigne
->  		/* check again */
->  		ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
->  					    NULL, check_pages_isolated_cb);
-> +		/*
-> +		 * per-cpu pages are drained in start_isolate_page_range, but if
-> +		 * there are still pages that are not free, make sure that we
-> +		 * drain again, because when we isolated range we might
-> +		 * have raced with another thread that was adding pages to pcp
-> +		 * list.
-> +		 *
-> +		 * Forward progress should be still guaranteed because
-> +		 * pages on the pcp list can only belong to MOVABLE_ZONE
-> +		 * because has_unmovable_pages explicitly checks for
-> +		 * PageBuddy on freed pages on other zones.
-> +		 */
-> +		if (ret)
-> +			drain_all_pages(zone);
->  	} while (ret);
->  
->  	/* Ok, all of our target is isolated.
-> --- a/mm/page_isolation.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-> +++ a/mm/page_isolation.c
-> @@ -170,6 +170,14 @@ __first_valid_page(unsigned long pfn, un
->   * pageblocks we may have modified and return -EBUSY to caller. This
->   * prevents two threads from simultaneously working on overlapping ranges.
->   *
-> + * Please note that there is no strong synchronization with the page allocator
-> + * either. Pages might be freed while their page blocks are marked ISOLATED.
-> + * In some cases pages might still end up on pcp lists and that would allow
-> + * for their allocation even when they are in fact isolated already. Depending
-> + * on how strong of a guarantee the caller needs drain_all_pages might be needed
-> + * (e.g. __offline_pages will need to call it after check for isolated range for
-> + * a next retry).
-> + *
->   * Return: the number of isolated pageblocks on success and -EBUSY if any part
->   * of range cannot be isolated.
->   */
-> _
-> 
-> Patches currently in -mm which might be from pasha.tatashin@soleen.com are
-> 
-> mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
+[ 7986.689400] BUG: unable to handle kernel NULL pointer dereference at
++0000000000000008
+[ 7986.697197] PGD 0 P4D 0
+[ 7986.699724] Oops: 0002 [#1] SMP PTI
+[ 7986.703200] CPU: 4 PID: 203778 Comm: jbd2/dm-3-8 Kdump: loaded Tainted: G
++O     --------- -  - 4.18.0-147.5.0.5.h126.eulerosv2r9.x86_64 #1
+[ 7986.716438] Hardware name: Huawei RH2288H V3/BC11HGSA0, BIOS 1.57 08/11/2015
+[ 7986.723462] RIP: 0010:jbd2_journal_grab_journal_head+0x1b/0x40 [jbd2]
+...
+[ 7986.810150] Call Trace:
+[ 7986.812595]  __jbd2_journal_insert_checkpoint+0x23/0x70 [jbd2]
+[ 7986.818408]  jbd2_journal_commit_transaction+0x155f/0x1b60 [jbd2]
+[ 7986.836467]  kjournald2+0xbd/0x270 [jbd2]
 
+which is not great. The crash happens because bh->b_private is suddently
+NULL although BH_JBD flag is still set (this is because
+block_invalidatepage() cleared BH_Mapped flag and subsequent bh lookup
+found buffer without BH_Mapped set, called init_page_buffers() which has
+rewritten bh->b_private). So just remove the invalidation in
+block_write_full_page().
+
+Note that the buffer cache invalidation when block device changes size
+is already careful to avoid similar problems by using
+invalidate_mapping_pages() which skips busy buffers so it was only this
+odd block_write_full_page() behavior that could tear down bdev buffers
+under filesystem's hands.
+
+Reported-by: Ye Bin <yebin10@huawei.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/buffer.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
+
+diff --git a/fs/buffer.c b/fs/buffer.c
+index 061dd202979d..163c2c0b9aa3 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2771,16 +2771,6 @@ int nobh_writepage(struct page *page, get_block_t *get_block,
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-#if 0
+-		/* Not really sure about this  - do we need this ? */
+-		if (page->mapping->a_ops->invalidatepage)
+-			page->mapping->a_ops->invalidatepage(page, offset);
+-#endif
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
+@@ -2975,12 +2965,6 @@ int block_write_full_page(struct page *page, get_block_t *get_block,
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-		do_invalidatepage(page, 0, PAGE_SIZE);
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
 -- 
-Michal Hocko
-SUSE Labs
+2.16.4
+
