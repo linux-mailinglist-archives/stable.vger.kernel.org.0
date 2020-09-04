@@ -2,87 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C09B25D464
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 11:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C01D25D4D2
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 11:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728205AbgIDJON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 05:14:13 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:55333 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726575AbgIDJOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 05:14:10 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id DEB085C01A3;
-        Fri,  4 Sep 2020 05:14:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 04 Sep 2020 05:14:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=gbXn9TwNivjaaiRRU0Xa8QBdwMI
-        pluysQHYCCRKxVoc=; b=HNZZA/UPSZLvanX7BAeA0oq3PMB/W/1KUURzZRSBh8P
-        AuonLAXcbUkb4zs7VYSsC6KCfcdAFBMU1awsE74M+/ELGa52hlgq/4nNBKBm5gsM
-        bFb80acEsTqZ06uVAPRgjKF8x8zrdVprS86xISUcp0PZAURaolHAplYwMvAgcUUI
-        VdCGJFaj4taB1uKEXxuz0s7Et40jDJmbs+H7cMNSBzmrycPcQrnUII9up32tktYz
-        z8sHx8uw3SYbcf0ADKkjEn5V+R2BvvvagSPnYV4jY3xlRKbcIBnidI2m8tAbfx9M
-        NJRJxcbI2UjGg35586DJt2e+DRngqwtmrT6MuWQV6dw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gbXn9T
-        wNivjaaiRRU0Xa8QBdwMIpluysQHYCCRKxVoc=; b=fbrwsJbpRhZkFtVJvg5GYc
-        CsMY6IMyUSoJSrhhQ3/Bmo4U/mWmcAG/ZT+p7lwH2Ymm5HiXXX4XEVVDGqpzIiFO
-        VWghddEEKvDriOYDPbp4ho0mU4qyvWWWn3iJL1TH8F8egcFgn5t5niGZK+GNhWIm
-        taxcZvhrdufOQH9WDm3FQGJWDogmyhTvEp8rqJb+3gfI5xFp5PCbwkmAWdshMTeW
-        c0yMaWgXeqmqNZbYrD6XSPH+GLMjLbppF6hJl5hCZSRccxMnF1BhYPmv+dtU7tOY
-        MWtMAwjT1WVWbzzD2oBKNEAT1OCFrBSXudxnZ3WzutdpnQrFdKLBwmeteP28SEqg
-        ==
-X-ME-Sender: <xms:YQVSX-Jzm98-ZP1xrN7xZyxNcRneOQpwtaRqqo0rTWrlyZkGb_ZFmw>
-    <xme:YQVSX2J_m_eTmP8dHhd_aprMTxUSW0-WFSD43-i63tZtMzgbGdO3xTZvmhJvruiXl
-    _a5KV0dSo-adQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudegfedgudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:YQVSX-ugX4OLOCueCGKGHTntghgBUa8jWzhVZHOSyg6Byqoir9do4A>
-    <xmx:YQVSXzYS0kGMOZ1V3EzpOuiL0xXgxSbgINjwdtoXQFh63_o6I9mWjA>
-    <xmx:YQVSX1YJ2pyEWQFVUmwABjhpOmHb3s2vrBSuHOzlcXz-84cMB1Xzlg>
-    <xmx:YQVSX318Fzakr_SCjoJ_feRHvpTlmwByVahiGnTbnF5ydgvgK3q5mw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8261F3060057;
-        Fri,  4 Sep 2020 05:14:09 -0400 (EDT)
-Date:   Fri, 4 Sep 2020 11:14:31 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Walter Lozano <walter.lozano@collabora.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Stable inclusion request 5.4: GPU hangs fixes for etnaviv
-Message-ID: <20200904091431.GB2536101@kroah.com>
-References: <232e3634-f82a-4db3-3427-701240b77ecf@collabora.com>
+        id S1730031AbgIDJ1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 05:27:22 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2754 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728658AbgIDJ1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 05:27:22 -0400
+Received: from lhreml741-chm.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id 9709F4A1BBA0D160854A;
+        Fri,  4 Sep 2020 10:27:20 +0100 (IST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ lhreml741-chm.china.huawei.com (10.201.108.191) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1913.5; Fri, 4 Sep 2020 10:27:20 +0100
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
+ by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.1913.5; Fri, 4 Sep 2020 11:27:19 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <mjg59@google.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2 01/12] ima: Don't ignore errors from crypto_shash_update()
+Date:   Fri, 4 Sep 2020 11:23:28 +0200
+Message-ID: <20200904092339.19598-2-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.27.GIT
+In-Reply-To: <20200904092339.19598-1-roberto.sassu@huawei.com>
+References: <20200904092339.19598-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <232e3634-f82a-4db3-3427-701240b77ecf@collabora.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.65.160]
+X-ClientProxiedBy: lhreml709-chm.china.huawei.com (10.201.108.58) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 12:43:45PM -0300, Walter Lozano wrote:
-> Could you please cherry-pick these ones to Linux 5.4
-> 
-> Commit: f232d9ec029ce3e2543b05213e2979e01e503408
-> Author: Lucas Stach <l.stach@xxxxxxxxxxxxxxxxx>
-> Date: Wed, 26 Feb 2020 16:27:08 +0100
-> 
-> Commit: d7c5782acd354bdb5ed0fa10e1e397eaed558390
-> Author: Andrey Grodzovsky <andrey.grodzovsky@xxxxxxxxxxxxxxxxx>
-> Date: Tue, 29 Oct 2019 11:03:05 -0400
-> 
-> These patches fixes GPU hangs using etnaviv driver.
+Errors returned by crypto_shash_update() are not checked in
+ima_calc_boot_aggregate_tfm() and thus can be overwritten at the next
+iteration of the loop. This patch adds a check after calling
+crypto_shash_update() and returns immediately if the result is not zero.
 
-Now queued up, thanks.
+Cc: stable@vger.kernel.org
+Fixes: 3323eec921efd ("integrity: IMA as an integrity service provider")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+---
+ security/integrity/ima/ima_crypto.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-greg k-h
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index 011c3c76af86..21989fa0c107 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -829,6 +829,8 @@ static int ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
+ 		/* now accumulate with current aggregate */
+ 		rc = crypto_shash_update(shash, d.digest,
+ 					 crypto_shash_digestsize(tfm));
++		if (rc != 0)
++			return rc;
+ 	}
+ 	/*
+ 	 * Extend cumulative digest over TPM registers 8-9, which contain
+-- 
+2.27.GIT
+
