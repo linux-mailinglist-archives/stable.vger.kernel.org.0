@@ -2,93 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355CD25DD95
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 17:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1D325DF40
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 18:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730811AbgIDP04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 11:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730784AbgIDP0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:26:53 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBF822074D;
-        Fri,  4 Sep 2020 15:26:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599233213;
-        bh=xwC4qj/cRCrgwCtFgc/JWaUeb0xiAShnqQwbFlEc+5k=;
-        h=Subject:To:From:Date:From;
-        b=TvLZ9ZRUDnIYI0s3TeSBC0g2WnVVm7K2acPfL5V92h6pwd07oxK7iWMD3uWzh//wG
-         VA/tpK5VDgrTKJ9VeuSGcTIjc3ESq+DaRsirM2uY0QeRs+6Kq5TrZJhUEff2IuK1gN
-         o7+EBYvWqUPZeq8LyDoNB6Baaz0eRNdhHc1ze/a8=
-Subject: patch "video: fbdev: fix OOB read in vga_8planes_imageblit()" added to char-misc-linus
-To:     penguin-kernel@i-love.sakura.ne.jp, gregkh@linuxfoundation.org,
-        penguin-kernel@I-love.SAKURA.ne.jp, stable@vger.kernel.org,
-        syzbot+69fbd3e01470f169c8c4@syzkaller.appspotmail.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Sep 2020 17:27:14 +0200
-Message-ID: <159923323411392@kroah.com>
+        id S1727882AbgIDQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 12:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727112AbgIDQHO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 12:07:14 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D065C061247
+        for <stable@vger.kernel.org>; Fri,  4 Sep 2020 09:07:13 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id c19so7814770wmd.1
+        for <stable@vger.kernel.org>; Fri, 04 Sep 2020 09:07:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=basnieuwenhuizen-nl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Kr/Ld5h52IOIov2uSAm4w19sR9mrXrGTncuRTiQgYl4=;
+        b=SbvVHDbpzMc4yt0LCwyoalLSZs1dHUnNey4F906nkirwqepE6q25gWg0j2EHRj3vmd
+         JwZY7iH6fLB23+qX7cGq9m1I28rZiC0m5FbnKH++yCaMtdSMTzfZO0w/sfbAsA2N1V+j
+         NArhgTwPUE3z4+pLLZARXceGxrFN/9mbIIp6oRllQ/lhq59+muguAQquQkGXdUU/CM+i
+         NGvodP9G7Q08rNPeAA9/OP1/dJBraCT5RyQ7t6nPSGwV/j3pOhLWrftvW7mzh7VnWFiY
+         B1wtc87khnBXeEbLu+AGwb5rH10AJJd5gGH0rnsI17mc0aoH2WAw0wxOwwYrf9rnzqKp
+         RZ5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Kr/Ld5h52IOIov2uSAm4w19sR9mrXrGTncuRTiQgYl4=;
+        b=X6o/WEwMS/Gxq5L09NQsZYKIfaa91W5Snt29sfqPPGJCuJb65TrwfZ8tOhMvCYzRRy
+         ho2B9slgZpjKaCa+8RhhNVJ4tu0ZWY6Sp0wbkxgsmeMKz2lYxxzJ4gEe3DMl2MKcGXT8
+         JoOUJvD0wETcAtziMoIltghTlSZ99aOcuu4N8dVCjZloDY5mOUcY0q3x+AO+4tfZOVii
+         4v4TCd4t6vlWbPRhOzl9qoDkVDygTsdB4ungWlyCLnhCzhT2wH5x5OGIshoncwyqBg1W
+         vbfh6fXNACQR+5BA1qfkda/5iARU4bA3AOr0CFYJeJlosyhrRLkq1Zo08M/Ca5RD8sP7
+         AHjg==
+X-Gm-Message-State: AOAM530mYEYs4SmIyopVZCCKvfbNdktlgZgiSZVaC8sgNuSfkFNf13SR
+        cBUGUvKIYCLUEsiXLsdv5CCjcw==
+X-Google-Smtp-Source: ABdhPJw8y/kBAAtOKgEaNcdCTuTcZ3uDxUOajqVtRNDE/1npwTNRXfusb6AHz+u8E+a935X3sAlUFA==
+X-Received: by 2002:a05:600c:22d1:: with SMTP id 17mr4283632wmg.58.1599235632118;
+        Fri, 04 Sep 2020 09:07:12 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:aa12:a77f:2000:4cea:81e7:5fd4:93f7])
+        by smtp.gmail.com with ESMTPSA id h185sm12467609wme.25.2020.09.04.09.07.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2020 09:07:11 -0700 (PDT)
+From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+To:     amd-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org, harry.wentland@amd.com,
+        daniel@ffwll.ch, daniel@fooishbar.org, maraeo@gmail.com,
+        alexdeucher@gmail.com, Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 03/11] drm/amd/display: Honor the offset for plane 0.
+Date:   Fri,  4 Sep 2020 18:07:01 +0200
+Message-Id: <20200904160709.123970-4-bas@basnieuwenhuizen.nl>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200904160709.123970-1-bas@basnieuwenhuizen.nl>
+References: <20200904160709.123970-1-bas@basnieuwenhuizen.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+With modifiers I'd like to support non-dedicated buffers for
+images.
 
-This is a note to let you know that I've just added the patch titled
-
-    video: fbdev: fix OOB read in vga_8planes_imageblit()
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From bd018a6a75cebb511bb55a0e7690024be975fe93 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Date: Mon, 31 Aug 2020 19:37:00 +0900
-Subject: video: fbdev: fix OOB read in vga_8planes_imageblit()
-
-syzbot is reporting OOB read at vga_8planes_imageblit() [1], for
-"cdat[y] >> 4" can become a negative value due to "const char *cdat".
-
-[1] https://syzkaller.appspot.com/bug?id=0d7a0da1557dcd1989e00cb3692b26d4173b4132
-
-Reported-by: syzbot <syzbot+69fbd3e01470f169c8c4@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/90b55ec3-d5b0-3307-9f7c-7ff5c5fd6ad3@i-love.sakura.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Cc: stable@vger.kernel.org
 ---
- drivers/video/fbdev/vga16fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index a20eeb8308ff..578d3541e3d6 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -1121,7 +1121,7 @@ static void vga_8planes_imageblit(struct fb_info *info, const struct fb_image *i
-         char oldop = setop(0);
-         char oldsr = setsr(0);
-         char oldmask = selectmask();
--        const char *cdat = image->data;
-+	const unsigned char *cdat = image->data;
- 	u32 dx = image->dx;
-         char __iomem *where;
-         int y;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index cb31b5ed19f7..d06acaea16e8 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -3742,6 +3742,7 @@ fill_plane_dcc_attributes(struct amdgpu_device *adev,
+ 	struct dc *dc = adev->dm.dc;
+ 	struct dc_dcc_surface_param input;
+ 	struct dc_surface_dcc_cap output;
++	uint64_t plane_address = afb->address + afb->base.offsets[0];
+ 	uint32_t offset = AMDGPU_TILING_GET(info, DCC_OFFSET_256B);
+ 	uint32_t i64b = AMDGPU_TILING_GET(info, DCC_INDEPENDENT_64B) != 0;
+ 	uint64_t dcc_address;
+@@ -3785,7 +3786,7 @@ fill_plane_dcc_attributes(struct amdgpu_device *adev,
+ 		AMDGPU_TILING_GET(info, DCC_PITCH_MAX) + 1;
+ 	dcc->independent_64b_blks = i64b;
+ 
+-	dcc_address = get_dcc_address(afb->address, info);
++	dcc_address = get_dcc_address(plane_address, info);
+ 	address->grph.meta_addr.low_part = lower_32_bits(dcc_address);
+ 	address->grph.meta_addr.high_part = upper_32_bits(dcc_address);
+ 
+@@ -3816,6 +3817,8 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
+ 	address->tmz_surface = tmz_surface;
+ 
+ 	if (format < SURFACE_PIXEL_FORMAT_VIDEO_BEGIN) {
++		uint64_t addr = afb->address + fb->offsets[0];
++
+ 		plane_size->surface_size.x = 0;
+ 		plane_size->surface_size.y = 0;
+ 		plane_size->surface_size.width = fb->width;
+@@ -3824,9 +3827,10 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
+ 			fb->pitches[0] / fb->format->cpp[0];
+ 
+ 		address->type = PLN_ADDR_TYPE_GRAPHICS;
+-		address->grph.addr.low_part = lower_32_bits(afb->address);
+-		address->grph.addr.high_part = upper_32_bits(afb->address);
++		address->grph.addr.low_part = lower_32_bits(addr);
++		address->grph.addr.high_part = upper_32_bits(addr);
+ 	} else if (format < SURFACE_PIXEL_FORMAT_INVALID) {
++		uint64_t luma_addr = afb->address + fb->offsets[0];
+ 		uint64_t chroma_addr = afb->address + fb->offsets[1];
+ 
+ 		plane_size->surface_size.x = 0;
+@@ -3847,9 +3851,9 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
+ 
+ 		address->type = PLN_ADDR_TYPE_VIDEO_PROGRESSIVE;
+ 		address->video_progressive.luma_addr.low_part =
+-			lower_32_bits(afb->address);
++			lower_32_bits(luma_addr);
+ 		address->video_progressive.luma_addr.high_part =
+-			upper_32_bits(afb->address);
++			upper_32_bits(luma_addr);
+ 		address->video_progressive.chroma_addr.low_part =
+ 			lower_32_bits(chroma_addr);
+ 		address->video_progressive.chroma_addr.high_part =
 -- 
 2.28.0
-
 
