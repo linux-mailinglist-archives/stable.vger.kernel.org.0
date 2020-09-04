@@ -2,81 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAE125D706
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C208025D746
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729659AbgIDLJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 07:09:21 -0400
-Received: from mga14.intel.com ([192.55.52.115]:10188 "EHLO mga14.intel.com"
+        id S1730102AbgIDL3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 07:29:39 -0400
+Received: from foss.arm.com ([217.140.110.172]:48870 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726171AbgIDLJU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 07:09:20 -0400
-IronPort-SDR: nvkle6vDqTGU9Jaoia3fx8HukIkT5o/w5CETI2x4dKCvp7o3Wzc4OJDMjYy1FarShZq2d29iBI
- 3ed+69QzUT4w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9733"; a="156988272"
-X-IronPort-AV: E=Sophos;i="5.76,389,1592895600"; 
-   d="scan'208";a="156988272"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Sep 2020 04:09:20 -0700
-IronPort-SDR: w21heZ4GzWpcTT5oG3sEfPpvjElJK92gvCwEt4aQJcf66vxIgmzHnCGYO368WR7blJVibYRj/j
- 4tdwD1FzS1MA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,389,1592895600"; 
-   d="scan'208";a="405791788"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 04 Sep 2020 04:09:18 -0700
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] usb: typec: ucsi: acpi: Check the _DEP dependencies
-Date:   Fri,  4 Sep 2020 14:09:18 +0300
-Message-Id: <20200904110918.51546-1-heikki.krogerus@linux.intel.com>
-X-Mailer: git-send-email 2.28.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1729897AbgIDL3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 07:29:08 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 966201063;
+        Fri,  4 Sep 2020 04:29:07 -0700 (PDT)
+Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C635C3F71F;
+        Fri,  4 Sep 2020 04:29:06 -0700 (PDT)
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     stable@vger.kernel.org
+Cc:     James Morse <james.morse@arm.com>, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH stable v4.9 0/4] KVM: arm64: Fix AT instruction handling
+Date:   Fri,  4 Sep 2020 12:28:56 +0100
+Message-Id: <20200904112900.230831-1-andre.przywara@arm.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Failing probe with -EPROBE_DEFER until all dependencies
-listed in the _DEP (Operation Region Dependencies) object
-have been met.
+In some architectural corner cases, AT instructions can generate an
+exception, which KVM is not really ready to handle properly.
+Teach the code to handle this situation gracefully.
 
-This will fix an issue where on some platforms UCSI ACPI
-driver fails to probe because the address space handler for
-the operation region that the UCSI ACPI interface uses has
-not been loaded yet.
+This is a backport of the respective upstream patches to v4.9(.235).
+James prepared and tested these already, but we were lacking the upstream
+commit IDs so far.
+I am sending this on his behalf, since he is off this week.
 
-Fixes: 8243edf44152 ("usb: typec: ucsi: Add ACPI driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
----
- drivers/usb/typec/ucsi/ucsi_acpi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+The original patches contained stable tags, but with a prerequisite
+patch in v5.3. Patch 2/4 is a backport of this one (removing ARMv8.2 RAS
+barriers, which are not supported in v4.9), patches 1/4 and 3/4
+needed some massaging to apply and work on 4.9.
 
-diff --git a/drivers/usb/typec/ucsi/ucsi_acpi.c b/drivers/usb/typec/ucsi/ucsi_acpi.c
-index 9fc4f338e8700..c0aca2f0f23f0 100644
---- a/drivers/usb/typec/ucsi/ucsi_acpi.c
-+++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
-@@ -112,11 +112,15 @@ static void ucsi_acpi_notify(acpi_handle handle, u32 event, void *data)
- 
- static int ucsi_acpi_probe(struct platform_device *pdev)
- {
-+	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
- 	struct ucsi_acpi *ua;
- 	struct resource *res;
- 	acpi_status status;
- 	int ret;
- 
-+	if (adev->dep_unmet)
-+		return -EPROBE_DEFER;
-+
- 	ua = devm_kzalloc(&pdev->dev, sizeof(*ua), GFP_KERNEL);
- 	if (!ua)
- 		return -ENOMEM;
+Cheers,
+Andre.
+
+James Morse (4):
+  KVM: arm64: Add kvm_extable for vaxorcism code
+  KVM: arm64: Defer guest entry when an asynchronous exception is pending
+  KVM: arm64: Survive synchronous exceptions caused by AT instructions
+  KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
+
+ arch/arm64/include/asm/kvm_arm.h |  3 +-
+ arch/arm64/include/asm/kvm_asm.h | 43 ++++++++++++++++++++++
+ arch/arm64/kernel/vmlinux.lds.S  |  8 ++++
+ arch/arm64/kvm/hyp/entry.S       | 26 ++++++++++---
+ arch/arm64/kvm/hyp/hyp-entry.S   | 63 +++++++++++++++++++++-----------
+ arch/arm64/kvm/hyp/switch.c      | 39 ++++++++++++++++++--
+ 6 files changed, 150 insertions(+), 32 deletions(-)
+
 -- 
-2.28.0
+2.17.1
 
