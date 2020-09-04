@@ -2,122 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B6D25D41E
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 10:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF2F25D459
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 11:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729953AbgIDI7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 04:59:02 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37376 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729898AbgIDI67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 04:58:59 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 79B9AAFC1;
-        Fri,  4 Sep 2020 08:58:58 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id BB5C41E12AF; Fri,  4 Sep 2020 10:58:56 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-fsdevel@vger.kernel.org>
-Cc:     <linux-ext4@vger.kernel.org>, <linux-block@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        yebin <yebin10@huawei.com>, Andreas Dilger <adilger@dilger.ca>,
-        Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] fs: Don't invalidate page buffers in block_write_full_page()
-Date:   Fri,  4 Sep 2020 10:58:51 +0200
-Message-Id: <20200904085852.5639-2-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20200904085852.5639-1-jack@suse.cz>
-References: <20200904085852.5639-1-jack@suse.cz>
+        id S1730014AbgIDJLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 05:11:32 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:57581 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729950AbgIDJLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 05:11:32 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 63AD05C011B;
+        Fri,  4 Sep 2020 05:11:31 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 04 Sep 2020 05:11:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=s5gk5YFkeaPQ3bX+HOeg0ubey+b
+        iZjiNj4OPkfU0458=; b=XVHksBg33s+hGrQa/+llqkI4o9zuzgQOvHCNrgKGbzr
+        CB7PhDI3NMi7zYC/Bzb7cTFmeL2UhAa/miEPVd1iYtVkwhBhbSqYfBkcc9oAuqfj
+        riCXpthbd/sSsDIuVZKUow4Rk9f8sxlMzjSnxqsRx6C6xrgxgc4geLhyhey06HQO
+        D2eYKXwSek+rra9qo1CfObnY45rbIeGReqVfzDCqAVJnvL4xaL8j8z9x+cLWPGe+
+        Jx58m/1TWl5UgXgU3kFrB4qk5jUoaW+YaJ7jMhprMC6vNw6jWXB4eqnSYJr0Qlbe
+        mRc3/r5xNMygXgu0qOeS6h7GO7sPF3GAf3fnmPcmzDw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=s5gk5Y
+        FkeaPQ3bX+HOeg0ubey+biZjiNj4OPkfU0458=; b=NQwjyEigza+rV79vWPkeGk
+        JrIWb0+F6+6vMv5SiARh/HXA/Y3eCC1BtkkjlqMVcK6mMZUL9QXdvAfUoHCQXcnO
+        k3r2LXnftK+xEAOkVkUH0OepjWMzLBH/cV33gW05Tkx9cNuWIDmeeJgs2KnmMpNu
+        DN7GdcA+7lFK6SySYPTegpU+XGjTo446oGJpSgWfyoVJ/r/VdG5IpJc3C19ozAW8
+        VnHi9KzlZtpzZ+g6H3l982CZxeEg+5051tSwiURlfFdHUKMtiL9tbtbDC756yntE
+        yHepblO34G9+w8uYbQIIWGoMktp00xOO/t4VfrYA1UuDPQzvrEZlsz6S1e9QI91A
+        ==
+X-ME-Sender: <xms:wwRSX9bAJPeYrQbVywf6GE_1eU9pWimsuKIuGvkz9DoDgJxAy9OOCw>
+    <xme:wwRSX0Z7JOH9AjcZ6Eycc5sZGBXxrn3XIqer6PPQi8gcVqMzyQBoV4KeYTYlPsfiC
+    1TwGUfcugMSNA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudegfedguddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:wwRSX_-4MfN_mExR_NqXZXrGfkKe0_S-N9y4H-EdnpCVIR69dckrfA>
+    <xmx:wwRSX7pKWCocZC1DGhT-n53wiljW900q40bYXXxwxaaYJ8kACQesJw>
+    <xmx:wwRSX4qxdsb_hSD4_4dZBipvNSFJdRzZsKO1MFBe_IQlZenNA7pvZQ>
+    <xmx:wwRSX_2lTmmIPz-NydXTiT80nX6wVRTvd-e8ozYGuhdE1e9zdhtXoQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id DB0B3328005D;
+        Fri,  4 Sep 2020 05:11:30 -0400 (EDT)
+Date:   Fri, 4 Sep 2020 11:11:50 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Andre Przywara <andre.przywara@arm.com>
+Cc:     stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH stable v5.8 v2 0/2] KVM: arm64: Fix AT instruction
+ handling
+Message-ID: <20200904091150.GA2536101@kroah.com>
+References: <20200902092904.122477-1-andre.przywara@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200902092904.122477-1-andre.przywara@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If block_write_full_page() is called for a page that is beyond current
-inode size, it will truncate page buffers for the page and return 0.
-This logic has been added in 2.5.62 in commit 81eb69062588 ("fix ext3
-BUG due to race with truncate") in history.git tree to fix a problem
-with ext3 in data=ordered mode. This particular problem doesn't exist
-anymore because ext3 is long gone and ext4 handles ordered data
-differently. Also normally buffers are invalidated by truncate code and
-there's no need to specially handle this in ->writepage() code.
+On Wed, Sep 02, 2020 at 10:29:02AM +0100, Andre Przywara wrote:
+> Changes from v1:
+> - (Re-)adding Marc's review tags from upstream. Differences to the
+>   original patches are trivial for 2/2, and straight-forward for 1/2.
+> - Fix spelling of vaxorcism
+> -------------
 
-This invalidation of page buffers in block_write_full_page() is causing
-issues to filesystems (e.g. ext4 or ocfs2) when block device is shrunk
-under filesystem's hands and metadata buffers get discarded while being
-tracked by the journalling layer. Although it is obviously "not
-supported" it can cause kernel crashes like:
+Now queued up, thanks.
 
-[ 7986.689400] BUG: unable to handle kernel NULL pointer dereference at
-+0000000000000008
-[ 7986.697197] PGD 0 P4D 0
-[ 7986.699724] Oops: 0002 [#1] SMP PTI
-[ 7986.703200] CPU: 4 PID: 203778 Comm: jbd2/dm-3-8 Kdump: loaded Tainted: G
-+O     --------- -  - 4.18.0-147.5.0.5.h126.eulerosv2r9.x86_64 #1
-[ 7986.716438] Hardware name: Huawei RH2288H V3/BC11HGSA0, BIOS 1.57 08/11/2015
-[ 7986.723462] RIP: 0010:jbd2_journal_grab_journal_head+0x1b/0x40 [jbd2]
-...
-[ 7986.810150] Call Trace:
-[ 7986.812595]  __jbd2_journal_insert_checkpoint+0x23/0x70 [jbd2]
-[ 7986.818408]  jbd2_journal_commit_transaction+0x155f/0x1b60 [jbd2]
-[ 7986.836467]  kjournald2+0xbd/0x270 [jbd2]
-
-which is not great. The crash happens because bh->b_private is suddently
-NULL although BH_JBD flag is still set (this is because
-block_invalidatepage() cleared BH_Mapped flag and subsequent bh lookup
-found buffer without BH_Mapped set, called init_page_buffers() which has
-rewritten bh->b_private). So just remove the invalidation in
-block_write_full_page().
-
-Note that the buffer cache invalidation when block device changes size
-is already careful to avoid similar problems by using
-invalidate_mapping_pages() which skips busy buffers so it was only this
-odd block_write_full_page() behavior that could tear down bdev buffers
-under filesystem's hands.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/buffer.c | 16 ----------------
- 1 file changed, 16 deletions(-)
-
-diff --git a/fs/buffer.c b/fs/buffer.c
-index 061dd202979d..163c2c0b9aa3 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2771,16 +2771,6 @@ int nobh_writepage(struct page *page, get_block_t *get_block,
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	offset = i_size & (PAGE_SIZE-1);
- 	if (page->index >= end_index+1 || !offset) {
--		/*
--		 * The page may have dirty, unmapped buffers.  For example,
--		 * they may have been added in ext3_writepage().  Make them
--		 * freeable here, so the page does not leak.
--		 */
--#if 0
--		/* Not really sure about this  - do we need this ? */
--		if (page->mapping->a_ops->invalidatepage)
--			page->mapping->a_ops->invalidatepage(page, offset);
--#endif
- 		unlock_page(page);
- 		return 0; /* don't care */
- 	}
-@@ -2975,12 +2965,6 @@ int block_write_full_page(struct page *page, get_block_t *get_block,
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	offset = i_size & (PAGE_SIZE-1);
- 	if (page->index >= end_index+1 || !offset) {
--		/*
--		 * The page may have dirty, unmapped buffers.  For example,
--		 * they may have been added in ext3_writepage().  Make them
--		 * freeable here, so the page does not leak.
--		 */
--		do_invalidatepage(page, 0, PAGE_SIZE);
- 		unlock_page(page);
- 		return 0; /* don't care */
- 	}
--- 
-2.16.4
-
+greg k-h
