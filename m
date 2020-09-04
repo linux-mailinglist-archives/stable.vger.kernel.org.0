@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1950C25D4C7
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 11:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E5525D504
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 11:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730056AbgIDJ1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 05:27:25 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2757 "EHLO huawei.com"
+        id S1730275AbgIDJaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 05:30:21 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2759 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730044AbgIDJ1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 05:27:24 -0400
-Received: from lhreml744-chm.china.huawei.com (unknown [172.18.7.108])
-        by Forcepoint Email with ESMTP id D83F044A6B178DFA5CF1;
-        Fri,  4 Sep 2020 10:27:22 +0100 (IST)
+        id S1730251AbgIDJaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 05:30:17 -0400
+Received: from lhreml724-chm.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id AB700FA363A68C7F4490;
+        Fri,  4 Sep 2020 10:30:15 +0100 (IST)
 Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- lhreml744-chm.china.huawei.com (10.201.108.194) with Microsoft SMTP Server
+ lhreml724-chm.china.huawei.com (10.201.108.75) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1913.5; Fri, 4 Sep 2020 10:27:22 +0100
+ 15.1.1913.5; Fri, 4 Sep 2020 10:30:15 +0100
 Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
  by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.1913.5; Fri, 4 Sep 2020 11:27:21 +0200
+ 15.1.1913.5; Fri, 4 Sep 2020 11:30:14 +0200
 From:   Roberto Sassu <roberto.sassu@huawei.com>
 To:     <zohar@linux.ibm.com>, <mjg59@google.com>
 CC:     <linux-integrity@vger.kernel.org>,
@@ -29,9 +29,9 @@ CC:     <linux-integrity@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
         Roberto Sassu <roberto.sassu@huawei.com>,
         <stable@vger.kernel.org>
-Subject: [PATCH v2 04/12] evm: Execute evm_inode_init_security() only when the HMAC key is loaded
-Date:   Fri, 4 Sep 2020 11:23:31 +0200
-Message-ID: <20200904092339.19598-5-roberto.sassu@huawei.com>
+Subject: [PATCH v2 06/12] evm: Refuse EVM_ALLOW_METADATA_WRITES only if the HMAC key is loaded
+Date:   Fri, 4 Sep 2020 11:26:37 +0200
+Message-ID: <20200904092643.20013-2-roberto.sassu@huawei.com>
 X-Mailer: git-send-email 2.27.GIT
 In-Reply-To: <20200904092339.19598-1-roberto.sassu@huawei.com>
 References: <20200904092339.19598-1-roberto.sassu@huawei.com>
@@ -47,39 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-evm_inode_init_security() requires the HMAC key to calculate the HMAC on
-initial xattrs provided by LSMs. Unfortunately, with the evm_key_loaded()
-check, the function continues even if the HMAC key is not loaded
-(evm_key_loaded() returns true also if EVM has been initialized only with a
-public key). If the HMAC key is not loaded, evm_inode_init_security()
-returns an error later when it calls evm_init_hmac().
+EVM_ALLOW_METADATA_WRITES is an EVM initialization flag that can be set to
+temporarily disable metadata verification until all xattrs/attrs necessary
+to verify an EVM portable signature are copied to the file. This flag is
+cleared when EVM is initialized with an HMAC key, to avoid that the HMAC is
+calculated on unverified xattrs/attrs.
 
-Thus, this patch replaces the evm_key_loaded() check with a check of the
-EVM_INIT_HMAC flag in evm_initialized, so that evm_inode_init_security()
-returns 0 instead of an error.
+Currently EVM unnecessarily denies setting this flag if EVM is initialized
+with public key, which is not a concern as it cannot be used to trust
+xattrs/attrs updates. This patch removes this limitation.
 
-Cc: stable@vger.kernel.org # 4.5.x
-Fixes: 26ddabfe96b ("evm: enable EVM when X509 certificate is loaded")
+Cc: stable@vger.kernel.org # 4.16.x
+Fixes: ae1ba1676b88e ("EVM: Allow userland to permit modification of EVM-protected metadata")
 Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 ---
- security/integrity/evm/evm_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/ABI/testing/evm      | 6 ++++--
+ security/integrity/evm/evm_secfs.c | 2 +-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index e4b47759ba1c..4e9f5e8b21d5 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -527,7 +527,8 @@ int evm_inode_init_security(struct inode *inode,
- 	struct evm_xattr *xattr_data;
- 	int rc;
+diff --git a/Documentation/ABI/testing/evm b/Documentation/ABI/testing/evm
+index 201d10319fa1..cbb50ab09c78 100644
+--- a/Documentation/ABI/testing/evm
++++ b/Documentation/ABI/testing/evm
+@@ -42,8 +42,10 @@ Description:
+ 		modification of EVM-protected metadata and
+ 		disable all further modification of policy
  
--	if (!evm_key_loaded() || !evm_protected_xattr(lsm_xattr->name))
-+	if (!(evm_initialized & EVM_INIT_HMAC) ||
-+	    !evm_protected_xattr(lsm_xattr->name))
- 		return 0;
+-		Note that once a key has been loaded, it will no longer be
+-		possible to enable metadata modification.
++		Note that once HMAC validation and creation is enabled,
++		it will no longer be possible to enable metadata modification
++		and if metadata modification is already enabled, it will be
++		disabled.
  
- 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
+ 		Until key loading has been signaled EVM can not create
+ 		or validate the 'security.evm' xattr, but returns
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index cfc3075769bb..92fe26ace797 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -84,7 +84,7 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 	 * keys are loaded.
+ 	 */
+ 	if ((i & EVM_ALLOW_METADATA_WRITES) &&
+-	    ((evm_initialized & EVM_KEY_MASK) != 0) &&
++	    ((evm_initialized & EVM_INIT_HMAC) != 0) &&
+ 	    !(evm_initialized & EVM_ALLOW_METADATA_WRITES))
+ 		return -EPERM;
+ 
 -- 
 2.27.GIT
 
