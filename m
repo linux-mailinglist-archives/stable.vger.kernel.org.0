@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C311425DB86
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 16:25:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3250925DB45
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 16:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730521AbgIDOVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 10:21:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38338 "EHLO mail.kernel.org"
+        id S1730480AbgIDNmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 09:42:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730476AbgIDNeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 09:34:23 -0400
+        id S1730212AbgIDNmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 09:42:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3432B2166E;
-        Fri,  4 Sep 2020 13:31:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A94A520C09;
+        Fri,  4 Sep 2020 13:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599226269;
-        bh=6KTkxpgzQHDR1wFViFDOTk7r1crsAnUhrlDc4NUnbmE=;
+        s=default; t=1599226227;
+        bh=aTdgrapGl6hhy72V1j6OvtPhsNpHmNOqrIOa/HJfm8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPn+u4B9ePNx0o2SSf9VKW00FGM4iak4fYTwhWyQlISiP00VOZwKADM5bGqOFNlnv
-         QjD25xugUtaQMoycDoSqkz8TZ1Axjytkmfgrt+ZK/SVpqPGmZqHjaAlGgrFu7Nk6WP
-         Xyofay/lkks4ouVV9Wvc1ftKf2w3Db13SmodVKtU=
+        b=nE87rAyXzK6VI1WLFVLiKC9cALLyVrFxJbyW6cpgXaJfvcR1Mj9De6yhJcY7ImuwJ
+         xHbpVCrlpZbx9sWbMrQBBLGpbJpO8+wgpI8O5mSl1k6vo9EX8sK+aQxwVeXKh8MutI
+         zI0PAsTPPuzBv0YMUjCrnqueqqJadda9oVvppF0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>
-Subject: [PATCH 5.8 09/17] KVM: arm64: Survive synchronous exceptions caused by AT instructions
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 15/16] scsi: target: tcmu: Fix size in calls to tcmu_flush_dcache_range
 Date:   Fri,  4 Sep 2020 15:30:08 +0200
-Message-Id: <20200904120258.449102679@linuxfoundation.org>
+Message-Id: <20200904120257.940624145@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200904120257.983551609@linuxfoundation.org>
-References: <20200904120257.983551609@linuxfoundation.org>
+In-Reply-To: <20200904120257.203708503@linuxfoundation.org>
+References: <20200904120257.203708503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,129 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
+commit 8c4e0f212398cdd1eb4310a5981d06a723cdd24f upstream.
 
-KVM doesn't expect any synchronous exceptions when executing, any such
-exception leads to a panic(). AT instructions access the guest page
-tables, and can cause a synchronous external abort to be taken.
+1) If remaining ring space before the end of the ring is smaller then the
+   next cmd to write, tcmu writes a padding entry which fills the remaining
+   space at the end of the ring.
 
-The arm-arm is unclear on what should happen if the guest has configured
-the hardware update of the access-flag, and a memory type in TCR_EL1 that
-does not support atomic operations. B2.2.6 "Possible implementation
-restrictions on using atomic instructions" from DDI0487F.a lists
-synchronous external abort as a possible behaviour of atomic instructions
-that target memory that isn't writeback cacheable, but the page table
-walker may behave differently.
+   Then tcmu calls tcmu_flush_dcache_range() with the size of struct
+   tcmu_cmd_entry as data length to flush.  If the space filled by the
+   padding was smaller then tcmu_cmd_entry, tcmu_flush_dcache_range() is
+   called for an address range reaching behind the end of the vmalloc'ed
+   ring.
 
-Make KVM robust to synchronous exceptions caused by AT instructions.
-Add a get_user() style helper for AT instructions that returns -EFAULT
-if an exception was generated.
+   tcmu_flush_dcache_range() in a loop calls
+   flush_dcache_page(virt_to_page(start)); for every page being part of the
+   range. On x86 the line is optimized out by the compiler, as
+   flush_dcache_page() is empty on x86.
 
-While KVM's version of the exception table mixes synchronous and
-asynchronous exceptions, only one of these can occur at each location.
+   But I assume the above can cause trouble on other architectures that
+   really have a flush_dcache_page().  For paddings only the header part of
+   an entry is relevant due to alignment rules the header always fits in
+   the remaining space, if padding is needed.  So tcmu_flush_dcache_range()
+   can safely be called with sizeof(entry->hdr) as the length here.
 
-Re-enter the guest when the AT instructions take an exception on the
-assumption the guest will take the same exception. This isn't guaranteed
-to make forward progress, as the AT instructions may always walk the page
-tables, but guest execution may use the translation cached in the TLB.
+2) After it has written a command to cmd ring, tcmu calls
+   tcmu_flush_dcache_range() using the size of a struct tcmu_cmd_entry as
+   data length to flush.  But if a command needs many iovecs, the real size
+   of the command may be bigger then tcmu_cmd_entry, so a part of the
+   written command is not flushed then.
 
-This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
-entry when an asynchronous exception is pending"), KVM will return to the
-host to process IRQs allowing the rest of the system to keep running.
-
-Cc: stable@vger.kernel.org # <v5.3: 5dcd0fdbb492 ("KVM: arm64: Defer guest entry when an asynchronous exception is pending")
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20200528193108.9085-1-bstroesser@ts.fujitsu.com
+Acked-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/kvm_asm.h |   28 ++++++++++++++++++++++++++++
- arch/arm64/kvm/hyp/hyp-entry.S   |   14 ++++++++++----
- arch/arm64/kvm/hyp/switch.c      |    8 ++++----
- 3 files changed, 42 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_asm.h
-+++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -121,6 +121,34 @@ extern char __smccc_workaround_1_smc[__S
- 		*__hyp_this_cpu_ptr(sym);				\
- 	 })
+---
+ drivers/target/target_core_user.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -1007,7 +1007,7 @@ static int queue_cmd_ring(struct tcmu_cm
+ 		entry->hdr.cmd_id = 0; /* not used for PAD */
+ 		entry->hdr.kflags = 0;
+ 		entry->hdr.uflags = 0;
+-		tcmu_flush_dcache_range(entry, sizeof(*entry));
++		tcmu_flush_dcache_range(entry, sizeof(entry->hdr));
  
-+#define __KVM_EXTABLE(from, to)						\
-+	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
-+	"	.align		3\n"					\
-+	"	.long		(" #from " - .), (" #to " - .)\n"	\
-+	"	.popsection\n"
-+
-+
-+#define __kvm_at(at_op, addr)						\
-+( { 									\
-+	int __kvm_at_err = 0;						\
-+	u64 spsr, elr;							\
-+	asm volatile(							\
-+	"	mrs	%1, spsr_el2\n"					\
-+	"	mrs	%2, elr_el2\n"					\
-+	"1:	at	"at_op", %3\n"					\
-+	"	isb\n"							\
-+	"	b	9f\n"						\
-+	"2:	msr	spsr_el2, %1\n"					\
-+	"	msr	elr_el2, %2\n"					\
-+	"	mov	%w0, %4\n"					\
-+	"9:\n"								\
-+	__KVM_EXTABLE(1b, 2b)						\
-+	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
-+	: "r" (addr), "i" (-EFAULT));					\
-+	__kvm_at_err;							\
-+} )
-+
-+
- #else /* __ASSEMBLY__ */
+ 		UPDATE_HEAD(mb->cmd_head, pad_size, udev->cmdr_size);
+ 		tcmu_flush_dcache_range(mb, sizeof(*mb));
+@@ -1072,7 +1072,7 @@ static int queue_cmd_ring(struct tcmu_cm
+ 	cdb_off = CMDR_OFF + cmd_head + base_command_size;
+ 	memcpy((void *) mb + cdb_off, se_cmd->t_task_cdb, scsi_command_size(se_cmd->t_task_cdb));
+ 	entry->req.cdb_off = cdb_off;
+-	tcmu_flush_dcache_range(entry, sizeof(*entry));
++	tcmu_flush_dcache_range(entry, command_size);
  
- .macro hyp_adr_this_cpu reg, sym, tmp
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -166,13 +166,19 @@ el1_error:
- 	b	__guest_exit
- 
- el2_sync:
--	/* Check for illegal exception return, otherwise panic */
-+	/* Check for illegal exception return */
- 	mrs	x0, spsr_el2
-+	tbnz	x0, #20, 1f
- 
--	/* if this was something else, then panic! */
--	tst	x0, #PSR_IL_BIT
--	b.eq	__hyp_panic
-+	save_caller_saved_regs_vect
-+	stp     x29, x30, [sp, #-16]!
-+	bl	kvm_unexpected_el2_exception
-+	ldp     x29, x30, [sp], #16
-+	restore_caller_saved_regs_vect
- 
-+	eret
-+
-+1:
- 	/* Let's attempt a recovery from the illegal exception return */
- 	get_vcpu_ptr	x1, x0
- 	mov	x0, #ARM_EXCEPTION_IL
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -303,10 +303,10 @@ static bool __hyp_text __translate_far_t
- 	 * saved the guest context yet, and we may return early...
- 	 */
- 	par = read_sysreg(par_el1);
--	asm volatile("at s1e1r, %0" : : "r" (far));
--	isb();
--
--	tmp = read_sysreg(par_el1);
-+	if (!__kvm_at("s1e1r", far))
-+		tmp = read_sysreg(par_el1);
-+	else
-+		tmp = SYS_PAR_EL1_F; /* back to the guest */
- 	write_sysreg(par, par_el1);
- 
- 	if (unlikely(tmp & SYS_PAR_EL1_F))
+ 	UPDATE_HEAD(mb->cmd_head, command_size, udev->cmdr_size);
+ 	tcmu_flush_dcache_range(mb, sizeof(*mb));
 
 
