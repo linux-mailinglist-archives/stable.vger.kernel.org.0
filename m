@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD7F25D9B2
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C8825DA20
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 15:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730493AbgIDNek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 09:34:40 -0400
+        id S1730451AbgIDNkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 09:40:47 -0400
 Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730463AbgIDNeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 09:34:22 -0400
+        id S1730490AbgIDNe0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 09:34:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1E1E2083B;
-        Fri,  4 Sep 2020 13:30:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 487B321741;
+        Fri,  4 Sep 2020 13:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599226244;
-        bh=m9pIERxvWHUgsDqBqgVJI3JMc/1+doudOyGmLox0dOo=;
+        s=default; t=1599226281;
+        bh=rRl7szRYiIqy5kj3LwgtNrpjQmW5mOVLLWGAuMf1VLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKWQjXs9be77p3NDUujSJyKRekCSS/uFtn8EswFxfMo9g0GzidLNi4ymgOE/AirrO
-         6CGGTqjgaU0mAfsACQc1hGLev2JhB2MlBAgU7NH4QR+BpWyM2zptYbzc60ROUbUqeF
-         sCtpDtUF0HGAJQikubhKeIgBgrXVjKgaeX0UiCXU=
+        b=zGpI25qEg8haGzg8p9ql8u3sJvkk0M+dgqDUOetuSRmyElkGMAOik9zuC+ui/yGY6
+         bY3yA56mVth/v13sKp3C8yXfycKsI9wivxGuoBZKeM0pCBAc0vjhgd6ikJgUmQshAV
+         qGTCVF1pIn6+d/79e24wxOwnKAbb7utTqwyyhv1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
         Sowjanya Komatineni <skomatineni@nvidia.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.8 10/17] dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later
-Date:   Fri,  4 Sep 2020 15:30:09 +0200
-Message-Id: <20200904120258.497389751@linuxfoundation.org>
+Subject: [PATCH 5.8 13/17] arm64: tegra: Add missing timeout clock to Tegra210 SDMMC
+Date:   Fri,  4 Sep 2020 15:30:12 +0200
+Message-Id: <20200904120258.642434450@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200904120257.983551609@linuxfoundation.org>
 References: <20200904120257.983551609@linuxfoundation.org>
@@ -46,82 +46,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-commit f7f86e8ac0ad7cd6792a80137f5a550924966916 upstream.
+commit 679f71fa0db2d777f39c7a5af7f7c0689fc713fa upstream.
 
-commit b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+commit 742af7e7a0a1 ("arm64: tegra: Add Tegra210 support")
 
-Tegra210 and later uses separate SDMMC_LEGACY_TM clock for data
-timeout.
+Tegra210 uses separate SDMMC_LEGACY_TM clock for data timeout and
+this clock is not enabled currently which is not recommended.
 
-So, this patch adds "tmclk" to Tegra sdhci clock property in the
-device tree binding.
+Tegra SDMMC advertises 12Mhz as timeout clock frequency in host
+capability register.
 
-Fixes: b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+So, this clock should be kept enabled by SDMMC driver.
+
+Fixes: 742af7e7a0a1 ("arm64: tegra: Add Tegra210 support")
 Cc: stable <stable@vger.kernel.org> # 5.4
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Link: https://lore.kernel.org/r/1598548861-32373-4-git-send-email-skomatineni@nvidia.com
+Link: https://lore.kernel.org/r/1598548861-32373-5-git-send-email-skomatineni@nvidia.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt |   32 +++++++++-
- 1 file changed, 29 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra210.dtsi |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
-+++ b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
-@@ -15,8 +15,15 @@ Required properties:
-   - "nvidia,tegra210-sdhci": for Tegra210
-   - "nvidia,tegra186-sdhci": for Tegra186
-   - "nvidia,tegra194-sdhci": for Tegra194
--- clocks : Must contain one entry, for the module clock.
--  See ../clocks/clock-bindings.txt for details.
-+- clocks: For Tegra210, Tegra186 and Tegra194 must contain two entries.
-+	  One for the module clock and one for the timeout clock.
-+	  For all other Tegra devices, must contain a single entry for
-+	  the module clock. See ../clocks/clock-bindings.txt for details.
-+- clock-names: For Tegra210, Tegra186 and Tegra194 must contain the
-+	       strings 'sdhci' and 'tmclk' to represent the module and
-+	       the timeout clocks, respectively.
-+	       For all other Tegra devices must contain the string 'sdhci'
-+	       to represent the module clock.
- - resets : Must contain an entry for each entry in reset-names.
-   See ../reset/reset.txt for details.
- - reset-names : Must include the following entries:
-@@ -99,7 +106,7 @@ Optional properties for Tegra210, Tegra1
- 
- Example:
- sdhci@700b0000 {
--	compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
-+	compatible = "nvidia,tegra124-sdhci";
- 	reg = <0x0 0x700b0000 0x0 0x200>;
- 	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
- 	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
-@@ -107,6 +114,25 @@ sdhci@700b0000 {
- 	resets = <&tegra_car 14>;
- 	reset-names = "sdhci";
- 	pinctrl-names = "sdmmc-3v3", "sdmmc-1v8";
-+	pinctrl-0 = <&sdmmc1_3v3>;
-+	pinctrl-1 = <&sdmmc1_1v8>;
-+	nvidia,pad-autocal-pull-up-offset-3v3 = <0x00>;
-+	nvidia,pad-autocal-pull-down-offset-3v3 = <0x7d>;
-+	nvidia,pad-autocal-pull-up-offset-1v8 = <0x7b>;
-+	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
-+	status = "disabled";
-+};
-+
-+sdhci@700b0000 {
-+	compatible = "nvidia,tegra210-sdhci";
-+	reg = <0x0 0x700b0000 0x0 0x200>;
-+	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
-+		 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+	clock-names = "sdhci", "tmclk";
-+	resets = <&tegra_car 14>;
-+	reset-names = "sdhci";
-+	pinctrl-names = "sdmmc-3v3", "sdmmc-1v8";
- 	pinctrl-0 = <&sdmmc1_3v3>;
- 	pinctrl-1 = <&sdmmc1_1v8>;
- 	nvidia,pad-autocal-pull-up-offset-3v3 = <0x00>;
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -1180,8 +1180,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0000 0x0 0x200>;
+ 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 14>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
+@@ -1208,8 +1209,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0200 0x0 0x200>;
+ 		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 9>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-1v8-drv";
+@@ -1225,8 +1227,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0400 0x0 0x200>;
+ 		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 69>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
+@@ -1248,8 +1251,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0600 0x0 0x200>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 15>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3-drv", "sdmmc-1v8-drv";
 
 
