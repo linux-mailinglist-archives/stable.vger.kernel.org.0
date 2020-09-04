@@ -2,83 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE9525D196
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 08:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E531425D30D
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 09:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726811AbgIDGjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 02:39:11 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:10811 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726251AbgIDGjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 02:39:11 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id A6DF026C41212103A2AA;
-        Fri,  4 Sep 2020 14:39:05 +0800 (CST)
-Received: from localhost.localdomain (10.67.165.24) by
- DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.487.0; Fri, 4 Sep 2020 14:38:59 +0800
-From:   Zeng Tao <prime.zeng@hisilicon.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     Zeng Tao <prime.zeng@hisilicon.com>,
-        stable <stable@vger.kernel.org>,
-        "Alan Stern" <stern@rowland.harvard.edu>,
-        chenqiwu <chenqiwu@xiaomi.com>, <linux-usb@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] usb: core: fix slab-out-of-bounds Read in read_descriptors
-Date:   Fri, 4 Sep 2020 14:37:44 +0800
-Message-ID: <1599201467-11000-1-git-send-email-prime.zeng@hisilicon.com>
-X-Mailer: git-send-email 2.8.1
+        id S1728195AbgIDHy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 03:54:56 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50960 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726151AbgIDHyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 03:54:55 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id B9F3FAD03;
+        Fri,  4 Sep 2020 07:54:53 +0000 (UTC)
+Date:   Fri, 4 Sep 2020 09:54:52 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     akpm@linux-foundation.org
+Cc:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
+        rientjes@google.com, richard.weiyang@gmail.com, osalvador@suse.de,
+        david@redhat.com, pasha.tatashin@soleen.com, linux-mm@kvack.org
+Subject: Re: +
+ mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
+ added to -mm tree
+Message-ID: <20200904075452.GE15277@dhcp22.suse.cz>
+References: <20200903192901.PWYfu%akpm@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.165.24]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200903192901.PWYfu%akpm@linux-foundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The USB device descriptor may get changed between two consecutive
-enumerations on the same device for some reason, such as DFU or
-malicius device.
-In that case, we may access the changing descriptor if we don't take
-the device lock here.
+On Thu 03-09-20 12:29:01, Andrew Morton wrote:
+> From: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Subject: mm/memory_hotplug: drain per-cpu pages again during memory offline
+> 
+> There is a race during page offline that can lead to infinite loop:
+> a page never ends up on a buddy list and __offline_pages() keeps
+> retrying infinitely or until a termination signal is received.
+> 
+> Thread#1 - a new process:
+> 
+> load_elf_binary
+>  begin_new_exec
+>   exec_mmap
+>    mmput
+>     exit_mmap
+>      tlb_finish_mmu
+>       tlb_flush_mmu
+>        release_pages
+>         free_unref_page_list
+>          free_unref_page_prepare
+>           set_pcppage_migratetype(page, migratetype);
+>              // Set page->index migration type below  MIGRATE_PCPTYPES
+> 
+> Thread#2 - hot-removes memory
+> __offline_pages
+>   start_isolate_page_range
+>     set_migratetype_isolate
+>       set_pageblock_migratetype(page, MIGRATE_ISOLATE);
+>         Set migration type to MIGRATE_ISOLATE-> set
+>         drain_all_pages(zone);
+>              // drain per-cpu page lists to buddy allocator.
+> 
+> Thread#1 - continue
+>          free_unref_page_commit
+>            migratetype = get_pcppage_migratetype(page);
+>               // get old migration type
+>            list_add(&page->lru, &pcp->lists[migratetype]);
+>               // add new page to already drained pcp list
+> 
+> Thread#2
+> Never drains pcp again, and therefore gets stuck in the loop.
+> 
+> The fix is to try to drain per-cpu lists again after
+> check_pages_isolated_cb() fails.
+> 
+> Link: https://lkml.kernel.org/r/20200903140032.380431-1-pasha.tatashin@soleen.com
+> Fixes: c52e75935f8d ("mm: remove extra drain pages on pcp list")
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Acked-by: David Rientjes <rientjes@google.com>
+> Acked-by: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-The issue is reported:
-https://syzkaller.appspot.com/bug?id=901a0d9e6519ef8dc7acab25344bd287dd3c7be9
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-Cc: stable <stable@vger.kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: syzbot+256e56ddde8b8957eabd@syzkaller.appspotmail.com
-Fixes: 217a9081d8e6 ("USB: add all configs to the "descriptors" attribute")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
----
- drivers/usb/core/sysfs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+> ---
+> 
+>  mm/memory_hotplug.c |   14 ++++++++++++++
+>  mm/page_isolation.c |    8 ++++++++
+>  2 files changed, 22 insertions(+)
+> 
+> --- a/mm/memory_hotplug.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
+> +++ a/mm/memory_hotplug.c
+> @@ -1575,6 +1575,20 @@ static int __ref __offline_pages(unsigne
+>  		/* check again */
+>  		ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
+>  					    NULL, check_pages_isolated_cb);
+> +		/*
+> +		 * per-cpu pages are drained in start_isolate_page_range, but if
+> +		 * there are still pages that are not free, make sure that we
+> +		 * drain again, because when we isolated range we might
+> +		 * have raced with another thread that was adding pages to pcp
+> +		 * list.
+> +		 *
+> +		 * Forward progress should be still guaranteed because
+> +		 * pages on the pcp list can only belong to MOVABLE_ZONE
+> +		 * because has_unmovable_pages explicitly checks for
+> +		 * PageBuddy on freed pages on other zones.
+> +		 */
+> +		if (ret)
+> +			drain_all_pages(zone);
+>  	} while (ret);
+>  
+>  	/* Ok, all of our target is isolated.
+> --- a/mm/page_isolation.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
+> +++ a/mm/page_isolation.c
+> @@ -170,6 +170,14 @@ __first_valid_page(unsigned long pfn, un
+>   * pageblocks we may have modified and return -EBUSY to caller. This
+>   * prevents two threads from simultaneously working on overlapping ranges.
+>   *
+> + * Please note that there is no strong synchronization with the page allocator
+> + * either. Pages might be freed while their page blocks are marked ISOLATED.
+> + * In some cases pages might still end up on pcp lists and that would allow
+> + * for their allocation even when they are in fact isolated already. Depending
+> + * on how strong of a guarantee the caller needs drain_all_pages might be needed
+> + * (e.g. __offline_pages will need to call it after check for isolated range for
+> + * a next retry).
+> + *
+>   * Return: the number of isolated pageblocks on success and -EBUSY if any part
+>   * of range cannot be isolated.
+>   */
+> _
+> 
+> Patches currently in -mm which might be from pasha.tatashin@soleen.com are
+> 
+> mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
 
-diff --git a/drivers/usb/core/sysfs.c b/drivers/usb/core/sysfs.c
-index a2ca38e..8d13419 100644
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -889,7 +889,11 @@ read_descriptors(struct file *filp, struct kobject *kobj,
- 	size_t srclen, n;
- 	int cfgno;
- 	void *src;
-+	int retval;
- 
-+	retval = usb_lock_device_interruptible(udev);
-+	if (retval < 0)
-+		return -EINTR;
- 	/* The binary attribute begins with the device descriptor.
- 	 * Following that are the raw descriptor entries for all the
- 	 * configurations (config plus subsidiary descriptors).
-@@ -914,6 +918,7 @@ read_descriptors(struct file *filp, struct kobject *kobj,
- 			off -= srclen;
- 		}
- 	}
-+	usb_unlock_device(udev);
- 	return count - nleft;
- }
- 
 -- 
-2.8.1
-
+Michal Hocko
+SUSE Labs
