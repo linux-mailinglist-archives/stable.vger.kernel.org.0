@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5312A25D789
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFACD25D791
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbgIDLhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 07:37:39 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:47011 "EHLO
+        id S1730218AbgIDLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 07:37:56 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:38375 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728588AbgIDLhe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 07:37:34 -0400
+        by vger.kernel.org with ESMTP id S1730197AbgIDLhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 07:37:38 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6247B194178B;
-        Fri,  4 Sep 2020 07:37:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 04 Sep 2020 07:37:27 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id B74F41941707;
+        Fri,  4 Sep 2020 07:37:35 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 04 Sep 2020 07:37:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jWVIQl
-        IH3ZRcWGlRQtE9aKwaAOAjuV77Tg/hHe2M7e4=; b=nSdgX+VtB2A30eYqEuqqB8
-        6CvSxkXH6+cVb8qm6KnVrFq9zokYTCy/5w/bu809eif6XW5cyK+t3p5/Yl6AbHEI
-        DHUhd/wIgE0Ueq9F4+CBfio8qCFhcR3ZBglXtl9BleEST9xgTl3K+J/QI5i7JERJ
-        dJodhnm5Bjgxre+x64Hxu23NGiECVzDQQ4DH1xnndNIeqnllAHt9cjxDG9kB/swV
-        2APD/ZZXsspXu3PB0T6w38NUHW8z+o5XMtvQmC+hi4dwjw4gwfgvlrouprHwyWD+
-        Mx9MLdJNPABf03xgE45ETgXbJflU1U5bM14ktH2PqvY1XvYglcStCTC54CV2y9Jg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FK5HHU
+        f+StRyIu6qj3KUZ1neB6ctZHs7htvwz5indfY=; b=jz+heJLuUxWDNyDvDR4e/4
+        n4yk3ggagFm7I5iOs9gsxpo0HXQ9v1QGOpNMRqW63rX670rnCuXD1fn8dWmDxLQ7
+        pPEFP5Cw2l/CoL/nGBI/ZEzc3HQK1+SVYEkSLjXoBfq6V8Oo0xaSfTj7+dMHM5CU
+        d7rjTa1OHA1yksusXzjjRZ+x6tGmmvPuNNQAExQf0WDDJKgLkFQmtAimPipCIcTx
+        KV6fkGWC4m8UDGTv/0hMjGDG8C/x/YOUOEcj6jULQrQeqM0jgw29eI/Z05OU5fV5
+        nOwmPJGIeBLY+NnmQsad3KJR7nZq3ybwQKtzYhr9w8FBybBTlllwX7JGQY3l04Zw
         ==
-X-ME-Sender: <xms:9yZSX-0AP6NukXNaG8phhC2GOt7MOZzDCtEwGfbFIpNN-sTbiLHKpQ>
-    <xme:9yZSXxFvGsVE2iLD7Y_ELLyFshsU5oQ51E2XNnseIjlBnfyAAoIb64AQZgTaRwFnE
-    9uhyiRzVGV9BA>
+X-ME-Sender: <xms:_yZSXzT1Ujwe1u-1RA5DY7xrubyy-r8TSHGFdbB9WjKnpvvrtCzK6g>
+    <xme:_yZSX0w7haOpox2IUxbTy5NdLe0rv5ryqntz4AAfjFfVuA-wlvj8aU9P5rAh9Xju1
+    17v3L-cP-fXPQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudegfedggedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:9yZSX27oFsXn9OMBFAXBs7r9aNF4B2VZr04hYHJTnSikIbRGOR-nAA>
-    <xmx:9yZSX_02322jSD6aahYJWomHJRE0rLriYDVvcKIHweIT5IrmPscFhg>
-    <xmx:9yZSXxF88aa10PBv2kClVMMuOwFSMdZZT67XdeaAW4ECkdMbGB-nEA>
-    <xmx:9yZSX_NE1f1eo5ZhBS1J1K3CFcbn9yaShwq4JQmxg1BfNCzH6okYyA>
+X-ME-Proxy: <xmx:_yZSX43fcNxbDh5MgeaywK1XieNXXcYZow7nT7jfOLm9NB9kX9Grkg>
+    <xmx:_yZSXzBJx-U0MjUXPRUhvX2bMAmjS6whuCurNKdI_BVnKPiixb0piw>
+    <xmx:_yZSX8gNHzaAWAtOr688Y7Isrd_G-uvcLnwY3U3a7SSEtBjE_eQAAg>
+    <xmx:_yZSX4ZKbOQP_7eTxbODmNbyno84hXpm_jdDdSXnkZmdtRvYGWbZtw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CEF3B306005B;
-        Fri,  4 Sep 2020 07:37:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3C510328005D;
+        Fri,  4 Sep 2020 07:37:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later" failed to apply to 4.9-stable tree
 To:     skomatineni@nvidia.com, jonathanh@nvidia.com,
         stable@vger.kernel.org, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Sep 2020 13:37:48 +0200
-Message-ID: <1599219468213210@kroah.com>
+Date:   Fri, 04 Sep 2020 13:37:49 +0200
+Message-ID: <1599219469469@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
