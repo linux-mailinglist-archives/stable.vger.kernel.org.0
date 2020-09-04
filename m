@@ -2,169 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B2125C982
-	for <lists+stable@lfdr.de>; Thu,  3 Sep 2020 21:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B05F225CEC2
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 02:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbgICT3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Sep 2020 15:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42334 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgICT3D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Sep 2020 15:29:03 -0400
-Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
+        id S1726397AbgIDA2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Sep 2020 20:28:20 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:42474 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726489AbgIDA2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Sep 2020 20:28:20 -0400
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC5FB206EF;
-        Thu,  3 Sep 2020 19:29:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599161342;
-        bh=sMCKS+E6u2EB80XPD2BBSYYo9l/B/+fP5653BznJWVQ=;
-        h=Date:From:To:Subject:From;
-        b=Jqzj+40dDjkGxuUueBPENnX4xazqzQFgL/zaMIk7GaqU9zFt7RF5yNJMJLdbrR5GY
-         qlaFMFq0an/8BqG/+K3mboIiAdzsfWcVl/jWnUh7ouabZ15Ok6afYWsWIewkQXIovj
-         tzNpSzWIwlfNXUTjonM15DJQ1r+sLWqULEUQpET0=
-Date:   Thu, 03 Sep 2020 12:29:01 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        rientjes@google.com, richard.weiyang@gmail.com, osalvador@suse.de,
-        mhocko@suse.com, david@redhat.com, pasha.tatashin@soleen.com
-Subject:  +
- mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch added
- to -mm tree
-Message-ID: <20200903192901.PWYfu%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 677E8806B5;
+        Fri,  4 Sep 2020 12:28:16 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1599179296;
+        bh=PeKvL5ah8tfQA9K2g0Ur26fGWX24dwpS7/gFm9K63hM=;
+        h=From:To:Cc:Subject:Date;
+        b=a6JRNAd7aob5eI2XZzkOFb5ZZ02HGxer81YI0ujs2yAULCbfguWR7cQ+CrLJSrC+J
+         VaVPBSsq46CnCoonOoIOCxz0vxfLGsIV49E5dVeBrVX9szyJ+6/dwUhc6FaBaCDlkE
+         BeEANfSYURAT+Q+XP1BcK8aFzg0WbS50GX26IpVG8U0/u90OPDKBQ8p5rR0PtaFS3z
+         z+yYp7LizkapHRnsXR3zqNx5YcRYE0qkqhlpD83pi9bs0w3rsu93n9aQ9d9nxPs7Lb
+         SRjslvAP5I0BA/5Vrj0P0YBgOMPbTO9YvOxnoSxeiTC43ROu9pKIqsw16zMU9KWRXe
+         a7h3Pf3onz31w==
+Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5f518a1e0000>; Fri, 04 Sep 2020 12:28:14 +1200
+Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
+        by smtp (Postfix) with ESMTP id EB27A13EEBA;
+        Fri,  4 Sep 2020 12:28:15 +1200 (NZST)
+Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
+        id 2ABBB280060; Fri,  4 Sep 2020 12:28:16 +1200 (NZST)
+From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
+To:     broonie@kernel.org, npiggin@gmail.com, hkallweit1@gmail.com
+Cc:     linux-spi@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        stable@vger.kernel.org
+Subject: [PATCH] spi: fsl-espi: Only process interrupts for expected events
+Date:   Fri,  4 Sep 2020 12:28:12 +1200
+Message-Id: <20200904002812.7300-1-chris.packham@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.28.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+x-atlnz-ls: pat
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The SPIE register contains counts for the TX FIFO so any time the irq
+handler was invoked we would attempt to process the RX/TX fifos. Use the
+SPIM value to mask the events so that we only process interrupts that
+were expected.
 
-The patch titled
-     Subject: mm/memory_hotplug: drain per-cpu pages again during memory offline
-has been added to the -mm tree.  Its filename is
-     mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
+This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
+Implement soft interrupt replay in C").
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Subject: mm/memory_hotplug: drain per-cpu pages again during memory offline
-
-There is a race during page offline that can lead to infinite loop:
-a page never ends up on a buddy list and __offline_pages() keeps
-retrying infinitely or until a termination signal is received.
-
-Thread#1 - a new process:
-
-load_elf_binary
- begin_new_exec
-  exec_mmap
-   mmput
-    exit_mmap
-     tlb_finish_mmu
-      tlb_flush_mmu
-       release_pages
-        free_unref_page_list
-         free_unref_page_prepare
-          set_pcppage_migratetype(page, migratetype);
-             // Set page->index migration type below  MIGRATE_PCPTYPES
-
-Thread#2 - hot-removes memory
-__offline_pages
-  start_isolate_page_range
-    set_migratetype_isolate
-      set_pageblock_migratetype(page, MIGRATE_ISOLATE);
-        Set migration type to MIGRATE_ISOLATE-> set
-        drain_all_pages(zone);
-             // drain per-cpu page lists to buddy allocator.
-
-Thread#1 - continue
-         free_unref_page_commit
-           migratetype = get_pcppage_migratetype(page);
-              // get old migration type
-           list_add(&page->lru, &pcp->lists[migratetype]);
-              // add new page to already drained pcp list
-
-Thread#2
-Never drains pcp again, and therefore gets stuck in the loop.
-
-The fix is to try to drain per-cpu lists again after
-check_pages_isolated_cb() fails.
-
-Link: https://lkml.kernel.org/r/20200903140032.380431-1-pasha.tatashin@soleen.com
-Fixes: c52e75935f8d ("mm: remove extra drain pages on pcp list")
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: stable@vger.kernel.org
 ---
 
- mm/memory_hotplug.c |   14 ++++++++++++++
- mm/page_isolation.c |    8 ++++++++
- 2 files changed, 22 insertions(+)
+Notes:
+    I've tested this on a T2080RDB and a custom board using the T2081 SoC=
+. With
+    this change I don't see any spurious instances of the "Transfer done =
+but
+    SPIE_DON isn't set!" or "Transfer done but rx/tx fifo's aren't empty!=
+" messages
+    and the updates to spi flash are successful.
+   =20
+    I think this should go into the stable trees that contain 3282a3da25b=
+d but I
+    haven't added a Fixes: tag because I think 3282a3da25bd exposed the i=
+ssue as
+    opposed to causing it.
 
---- a/mm/memory_hotplug.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-+++ a/mm/memory_hotplug.c
-@@ -1575,6 +1575,20 @@ static int __ref __offline_pages(unsigne
- 		/* check again */
- 		ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
- 					    NULL, check_pages_isolated_cb);
-+		/*
-+		 * per-cpu pages are drained in start_isolate_page_range, but if
-+		 * there are still pages that are not free, make sure that we
-+		 * drain again, because when we isolated range we might
-+		 * have raced with another thread that was adding pages to pcp
-+		 * list.
-+		 *
-+		 * Forward progress should be still guaranteed because
-+		 * pages on the pcp list can only belong to MOVABLE_ZONE
-+		 * because has_unmovable_pages explicitly checks for
-+		 * PageBuddy on freed pages on other zones.
-+		 */
-+		if (ret)
-+			drain_all_pages(zone);
- 	} while (ret);
- 
- 	/* Ok, all of our target is isolated.
---- a/mm/page_isolation.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-+++ a/mm/page_isolation.c
-@@ -170,6 +170,14 @@ __first_valid_page(unsigned long pfn, un
-  * pageblocks we may have modified and return -EBUSY to caller. This
-  * prevents two threads from simultaneously working on overlapping ranges.
-  *
-+ * Please note that there is no strong synchronization with the page allocator
-+ * either. Pages might be freed while their page blocks are marked ISOLATED.
-+ * In some cases pages might still end up on pcp lists and that would allow
-+ * for their allocation even when they are in fact isolated already. Depending
-+ * on how strong of a guarantee the caller needs drain_all_pages might be needed
-+ * (e.g. __offline_pages will need to call it after check for isolated range for
-+ * a next retry).
-+ *
-  * Return: the number of isolated pageblocks on success and -EBUSY if any part
-  * of range cannot be isolated.
-  */
-_
+ drivers/spi/spi-fsl-espi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Patches currently in -mm which might be from pasha.tatashin@soleen.com are
-
-mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline.patch
+diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
+index 7e7c92cafdbb..cb120b68c0e2 100644
+--- a/drivers/spi/spi-fsl-espi.c
++++ b/drivers/spi/spi-fsl-espi.c
+@@ -574,13 +574,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi,=
+ u32 events)
+ static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
+ {
+ 	struct fsl_espi *espi =3D context_data;
+-	u32 events;
++	u32 events, mask;
+=20
+ 	spin_lock(&espi->lock);
+=20
+ 	/* Get interrupt events(tx/rx) */
+ 	events =3D fsl_espi_read_reg(espi, ESPI_SPIE);
+-	if (!events) {
++	mask =3D fsl_espi_read_reg(espi, ESPI_SPIM);
++	if (!(events & mask)) {
+ 		spin_unlock(&espi->lock);
+ 		return IRQ_NONE;
+ 	}
+--=20
+2.28.0
 
