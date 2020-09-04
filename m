@@ -2,88 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C2C25D770
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5312A25D789
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 13:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbgIDLeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 07:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730188AbgIDLeO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Sep 2020 07:34:14 -0400
+        id S1730113AbgIDLhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 07:37:39 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:47011 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728588AbgIDLhe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 07:37:34 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6247B194178B;
+        Fri,  4 Sep 2020 07:37:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 04 Sep 2020 07:37:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jWVIQl
+        IH3ZRcWGlRQtE9aKwaAOAjuV77Tg/hHe2M7e4=; b=nSdgX+VtB2A30eYqEuqqB8
+        6CvSxkXH6+cVb8qm6KnVrFq9zokYTCy/5w/bu809eif6XW5cyK+t3p5/Yl6AbHEI
+        DHUhd/wIgE0Ueq9F4+CBfio8qCFhcR3ZBglXtl9BleEST9xgTl3K+J/QI5i7JERJ
+        dJodhnm5Bjgxre+x64Hxu23NGiECVzDQQ4DH1xnndNIeqnllAHt9cjxDG9kB/swV
+        2APD/ZZXsspXu3PB0T6w38NUHW8z+o5XMtvQmC+hi4dwjw4gwfgvlrouprHwyWD+
+        Mx9MLdJNPABf03xgE45ETgXbJflU1U5bM14ktH2PqvY1XvYglcStCTC54CV2y9Jg
+        ==
+X-ME-Sender: <xms:9yZSX-0AP6NukXNaG8phhC2GOt7MOZzDCtEwGfbFIpNN-sTbiLHKpQ>
+    <xme:9yZSXxFvGsVE2iLD7Y_ELLyFshsU5oQ51E2XNnseIjlBnfyAAoIb64AQZgTaRwFnE
+    9uhyiRzVGV9BA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudegfedggedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:9yZSX27oFsXn9OMBFAXBs7r9aNF4B2VZr04hYHJTnSikIbRGOR-nAA>
+    <xmx:9yZSX_02322jSD6aahYJWomHJRE0rLriYDVvcKIHweIT5IrmPscFhg>
+    <xmx:9yZSXxF88aa10PBv2kClVMMuOwFSMdZZT67XdeaAW4ECkdMbGB-nEA>
+    <xmx:9yZSX_NE1f1eo5ZhBS1J1K3CFcbn9yaShwq4JQmxg1BfNCzH6okYyA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D785206B7;
-        Fri,  4 Sep 2020 11:34:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599219249;
-        bh=PzH+BwwKFQmrK/nyu7AzRC4Cxi+w6WcK6Tb1bGxR+EI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ty/pDBQgApnNsl3C/Pn72U8Q8azQIZpf5sRxFJXFxgHYAwhShQtglOiKdMDyt4r/2
-         Ni69U/MC6qm1xrzkjnMGeQ/cCywKnC6WhNZs8H2zD43jahCgOk3PpMNRwVWPY48yas
-         pzjQfFIxxGXaMXkt9sV4hm0q4F2Y6kHrtSWrgyjE=
-Date:   Fri, 4 Sep 2020 13:34:30 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
-        eduard@hasenleithner.at, kbusch@kernel.org,
-        Nirranjan Kirubaharan <nirranjan@chelsio.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH nvme] nvme: Revert "nvme: Discard workaround for
- non-conformant devices"
-Message-ID: <20200904113430.GD2831752@kroah.com>
-References: <20200603091851.16957-1-dakshaja@chelsio.com>
- <20200603130750.GA13511@lst.de>
- <20200603161717.GA11442@chelsio.com>
- <20200603162338.GA27240@lst.de>
- <6b58318c-fc41-66b9-b4d2-868d832392bb@grimberg.me>
- <20200604063638.GA15118@chelsio.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id CEF3B306005B;
+        Fri,  4 Sep 2020 07:37:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later" failed to apply to 4.19-stable tree
+To:     skomatineni@nvidia.com, jonathanh@nvidia.com,
+        stable@vger.kernel.org, ulf.hansson@linaro.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 04 Sep 2020 13:37:48 +0200
+Message-ID: <1599219468213210@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200604063638.GA15118@chelsio.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 04, 2020 at 12:06:39PM +0530, Dakshaja Uppalapati wrote:
-> On Wednesday, June 06/03/20, 2020 at 14:20:01 -0700, Sagi Grimberg wrote:
-> > 
-> > > > > Err, why?  Please send an actual bug report with details of your
-> > > > > setup.
-> > > > 
-> > > > Hi Christoph,
-> > > > 
-> > > > Here is the link describing the issue initially reported for upstream
-> > > > kernel 5.5:
-> > > > 
-> > > > https://lore.kernel.org/linux-nvme/CH2PR12MB40053A64681EFA3E6F63FDFBDD2A0@CH2PR12MB4005.namprd12.prod.outlook.com/
-> > > > 
-> > > > Issue is later fixed with upstream commit b716e688.
-> > > 
-> > > We are talking about two different things here.  One is the Linux NVMe
-> > > host code that can be used with lots of different controllers.  Many of
-> > > them are PCIe controller, especially cheap ones.
-> > > 
-> > > The other is the Linux NVMe target code.  So if a fix for very common
-> > > PCIe controller trigger a bug in the target code there is no 1:1
-> > > relationship as even if you are talking to a Linux fabrics controller
-> > > it usually runs a different kernel version on a different system.
-> > > 
-> > > That being said you can always backport that fix as well, which probably
-> > > is a good idea as it fixes a real bug.
-> > > 
-> > > Nevermind that nothing in your revert patch indicated it wasn't for
-> > > mainline.
-> > 
-> > Agree..
-> 
-> Just to confirm that I got it right, Do you want me to send all 6 patches 
-> (fix and dependent patches) to stable?
 
-Yes, in a format that can be applied, thanks.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From f7f86e8ac0ad7cd6792a80137f5a550924966916 Mon Sep 17 00:00:00 2001
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Date: Thu, 27 Aug 2020 10:20:57 -0700
+Subject: [PATCH] dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later
+
+commit b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+
+Tegra210 and later uses separate SDMMC_LEGACY_TM clock for data
+timeout.
+
+So, this patch adds "tmclk" to Tegra sdhci clock property in the
+device tree binding.
+
+Fixes: b5a84ecf025a ("mmc: tegra: Add Tegra210 support")
+Cc: stable <stable@vger.kernel.org> # 5.4
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Link: https://lore.kernel.org/r/1598548861-32373-4-git-send-email-skomatineni@nvidia.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
+index 2cf3affa1be7..96c0b1440c9c 100644
+--- a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
++++ b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
+@@ -15,8 +15,15 @@ Required properties:
+   - "nvidia,tegra210-sdhci": for Tegra210
+   - "nvidia,tegra186-sdhci": for Tegra186
+   - "nvidia,tegra194-sdhci": for Tegra194
+-- clocks : Must contain one entry, for the module clock.
+-  See ../clocks/clock-bindings.txt for details.
++- clocks: For Tegra210, Tegra186 and Tegra194 must contain two entries.
++	  One for the module clock and one for the timeout clock.
++	  For all other Tegra devices, must contain a single entry for
++	  the module clock. See ../clocks/clock-bindings.txt for details.
++- clock-names: For Tegra210, Tegra186 and Tegra194 must contain the
++	       strings 'sdhci' and 'tmclk' to represent the module and
++	       the timeout clocks, respectively.
++	       For all other Tegra devices must contain the string 'sdhci'
++	       to represent the module clock.
+ - resets : Must contain an entry for each entry in reset-names.
+   See ../reset/reset.txt for details.
+ - reset-names : Must include the following entries:
+@@ -99,7 +106,7 @@ Optional properties for Tegra210, Tegra186 and Tegra194:
+ 
+ Example:
+ sdhci@700b0000 {
+-	compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
++	compatible = "nvidia,tegra124-sdhci";
+ 	reg = <0x0 0x700b0000 0x0 0x200>;
+ 	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+ 	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
+@@ -115,3 +122,22 @@ sdhci@700b0000 {
+ 	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
+ 	status = "disabled";
+ };
++
++sdhci@700b0000 {
++	compatible = "nvidia,tegra210-sdhci";
++	reg = <0x0 0x700b0000 0x0 0x200>;
++	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
++		 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++	clock-names = "sdhci", "tmclk";
++	resets = <&tegra_car 14>;
++	reset-names = "sdhci";
++	pinctrl-names = "sdmmc-3v3", "sdmmc-1v8";
++	pinctrl-0 = <&sdmmc1_3v3>;
++	pinctrl-1 = <&sdmmc1_1v8>;
++	nvidia,pad-autocal-pull-up-offset-3v3 = <0x00>;
++	nvidia,pad-autocal-pull-down-offset-3v3 = <0x7d>;
++	nvidia,pad-autocal-pull-up-offset-1v8 = <0x7b>;
++	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
++	status = "disabled";
++};
+
