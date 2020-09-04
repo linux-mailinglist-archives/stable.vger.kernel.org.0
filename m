@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF9E25D9A9
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 15:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 115FF25D9A3
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 15:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730387AbgIDNck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 09:32:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36246 "EHLO mail.kernel.org"
+        id S1730474AbgIDNbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 09:31:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbgIDNaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730449AbgIDNaV (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 4 Sep 2020 09:30:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24BB82078E;
-        Fri,  4 Sep 2020 13:29:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DCD920797;
+        Fri,  4 Sep 2020 13:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599226198;
-        bh=Qoayjoiq0uSKgxLGXmLIhulkMjEAiiCj6O1lrgz1Tlc=;
+        s=default; t=1599226200;
+        bh=fEDNqrKk1L90tOKccmYsk0EvJvpUJC/b4KtBrKOxCcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyxmaTQRaRvmE1DflhLk+UWc4eGgd/SgLFju+/Tw2yhO+37p/U5K4OSPkFgR1xD3O
-         V68ZA4PepjRflEJO+bRnuieFACMxbJTClN7MfM0lnAw7DR5D/8u+UPbwIyjLJ7KKdL
-         iB/eDPeJIy3fN191T3to8RMJUYJaRqzajxkXyHEw=
+        b=mwOz1mbIrWF/N+oqu3UxaClyB4ojoOb4B/MrVh9DlFVBvjGAsTGJS0mIbHizJwaug
+         OJ7nX7wwkaNkSsoBZ4PO2id+81+f5gqxylKDt1x9VpKM1tSM23d7So4gNlBhMlr3D8
+         W/4+ZzYY6hsgjzXXwh3FHSlZUkXvvOkQaY4czHnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Clarke <pc@us.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Tony Jones <tonyj@suse.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 03/16] perf record/stat: Explicitly call out event modifiers in the documentation
-Date:   Fri,  4 Sep 2020 15:29:56 +0200
-Message-Id: <20200904120257.376680744@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Emily Deng <Emily.Deng@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Walter Lozano <walter.lozano@collabora.com>
+Subject: [PATCH 5.4 04/16] drm/sched:  Fix passing zero to PTR_ERR warning v2
+Date:   Fri,  4 Sep 2020 15:29:57 +0200
+Message-Id: <20200904120257.416041995@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200904120257.203708503@linuxfoundation.org>
 References: <20200904120257.203708503@linuxfoundation.org>
@@ -55,63 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-commit e48a73a312ebf19cc3d72aa74985db25c30757c1 upstream.
+commit d7c5782acd354bdb5ed0fa10e1e397eaed558390 upstream.
 
-Event modifiers are not mentioned in the perf record or perf stat
-manpages.  Add them to orient new users more effectively by pointing
-them to the perf list manpage for details.
+Fix a static code checker warning.
 
-Fixes: 2055fdaf8703 ("perf list: Document precise event sampling for AMD IBS")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Clarke <pc@us.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tony Jones <tonyj@suse.de>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200901215853.276234-1-kim.phillips@amd.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+v2: Drop PTR_ERR_OR_ZERO.
+
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Reviewed-by: Emily Deng <Emily.Deng@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Walter Lozano <walter.lozano@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/Documentation/perf-record.txt |    4 ++++
- tools/perf/Documentation/perf-stat.txt   |    4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/scheduler/sched_main.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/tools/perf/Documentation/perf-record.txt
-+++ b/tools/perf/Documentation/perf-record.txt
-@@ -33,6 +33,10 @@ OPTIONS
-         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
+--- a/drivers/gpu/drm/scheduler/sched_main.c
++++ b/drivers/gpu/drm/scheduler/sched_main.c
+@@ -496,8 +496,10 @@ void drm_sched_resubmit_jobs(struct drm_
+ 		fence = sched->ops->run_job(s_job);
  
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
+ 		if (IS_ERR_OR_NULL(fence)) {
++			if (IS_ERR(fence))
++				dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
 +
- 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
- 	  'param1', 'param2', etc are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*.
---- a/tools/perf/Documentation/perf-stat.txt
-+++ b/tools/perf/Documentation/perf-stat.txt
-@@ -39,6 +39,10 @@ report::
- 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
+ 			s_job->s_fence->parent = NULL;
+-			dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
+ 		} else {
+ 			s_job->s_fence->parent = fence;
+ 		}
+@@ -748,8 +750,9 @@ static int drm_sched_main(void *param)
+ 					  r);
+ 			dma_fence_put(fence);
+ 		} else {
++			if (IS_ERR(fence))
++				dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
  
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
- 	  param1 and param2 are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*
+-			dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
+ 			drm_sched_process_job(NULL, &sched_job->cb);
+ 		}
+ 
 
 
