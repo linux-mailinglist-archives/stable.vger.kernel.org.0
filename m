@@ -2,134 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1D325DF40
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 18:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D3925DF75
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 18:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgIDQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 12:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727112AbgIDQHO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 12:07:14 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D065C061247
-        for <stable@vger.kernel.org>; Fri,  4 Sep 2020 09:07:13 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id c19so7814770wmd.1
-        for <stable@vger.kernel.org>; Fri, 04 Sep 2020 09:07:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=basnieuwenhuizen-nl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Kr/Ld5h52IOIov2uSAm4w19sR9mrXrGTncuRTiQgYl4=;
-        b=SbvVHDbpzMc4yt0LCwyoalLSZs1dHUnNey4F906nkirwqepE6q25gWg0j2EHRj3vmd
-         JwZY7iH6fLB23+qX7cGq9m1I28rZiC0m5FbnKH++yCaMtdSMTzfZO0w/sfbAsA2N1V+j
-         NArhgTwPUE3z4+pLLZARXceGxrFN/9mbIIp6oRllQ/lhq59+muguAQquQkGXdUU/CM+i
-         NGvodP9G7Q08rNPeAA9/OP1/dJBraCT5RyQ7t6nPSGwV/j3pOhLWrftvW7mzh7VnWFiY
-         B1wtc87khnBXeEbLu+AGwb5rH10AJJd5gGH0rnsI17mc0aoH2WAw0wxOwwYrf9rnzqKp
-         RZ5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Kr/Ld5h52IOIov2uSAm4w19sR9mrXrGTncuRTiQgYl4=;
-        b=X6o/WEwMS/Gxq5L09NQsZYKIfaa91W5Snt29sfqPPGJCuJb65TrwfZ8tOhMvCYzRRy
-         ho2B9slgZpjKaCa+8RhhNVJ4tu0ZWY6Sp0wbkxgsmeMKz2lYxxzJ4gEe3DMl2MKcGXT8
-         JoOUJvD0wETcAtziMoIltghTlSZ99aOcuu4N8dVCjZloDY5mOUcY0q3x+AO+4tfZOVii
-         4v4TCd4t6vlWbPRhOzl9qoDkVDygTsdB4ungWlyCLnhCzhT2wH5x5OGIshoncwyqBg1W
-         vbfh6fXNACQR+5BA1qfkda/5iARU4bA3AOr0CFYJeJlosyhrRLkq1Zo08M/Ca5RD8sP7
-         AHjg==
-X-Gm-Message-State: AOAM530mYEYs4SmIyopVZCCKvfbNdktlgZgiSZVaC8sgNuSfkFNf13SR
-        cBUGUvKIYCLUEsiXLsdv5CCjcw==
-X-Google-Smtp-Source: ABdhPJw8y/kBAAtOKgEaNcdCTuTcZ3uDxUOajqVtRNDE/1npwTNRXfusb6AHz+u8E+a935X3sAlUFA==
-X-Received: by 2002:a05:600c:22d1:: with SMTP id 17mr4283632wmg.58.1599235632118;
-        Fri, 04 Sep 2020 09:07:12 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:aa12:a77f:2000:4cea:81e7:5fd4:93f7])
-        by smtp.gmail.com with ESMTPSA id h185sm12467609wme.25.2020.09.04.09.07.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2020 09:07:11 -0700 (PDT)
-From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-To:     amd-gfx@lists.freedesktop.org
-Cc:     dri-devel@lists.freedesktop.org, harry.wentland@amd.com,
-        daniel@ffwll.ch, daniel@fooishbar.org, maraeo@gmail.com,
-        alexdeucher@gmail.com, Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        id S1726111AbgIDQMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 12:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56418 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725966AbgIDQMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Sep 2020 12:12:46 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B5B92074D;
+        Fri,  4 Sep 2020 16:12:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599235965;
+        bh=la3TyS7vVTZN42KHMdToaoK3PJRSu01m7MbVO+OuZFM=;
+        h=Subject:To:From:Date:From;
+        b=KwBoSmwiGUSXB6g8cUqmuFMbueQk3eI9k3i5u3cuVBhbv+CRkx7ZsCjaTV7mq5tom
+         E56kq7B7e42J/Z6UGqODDZwa3zHzARCCt/2/cbZe2u8WpxqNp3Mt8txxOEWnavF9dS
+         H6Zr5kmffpJNWIDRk3RY2wfFga9pLLIAosgqApfw=
+Subject: patch "debugfs: Fix module state check condition" added to driver-core-linus
+To:     vdronov@redhat.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: [PATCH v2 03/11] drm/amd/display: Honor the offset for plane 0.
-Date:   Fri,  4 Sep 2020 18:07:01 +0200
-Message-Id: <20200904160709.123970-4-bas@basnieuwenhuizen.nl>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200904160709.123970-1-bas@basnieuwenhuizen.nl>
-References: <20200904160709.123970-1-bas@basnieuwenhuizen.nl>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 04 Sep 2020 18:13:06 +0200
+Message-ID: <1599235986247174@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With modifiers I'd like to support non-dedicated buffers for
-images.
 
-Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Cc: stable@vger.kernel.org
+This is a note to let you know that I've just added the patch titled
+
+    debugfs: Fix module state check condition
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From e3b9fc7eec55e6fdc8beeed18f2ed207086341e2 Mon Sep 17 00:00:00 2001
+From: Vladis Dronov <vdronov@redhat.com>
+Date: Tue, 11 Aug 2020 17:01:29 +0200
+Subject: debugfs: Fix module state check condition
+
+The '#ifdef MODULE' check in the original commit does not work as intended.
+The code under the check is not built at all if CONFIG_DEBUG_FS=y. Fix this
+by using a correct check.
+
+Fixes: 275678e7a9be ("debugfs: Check module state before warning in {full/open}_proxy_open()")
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200811150129.53343-1-vdronov@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/debugfs/file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index cb31b5ed19f7..d06acaea16e8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3742,6 +3742,7 @@ fill_plane_dcc_attributes(struct amdgpu_device *adev,
- 	struct dc *dc = adev->dm.dc;
- 	struct dc_dcc_surface_param input;
- 	struct dc_surface_dcc_cap output;
-+	uint64_t plane_address = afb->address + afb->base.offsets[0];
- 	uint32_t offset = AMDGPU_TILING_GET(info, DCC_OFFSET_256B);
- 	uint32_t i64b = AMDGPU_TILING_GET(info, DCC_INDEPENDENT_64B) != 0;
- 	uint64_t dcc_address;
-@@ -3785,7 +3786,7 @@ fill_plane_dcc_attributes(struct amdgpu_device *adev,
- 		AMDGPU_TILING_GET(info, DCC_PITCH_MAX) + 1;
- 	dcc->independent_64b_blks = i64b;
+diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+index b167d2d02148..a768a09430c3 100644
+--- a/fs/debugfs/file.c
++++ b/fs/debugfs/file.c
+@@ -177,7 +177,7 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
+ 		goto out;
  
--	dcc_address = get_dcc_address(afb->address, info);
-+	dcc_address = get_dcc_address(plane_address, info);
- 	address->grph.meta_addr.low_part = lower_32_bits(dcc_address);
- 	address->grph.meta_addr.high_part = upper_32_bits(dcc_address);
+ 	if (!fops_get(real_fops)) {
+-#ifdef MODULE
++#ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+ 		    real_fops->owner->state == MODULE_STATE_GOING)
+ 			goto out;
+@@ -312,7 +312,7 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
+ 		goto out;
  
-@@ -3816,6 +3817,8 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
- 	address->tmz_surface = tmz_surface;
- 
- 	if (format < SURFACE_PIXEL_FORMAT_VIDEO_BEGIN) {
-+		uint64_t addr = afb->address + fb->offsets[0];
-+
- 		plane_size->surface_size.x = 0;
- 		plane_size->surface_size.y = 0;
- 		plane_size->surface_size.width = fb->width;
-@@ -3824,9 +3827,10 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
- 			fb->pitches[0] / fb->format->cpp[0];
- 
- 		address->type = PLN_ADDR_TYPE_GRAPHICS;
--		address->grph.addr.low_part = lower_32_bits(afb->address);
--		address->grph.addr.high_part = upper_32_bits(afb->address);
-+		address->grph.addr.low_part = lower_32_bits(addr);
-+		address->grph.addr.high_part = upper_32_bits(addr);
- 	} else if (format < SURFACE_PIXEL_FORMAT_INVALID) {
-+		uint64_t luma_addr = afb->address + fb->offsets[0];
- 		uint64_t chroma_addr = afb->address + fb->offsets[1];
- 
- 		plane_size->surface_size.x = 0;
-@@ -3847,9 +3851,9 @@ fill_plane_buffer_attributes(struct amdgpu_device *adev,
- 
- 		address->type = PLN_ADDR_TYPE_VIDEO_PROGRESSIVE;
- 		address->video_progressive.luma_addr.low_part =
--			lower_32_bits(afb->address);
-+			lower_32_bits(luma_addr);
- 		address->video_progressive.luma_addr.high_part =
--			upper_32_bits(afb->address);
-+			upper_32_bits(luma_addr);
- 		address->video_progressive.chroma_addr.low_part =
- 			lower_32_bits(chroma_addr);
- 		address->video_progressive.chroma_addr.high_part =
+ 	if (!fops_get(real_fops)) {
+-#ifdef MODULE
++#ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+ 		    real_fops->owner->state == MODULE_STATE_GOING)
+ 			goto out;
 -- 
 2.28.0
+
 
