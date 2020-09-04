@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E328525D8F2
-	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 14:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4882625D97C
+	for <lists+stable@lfdr.de>; Fri,  4 Sep 2020 15:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730260AbgIDMts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Sep 2020 08:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
+        id S1730301AbgIDNTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Sep 2020 09:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730178AbgIDMto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 08:49:44 -0400
+        with ESMTP id S1730329AbgIDNQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Sep 2020 09:16:15 -0400
 Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E77FC061245;
-        Fri,  4 Sep 2020 05:49:43 -0700 (PDT)
-Date:   Fri, 04 Sep 2020 12:49:39 -0000
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC5FDC061244;
+        Fri,  4 Sep 2020 06:16:13 -0700 (PDT)
+Date:   Fri, 04 Sep 2020 13:16:04 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1599223780;
+        s=2020; t=1599225365;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=UDcXx7KcW7BLVNUL2Yp5Fuis4zCu46v+olrott20Pss=;
-        b=cK+TYUHg9RPacEFUkVfbkcc4TL2IHl9ghPQKMsus8xbN8NWTwh7hlVS8WkL9DgsTacozVy
-        N50ENtULylynP0dIzD5KQwoANNnqmE259R50fioYgkvsWPjk3KW3QxzmlyJI5RdT2hENiX
-        anbovKAkQNpcWmcrs/cy8xhgRsc/MTMZ1Kdy9DizHcFg+U39xPZmcTuzO36k+ROyQTt4O/
-        JIFUOmCxIs0f+iS8tCzE6pZOd8NU9m2FmQjnFOdxnL1nB7e1smMUaRfRSHEqA+5z9dldqW
-        oNmKc0Dy3lGovgSH0c+aoDJgyKOgOwV2KmAM2+8DlHvDo95J4MRCRPgswt5jVg==
+        bh=FYo4oWPndmPH1VpAsfPaaX5l0/5q804nP45ekBNCsvE=;
+        b=CXWxcJSwBfNNl7/uWWf2cFw/XH3j/xrEb7IRNn2ww5+xzVxble3MmlvuoqNg/pITFTYRx7
+        rvtFsmi6YkDgln7ZXjDcfLBSJD74wjgaXOmUPNPkzO3llg/wisUPXGt8NZqbke9S6+FH5V
+        /5a/r0AAZ5K0CvkWNMXKmvruZxYxeMwudWsdDO2Gf7WIh/xWXbXJJwzHailgHrJxoabVfu
+        3UU3zmkhs03RnHZIkLb6SwAGVDQj6eMt/NUxSNhcs6hYPh/IT5Cf8yt/QKvOTT/U4x4C+j
+        cZ7U6URIJKmA6DKJk0SZqoql7cFVBvbLWm5w430G5aUeZZagIRVdkPUJujRLJw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1599223780;
+        s=2020e; t=1599225365;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=UDcXx7KcW7BLVNUL2Yp5Fuis4zCu46v+olrott20Pss=;
-        b=YGWlVFRGi8Tm5jYWvxTFOtS4EHjjk/1Y+JOvd/555982ggta56GltK/LZJvPXQ+D4ifXzj
-        XX6RPznTkz+3cGCg==
-From:   "tip-bot2 for Vamshi K Sthambamkadi" <tip-bot2@linutronix.de>
+        bh=FYo4oWPndmPH1VpAsfPaaX5l0/5q804nP45ekBNCsvE=;
+        b=Lt0gZDkN5FP0WS3HroUN40FXymZBsCp+UjC0KJvIQLtU5U4ejFHdHUSn5/HTuv5NY26KyG
+        0DyRfiQqmSjo3yCg==
+From:   "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] tracing/kprobes, x86/ptrace: Fix regs argument
- order for i386
-Cc:     Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200828113242.GA1424@cosmos>
-References: <20200828113242.GA1424@cosmos>
+Subject: [tip: x86/urgent] x86/entry: Fix AC assertion
+Cc:     "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200902133200.666781610@infradead.org>
+References: <20200902133200.666781610@infradead.org>
 MIME-Version: 1.0
-Message-ID: <159922377983.20229.5292058689006247629.tip-bot2@tip-bot2>
+Message-ID: <159922536478.20229.11152935257298904584.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -64,46 +62,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     2356bb4b8221d7dc8c7beb810418122ed90254c9
-Gitweb:        https://git.kernel.org/tip/2356bb4b8221d7dc8c7beb810418122ed90254c9
-Author:        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-AuthorDate:    Fri, 28 Aug 2020 17:02:46 +05:30
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 04 Sep 2020 14:40:42 +02:00
+Commit-ID:     662a0221893a3d58aa72719671844264306f6e4b
+Gitweb:        https://git.kernel.org/tip/662a0221893a3d58aa72719671844264306f6e4b
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Wed, 02 Sep 2020 15:25:50 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 04 Sep 2020 15:09:29 +02:00
 
-tracing/kprobes, x86/ptrace: Fix regs argument order for i386
+x86/entry: Fix AC assertion
 
-On i386, the order of parameters passed on regs is eax,edx,and ecx
-(as per regparm(3) calling conventions).
+The WARN added in commit 3c73b81a9164 ("x86/entry, selftests: Further
+improve user entry sanity checks") unconditionally triggers on a IVB
+machine because it does not support SMAP.
 
-Change the mapping in regs_get_kernel_argument(), so that arg1=ax
-arg2=dx, and arg3=cx.
+For !SMAP hardware the CLAC/STAC instructions are patched out and thus if
+userspace sets AC, it is still have set after entry.
 
-Running the selftests testcase kprobes_args_use.tc shows the result
-as passed.
+Fixes: 3c73b81a9164 ("x86/entry, selftests: Further improve user entry sanity checks")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Daniel Thompson <daniel.thompson@linaro.org>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200902133200.666781610@infradead.org
 
-Fixes: 3c88ee194c28 ("x86: ptrace: Add function argument access API")
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200828113242.GA1424@cosmos
 ---
- arch/x86/include/asm/ptrace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/entry-common.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
-index 40aa69d..d8324a2 100644
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -327,8 +327,8 @@ static inline unsigned long regs_get_kernel_argument(struct pt_regs *regs,
- 	static const unsigned int argument_offs[] = {
- #ifdef __i386__
- 		offsetof(struct pt_regs, ax),
--		offsetof(struct pt_regs, cx),
- 		offsetof(struct pt_regs, dx),
-+		offsetof(struct pt_regs, cx),
- #define NR_REG_ARGUMENTS 3
- #else
- 		offsetof(struct pt_regs, di),
+diff --git a/arch/x86/include/asm/entry-common.h b/arch/x86/include/asm/entry-common.h
+index a8f9315..6fe54b2 100644
+--- a/arch/x86/include/asm/entry-common.h
++++ b/arch/x86/include/asm/entry-common.h
+@@ -18,8 +18,16 @@ static __always_inline void arch_check_user_regs(struct pt_regs *regs)
+ 		 * state, not the interrupt state as imagined by Xen.
+ 		 */
+ 		unsigned long flags = native_save_fl();
+-		WARN_ON_ONCE(flags & (X86_EFLAGS_AC | X86_EFLAGS_DF |
+-				      X86_EFLAGS_NT));
++		unsigned long mask = X86_EFLAGS_DF | X86_EFLAGS_NT;
++
++		/*
++		 * For !SMAP hardware we patch out CLAC on entry.
++		 */
++		if (boot_cpu_has(X86_FEATURE_SMAP) ||
++		    (IS_ENABLED(CONFIG_64_BIT) && boot_cpu_has(X86_FEATURE_XENPV)))
++			mask |= X86_EFLAGS_AC;
++
++		WARN_ON_ONCE(flags & mask);
+ 
+ 		/* We think we came from user mode. Make sure pt_regs agrees. */
+ 		WARN_ON_ONCE(!user_mode(regs));
