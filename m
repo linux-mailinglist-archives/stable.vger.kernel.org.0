@@ -2,127 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7582725E5E2
-	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 08:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303F325E5E7
+	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 09:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726343AbgIEGya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Sep 2020 02:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725818AbgIEGy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Sep 2020 02:54:29 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53A7AC061244;
-        Fri,  4 Sep 2020 23:54:27 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id c19so8826228wmd.1;
-        Fri, 04 Sep 2020 23:54:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=kvYXN84wde1jlinAnF1ZcIYTFqYeHdrpYuFHUVhFm0g=;
-        b=usc1oNoHgDNG5tf2zCPfwMCO5CgyBslue6TggjJa1/Xfuuu11eRz5jWEQdWkTRNVBO
-         o1Azzctwf2vnLYCa1i59QHjP1fpX4od6K1gL9XgAsmwq5kCg0p0FHA73hiSkpmZ3VYqW
-         0Q5VIrCy2XVuDbzel+U27tU9HyfzPSPSWbw1NuxwutXixjzMv5sy7qKQtLmesBYZdfTb
-         Ez9/r98dbv9JtioYpltjKD2/MnOdBWzVj60WtiGb38htMUKNBLVrursdSu6SBCi4Lru/
-         NIDbGEaedZs7B219WcG/7Qm4nfTij3kNOXyzp47GuItRfMxHf1B4wMXSNeJGdrNqSNAh
-         bkMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=kvYXN84wde1jlinAnF1ZcIYTFqYeHdrpYuFHUVhFm0g=;
-        b=MRuB4OIQMuRMmdDeHCWvJ2sw1PQ2suAxWyqh/jaRfjt64NnKGFgCuu5EXJRJsGRYSY
-         SLknokFEmdf1VU3xrIrT3hbsg5mke9MM8mPiKrGI+ZBzTDuaee3+FtXlLdZz5lU8z5WR
-         B8HUgl2HhXLWxrocqt3oE1HULmM2hgooRihEZYFTqVHT2DyXpTpgPT6GFgDP/70G8RjD
-         sdWO8RcegpZ6We+fmDUlJy8whf6Gweko04SP3BlMstdcMFx0JudhEV6mpNKIaWA61I4i
-         NBoiU/9NysMKhmmDhRqtCoOUiZA18dksMBdqKU3oZ80Oqt7T79d1iPZikpDT2GAYOx6J
-         j6vw==
-X-Gm-Message-State: AOAM533UnXIph1vVJ89EJMTMFTHa+L+em/SfiCZtjjZT/1rUxouY9BYk
-        C1bwRM1CXs9oK8Ql38zyYWw=
-X-Google-Smtp-Source: ABdhPJwJJ4EZqnR8kYnSgNN0KB8TCFB+aO8v6c2OneK1mbS7GpnfH1awHDHc2yM5JB3V6tuwulvLFA==
-X-Received: by 2002:a1c:4943:: with SMTP id w64mr10581333wma.62.1599288865175;
-        Fri, 04 Sep 2020 23:54:25 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id q12sm15742518wrp.17.2020.09.04.23.54.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2020 23:54:23 -0700 (PDT)
-Date:   Sat, 5 Sep 2020 08:54:22 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     "Nuernberger, Stefan" <snu@amazon.de>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "orcohen@paloaltonetworks.com" <orcohen@paloaltonetworks.com>,
-        "Woodhouse, David" <dwmw@amazon.co.uk>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "edumazet@google.com" <edumazet@google.com>,
-        "Shah, Amit" <aams@amazon.de>
-Subject: Re: [PATCH] net/packet: fix overflow in tpacket_rcv
-Message-ID: <20200905065422.GA556394@eldamar.local>
-References: <CAM6JnLf_8nwzq+UGO+amXpeApCDarJjwzOEHQd5qBhU7YKm3DQ@mail.gmail.com>
- <20200904133052.20299-1-snu@amazon.com>
- <20200904141617.GA3185752@kroah.com>
- <1599229365.17829.3.camel@amazon.de>
- <20200904143648.GA3212511@kroah.com>
+        id S1726065AbgIEHJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Sep 2020 03:09:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53318 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725818AbgIEHJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Sep 2020 03:09:51 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FA42206B5;
+        Sat,  5 Sep 2020 07:09:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599289790;
+        bh=Wg3+Qu6Tcoap3P4f6Mve+MDrXT+Vqw3r0BLXGotNuvA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=a7elA0glWjabA83LJIx3SWddHmwLgkwcjYHOoeFCD8lspJz9H+rb5+ITni5qa25qQ
+         g4S4gWuRdBJA+4ib2kdTGtcsLfcLe7cFhnbUEdK6s+d+HX39RqfxqwT+c0HkQfslxn
+         Ud5QaRPThKenDjNquYXMA0lVZVlGTsgRPdkr9MTY=
+Date:   Sat, 5 Sep 2020 09:09:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     Muchun Song <songmuchun@bytedance.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Taehee Yoo <ap420073@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>, Jan Kara <jack@suse.cz>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        Adam Ford <aford173@gmail.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Xiaochen Shen <xiaochen.shen@intel.com>, sashal@kernel.org,
+        amit@kernel.org, sj38.park@gmail.com, stable@vger.kernel.org
+Subject: Re: [5.4.y] Found 27 commits that might missed
+Message-ID: <20200905070946.GA184702@kroah.com>
+References: <20200904114935.GE2831752@kroah.com>
+ <20200904141748.3658-1-sjpark@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200904143648.GA3212511@kroah.com>
+In-Reply-To: <20200904141748.3658-1-sjpark@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On Fri, Sep 04, 2020 at 04:36:48PM +0200, gregkh@linuxfoundation.org wrote:
-> On Fri, Sep 04, 2020 at 02:22:46PM +0000, Nuernberger, Stefan wrote:
-> > On Fri, 2020-09-04 at 16:16 +0200, Greg Kroah-Hartman wrote:
-> > > On Fri, Sep 04, 2020 at 03:30:52PM +0200, Stefan Nuernberger wrote:
-> > > > 
-> > > > From: Or Cohen <orcohen@paloaltonetworks.com>
-> > > > 
-> > > > Using tp_reserve to calculate netoff can overflow as
-> > > > tp_reserve is unsigned int and netoff is unsigned short.
-> > > > 
-> > > > This may lead to macoff receving a smaller value then
-> > > > sizeof(struct virtio_net_hdr), and if po->has_vnet_hdr
-> > > > is set, an out-of-bounds write will occur when
-> > > > calling virtio_net_hdr_from_skb.
-> > > > 
-> > > > The bug is fixed by converting netoff to unsigned int
-> > > > and checking if it exceeds USHRT_MAX.
-> > > > 
-> > > > This addresses CVE-2020-14386
-> > > > 
-> > > > Fixes: 8913336a7e8d ("packet: add PACKET_RESERVE sockopt")
-> > > > Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-> > > > Signed-off-by: Eric Dumazet <edumazet@google.com>
-> > > > 
-> > > > [ snu: backported to 4.9, changed tp_drops counting/locking ]
-> > > > 
-> > > > Signed-off-by: Stefan Nuernberger <snu@amazon.com>
-> > > > CC: David Woodhouse <dwmw@amazon.co.uk>
-> > > > CC: Amit Shah <aams@amazon.com>
-> > > > CC: stable@vger.kernel.org
-> > > > ---
-> > > >  net/packet/af_packet.c | 9 ++++++++-
-> > > >  1 file changed, 8 insertions(+), 1 deletion(-)
-> > > What is the git commit id of this patch in Linus's tree?
-> > > 
+On Fri, Sep 04, 2020 at 04:17:48PM +0200, SeongJae Park wrote:
+> > <snip>
 > > 
-> > Sorry, this isn't merged on Linus' tree yet. It's a heads up that the
-> > backport isn't straightforward.
+> > Stopping right here, if you have fixes that will not cleanly apply, and
+> > you think they should be applied, please fix them and send the proper
+> > backport.  I don't have the cycles to do these on my own.
+> > 
+> > Same for anything else here that you think should be applied but does
+> > not cleanly build/apply.
 > 
-> Ok, please be more specific about this when sending patches out...
+> Totally agreed.  Actually, I posted a similar report[1] before and received
+> similar response.  I promised to back-port some of those by myself.  That's
+> still in my TODO list, but I was unable to get a time to revisit it quite long
+> time.  From this, I realized that it wouldn't be easy to review, test, and
+> backport all of the such suspicious things by myself.  Scaling up to multiple
+> stable series (the tool says there are 152 fixes and 147 mentions for 4.9.y)
+> seems impossible.
+> 
+> For the reason, I updated the tool to make the report to be sent to not only
+> the stable maintainers but also the authors of the suspicious commits, because
+> the review / test / backport of their own commits would be much easier that
+> others.  As a result, we were able to find one suspended commit:
+> https://lore.kernel.org/stable/CAKfTPtAkOes+HmVabRazhCBBUo0M+QW38q3Zzj_O3O+Ghvc1pA@mail.gmail.com/
 
-The commit is in Linux' tree now as
-acf69c946233259ab4d64f8869d4037a198c7f06 .
+That work had already been done before your email was sent.
 
-Older stable series, which do not have 8e8e2951e309 ("net/packet: make
-tp_drops atomic") will though need a backport as per above AFICS.
+I too can write a tool that sends out "this patch might be for stable,
+will you do the work for it!" emails, but that's a bit rude to ask
+others to do your work for you, don't you agree?  By asking me and
+others to dig through this list, when you said you don't have the time
+to do so, feels very odd to me.
 
-Regards,
-Salvatore
+And if you have only 152 "fixes" for 4.9.y, that's great, should be easy
+to work through.  I do know that most of the "easy" backports are
+already done, so what is left are the ones that take real work, or do
+not make any sense, as your list shows.
+
+So I don't think this report actually helped anyone here, do you?
+
+Again, if you can do the backporting, that will help out greatly.
+
+thanks,
+
+greg k-h
