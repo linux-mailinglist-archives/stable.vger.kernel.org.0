@@ -2,981 +2,1592 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 377ED25E6D8
-	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 11:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B5125E6E3
+	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 12:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgIEJsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Sep 2020 05:48:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbgIEJs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Sep 2020 05:48:28 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56676206B8;
-        Sat,  5 Sep 2020 09:48:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599299306;
-        bh=7GBfT4p1K9K+h0WgWUkSmTDnUHp8R+AncdDELlCnDb8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q09GzgoeJX635I2U99OW9Dp6o03XD7RMon/9LenQQE54gQdx0QO7lZfNZkS0+/cpR
-         cSx8Ng36+OkX8jGygt7uHzsohzuB5UCEM00wODEhcb/GfnXRuhS9hKP3AQMx1yimiJ
-         aSIgYAneGiYiy2579uOVhwDzCvvxnNvFZ3uwNt8Q=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.8.7
-Date:   Sat,  5 Sep 2020 11:48:36 +0200
-Message-Id: <159929931616817@kroah.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <1599299316180106@kroah.com>
-References: <1599299316180106@kroah.com>
+        id S1726591AbgIEKGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Sep 2020 06:06:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726372AbgIEKGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Sep 2020 06:06:52 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6938DC061244
+        for <stable@vger.kernel.org>; Sat,  5 Sep 2020 03:06:52 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id bh1so2255450plb.12
+        for <stable@vger.kernel.org>; Sat, 05 Sep 2020 03:06:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NRswPfItG7L/slLGs+eOl4wpszYK4G42oxyn5zsvsbk=;
+        b=02E+bF3OgBVO/ta+CejdStdZXvsyqI+2vqInh6t7slmzQ5FUdxlp/vUZHeELXcyXb9
+         rLrKXLxaaL1wZc0r7pdKMcxSWExUKVGeWxdra3EZFmXYajnUMLtfTjOHWLW4e1sHgsHX
+         puV6tuM2kDKI+BN0JF63W816y/gLHbWEZjjhfXYanF792ZOjd+IuiS2m7NA0uwsoyUua
+         VY5DWA6hq2E12k+DzgKfC9Y0vuxOnoJUw5IOSxEiY34WNoWmXQFcp3J+TGKuqaLDbnn8
+         uizUkyGAZr+XeoV6wm8X1yaRW6cImReK749uerlGm6tqOMlIQ9WKLs4r7ZXuQWj34fO5
+         uBYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NRswPfItG7L/slLGs+eOl4wpszYK4G42oxyn5zsvsbk=;
+        b=M/uiXnTcVOwXQO4WI+PiKW3+MurFXn68v075dg3e8yitEp+tK75zHvpY4I+xyjGezN
+         cIg+sPAu5iNCfKcXcS2D2zrh5/lZQL5cfWAEX7UXYUnu6hH4NSsyX7QzCXtYD54CPZC2
+         Ih+LuJW3DBxQnCEnb5/kPtuz9i0FxQUxf+BiZkymnsmS3wTgfcU4jWS8+NzHY5Ye7+DE
+         2ptMcuT5AATuHlrTdmkEWSrhQWQiDKInlY9J4jKiD78O9hMHlRVdTGohv55BJwE919Mk
+         sArVnrHpapAnzcBNQgZnag4G8tiD2cC2QmxRX84d36f4NFokeN8AojuSCsQrGKR/OnzE
+         u7/w==
+X-Gm-Message-State: AOAM530MskG9r8KBQTs8+XVebbRHs6ccDA7e+9sJJXpdEAs8V4gwuIDl
+        Mo9E9MQMk+tK1KuCarjwNAXmxSpEnAyfUA==
+X-Google-Smtp-Source: ABdhPJxjnGc879gVzUAqufX+rqqFEmur1z+JvoGpCKK7oVrqrlLS73mxl8H5avdviznhFSOyvUaZPQ==
+X-Received: by 2002:a17:902:8347:: with SMTP id z7mr12319331pln.20.1599300407105;
+        Sat, 05 Sep 2020 03:06:47 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p188sm9342625pfb.17.2020.09.05.03.06.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Sep 2020 03:06:46 -0700 (PDT)
+Message-ID: <5f536336.1c69fb81.c4dbc.63a5@mx.google.com>
+Date:   Sat, 05 Sep 2020 03:06:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v5.4.63
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.4.y build: 198 builds: 1 failed, 197 passed, 1 error,
+ 125 warnings (v5.4.63)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
-index 2cf3affa1be7..96c0b1440c9c 100644
---- a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
-+++ b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
-@@ -15,8 +15,15 @@ Required properties:
-   - "nvidia,tegra210-sdhci": for Tegra210
-   - "nvidia,tegra186-sdhci": for Tegra186
-   - "nvidia,tegra194-sdhci": for Tegra194
--- clocks : Must contain one entry, for the module clock.
--  See ../clocks/clock-bindings.txt for details.
-+- clocks: For Tegra210, Tegra186 and Tegra194 must contain two entries.
-+	  One for the module clock and one for the timeout clock.
-+	  For all other Tegra devices, must contain a single entry for
-+	  the module clock. See ../clocks/clock-bindings.txt for details.
-+- clock-names: For Tegra210, Tegra186 and Tegra194 must contain the
-+	       strings 'sdhci' and 'tmclk' to represent the module and
-+	       the timeout clocks, respectively.
-+	       For all other Tegra devices must contain the string 'sdhci'
-+	       to represent the module clock.
- - resets : Must contain an entry for each entry in reset-names.
-   See ../reset/reset.txt for details.
- - reset-names : Must include the following entries:
-@@ -99,7 +106,7 @@ Optional properties for Tegra210, Tegra186 and Tegra194:
- 
- Example:
- sdhci@700b0000 {
--	compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
-+	compatible = "nvidia,tegra124-sdhci";
- 	reg = <0x0 0x700b0000 0x0 0x200>;
- 	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
- 	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
-@@ -115,3 +122,22 @@ sdhci@700b0000 {
- 	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
- 	status = "disabled";
- };
-+
-+sdhci@700b0000 {
-+	compatible = "nvidia,tegra210-sdhci";
-+	reg = <0x0 0x700b0000 0x0 0x200>;
-+	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
-+		 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+	clock-names = "sdhci", "tmclk";
-+	resets = <&tegra_car 14>;
-+	reset-names = "sdhci";
-+	pinctrl-names = "sdmmc-3v3", "sdmmc-1v8";
-+	pinctrl-0 = <&sdmmc1_3v3>;
-+	pinctrl-1 = <&sdmmc1_1v8>;
-+	nvidia,pad-autocal-pull-up-offset-3v3 = <0x00>;
-+	nvidia,pad-autocal-pull-down-offset-3v3 = <0x7d>;
-+	nvidia,pad-autocal-pull-up-offset-1v8 = <0x7b>;
-+	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
-+	status = "disabled";
-+};
-diff --git a/Makefile b/Makefile
-index 5cf35650373b..5081bd85af29 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 8
--SUBLEVEL = 6
-+SUBLEVEL = 7
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index 58100fb9cd8b..93236febd327 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -331,8 +331,9 @@ sdmmc1: sdhci@3400000 {
- 		compatible = "nvidia,tegra186-sdhci";
- 		reg = <0x0 0x03400000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&bpmp TEGRA186_CLK_SDMMC1>;
--		clock-names = "sdhci";
-+		clocks = <&bpmp TEGRA186_CLK_SDMMC1>,
-+			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&bpmp TEGRA186_RESET_SDMMC1>;
- 		reset-names = "sdhci";
- 		iommus = <&smmu TEGRA186_SID_SDMMC1>;
-@@ -357,8 +358,9 @@ sdmmc2: sdhci@3420000 {
- 		compatible = "nvidia,tegra186-sdhci";
- 		reg = <0x0 0x03420000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&bpmp TEGRA186_CLK_SDMMC2>;
--		clock-names = "sdhci";
-+		clocks = <&bpmp TEGRA186_CLK_SDMMC2>,
-+			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&bpmp TEGRA186_RESET_SDMMC2>;
- 		reset-names = "sdhci";
- 		iommus = <&smmu TEGRA186_SID_SDMMC2>;
-@@ -378,8 +380,9 @@ sdmmc3: sdhci@3440000 {
- 		compatible = "nvidia,tegra186-sdhci";
- 		reg = <0x0 0x03440000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&bpmp TEGRA186_CLK_SDMMC3>;
--		clock-names = "sdhci";
-+		clocks = <&bpmp TEGRA186_CLK_SDMMC3>,
-+			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&bpmp TEGRA186_RESET_SDMMC3>;
- 		reset-names = "sdhci";
- 		iommus = <&smmu TEGRA186_SID_SDMMC3>;
-@@ -401,8 +404,9 @@ sdmmc4: sdhci@3460000 {
- 		compatible = "nvidia,tegra186-sdhci";
- 		reg = <0x0 0x03460000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&bpmp TEGRA186_CLK_SDMMC4>;
--		clock-names = "sdhci";
-+		clocks = <&bpmp TEGRA186_CLK_SDMMC4>,
-+			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
-+		clock-names = "sdhci", "tmclk";
- 		assigned-clocks = <&bpmp TEGRA186_CLK_SDMMC4>,
- 				  <&bpmp TEGRA186_CLK_PLLC4_VCO>;
- 		assigned-clock-parents = <&bpmp TEGRA186_CLK_PLLC4_VCO>;
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 4bc187a4eacd..980a8500b4b2 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -453,8 +453,9 @@ sdmmc1: sdhci@3400000 {
- 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
- 			reg = <0x03400000 0x10000>;
- 			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&bpmp TEGRA194_CLK_SDMMC1>;
--			clock-names = "sdhci";
-+			clocks = <&bpmp TEGRA194_CLK_SDMMC1>,
-+				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
-+			clock-names = "sdhci", "tmclk";
- 			resets = <&bpmp TEGRA194_RESET_SDMMC1>;
- 			reset-names = "sdhci";
- 			nvidia,pad-autocal-pull-up-offset-3v3-timeout =
-@@ -475,8 +476,9 @@ sdmmc3: sdhci@3440000 {
- 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
- 			reg = <0x03440000 0x10000>;
- 			interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&bpmp TEGRA194_CLK_SDMMC3>;
--			clock-names = "sdhci";
-+			clocks = <&bpmp TEGRA194_CLK_SDMMC3>,
-+				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
-+			clock-names = "sdhci", "tmclk";
- 			resets = <&bpmp TEGRA194_RESET_SDMMC3>;
- 			reset-names = "sdhci";
- 			nvidia,pad-autocal-pull-up-offset-1v8 = <0x00>;
-@@ -498,8 +500,9 @@ sdmmc4: sdhci@3460000 {
- 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
- 			reg = <0x03460000 0x10000>;
- 			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&bpmp TEGRA194_CLK_SDMMC4>;
--			clock-names = "sdhci";
-+			clocks = <&bpmp TEGRA194_CLK_SDMMC4>,
-+				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
-+			clock-names = "sdhci", "tmclk";
- 			assigned-clocks = <&bpmp TEGRA194_CLK_SDMMC4>,
- 					  <&bpmp TEGRA194_CLK_PLLC4>;
- 			assigned-clock-parents =
-diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-index 08655081f72d..04f3a2d4990d 100644
---- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-@@ -1180,8 +1180,9 @@ sdhci@700b0000 {
- 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
- 		reg = <0x0 0x700b0000 0x0 0x200>;
- 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
--		clock-names = "sdhci";
-+		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
-+			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&tegra_car 14>;
- 		reset-names = "sdhci";
- 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
-@@ -1208,8 +1209,9 @@ sdhci@700b0200 {
- 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
- 		reg = <0x0 0x700b0200 0x0 0x200>;
- 		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>;
--		clock-names = "sdhci";
-+		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>,
-+			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&tegra_car 9>;
- 		reset-names = "sdhci";
- 		pinctrl-names = "sdmmc-1v8-drv";
-@@ -1225,8 +1227,9 @@ sdhci@700b0400 {
- 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
- 		reg = <0x0 0x700b0400 0x0 0x200>;
- 		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>;
--		clock-names = "sdhci";
-+		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>,
-+			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&tegra_car 69>;
- 		reset-names = "sdhci";
- 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
-@@ -1248,8 +1251,9 @@ sdhci@700b0600 {
- 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
- 		reg = <0x0 0x700b0600 0x0 0x200>;
- 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>;
--		clock-names = "sdhci";
-+		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>,
-+			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
-+		clock-names = "sdhci", "tmclk";
- 		resets = <&tegra_car 15>;
- 		reset-names = "sdhci";
- 		pinctrl-names = "sdmmc-3v3-drv", "sdmmc-1v8-drv";
-diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-index 352aaebf4198..2eff49d81be2 100644
---- a/arch/arm64/include/asm/kvm_asm.h
-+++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -121,6 +121,34 @@ extern char __smccc_workaround_1_smc[__SMCCC_WORKAROUND_1_SMC_SZ];
- 		*__hyp_this_cpu_ptr(sym);				\
- 	 })
- 
-+#define __KVM_EXTABLE(from, to)						\
-+	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
-+	"	.align		3\n"					\
-+	"	.long		(" #from " - .), (" #to " - .)\n"	\
-+	"	.popsection\n"
-+
-+
-+#define __kvm_at(at_op, addr)						\
-+( { 									\
-+	int __kvm_at_err = 0;						\
-+	u64 spsr, elr;							\
-+	asm volatile(							\
-+	"	mrs	%1, spsr_el2\n"					\
-+	"	mrs	%2, elr_el2\n"					\
-+	"1:	at	"at_op", %3\n"					\
-+	"	isb\n"							\
-+	"	b	9f\n"						\
-+	"2:	msr	spsr_el2, %1\n"					\
-+	"	msr	elr_el2, %2\n"					\
-+	"	mov	%w0, %4\n"					\
-+	"9:\n"								\
-+	__KVM_EXTABLE(1b, 2b)						\
-+	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
-+	: "r" (addr), "i" (-EFAULT));					\
-+	__kvm_at_err;							\
-+} )
-+
-+
- #else /* __ASSEMBLY__ */
- 
- .macro hyp_adr_this_cpu reg, sym, tmp
-@@ -146,6 +174,21 @@ extern char __smccc_workaround_1_smc[__SMCCC_WORKAROUND_1_SMC_SZ];
- 	kern_hyp_va	\vcpu
- .endm
- 
-+/*
-+ * KVM extable for unexpected exceptions.
-+ * In the same format _asm_extable, but output to a different section so that
-+ * it can be mapped to EL2. The KVM version is not sorted. The caller must
-+ * ensure:
-+ * x18 has the hypervisor value to allow any Shadow-Call-Stack instrumented
-+ * code to write to it, and that SPSR_EL2 and ELR_EL2 are restored by the fixup.
-+ */
-+.macro	_kvm_extable, from, to
-+	.pushsection	__kvm_ex_table, "a"
-+	.align		3
-+	.long		(\from - .), (\to - .)
-+	.popsection
-+.endm
-+
- #endif
- 
- #endif /* __ARM_KVM_ASM_H__ */
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index 5423ffe0a987..1417a9042d13 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -21,6 +21,13 @@ ENTRY(_text)
- 
- jiffies = jiffies_64;
- 
-+
-+#define HYPERVISOR_EXTABLE					\
-+	. = ALIGN(SZ_8);					\
-+	__start___kvm_ex_table = .;				\
-+	*(__kvm_ex_table)					\
-+	__stop___kvm_ex_table = .;
-+
- #define HYPERVISOR_TEXT					\
- 	/*						\
- 	 * Align to 4 KB so that			\
-@@ -36,6 +43,7 @@ jiffies = jiffies_64;
- 	__hyp_idmap_text_end = .;			\
- 	__hyp_text_start = .;				\
- 	*(.hyp.text)					\
-+	HYPERVISOR_EXTABLE				\
- 	__hyp_text_end = .;
- 
- #define IDMAP_TEXT					\
-diff --git a/arch/arm64/kvm/hyp/entry.S b/arch/arm64/kvm/hyp/entry.S
-index 90186cf6473e..c2e6da356408 100644
---- a/arch/arm64/kvm/hyp/entry.S
-+++ b/arch/arm64/kvm/hyp/entry.S
-@@ -198,20 +198,23 @@ alternative_endif
- 	// This is our single instruction exception window. A pending
- 	// SError is guaranteed to occur at the earliest when we unmask
- 	// it, and at the latest just after the ISB.
--	.global	abort_guest_exit_start
- abort_guest_exit_start:
- 
- 	isb
- 
--	.global	abort_guest_exit_end
- abort_guest_exit_end:
- 
- 	msr	daifset, #4	// Mask aborts
-+	ret
-+
-+	_kvm_extable	abort_guest_exit_start, 9997f
-+	_kvm_extable	abort_guest_exit_end, 9997f
-+9997:
-+	msr	daifset, #4	// Mask aborts
-+	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
- 
--	// If the exception took place, restore the EL1 exception
--	// context so that we can report some information.
--	// Merge the exception code with the SError pending bit.
--	tbz	x0, #ARM_EXIT_WITH_SERROR_BIT, 1f
-+	// restore the EL1 exception context so that we can report some
-+	// information. Merge the exception code with the SError pending bit.
- 	msr	elr_el2, x2
- 	msr	esr_el2, x3
- 	msr	spsr_el2, x4
-diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
-index 9c5cfb04170e..741f7cbaeb79 100644
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -15,6 +15,30 @@
- #include <asm/kvm_mmu.h>
- #include <asm/mmu.h>
- 
-+.macro save_caller_saved_regs_vect
-+	/* x0 and x1 were saved in the vector entry */
-+	stp	x2, x3,   [sp, #-16]!
-+	stp	x4, x5,   [sp, #-16]!
-+	stp	x6, x7,   [sp, #-16]!
-+	stp	x8, x9,   [sp, #-16]!
-+	stp	x10, x11, [sp, #-16]!
-+	stp	x12, x13, [sp, #-16]!
-+	stp	x14, x15, [sp, #-16]!
-+	stp	x16, x17, [sp, #-16]!
-+.endm
-+
-+.macro restore_caller_saved_regs_vect
-+	ldp	x16, x17, [sp], #16
-+	ldp	x14, x15, [sp], #16
-+	ldp	x12, x13, [sp], #16
-+	ldp	x10, x11, [sp], #16
-+	ldp	x8, x9,   [sp], #16
-+	ldp	x6, x7,   [sp], #16
-+	ldp	x4, x5,   [sp], #16
-+	ldp	x2, x3,   [sp], #16
-+	ldp	x0, x1,   [sp], #16
-+.endm
-+
- 	.text
- 	.pushsection	.hyp.text, "ax"
- 
-@@ -142,13 +166,19 @@ el1_error:
- 	b	__guest_exit
- 
- el2_sync:
--	/* Check for illegal exception return, otherwise panic */
-+	/* Check for illegal exception return */
- 	mrs	x0, spsr_el2
-+	tbnz	x0, #20, 1f
- 
--	/* if this was something else, then panic! */
--	tst	x0, #PSR_IL_BIT
--	b.eq	__hyp_panic
-+	save_caller_saved_regs_vect
-+	stp     x29, x30, [sp, #-16]!
-+	bl	kvm_unexpected_el2_exception
-+	ldp     x29, x30, [sp], #16
-+	restore_caller_saved_regs_vect
- 
-+	eret
-+
-+1:
- 	/* Let's attempt a recovery from the illegal exception return */
- 	get_vcpu_ptr	x1, x0
- 	mov	x0, #ARM_EXCEPTION_IL
-@@ -156,27 +186,14 @@ el2_sync:
- 
- 
- el2_error:
--	ldp	x0, x1, [sp], #16
-+	save_caller_saved_regs_vect
-+	stp     x29, x30, [sp, #-16]!
-+
-+	bl	kvm_unexpected_el2_exception
-+
-+	ldp     x29, x30, [sp], #16
-+	restore_caller_saved_regs_vect
- 
--	/*
--	 * Only two possibilities:
--	 * 1) Either we come from the exit path, having just unmasked
--	 *    PSTATE.A: change the return code to an EL2 fault, and
--	 *    carry on, as we're already in a sane state to handle it.
--	 * 2) Or we come from anywhere else, and that's a bug: we panic.
--	 *
--	 * For (1), x0 contains the original return code and x1 doesn't
--	 * contain anything meaningful at that stage. We can reuse them
--	 * as temp registers.
--	 * For (2), who cares?
--	 */
--	mrs	x0, elr_el2
--	adr	x1, abort_guest_exit_start
--	cmp	x0, x1
--	adr	x1, abort_guest_exit_end
--	ccmp	x0, x1, #4, ne
--	b.ne	__hyp_panic
--	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
- 	eret
- 	sb
- 
-diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index 9270b14157b5..ba225e09aaf1 100644
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -14,6 +14,7 @@
- 
- #include <asm/barrier.h>
- #include <asm/cpufeature.h>
-+#include <asm/extable.h>
- #include <asm/kprobes.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_emulate.h>
-@@ -24,6 +25,9 @@
- #include <asm/processor.h>
- #include <asm/thread_info.h>
- 
-+extern struct exception_table_entry __start___kvm_ex_table;
-+extern struct exception_table_entry __stop___kvm_ex_table;
-+
- /* Check whether the FP regs were dirtied while in the host-side run loop: */
- static bool __hyp_text update_fp_enabled(struct kvm_vcpu *vcpu)
- {
-@@ -299,10 +303,10 @@ static bool __hyp_text __translate_far_to_hpfar(u64 far, u64 *hpfar)
- 	 * saved the guest context yet, and we may return early...
- 	 */
- 	par = read_sysreg(par_el1);
--	asm volatile("at s1e1r, %0" : : "r" (far));
--	isb();
--
--	tmp = read_sysreg(par_el1);
-+	if (!__kvm_at("s1e1r", far))
-+		tmp = read_sysreg(par_el1);
-+	else
-+		tmp = SYS_PAR_EL1_F; /* back to the guest */
- 	write_sysreg(par, par_el1);
- 
- 	if (unlikely(tmp & SYS_PAR_EL1_F))
-@@ -934,3 +938,30 @@ void __hyp_text __noreturn hyp_panic(struct kvm_cpu_context *host_ctxt)
- 
- 	unreachable();
- }
-+
-+asmlinkage void __hyp_text kvm_unexpected_el2_exception(void)
-+{
-+	unsigned long addr, fixup;
-+	struct kvm_cpu_context *host_ctxt;
-+	struct exception_table_entry *entry, *end;
-+	unsigned long elr_el2 = read_sysreg(elr_el2);
-+
-+	entry = hyp_symbol_addr(__start___kvm_ex_table);
-+	end = hyp_symbol_addr(__stop___kvm_ex_table);
-+	host_ctxt = &__hyp_this_cpu_ptr(kvm_host_data)->host_ctxt;
-+
-+	while (entry < end) {
-+		addr = (unsigned long)&entry->insn + entry->insn;
-+		fixup = (unsigned long)&entry->fixup + entry->fixup;
-+
-+		if (addr != elr_el2) {
-+			entry++;
-+			continue;
-+		}
-+
-+		write_sysreg(fixup, elr_el2);
-+		return;
-+	}
-+
-+	hyp_panic(host_ctxt);
-+}
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 359616e3efbb..d2ecc9c45255 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1597,6 +1597,17 @@ static void hid_output_field(const struct hid_device *hid,
- 	}
- }
- 
-+/*
-+ * Compute the size of a report.
-+ */
-+static size_t hid_compute_report_size(struct hid_report *report)
-+{
-+	if (report->size)
-+		return ((report->size - 1) >> 3) + 1;
-+
-+	return 0;
-+}
-+
- /*
-  * Create a report. 'data' has to be allocated using
-  * hid_alloc_report_buf() so that it has proper size.
-@@ -1609,7 +1620,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
- 	if (report->id > 0)
- 		*data++ = report->id;
- 
--	memset(data, 0, ((report->size - 1) >> 3) + 1);
-+	memset(data, 0, hid_compute_report_size(report));
- 	for (n = 0; n < report->maxfield; n++)
- 		hid_output_field(report->device, report->field[n], data);
- }
-@@ -1739,7 +1750,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
- 		csize--;
- 	}
- 
--	rsize = ((report->size - 1) >> 3) + 1;
-+	rsize = hid_compute_report_size(report);
- 
- 	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
- 		rsize = HID_MAX_BUFFER_SIZE - 1;
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index e8641ce677e4..e3d475f4baf6 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1132,6 +1132,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 	}
- 
- mapped:
-+	/* Mapping failed, bail out */
-+	if (!bit)
-+		return;
-+
- 	if (device->driver->input_mapped &&
- 	    device->driver->input_mapped(device, hidinput, field, usage,
- 					 &bit, &max) < 0) {
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3f94b4954225..e3152155c4b8 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -856,6 +856,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
- 
- 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-+		if (!*bit)
-+			return -1;
- 		input_set_capability(hi->input, EV_KEY, code);
- 		return 1;
- 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 2322f08a98be..5e057f798a15 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -3186,14 +3186,16 @@ static int video_put_user(void __user *arg, void *parg, unsigned int cmd)
- #ifdef CONFIG_COMPAT_32BIT_TIME
- 	case VIDIOC_DQEVENT_TIME32: {
- 		struct v4l2_event *ev = parg;
--		struct v4l2_event_time32 ev32 = {
--			.type		= ev->type,
--			.pending	= ev->pending,
--			.sequence	= ev->sequence,
--			.timestamp.tv_sec  = ev->timestamp.tv_sec,
--			.timestamp.tv_nsec = ev->timestamp.tv_nsec,
--			.id		= ev->id,
--		};
-+		struct v4l2_event_time32 ev32;
-+
-+		memset(&ev32, 0, sizeof(ev32));
-+
-+		ev32.type	= ev->type;
-+		ev32.pending	= ev->pending;
-+		ev32.sequence	= ev->sequence;
-+		ev32.timestamp.tv_sec	= ev->timestamp.tv_sec;
-+		ev32.timestamp.tv_nsec	= ev->timestamp.tv_nsec;
-+		ev32.id		= ev->id;
- 
- 		memcpy(&ev32.u, &ev->u, sizeof(ev->u));
- 		memcpy(&ev32.reserved, &ev->reserved, sizeof(ev->reserved));
-@@ -3207,21 +3209,23 @@ static int video_put_user(void __user *arg, void *parg, unsigned int cmd)
- 	case VIDIOC_DQBUF_TIME32:
- 	case VIDIOC_PREPARE_BUF_TIME32: {
- 		struct v4l2_buffer *vb = parg;
--		struct v4l2_buffer_time32 vb32 = {
--			.index		= vb->index,
--			.type		= vb->type,
--			.bytesused	= vb->bytesused,
--			.flags		= vb->flags,
--			.field		= vb->field,
--			.timestamp.tv_sec	= vb->timestamp.tv_sec,
--			.timestamp.tv_usec	= vb->timestamp.tv_usec,
--			.timecode	= vb->timecode,
--			.sequence	= vb->sequence,
--			.memory		= vb->memory,
--			.m.userptr	= vb->m.userptr,
--			.length		= vb->length,
--			.request_fd	= vb->request_fd,
--		};
-+		struct v4l2_buffer_time32 vb32;
-+
-+		memset(&vb32, 0, sizeof(vb32));
-+
-+		vb32.index	= vb->index;
-+		vb32.type	= vb->type;
-+		vb32.bytesused	= vb->bytesused;
-+		vb32.flags	= vb->flags;
-+		vb32.field	= vb->field;
-+		vb32.timestamp.tv_sec	= vb->timestamp.tv_sec;
-+		vb32.timestamp.tv_usec	= vb->timestamp.tv_usec;
-+		vb32.timecode	= vb->timecode;
-+		vb32.sequence	= vb->sequence;
-+		vb32.memory	= vb->memory;
-+		vb32.m.userptr	= vb->m.userptr;
-+		vb32.length	= vb->length;
-+		vb32.request_fd	= vb->request_fd;
- 
- 		if (copy_to_user(arg, &vb32, sizeof(vb32)))
- 			return -EFAULT;
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 3a372ab3d12e..db1a8d1c96b3 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -1409,7 +1409,6 @@ static const struct sdhci_ops tegra210_sdhci_ops = {
- 
- static const struct sdhci_pltfm_data sdhci_tegra210_pdata = {
- 	.quirks = SDHCI_QUIRK_BROKEN_TIMEOUT_VAL |
--		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
- 		  SDHCI_QUIRK_SINGLE_POWER_WRITE |
- 		  SDHCI_QUIRK_NO_HISPD_BIT |
- 		  SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC |
-@@ -1447,7 +1446,6 @@ static const struct sdhci_ops tegra186_sdhci_ops = {
- 
- static const struct sdhci_pltfm_data sdhci_tegra186_pdata = {
- 	.quirks = SDHCI_QUIRK_BROKEN_TIMEOUT_VAL |
--		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
- 		  SDHCI_QUIRK_SINGLE_POWER_WRITE |
- 		  SDHCI_QUIRK_NO_HISPD_BIT |
- 		  SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC |
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 9ab960cc39b6..0209bc23e631 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -676,8 +676,10 @@ static void scatter_data_area(struct tcmu_dev *udev,
- 		from = kmap_atomic(sg_page(sg)) + sg->offset;
- 		while (sg_remaining > 0) {
- 			if (block_remaining == 0) {
--				if (to)
-+				if (to) {
-+					flush_dcache_page(page);
- 					kunmap_atomic(to);
-+				}
- 
- 				block_remaining = DATA_BLOCK_SIZE;
- 				dbi = tcmu_cmd_get_dbi(tcmu_cmd);
-@@ -722,7 +724,6 @@ static void scatter_data_area(struct tcmu_dev *udev,
- 				memcpy(to + offset,
- 				       from + sg->length - sg_remaining,
- 				       copy_bytes);
--				tcmu_flush_dcache_range(to, copy_bytes);
- 			}
- 
- 			sg_remaining -= copy_bytes;
-@@ -731,8 +732,10 @@ static void scatter_data_area(struct tcmu_dev *udev,
- 		kunmap_atomic(from - sg->offset);
- 	}
- 
--	if (to)
-+	if (to) {
-+		flush_dcache_page(page);
- 		kunmap_atomic(to);
-+	}
- }
- 
- static void gather_data_area(struct tcmu_dev *udev, struct tcmu_cmd *cmd,
-@@ -778,13 +781,13 @@ static void gather_data_area(struct tcmu_dev *udev, struct tcmu_cmd *cmd,
- 				dbi = tcmu_cmd_get_dbi(cmd);
- 				page = tcmu_get_block_page(udev, dbi);
- 				from = kmap_atomic(page);
-+				flush_dcache_page(page);
- 			}
- 			copy_bytes = min_t(size_t, sg_remaining,
- 					block_remaining);
- 			if (read_len < copy_bytes)
- 				copy_bytes = read_len;
- 			offset = DATA_BLOCK_SIZE - block_remaining;
--			tcmu_flush_dcache_range(from, copy_bytes);
- 			memcpy(to + sg->length - sg_remaining, from + offset,
- 					copy_bytes);
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 875f71132b14..c7044a14200e 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -959,34 +959,49 @@ static inline void hid_device_io_stop(struct hid_device *hid) {
-  * @max: maximal valid usage->code to consider later (out parameter)
-  * @type: input event type (EV_KEY, EV_REL, ...)
-  * @c: code which corresponds to this usage and type
-+ *
-+ * The value pointed to by @bit will be set to NULL if either @type is
-+ * an unhandled event type, or if @c is out of range for @type. This
-+ * can be used as an error condition.
-  */
- static inline void hid_map_usage(struct hid_input *hidinput,
- 		struct hid_usage *usage, unsigned long **bit, int *max,
--		__u8 type, __u16 c)
-+		__u8 type, unsigned int c)
- {
- 	struct input_dev *input = hidinput->input;
--
--	usage->type = type;
--	usage->code = c;
-+	unsigned long *bmap = NULL;
-+	unsigned int limit = 0;
- 
- 	switch (type) {
- 	case EV_ABS:
--		*bit = input->absbit;
--		*max = ABS_MAX;
-+		bmap = input->absbit;
-+		limit = ABS_MAX;
- 		break;
- 	case EV_REL:
--		*bit = input->relbit;
--		*max = REL_MAX;
-+		bmap = input->relbit;
-+		limit = REL_MAX;
- 		break;
- 	case EV_KEY:
--		*bit = input->keybit;
--		*max = KEY_MAX;
-+		bmap = input->keybit;
-+		limit = KEY_MAX;
- 		break;
- 	case EV_LED:
--		*bit = input->ledbit;
--		*max = LED_MAX;
-+		bmap = input->ledbit;
-+		limit = LED_MAX;
- 		break;
- 	}
-+
-+	if (unlikely(c > limit || !bmap)) {
-+		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
-+				    input->name, c, type);
-+		*bit = NULL;
-+		return;
-+	}
-+
-+	usage->type = type;
-+	usage->code = c;
-+	*max = limit;
-+	*bit = bmap;
- }
- 
- /**
-@@ -1000,7 +1015,8 @@ static inline void hid_map_usage_clear(struct hid_input *hidinput,
- 		__u8 type, __u16 c)
- {
- 	hid_map_usage(hidinput, usage, bit, max, type, c);
--	clear_bit(c, *bit);
-+	if (*bit)
-+		clear_bit(usage->code, *bit);
- }
- 
- /**
-diff --git a/mm/gup.c b/mm/gup.c
-index 6f47697f8fb0..0d8d76f10ac6 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -843,7 +843,7 @@ static int get_gate_page(struct mm_struct *mm, unsigned long address,
- 			goto unmap;
- 		*page = pte_page(*pte);
- 	}
--	if (unlikely(!try_get_page(*page))) {
-+	if (unlikely(!try_grab_page(*page, gup_flags))) {
- 		ret = -ENOMEM;
- 		goto unmap;
- 	}
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index b6aad3fc46c3..b85ce6f0c0a6 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -238,21 +238,27 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
- 	 *
- 	 * b1. _ _ __>|  !_ _ __|  (insert end before existing start)
- 	 * b2. _ _ ___|  !_ _ _>|  (insert end after existing start)
--	 * b3. _ _ ___! >|_ _ __|  (insert start after existing end)
-+	 * b3. _ _ ___! >|_ _ __|  (insert start after existing end, as a leaf)
-+	 *            '--' no nodes falling in this range
-+	 * b4.          >|_ _   !  (insert start before existing start)
- 	 *
- 	 * Case a3. resolves to b3.:
- 	 * - if the inserted start element is the leftmost, because the '0'
- 	 *   element in the tree serves as end element
--	 * - otherwise, if an existing end is found. Note that end elements are
--	 *   always inserted after corresponding start elements.
-+	 * - otherwise, if an existing end is found immediately to the left. If
-+	 *   there are existing nodes in between, we need to further descend the
-+	 *   tree before we can conclude the new start isn't causing an overlap
-+	 *
-+	 * or to b4., which, preceded by a3., means we already traversed one or
-+	 * more existing intervals entirely, from the right.
- 	 *
- 	 * For a new, rightmost pair of elements, we'll hit cases b3. and b2.,
- 	 * in that order.
- 	 *
- 	 * The flag is also cleared in two special cases:
- 	 *
--	 * b4. |__ _ _!|<_ _ _   (insert start right before existing end)
--	 * b5. |__ _ >|!__ _ _   (insert end right after existing start)
-+	 * b5. |__ _ _!|<_ _ _   (insert start right before existing end)
-+	 * b6. |__ _ >|!__ _ _   (insert end right after existing start)
- 	 *
- 	 * which always happen as last step and imply that no further
- 	 * overlapping is possible.
-@@ -272,7 +278,7 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
- 			if (nft_rbtree_interval_start(new)) {
- 				if (nft_rbtree_interval_end(rbe) &&
- 				    nft_set_elem_active(&rbe->ext, genmask) &&
--				    !nft_set_elem_expired(&rbe->ext))
-+				    !nft_set_elem_expired(&rbe->ext) && !*p)
- 					overlap = false;
- 			} else {
- 				overlap = nft_rbtree_interval_end(rbe) &&
-@@ -288,10 +294,9 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
- 					  nft_set_elem_active(&rbe->ext,
- 							      genmask) &&
- 					  !nft_set_elem_expired(&rbe->ext);
--			} else if (nft_rbtree_interval_end(rbe) &&
--				   nft_set_elem_active(&rbe->ext, genmask) &&
-+			} else if (nft_set_elem_active(&rbe->ext, genmask) &&
- 				   !nft_set_elem_expired(&rbe->ext)) {
--				overlap = true;
-+				overlap = nft_rbtree_interval_end(rbe);
- 			}
- 		} else {
- 			if (nft_rbtree_interval_end(rbe) &&
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 7fbca0854265..279c87a2a523 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -6010,7 +6010,7 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
- 
- 	if (info->attrs[NL80211_ATTR_HE_6GHZ_CAPABILITY])
- 		params.he_6ghz_capa =
--			nla_data(info->attrs[NL80211_ATTR_HE_CAPABILITY]);
-+			nla_data(info->attrs[NL80211_ATTR_HE_6GHZ_CAPABILITY]);
- 
- 	if (info->attrs[NL80211_ATTR_AIRTIME_WEIGHT])
- 		params.airtime_weight =
-diff --git a/tools/perf/Documentation/perf-record.txt b/tools/perf/Documentation/perf-record.txt
-index fa8a5fcd27ab..950e4ad21374 100644
---- a/tools/perf/Documentation/perf-record.txt
-+++ b/tools/perf/Documentation/perf-record.txt
-@@ -33,6 +33,10 @@ OPTIONS
-         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
- 
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
- 	  'param1', 'param2', etc are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*.
-diff --git a/tools/perf/Documentation/perf-stat.txt b/tools/perf/Documentation/perf-stat.txt
-index b029ee728a0b..c8209467076b 100644
---- a/tools/perf/Documentation/perf-stat.txt
-+++ b/tools/perf/Documentation/perf-stat.txt
-@@ -39,6 +39,10 @@ report::
- 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
- 
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
- 	  param1 and param2 are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*
-diff --git a/tools/testing/selftests/x86/test_vsyscall.c b/tools/testing/selftests/x86/test_vsyscall.c
-index c41f24b517f4..65c141ebfbbd 100644
---- a/tools/testing/selftests/x86/test_vsyscall.c
-+++ b/tools/testing/selftests/x86/test_vsyscall.c
-@@ -462,6 +462,17 @@ static int test_vsys_x(void)
- 	return 0;
- }
- 
-+/*
-+ * Debuggers expect ptrace() to be able to peek at the vsyscall page.
-+ * Use process_vm_readv() as a proxy for ptrace() to test this.  We
-+ * want it to work in the vsyscall=emulate case and to fail in the
-+ * vsyscall=xonly case.
-+ *
-+ * It's worth noting that this ABI is a bit nutty.  write(2) can't
-+ * read from the vsyscall page on any kernel version or mode.  The
-+ * fact that ptrace() ever worked was a nice courtesy of old kernels,
-+ * but the code to support it is fairly gross.
-+ */
- static int test_process_vm_readv(void)
- {
- #ifdef __x86_64__
-@@ -477,8 +488,12 @@ static int test_process_vm_readv(void)
- 	remote.iov_len = 4096;
- 	ret = process_vm_readv(getpid(), &local, 1, &remote, 1, 0);
- 	if (ret != 4096) {
--		printf("[OK]\tprocess_vm_readv() failed (ret = %d, errno = %d)\n", ret, errno);
--		return 0;
-+		/*
-+		 * We expect process_vm_readv() to work if and only if the
-+		 * vsyscall page is readable.
-+		 */
-+		printf("[%s]\tprocess_vm_readv() failed (ret = %d, errno = %d)\n", vsyscall_map_r ? "FAIL" : "OK", ret, errno);
-+		return vsyscall_map_r ? 1 : 0;
- 	}
- 
- 	if (vsyscall_map_r) {
-@@ -488,6 +503,9 @@ static int test_process_vm_readv(void)
- 			printf("[FAIL]\tIt worked but returned incorrect data\n");
- 			return 1;
- 		}
-+	} else {
-+		printf("[FAIL]\tprocess_rm_readv() succeeded, but it should have failed in this configuration\n");
-+		return 1;
- 	}
- #endif
- 
+stable/linux-5.4.y build: 198 builds: 1 failed, 197 passed, 1 error, 125 wa=
+rnings (v5.4.63)
+
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.63/
+
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.63
+Git Commit: e32f4fa1b24d825b2560ca9cfbfd9df44a4310b4
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Built: 7 unique architectures
+
+Build Failure Detected:
+
+mips:
+    ip27_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 1 warning
+    axs103_defconfig (gcc-8): 2 warnings
+    axs103_smp_defconfig (gcc-8): 2 warnings
+    haps_hs_defconfig (gcc-8): 2 warnings
+    haps_hs_smp_defconfig (gcc-8): 3 warnings
+    hsdk_defconfig (gcc-8): 2 warnings
+    nsim_hs_defconfig (gcc-8): 3 warnings
+    nsim_hs_smp_defconfig (gcc-8): 3 warnings
+    nsimosci_hs_defconfig (gcc-8): 3 warnings
+    nsimosci_hs_smp_defconfig (gcc-8): 3 warnings
+    tinyconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
+
+arm64:
+    defconfig (gcc-8): 14 warnings
+
+arm:
+    am200epdkit_defconfig (gcc-8): 1 warning
+    assabet_defconfig (gcc-8): 1 warning
+    at91_dt_defconfig (gcc-8): 1 warning
+    axm55xx_defconfig (gcc-8): 1 warning
+    cm_x2xx_defconfig (gcc-8): 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    cns3420vb_defconfig (gcc-8): 1 warning
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    collie_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    dove_defconfig (gcc-8): 1 warning
+    em_x270_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    exynos_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 1 warning
+    h3600_defconfig (gcc-8): 1 warning
+    h5000_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v4_v5_defconfig (gcc-8): 2 warnings
+    imx_v6_v7_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    ixp4xx_defconfig (gcc-8): 1 warning
+    keystone_defconfig (gcc-8): 2 warnings
+    lpc32xx_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    milbeaut_m10v_defconfig (gcc-8): 1 warning
+    mini2440_defconfig (gcc-8): 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 2 warnings
+    multi_v7_defconfig (gcc-8): 1 warning
+    mv78xx0_defconfig (gcc-8): 2 warnings
+    mvebu_v5_defconfig (gcc-8): 2 warnings
+    mvebu_v7_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 1 warning
+    omap2plus_defconfig (gcc-8): 2 warnings
+    orion5x_defconfig (gcc-8): 2 warnings
+    oxnas_v6_defconfig (gcc-8): 1 warning
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    pxa_defconfig (gcc-8): 1 warning
+    qcom_defconfig (gcc-8): 2 warnings
+    realview_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    spear13xx_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 warning
+    u300_defconfig (gcc-8): 1 warning
+    u8500_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 2 warnings
+    zeus_defconfig (gcc-8): 1 warning
+
+i386:
+    i386_defconfig (gcc-8): 1 warning
+
+mips:
+    ip27_defconfig (gcc-8): 1 error
+
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+    x86_64_defconfig (gcc-8): 1 warning
+
+Errors summary:
+
+    1    /scratch/linux/arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=
+=80=98struct bridge_irq_chip_data=E2=80=99 has no member named =E2=80=98nna=
+sid=E2=80=99; did you mean =E2=80=98nasid=E2=80=99?
+
+Warnings summary:
+
+    60   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    24   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    17   /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with n=
+o effect [-Wunused-value]
+    5    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=
+=80=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-funct=
+ion]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    2    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: ca=
+st from pointer to integer of different size [-Wpointer-to-int-cast]
+    2    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29=
+: Warning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 b=
+ytes) (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
+ce_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
+e_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
+_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    /scratch/linux/arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Wa=
+rning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes=
+) (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    1    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+Section mismatches summary:
+
+    1    WARNING: vmlinux.o(.text.unlikely+0x3548): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    1    WARNING: vmlinux.o(.text.unlikely+0x31cc): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3548): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x31cc): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: cast fr=
+om pointer to integer of different size [-Wpointer-to-int-cast]
+    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: cast fr=
+om pointer to integer of different size [-Wpointer-to-int-cast]
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: War=
+ning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)=
+ (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device_bus_=
+num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg): F=
+ailed prerequisite 'reg_format'
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: War=
+ning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)=
+ (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_device_bus=
+_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg): =
+Failed prerequisite 'reg_format'
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning=
+ (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#a=
+ddress-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_device_bu=
+s_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_reg):=
+ Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
+ Failed prerequisite 'reg_format'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    /scratch/linux/arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=80=98=
+struct bridge_irq_chip_data=E2=80=99 has no member named =E2=80=98nnasid=E2=
+=80=99; did you mean =E2=80=98nasid=E2=80=99?
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
