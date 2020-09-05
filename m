@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE62E25E6D2
-	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 11:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDDC025E6D4
+	for <lists+stable@lfdr.de>; Sat,  5 Sep 2020 11:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726372AbgIEJsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Sep 2020 05:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42108 "EHLO mail.kernel.org"
+        id S1728323AbgIEJsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Sep 2020 05:48:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbgIEJsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Sep 2020 05:48:12 -0400
+        id S1726302AbgIEJsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Sep 2020 05:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16C5220757;
-        Sat,  5 Sep 2020 09:48:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F56A20757;
+        Sat,  5 Sep 2020 09:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599299291;
-        bh=q9hHeNfdmmBESDQ+NBQkYcYrFydynelEFh0AsG82ahc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rYVW4QOww5raXKMYefedzZI4wFFYt9tMjdQ+LttdoVS/EENTgJPc2OSHBKMsCXacm
-         Kj3pKfQQ/SzOxIQvUsB+3mfgwQ1jtQlO+tuJwJfmOtnLDaLJUqYDMZ4Qhj2lSFsr2y
-         +EIzGUJ3cB6bwMBeimapJsXSjQJP3LIEkl6QjAvk=
+        s=default; t=1599299297;
+        bh=TdTgQ2+JgbmcNnmWK9igNlhqeBcAimeEGXtYuYL89js=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OUL8KBdXurBcOUrwv7yCh4re0NQLaucF0Rdd48Lwl0aGeNDzhSgQcIzToAiJO0mrd
+         5lEU7RIaKkPXh1ZSVYFfciLomWPVGPV1lRUwlq1CjE56rwDLEFLQ/FYAWWbdzmdCTR
+         UEg68ndEcSc/2YmZExTGLMpXq3ANivL51Uw0Anbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.63
-Date:   Sat,  5 Sep 2020 11:48:29 +0200
-Message-Id: <159929930931111@kroah.com>
+Subject: Re: Linux 5.4.63
+Date:   Sat,  5 Sep 2020 11:48:30 +0200
+Message-Id: <1599299309150116@kroah.com>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <159929930931111@kroah.com>
+References: <159929930931111@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -39,75 +41,934 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.63 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt |   32 ++++
- Makefile                                                       |    2 
- arch/arm64/boot/dts/nvidia/tegra186.dtsi                       |   20 +--
- arch/arm64/boot/dts/nvidia/tegra194.dtsi                       |   15 +-
- arch/arm64/boot/dts/nvidia/tegra210.dtsi                       |   20 +--
- arch/arm64/include/asm/kvm_arm.h                               |    3 
- arch/arm64/include/asm/kvm_asm.h                               |   43 ++++++
- arch/arm64/kernel/vmlinux.lds.S                                |    8 +
- arch/arm64/kvm/hyp/entry.S                                     |   15 +-
- arch/arm64/kvm/hyp/hyp-entry.S                                 |   65 ++++++----
- arch/arm64/kvm/hyp/switch.c                                    |   39 +++++-
- drivers/gpu/drm/etnaviv/etnaviv_buffer.c                       |   60 ++++++++-
- drivers/gpu/drm/etnaviv/state_blt.xml.h                        |    2 
- drivers/gpu/drm/scheduler/sched_main.c                         |    7 -
- drivers/hid/hid-core.c                                         |   15 ++
- drivers/hid/hid-input.c                                        |    4 
- drivers/hid/hid-multitouch.c                                   |    2 
- drivers/mmc/host/sdhci-tegra.c                                 |    2 
- drivers/target/target_core_user.c                              |   15 +-
- include/linux/hid.h                                            |   42 ++++--
- tools/perf/Documentation/perf-record.txt                       |    4 
- tools/perf/Documentation/perf-stat.txt                         |    4 
- 22 files changed, 328 insertions(+), 91 deletions(-)
-
-Andrey Grodzovsky (1):
-      drm/sched: Fix passing zero to 'PTR_ERR' warning v2
-
-Bodo Stroesser (2):
-      scsi: target: tcmu: Fix size in calls to tcmu_flush_dcache_range
-      scsi: target: tcmu: Optimize use of flush_dcache_page
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.63
-
-James Morse (3):
-      KVM: arm64: Add kvm_extable for vaxorcism code
-      KVM: arm64: Survive synchronous exceptions caused by AT instructions
-      KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
-
-Kim Phillips (1):
-      perf record/stat: Explicitly call out event modifiers in the documentation
-
-Lucas Stach (1):
-      drm/etnaviv: fix TS cache flushing on GPUs with BLT engine
-
-Marc Zyngier (2):
-      HID: core: Correctly handle ReportSize being zero
-      HID: core: Sanitize event code and type when mapping input
-
-Sowjanya Komatineni (6):
-      dt-bindings: mmc: tegra: Add tmclk for Tegra210 and later
-      arm64: tegra: Add missing timeout clock to Tegra194 SDMMC nodes
-      arm64: tegra: Add missing timeout clock to Tegra186 SDMMC nodes
-      arm64: tegra: Add missing timeout clock to Tegra210 SDMMC
-      sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra210
-      sdhci: tegra: Remove SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK for Tegra186
-
+diff --git a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
+index 2cf3affa1be7..96c0b1440c9c 100644
+--- a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
++++ b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.txt
+@@ -15,8 +15,15 @@ Required properties:
+   - "nvidia,tegra210-sdhci": for Tegra210
+   - "nvidia,tegra186-sdhci": for Tegra186
+   - "nvidia,tegra194-sdhci": for Tegra194
+-- clocks : Must contain one entry, for the module clock.
+-  See ../clocks/clock-bindings.txt for details.
++- clocks: For Tegra210, Tegra186 and Tegra194 must contain two entries.
++	  One for the module clock and one for the timeout clock.
++	  For all other Tegra devices, must contain a single entry for
++	  the module clock. See ../clocks/clock-bindings.txt for details.
++- clock-names: For Tegra210, Tegra186 and Tegra194 must contain the
++	       strings 'sdhci' and 'tmclk' to represent the module and
++	       the timeout clocks, respectively.
++	       For all other Tegra devices must contain the string 'sdhci'
++	       to represent the module clock.
+ - resets : Must contain an entry for each entry in reset-names.
+   See ../reset/reset.txt for details.
+ - reset-names : Must include the following entries:
+@@ -99,7 +106,7 @@ Optional properties for Tegra210, Tegra186 and Tegra194:
+ 
+ Example:
+ sdhci@700b0000 {
+-	compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
++	compatible = "nvidia,tegra124-sdhci";
+ 	reg = <0x0 0x700b0000 0x0 0x200>;
+ 	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+ 	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
+@@ -115,3 +122,22 @@ sdhci@700b0000 {
+ 	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
+ 	status = "disabled";
+ };
++
++sdhci@700b0000 {
++	compatible = "nvidia,tegra210-sdhci";
++	reg = <0x0 0x700b0000 0x0 0x200>;
++	interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
++		 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++	clock-names = "sdhci", "tmclk";
++	resets = <&tegra_car 14>;
++	reset-names = "sdhci";
++	pinctrl-names = "sdmmc-3v3", "sdmmc-1v8";
++	pinctrl-0 = <&sdmmc1_3v3>;
++	pinctrl-1 = <&sdmmc1_1v8>;
++	nvidia,pad-autocal-pull-up-offset-3v3 = <0x00>;
++	nvidia,pad-autocal-pull-down-offset-3v3 = <0x7d>;
++	nvidia,pad-autocal-pull-up-offset-1v8 = <0x7b>;
++	nvidia,pad-autocal-pull-down-offset-1v8 = <0x7b>;
++	status = "disabled";
++};
+diff --git a/Makefile b/Makefile
+index aece56450bd9..418814b108ae 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 62
++SUBLEVEL = 63
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+index 47cd831fcf44..9abf0cb1dd67 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+@@ -309,8 +309,9 @@
+ 		compatible = "nvidia,tegra186-sdhci";
+ 		reg = <0x0 0x03400000 0x0 0x10000>;
+ 		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&bpmp TEGRA186_CLK_SDMMC1>;
+-		clock-names = "sdhci";
++		clocks = <&bpmp TEGRA186_CLK_SDMMC1>,
++			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&bpmp TEGRA186_RESET_SDMMC1>;
+ 		reset-names = "sdhci";
+ 		iommus = <&smmu TEGRA186_SID_SDMMC1>;
+@@ -335,8 +336,9 @@
+ 		compatible = "nvidia,tegra186-sdhci";
+ 		reg = <0x0 0x03420000 0x0 0x10000>;
+ 		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&bpmp TEGRA186_CLK_SDMMC2>;
+-		clock-names = "sdhci";
++		clocks = <&bpmp TEGRA186_CLK_SDMMC2>,
++			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&bpmp TEGRA186_RESET_SDMMC2>;
+ 		reset-names = "sdhci";
+ 		iommus = <&smmu TEGRA186_SID_SDMMC2>;
+@@ -356,8 +358,9 @@
+ 		compatible = "nvidia,tegra186-sdhci";
+ 		reg = <0x0 0x03440000 0x0 0x10000>;
+ 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&bpmp TEGRA186_CLK_SDMMC3>;
+-		clock-names = "sdhci";
++		clocks = <&bpmp TEGRA186_CLK_SDMMC3>,
++			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&bpmp TEGRA186_RESET_SDMMC3>;
+ 		reset-names = "sdhci";
+ 		iommus = <&smmu TEGRA186_SID_SDMMC3>;
+@@ -379,8 +382,9 @@
+ 		compatible = "nvidia,tegra186-sdhci";
+ 		reg = <0x0 0x03460000 0x0 0x10000>;
+ 		interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&bpmp TEGRA186_CLK_SDMMC4>;
+-		clock-names = "sdhci";
++		clocks = <&bpmp TEGRA186_CLK_SDMMC4>,
++			 <&bpmp TEGRA186_CLK_SDMMC_LEGACY_TM>;
++		clock-names = "sdhci", "tmclk";
+ 		assigned-clocks = <&bpmp TEGRA186_CLK_SDMMC4>,
+ 				  <&bpmp TEGRA186_CLK_PLLC4_VCO>;
+ 		assigned-clock-parents = <&bpmp TEGRA186_CLK_PLLC4_VCO>;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index 2f3926719434..5728255bd0c1 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -403,8 +403,9 @@
+ 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
+ 			reg = <0x03400000 0x10000>;
+ 			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&bpmp TEGRA194_CLK_SDMMC1>;
+-			clock-names = "sdhci";
++			clocks = <&bpmp TEGRA194_CLK_SDMMC1>,
++				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
++			clock-names = "sdhci", "tmclk";
+ 			resets = <&bpmp TEGRA194_RESET_SDMMC1>;
+ 			reset-names = "sdhci";
+ 			nvidia,pad-autocal-pull-up-offset-3v3-timeout =
+@@ -425,8 +426,9 @@
+ 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
+ 			reg = <0x03440000 0x10000>;
+ 			interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&bpmp TEGRA194_CLK_SDMMC3>;
+-			clock-names = "sdhci";
++			clocks = <&bpmp TEGRA194_CLK_SDMMC3>,
++				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
++			clock-names = "sdhci", "tmclk";
+ 			resets = <&bpmp TEGRA194_RESET_SDMMC3>;
+ 			reset-names = "sdhci";
+ 			nvidia,pad-autocal-pull-up-offset-1v8 = <0x00>;
+@@ -448,8 +450,9 @@
+ 			compatible = "nvidia,tegra194-sdhci", "nvidia,tegra186-sdhci";
+ 			reg = <0x03460000 0x10000>;
+ 			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&bpmp TEGRA194_CLK_SDMMC4>;
+-			clock-names = "sdhci";
++			clocks = <&bpmp TEGRA194_CLK_SDMMC4>,
++				 <&bpmp TEGRA194_CLK_SDMMC_LEGACY_TM>;
++			clock-names = "sdhci", "tmclk";
+ 			assigned-clocks = <&bpmp TEGRA194_CLK_SDMMC4>,
+ 					  <&bpmp TEGRA194_CLK_PLLC4>;
+ 			assigned-clock-parents =
+diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+index 659753118e96..078d2506365c 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -1116,8 +1116,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0000 0x0 0x200>;
+ 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC1>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 14>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
+@@ -1144,8 +1145,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0200 0x0 0x200>;
+ 		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC2>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 9>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-1v8-drv";
+@@ -1161,8 +1163,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0400 0x0 0x200>;
+ 		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC3>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 69>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3", "sdmmc-1v8",
+@@ -1184,8 +1187,9 @@
+ 		compatible = "nvidia,tegra210-sdhci", "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0600 0x0 0x200>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>;
+-		clock-names = "sdhci";
++		clocks = <&tegra_car TEGRA210_CLK_SDMMC4>,
++			 <&tegra_car TEGRA210_CLK_SDMMC_LEGACY>;
++		clock-names = "sdhci", "tmclk";
+ 		resets = <&tegra_car 15>;
+ 		reset-names = "sdhci";
+ 		pinctrl-names = "sdmmc-3v3-drv", "sdmmc-1v8-drv";
+diff --git a/arch/arm64/include/asm/kvm_arm.h b/arch/arm64/include/asm/kvm_arm.h
+index ddf9d762ac62..a4ffd9b55e72 100644
+--- a/arch/arm64/include/asm/kvm_arm.h
++++ b/arch/arm64/include/asm/kvm_arm.h
+@@ -72,11 +72,12 @@
+  * IMO:		Override CPSR.I and enable signaling with VI
+  * FMO:		Override CPSR.F and enable signaling with VF
+  * SWIO:	Turn set/way invalidates into set/way clean+invalidate
++ * PTW:		Take a stage2 fault if a stage1 walk steps in device memory
+  */
+ #define HCR_GUEST_FLAGS (HCR_TSC | HCR_TSW | HCR_TWE | HCR_TWI | HCR_VM | \
+ 			 HCR_TVM | HCR_BSU_IS | HCR_FB | HCR_TAC | \
+ 			 HCR_AMO | HCR_SWIO | HCR_TIDCP | HCR_RW | HCR_TLOR | \
+-			 HCR_FMO | HCR_IMO)
++			 HCR_FMO | HCR_IMO | HCR_PTW )
+ #define HCR_VIRT_EXCP_MASK (HCR_VSE | HCR_VI | HCR_VF)
+ #define HCR_HOST_NVHE_FLAGS (HCR_RW | HCR_API | HCR_APK)
+ #define HCR_HOST_VHE_FLAGS (HCR_RW | HCR_TGE | HCR_E2H)
+diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+index 44a243754c1b..64d79b288434 100644
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -88,6 +88,34 @@ extern u32 __kvm_get_mdcr_el2(void);
+ 		*__hyp_this_cpu_ptr(sym);				\
+ 	 })
+ 
++#define __KVM_EXTABLE(from, to)						\
++	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
++	"	.align		3\n"					\
++	"	.long		(" #from " - .), (" #to " - .)\n"	\
++	"	.popsection\n"
++
++
++#define __kvm_at(at_op, addr)						\
++( { 									\
++	int __kvm_at_err = 0;						\
++	u64 spsr, elr;							\
++	asm volatile(							\
++	"	mrs	%1, spsr_el2\n"					\
++	"	mrs	%2, elr_el2\n"					\
++	"1:	at	"at_op", %3\n"					\
++	"	isb\n"							\
++	"	b	9f\n"						\
++	"2:	msr	spsr_el2, %1\n"					\
++	"	msr	elr_el2, %2\n"					\
++	"	mov	%w0, %4\n"					\
++	"9:\n"								\
++	__KVM_EXTABLE(1b, 2b)						\
++	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
++	: "r" (addr), "i" (-EFAULT));					\
++	__kvm_at_err;							\
++} )
++
++
+ #else /* __ASSEMBLY__ */
+ 
+ .macro hyp_adr_this_cpu reg, sym, tmp
+@@ -113,6 +141,21 @@ extern u32 __kvm_get_mdcr_el2(void);
+ 	kern_hyp_va	\vcpu
+ .endm
+ 
++/*
++ * KVM extable for unexpected exceptions.
++ * In the same format _asm_extable, but output to a different section so that
++ * it can be mapped to EL2. The KVM version is not sorted. The caller must
++ * ensure:
++ * x18 has the hypervisor value to allow any Shadow-Call-Stack instrumented
++ * code to write to it, and that SPSR_EL2 and ELR_EL2 are restored by the fixup.
++ */
++.macro	_kvm_extable, from, to
++	.pushsection	__kvm_ex_table, "a"
++	.align		3
++	.long		(\from - .), (\to - .)
++	.popsection
++.endm
++
+ #endif
+ 
+ #endif /* __ARM_KVM_ASM_H__ */
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 8d0374ffdd2d..4f77de8ce138 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -24,6 +24,13 @@ ENTRY(_text)
+ 
+ jiffies = jiffies_64;
+ 
++
++#define HYPERVISOR_EXTABLE					\
++	. = ALIGN(SZ_8);					\
++	__start___kvm_ex_table = .;				\
++	*(__kvm_ex_table)					\
++	__stop___kvm_ex_table = .;
++
+ #define HYPERVISOR_TEXT					\
+ 	/*						\
+ 	 * Align to 4 KB so that			\
+@@ -39,6 +46,7 @@ jiffies = jiffies_64;
+ 	__hyp_idmap_text_end = .;			\
+ 	__hyp_text_start = .;				\
+ 	*(.hyp.text)					\
++	HYPERVISOR_EXTABLE				\
+ 	__hyp_text_end = .;
+ 
+ #define IDMAP_TEXT					\
+diff --git a/arch/arm64/kvm/hyp/entry.S b/arch/arm64/kvm/hyp/entry.S
+index e5cc8d66bf53..dc3d7bc2292f 100644
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -173,20 +173,23 @@ alternative_endif
+ 	// This is our single instruction exception window. A pending
+ 	// SError is guaranteed to occur at the earliest when we unmask
+ 	// it, and at the latest just after the ISB.
+-	.global	abort_guest_exit_start
+ abort_guest_exit_start:
+ 
+ 	isb
+ 
+-	.global	abort_guest_exit_end
+ abort_guest_exit_end:
+ 
+ 	msr	daifset, #4	// Mask aborts
++	ret
++
++	_kvm_extable	abort_guest_exit_start, 9997f
++	_kvm_extable	abort_guest_exit_end, 9997f
++9997:
++	msr	daifset, #4	// Mask aborts
++	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
+ 
+-	// If the exception took place, restore the EL1 exception
+-	// context so that we can report some information.
+-	// Merge the exception code with the SError pending bit.
+-	tbz	x0, #ARM_EXIT_WITH_SERROR_BIT, 1f
++	// restore the EL1 exception context so that we can report some
++	// information. Merge the exception code with the SError pending bit.
+ 	msr	elr_el2, x2
+ 	msr	esr_el2, x3
+ 	msr	spsr_el2, x4
+diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
+index ffa68d5713f1..f36aad0f207b 100644
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -15,6 +15,30 @@
+ #include <asm/kvm_mmu.h>
+ #include <asm/mmu.h>
+ 
++.macro save_caller_saved_regs_vect
++	/* x0 and x1 were saved in the vector entry */
++	stp	x2, x3,   [sp, #-16]!
++	stp	x4, x5,   [sp, #-16]!
++	stp	x6, x7,   [sp, #-16]!
++	stp	x8, x9,   [sp, #-16]!
++	stp	x10, x11, [sp, #-16]!
++	stp	x12, x13, [sp, #-16]!
++	stp	x14, x15, [sp, #-16]!
++	stp	x16, x17, [sp, #-16]!
++.endm
++
++.macro restore_caller_saved_regs_vect
++	ldp	x16, x17, [sp], #16
++	ldp	x14, x15, [sp], #16
++	ldp	x12, x13, [sp], #16
++	ldp	x10, x11, [sp], #16
++	ldp	x8, x9,   [sp], #16
++	ldp	x6, x7,   [sp], #16
++	ldp	x4, x5,   [sp], #16
++	ldp	x2, x3,   [sp], #16
++	ldp	x0, x1,   [sp], #16
++.endm
++
+ 	.text
+ 	.pushsection	.hyp.text, "ax"
+ 
+@@ -142,13 +166,19 @@ el1_error:
+ 	b	__guest_exit
+ 
+ el2_sync:
+-	/* Check for illegal exception return, otherwise panic */
++	/* Check for illegal exception return */
+ 	mrs	x0, spsr_el2
++	tbnz	x0, #20, 1f
+ 
+-	/* if this was something else, then panic! */
+-	tst	x0, #PSR_IL_BIT
+-	b.eq	__hyp_panic
++	save_caller_saved_regs_vect
++	stp     x29, x30, [sp, #-16]!
++	bl	kvm_unexpected_el2_exception
++	ldp     x29, x30, [sp], #16
++	restore_caller_saved_regs_vect
+ 
++	eret
++
++1:
+ 	/* Let's attempt a recovery from the illegal exception return */
+ 	get_vcpu_ptr	x1, x0
+ 	mov	x0, #ARM_EXCEPTION_IL
+@@ -156,27 +186,14 @@ el2_sync:
+ 
+ 
+ el2_error:
+-	ldp	x0, x1, [sp], #16
++	save_caller_saved_regs_vect
++	stp     x29, x30, [sp, #-16]!
++
++	bl	kvm_unexpected_el2_exception
++
++	ldp     x29, x30, [sp], #16
++	restore_caller_saved_regs_vect
+ 
+-	/*
+-	 * Only two possibilities:
+-	 * 1) Either we come from the exit path, having just unmasked
+-	 *    PSTATE.A: change the return code to an EL2 fault, and
+-	 *    carry on, as we're already in a sane state to handle it.
+-	 * 2) Or we come from anywhere else, and that's a bug: we panic.
+-	 *
+-	 * For (1), x0 contains the original return code and x1 doesn't
+-	 * contain anything meaningful at that stage. We can reuse them
+-	 * as temp registers.
+-	 * For (2), who cares?
+-	 */
+-	mrs	x0, elr_el2
+-	adr	x1, abort_guest_exit_start
+-	cmp	x0, x1
+-	adr	x1, abort_guest_exit_end
+-	ccmp	x0, x1, #4, ne
+-	b.ne	__hyp_panic
+-	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
+ 	eret
+ 	sb
+ 
+diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+index 6f4838b475d0..65660b614474 100644
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -14,6 +14,7 @@
+ 
+ #include <asm/arch_gicv3.h>
+ #include <asm/cpufeature.h>
++#include <asm/extable.h>
+ #include <asm/kprobes.h>
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_emulate.h>
+@@ -25,6 +26,9 @@
+ #include <asm/processor.h>
+ #include <asm/thread_info.h>
+ 
++extern struct exception_table_entry __start___kvm_ex_table;
++extern struct exception_table_entry __stop___kvm_ex_table;
++
+ /* Check whether the FP regs were dirtied while in the host-side run loop: */
+ static bool __hyp_text update_fp_enabled(struct kvm_vcpu *vcpu)
+ {
+@@ -257,10 +261,10 @@ static bool __hyp_text __translate_far_to_hpfar(u64 far, u64 *hpfar)
+ 	 * saved the guest context yet, and we may return early...
+ 	 */
+ 	par = read_sysreg(par_el1);
+-	asm volatile("at s1e1r, %0" : : "r" (far));
+-	isb();
+-
+-	tmp = read_sysreg(par_el1);
++	if (!__kvm_at("s1e1r", far))
++		tmp = read_sysreg(par_el1);
++	else
++		tmp = SYS_PAR_EL1_F; /* back to the guest */
+ 	write_sysreg(par, par_el1);
+ 
+ 	if (unlikely(tmp & SYS_PAR_EL1_F))
+@@ -791,3 +795,30 @@ void __hyp_text __noreturn hyp_panic(struct kvm_cpu_context *host_ctxt)
+ 
+ 	unreachable();
+ }
++
++asmlinkage void __hyp_text kvm_unexpected_el2_exception(void)
++{
++	unsigned long addr, fixup;
++	struct kvm_cpu_context *host_ctxt;
++	struct exception_table_entry *entry, *end;
++	unsigned long elr_el2 = read_sysreg(elr_el2);
++
++	entry = hyp_symbol_addr(__start___kvm_ex_table);
++	end = hyp_symbol_addr(__stop___kvm_ex_table);
++	host_ctxt = &__hyp_this_cpu_ptr(kvm_host_data)->host_ctxt;
++
++	while (entry < end) {
++		addr = (unsigned long)&entry->insn + entry->insn;
++		fixup = (unsigned long)&entry->fixup + entry->fixup;
++
++		if (addr != elr_el2) {
++			entry++;
++			continue;
++		}
++
++		write_sysreg(fixup, elr_el2);
++		return;
++	}
++
++	hyp_panic(host_ctxt);
++}
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+index 7e4e2959bf4f..0c9c40720ca9 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+@@ -12,6 +12,7 @@
+ 
+ #include "common.xml.h"
+ #include "state.xml.h"
++#include "state_blt.xml.h"
+ #include "state_hi.xml.h"
+ #include "state_3d.xml.h"
+ #include "cmdstream.xml.h"
+@@ -233,6 +234,8 @@ void etnaviv_buffer_end(struct etnaviv_gpu *gpu)
+ 	struct etnaviv_cmdbuf *buffer = &gpu->buffer;
+ 	unsigned int waitlink_offset = buffer->user_size - 16;
+ 	u32 link_target, flush = 0;
++	bool has_blt = !!(gpu->identity.minor_features5 &
++			  chipMinorFeatures5_BLT_ENGINE);
+ 
+ 	lockdep_assert_held(&gpu->lock);
+ 
+@@ -248,16 +251,38 @@ void etnaviv_buffer_end(struct etnaviv_gpu *gpu)
+ 	if (flush) {
+ 		unsigned int dwords = 7;
+ 
++		if (has_blt)
++			dwords += 10;
++
+ 		link_target = etnaviv_buffer_reserve(gpu, buffer, dwords);
+ 
+ 		CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
+ 		CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
++		if (has_blt) {
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x1);
++			CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++			CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x0);
++		}
+ 		CMD_LOAD_STATE(buffer, VIVS_GL_FLUSH_CACHE, flush);
+-		if (gpu->exec_state == ETNA_PIPE_3D)
+-			CMD_LOAD_STATE(buffer, VIVS_TS_FLUSH_CACHE,
+-				       VIVS_TS_FLUSH_CACHE_FLUSH);
++		if (gpu->exec_state == ETNA_PIPE_3D) {
++			if (has_blt) {
++				CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x1);
++				CMD_LOAD_STATE(buffer, VIVS_BLT_SET_COMMAND, 0x1);
++				CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x0);
++			} else {
++				CMD_LOAD_STATE(buffer, VIVS_TS_FLUSH_CACHE,
++					       VIVS_TS_FLUSH_CACHE_FLUSH);
++			}
++		}
+ 		CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
+ 		CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
++		if (has_blt) {
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x1);
++			CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++			CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x0);
++		}
+ 		CMD_END(buffer);
+ 
+ 		etnaviv_buffer_replace_wait(buffer, waitlink_offset,
+@@ -323,6 +348,8 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, u32 exec_state,
+ 	bool switch_mmu_context = gpu->mmu_context != mmu_context;
+ 	unsigned int new_flush_seq = READ_ONCE(gpu->mmu_context->flush_seq);
+ 	bool need_flush = switch_mmu_context || gpu->flush_seq != new_flush_seq;
++	bool has_blt = !!(gpu->identity.minor_features5 &
++			  chipMinorFeatures5_BLT_ENGINE);
+ 
+ 	lockdep_assert_held(&gpu->lock);
+ 
+@@ -433,6 +460,15 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, u32 exec_state,
+ 	 * 2 semaphore stall + 1 event + 1 wait + 1 link.
+ 	 */
+ 	return_dwords = 7;
++
++	/*
++	 * When the BLT engine is present we need 6 more dwords in the return
++	 * target: 3 enable/flush/disable + 4 enable/semaphore stall/disable,
++	 * but we don't need the normal TS flush state.
++	 */
++	if (has_blt)
++		return_dwords += 6;
++
+ 	return_target = etnaviv_buffer_reserve(gpu, buffer, return_dwords);
+ 	CMD_LINK(cmdbuf, return_dwords, return_target);
+ 
+@@ -447,11 +483,25 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, u32 exec_state,
+ 		CMD_LOAD_STATE(buffer, VIVS_GL_FLUSH_CACHE,
+ 				       VIVS_GL_FLUSH_CACHE_DEPTH |
+ 				       VIVS_GL_FLUSH_CACHE_COLOR);
+-		CMD_LOAD_STATE(buffer, VIVS_TS_FLUSH_CACHE,
+-				       VIVS_TS_FLUSH_CACHE_FLUSH);
++		if (has_blt) {
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x1);
++			CMD_LOAD_STATE(buffer, VIVS_BLT_SET_COMMAND, 0x1);
++			CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x0);
++		} else {
++			CMD_LOAD_STATE(buffer, VIVS_TS_FLUSH_CACHE,
++					       VIVS_TS_FLUSH_CACHE_FLUSH);
++		}
+ 	}
+ 	CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
+ 	CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
++
++	if (has_blt) {
++		CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x1);
++		CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++		CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_BLT);
++		CMD_LOAD_STATE(buffer, VIVS_BLT_ENABLE, 0x0);
++	}
++
+ 	CMD_LOAD_STATE(buffer, VIVS_GL_EVENT, VIVS_GL_EVENT_EVENT_ID(event) |
+ 		       VIVS_GL_EVENT_FROM_PE);
+ 	CMD_WAIT(buffer);
+diff --git a/drivers/gpu/drm/etnaviv/state_blt.xml.h b/drivers/gpu/drm/etnaviv/state_blt.xml.h
+index daae55995def..0e8bcf9dcc93 100644
+--- a/drivers/gpu/drm/etnaviv/state_blt.xml.h
++++ b/drivers/gpu/drm/etnaviv/state_blt.xml.h
+@@ -46,6 +46,8 @@ DEALINGS IN THE SOFTWARE.
+ 
+ /* This is a cut-down version of the state_blt.xml.h file */
+ 
++#define VIVS_BLT_SET_COMMAND					0x000140ac
++
+ #define VIVS_BLT_ENABLE						0x000140b8
+ #define VIVS_BLT_ENABLE_ENABLE					0x00000001
+ 
+diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
+index dfb29e6eeff1..30c5ddd6d081 100644
+--- a/drivers/gpu/drm/scheduler/sched_main.c
++++ b/drivers/gpu/drm/scheduler/sched_main.c
+@@ -496,8 +496,10 @@ void drm_sched_resubmit_jobs(struct drm_gpu_scheduler *sched)
+ 		fence = sched->ops->run_job(s_job);
+ 
+ 		if (IS_ERR_OR_NULL(fence)) {
++			if (IS_ERR(fence))
++				dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
++
+ 			s_job->s_fence->parent = NULL;
+-			dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
+ 		} else {
+ 			s_job->s_fence->parent = fence;
+ 		}
+@@ -748,8 +750,9 @@ static int drm_sched_main(void *param)
+ 					  r);
+ 			dma_fence_put(fence);
+ 		} else {
++			if (IS_ERR(fence))
++				dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
+ 
+-			dma_fence_set_error(&s_fence->finished, PTR_ERR(fence));
+ 			drm_sched_process_job(NULL, &sched_job->cb);
+ 		}
+ 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 359616e3efbb..d2ecc9c45255 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1597,6 +1597,17 @@ static void hid_output_field(const struct hid_device *hid,
+ 	}
+ }
+ 
++/*
++ * Compute the size of a report.
++ */
++static size_t hid_compute_report_size(struct hid_report *report)
++{
++	if (report->size)
++		return ((report->size - 1) >> 3) + 1;
++
++	return 0;
++}
++
+ /*
+  * Create a report. 'data' has to be allocated using
+  * hid_alloc_report_buf() so that it has proper size.
+@@ -1609,7 +1620,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
+-	memset(data, 0, ((report->size - 1) >> 3) + 1);
++	memset(data, 0, hid_compute_report_size(report));
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->device, report->field[n], data);
+ }
+@@ -1739,7 +1750,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+ 		csize--;
+ 	}
+ 
+-	rsize = ((report->size - 1) >> 3) + 1;
++	rsize = hid_compute_report_size(report);
+ 
+ 	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
+ 		rsize = HID_MAX_BUFFER_SIZE - 1;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index e8641ce677e4..e3d475f4baf6 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1132,6 +1132,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	}
+ 
+ mapped:
++	/* Mapping failed, bail out */
++	if (!bit)
++		return;
++
+ 	if (device->driver->input_mapped &&
+ 	    device->driver->input_mapped(device, hidinput, field, usage,
+ 					 &bit, &max) < 0) {
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 39e4da7468e1..128d8f4319b9 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -864,6 +864,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
+ 
+ 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
++		if (!*bit)
++			return -1;
+ 		input_set_capability(hi->input, EV_KEY, code);
+ 		return 1;
+ 
+diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
+index a25c3a4d3f6c..e37d271ca963 100644
+--- a/drivers/mmc/host/sdhci-tegra.c
++++ b/drivers/mmc/host/sdhci-tegra.c
+@@ -1370,7 +1370,6 @@ static const struct sdhci_ops tegra210_sdhci_ops = {
+ 
+ static const struct sdhci_pltfm_data sdhci_tegra210_pdata = {
+ 	.quirks = SDHCI_QUIRK_BROKEN_TIMEOUT_VAL |
+-		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
+ 		  SDHCI_QUIRK_SINGLE_POWER_WRITE |
+ 		  SDHCI_QUIRK_NO_HISPD_BIT |
+ 		  SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC |
+@@ -1407,7 +1406,6 @@ static const struct sdhci_ops tegra186_sdhci_ops = {
+ 
+ static const struct sdhci_pltfm_data sdhci_tegra186_pdata = {
+ 	.quirks = SDHCI_QUIRK_BROKEN_TIMEOUT_VAL |
+-		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
+ 		  SDHCI_QUIRK_SINGLE_POWER_WRITE |
+ 		  SDHCI_QUIRK_NO_HISPD_BIT |
+ 		  SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC |
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 8888cdf3eead..ea925b102b32 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -676,8 +676,10 @@ static void scatter_data_area(struct tcmu_dev *udev,
+ 		from = kmap_atomic(sg_page(sg)) + sg->offset;
+ 		while (sg_remaining > 0) {
+ 			if (block_remaining == 0) {
+-				if (to)
++				if (to) {
++					flush_dcache_page(page);
+ 					kunmap_atomic(to);
++				}
+ 
+ 				block_remaining = DATA_BLOCK_SIZE;
+ 				dbi = tcmu_cmd_get_dbi(tcmu_cmd);
+@@ -722,7 +724,6 @@ static void scatter_data_area(struct tcmu_dev *udev,
+ 				memcpy(to + offset,
+ 				       from + sg->length - sg_remaining,
+ 				       copy_bytes);
+-				tcmu_flush_dcache_range(to, copy_bytes);
+ 			}
+ 
+ 			sg_remaining -= copy_bytes;
+@@ -731,8 +732,10 @@ static void scatter_data_area(struct tcmu_dev *udev,
+ 		kunmap_atomic(from - sg->offset);
+ 	}
+ 
+-	if (to)
++	if (to) {
++		flush_dcache_page(page);
+ 		kunmap_atomic(to);
++	}
+ }
+ 
+ static void gather_data_area(struct tcmu_dev *udev, struct tcmu_cmd *cmd,
+@@ -778,13 +781,13 @@ static void gather_data_area(struct tcmu_dev *udev, struct tcmu_cmd *cmd,
+ 				dbi = tcmu_cmd_get_dbi(cmd);
+ 				page = tcmu_get_block_page(udev, dbi);
+ 				from = kmap_atomic(page);
++				flush_dcache_page(page);
+ 			}
+ 			copy_bytes = min_t(size_t, sg_remaining,
+ 					block_remaining);
+ 			if (read_len < copy_bytes)
+ 				copy_bytes = read_len;
+ 			offset = DATA_BLOCK_SIZE - block_remaining;
+-			tcmu_flush_dcache_range(from, copy_bytes);
+ 			memcpy(to + sg->length - sg_remaining, from + offset,
+ 					copy_bytes);
+ 
+@@ -1007,7 +1010,7 @@ static int queue_cmd_ring(struct tcmu_cmd *tcmu_cmd, sense_reason_t *scsi_err)
+ 		entry->hdr.cmd_id = 0; /* not used for PAD */
+ 		entry->hdr.kflags = 0;
+ 		entry->hdr.uflags = 0;
+-		tcmu_flush_dcache_range(entry, sizeof(*entry));
++		tcmu_flush_dcache_range(entry, sizeof(entry->hdr));
+ 
+ 		UPDATE_HEAD(mb->cmd_head, pad_size, udev->cmdr_size);
+ 		tcmu_flush_dcache_range(mb, sizeof(*mb));
+@@ -1072,7 +1075,7 @@ static int queue_cmd_ring(struct tcmu_cmd *tcmu_cmd, sense_reason_t *scsi_err)
+ 	cdb_off = CMDR_OFF + cmd_head + base_command_size;
+ 	memcpy((void *) mb + cdb_off, se_cmd->t_task_cdb, scsi_command_size(se_cmd->t_task_cdb));
+ 	entry->req.cdb_off = cdb_off;
+-	tcmu_flush_dcache_range(entry, sizeof(*entry));
++	tcmu_flush_dcache_range(entry, command_size);
+ 
+ 	UPDATE_HEAD(mb->cmd_head, command_size, udev->cmdr_size);
+ 	tcmu_flush_dcache_range(mb, sizeof(*mb));
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 875f71132b14..c7044a14200e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -959,34 +959,49 @@ static inline void hid_device_io_stop(struct hid_device *hid) {
+  * @max: maximal valid usage->code to consider later (out parameter)
+  * @type: input event type (EV_KEY, EV_REL, ...)
+  * @c: code which corresponds to this usage and type
++ *
++ * The value pointed to by @bit will be set to NULL if either @type is
++ * an unhandled event type, or if @c is out of range for @type. This
++ * can be used as an error condition.
+  */
+ static inline void hid_map_usage(struct hid_input *hidinput,
+ 		struct hid_usage *usage, unsigned long **bit, int *max,
+-		__u8 type, __u16 c)
++		__u8 type, unsigned int c)
+ {
+ 	struct input_dev *input = hidinput->input;
+-
+-	usage->type = type;
+-	usage->code = c;
++	unsigned long *bmap = NULL;
++	unsigned int limit = 0;
+ 
+ 	switch (type) {
+ 	case EV_ABS:
+-		*bit = input->absbit;
+-		*max = ABS_MAX;
++		bmap = input->absbit;
++		limit = ABS_MAX;
+ 		break;
+ 	case EV_REL:
+-		*bit = input->relbit;
+-		*max = REL_MAX;
++		bmap = input->relbit;
++		limit = REL_MAX;
+ 		break;
+ 	case EV_KEY:
+-		*bit = input->keybit;
+-		*max = KEY_MAX;
++		bmap = input->keybit;
++		limit = KEY_MAX;
+ 		break;
+ 	case EV_LED:
+-		*bit = input->ledbit;
+-		*max = LED_MAX;
++		bmap = input->ledbit;
++		limit = LED_MAX;
+ 		break;
+ 	}
++
++	if (unlikely(c > limit || !bmap)) {
++		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
++				    input->name, c, type);
++		*bit = NULL;
++		return;
++	}
++
++	usage->type = type;
++	usage->code = c;
++	*max = limit;
++	*bit = bmap;
+ }
+ 
+ /**
+@@ -1000,7 +1015,8 @@ static inline void hid_map_usage_clear(struct hid_input *hidinput,
+ 		__u8 type, __u16 c)
+ {
+ 	hid_map_usage(hidinput, usage, bit, max, type, c);
+-	clear_bit(c, *bit);
++	if (*bit)
++		clear_bit(usage->code, *bit);
+ }
+ 
+ /**
+diff --git a/tools/perf/Documentation/perf-record.txt b/tools/perf/Documentation/perf-record.txt
+index c6f9f31b6039..15fd108afbe6 100644
+--- a/tools/perf/Documentation/perf-record.txt
++++ b/tools/perf/Documentation/perf-record.txt
+@@ -33,6 +33,10 @@ OPTIONS
+         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
+ 	  hexadecimal event descriptor.
+ 
++        - a symbolic or raw PMU event followed by an optional colon
++	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
++	  linkperf:perf-list[1] man page for details on event modifiers.
++
+ 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
+ 	  'param1', 'param2', etc are defined as formats for the PMU in
+ 	  /sys/bus/event_source/devices/<pmu>/format/*.
+diff --git a/tools/perf/Documentation/perf-stat.txt b/tools/perf/Documentation/perf-stat.txt
+index 930c51c01201..9abf1cf217e2 100644
+--- a/tools/perf/Documentation/perf-stat.txt
++++ b/tools/perf/Documentation/perf-stat.txt
+@@ -39,6 +39,10 @@ report::
+ 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
+ 	  hexadecimal event descriptor.
+ 
++        - a symbolic or raw PMU event followed by an optional colon
++	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
++	  linkperf:perf-list[1] man page for details on event modifiers.
++
+ 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
+ 	  param1 and param2 are defined as formats for the PMU in
+ 	  /sys/bus/event_source/devices/<pmu>/format/*
