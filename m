@@ -2,101 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD1225ED84
-	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 11:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC86825EDA8
+	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 13:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725816AbgIFJ5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Sep 2020 05:57:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        id S1726342AbgIFLc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Sep 2020 07:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725497AbgIFJ5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 05:57:31 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0818EC061573
-        for <stable@vger.kernel.org>; Sun,  6 Sep 2020 02:57:30 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id o16so5248053pjr.2
-        for <stable@vger.kernel.org>; Sun, 06 Sep 2020 02:57:30 -0700 (PDT)
+        with ESMTP id S1725803AbgIFLcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 07:32:54 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49DDC061573
+        for <stable@vger.kernel.org>; Sun,  6 Sep 2020 04:32:47 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id h2so3195669plr.0
+        for <stable@vger.kernel.org>; Sun, 06 Sep 2020 04:32:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Q2SILnBIEirH4TWtGi68qehLBgXZt7pRjYM7YYT/J/Q=;
-        b=X/xXQA7KjAXlhHEWXtOlnmdlGYZ82PRDubSws+IHO5QuygN1YWTfsEWWv5SLWMWDE1
-         Po5lZUgnbS0tbOeomPRm7XYLcg35w4L1+nNrgCib6qYMo6e4JEWDdZk+eszaLhzSrMhJ
-         BZ6VjPROaq5Pw50YFfMq9Jl1iU4vcVRqNX9sY=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Q6cm9wV1ZwH8Dd2j4e+kr+akaMDrP9sBYexza1U7wdI=;
+        b=0Jubty5vSSb2lkEzAIMkXBTwScxpXxRUqeQCnulFQtl9bM7rbmvMDc3F+D3+dl6hSM
+         7z0LAFPbjjJbSChiWHmH3cx9Z8S18JuvVXlCzv2nVf/jKCLNjowVFkmJbdu8EMVlEveb
+         bXvnrSWoZYW/8X2ybLJeBOFnOiFYPW6xbjKnYev8W0HvTo4SudGwqv/5JrpvsD5LItBr
+         BeZWxGa2gSTepAVGE8CqG0gXuie3MNLWobe8QUQhPvE8chx6G+D30ML5fEiQp/M8myXs
+         UE37HgGW6PniIjzRD5oLQNsvO1zxPqeAcT9G/sfSKX/Hh8IWdSum9pYgL04uo7muoMpp
+         pPKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Q2SILnBIEirH4TWtGi68qehLBgXZt7pRjYM7YYT/J/Q=;
-        b=pY2im7owYpelV/+BmB2lJeImCSkZIcwoaHLVOtYitSiaGwLn0z91vBWQIs1vqn3C+X
-         HIGKCgTD/bnTEEk05fiw7EoKV6Fvluxj5havXo2XZT5mWcDrN9qMviAdx1n0+Bcq/U/k
-         aL9CsuPFpvTYcblD+eyGvZYH8879M+7nd2PQh8RT+u89MPZmmOqIXQOefX9xoc2pejn0
-         pxwSAbmoxQK+RlLvJUwdhISV1SQTMf0SVrN4scaLFfM5bfnMPNcohCWciMSRt1j10CJS
-         j1rqgGcW+753jX3sQMJLu/jEpnKWo1d/6eIwt7WruhxXWtutnU2BK6qW9rKEZ78oEY2z
-         M2NA==
-X-Gm-Message-State: AOAM531qcSCRhkFIuOXyfWONRWq5HmC8bQStXfsk1Pf5nNLPqda1T1yi
-        8HxSFIoEumMQo5ql27WwaLbujA==
-X-Google-Smtp-Source: ABdhPJzkAJnCDVOKe7i/BgUKdpebHEmdjzLYkAdn6d/5GqTI6KIttjhyn3LSssnVUAOi2/4uPdrgXA==
-X-Received: by 2002:a17:902:ee03:b029:d0:89f1:9e2b with SMTP id z3-20020a170902ee03b02900d089f19e2bmr13926305plb.7.1599386250044;
-        Sun, 06 Sep 2020 02:57:30 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id w185sm12900952pfc.36.2020.09.06.02.57.28
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Q6cm9wV1ZwH8Dd2j4e+kr+akaMDrP9sBYexza1U7wdI=;
+        b=GAzDU0rtonQ+KkfwJ8NAf0C9iFY3Da22pKJu3PR+PptTDqaN6oo2ST3mszo0ccLrYA
+         VHj6LiKdMlZjGMfsYoMfjsN1kQz+HhuK2iXgOyGxRbD/PR0RMIG8SQeONwetN4oMK4vR
+         aoGkHhVCYGMqIKfe+9t1Ny7+HQdQ2scUOOyIr8OFILKNlQGS6JDeD0k/CNJgzS3UAmUj
+         Yuvl4Ce+2G8rnJRtVDx+5wQ887XFoj07L/hm803TfW3G91juLPrTmzXWpkJhOyrDOrd6
+         FcNIsKUrrNuRDw4+tWKh1RB+B/u+k0G+g7/0t3yl5jr4HCKUgcqa8tjsKNc2KBdq6MS8
+         8S6g==
+X-Gm-Message-State: AOAM532NGXbCM/4bEh9YvoZUzqU+miTfovnsKXrncJzhaCJReHWUfe4M
+        1gLJJ1xZkeTMIbosaWKMe2kKay5yptnbJg==
+X-Google-Smtp-Source: ABdhPJxUSsi2Rh2lRyt+Irdt9jlCEICS3o+pHiHRjm16ILClFQsZajTZ+RTbrmzIrsUmVxvIAC1cxg==
+X-Received: by 2002:a17:90a:880e:: with SMTP id s14mr15969143pjn.140.1599391962852;
+        Sun, 06 Sep 2020 04:32:42 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n26sm11751807pff.30.2020.09.06.04.32.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Sep 2020 02:57:28 -0700 (PDT)
-Date:   Sun, 6 Sep 2020 02:57:27 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Andy Lavr <andy.lavr@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joe Perches <joe@perches.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3] lib/string.c: implement stpcpy
-Message-ID: <202009060256.7CE5620A56@keescook>
-References: <20200825135838.2938771-1-ndesaulniers@google.com>
- <CAK7LNAQvQBhjYgSkvm-dVyNz2Jd2C2qAtfyRk-rngEDfjkc38g@mail.gmail.com>
+        Sun, 06 Sep 2020 04:32:42 -0700 (PDT)
+Message-ID: <5f54c8da.1c69fb81.e4b11.cbc4@mx.google.com>
+Date:   Sun, 06 Sep 2020 04:32:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK7LNAQvQBhjYgSkvm-dVyNz2Jd2C2qAtfyRk-rngEDfjkc38g@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.6.16
+X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.6.y baseline: 224 runs, 2 regressions (v5.6.16)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 12:58:35AM +0900, Masahiro Yamada wrote:
-> On Tue, Aug 25, 2020 at 10:58 PM Nick Desaulniers
-> <ndesaulniers@google.com> wrote:
-> > [...]
-> > +/**
-> > + * stpcpy - copy a string from src to dest returning a pointer to the new end
-> > + *          of dest, including src's %NUL-terminator. May overrun dest.
-> > + * @dest: pointer to end of string being copied into. Must be large enough
-> > + *        to receive copy.
-> > + * @src: pointer to the beginning of string being copied from. Must not overlap
-> > + *       dest.
-> > + *
-> > + * stpcpy differs from strcpy in a key way: the return value is the new
-> > + * %NUL-terminated character. (for strcpy, the return value is a pointer to
-> > + * src.
-> 
-> 
-> return a pointer to src?
-> 
-> "man 3 strcpy" says:
-> 
-> The strcpy() and strncpy() functions return
-> a pointer to the destination string *dest*.
+stable-rc/linux-5.6.y baseline: 224 runs, 2 regressions (v5.6.16)
 
-Agreed; that's a typo.
+Regressions Summary
+-------------------
 
--- 
-Kees Cook
+platform        | arch  | lab           | compiler | defconfig        | res=
+ults
+----------------+-------+---------------+----------+------------------+----=
+----
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig        | 4/5=
+    =
+
+odroid-xu3      | arm   | lab-collabora | gcc-8    | exynos_defconfig | 0/1=
+    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kern=
+el/v5.6.16/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.6.y
+  Describe: v5.6.16
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      960a4cc3ec49f8292d0f837f0a6b28b03c54f042 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab           | compiler | defconfig        | res=
+ults
+----------------+-------+---------------+----------+------------------+----=
+----
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig        | 4/5=
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ed79881eee60e39090c5dac
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5ed79881eee60e39=
+090c5daf
+      failing since 0 day (last pass: v5.6.15-178-gc72fcbc7d224, first fail=
+: v5.6.15-175-g4ceaad0d95e7)
+      2 lines
+
+    2020-06-03 12:32:49.684000  / # =
+
+    2020-06-03 12:32:49.695000  =
+
+    2020-06-03 12:32:49.798000  / # #
+    2020-06-03 12:32:49.807000  #
+    2020-06-03 12:32:51.066000  / # export SHELL=3D/bin/sh
+    2020-06-03 12:32:51.077000  export SHELL=3D/bin/s[   27.744689] hwmon h=
+wmon1: Undervoltage detected!
+    2020-06-03 12:32:51.077000  h
+    2020-06-03 12:32:52.638000  / # . /lava-89950/environment
+    2020-06-03 12:32:52.651000  . /lava-89950/environment
+    2020-06-03 12:32:55.479000  / # /lava-89950/bin/lava-test-runner /lava-=
+89950/0
+    ... (11 line(s) more)
+      =
+
+
+
+platform        | arch  | lab           | compiler | defconfig        | res=
+ults
+----------------+-------+---------------+----------+------------------+----=
+----
+odroid-xu3      | arm   | lab-collabora | gcc-8    | exynos_defconfig | 0/1=
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ed79817771232ffab0c5dac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: exynos_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16/=
+arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5422-odroidxu3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16/=
+arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5422-odroidxu3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ed79817771232ffab0c5=
+dad
+      failing since 1 day (last pass: v5.6.13-193-g67346f550ad8, first fail=
+: v5.6.15-178-gc72fcbc7d224)  =20
