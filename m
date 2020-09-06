@@ -2,74 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56ED225ED19
-	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 09:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328E925ED34
+	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 09:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725306AbgIFHGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Sep 2020 03:06:30 -0400
-Received: from sonic312-25.consmr.mail.ne1.yahoo.com ([66.163.191.206]:41758
-        "EHLO sonic312-25.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725283AbgIFHG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 03:06:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1599375989; bh=NajTNMrfMLb6UXcjRhYpYerQX8PtVBLz0oFgaMINSWY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=flXdnYb00D8cSk+KWEO+qlNIu5gZ7eiVEmo1c6Blqo7brP5BqH7f1TYcPcca0QGN6oKtwJmEd8XlNwt1Qhlz0Y/ZOWVQKft+ZRyAd7cHakwXfXZuT1d01AGegCZe1K26jK3lDrKWpjOc6dq44kipfyON/r6rmAoQQr6tBzyzdWYWrwsfMZugToB0/rjG/XGEdgxEydKzWNgTT5D+tD1r0zb0kQYhTsAVCeLDCkUKZbJnoIWTdAOvnCd+cTPCVIv9wuFtPl0Syz9mzVFgVFCKKP/gL4LLqpDf2YPVlADDKwRzDN0DCG63HcND5BjVsfjegxec0DZeneWL24fuM1O5vg==
-X-YMail-OSG: GevDmNYVM1nq5hhegCc5F_Yf6VCJH0y.WHds1.2mC.75P3MQ9uj6no7pfycDfG0
- uElwIl76kmi.2ZTxKZNInV6IReL2jucrudLFULXvgx4eiMnqueBNSK0cf_Wm5z24DKnf2PrEmToe
- X5XMmgcQvfRyVDbfPZqyWfzEcRubnAocMwQwmd.LFNt6JFi5Q0bOOyVGcABwF5Dn.oWLEmAYv81Z
- tS9DJX2CQFVOoMWaGrMrdvtU77HRm6DZhn3HPfsdW2I6rpoKvmLVWK2gJlIwK6nKVSnyjFerpXYQ
- 0G_D4.swbQNAM9l7UuxZ2JUdy8C7CttuRVO8ypNUJfCcOvN2olxQnfCFf_FIu5e8fMlNZ0Qo1Qje
- p.MJ7WgnvdMlHAZO6cFc1z7EJ6Tt.sLv9EzR6duAscrZav3nwVAdKxmb7hlb7Yy7jkKPfmI2RD6H
- .JUU44k_HIPQLbCJaSkSGOAnks08ri9TttY7WRB9wRGK0l3ZmLmi6PV4WSYIgb.HIBchdlp8k6f2
- ibE9oi_mQsg9LQGjf0fSdARnJWR801uGrHTeyQgO1y6NyqhADWm2nhB0ydI4OxYrL1lGn87OMhBS
- 0RYCt_XdB3k0HyS84FlBATdSEvmjZ65dkrrAmc9Gvigwp_Yd3lxbg8wkYpuxBI8_wsA7K.3ujsnX
- UZNFeCTAFOaFkvMALmID1mFmnR2x_N7XqAd7.gbM7ewjbLyjH4IBYX4i22s_AkI.mfAMP5CRxATz
- O6rCwA_rHxdbswVQPqtqvZId1p3F6gXVGjvW1RSVsWtz8dpkrzAJTHkhpXFRr0jzItgjXnyg2tPw
- x5ROC62.VlMWLCwzsfD_MTwG2fIKtyX.dtAqNP7.JYq5IaLnJ1lcCJJVRVB5IuiKIr9WCZjVlSma
- 6.NUL2u0cHX.gbQJmNQZ1OfsxHEGBE2D6fyiYKXkMT5CoX7dcA264mG9Kei1OrHthjGDGi9Qp8sz
- azLpT5IEVpiFoY9DQaZ_HYBkSD6ZZQexlD4t.NIU5hpYjieMDgqByLvrFIQXvBZ7VkkaSsvA5.Ah
- G_uuRWESg5K412qejtoQWYMmIte4gyijoIj9eg3Cqvf5nAn0iNSlLnsvDmgS7fAarWx6geSEm5xX
- lcfn1xR2_1nsrSak86fUL5GR739TyaxCfuithGKCs6A5hx2PBx6byKzYEK9ZhLOFjgQPxfjScItp
- qM4ZlQCPL6hNncaTghg9DIO2cQ2bguuTPKF3sIKwTZrzETCrp57xBEk3iOHYzyv_LyIiWP5yHtgr
- DwkKXEkdg5spLO__HNGWB2s5CwItCnXUD0TVizXJVUTaAprst1Rnda.IxtnFnxXhwvTEKzaxWHTO
- PefggaoaZNf.41V2Q1h7v8yApk68LGuw2vx8_MpirLqL1vSI9K5jkWxqKT4Tf.dc7yC.QEuU.D9p
- TrxJ7IZ3Gpev8prEDOtP4ISuB0isXzb6Zy22Bnk3TiRDVoNZ3kw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Sun, 6 Sep 2020 07:06:29 +0000
-Date:   Sun, 6 Sep 2020 07:06:27 +0000 (UTC)
-From:   Ms Lisa Hugh <lisa.hugh0000@gmail.com>
-Reply-To: ms.lisahugh000@gmail.com
-Message-ID: <710931879.3701670.1599375987963@mail.yahoo.com>
-Subject: REPLY TO MY EMAIL FOR BUSINESS(Ms Lisa hugh).
+        id S1725788AbgIFHhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Sep 2020 03:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33798 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725306AbgIFHhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Sep 2020 03:37:03 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A13A220759;
+        Sun,  6 Sep 2020 07:37:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599377823;
+        bh=OIz8h/6QwPMWXdHna/eW6akmH0aWYub1doBQ699tMNA=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=TkRFfgSNEQIpxJHCHwKRJ9S55Y5LL+y7CcC5JDOVSND7tZiegDhnkXieURk8rXlVa
+         izoWTZQoYsji9xcCcsAyTLpxsQzIiuf8+ecRFl6lyZ8egi/ULaLBjOFQvjhkA3yeI4
+         4lVp80fsjWHhmpge0mC8x2R6ruoYSR0ks45ARFlk=
+Date:   Sun, 6 Sep 2020 09:37:00 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        ben.hutchings@codethink.co.uk, stable@vger.kernel.org,
+        akpm@linux-foundation.org, torvalds@linux-foundation.org,
+        linux@roeck-us.net
+Subject: Re: [PATCH 5.4 00/16] 5.4.63-rc1 review
+Message-ID: <20200906073700.GA209646@kroah.com>
+References: <20200904120257.203708503@linuxfoundation.org>
+ <20200905153458.hdamqfp6eq4oyeq6@nuc.therub.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <710931879.3701670.1599375987963.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16565 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200905153458.hdamqfp6eq4oyeq6@nuc.therub.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Sep 05, 2020 at 10:34:58AM -0500, Dan Rue wrote:
+> On Fri, Sep 04, 2020 at 03:29:53PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.63 release.
+> > There are 16 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> Sorry for the delay - we are short handed this weekend and I got
+> confused looking at results yesterday and thought we had a systems
+> problem. In fact, the problem was that tags/releases weren't pushed to
+> stable-rc which split-brains our results and I just forgot about that
+> possibility. Is it possible on your side to automate updating the
+> stable-rc repo when you publish a stable release?
 
+Yes, I need to do that, sorry.  Will work on that this week...
 
-Dear Friend,
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I am Ms Lisa hugh, work with the department of Audit and accounting manager here in the Bank(B.O.A).
+THanks for testing both of these, and sorry it crossed a weekend.
 
-Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
-
-I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me for success.
-
-Note/ 50% for you why 50% for me after success of the transfer to your bank account.
-
-Below information is what i need from you so will can be reaching each other
-
-1)Full name ...
-2)Private telephone number...
-3)Age...
-4)Nationality...
-5)Occupation ...
-
-
-Thanks.
-
-Ms Lisa hugh.
+greg k-h
