@@ -2,116 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B75D25EDAB
-	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 13:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3843B25EE0E
+	for <lists+stable@lfdr.de>; Sun,  6 Sep 2020 16:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725803AbgIFLxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Sep 2020 07:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53296 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725788AbgIFLxQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 07:53:16 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA105C061573
-        for <stable@vger.kernel.org>; Sun,  6 Sep 2020 04:53:15 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id x18so3190508pll.6
-        for <stable@vger.kernel.org>; Sun, 06 Sep 2020 04:53:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YhvL8UNpVAoKtstz3dYyyXOpibE99qXl92GSTBsefJs=;
-        b=UW96yJrrrKvgszyY4PVwiU0IOzmj0xLiY7j5I3whYE0r6jU3E7dTNRACHmhUBRTFtt
-         r0cdA6pWLHY1dW1RvkQybFc06TwpK05yEMsvnQ/GoDcLDkk1Y6IueipWbl9L2+Tru8OI
-         mxtEe6Pl+SUNEHiU6mYExdiQukotel3YDKhuF/522DzSQtuDuUFfAEmRXWLh4MMhwAMX
-         RquBs5KUJMhYmJpwOBuAWB9wkG8fr3gTeuWt1AUSY6w3lxzV8h/ihphgWsfNbFjwSLzh
-         4hF6Me/KxLP0Chh6eMa9bfZVI+NXuMqoazrTQOYVF3JvRLXBKtWyGzvTdAHI9PzvE4iG
-         ySkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YhvL8UNpVAoKtstz3dYyyXOpibE99qXl92GSTBsefJs=;
-        b=Nx82ChVO5ne82WUbfbBsbFOO//u6Xe4RiaqyxKS8M+LNkpQ4d1EI66rhMEQ5YAWmgB
-         vRt2Q4DgEPSF9FmFbxm7bQP0pT3kNpfzmUhEXdBUv3/403KVyfX6UkTJ1KLpuPOFZHJd
-         O/dd9dW/wUI5IaSkDnRwQxk/BM3BOT6PCBq0t1lYzy4tOZH11Do0MylqBofZDmsdRmkF
-         e/X3KQ6vPShrzEwpKqU/hbda1Bu31ViM9NG05rEIzhGx+73z+2xGvD7869902MDjkKb2
-         ASDLHuoR0Ugf5a3fACOtGI91DjKKwbCAnvu4dXo9JKbYOIYExSj3k0g9Wa+uSpoXgXH7
-         5urg==
-X-Gm-Message-State: AOAM533Mye8/7mAUi7EASTQRTOSoeT5CVUjdTf96cwISgzjqH6j+/2vj
-        94LWYHP/AspNRxNB/yjglHYHMHiscxPvVw==
-X-Google-Smtp-Source: ABdhPJydn/5Z05Ca4xy+uGrM9lqqp/6C9516GNB5LiKWJbGhOwBVz1vD/hyReYSxBnolM6z4xG7keQ==
-X-Received: by 2002:a17:90b:d90:: with SMTP id bg16mr16008396pjb.199.1599393188075;
-        Sun, 06 Sep 2020 04:53:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b18sm9667418pjq.3.2020.09.06.04.53.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Sep 2020 04:53:07 -0700 (PDT)
-Message-ID: <5f54cda3.1c69fb81.4adfe.6c9d@mx.google.com>
-Date:   Sun, 06 Sep 2020 04:53:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728778AbgIFOMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Sep 2020 10:12:20 -0400
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:38470 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726931AbgIFOMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 10:12:10 -0400
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Sun, 6 Sep 2020 07:12:04 -0700
+Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id B392B408D4;
+        Sun,  6 Sep 2020 07:12:03 -0700 (PDT)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
+        <peterx@redhat.com>, <kvm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <vsirnapalli@vmware.com>, <akaher@vmware.com>
+Subject: [PATCH v5.4.y 1/3] vfio/type1: Support faulting PFNMAP vmas
+Date:   Sun, 6 Sep 2020 19:37:54 +0530
+Message-ID: <1599401277-32172-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.196
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 129 runs, 1 regressions (v4.14.196)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 129 runs, 1 regressions (v4.14.196)
+commit 41311242221e3482b20bfed10fa4d9db98d87016 upstream.
 
-Regressions Summary
--------------------
+With conversion to follow_pfn(), DMA mapping a PFNMAP range depends on
+the range being faulted into the vma.  Add support to manually provide
+that, in the same way as done on KVM with hva_to_pfn_remapped().
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+---
+ drivers/vfio/vfio_iommu_type1.c | 36 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 6cc47af..d679996 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -335,6 +335,32 @@ static int put_pfn(unsigned long pfn, int prot)
+ 	return 0;
+ }
+ 
++static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
++			    unsigned long vaddr, unsigned long *pfn,
++			    bool write_fault)
++{
++	int ret;
++
++	ret = follow_pfn(vma, vaddr, pfn);
++	if (ret) {
++		bool unlocked = false;
++
++		ret = fixup_user_fault(NULL, mm, vaddr,
++				       FAULT_FLAG_REMOTE |
++				       (write_fault ?  FAULT_FLAG_WRITE : 0),
++				       &unlocked);
++		if (unlocked)
++			return -EAGAIN;
++
++		if (ret)
++			return ret;
++
++		ret = follow_pfn(vma, vaddr, pfn);
++	}
++
++	return ret;
++}
++
+ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
+ 			 int prot, unsigned long *pfn)
+ {
+@@ -377,12 +403,16 @@ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
+ 
+ 	vaddr = untagged_addr(vaddr);
+ 
++retry:
+ 	vma = find_vma_intersection(mm, vaddr, vaddr + 1);
+ 
+ 	if (vma && vma->vm_flags & VM_PFNMAP) {
+-		if (!follow_pfn(vma, vaddr, pfn) &&
+-		    is_invalid_reserved_pfn(*pfn))
+-			ret = 0;
++		ret = follow_fault_pfn(vma, mm, vaddr, pfn, prot & IOMMU_WRITE);
++		if (ret == -EAGAIN)
++			goto retry;
++
++		if (!ret && !is_invalid_reserved_pfn(*pfn))
++			ret = -EFAULT;
+ 	}
+ 
+ 	up_read(&mm->mmap_sem);
+-- 
+2.7.4
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.196/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.196
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2f166cdcf8a92fcf85524f2b5526cb28e16f0a60 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f5496b4bccc7ee471d35392
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-96/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-96/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f5496b4bccc7ee471d35=
-393
-      failing since 158 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23)  =20
