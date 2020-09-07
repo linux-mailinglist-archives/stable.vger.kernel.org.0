@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4032600F5
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4162600F3
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730959AbgIGQ4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:56:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1730768AbgIGQ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbgIGQeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730564AbgIGQeG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Sep 2020 12:34:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4182821D24;
-        Mon,  7 Sep 2020 16:33:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72AC021D1B;
+        Mon,  7 Sep 2020 16:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496438;
-        bh=1KLccYs4HIJBd2LVQIYIdYFq4wKOPqgFe98sjpvZdqE=;
+        s=default; t=1599496440;
+        bh=ieKAu70i+5e1oh3ZDqnxL8dDPAkCdqoxF9AdKFUzQr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkYeCYw3BSf8vV31KVT6UsBHN3YSxY4PmY88lN61WPEvQfBfMG5wr53jBaE7KC9J7
-         PQv7eA57A/SXUyFIt6Omt1vILvhV1QYpicZy13CVmTYjXj7jLmoceTaUF1OFG8Lt5+
-         mkHZFXpXywaE5+H97kh1PhKnthaunh8V+C8fkOUE=
+        b=nsbOhvIVlqw6sqe7io2z7m8wEtf1a5DQ2Kva2SQSnrfyVylKFEUOBCNYEJQEfGrPZ
+         Zc1STe6RKveSE23iO00tKUyYj3aXfmaO9jWhGEvUE0arXFPMTyRzt/BKn9LscwZyFP
+         ebtM+NWc6UJLrSn7QekbxInHr5iWweqhERimT82Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 22/43] nvme: have nvme_wait_freeze_timeout return if it timed out
-Date:   Mon,  7 Sep 2020 12:33:08 -0400
-Message-Id: <20200907163329.1280888-22-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Sasha Levin <sashal@kernel.org>,
+        linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 23/43] nvme-tcp: serialize controller teardown sequences
+Date:   Mon,  7 Sep 2020 12:33:09 -0400
+Message-Id: <20200907163329.1280888-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -44,55 +44,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 7cf0d7c0f3c3b0203aaf81c1bc884924d8fdb9bd ]
+[ Upstream commit d4d61470ae48838f49e668503e840e1520b97162 ]
 
-Users can detect if the wait has completed or not and take appropriate
-actions based on this information (e.g. weather to continue
-initialization or rather fail and schedule another initialization
-attempt).
+In the timeout handler we may need to complete a request because the
+request that timed out may be an I/O that is a part of a serial sequence
+of controller teardown or initialization. In order to complete the
+request, we need to fence any other context that may compete with us
+and complete the request that is timing out.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+In this case, we could have a potential double completion in case
+a hard-irq or a different competing context triggered error recovery
+and is running inflight request cancellation concurrently with the
+timeout handler.
+
+Protect using a ctrl teardown_lock to serialize contexts that may
+complete a cancelled request due to error recovery or a reset.
+
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 3 ++-
- drivers/nvme/host/nvme.h | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ff5681da8780d..07c881fe34bb3 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4148,7 +4148,7 @@ void nvme_unfreeze(struct nvme_ctrl *ctrl)
- }
- EXPORT_SYMBOL_GPL(nvme_unfreeze);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 0166ff0e4738e..a94c80727de1e 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -110,6 +110,7 @@ struct nvme_tcp_ctrl {
+ 	struct sockaddr_storage src_addr;
+ 	struct nvme_ctrl	ctrl;
  
--void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
-+int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
++	struct mutex		teardown_lock;
+ 	struct work_struct	err_work;
+ 	struct delayed_work	connect_work;
+ 	struct nvme_tcp_request async_req;
+@@ -1438,7 +1439,6 @@ static void nvme_tcp_stop_queue(struct nvme_ctrl *nctrl, int qid)
+ 
+ 	if (!test_and_clear_bit(NVME_TCP_Q_LIVE, &queue->flags))
+ 		return;
+-
+ 	__nvme_tcp_stop_queue(queue);
+ }
+ 
+@@ -1785,6 +1785,7 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
+ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 		bool remove)
  {
- 	struct nvme_ns *ns;
- 
-@@ -4159,6 +4159,7 @@ void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
- 			break;
- 	}
- 	up_read(&ctrl->namespaces_rwsem);
-+	return timeout;
++	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_stop_queue(ctrl, 0);
+ 	if (ctrl->admin_tagset) {
+@@ -1795,13 +1796,16 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		blk_mq_unquiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_destroy_admin_queue(ctrl, remove);
++	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
  }
- EXPORT_SYMBOL_GPL(nvme_wait_freeze_timeout);
  
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 056953bd8bd81..2bd9f7c3084f2 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -485,7 +485,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl);
- void nvme_sync_queues(struct nvme_ctrl *ctrl);
- void nvme_unfreeze(struct nvme_ctrl *ctrl);
- void nvme_wait_freeze(struct nvme_ctrl *ctrl);
--void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
-+int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
- void nvme_start_freeze(struct nvme_ctrl *ctrl);
+ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 		bool remove)
+ {
++	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	if (ctrl->queue_count <= 1)
+-		return;
++		goto out;
++	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+@@ -1813,6 +1817,8 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		nvme_start_queues(ctrl);
+ 	nvme_tcp_destroy_io_queues(ctrl, remove);
++out:
++	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ }
  
- #define NVME_QID_ANY -1
+ static void nvme_tcp_reconnect_or_remove(struct nvme_ctrl *ctrl)
+@@ -2311,6 +2317,7 @@ static struct nvme_ctrl *nvme_tcp_create_ctrl(struct device *dev,
+ 			nvme_tcp_reconnect_ctrl_work);
+ 	INIT_WORK(&ctrl->err_work, nvme_tcp_error_recovery_work);
+ 	INIT_WORK(&ctrl->ctrl.reset_work, nvme_reset_ctrl_work);
++	mutex_init(&ctrl->teardown_lock);
+ 
+ 	if (!(opts->mask & NVMF_OPT_TRSVCID)) {
+ 		opts->trsvcid =
 -- 
 2.25.1
 
