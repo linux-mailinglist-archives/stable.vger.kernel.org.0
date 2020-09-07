@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68170260107
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6431125FF88
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbgIGQ6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:58:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S1730575AbgIGQeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729905AbgIGQeF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729827AbgIGQeF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Sep 2020 12:34:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97B3B21973;
-        Mon,  7 Sep 2020 16:33:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA33A21D20;
+        Mon,  7 Sep 2020 16:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496435;
-        bh=Q/p0TMUryxX77+CV/KVWZ+Q4CYue+xeVAxSZstCpHeU=;
+        s=default; t=1599496436;
+        bh=DN1QFIiCGUOZpIUU7k3WwUP4VFVGGomKaZtle0ZutOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aF64WdgI0aEQvtJkDDMwLqLl02wTSKQfyujxHc+ApyDXtoYs19A2R/HUd2LThl4WM
-         IbCm37l92vHJNrmPOpTwqmJgjlNlMRwLSTD8wq/fkSrTupwPURYF2sv+wvzmS0tAqy
-         tc2gv68Eae7kq7dfdYv+Xzp5ewqVhpNjhGSYvuxg=
+        b=EC6DneCCulBbdQkpcJm+EyuL5M3z4r/8AjFZnUOVquPCQc+71Y6T9ywivth3lLMqB
+         Hr3jkgO3RkwspRPpYPjdQmW1azCKOQ+dFIUGxaNKATUndRuB/RJdTdJmF5nQYWC6Df
+         M57zt3IemngP2Qr23FcDmioacQ6HZYfPRY/9XPUo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineet Gupta <vgupta@synopsys.com>,
-        kernel test robot <lkp@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 19/43] irqchip/eznps: Fix build error for !ARC700 builds
-Date:   Mon,  7 Sep 2020 12:33:05 -0400
-Message-Id: <20200907163329.1280888-19-sashal@kernel.org>
+Cc:     Ziye Yang <ziye.yang@intel.com>, Sagi Grimberg <sagi@grimberg.me>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 20/43] nvmet-tcp: Fix NULL dereference when a connect data comes in h2cdata pdu
+Date:   Mon,  7 Sep 2020 12:33:06 -0400
+Message-Id: <20200907163329.1280888-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -45,58 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Ziye Yang <ziye.yang@intel.com>
 
-[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
+[ Upstream commit a6ce7d7b4adaebc27ee7e78e5ecc378a1cfc221d ]
 
-eznps driver is supposed to be platform independent however it ends up
-including stuff from inside arch/arc headers leading to rand config
-build errors.
+When handling commands without in-capsule data, we assign the ttag
+assuming we already have the queue commands array allocated (based
+on the queue size information in the connect data payload). However
+if the connect itself did not send the connect data in-capsule we
+have yet to allocate the queue commands,and we will assign a bogus
+ttag and suffer a NULL dereference when we receive the corresponding
+h2cdata pdu.
 
-The quick hack to fix this (proper fix is too much chrun for non active
-user-base) is to add following to nps platform agnostic header.
- - copy AUX_IENABLE from arch/arc header
- - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
+Fix this by checking if we already allocated commands before
+dereferencing it when handling h2cdata, if we didn't, its for sure a
+connect and we should use the preallocated connect command.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Ziye Yang <ziye.yang@intel.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/plat-eznps/include/plat/ctop.h | 1 -
- include/soc/nps/common.h                | 6 ++++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvme/target/tcp.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
-index a4a61531c7fb9..77712c5ffe848 100644
---- a/arch/arc/plat-eznps/include/plat/ctop.h
-+++ b/arch/arc/plat-eznps/include/plat/ctop.h
-@@ -33,7 +33,6 @@
- #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
- #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
- #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
--#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
- #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
- #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
- 
-diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
-index 9b1d43d671a3f..8c18dc6d3fde5 100644
---- a/include/soc/nps/common.h
-+++ b/include/soc/nps/common.h
-@@ -45,6 +45,12 @@
- #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
- #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
- 
-+#ifndef AUX_IENABLE
-+#define AUX_IENABLE				0x40c
-+#endif
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 22014e76d7714..e31823f19a0fa 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -150,6 +150,11 @@ static void nvmet_tcp_finish_cmd(struct nvmet_tcp_cmd *cmd);
+ static inline u16 nvmet_tcp_cmd_tag(struct nvmet_tcp_queue *queue,
+ 		struct nvmet_tcp_cmd *cmd)
+ {
++	if (unlikely(!queue->nr_cmds)) {
++		/* We didn't allocate cmds yet, send 0xffff */
++		return USHRT_MAX;
++	}
 +
-+#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
-+
- #ifndef __ASSEMBLY__
+ 	return cmd - queue->cmds;
+ }
  
- /* In order to increase compilation test coverage */
+@@ -847,7 +852,10 @@ static int nvmet_tcp_handle_h2c_data_pdu(struct nvmet_tcp_queue *queue)
+ 	struct nvme_tcp_data_pdu *data = &queue->pdu.data;
+ 	struct nvmet_tcp_cmd *cmd;
+ 
+-	cmd = &queue->cmds[data->ttag];
++	if (likely(queue->nr_cmds))
++		cmd = &queue->cmds[data->ttag];
++	else
++		cmd = &queue->connect;
+ 
+ 	if (le32_to_cpu(data->data_offset) != cmd->rbytes_done) {
+ 		pr_err("ttag %u unexpected data offset %u (expected %u)\n",
 -- 
 2.25.1
 
