@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E366B2601B4
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCD32601B8
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730639AbgIGQcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:32:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46498 "EHLO mail.kernel.org"
+        id S1730612AbgIGRL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 13:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730267AbgIGQch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:32:37 -0400
+        id S1729857AbgIGQck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:32:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A932217BA;
-        Mon,  7 Sep 2020 16:32:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75109218AC;
+        Mon,  7 Sep 2020 16:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496355;
-        bh=tLFe5DOS/4QxxNc19pP7S+wa8+KR79j+WlMUV4sUwH4=;
+        s=default; t=1599496356;
+        bh=58wy6+NLVtxqoBa6LJfUWGbvwTcc7WuVJSuHWnbCVhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PcXFJ0cl7zd1o1xjEyFYuAWLAKGjI34EKoUjjQ7EgiZ+e0R0aTHvaxvC27IeOGzdw
-         CiGqwDxwwOiFmYRe750h9p/n3lVLmmEvBfSBIWx8M3oAGF/xM2QmRmol56aIB0mlZw
-         IPVKMTj9Y52+W2Ovyo4a7yLZbKKiGKGtm50efo9U=
+        b=ZBkz5tndOsWLCklhjnhiTod6ZxxExhjS93XnIfCyTVxinlIyhE/prn1lPJHLSz/v3
+         kuJOemtdwWbRVM58SOpTm2g9SBei63fN/RdF/cbm8xK1SK5lVAo9AXoaASEwWT3szT
+         i20sabq0HjAfE/lhydlUNgBNvMTDpVv36t2QO3LI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mohan Kumar <mkumard@nvidia.com>, Sameer Pujar <spujar@nvidia.com>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.8 11/53] ALSA: hda: Fix 2 channel swapping for Tegra
-Date:   Mon,  7 Sep 2020 12:31:37 -0400
-Message-Id: <20200907163220.1280412-11-sashal@kernel.org>
+        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 12/53] ALSA: hda/tegra: Program WAKEEN register for Tegra
+Date:   Mon,  7 Sep 2020 12:31:38 -0400
+Message-Id: <20200907163220.1280412-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -45,46 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit 216116eae43963c662eb84729507bad95214ca6b ]
+[ Upstream commit 23d63a31d9f44d7daeac0d1fb65c6a73c70e5216 ]
 
-The Tegra HDA codec HW implementation has an issue related to not
-swapping the 2 channel Audio Sample Packet(ASP) channel mapping.
-Whatever the FL and FR mapping specified the left channel always
-comes out of left speaker and right channel on right speaker. So
-add condition to disallow the swapping of FL,FR during the playback.
+The WAKEEN bits are used to indicate which bits in the
+STATESTS register may cause wake event during the codec
+state change request. Configure the WAKEEN register for
+the Tegra to detect the wake events.
 
 Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
 Acked-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/20200825052415.20626-2-mkumard@nvidia.com
+Link: https://lore.kernel.org/r/20200825052415.20626-3-mkumard@nvidia.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/hda_tegra.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index f0c6d2907e396..9442127d9b15d 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3670,6 +3670,7 @@ static int tegra_hdmi_build_pcms(struct hda_codec *codec)
+diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
+index 0cc5fad1af8a9..ae40ca3f29837 100644
+--- a/sound/pci/hda/hda_tegra.c
++++ b/sound/pci/hda/hda_tegra.c
+@@ -179,6 +179,10 @@ static int __maybe_unused hda_tegra_runtime_suspend(struct device *dev)
+ 	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
  
- static int patch_tegra_hdmi(struct hda_codec *codec)
- {
-+	struct hdmi_spec *spec;
- 	int err;
- 
- 	err = patch_generic_hdmi(codec);
-@@ -3677,6 +3678,10 @@ static int patch_tegra_hdmi(struct hda_codec *codec)
- 		return err;
- 
- 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
-+	spec = codec->spec;
-+	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
-+		nvhdmi_chmap_cea_alloc_validate_get_type;
-+	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
+ 	if (chip && chip->running) {
++		/* enable controller wake up event */
++		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) |
++			   STATESTS_INT_MASK);
++
+ 		azx_stop_chip(chip);
+ 		azx_enter_link_reset(chip);
+ 	}
+@@ -200,6 +204,9 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
+ 	if (chip && chip->running) {
+ 		hda_tegra_init(hda);
+ 		azx_init_chip(chip, 1);
++		/* disable controller wake up event*/
++		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) &
++			   ~STATESTS_INT_MASK);
+ 	}
  
  	return 0;
- }
 -- 
 2.25.1
 
