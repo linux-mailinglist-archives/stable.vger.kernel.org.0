@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7377926006E
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2DE26005C
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730614AbgIGQtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49012 "EHLO mail.kernel.org"
+        id S1730820AbgIGQr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:47:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730813AbgIGQfI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:35:08 -0400
+        id S1730816AbgIGQfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:35:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13A83221E9;
-        Mon,  7 Sep 2020 16:35:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45C49221EB;
+        Mon,  7 Sep 2020 16:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496507;
-        bh=syf/mrawTOysmHCUC8/4Wh8OWhj5SiPsMX3nynqs+WI=;
+        s=default; t=1599496509;
+        bh=5oXEwq1rdJ5qKxfA72B/oCDaNpskMTnd2ImgwuBx43I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3PHEhaLMMp+2hJF+CKrBwRRz10/U02B5dd0lcQGUhyIUIVbIJdFPmSmEhnOhrpaD
-         3zS/Vl6z/mOjqumqYVH+PP4eH03yxwWMTdkqmmJuCZReAloYIwfK2IvhFK1KMbQldu
-         eJygVJDN7EXIZswEI8QW8aJ5DPHVxlr0z9LylrRs=
+        b=krtp2lkdwy2wTidDjbWntvoFLdxEtS95ue2S6jxzuQ7CSKVveRTxiwDpAHcisscuB
+         KGvaN78wm1xYje/JxR+vcE+tEJ8NbMsMDViqwmqd6Q1W1rNs9ClRZidieIgR7459eS
+         a/AUYBB1GJYL8oFp7C/B7yMhp/YmrORU406fgHPE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 05/17] firestream: Fix memleak in fs_open
-Date:   Mon,  7 Sep 2020 12:34:48 -0400
-Message-Id: <20200907163500.1281543-5-sashal@kernel.org>
+Cc:     Mohan Kumar <mkumard@nvidia.com>, Sameer Pujar <spujar@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 06/17] ALSA: hda: Fix 2 channel swapping for Tegra
+Date:   Mon,  7 Sep 2020 12:34:49 -0400
+Message-Id: <20200907163500.1281543-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163500.1281543-1-sashal@kernel.org>
 References: <20200907163500.1281543-1-sashal@kernel.org>
@@ -44,32 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit 15ac5cdafb9202424206dc5bd376437a358963f9 ]
+[ Upstream commit 216116eae43963c662eb84729507bad95214ca6b ]
 
-When make_rate() fails, vcc should be freed just
-like other error paths in fs_open().
+The Tegra HDA codec HW implementation has an issue related to not
+swapping the 2 channel Audio Sample Packet(ASP) channel mapping.
+Whatever the FL and FR mapping specified the left channel always
+comes out of left speaker and right channel on right speaker. So
+add condition to disallow the swapping of FL,FR during the playback.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Acked-by: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/20200825052415.20626-2-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/firestream.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_hdmi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
-index 0e449ee11ac7f..e7cffd0cc3616 100644
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -1013,6 +1013,7 @@ static int fs_open(struct atm_vcc *atm_vcc)
- 				error = make_rate (pcr, r, &tmc0, NULL);
- 				if (error) {
- 					kfree(tc);
-+					kfree(vcc);
- 					return error;
- 				}
- 			}
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 9e8cfc409b4b3..d0400538bd2db 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3398,6 +3398,7 @@ static int tegra_hdmi_build_pcms(struct hda_codec *codec)
+ 
+ static int patch_tegra_hdmi(struct hda_codec *codec)
+ {
++	struct hdmi_spec *spec;
+ 	int err;
+ 
+ 	err = patch_generic_hdmi(codec);
+@@ -3405,6 +3406,10 @@ static int patch_tegra_hdmi(struct hda_codec *codec)
+ 		return err;
+ 
+ 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
++	spec = codec->spec;
++	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
++		nvhdmi_chmap_cea_alloc_validate_get_type;
++	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
