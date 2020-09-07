@@ -2,88 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F4C25F218
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 05:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3564225F3C7
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 09:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbgIGDfm convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 6 Sep 2020 23:35:42 -0400
-Received: from mail-ej1-f67.google.com ([209.85.218.67]:41450 "EHLO
-        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726259AbgIGDfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Sep 2020 23:35:40 -0400
-Received: by mail-ej1-f67.google.com with SMTP id lo4so16273869ejb.8;
-        Sun, 06 Sep 2020 20:35:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nMTwZ+Li11GDtkKJOTkb9oea+Prun/Hf62+vO8ipsII=;
-        b=PDSCqsz0uYCrWcnD4IqVa2AvWJ4Y1dxpQgf6mHsxQxxFojUxemw6gUrNEMZlFHlLSI
-         S+/dxd9TEKPguJwz3u6iHKPeTY/2UPaS7GCn4OOx4vTU+VQaL3rMw6IRwbnc5+34VQW/
-         6iCLOtdU8Zpcmv4LarnWTioA9WO68Lxl6+1iNZZTdZiSFuxGtYau52bU6zkFk3H6GyLd
-         a1SrAMbZaqNb1ofQNZFv/3b0bVWPWmjUUNDCPXw9Jdq26bvE9MAEMIbaFet5GyhQrsOx
-         wu6ZBw8EfCKHu/Ru9ekuuomnZCDOCxXCMUS4PYgS5xo3JtAvhEgAn8FLvoyKrlU/2dRS
-         OWbQ==
-X-Gm-Message-State: AOAM531DbMs/4FqMSYiDGrW6MjBapuYSbjRVZOU7nSu902aIRxUcvrsJ
-        NXMHdHyg1wZtTo0cvH7ZQ1SNj2KbF8wHR1MtV8g=
-X-Google-Smtp-Source: ABdhPJyAMlbkMn8iebAa2zLz97/J3SbgJpItd8qMZ+Mj9E7iiT1O1ohkKk0Nn5AzTfhpxtlGE1SoG9Qq1b0YIxFqpKU=
-X-Received: by 2002:a17:906:724b:: with SMTP id n11mr13401178ejk.328.1599449738257;
- Sun, 06 Sep 2020 20:35:38 -0700 (PDT)
+        id S1726931AbgIGHUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 03:20:06 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.170]:33992 "EHLO
+        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726896AbgIGHUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 03:20:03 -0400
+X-Greylist: delayed 595 seconds by postgrey-1.27 at vger.kernel.org; Mon, 07 Sep 2020 03:20:02 EDT
+Received: from mxout4.routing.net (unknown [192.168.10.112])
+        by backup.mxwww.masterlogin.de (Postfix) with ESMTPS id 1A0352C4A2;
+        Mon,  7 Sep 2020 07:06:00 +0000 (UTC)
+Received: from mxbox1.masterlogin.de (unknown [192.168.10.88])
+        by mxout4.routing.net (Postfix) with ESMTP id C6DDA100464;
+        Mon,  7 Sep 2020 07:05:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
+        s=20200217; t=1599462351;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=onds+3xjlybr9ir+dspQaREPX8BcKz9b6Gb01qJhOFw=;
+        b=H5v+1OSy2SHAT35gF1NOqNI/Nsr0lePa9HK8oKtewbND1nF9q0vTk+lVDySS6ZzsFqxFEk
+        3oOhrkJEC221bZiTPbqm5AIfdliiOxe1gzMqu6gV0QJsk7Q9eFe9KT3HAfnsQURtpr7+i7
+        HvKWKZepAeamq+bGyuDGtG5Gk/sY81M=
+Received: from localhost.localdomain (fttx-pool-185.76.97.104.bambit.de [185.76.97.104])
+        by mxbox1.masterlogin.de (Postfix) with ESMTPSA id 09C90401D3;
+        Mon,  7 Sep 2020 07:05:51 +0000 (UTC)
+From:   Frank Wunderlich <linux@fw-web.de>
+To:     linux-mediatek@lists.infradead.org
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Landen Chao <landen.chao@mediatek.com>,
+        Qingfang DENG <dqfext@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        Sean Wang <sean.wang@mediatek.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] arm: dts: mt7623: add missing pause for switchport
+Date:   Mon,  7 Sep 2020 09:05:17 +0200
+Message-Id: <20200907070517.51715-1-linux@fw-web.de>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20191016214805.727399379@linuxfoundation.org> <20191016214845.344235056@linuxfoundation.org>
- <20200826210628.GA173536@roeck-us.net> <20200903092621.GB2220117@kroah.com>
-In-Reply-To: <20200903092621.GB2220117@kroah.com>
-From:   =?UTF-8?Q?Philippe_Mathieu=2DDaud=C3=A9?= <f4bug@amsat.org>
-Date:   Mon, 7 Sep 2020 05:35:26 +0200
-Message-ID: <CAAdtpL5ZPh4dBTVg57iF+PzOGFujvaNFxN4F_nEtAbB+=OGvhg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 66/81] MIPS: Disable Loongson MMI instructions for
- kernel build
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Huacai Chen <chenhc@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 3, 2020 at 11:28 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Aug 26, 2020 at 02:06:28PM -0700, Guenter Roeck wrote:
-> > Hi,
-> >
-> > On Wed, Oct 16, 2019 at 02:51:17PM -0700, Greg Kroah-Hartman wrote:
-> > > From: Paul Burton <paul.burton@mips.com>
-> > >
-> > > commit 2f2b4fd674cadd8c6b40eb629e140a14db4068fd upstream.
-> > >
-> > > GCC 9.x automatically enables support for Loongson MMI instructions when
-> > > using some -march= flags, and then errors out when -msoft-float is
-> > > specified with:
-> > >
-> > >   cc1: error: ‘-mloongson-mmi’ must be used with ‘-mhard-float’
-> > >
-> > > The kernel shouldn't be using these MMI instructions anyway, just as it
-> > > doesn't use floating point instructions. Explicitly disable them in
-> > > order to fix the build with GCC 9.x.
-> > >
-> >
-> > I still see this problem when trying to compile fuloong2e_defconfig with
-> > gcc 9.x or later. Reason seems to be that the patch was applied to
-> > arch/mips/loongson64/Platform, but fuloong2e_defconfig uses
-> > arch/mips/loongson2ef/Platform.
-> >
-> > Am I missing something ?
->
-> I don't know, sorry, that would be something that Paul understands.
->
-> Paul?
+From: Frank Wunderlich <frank-w@public-files.de>
 
-Cc'ing Thomas who now maintains this.
+port6 of mt7530 switch (= cpu port 0) on bananapi-r2 misses pause option
+which causes rx drops on running iperf.
+
+Cc: stable@vger.kernel.org
+Fixes: f4ff257cd160 ("arm: dts: mt7623: add support for Bananapi R2 (BPI-R2) board")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+---
+ arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
+index 2b760f90f38c..5375c6699843 100644
+--- a/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
++++ b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
+@@ -192,6 +192,7 @@ port@6 {
+ 					fixed-link {
+ 						speed = <1000>;
+ 						full-duplex;
++						pause;
+ 					};
+ 				};
+ 			};
+-- 
+2.25.1
+
