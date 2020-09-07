@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BAC326021D
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F792601D9
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgIGRSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 13:18:39 -0400
-Received: from mga17.intel.com ([192.55.52.151]:17437 "EHLO mga17.intel.com"
+        id S1729892AbgIGQbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:31:53 -0400
+Received: from mga09.intel.com ([134.134.136.24]:34570 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729736AbgIGN6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 09:58:53 -0400
-IronPort-SDR: yKDVgZSQ5Mi2OXVP+nsKubKLuJ2PafMtpFNbOdlYzZyQIkNAZL239S0lC49L6hg7WOp9Ps5RJ4
- OOXmOP0kfY3g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9736"; a="138056019"
-X-IronPort-AV: E=Sophos;i="5.76,401,1592895600"; 
-   d="scan'208";a="138056019"
+        id S1729793AbgIGOWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 10:22:05 -0400
+IronPort-SDR: vIOtwWF8K5+Ue+5c0HPElYbJwgWJZwX1sKlAXSbYct8WB3tWCsk9zT0/FKorBf21uhb/vLDHzi
+ AyOqnY6m1AcA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9736"; a="158987045"
+X-IronPort-AV: E=Sophos;i="5.76,402,1592895600"; 
+   d="scan'208";a="158987045"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2020 06:57:44 -0700
-IronPort-SDR: Vxl1sf/oBwGQL8BqMI64ABtxtx1JwBB7wQmSHNiTy1jIwzIzrYlGIZLDfP+FDdoxVOj5ZxY9AF
- +sSAz5oFtdkA==
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2020 07:21:57 -0700
+IronPort-SDR: J/JYFS3oFVQrkWg9Q3rECnWSXHQBJlmIpzYiV9dHCa38Opyg7lRHU9NAZEZEgtmS2HGPQzz+GG
+ d/bmYMnJTtXQ==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,401,1592895600"; 
-   d="scan'208";a="406845161"
+X-IronPort-AV: E=Sophos;i="5.76,402,1592895600"; 
+   d="scan'208";a="406850918"
 Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 07 Sep 2020 06:57:42 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 07 Sep 2020 07:21:55 -0700
 From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     "Mani, Rajmohan" <rajmohan.mani@intel.com>,
-        linux-acpi@vger.kernel.org,
         Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        stable@vger.kernel.org
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
 Subject: [PATCH 1/2] usb: typec: intel_pmc_mux: Do not configure Altmode HPD High
-Date:   Mon,  7 Sep 2020 16:57:39 +0300
-Message-Id: <20200907135740.19941-2-heikki.krogerus@linux.intel.com>
+Date:   Mon,  7 Sep 2020 17:21:51 +0300
+Message-Id: <20200907142152.35678-2-heikki.krogerus@linux.intel.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200907135740.19941-1-heikki.krogerus@linux.intel.com>
-References: <20200907135740.19941-1-heikki.krogerus@linux.intel.com>
+In-Reply-To: <20200907142152.35678-1-heikki.krogerus@linux.intel.com>
+References: <20200907142152.35678-1-heikki.krogerus@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
