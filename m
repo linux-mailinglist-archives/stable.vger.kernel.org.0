@@ -2,128 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 377162604E9
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 20:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6897F26055B
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 22:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729885AbgIGS4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 14:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56128 "EHLO
+        id S1728891AbgIGUEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 16:04:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729472AbgIGSzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 14:55:09 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106D6C061573;
-        Mon,  7 Sep 2020 11:55:09 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id b124so8994122pfg.13;
-        Mon, 07 Sep 2020 11:55:08 -0700 (PDT)
+        with ESMTP id S1729049AbgIGUEn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 16:04:43 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585E5C061573
+        for <stable@vger.kernel.org>; Mon,  7 Sep 2020 13:04:40 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id a65so15284585wme.5
+        for <stable@vger.kernel.org>; Mon, 07 Sep 2020 13:04:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dawj1SMvdQbml5uHKFi5qJIO1Xksj7iCEcoBAXgXEuI=;
-        b=LzYUAim1sww5RSYzIbFyJZ7GkaZRwpjcPpZ2OaI+rE7BDVh1A0Ni+qbUi1gDaqtK+2
-         eGsCrnL1B32m+PDpBd+969FoZj+Tu9KXd9QCQb35FDrmfZbM88KAAHX/Z4YzDEy3iRdw
-         +31fkC97nJDFvW5V5XIMDPfr+INVFkFbcmZkzV4TCT2L3uL403QE/hwW5BTUDeNlVtg7
-         rWLXQlvXhbhsAjuJEEP/oYZ8Ocsy2nx/6MI5finWZTcs01lk270uL8ElQyKKRaxKrX5E
-         SSVvM4G4hScGD5BYtQreQ0uBdHyV4nH5Ad5jM61SexmSmZK26CYCBOlBVhPE+gEykIIK
-         5tcQ==
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding;
+        bh=2fnKx3TLr2Ci6egvm/aBr5BPyqdIbHMLr/GygAnqwHo=;
+        b=fQSOxN88GEzz6rXl7LDyV1NifslltKH4iUOkFEfYMZF21ymY2wF18QWYOaCWttKkAC
+         EDR8wnyedRuNtQbKZDrw8U1SPnbdsYvirpwsxS4SbT397lH9dFzaoosJQRf38JhT1c+T
+         NZEZnbhVVWdOBv8PfvonzQ9T1aV+4rxZrNq18RVCXHZQ0+uuu8nzyWfeE+oY+57iUi0M
+         88vOhOGn4BP75Tq5gc4CcJBVepiuKEnH5Cgv8nqQ7lDOHnX1ff1OD56NT3g5kGUJRGQR
+         Yishp+ciBUGx1N+Pre63S2QgbCzzhoOKH9m4yTUdvLtbRpKr/dYlNDJrW3vux5HdlEwh
+         qI5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dawj1SMvdQbml5uHKFi5qJIO1Xksj7iCEcoBAXgXEuI=;
-        b=YFk4cwGmtM63kaWQJN7oESua55pyL7m7oNNMKunNv9m5v45YW6RuUYCHYrMxYXQrkB
-         X2p1mXKjyh6azWk0AJu9ETi3F+vcU1/GuuG6AKxIWzo20nv8ElYTk82qYdsU7SNu6VPy
-         vcQkmt/0fri/S7ovXaJgPB6stRry5rV6DNbYO1Ia/gYYf1fEeU1zz7IUXNSaPPRrjcFZ
-         6BIqXcwWSAvv/uha0sPAl/yKsSGDANDLTftxf/6fEzyjomlzPda9F3+JgIbGYEY/WUgJ
-         2dp7eNkEX6ZK1fbeDjrMKSeGMWy1Kvpqq4OL4TYIsAOHGcxs1mtNZpwAwKnPIWDK3yIO
-         3TzQ==
-X-Gm-Message-State: AOAM531kg5n0/fKsvh0CvRZCiMXFvUDEI4u47SGYt+ramNbJNQR9VW98
-        imNbzc2HJSeKELLPAbw2JSU=
-X-Google-Smtp-Source: ABdhPJxay8d9Q5I7t6iNt4rnkHhZw2gW/vAIWCtXS76rfVzqgleboOPliRkM/UDIXkwoe5DpbcNg9g==
-X-Received: by 2002:aa7:9991:0:b029:13c:1611:6530 with SMTP id k17-20020aa799910000b029013c16116530mr19254157pfh.16.1599504908391;
-        Mon, 07 Sep 2020 11:55:08 -0700 (PDT)
-Received: from localhost.localdomain (104.36.148.139.aurocloud.com. [104.36.148.139])
-        by smtp.gmail.com with ESMTPSA id p190sm16178304pfp.9.2020.09.07.11.55.04
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:content-transfer-encoding;
+        bh=2fnKx3TLr2Ci6egvm/aBr5BPyqdIbHMLr/GygAnqwHo=;
+        b=RpwzmwixNJmIUoacjpfwLmwhONahZ9E6EKpRA8XvbK5bb8Jn4nUZ4NFG6GxVp73rVh
+         cUPmo9W6LEo2wjbLGV6BNnpqBxOQgb7L6Ih0UyFBcE5q1TcVSC7OHqOZZJcplUR5p36m
+         Q4HFEngeIdZX8OLYxvG1JtOp9pKgZcs7YBlpSzxu2VEGs/WZh5hxw4j8ML5Ys7qhQPMv
+         x530y2clGjlwkk0d1chREYatJqW2g8WtQqwIGwURrfPxui1TCxTlPAzwMipTVUSap1N5
+         ptvEc4sJYvCAFKFPU7wqpX2LWmyXrENNNRsPUptVpSzy2ZG6fDLIooXjHc9buwGZZq13
+         G5lQ==
+X-Gm-Message-State: AOAM53120FrkgHHLIqhPPBhyxce+qlcEJe/VYhJOfZt3Y+XfPjRVDMag
+        hmyzSIdYtj5hDS/Gmo5Wzx4=
+X-Google-Smtp-Source: ABdhPJzIl36Bqkh+nrE2f/Nry2/qNg0v8Vd0YN0ErM+kNeWIZe/iDKe7asGjdcOlUIFWfesZkto6rg==
+X-Received: by 2002:a05:600c:2054:: with SMTP id p20mr839383wmg.173.1599509079136;
+        Mon, 07 Sep 2020 13:04:39 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id t15sm25729206wmj.15.2020.09.07.13.04.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2020 11:55:07 -0700 (PDT)
-From:   Rustam Kovhaev <rkovhaev@gmail.com>
-To:     pbonzini@redhat.com, vkuznets@redhat.com, gustavoars@kernel.org,
-        kvm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>
-Subject: [RESEND PATCH v2] KVM: fix memory leak in kvm_io_bus_unregister_dev()
-Date:   Mon,  7 Sep 2020 11:55:35 -0700
-Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
-X-Mailer: git-send-email 2.28.0
+        Mon, 07 Sep 2020 13:04:38 -0700 (PDT)
+Date:   Mon, 7 Sep 2020 22:04:37 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable <stable@vger.kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Max Chou <max.chou@realtek.com>,
+        Felix =?iso-8859-1?Q?D=F6rre?= <debian@felixdoerre.de>
+Subject: Please apply commit 24b065727ceb ("Bluetooth: Return NOTIFY_DONE for
+ hci_suspend_notifier") to v5.8.y
+Message-ID: <20200907200437.GA908020@eldamar.local>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
-the bus, we should iterate over all other devices linked to it and call
-kvm_iodevice_destructor() for them
+Hi
 
-Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
----
-v2:
-- remove redundant whitespace
-- remove goto statement and use if/else
-- add Fixes tag
----
- virt/kvm/kvm_main.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+Please apply the commit 24b065727ceb ("Bluetooth: Return NOTIFY_DONE
+for hci_suspend_notifier") to the v5.8.y branch as well. As the commit
+message says it fixes actually an issue:
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 67cd0b88a6b6..cf88233b819a 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -4332,7 +4332,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 			       struct kvm_io_device *dev)
- {
--	int i;
-+	int i, j;
- 	struct kvm_io_bus *new_bus, *bus;
- 
- 	bus = kvm_get_bus(kvm, bus_idx);
-@@ -4349,17 +4349,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 
- 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
- 			  GFP_KERNEL_ACCOUNT);
--	if (!new_bus)  {
-+	if (new_bus) {
-+		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
-+		new_bus->dev_count--;
-+		memcpy(new_bus->range + i, bus->range + i + 1,
-+		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
-+	} else {
- 		pr_err("kvm: failed to shrink bus, removing it completely\n");
--		goto broken;
-+		for (j = 0; j < bus->dev_count; j++) {
-+			if (j == i)
-+				continue;
-+			kvm_iodevice_destructor(bus->range[j].dev);
-+		}
- 	}
- 
--	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
--	new_bus->dev_count--;
--	memcpy(new_bus->range + i, bus->range + i + 1,
--	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
--
--broken:
- 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
- 	synchronize_srcu_expedited(&kvm->srcu);
- 	kfree(bus);
--- 
-2.28.0
+> The original return is NOTIFY_STOP, but notifier_call_chain would stop
+> the future call for register_pm_notifier even registered on other Kernel
+> modules with the same priority which value is zero.
 
+The commit misses a Fixes tag on 9952d90ea288 ("Bluetooth: Handle
+PM_SUSPEND_PREPARE and PM_POST_SUSPEND") and so was not backported as
+well.
+
+This was affecting Felix Dörre (https://bugs.debian.org/964839#65)
+with an out of tree module, but as the commit explains the issue seem
+to be more general.
+
+Thank you already,
+
+Regards,
+Salvatore
