@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02BAA2601D4
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D46562601B2
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730828AbgIGRMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 13:12:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46422 "EHLO mail.kernel.org"
+        id S1730642AbgIGQcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:32:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729859AbgIGQca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:32:30 -0400
+        id S1730630AbgIGQcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:32:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 213A22177B;
-        Mon,  7 Sep 2020 16:32:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A004E21532;
+        Mon,  7 Sep 2020 16:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496350;
-        bh=WaRb99NzFLhjb/eGzI25XFiRr/1YBLnkQgsNKe0DdCQ=;
+        s=default; t=1599496352;
+        bh=DV7gGrRAoLENF14ze7dE4iENAKav/G+BIt/ovTdJumY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxxWJiGInPvYT7ElImhDMyFl6oG4I/e4FtMy+DgfGyy0resQdhHrWxiv2QsSyrJiU
-         IcyvxYWVb5LhOPEIOxAVoIIr+biJ+ADiaIh314s+hNUZWK8n3d9jjhqzLOEll6MX0c
-         FxC2S+WOsbke+ipT9bLb3PAge/3eLQhBJb85+knA=
+        b=oqgJQpfFRJa+wpxEPz4PRoj1txwspRrcgUxZYV/18035SzHyK9E9KebO50Nv5czlZ
+         U/vzEO6pD2aML6CAnQ1iieCZroHZpFbqjCE3sVAmue9hj0eavXKK859VkF2HF47hGs
+         gB6eoSRStdODfQ0BdhMt/ccxKuvLOsYctgEcEEh0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie He <xie.he.0141@gmail.com>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 07/53] drivers/net/wan/lapbether: Added needed_tailroom
-Date:   Mon,  7 Sep 2020 12:31:33 -0400
-Message-Id: <20200907163220.1280412-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 09/53] firestream: Fix memleak in fs_open
+Date:   Mon,  7 Sep 2020 12:31:35 -0400
+Message-Id: <20200907163220.1280412-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -45,36 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1ee39c1448c4e0d480c5b390e2db1987561fb5c2 ]
+[ Upstream commit 15ac5cdafb9202424206dc5bd376437a358963f9 ]
 
-The underlying Ethernet device may request necessary tailroom to be
-allocated by setting needed_tailroom. This driver should also set
-needed_tailroom to request the tailroom needed by the underlying
-Ethernet device to be allocated.
+When make_rate() fails, vcc should be freed just
+like other error paths in fs_open().
 
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 1 +
+ drivers/atm/firestream.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 1ea15f2123ed5..cc297ea9c6ece 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -340,6 +340,7 @@ static int lapbeth_new_device(struct net_device *dev)
- 	 */
- 	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
- 					   + dev->needed_headroom;
-+	ndev->needed_tailroom = dev->needed_tailroom;
- 
- 	lapbeth = netdev_priv(ndev);
- 	lapbeth->axdev = ndev;
+diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
+index cc87004d5e2d6..5f22555933df1 100644
+--- a/drivers/atm/firestream.c
++++ b/drivers/atm/firestream.c
+@@ -998,6 +998,7 @@ static int fs_open(struct atm_vcc *atm_vcc)
+ 				error = make_rate (pcr, r, &tmc0, NULL);
+ 				if (error) {
+ 					kfree(tc);
++					kfree(vcc);
+ 					return error;
+ 				}
+ 			}
 -- 
 2.25.1
 
