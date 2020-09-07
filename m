@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA463260166
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1143A260153
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731103AbgIGRDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 13:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
+        id S1730774AbgIGRDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 13:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730322AbgIGQdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:16 -0400
+        id S1729868AbgIGQdS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E50E21974;
-        Mon,  7 Sep 2020 16:33:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A722121D1B;
+        Mon,  7 Sep 2020 16:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496396;
-        bh=pWPCQxYkwcrRSwkB1/hw9MYm8NdGPFIuQ7QBFDTRK/A=;
+        s=default; t=1599496397;
+        bh=Zzfnlcjx2zYJ0tiWlm3weofgZXW5EGMPZ6lwrOZW6qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQR3PHhchJjmCTr2EBXeL2YJ3CGRxbbG3VisjU6nW0sJV4dkjuohROmyg9GifALJJ
-         7ed/iq9Vy8qHB+Iz+pNiw6fUae340lgVuWqkCnMrAd6S0OhpKPCQUW+jTjTc6r11+v
-         1CoB/bmRqDNov7ltjU0Mk4y/RfE0lxC6UbntcN2I=
+        b=FwvKmsGThSTRpO71SDAldVwQ1ExIRZ0n7WK9H4eHaBkaTyXOF7WBStjn67GlXK2b1
+         jcNtSr5b8sM009XT8HofpnehRP2UQ4gODALsdtNvQoS+eSJPtK1UvTxURK9++x8jfQ
+         iKje3PnyHmVf7RDrP479Gs2wukat4xeoc5TkCBdA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kamil Lorenc <kamil@re-ws.pl>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 44/53] net: usb: dm9601: Add USB ID of Keenetic Plus DSL
-Date:   Mon,  7 Sep 2020 12:32:10 -0400
-Message-Id: <20200907163220.1280412-44-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 45/53] arm64/module: set trampoline section flags regardless of CONFIG_DYNAMIC_FTRACE
+Date:   Mon,  7 Sep 2020 12:32:11 -0400
+Message-Id: <20200907163220.1280412-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -44,34 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamil Lorenc <kamil@re-ws.pl>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit a609d0259183a841621f252e067f40f8cc25d6f6 ]
+[ Upstream commit e0328feda79d9681b3e3245e6e180295550c8ee9 ]
 
-Keenetic Plus DSL is a xDSL modem that uses dm9620 as its USB interface.
+In the arm64 module linker script, the section .text.ftrace_trampoline
+is specified unconditionally regardless of whether CONFIG_DYNAMIC_FTRACE
+is enabled (this is simply due to the limitation that module linker
+scripts are not preprocessed like the vmlinux one).
 
-Signed-off-by: Kamil Lorenc <kamil@re-ws.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Normally, for .plt and .text.ftrace_trampoline, the section flags
+present in the module binary wouldn't matter since module_frob_arch_sections()
+would assign them manually anyway. However, the arm64 module loader only
+sets the section flags for .text.ftrace_trampoline when CONFIG_DYNAMIC_FTRACE=y.
+That's only become problematic recently due to a recent change in
+binutils-2.35, where the .text.ftrace_trampoline section (along with the
+.plt section) is now marked writable and executable (WAX).
+
+We no longer allow writable and executable sections to be loaded due to
+commit 5c3a7db0c7ec ("module: Harden STRICT_MODULE_RWX"), so this is
+causing all modules linked with binutils-2.35 to be rejected under arm64.
+Drop the IS_ENABLED(CONFIG_DYNAMIC_FTRACE) check in module_frob_arch_sections()
+so that the section flags for .text.ftrace_trampoline get properly set to
+SHF_EXECINSTR|SHF_ALLOC, without SHF_WRITE.
+
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Link: http://lore.kernel.org/r/20200831094651.GA16385@linux-8ccs
+Link: https://lore.kernel.org/r/20200901160016.3646-1-jeyu@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/dm9601.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/kernel/module-plts.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/dm9601.c b/drivers/net/usb/dm9601.c
-index b91f92e4e5f22..915ac75b55fc7 100644
---- a/drivers/net/usb/dm9601.c
-+++ b/drivers/net/usb/dm9601.c
-@@ -625,6 +625,10 @@ static const struct usb_device_id products[] = {
- 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
- 	 .driver_info = (unsigned long)&dm9601_info,
- 	},
-+	{
-+	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
-+	 .driver_info = (unsigned long)&dm9601_info,
-+	},
- 	{},			// END
- };
- 
+diff --git a/arch/arm64/kernel/module-plts.c b/arch/arm64/kernel/module-plts.c
+index 65b08a74aec65..37c0b51a7b7b5 100644
+--- a/arch/arm64/kernel/module-plts.c
++++ b/arch/arm64/kernel/module-plts.c
+@@ -271,8 +271,7 @@ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+ 			mod->arch.core.plt_shndx = i;
+ 		else if (!strcmp(secstrings + sechdrs[i].sh_name, ".init.plt"))
+ 			mod->arch.init.plt_shndx = i;
+-		else if (IS_ENABLED(CONFIG_DYNAMIC_FTRACE) &&
+-			 !strcmp(secstrings + sechdrs[i].sh_name,
++		else if (!strcmp(secstrings + sechdrs[i].sh_name,
+ 				 ".text.ftrace_trampoline"))
+ 			tramp = sechdrs + i;
+ 		else if (sechdrs[i].sh_type == SHT_SYMTAB)
 -- 
 2.25.1
 
