@@ -2,111 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C27925F699
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 11:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4207B25F7F1
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 12:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728337AbgIGJgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 05:36:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727122AbgIGJgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 05:36:49 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D92C061573;
-        Mon,  7 Sep 2020 02:36:48 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id x14so13057045oic.9;
-        Mon, 07 Sep 2020 02:36:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cePeFxPoNoJDCzd23ACFb/6BsCv5I8F1VVlSAM3tueA=;
-        b=g5VzGNKZucVFsp84RldxQxOHa4zEu5HC8WL4QO7gTYaQZuxJ7dxHKpUZUYhqoAjjEx
-         I4KFXrXsr/tf/L/TakL0e+dbzZjW+OYy570Ec0DtRgXYHtmcyBGFNbmENGuAyi3Wo2KH
-         wF8ttarUs89EOkFRBvPJninvPmGeDDnpnq9nWdwKwP0C2nHCje39L062ZUXMaGP4pa2G
-         aX6ikFFNP9FK0h6hh/GjA9lvTQqhf/29iDRgsqqAoPIwomfeSsNg3CtF582fL928scNG
-         bkRb5BKMCZz7+nS3hpKuDylSmlK5zTul4o6d/Qj6kfshr4R07BpJmDJDpZkdf9PanRqX
-         S3aA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=cePeFxPoNoJDCzd23ACFb/6BsCv5I8F1VVlSAM3tueA=;
-        b=tXm3YeEVTqBd4yi9M4T7Rd/ieY8DGNR5+11LxH6O2qcrSxnn0pis+4f6wHAmkIO2rZ
-         sN1hpQgeFzg4klGvKUgOoaWWOKUms6SSW+T4qkNCFHNASelUIUdn7z1G/5MfvHQDf879
-         gMH5bVrXzvNPn3ANhcHfHXmnZi9uz8ZuNpFOptkWaqVDN6YvGjpxO67IiRmDsuX5MvIi
-         WcONxHlRBB1JcHVJoTNmTKJzF1l/oMRY8Uy/zVBQSChIuEOIudcRcIWqhCgKiyxOH8V3
-         hcTt3qyThzrsfSqwtIPW7cMuilKh4HjhMde3gec2vNtB02/ppl25M8aVnPu26w9OJkr1
-         pkig==
-X-Gm-Message-State: AOAM530cR2VvM6xh3jccoDsXX+Lw8HrAww+JXu3IBAeawOrs45G0rZwY
-        2mxgifCzQB8mTj7ZsSVnTsn+GZvL0JtmMloklt4=
-X-Google-Smtp-Source: ABdhPJy/9gGw0ka8hElWBRaIMhpWSt4Gcnvhs5l2yGfIjp1xBTJs+45WtTpOGiEjbV38iWex0E6lb7iRmIcFyflQHig=
-X-Received: by 2002:aca:d409:: with SMTP id l9mr11252190oig.70.1599471408164;
- Mon, 07 Sep 2020 02:36:48 -0700 (PDT)
+        id S1728817AbgIGKXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 06:23:02 -0400
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:56107 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728637AbgIGKVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 06:21:39 -0400
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Mon, 7 Sep 2020 03:21:21 -0700
+Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id E71C240271;
+        Mon,  7 Sep 2020 03:21:21 -0700 (PDT)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
+        <peterx@redhat.com>, <kvm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <vsirnapalli@vmware.com>, <akaher@vmware.com>
+Subject: [PATCH v4.19.y 1/3] vfio/type1: Support faulting PFNMAP vmas
+Date:   Mon, 7 Sep 2020 15:47:20 +0530
+Message-ID: <1599473843-34234-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-References: <20191026132110.4026-1-sashal@kernel.org> <20191026132110.4026-17-sashal@kernel.org>
-In-Reply-To: <20191026132110.4026-17-sashal@kernel.org>
-From:   Kristian Evensen <kristian.evensen@gmail.com>
-Date:   Mon, 7 Sep 2020 11:36:37 +0200
-Message-ID: <CAKfDRXjjuW4VM03HeVoeEyG=cULUK8ZXexWu48rfFvJE+DD8_g@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.14 17/33] net: usb: qmi_wwan: add Telit 0x1050 composition
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Daniele Palmas <dnlplm@gmail.com>,
-        =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Network Development <netdev@vger.kernel.org>,
-        linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Alex Williamson <alex.williamson@redhat.com>
 
-On Sat, Oct 26, 2019 at 3:27 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Daniele Palmas <dnlplm@gmail.com>
->
-> [ Upstream commit e0ae2c578d3909e60e9448207f5d83f785f1129f ]
->
-> This patch adds support for Telit FN980 0x1050 composition
->
-> 0x1050: tty, adb, rmnet, tty, tty, tty, tty
->
-> Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-> Acked-by: Bj=C3=B8rn Mork <bjorn@mork.no>
-> Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/usb/qmi_wwan.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-> index e406a05e79dcd..57e9166b4bff3 100644
-> --- a/drivers/net/usb/qmi_wwan.c
-> +++ b/drivers/net/usb/qmi_wwan.c
-> @@ -1252,6 +1252,7 @@ static const struct usb_device_id products[] =3D {
->         {QMI_FIXED_INTF(0x2357, 0x0201, 4)},    /* TP-LINK HSUPA Modem MA=
-180 */
->         {QMI_FIXED_INTF(0x2357, 0x9000, 4)},    /* TP-LINK MA260 */
->         {QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)}, /* Telit LE922A */
-> +       {QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)}, /* Telit FN980 */
->         {QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},    /* Telit ME910 */
->         {QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},    /* Telit ME910 dual modem=
- */
->         {QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},    /* Telit LE920 */
-> --
-> 2.20.1
->
+commit 41311242221e3482b20bfed10fa4d9db98d87016 upstream.
 
-When testing the FN980 with kernel 4.14, I noticed that the qmi device
-was not there. Checking the git log, I see that this patch was never
-applied. The patch applies fine, so I guess it was just missed
-somewhere. If it could be added to the next 4.14 release, it would be
-much appreciated.
+With conversion to follow_pfn(), DMA mapping a PFNMAP range depends on
+the range being faulted into the vma.  Add support to manually provide
+that, in the same way as done on KVM with hva_to_pfn_remapped().
 
-BR,
-Kristian
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+[Ajay: Regenerated the patch for v4.19]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+---
+ drivers/vfio/vfio_iommu_type1.c | 36 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 6dbdadb..cb8d8bb 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -343,6 +343,32 @@ static int put_pfn(unsigned long pfn, int prot)
+ 	return 0;
+ }
+ 
++static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
++			    unsigned long vaddr, unsigned long *pfn,
++			    bool write_fault)
++{
++	int ret;
++
++	ret = follow_pfn(vma, vaddr, pfn);
++	if (ret) {
++		bool unlocked = false;
++
++		ret = fixup_user_fault(NULL, mm, vaddr,
++				       FAULT_FLAG_REMOTE |
++				       (write_fault ?  FAULT_FLAG_WRITE : 0),
++				       &unlocked);
++		if (unlocked)
++			return -EAGAIN;
++
++		if (ret)
++			return ret;
++
++		ret = follow_pfn(vma, vaddr, pfn);
++	}
++
++	return ret;
++}
++
+ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
+ 			 int prot, unsigned long *pfn)
+ {
+@@ -382,12 +408,16 @@ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
+ 
+ 	down_read(&mm->mmap_sem);
+ 
++retry:
+ 	vma = find_vma_intersection(mm, vaddr, vaddr + 1);
+ 
+ 	if (vma && vma->vm_flags & VM_PFNMAP) {
+-		if (!follow_pfn(vma, vaddr, pfn) &&
+-		    is_invalid_reserved_pfn(*pfn))
+-			ret = 0;
++		ret = follow_fault_pfn(vma, mm, vaddr, pfn, prot & IOMMU_WRITE);
++		if (ret == -EAGAIN)
++			goto retry;
++
++		if (!ret && !is_invalid_reserved_pfn(*pfn))
++			ret = -EFAULT;
+ 	}
+ 
+ 	up_read(&mm->mmap_sem);
+-- 
+2.7.4
+
