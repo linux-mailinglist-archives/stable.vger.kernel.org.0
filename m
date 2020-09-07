@@ -2,120 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E662604CD
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 20:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377162604E9
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 20:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729049AbgIGSnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 14:43:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
+        id S1729885AbgIGS4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 14:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728343AbgIGSnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 14:43:18 -0400
-Received: from mail-vk1-xa43.google.com (mail-vk1-xa43.google.com [IPv6:2607:f8b0:4864:20::a43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20ABC061573
-        for <stable@vger.kernel.org>; Mon,  7 Sep 2020 11:43:17 -0700 (PDT)
-Received: by mail-vk1-xa43.google.com with SMTP id d2so1004627vkd.13
-        for <stable@vger.kernel.org>; Mon, 07 Sep 2020 11:43:17 -0700 (PDT)
+        with ESMTP id S1729472AbgIGSzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 14:55:09 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106D6C061573;
+        Mon,  7 Sep 2020 11:55:09 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id b124so8994122pfg.13;
+        Mon, 07 Sep 2020 11:55:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Z/QiT8wvjsDBITdA5cxTL7/NMWaaQtV0JaXo6EfJo0M=;
-        b=fv6rSZmZXOyuBp+WiBVzVrtpBja7mm553SPpz6V3NCAnR12OBtHrQJPd9JtgSgdHLW
-         JURNU25V4/UlnME2iNxKR8EmW8pfFTks7O2C0IA//49RGI23C5BRPHNTyUVPIbCHhJvc
-         OJYenIvA646CKylDL7biWCopBb1cSc4WUyVx/MTtBfdB+Zz2EJ0MzoZlxSVAiupvqbhg
-         NNCJ+CIKcZk5FOhIWEc3wHCi6QSrHw+zvrFKFsVy1yvtQjUrdQY0EG4o5+6r98GCqb4R
-         G35viC7RC0nJrO+R3mUP7wB2LENk5M/3yTzqMUUHvm9XOqwUh0K2Hf13esqbhVsI370K
-         H1dQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dawj1SMvdQbml5uHKFi5qJIO1Xksj7iCEcoBAXgXEuI=;
+        b=LzYUAim1sww5RSYzIbFyJZ7GkaZRwpjcPpZ2OaI+rE7BDVh1A0Ni+qbUi1gDaqtK+2
+         eGsCrnL1B32m+PDpBd+969FoZj+Tu9KXd9QCQb35FDrmfZbM88KAAHX/Z4YzDEy3iRdw
+         +31fkC97nJDFvW5V5XIMDPfr+INVFkFbcmZkzV4TCT2L3uL403QE/hwW5BTUDeNlVtg7
+         rWLXQlvXhbhsAjuJEEP/oYZ8Ocsy2nx/6MI5finWZTcs01lk270uL8ElQyKKRaxKrX5E
+         SSVvM4G4hScGD5BYtQreQ0uBdHyV4nH5Ad5jM61SexmSmZK26CYCBOlBVhPE+gEykIIK
+         5tcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Z/QiT8wvjsDBITdA5cxTL7/NMWaaQtV0JaXo6EfJo0M=;
-        b=lUJA0Fqey86R8LKZjuGFvlVLIm9h9EWaR1FROK43NMgXKcicS9QxuFgNRqkGXUw5+8
-         qB5mkt4Ic1stAHs8edZbZ8Zxvlxid9jUkQEO/vLj/vBuYqqWt9t/lkXla9zDPPJCzEbv
-         07pMnzzogjGYtmW3Zpaac9jawGY3Fxc+PukmikKhioZMIfklrYfYP5EnoKxhcSBI/pK0
-         iH3Hr949Xne1ZLZVsq2BuUTFgp/BH1wTJYhlusqCKb7aN9C7v3MGIPxfDOvgyOOZ40we
-         iPqHDxlMDi0X/Ulu3/B15+9cZi3gISrmmIubvkojLKerJvfcyRrCgbPe9U31Z0SRWIxw
-         LIFA==
-X-Gm-Message-State: AOAM53117Dpci4F2Gk7qRSY+KqPl6uDQeMfzHt8QY+aLeIGa/RtvSX67
-        fIwnhp2ak22Q/kTaPwbx3TwWgQNai5NglJ/qmU8=
-X-Google-Smtp-Source: ABdhPJzwpAKkVYhJJlw8KDPLLiadWFRNtNiDtvP8FpyHn7hntfSOFwEQG5t7jBrkEGnCZW8DCTcR/8H5Hb0aFeQ6/V0=
-X-Received: by 2002:a1f:988f:: with SMTP id a137mr12424487vke.8.1599504194864;
- Mon, 07 Sep 2020 11:43:14 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dawj1SMvdQbml5uHKFi5qJIO1Xksj7iCEcoBAXgXEuI=;
+        b=YFk4cwGmtM63kaWQJN7oESua55pyL7m7oNNMKunNv9m5v45YW6RuUYCHYrMxYXQrkB
+         X2p1mXKjyh6azWk0AJu9ETi3F+vcU1/GuuG6AKxIWzo20nv8ElYTk82qYdsU7SNu6VPy
+         vcQkmt/0fri/S7ovXaJgPB6stRry5rV6DNbYO1Ia/gYYf1fEeU1zz7IUXNSaPPRrjcFZ
+         6BIqXcwWSAvv/uha0sPAl/yKsSGDANDLTftxf/6fEzyjomlzPda9F3+JgIbGYEY/WUgJ
+         2dp7eNkEX6ZK1fbeDjrMKSeGMWy1Kvpqq4OL4TYIsAOHGcxs1mtNZpwAwKnPIWDK3yIO
+         3TzQ==
+X-Gm-Message-State: AOAM531kg5n0/fKsvh0CvRZCiMXFvUDEI4u47SGYt+ramNbJNQR9VW98
+        imNbzc2HJSeKELLPAbw2JSU=
+X-Google-Smtp-Source: ABdhPJxay8d9Q5I7t6iNt4rnkHhZw2gW/vAIWCtXS76rfVzqgleboOPliRkM/UDIXkwoe5DpbcNg9g==
+X-Received: by 2002:aa7:9991:0:b029:13c:1611:6530 with SMTP id k17-20020aa799910000b029013c16116530mr19254157pfh.16.1599504908391;
+        Mon, 07 Sep 2020 11:55:08 -0700 (PDT)
+Received: from localhost.localdomain (104.36.148.139.aurocloud.com. [104.36.148.139])
+        by smtp.gmail.com with ESMTPSA id p190sm16178304pfp.9.2020.09.07.11.55.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2020 11:55:07 -0700 (PDT)
+From:   Rustam Kovhaev <rkovhaev@gmail.com>
+To:     pbonzini@redhat.com, vkuznets@redhat.com, gustavoars@kernel.org,
+        kvm@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>
+Subject: [RESEND PATCH v2] KVM: fix memory leak in kvm_io_bus_unregister_dev()
+Date:   Mon,  7 Sep 2020 11:55:35 -0700
+Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-References: <CADBnMvh6gODocz8=fNE0wVcv71SdHKNtee7hAZev6OdZ7EZcAw@mail.gmail.com>
- <788f9aa0-f03d-c736-a8a1-9a989f2e9c6e@microchip.com> <20200907173154.GA1016021@kroah.com>
- <20200907182957.GO8670@sasha-vm>
-In-Reply-To: <20200907182957.GO8670@sasha-vm>
-From:   Kristof Havasi <havasiefr@gmail.com>
-Date:   Mon, 7 Sep 2020 20:43:37 +0200
-Message-ID: <CADBnMvg3q_1oVg1uZ-h1dwy-J6fikLQJkwE6-xYms4EvW=mpOw@mail.gmail.com>
-Subject: Re: duplicated patch in 5.4
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Codrin.Ciubotariu@microchip.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 7 Sep 2020 at 20:29, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Mon, Sep 07, 2020 at 07:31:54PM +0200, Greg KH wrote:
-> >On Mon, Sep 07, 2020 at 05:15:49PM +0000, Codrin.Ciubotariu@microchip.co=
-m wrote:
-> >> On 07.09.2020 17:24, Kristof Havasi wrote:
-> >> > Dear Ciubatariu,
-> >> >
-> >> > as I am not familiar with the linux development workflow, I am
-> >> > contacting you directly as the author of the upstream patch:
-> >> > af199a1a9cb02ec0194804bd46c174b6db262075
-> >> >
-> >> > I noticed that your addition there was applied twice into 5.4 [1]
-> >> >
-> >> > d9b8206e5323ae3c9b5b4177478a1224108642f7    v5.4.51-45-gd9b8206e5323
-> >> > d55dad8b1d893fae0c4e778abf2ace048bcbad86     v5.4.52-13-gd55dad8b1d8=
-9
-> >> >
-> >> > resulting in a non-harmful, but unnecessary double setting of the va=
-riable.
-> >> >
-> >> > /* set the real number of ports */
-> >> > dev->ds->num_ports =3D dev->port_cnt;
-> >> >
-> >> > /* set the real number of ports */
-> >> > dev->ds->num_ports =3D dev->port_cnt;
-> >> >
-> >> > return 0;
-> >> >
-> >> > Could you notify the stable maintainers to apply your patch correctl=
-y?
-> >> >
-> >> > Best regards,
-> >> > Krist=C3=B3f Havasi
-> >> >
-> >> >
-> >> > [1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git=
-/tree/drivers/net/dsa/microchip/ksz8795.c?h=3Dv5.4.63#n1274
-> >> >
-> >>
-> >> Hello,
-> >>
-> >> Krist=C3=B3f discovered that one patch of mine was applied twice. What=
- is the
-> >> best way to address this?
-> >
-> >Send us a revert would be best.
->
-> I'll queue up a revert, nothing else is required on your end, thanks for
-> reporting!
->
-> --
-> Thanks,
-> Sasha
+when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
+the bus, we should iterate over all other devices linked to it and call
+kvm_iodevice_destructor() for them
 
-Honestly, I am impressed how responsive this community is!
-Thank you for your responses!
+Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+---
+v2:
+- remove redundant whitespace
+- remove goto statement and use if/else
+- add Fixes tag
+---
+ virt/kvm/kvm_main.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 67cd0b88a6b6..cf88233b819a 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4332,7 +4332,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 			       struct kvm_io_device *dev)
+ {
+-	int i;
++	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
+ 
+ 	bus = kvm_get_bus(kvm, bus_idx);
+@@ -4349,17 +4349,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 
+ 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
+ 			  GFP_KERNEL_ACCOUNT);
+-	if (!new_bus)  {
++	if (new_bus) {
++		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
++		new_bus->dev_count--;
++		memcpy(new_bus->range + i, bus->range + i + 1,
++		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
++	} else {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+-		goto broken;
++		for (j = 0; j < bus->dev_count; j++) {
++			if (j == i)
++				continue;
++			kvm_iodevice_destructor(bus->range[j].dev);
++		}
+ 	}
+ 
+-	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
+-	new_bus->dev_count--;
+-	memcpy(new_bus->range + i, bus->range + i + 1,
+-	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
+-
+-broken:
+ 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+ 	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
+-- 
+2.28.0
+
