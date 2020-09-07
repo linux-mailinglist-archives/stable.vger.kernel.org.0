@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FAAF260056
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F85F26004B
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729831AbgIGQra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:47:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49218 "EHLO mail.kernel.org"
+        id S1730674AbgIGQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730815AbgIGQfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:35:20 -0400
+        id S1730828AbgIGQfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:35:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6D8721D94;
-        Mon,  7 Sep 2020 16:35:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C881221EA;
+        Mon,  7 Sep 2020 16:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496519;
-        bh=Wvu8NGaWM525ZYiB8wDCt6ajdHm2w09PCo61MkOKhLI=;
+        s=default; t=1599496521;
+        bh=pWPCQxYkwcrRSwkB1/hw9MYm8NdGPFIuQ7QBFDTRK/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSX6PHErAvmcusnqoaeg2dmdxVuqJYswp8tETIme3Wckk6Kgm8W8ywYkxV6exgKq8
-         yOFH6TfpNb8UR2dyJovoY2WSIG73Z2BMq4X0bFbR6LhCSyyYEigxzECDWETuUsFra9
-         VDZCJbkrpNeikmVM29eMKDaVbldQo7yx7veZSJFI=
+        b=n5KSgivEb7YKWe0+P4BahkM4B+403UWzExciEu7ak4GkamIjt/+oLMl5erjLMFOrK
+         y4ZnG4Rgwc3KwTgPHyn/X1VsRzTDg8r7NPVK50WcpB+QxR+xuH5wAu/17zGQPw+p2Z
+         dL7NDU26LfN5o2L8BqyZAWfqnQSXzDHfNlWqxgNA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 14/17] cpufreq: intel_pstate: Refuse to turn off with HWP enabled
-Date:   Mon,  7 Sep 2020 12:34:57 -0400
-Message-Id: <20200907163500.1281543-14-sashal@kernel.org>
+Cc:     Kamil Lorenc <kamil@re-ws.pl>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/17] net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+Date:   Mon,  7 Sep 2020 12:34:58 -0400
+Message-Id: <20200907163500.1281543-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163500.1281543-1-sashal@kernel.org>
 References: <20200907163500.1281543-1-sashal@kernel.org>
@@ -43,50 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Kamil Lorenc <kamil@re-ws.pl>
 
-[ Upstream commit 43298db3009f06fe5c69e1ca8b6cfc2565772fa1 ]
+[ Upstream commit a609d0259183a841621f252e067f40f8cc25d6f6 ]
 
-After commit f6ebbcf08f37 ("cpufreq: intel_pstate: Implement passive
-mode with HWP enabled") it is possible to change the driver status
-to "off" via sysfs with HWP enabled, which effectively causes the
-driver to unregister itself, but HWP remains active and it forces the
-minimum performance, so even if another cpufreq driver is loaded,
-it will not be able to control the CPU frequency.
+Keenetic Plus DSL is a xDSL modem that uses dm9620 as its USB interface.
 
-For this reason, make the driver refuse to change the status to
-"off" with HWP enabled.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Kamil Lorenc <kamil@re-ws.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/usb/dm9601.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 5c41dc9aaa46d..be1a7bb0b4011 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -2098,9 +2098,15 @@ static int intel_pstate_update_status(const char *buf, size_t size)
- {
- 	int ret;
+diff --git a/drivers/net/usb/dm9601.c b/drivers/net/usb/dm9601.c
+index b91f92e4e5f22..915ac75b55fc7 100644
+--- a/drivers/net/usb/dm9601.c
++++ b/drivers/net/usb/dm9601.c
+@@ -625,6 +625,10 @@ static const struct usb_device_id products[] = {
+ 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
+ 	 .driver_info = (unsigned long)&dm9601_info,
+ 	},
++	{
++	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
++	 .driver_info = (unsigned long)&dm9601_info,
++	},
+ 	{},			// END
+ };
  
--	if (size == 3 && !strncmp(buf, "off", size))
--		return intel_pstate_driver ?
--			intel_pstate_unregister_driver() : -EINVAL;
-+	if (size == 3 && !strncmp(buf, "off", size)) {
-+		if (!intel_pstate_driver)
-+			return -EINVAL;
-+
-+		if (hwp_active)
-+			return -EBUSY;
-+
-+		return intel_pstate_unregister_driver();
-+	}
- 
- 	if (size == 6 && !strncmp(buf, "active", size)) {
- 		if (intel_pstate_driver) {
 -- 
 2.25.1
 
