@@ -2,85 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42DA82601ED
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAC326021D
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgIGROu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 13:14:50 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:50298 "EHLO www.linuxtv.org"
+        id S1729742AbgIGRSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 13:18:39 -0400
+Received: from mga17.intel.com ([192.55.52.151]:17437 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729589AbgIGOOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 10:14:41 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1kFHoP-000IjX-0k; Mon, 07 Sep 2020 14:08:01 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Fri, 28 Aug 2020 12:06:36 +0000
-Subject: [git:media_tree/master] media: rc: do not access device via sysfs after rc_unregister_device()
-To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Sean Young <sean@mess.org>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1kFHoP-000IjX-0k@www.linuxtv.org>
+        id S1729736AbgIGN6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 09:58:53 -0400
+IronPort-SDR: yKDVgZSQ5Mi2OXVP+nsKubKLuJ2PafMtpFNbOdlYzZyQIkNAZL239S0lC49L6hg7WOp9Ps5RJ4
+ OOXmOP0kfY3g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9736"; a="138056019"
+X-IronPort-AV: E=Sophos;i="5.76,401,1592895600"; 
+   d="scan'208";a="138056019"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2020 06:57:44 -0700
+IronPort-SDR: Vxl1sf/oBwGQL8BqMI64ABtxtx1JwBB7wQmSHNiTy1jIwzIzrYlGIZLDfP+FDdoxVOj5ZxY9AF
+ +sSAz5oFtdkA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,401,1592895600"; 
+   d="scan'208";a="406845161"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 07 Sep 2020 06:57:42 -0700
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "Mani, Rajmohan" <rajmohan.mani@intel.com>,
+        linux-acpi@vger.kernel.org,
+        Utkarsh Patel <utkarsh.h.patel@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] usb: typec: intel_pmc_mux: Do not configure Altmode HPD High
+Date:   Mon,  7 Sep 2020 16:57:39 +0300
+Message-Id: <20200907135740.19941-2-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200907135740.19941-1-heikki.krogerus@linux.intel.com>
+References: <20200907135740.19941-1-heikki.krogerus@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+From: Utkarsh Patel <utkarsh.h.patel@intel.com>
 
-Subject: media: rc: do not access device via sysfs after rc_unregister_device()
-Author:  Sean Young <sean@mess.org>
-Date:    Sat Aug 8 13:38:02 2020 +0200
+According to the PMC Type C Subsystem (TCSS) Mux programming guide rev
+0.7, bit 14 is reserved in Alternate mode.
+In DP Alternate Mode state, if the HPD_STATE (bit 7) field in the
+status update command VDO is set to HPD_HIGH, HPD is configured via
+separate HPD mode request after configuring DP Alternate mode request.
+Configuring reserved bit may show unexpected behaviour.
+So do not configure them while issuing the Alternate Mode request.
 
-Device drivers do not expect to have change_protocol or wakeup
-re-programming to be accesed after rc_unregister_device(). This can
-cause the device driver to access deallocated resources.
-
-Cc: <stable@vger.kernel.org> # 4.16+
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/rc/rc-main.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
+Fixes: 7990be48ef4d ("usb: typec: mux: intel: Handle alt mode HPD_HIGH")
+Cc: stable@vger.kernel.org
+Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 ---
+ drivers/usb/typec/mux/intel_pmc_mux.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
-index e1cda80a4b25..dee8a9f3d80a 100644
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -1292,6 +1292,10 @@ static ssize_t store_protocols(struct device *device,
- 	}
+diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
+index e4021e13af40a..802d443b367c6 100644
+--- a/drivers/usb/typec/mux/intel_pmc_mux.c
++++ b/drivers/usb/typec/mux/intel_pmc_mux.c
+@@ -68,7 +68,6 @@ enum {
+ #define PMC_USB_ALTMODE_DP_MODE_SHIFT	8
  
- 	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
+ /* TBT specific Mode Data bits */
+-#define PMC_USB_ALTMODE_HPD_HIGH	BIT(14)
+ #define PMC_USB_ALTMODE_TBT_TYPE	BIT(17)
+ #define PMC_USB_ALTMODE_CABLE_TYPE	BIT(18)
+ #define PMC_USB_ALTMODE_ACTIVE_LINK	BIT(20)
+@@ -185,9 +184,6 @@ pmc_usb_mux_dp(struct pmc_usb_port *port, struct typec_mux_state *state)
+ 	req.mode_data |= (state->mode - TYPEC_STATE_MODAL) <<
+ 			 PMC_USB_ALTMODE_DP_MODE_SHIFT;
  
- 	old_protocols = *current_protocols;
- 	new_protocols = old_protocols;
-@@ -1430,6 +1434,10 @@ static ssize_t store_filter(struct device *device,
- 		return -EINVAL;
- 
- 	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
- 
- 	new_filter = *filter;
- 	if (fattr->mask)
-@@ -1544,6 +1552,10 @@ static ssize_t store_wakeup_protocols(struct device *device,
- 	int i;
- 
- 	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
- 
- 	allowed = dev->allowed_wakeup_protocols;
- 
+-	if (data->status & DP_STATUS_HPD_STATE)
+-		req.mode_data |= PMC_USB_ALTMODE_HPD_HIGH;
+-
+ 	ret = pmc_usb_command(port, (void *)&req, sizeof(req));
+ 	if (ret)
+ 		return ret;
+-- 
+2.28.0
+
