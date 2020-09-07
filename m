@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2AC260151
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69147260144
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbgIGRDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 13:03:32 -0400
+        id S1730921AbgIGRCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 13:02:37 -0400
 Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730671AbgIGQdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:20 -0400
+        id S1730583AbgIGQdZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6610121775;
-        Mon,  7 Sep 2020 16:33:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D34921973;
+        Mon,  7 Sep 2020 16:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496400;
-        bh=SgnVAJ2tctueNtS5Hn3ra1RvzhPd87/9XY+E3nifzMQ=;
+        s=default; t=1599496404;
+        bh=8kycOnijtKMCdBXwR4QpnHqk7Dod/fZM4Wcf0Qe0JoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHnkKRfCXFjyuuIZh6RhjSd02NIvasdeJvpfBpp1Iqjj3BkC5U+K/r/MnmlaNRbd2
-         rlnrBlyANV+YwCNeNUeaoitVehBQ50pwDf4y+LrOsjfGQIdBbBuBDZn4MMJjQ4TI31
-         c6GOhLcVb1+iFnxfXZ5d8m2XmR91irbg+nyhCgws=
+        b=bnWtiEb1rhYq082a7KvVqdpAHo6aqnYgZ/zkdFX7xEyJ3koQnwFB37GbxOVco6syW
+         eXJ5Q962l9KOw/xqUwRjGOC7GoJhqbC3yYJ2qc10QztFgJ/a8ebM7GJo/K2swzkoFJ
+         ZYVp7Lq4nrc6k3NwlKJWQnA/rNNPmqg4A6+iUyPU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.8 47/53] ALSA: hda: fix a runtime pm issue in SOF when integrated GPU is disabled
-Date:   Mon,  7 Sep 2020 12:32:13 -0400
-Message-Id: <20200907163220.1280412-47-sashal@kernel.org>
+Cc:     Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.8 50/53] drm/amdgpu: Fix bug in reporting voltage for CIK
+Date:   Mon,  7 Sep 2020 12:32:16 -0400
+Message-Id: <20200907163220.1280412-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -48,49 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: Sandeep Raghuraman <sandy.8925@gmail.com>
 
-[ Upstream commit 13774d81f38538c5fa2924bdcdfa509155480fa6 ]
+[ Upstream commit d98299885c9ea140c1108545186593deba36c4ac ]
 
-In snd_hdac_device_init pm_runtime_set_active is called to
-increase child_count in parent device. But when it is failed
-to build connection with GPU for one case that integrated
-graphic gpu is disabled, snd_hdac_ext_bus_device_exit will be
-invoked to clean up a HD-audio extended codec base device. At
-this time the child_count of parent is not decreased, which
-makes parent device can't get suspended.
+On my R9 390, the voltage was reported as a constant 1000 mV.
+This was due to a bug in smu7_hwmgr.c, in the smu7_read_sensor()
+function, where some magic constants were used in a condition,
+to determine whether the voltage should be read from PLANE2_VID
+or PLANE1_VID. The VDDC mask was incorrectly used, instead of
+the VDDGFX mask.
 
-This patch calls pm_runtime_set_suspended to decrease child_count
-in parent device in snd_hdac_device_exit to match with
-snd_hdac_device_init. pm_runtime_set_suspended can make sure that
-it will not decrease child_count if the device is already suspended.
+This patch changes the code to use the correct defined constants
+(and apply the correct bitshift), thus resulting in correct voltage reporting.
 
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200902154218.1440441-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_device.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
-index 333220f0f8afc..3e9e9ac804f62 100644
---- a/sound/hda/hdac_device.c
-+++ b/sound/hda/hdac_device.c
-@@ -127,6 +127,8 @@ EXPORT_SYMBOL_GPL(snd_hdac_device_init);
- void snd_hdac_device_exit(struct hdac_device *codec)
- {
- 	pm_runtime_put_noidle(&codec->dev);
-+	/* keep balance of runtime PM child_count in parent device */
-+	pm_runtime_set_suspended(&codec->dev);
- 	snd_hdac_bus_remove_device(codec->bus, codec);
- 	kfree(codec->vendor_name);
- 	kfree(codec->chip_name);
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+index 753cb2cf6b77e..3adf9c1dfdbb0 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+@@ -3587,7 +3587,8 @@ static int smu7_read_sensor(struct pp_hwmgr *hwmgr, int idx,
+ 	case AMDGPU_PP_SENSOR_GPU_POWER:
+ 		return smu7_get_gpu_power(hwmgr, (uint32_t *)value);
+ 	case AMDGPU_PP_SENSOR_VDDGFX:
+-		if ((data->vr_config & 0xff) == 0x2)
++		if ((data->vr_config & VRCONF_VDDGFX_MASK) ==
++		    (VR_SVI2_PLANE_2 << VRCONF_VDDGFX_SHIFT))
+ 			val_vid = PHM_READ_INDIRECT_FIELD(hwmgr->device,
+ 					CGS_IND_REG__SMC, PWR_SVI2_STATUS, PLANE2_VID);
+ 		else
 -- 
 2.25.1
 
