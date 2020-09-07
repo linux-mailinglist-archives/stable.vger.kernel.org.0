@@ -2,70 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8429C2606DB
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 00:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF032606E5
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 00:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgIGWUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 18:20:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S1728070AbgIGWYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 18:24:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726446AbgIGWU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 18:20:26 -0400
+        id S1727773AbgIGWYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 18:24:05 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02B1F215A4;
-        Mon,  7 Sep 2020 22:20:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC482177B;
+        Mon,  7 Sep 2020 22:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599517226;
-        bh=POwIZrc3jundMX/1zFDV+2LUCeiFEqghK1av9Hb76OU=;
+        s=default; t=1599517445;
+        bh=Zw8k17EFrc+/63emBncYD49Ff5pxZKxzzOMgy+BQJLI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X5fXeoxRIe/18MD+6uwPL9odkxQ1Dujt2S4pvYo09VuZjz+F4mXBHzFsQMGcVjxUU
-         MC7CFjFo4Z72T+qhzRGtHtFtBl0jyd6LyEc3LkCD/LwFmc07OmGoqjlMxX5MqhKWSS
-         FOTAKOWcOyI985CavZGzJ8CO8fzavEVAQeYxOrIg=
-Date:   Mon, 7 Sep 2020 18:20:24 -0400
+        b=dCQM0mMbBmsuXq6UiB6gfFobsHNxnlX3Kk4wLQa8AevAHky7abtJqi/+ADi5VCech
+         AimdyxuYXf0XIhdZP91Xjk4gQYYSIVwEHMDANE0DH5RqXC/Vxo1TxhoENe+na8hCS9
+         KpNgXEXwD6oqJYWh/Feb1GZ86rYfY8DK9ZhM4KRM=
+Date:   Mon, 7 Sep 2020 18:24:03 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Max Chou <max.chou@realtek.com>,
-        Felix =?iso-8859-1?Q?D=F6rre?= <debian@felixdoerre.de>
-Subject: Re: Please apply commit 24b065727ceb ("Bluetooth: Return NOTIFY_DONE
- for hci_suspend_notifier") to v5.8.y
-Message-ID: <20200907222024.GP8670@sasha-vm>
-References: <20200907200437.GA908020@eldamar.local>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mingming Cao <mmc@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.8 14/53] ibmvnic fix NULL tx_pools and rx_tools
+ issue at do_reset
+Message-ID: <20200907222403.GQ8670@sasha-vm>
+References: <20200907163220.1280412-1-sashal@kernel.org>
+ <20200907163220.1280412-14-sashal@kernel.org>
+ <20200907141026.093fc160@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200907200437.GA908020@eldamar.local>
+In-Reply-To: <20200907141026.093fc160@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 07, 2020 at 10:04:37PM +0200, Salvatore Bonaccorso wrote:
->Hi
+On Mon, Sep 07, 2020 at 02:10:26PM -0700, Jakub Kicinski wrote:
+>On Mon,  7 Sep 2020 12:31:40 -0400 Sasha Levin wrote:
+>> [ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
 >
->Please apply the commit 24b065727ceb ("Bluetooth: Return NOTIFY_DONE
->for hci_suspend_notifier") to the v5.8.y branch as well. As the commit
->message says it fixes actually an issue:
+>> @@ -2024,10 +2033,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+>>  		} else {
+>>  			rc = reset_tx_pools(adapter);
+>>  			if (rc)
+>> +				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
+>> +						rc);
+>>  				goto out;
+>>
+>>  			rc = reset_rx_pools(adapter);
+>>  			if (rc)
+>> +				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
+>> +						rc);
+>>  				goto out;
+>>  		}
+>>  		ibmvnic_disable_irqs(adapter);
 >
->> The original return is NOTIFY_STOP, but notifier_call_chain would stop
->> the future call for register_pm_notifier even registered on other Kernel
->> modules with the same priority which value is zero.
+>Hi Sasha!
 >
->The commit misses a Fixes tag on 9952d90ea288 ("Bluetooth: Handle
->PM_SUSPEND_PREPARE and PM_POST_SUSPEND") and so was not backported as
->well.
+>I just pushed this to net:
 >
->This was affecting Felix Dörre (https://bugs.debian.org/964839#65)
->with an out of tree module, but as the commit explains the issue seem
->to be more general.
+>8ae4dff882eb ("ibmvnic: add missing parenthesis in do_reset()")
+>
+>You definitely want to pull that in if you decide to backport this one.
 
-Queued up, thanks!
+Will do, thanks!
 
 -- 
 Thanks,
