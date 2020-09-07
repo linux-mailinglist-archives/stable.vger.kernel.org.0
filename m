@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCA8260030
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2570F25FFA0
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729826AbgIGQox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:44:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49548 "EHLO mail.kernel.org"
+        id S1730848AbgIGQfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730842AbgIGQfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:35:40 -0400
+        id S1730843AbgIGQfm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:35:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EB8C221E9;
-        Mon,  7 Sep 2020 16:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58E9521927;
+        Mon,  7 Sep 2020 16:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496539;
-        bh=0xZQn08ge8u1b7LENZ75nSqgq2FnbOiaRR1KLQ2HahE=;
+        s=default; t=1599496541;
+        bh=TVnKCrca6QmsDHJbAgCNBC+xjTCV29vzRJqeIcvo8bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSwr1Lyaea7/EO/933pUYNVoNgjOtMR27cOlQmwYFhIcucAC0gTAW9JeWMgy08qxk
-         +zEB2RIaDtsZO3KdF0fNsEzCtRa4IWTJziGq4L5rKzvGbLOXmpbDyVZGou0AWX0cDe
-         kdkwzUESowsphhzqC5OjofHChmCIh7QSl0BWRgMk=
+        b=GuUCkaR8LcB3PpHy5KgYhAJVXwjji7td0tAlWQ0gitmO18hxsxLNNXHsNKtJYQ2Ur
+         ESwUEB9Ga6kJ5/LQ7ToSW0/xYMlJUbvNILbw9ZahRQ1jseaUsXVChiRkShXHO2fNNL
+         3gCDmFliCCrTVcAs5UWvuheWyYXg1M2t/uxAalLA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kamil Lorenc <kamil@re-ws.pl>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/13] net: usb: dm9601: Add USB ID of Keenetic Plus DSL
-Date:   Mon,  7 Sep 2020 12:35:22 -0400
-Message-Id: <20200907163524.1281734-11-sashal@kernel.org>
+Cc:     Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 12/13] ALSA: hda: fix a runtime pm issue in SOF when integrated GPU is disabled
+Date:   Mon,  7 Sep 2020 12:35:23 -0400
+Message-Id: <20200907163524.1281734-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163524.1281734-1-sashal@kernel.org>
 References: <20200907163524.1281734-1-sashal@kernel.org>
@@ -44,34 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamil Lorenc <kamil@re-ws.pl>
+From: Rander Wang <rander.wang@intel.com>
 
-[ Upstream commit a609d0259183a841621f252e067f40f8cc25d6f6 ]
+[ Upstream commit 13774d81f38538c5fa2924bdcdfa509155480fa6 ]
 
-Keenetic Plus DSL is a xDSL modem that uses dm9620 as its USB interface.
+In snd_hdac_device_init pm_runtime_set_active is called to
+increase child_count in parent device. But when it is failed
+to build connection with GPU for one case that integrated
+graphic gpu is disabled, snd_hdac_ext_bus_device_exit will be
+invoked to clean up a HD-audio extended codec base device. At
+this time the child_count of parent is not decreased, which
+makes parent device can't get suspended.
 
-Signed-off-by: Kamil Lorenc <kamil@re-ws.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch calls pm_runtime_set_suspended to decrease child_count
+in parent device in snd_hdac_device_exit to match with
+snd_hdac_device_init. pm_runtime_set_suspended can make sure that
+it will not decrease child_count if the device is already suspended.
+
+Signed-off-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200902154218.1440441-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/dm9601.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/hda/hdac_device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/dm9601.c b/drivers/net/usb/dm9601.c
-index 0b4bdd39106b0..fb18801d0fe7b 100644
---- a/drivers/net/usb/dm9601.c
-+++ b/drivers/net/usb/dm9601.c
-@@ -624,6 +624,10 @@ static const struct usb_device_id products[] = {
- 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
- 	 .driver_info = (unsigned long)&dm9601_info,
- 	},
-+	{
-+	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
-+	 .driver_info = (unsigned long)&dm9601_info,
-+	},
- 	{},			// END
- };
- 
+diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
+index 03c9872c31cfe..73264d5f58f81 100644
+--- a/sound/hda/hdac_device.c
++++ b/sound/hda/hdac_device.c
+@@ -123,6 +123,8 @@ EXPORT_SYMBOL_GPL(snd_hdac_device_init);
+ void snd_hdac_device_exit(struct hdac_device *codec)
+ {
+ 	pm_runtime_put_noidle(&codec->dev);
++	/* keep balance of runtime PM child_count in parent device */
++	pm_runtime_set_suspended(&codec->dev);
+ 	snd_hdac_bus_remove_device(codec->bus, codec);
+ 	kfree(codec->vendor_name);
+ 	kfree(codec->chip_name);
 -- 
 2.25.1
 
