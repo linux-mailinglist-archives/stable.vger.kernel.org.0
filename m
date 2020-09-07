@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F042600A9
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4FF2600A8
 	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731061AbgIGQw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730916AbgIGQw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Sep 2020 12:52:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730548AbgIGQel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:34:41 -0400
+        id S1730452AbgIGQen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:34:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF6E621927;
-        Mon,  7 Sep 2020 16:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38B9321941;
+        Mon,  7 Sep 2020 16:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496480;
-        bh=jSNM2WKR7IWt6Rx42MjBo7X4DHyVpDHdJKnjxra5w/M=;
+        s=default; t=1599496482;
+        bh=Y7DfL2QIoK+7AlOig5I7K0jPWLIoatifmL4WfTHq3TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P84HHb07Mgkeb5zfnHM3M94uTurXBLlttD7Ogst0hFnD2aqy2HxmX1VLu7/deLQpy
-         p/ZN9j8/x0D9Ok5OiBjKtzetr0EEmMBMVobVbuTbY+H+3jTiUzTwhBZYMuraSJRB9i
-         UvuxP5PoBiMKflwqtayiOmHwmDeZ5e++APuIRl5E=
+        b=wU5cYWoWfEY0BQuvEWxe/e2AwGO8id46R4BBHmf6ovpSPI+sUjN77Fi8VqEq0fOw/
+         QcK3phqLfxDqDaz8TAcUIo3f8qpnH2IeBegrl9WXESPU1D/4pGWiSfP9BRoZqw7SAs
+         FuLSxOwG1RwqUeeLa6ujn8dCHy4sTnJjxKy+R/OA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/26] xfs: initialize the shortform attr header padding entry
-Date:   Mon,  7 Sep 2020 12:34:11 -0400
-Message-Id: <20200907163426.1281284-11-sashal@kernel.org>
+Cc:     Vineet Gupta <vgupta@synopsys.com>,
+        kernel test robot <lkp@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 12/26] irqchip/eznps: Fix build error for !ARC700 builds
+Date:   Mon,  7 Sep 2020 12:34:12 -0400
+Message-Id: <20200907163426.1281284-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163426.1281284-1-sashal@kernel.org>
 References: <20200907163426.1281284-1-sashal@kernel.org>
@@ -45,36 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 125eac243806e021f33a1fdea3687eccbb9f7636 ]
+[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
 
-Don't leak kernel memory contents into the shortform attr fork.
+eznps driver is supposed to be platform independent however it ends up
+including stuff from inside arch/arc headers leading to rand config
+build errors.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+The quick hack to fix this (proper fix is too much chrun for non active
+user-base) is to add following to nps platform agnostic header.
+ - copy AUX_IENABLE from arch/arc header
+ - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arc/plat-eznps/include/plat/ctop.h | 1 -
+ include/soc/nps/common.h                | 6 ++++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index 2652d00842d6b..c7025e759bf2e 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -551,8 +551,8 @@ xfs_attr_shortform_create(xfs_da_args_t *args)
- 		ASSERT(ifp->if_flags & XFS_IFINLINE);
- 	}
- 	xfs_idata_realloc(dp, sizeof(*hdr), XFS_ATTR_FORK);
--	hdr = (xfs_attr_sf_hdr_t *)ifp->if_u1.if_data;
--	hdr->count = 0;
-+	hdr = (struct xfs_attr_sf_hdr *)ifp->if_u1.if_data;
-+	memset(hdr, 0, sizeof(*hdr));
- 	hdr->totsize = cpu_to_be16(sizeof(*hdr));
- 	xfs_trans_log_inode(args->trans, dp, XFS_ILOG_CORE | XFS_ILOG_ADATA);
- }
+diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
+index 4f6a1673b3a6e..ddfca2c3357a0 100644
+--- a/arch/arc/plat-eznps/include/plat/ctop.h
++++ b/arch/arc/plat-eznps/include/plat/ctop.h
+@@ -43,7 +43,6 @@
+ #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
+ #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
+ #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
+-#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
+ #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
+ #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
+ 
+diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
+index 9b1d43d671a3f..8c18dc6d3fde5 100644
+--- a/include/soc/nps/common.h
++++ b/include/soc/nps/common.h
+@@ -45,6 +45,12 @@
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
+ 
++#ifndef AUX_IENABLE
++#define AUX_IENABLE				0x40c
++#endif
++
++#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
++
+ #ifndef __ASSEMBLY__
+ 
+ /* In order to increase compilation test coverage */
 -- 
 2.25.1
 
