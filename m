@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D118325FF82
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CCA425FF83
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730702AbgIGQdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:33:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
+        id S1730714AbgIGQdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730688AbgIGQdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:36 -0400
+        id S1730703AbgIGQdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3A5E21789;
-        Mon,  7 Sep 2020 16:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A197121941;
+        Mon,  7 Sep 2020 16:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496413;
-        bh=N2TzsaDDwqM6tAPNhthsqRzY7Ob4UQpx+wDCC0gnkxQ=;
+        s=default; t=1599496424;
+        bh=VBDolsQa9bah2f35ikQNeh3bGYSd5ANyLGcQxwSCoX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXrYHZ7qhbGu9/EsSb9GmQfkoWiTerOg9PRDdlD4S0ROb7UFaMPyhn0pean2YoYGd
-         5IJu4RMvdlgaI4PHXkLmnqLV6MXa6+mc2gX3cdhLXKly9Qy9ZzLQQTnm5NV2rsvygt
-         8f+Rgg+OLhQBDArKYUKfdqcERd1ZM/WvsEzMQTJs=
+        b=Bipxg5EvnC8hQy5NauJaafk7Ed/G1z9HlXnee8PLGFIgzon2N8yz/PXAobN71xJIB
+         d5/3TY+hRTZ6fjWk2y32qn8D/MuFhtU5Hxz8eRXlqTMcVFtBKwYShdFFZrcGpSNwhY
+         3nNGaSMByW1KI7s+t+U4uK+rOcvH1I5MVpDHaTQM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/43] netfilter: conntrack: allow sctp hearbeat after connection re-use
-Date:   Mon,  7 Sep 2020 12:32:49 -0400
-Message-Id: <20200907163329.1280888-3-sashal@kernel.org>
+Cc:     Mingming Cao <mmc@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 11/43] ibmvnic fix NULL tx_pools and rx_tools issue at do_reset
+Date:   Mon,  7 Sep 2020 12:32:57 -0400
+Message-Id: <20200907163329.1280888-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -45,124 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Mingming Cao <mmc@linux.vnet.ibm.com>
 
-[ Upstream commit cc5453a5b7e90c39f713091a7ebc53c1f87d1700 ]
+[ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
 
-If an sctp connection gets re-used, heartbeats are flagged as invalid
-because their vtag doesn't match.
+At the time of do_rest, ibmvnic tries to re-initalize the tx_pools
+and rx_pools to avoid re-allocating the long term buffer. However
+there is a window inside do_reset that the tx_pools and
+rx_pools were freed before re-initialized making it possible to deference
+null pointers.
 
-Handle this in a similar way as TCP conntrack when it suspects that the
-endpoints and conntrack are out-of-sync.
+This patch fix this issue by always check the tx_pool
+and rx_pool are not NULL after ibmvnic_login. If so, re-allocating
+the pools. This will avoid getting into calling reset_tx/rx_pools with
+NULL adapter tx_pools/rx_pools pointer. Also add null pointer check in
+reset_tx_pools and reset_rx_pools to safe handle NULL pointer case.
 
-When a HEARTBEAT request fails its vtag validation, flag this in the
-conntrack state and accept the packet.
-
-When a HEARTBEAT_ACK is received with an invalid vtag in the reverse
-direction after we allowed such a HEARTBEAT through, assume we are
-out-of-sync and re-set the vtag info.
-
-v2: remove left-over snippet from an older incarnation that moved
-    new_state/old_state assignments, thats not needed so keep that
-    as-is.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Mingming Cao <mmc@linux.vnet.ibm.com>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/nf_conntrack_sctp.h |  2 ++
- net/netfilter/nf_conntrack_proto_sctp.c     | 39 ++++++++++++++++++---
- 2 files changed, 37 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/netfilter/nf_conntrack_sctp.h b/include/linux/netfilter/nf_conntrack_sctp.h
-index 9a33f171aa822..625f491b95de8 100644
---- a/include/linux/netfilter/nf_conntrack_sctp.h
-+++ b/include/linux/netfilter/nf_conntrack_sctp.h
-@@ -9,6 +9,8 @@ struct ip_ct_sctp {
- 	enum sctp_conntrack state;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 2d20a48f0ba0a..de45b3709c14e 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -416,6 +416,9 @@ static int reset_rx_pools(struct ibmvnic_adapter *adapter)
+ 	int i, j, rc;
+ 	u64 *size_array;
  
- 	__be32 vtag[IP_CT_DIR_MAX];
-+	u8 last_dir;
-+	u8 flags;
- };
++	if (!adapter->rx_pool)
++		return -1;
++
+ 	size_array = (u64 *)((u8 *)(adapter->login_rsp_buf) +
+ 		be32_to_cpu(adapter->login_rsp_buf->off_rxadd_buff_size));
  
- #endif /* _NF_CONNTRACK_SCTP_H */
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index 4f897b14b6069..810cca24b3990 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -62,6 +62,8 @@ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
- 	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
- };
+@@ -586,6 +589,9 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
+ 	int tx_scrqs;
+ 	int i, rc;
  
-+#define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
++	if (!adapter->tx_pool)
++		return -1;
 +
- #define sNO SCTP_CONNTRACK_NONE
- #define	sCL SCTP_CONNTRACK_CLOSED
- #define	sCW SCTP_CONNTRACK_COOKIE_WAIT
-@@ -369,6 +371,7 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
- 	u_int32_t offset, count;
- 	unsigned int *timeouts;
- 	unsigned long map[256 / sizeof(unsigned long)] = { 0 };
-+	bool ignore = false;
+ 	tx_scrqs = be32_to_cpu(adapter->login_rsp_buf->num_txsubm_subcrqs);
+ 	for (i = 0; i < tx_scrqs; i++) {
+ 		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
+@@ -1918,7 +1924,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		    adapter->req_rx_add_entries_per_subcrq !=
+ 		    old_num_rx_slots ||
+ 		    adapter->req_tx_entries_per_subcrq !=
+-		    old_num_tx_slots) {
++		    old_num_tx_slots ||
++		    !adapter->rx_pool ||
++		    !adapter->tso_pool ||
++		    !adapter->tx_pool) {
+ 			release_rx_pools(adapter);
+ 			release_tx_pools(adapter);
+ 			release_napi(adapter);
+@@ -1931,10 +1940,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		} else {
+ 			rc = reset_tx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
++						rc);
+ 				goto out;
  
- 	if (sctp_error(skb, dataoff, state))
- 		return -NF_ACCEPT;
-@@ -427,15 +430,39 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
- 			/* Sec 8.5.1 (D) */
- 			if (sh->vtag != ct->proto.sctp.vtag[dir])
- 				goto out_unlock;
--		} else if (sch->type == SCTP_CID_HEARTBEAT ||
--			   sch->type == SCTP_CID_HEARTBEAT_ACK) {
-+		} else if (sch->type == SCTP_CID_HEARTBEAT) {
-+			if (ct->proto.sctp.vtag[dir] == 0) {
-+				pr_debug("Setting %d vtag %x for dir %d\n", sch->type, sh->vtag, dir);
-+				ct->proto.sctp.vtag[dir] = sh->vtag;
-+			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
-+				if (test_bit(SCTP_CID_DATA, map) || ignore)
-+					goto out_unlock;
-+
-+				ct->proto.sctp.flags |= SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
-+				ct->proto.sctp.last_dir = dir;
-+				ignore = true;
-+				continue;
-+			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
-+				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
-+			}
-+		} else if (sch->type == SCTP_CID_HEARTBEAT_ACK) {
- 			if (ct->proto.sctp.vtag[dir] == 0) {
- 				pr_debug("Setting vtag %x for dir %d\n",
- 					 sh->vtag, dir);
- 				ct->proto.sctp.vtag[dir] = sh->vtag;
- 			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
--				pr_debug("Verification tag check failed\n");
--				goto out_unlock;
-+				if (test_bit(SCTP_CID_DATA, map) || ignore)
-+					goto out_unlock;
-+
-+				if ((ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) == 0 ||
-+				    ct->proto.sctp.last_dir == dir)
-+					goto out_unlock;
-+
-+				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
-+				ct->proto.sctp.vtag[dir] = sh->vtag;
-+				ct->proto.sctp.vtag[!dir] = 0;
-+			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
-+				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
- 			}
+ 			rc = reset_rx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
++						rc);
+ 				goto out;
  		}
- 
-@@ -470,6 +497,10 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
- 	}
- 	spin_unlock_bh(&ct->lock);
- 
-+	/* allow but do not refresh timeout */
-+	if (ignore)
-+		return NF_ACCEPT;
-+
- 	timeouts = nf_ct_timeout_lookup(ct);
- 	if (!timeouts)
- 		timeouts = nf_sctp_pernet(nf_ct_net(ct))->timeouts;
+ 		ibmvnic_disable_irqs(adapter);
 -- 
 2.25.1
 
