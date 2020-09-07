@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25A526016C
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB83B26016D
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgIGREo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730394AbgIGREo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Sep 2020 13:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46922 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730664AbgIGQdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:10 -0400
+        id S1730333AbgIGQdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F88221941;
-        Mon,  7 Sep 2020 16:33:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9000221973;
+        Mon,  7 Sep 2020 16:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496390;
-        bh=xAdK3PiHwXgLjxAasfNZs7F1puTlp5nfQfYOvPu9SUg=;
+        s=default; t=1599496392;
+        bh=yvfnzkumOLeNZfCzoJKHdy3baNkUPfQBaVECQlvIDrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbltRaSXSNEUuCIK+A4JGMOmPjgwmQXmLUpGVdKNTVduP0Vs0aLzEvjC73sBCDT9t
-         MVvk/tD6RDwSSoxfjOSEVW4lZQD5+jNUUopsgYJmWwcNtIr/gVmZCsBDzii32qdOez
-         yfRndXyCkXcNyl6e3oVz3PZHhnzfpK+xY3CJEpYI=
+        b=N1xBt7gLf7BCrHQ+tuuwPPhXyaHZjCpTjvlR0xSdkCi66iHckqV+m/RVn9Qm2K8s3
+         1zHO03vUgO99sBQdsJkINLmqocCscZ1c1pa9qx578bQs6m1DDEV8c8jRpVce3gN8I0
+         KzNHeY+s9e6FiZvf2BLOtL9TsD7U0b339u/B1Lh8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie He <xie.he.0141@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
-        Krzysztof Halasa <khc@pm.waw.pl>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 39/53] drivers/net/wan/hdlc_cisco: Add hard_header_len
-Date:   Mon,  7 Sep 2020 12:32:05 -0400
-Message-Id: <20200907163220.1280412-39-sashal@kernel.org>
+Cc:     Evgeniy Didin <Evgeniy.Didin@synopsys.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 41/53] ARC: [plat-hsdk]: Switch ethernet phy-mode to rgmii-id
+Date:   Mon,  7 Sep 2020 12:32:07 -0400
+Message-Id: <20200907163220.1280412-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -44,38 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Evgeniy Didin <Evgeniy.Didin@synopsys.com>
 
-[ Upstream commit 1a545ebe380bf4c1433e3c136e35a77764fda5ad ]
+[ Upstream commit 26907eb605fbc3ba9dbf888f21d9d8d04471271d ]
 
-This driver didn't set hard_header_len. This patch sets hard_header_len
-for it according to its header_ops->create function.
+HSDK board has Micrel KSZ9031, recent commit
+bcf3440c6dd ("net: phy: micrel: add phy-mode support for the KSZ9031 PHY")
+caused a breakdown of Ethernet.
+Using 'phy-mode = "rgmii"' is not correct because accodring RGMII
+specification it is necessary to have delay on RX (PHY to MAX)
+which is not generated in case of "rgmii".
+Using "rgmii-id" adds necessary delay and solves the issue.
 
-This driver's header_ops->create function (cisco_hard_header) creates
-a header of (struct hdlc_header), so hard_header_len should be set to
-sizeof(struct hdlc_header).
+Also adding name of PHY placed on HSDK board.
 
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Evgeniy Didin <Evgeniy.Didin@synopsys.com>
+Cc: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Cc: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_cisco.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arc/boot/dts/hsdk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
-index d8cba3625c185..444130655d8ea 100644
---- a/drivers/net/wan/hdlc_cisco.c
-+++ b/drivers/net/wan/hdlc_cisco.c
-@@ -370,6 +370,7 @@ static int cisco_ioctl(struct net_device *dev, struct ifreq *ifr)
- 		memcpy(&state(hdlc)->settings, &new_settings, size);
- 		spin_lock_init(&state(hdlc)->lock);
- 		dev->header_ops = &cisco_header_ops;
-+		dev->hard_header_len = sizeof(struct hdlc_header);
- 		dev->type = ARPHRD_CISCO;
- 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
- 		netif_dormant_on(dev);
+diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
+index 5d64a5a940ee6..dcaa44e408ace 100644
+--- a/arch/arc/boot/dts/hsdk.dts
++++ b/arch/arc/boot/dts/hsdk.dts
+@@ -210,7 +210,7 @@ gmac: ethernet@8000 {
+ 			reg = <0x8000 0x2000>;
+ 			interrupts = <10>;
+ 			interrupt-names = "macirq";
+-			phy-mode = "rgmii";
++			phy-mode = "rgmii-id";
+ 			snps,pbl = <32>;
+ 			snps,multicast-filter-bins = <256>;
+ 			clocks = <&gmacclk>;
+@@ -228,7 +228,7 @@ mdio {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				compatible = "snps,dwmac-mdio";
+-				phy0: ethernet-phy@0 {
++				phy0: ethernet-phy@0 { /* Micrel KSZ9031 */
+ 					reg = <0>;
+ 				};
+ 			};
 -- 
 2.25.1
 
