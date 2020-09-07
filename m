@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E48A32600F6
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4032600F5
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731117AbgIGQ5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S1730959AbgIGQ4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730371AbgIGQeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730365AbgIGQeG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Sep 2020 12:34:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 118DF21BE5;
-        Mon,  7 Sep 2020 16:33:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4182821D24;
+        Mon,  7 Sep 2020 16:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496437;
-        bh=t/Mcu1m/YAMNencAODaTpYTw96QGwWYkIoao/JWoe3A=;
+        s=default; t=1599496438;
+        bh=1KLccYs4HIJBd2LVQIYIdYFq4wKOPqgFe98sjpvZdqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DsWK1SWrj3zKxg3yUm8e2l6JyPE6ZW+8wJ5wk1nUeyLEM9MnddnAgVj3uB2V0PtZ0
-         VmX1H5izbb5p32o9Oj+C9tE+CkWzkYEaSzVB8F/V2Zf1JPJUP5enlXJ41NJ8+vPc7E
-         MnIyaXPh9X2RN+7kVQsVMSJPRiZ18PsT2CQbcrxM=
+        b=AkYeCYw3BSf8vV31KVT6UsBHN3YSxY4PmY88lN61WPEvQfBfMG5wr53jBaE7KC9J7
+         PQv7eA57A/SXUyFIt6Omt1vILvhV1QYpicZy13CVmTYjXj7jLmoceTaUF1OFG8Lt5+
+         mkHZFXpXywaE5+H97kh1PhKnthaunh8V+C8fkOUE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 21/43] nvme-fabrics: don't check state NVME_CTRL_NEW for request acceptance
-Date:   Mon,  7 Sep 2020 12:33:07 -0400
-Message-Id: <20200907163329.1280888-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 22/43] nvme: have nvme_wait_freeze_timeout return if it timed out
+Date:   Mon,  7 Sep 2020 12:33:08 -0400
+Message-Id: <20200907163329.1280888-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -44,31 +44,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit d7144f5c4cf4de95fdc3422943cf51c06aeaf7a7 ]
+[ Upstream commit 7cf0d7c0f3c3b0203aaf81c1bc884924d8fdb9bd ]
 
-NVME_CTRL_NEW should never see any I/O, because in order to start
-initialization it has to transition to NVME_CTRL_CONNECTING and from
-there it will never return to this state.
+Users can detect if the wait has completed or not and take appropriate
+actions based on this information (e.g. weather to continue
+initialization or rather fail and schedule another initialization
+attempt).
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fabrics.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/nvme/host/core.c | 3 ++-
+ drivers/nvme/host/nvme.h | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/fabrics.c b/drivers/nvme/host/fabrics.c
-index 74b8818ac9a1e..a5a28fef9c1ff 100644
---- a/drivers/nvme/host/fabrics.c
-+++ b/drivers/nvme/host/fabrics.c
-@@ -576,7 +576,6 @@ bool __nvmf_check_ready(struct nvme_ctrl *ctrl, struct request *rq,
- 	 * which is require to set the queue live in the appropinquate states.
- 	 */
- 	switch (ctrl->state) {
--	case NVME_CTRL_NEW:
- 	case NVME_CTRL_CONNECTING:
- 		if (nvme_is_fabrics(req->cmd) &&
- 		    req->cmd->fabrics.fctype == nvme_fabrics_type_connect)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index ff5681da8780d..07c881fe34bb3 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4148,7 +4148,7 @@ void nvme_unfreeze(struct nvme_ctrl *ctrl)
+ }
+ EXPORT_SYMBOL_GPL(nvme_unfreeze);
+ 
+-void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
++int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
+ {
+ 	struct nvme_ns *ns;
+ 
+@@ -4159,6 +4159,7 @@ void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
+ 			break;
+ 	}
+ 	up_read(&ctrl->namespaces_rwsem);
++	return timeout;
+ }
+ EXPORT_SYMBOL_GPL(nvme_wait_freeze_timeout);
+ 
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 056953bd8bd81..2bd9f7c3084f2 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -485,7 +485,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl);
+ void nvme_sync_queues(struct nvme_ctrl *ctrl);
+ void nvme_unfreeze(struct nvme_ctrl *ctrl);
+ void nvme_wait_freeze(struct nvme_ctrl *ctrl);
+-void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
++int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
+ void nvme_start_freeze(struct nvme_ctrl *ctrl);
+ 
+ #define NVME_QID_ANY -1
 -- 
 2.25.1
 
