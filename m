@@ -2,118 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2585F25FC9E
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 17:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DAE325FD58
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 17:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729994AbgIGPGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 11:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35464 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730099AbgIGPFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 11:05:30 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36067217A0;
-        Mon,  7 Sep 2020 15:05:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599491107;
-        bh=zyn6As012uCRhz34xf8H7NGuyWRXRly7RU07YhfUo0M=;
-        h=Subject:To:From:Date:From;
-        b=amFHI3yVsOKG8qbckmc9CSEN1VwewlvTGmalNtPed4MLU5eEaYcJRQPxsDC1Yp3Hr
-         LP0rSeYA+L98TRErqeAQyBJ6cAGADLGTqYYrY3Q9ODchf9pk/Yp6LfVMSCxYssOkWQ
-         u2uqvEUORdBm/OCwisR418yUS1h9yy9INd+CQoZ4=
-Subject: patch "usb: typec: intel_pmc_mux: Do not configure SBU and HSL Orientation" added to usb-linus
-To:     utkarsh.h.patel@intel.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Sep 2020 17:05:14 +0200
-Message-ID: <1599491114251214@kroah.com>
+        id S1730149AbgIGPoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 11:44:05 -0400
+Received: from mout.kundenserver.de ([212.227.17.24]:50997 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730150AbgIGPil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 11:38:41 -0400
+Received: from threadripper.lan ([149.172.98.151]) by mrelayeu.kundenserver.de
+ (mreue109 [212.227.15.145]) with ESMTPA (Nemesis) id
+ 1MJV9S-1jzqjP0Umm-00Jnof; Mon, 07 Sep 2020 17:38:07 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Christoph Hellwig <hch@lst.de>, Russell King <rmk@arm.linux.org.uk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>, kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linus.walleij@linaro.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Mikael Pettersson <mikpe@it.uu.se>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Russell King <linux@armlinux.org.uk>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 3/9] ARM: oabi-compat: add epoll_pwait handler
+Date:   Mon,  7 Sep 2020 17:36:44 +0200
+Message-Id: <20200907153701.2981205-4-arnd@arndb.de>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200907153701.2981205-1-arnd@arndb.de>
+References: <20200907153701.2981205-1-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:mvJo34mtjWtAx5UFkxoUsY6BYLk5TxizfdfEI/T6x5LXUToj2Gs
+ eq4jhvfQgCUKPTs9VI3GmZeo30Whz44Ox+rBSFU6/8DoOpbXTNq3BKOS7KvtD7vitnLMev4
+ ZFISkwZY/310lkDvmmlXoZ8nLNeLLkmUhcFehyL7d6y1wwXDF0+lOSnnoh0frh3q4KA+91I
+ Lb4TvMtrLPcnWR4BAJPaQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:gCeswl9BfCM=:8DnlAUEq/JrLIRCAQnq+4c
+ heUMcytFGL9tiFJ1xdsFSFtVUhbROAfIR6rz5QWmrlX/3jRXPCNlSpz54jhN+BO26VW+BgXX4
+ sEajACaStSEJHDlxXlIftijP6E2P1WvTsh4QJpXE0NXaY7EqkQSJTN8eKqm95HRCAKs8JtXNn
+ QIqYB2FoU8lTDlAmZceNhMALXWsqt1acoJMqa4SLBSLs/Oc0VIjw92LA4Y71Z5BRtV4QyX9Q9
+ LK7V1PUXYbDpHBtekYajXnJb5MiV5Vr6g0xfZBzTZRgQqgbGskNa0zWu72ME8DN5I3yGd4NLk
+ faAv2ObSfUAJO/SPcKKVSuca2j1J1Rt70kYxlAYxHhqE+RrHnfH4i1RP5rzkdI7D/OHmQnLAI
+ Ohtt/1M7hr74cjMJHnkMB6mfI0viumKX3SZPeJwT1XAzTpJOYgYyd3DAhIx2hnzw+IKK/7P+5
+ 5OyThGF+d2nW42AyaJLWVvWHeQ4l9VmypwDGz1rH4GhoUH/OwhkzDgOWDDHvL//VYqg9oro2W
+ PXL4keqq9nxuAolkORV0VIoZEeZIoIYRHKiLDXBkSEN9jo6ULRdgjtos9M23J7ieZ9jNoRbVk
+ q54xAsqfU3vb6T5eX9rD6xUaYqcCoMrsqlv8lvRWAsRFBDy5YSuC5dschGvUASIVSTVr6pLEF
+ w2qHMs4qdTq7B/85diKoKdCjBAr0L+wotV6N/fM+LfIMgGy+u/XAdCOQP/wk0UHjlazDk4p5j
+ cfqs5phJHeJ50WwvwITuO9J38rpQLs8qdm5dPb1fu50nskyoGxHYfJNM6Pwd2Qu/GD8Eyo479
+ M4npqU27DepXRo8YACxDghI5/x51i6lxG89ailOeiMPg84cUKupPvgidmWDMN9W+EPw++Jp
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The epoll_wait() syscall has a special version for OABI compat
+mode to convert the arguments to the EABI structure layout
+of the kernel. However, the later epoll_pwait() syscall was
+added in arch/arm in linux-2.6.32 without this conversion.
 
-This is a note to let you know that I've just added the patch titled
+Use the same kind of handler for both.
 
-    usb: typec: intel_pmc_mux: Do not configure SBU and HSL Orientation
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 7c6bbdf086ac7f1374bcf1ef0994b15109ecaf48 Mon Sep 17 00:00:00 2001
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Date: Mon, 7 Sep 2020 17:21:52 +0300
-Subject: usb: typec: intel_pmc_mux: Do not configure SBU and HSL Orientation
- in Alternate modes
-
-According to the PMC Type C Subsystem (TCSS) Mux programming guide rev
-0.7, bits 4 and 5 are reserved in Alternate modes.
-SBU Orientation and HSL Orientation needs to be configured only during
-initial cable detection in USB connect flow based on device property of
-"sbu-orientation" and "hsl-orientation".
-Configuring these reserved bits in the Alternate modes may result in delay
-in display link training or some unexpected behaviour.
-So do not configure them while issuing Alternate Mode requests.
-
-Fixes: ff4a30d5e243 ("usb: typec: mux: intel_pmc_mux: Support for static SBU/HSL orientation")
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20200907142152.35678-3-heikki.krogerus@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 369842658a36 ("ARM: 5677/1: ARM support for TIF_RESTORE_SIGMASK/pselect6/ppoll/epoll_pwait")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/arm/kernel/sys_oabi-compat.c | 35 ++++++++++++++++++++++++++++---
+ arch/arm/tools/syscall.tbl        |  2 +-
+ 2 files changed, 33 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
-index bb9cb4ec4d6f..ec7da0fa3cf8 100644
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -61,8 +61,6 @@ enum {
+diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
+index 0203e545bbc8..2ce3e8c6ca91 100644
+--- a/arch/arm/kernel/sys_oabi-compat.c
++++ b/arch/arm/kernel/sys_oabi-compat.c
+@@ -264,9 +264,8 @@ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+ 	return do_epoll_ctl(epfd, op, fd, &kernel, false);
+ }
  
- #define PMC_USB_ALTMODE_ORI_SHIFT	1
- #define PMC_USB_ALTMODE_UFP_SHIFT	3
--#define PMC_USB_ALTMODE_ORI_AUX_SHIFT	4
--#define PMC_USB_ALTMODE_ORI_HSL_SHIFT	5
+-asmlinkage long sys_oabi_epoll_wait(int epfd,
+-				    struct oabi_epoll_event __user *events,
+-				    int maxevents, int timeout)
++static long do_oabi_epoll_wait(int epfd, struct oabi_epoll_event __user *events,
++			       int maxevents, int timeout)
+ {
+ 	struct epoll_event *kbuf;
+ 	struct oabi_epoll_event e;
+@@ -299,6 +298,36 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
+ 	return err ? -EFAULT : ret;
+ }
  
- /* DP specific Mode Data bits */
- #define PMC_USB_ALTMODE_DP_MODE_SHIFT	8
-@@ -178,9 +176,6 @@ pmc_usb_mux_dp(struct pmc_usb_port *port, struct typec_mux_state *state)
- 	req.mode_data = (port->orientation - 1) << PMC_USB_ALTMODE_ORI_SHIFT;
- 	req.mode_data |= (port->role - 1) << PMC_USB_ALTMODE_UFP_SHIFT;
- 
--	req.mode_data |= sbu_orientation(port) << PMC_USB_ALTMODE_ORI_AUX_SHIFT;
--	req.mode_data |= hsl_orientation(port) << PMC_USB_ALTMODE_ORI_HSL_SHIFT;
--
- 	req.mode_data |= (state->mode - TYPEC_STATE_MODAL) <<
- 			 PMC_USB_ALTMODE_DP_MODE_SHIFT;
- 
-@@ -208,9 +203,6 @@ pmc_usb_mux_tbt(struct pmc_usb_port *port, struct typec_mux_state *state)
- 	req.mode_data = (port->orientation - 1) << PMC_USB_ALTMODE_ORI_SHIFT;
- 	req.mode_data |= (port->role - 1) << PMC_USB_ALTMODE_UFP_SHIFT;
- 
--	req.mode_data |= sbu_orientation(port) << PMC_USB_ALTMODE_ORI_AUX_SHIFT;
--	req.mode_data |= hsl_orientation(port) << PMC_USB_ALTMODE_ORI_HSL_SHIFT;
--
- 	if (TBT_ADAPTER(data->device_mode) == TBT_ADAPTER_TBT3)
- 		req.mode_data |= PMC_USB_ALTMODE_TBT_TYPE;
- 
++SYSCALL_DEFINE4(oabi_epoll_wait, int, epfd, struct oabi_epoll_event __user *, events,
++		int, maxevents, int, timeout)
++{
++	return do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++}
++
++/*
++ * Implement the event wait interface for the eventpoll file. It is the kernel
++ * part of the user space epoll_pwait(2).
++ */
++SYSCALL_DEFINE6(oabi_epoll_pwait, int, epfd, struct oabi_epoll_event __user *, events,
++		int, maxevents, int, timeout, const sigset_t __user *, sigmask,
++		size_t, sigsetsize)
++{
++	int error;
++
++	/*
++	 * If the caller wants a certain signal mask to be set during the wait,
++	 * we apply it here.
++	 */
++	error = set_user_sigmask(sigmask, sigsetsize);
++	if (error)
++		return error;
++
++	error = do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++	restore_saved_sigmask_unless(error == -EINTR);
++
++	return error;
++}
++
+ struct oabi_sembuf {
+ 	unsigned short	sem_num;
+ 	short		sem_op;
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index 171077cbf419..39a24bee7df8 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -360,7 +360,7 @@
+ 343	common	vmsplice		sys_vmsplice
+ 344	common	move_pages		sys_move_pages
+ 345	common	getcpu			sys_getcpu
+-346	common	epoll_pwait		sys_epoll_pwait
++346	common	epoll_pwait		sys_epoll_pwait		sys_oabi_epoll_pwait
+ 347	common	kexec_load		sys_kexec_load
+ 348	common	utimensat		sys_utimensat_time32
+ 349	common	signalfd		sys_signalfd
 -- 
-2.28.0
-
+2.27.0
 
