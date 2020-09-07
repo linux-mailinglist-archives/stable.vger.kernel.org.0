@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9A526009E
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8B5260095
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbgIGQvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:51:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
+        id S1730916AbgIGQvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730765AbgIGQev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:34:51 -0400
+        id S1730766AbgIGQeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:34:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA80221D81;
-        Mon,  7 Sep 2020 16:34:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15DAC21D82;
+        Mon,  7 Sep 2020 16:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496485;
-        bh=jtXOQm4tHRZLmtlSGl9h0CdfQhfRJHUaGfBsqSV88Jc=;
+        s=default; t=1599496486;
+        bh=rZxwYDHjK3qI25qdiskJGXz3d9ftzvsrU/pwOlWWUA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAwNmtfngimZmcQSih8xA63gslp1bHRlawjIl5kfNVpo7+tCcHz77FYZJMWsjHZCE
-         URQokBr1oZSCQnWn16SE5UYwHNSReAl6KIBeMLcb4BzfGz/0xz9hvh3O+A72jZQ1qG
-         OofLezLcFM4JLnQpceh7BhU76v5wXYOxGQVxM8E4=
+        b=G2v2ohngZ3DW8g0U74EfAKfmzMpUydaiU58URJv+Kmh+JE+GtcDWy0YabU2oVwQiw
+         S+xlEJD+boESPWmYFILnH73laijEFMswB8DnDdi88xn72T4W2N4M/aIbTqejAhDoni
+         36ycPMBSQwFe3Q9mp09ZsJ5rUivKFKiRDPPNUiVA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
-        James Smart <james.smart@broadcom.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 15/26] nvme-rdma: serialize controller teardown sequences
-Date:   Mon,  7 Sep 2020 12:34:15 -0400
-Message-Id: <20200907163426.1281284-15-sashal@kernel.org>
+Cc:     Nirenjan Krishnan <nirenjan@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 16/26] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
+Date:   Mon,  7 Sep 2020 12:34:16 -0400
+Message-Id: <20200907163426.1281284-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163426.1281284-1-sashal@kernel.org>
 References: <20200907163426.1281284-1-sashal@kernel.org>
@@ -43,82 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Nirenjan Krishnan <nirenjan@gmail.com>
 
-[ Upstream commit 5110f40241d08334375eb0495f174b1d2c07657e ]
+[ Upstream commit 77df710ba633dfb6c65c65cf99ea9e084a1c9933 ]
 
-In the timeout handler we may need to complete a request because the
-request that timed out may be an I/O that is a part of a serial sequence
-of controller teardown or initialization. In order to complete the
-request, we need to fence any other context that may compete with us
-and complete the request that is timing out.
+The Saitek X52 family of joysticks has a pair of axes that were
+originally (by the Windows driver) used as mouse pointer controls. The
+corresponding usage page is the Game Controls page, which is not
+recognized by the generic HID driver, and therefore, both axes get
+mapped to ABS_MISC. The quirk makes the second axis get mapped to
+ABS_MISC+1, and therefore made available separately.
 
-In this case, we could have a potential double completion in case
-a hard-irq or a different competing context triggered error recovery
-and is running inflight request cancellation concurrently with the
-timeout handler.
+One Saitek X52 device is already fixed. This patch fixes the other two
+known devices with VID/PID 06a3:0255 and 06a3:0762.
 
-Protect using a ctrl teardown_lock to serialize contexts that may
-complete a cancelled request due to error recovery or a reset.
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-ids.h    | 2 ++
+ drivers/hid/hid-quirks.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index f393a6193252e..7e2cdb17c26d8 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -118,6 +118,7 @@ struct nvme_rdma_ctrl {
- 	struct sockaddr_storage src_addr;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2c100b73d3fc1..e18d796d985f8 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -985,6 +985,8 @@
+ #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
+ #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
+ #define USB_DEVICE_ID_SAITEK_X52	0x075c
++#define USB_DEVICE_ID_SAITEK_X52_2	0x0255
++#define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
  
- 	struct nvme_ctrl	ctrl;
-+	struct mutex		teardown_lock;
- 	bool			use_inline_data;
- };
- 
-@@ -880,6 +881,7 @@ static int nvme_rdma_configure_io_queues(struct nvme_rdma_ctrl *ctrl, bool new)
- static void nvme_rdma_teardown_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 		bool remove)
- {
-+	mutex_lock(&ctrl->teardown_lock);
- 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
- 	nvme_rdma_stop_queue(&ctrl->queues[0]);
- 	if (ctrl->ctrl.admin_tagset)
-@@ -887,11 +889,13 @@ static void nvme_rdma_teardown_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 			nvme_cancel_request, &ctrl->ctrl);
- 	blk_mq_unquiesce_queue(ctrl->ctrl.admin_q);
- 	nvme_rdma_destroy_admin_queue(ctrl, remove);
-+	mutex_unlock(&ctrl->teardown_lock);
- }
- 
- static void nvme_rdma_teardown_io_queues(struct nvme_rdma_ctrl *ctrl,
- 		bool remove)
- {
-+	mutex_lock(&ctrl->teardown_lock);
- 	if (ctrl->ctrl.queue_count > 1) {
- 		nvme_stop_queues(&ctrl->ctrl);
- 		nvme_rdma_stop_io_queues(ctrl);
-@@ -902,6 +906,7 @@ static void nvme_rdma_teardown_io_queues(struct nvme_rdma_ctrl *ctrl,
- 			nvme_start_queues(&ctrl->ctrl);
- 		nvme_rdma_destroy_io_queues(ctrl, remove);
- 	}
-+	mutex_unlock(&ctrl->teardown_lock);
- }
- 
- static void nvme_rdma_stop_ctrl(struct nvme_ctrl *nctrl)
-@@ -1955,6 +1960,7 @@ static struct nvme_ctrl *nvme_rdma_create_ctrl(struct device *dev,
- 		return ERR_PTR(-ENOMEM);
- 	ctrl->ctrl.opts = opts;
- 	INIT_LIST_HEAD(&ctrl->list);
-+	mutex_init(&ctrl->teardown_lock);
- 
- 	if (opts->mask & NVMF_OPT_TRSVCID)
- 		port = opts->trsvcid;
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 62f87f8bd9720..2d8d20a7f4574 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -147,6 +147,8 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPORT), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD), HID_QUIRK_BADPAD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
 -- 
 2.25.1
 
