@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D27260163
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA463260166
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731130AbgIGRDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731103AbgIGRDy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Sep 2020 13:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47070 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729836AbgIGQdP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:15 -0400
+        id S1730322AbgIGQdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2451321D20;
-        Mon,  7 Sep 2020 16:33:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E50E21974;
+        Mon,  7 Sep 2020 16:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496395;
-        bh=dANP5A8doE17X2f8IBvZQpr4ngAj/Vui516wdzFEfdg=;
+        s=default; t=1599496396;
+        bh=pWPCQxYkwcrRSwkB1/hw9MYm8NdGPFIuQ7QBFDTRK/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoAodhaN5JeP1BLf1MCKmlJPd73tMhCsS8w3mEJmUlDnD7cSE6+Fbp7gxOaQuUBmZ
-         OZCW9GYDIC7Do7EU7T5HUbsFWqeLwUUpGeC9R0e6qWDmGYFwcX2TtFc8eAFpoeK4Fn
-         u36QXPBrYn6xGVtntdXRQU9syoqzU2UO/JjQd7yc=
+        b=fQR3PHhchJjmCTr2EBXeL2YJ3CGRxbbG3VisjU6nW0sJV4dkjuohROmyg9GifALJJ
+         7ed/iq9Vy8qHB+Iz+pNiw6fUae340lgVuWqkCnMrAd6S0OhpKPCQUW+jTjTc6r11+v
+         1CoB/bmRqDNov7ltjU0Mk4y/RfE0lxC6UbntcN2I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Francisco Jerez <currojerez@riseup.net>,
-        Caleb Callaway <caleb.callaway@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 43/53] cpufreq: intel_pstate: Fix intel_pstate_get_hwp_max() for turbo disabled
-Date:   Mon,  7 Sep 2020 12:32:09 -0400
-Message-Id: <20200907163220.1280412-43-sashal@kernel.org>
+Cc:     Kamil Lorenc <kamil@re-ws.pl>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 44/53] net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+Date:   Mon,  7 Sep 2020 12:32:10 -0400
+Message-Id: <20200907163220.1280412-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -45,45 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francisco Jerez <currojerez@riseup.net>
+From: Kamil Lorenc <kamil@re-ws.pl>
 
-[ Upstream commit eacc9c5a927e474c173a5d53dd7fb8e306511768 ]
+[ Upstream commit a609d0259183a841621f252e067f40f8cc25d6f6 ]
 
-This fixes the behavior of the scaling_max_freq and scaling_min_freq
-sysfs files in systems which had turbo disabled by the BIOS.
+Keenetic Plus DSL is a xDSL modem that uses dm9620 as its USB interface.
 
-Caleb noticed that the HWP is programmed to operate in the wrong
-P-state range on his system when the CPUFREQ policy min/max frequency
-is set via sysfs.  This seems to be because in his system
-intel_pstate_get_hwp_max() is returning the maximum turbo P-state even
-though turbo was disabled by the BIOS, which causes intel_pstate to
-scale kHz frequencies incorrectly e.g. setting the maximum turbo
-frequency whenever the maximum guaranteed frequency is requested via
-sysfs.
-
-Tested-by: Caleb Callaway <caleb.callaway@intel.com>
-Signed-off-by: Francisco Jerez <currojerez@riseup.net>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Minor subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Kamil Lorenc <kamil@re-ws.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/dm9601.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 97ed4fd0f1342..36a469150ff9c 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -762,7 +762,7 @@ static void intel_pstate_get_hwp_max(unsigned int cpu, int *phy_max,
+diff --git a/drivers/net/usb/dm9601.c b/drivers/net/usb/dm9601.c
+index b91f92e4e5f22..915ac75b55fc7 100644
+--- a/drivers/net/usb/dm9601.c
++++ b/drivers/net/usb/dm9601.c
+@@ -625,6 +625,10 @@ static const struct usb_device_id products[] = {
+ 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
+ 	 .driver_info = (unsigned long)&dm9601_info,
+ 	},
++	{
++	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
++	 .driver_info = (unsigned long)&dm9601_info,
++	},
+ 	{},			// END
+ };
  
- 	rdmsrl_on_cpu(cpu, MSR_HWP_CAPABILITIES, &cap);
- 	WRITE_ONCE(all_cpu_data[cpu]->hwp_cap_cached, cap);
--	if (global.no_turbo)
-+	if (global.no_turbo || global.turbo_disabled)
- 		*current_max = HWP_GUARANTEED_PERF(cap);
- 	else
- 		*current_max = HWP_HIGHEST_PERF(cap);
 -- 
 2.25.1
 
