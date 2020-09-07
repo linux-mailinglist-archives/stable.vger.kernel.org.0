@@ -2,75 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B622605CC
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 22:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C249126060F
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 23:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgIGUjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 16:39:51 -0400
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:52489 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726810AbgIGUjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 16:39:45 -0400
-Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Mon, 7 Sep 2020 13:39:42 -0700
-Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id BC1FA40735;
-        Mon,  7 Sep 2020 13:39:42 -0700 (PDT)
-From:   Ajay Kaher <akaher@vmware.com>
-To:     <gregkh@linuxfoundation.org>, <sashal@kernel.org>
-CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
-        <peterx@redhat.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
-        <vsirnapalli@vmware.com>, <akaher@vmware.com>
-Subject: [PATCH v4.9.y 0/3] vfio: Fix for CVE-2020-12888
-Date:   Tue, 8 Sep 2020 02:05:17 +0530
-Message-ID: <1599510917-23734-4-git-send-email-akaher@vmware.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1599510917-23734-1-git-send-email-akaher@vmware.com>
-References: <1599510917-23734-1-git-send-email-akaher@vmware.com>
+        id S1726929AbgIGVKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 17:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52308 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726458AbgIGVK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 17:10:29 -0400
+Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (unknown [163.114.132.7])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D8172137B;
+        Mon,  7 Sep 2020 21:10:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599513028;
+        bh=UumymxLYqQ3OdFcuPJn2ZB1M+tzni4fLO4l47tqH7+k=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ZkHhuiu9ZoRLcegon6Y/AEMkvXigJt6M7xUdk/kLGxrtjXqKhVAlvA6HGeT9FJN6m
+         LULLn7TGxYPs/2221nPMepiYegr0A2034KetdvY09R5iNIVvW4ELk+G0zB334V510e
+         C74SUt/pUql/DMHv9a6kfyCTXaQlR01MAuFm8ShQ=
+Date:   Mon, 7 Sep 2020 14:10:26 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mingming Cao <mmc@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.8 14/53] ibmvnic fix NULL tx_pools and
+ rx_tools issue at do_reset
+Message-ID: <20200907141026.093fc160@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20200907163220.1280412-14-sashal@kernel.org>
+References: <20200907163220.1280412-1-sashal@kernel.org>
+        <20200907163220.1280412-14-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
- designate permitted sender hosts)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CVE-2020-12888 Kernel: vfio: access to disabled MMIO space of some
-devices may lead to DoS scenario
-    
-The VFIO modules allow users (guest VMs) to enable or disable access to the
-devices' MMIO memory address spaces. If a user attempts to access (read/write)
-the devices' MMIO address space when it is disabled, some h/w devices issue an
-interrupt to the CPU to indicate a fatal error condition, crashing the system.
-This flaw allows a guest user or process to crash the host system resulting in
-a denial of service.
-    
-Patch 1/ is to force the user fault if PFNMAP vma might be DMA mapped
-before user access.
-    
-Patch 2/ setup a vm_ops handler to support dynamic faulting instead of calling
-remap_pfn_range(). Also provides a list of vmas actively mapping the area which
-can later use to invalidate those mappings.
-    
-Patch 3/ block the user from accessing memory spaces which is disabled by using
-new vma list support to zap, or invalidate, those memory mappings in order to
-force them to be faulted back in on access.
-    
-Upstreamed patches link:
-https://lore.kernel.org/kvm/158871401328.15589.17598154478222071285.stgit@gimli.home
-        
-[PATCH v4.9.y 1/3]:
-Backporting of upsream commit 41311242221e:
-vfio/type1: Support faulting PFNMAP vmas
-        
-[PATCH v4.9.y 2/3]:
-Backporting of upsream commit 11c4cd07ba11:
-vfio-pci: Fault mmaps to enable vma tracking
-        
-[PATCH v4.9.y 3/3]:
-Backporting of upsream commit abafbc551fdd:
-vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
+On Mon,  7 Sep 2020 12:31:40 -0400 Sasha Levin wrote:
+> [ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
+
+> @@ -2024,10 +2033,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+>  		} else {
+>  			rc = reset_tx_pools(adapter);
+>  			if (rc)
+> +				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
+> +						rc);
+>  				goto out;
+>  
+>  			rc = reset_rx_pools(adapter);
+>  			if (rc)
+> +				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
+> +						rc);
+>  				goto out;
+>  		}
+>  		ibmvnic_disable_irqs(adapter);
+
+Hi Sasha!
+
+I just pushed this to net:
+
+8ae4dff882eb ("ibmvnic: add missing parenthesis in do_reset()")
+
+You definitely want to pull that in if you decide to backport this one.
