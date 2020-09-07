@@ -2,89 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F792601D9
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28DB2601D7
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729892AbgIGQbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:31:53 -0400
-Received: from mga09.intel.com ([134.134.136.24]:34570 "EHLO mga09.intel.com"
+        id S1730596AbgIGRNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 13:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729793AbgIGOWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 10:22:05 -0400
-IronPort-SDR: vIOtwWF8K5+Ue+5c0HPElYbJwgWJZwX1sKlAXSbYct8WB3tWCsk9zT0/FKorBf21uhb/vLDHzi
- AyOqnY6m1AcA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9736"; a="158987045"
-X-IronPort-AV: E=Sophos;i="5.76,402,1592895600"; 
-   d="scan'208";a="158987045"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2020 07:21:57 -0700
-IronPort-SDR: J/JYFS3oFVQrkWg9Q3rECnWSXHQBJlmIpzYiV9dHCa38Opyg7lRHU9NAZEZEgtmS2HGPQzz+GG
- d/bmYMnJTtXQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,402,1592895600"; 
-   d="scan'208";a="406850918"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 07 Sep 2020 07:21:55 -0700
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Mani, Rajmohan" <rajmohan.mani@intel.com>,
-        Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 1/2] usb: typec: intel_pmc_mux: Do not configure Altmode HPD High
-Date:   Mon,  7 Sep 2020 17:21:51 +0300
-Message-Id: <20200907142152.35678-2-heikki.krogerus@linux.intel.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200907142152.35678-1-heikki.krogerus@linux.intel.com>
-References: <20200907142152.35678-1-heikki.krogerus@linux.intel.com>
+        id S1730498AbgIGQcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:32:23 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E80B21556;
+        Mon,  7 Sep 2020 16:32:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599496343;
+        bh=nEKjW6rYP6qA3oTip1YczSNAMKPIAvulBqSmtTcH6zg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Hwk/upZWCtM7jTL/6BRxp4ilaoeth1q+NF4OvH99GpKuisj4GtvG4WuLLMD3h0N2l
+         aTQ8/Ulyctzn77W3srlNhET+OqLAx7jDtJCTdNEtKVFIIxHjVOdgcS7AFfJefSlXnU
+         beojGLk6AB1VDpnh5SqOfziuwSIG4IvCP78Izhvk=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Hanjun Guo <guohanjun@huawei.com>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 02/53] dmaengine: acpi: Put the CSRT table after using it
+Date:   Mon,  7 Sep 2020 12:31:28 -0400
+Message-Id: <20200907163220.1280412-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
+References: <20200907163220.1280412-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-According to the PMC Type C Subsystem (TCSS) Mux programming guide rev
-0.7, bit 14 is reserved in Alternate mode.
-In DP Alternate Mode state, if the HPD_STATE (bit 7) field in the
-status update command VDO is set to HPD_HIGH, HPD is configured via
-separate HPD mode request after configuring DP Alternate mode request.
-Configuring reserved bit may show unexpected behaviour.
-So do not configure them while issuing the Alternate Mode request.
+[ Upstream commit 7eb48dd094de5fe0e216b550e73aa85257903973 ]
 
-Fixes: 7990be48ef4d ("usb: typec: mux: intel: Handle alt mode HPD_HIGH")
-Cc: stable@vger.kernel.org
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+The acpi_get_table() should be coupled with acpi_put_table() if
+the mapped table is not used at runtime to release the table
+mapping, put the CSRT table buf after using it.
+
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Link: https://lore.kernel.org/r/1595411661-15936-1-git-send-email-guohanjun@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/dma/acpi-dma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
-index e4021e13af40a..802d443b367c6 100644
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -68,7 +68,6 @@ enum {
- #define PMC_USB_ALTMODE_DP_MODE_SHIFT	8
+diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
+index 8a05db3343d39..dcbcb712de6e8 100644
+--- a/drivers/dma/acpi-dma.c
++++ b/drivers/dma/acpi-dma.c
+@@ -135,11 +135,13 @@ static void acpi_dma_parse_csrt(struct acpi_device *adev, struct acpi_dma *adma)
+ 		if (ret < 0) {
+ 			dev_warn(&adev->dev,
+ 				 "error in parsing resource group\n");
+-			return;
++			break;
+ 		}
  
- /* TBT specific Mode Data bits */
--#define PMC_USB_ALTMODE_HPD_HIGH	BIT(14)
- #define PMC_USB_ALTMODE_TBT_TYPE	BIT(17)
- #define PMC_USB_ALTMODE_CABLE_TYPE	BIT(18)
- #define PMC_USB_ALTMODE_ACTIVE_LINK	BIT(20)
-@@ -185,9 +184,6 @@ pmc_usb_mux_dp(struct pmc_usb_port *port, struct typec_mux_state *state)
- 	req.mode_data |= (state->mode - TYPEC_STATE_MODAL) <<
- 			 PMC_USB_ALTMODE_DP_MODE_SHIFT;
+ 		grp = (struct acpi_csrt_group *)((void *)grp + grp->length);
+ 	}
++
++	acpi_put_table((struct acpi_table_header *)csrt);
+ }
  
--	if (data->status & DP_STATUS_HPD_STATE)
--		req.mode_data |= PMC_USB_ALTMODE_HPD_HIGH;
--
- 	ret = pmc_usb_command(port, (void *)&req, sizeof(req));
- 	if (ret)
- 		return ret;
+ /**
 -- 
-2.28.0
+2.25.1
 
