@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CCA425FF83
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A2625FF86
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:34:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730714AbgIGQdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:33:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47644 "EHLO mail.kernel.org"
+        id S1730732AbgIGQds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730703AbgIGQdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:45 -0400
+        id S1730306AbgIGQds (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A197121941;
-        Mon,  7 Sep 2020 16:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EE1B21775;
+        Mon,  7 Sep 2020 16:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496424;
-        bh=VBDolsQa9bah2f35ikQNeh3bGYSd5ANyLGcQxwSCoX4=;
+        s=default; t=1599496427;
+        bh=MNzjL7bJVugj+oKomOtb/XdDcvTeO2JAZ1+T9wCP1TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bipxg5EvnC8hQy5NauJaafk7Ed/G1z9HlXnee8PLGFIgzon2N8yz/PXAobN71xJIB
-         d5/3TY+hRTZ6fjWk2y32qn8D/MuFhtU5Hxz8eRXlqTMcVFtBKwYShdFFZrcGpSNwhY
-         3nNGaSMByW1KI7s+t+U4uK+rOcvH1I5MVpDHaTQM=
+        b=daEYCItuTrt3/IqhAEtfJZSjg7Oe+6JJ64kLYxfro8g8m5+r47NA8PkG2E1fF8bdK
+         +8AKFdpKv88Wss+S4YzOXBTR0I4ASMyboGLmXzAC3kS9MvNKQmi2Wc9FBtuDuk9KSg
+         gUcjaj0CRmoRoaw3rvvaHa8vGQxLOQyiRL5N7j18=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mingming Cao <mmc@linux.vnet.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 11/43] ibmvnic fix NULL tx_pools and rx_tools issue at do_reset
-Date:   Mon,  7 Sep 2020 12:32:57 -0400
-Message-Id: <20200907163329.1280888-11-sashal@kernel.org>
+Cc:     Brian Foster <bfoster@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/43] xfs: fix off-by-one in inode alloc block reservation calculation
+Date:   Mon,  7 Sep 2020 12:32:59 -0400
+Message-Id: <20200907163329.1280888-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -45,81 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mingming Cao <mmc@linux.vnet.ibm.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
+[ Upstream commit 657f101930bc6c5b41bd7d6c22565c4302a80d33 ]
 
-At the time of do_rest, ibmvnic tries to re-initalize the tx_pools
-and rx_pools to avoid re-allocating the long term buffer. However
-there is a window inside do_reset that the tx_pools and
-rx_pools were freed before re-initialized making it possible to deference
-null pointers.
+The inode chunk allocation transaction reserves inobt_maxlevels-1
+blocks to accommodate a full split of the inode btree. A full split
+requires an allocation for every existing level and a new root
+block, which means inobt_maxlevels is the worst case block
+requirement for a transaction that inserts to the inobt. This can
+lead to a transaction block reservation overrun when tmpfile
+creation allocates an inode chunk and expands the inobt to its
+maximum depth. This problem has been observed in conjunction with
+overlayfs, which makes frequent use of tmpfiles internally.
 
-This patch fix this issue by always check the tx_pool
-and rx_pool are not NULL after ibmvnic_login. If so, re-allocating
-the pools. This will avoid getting into calling reset_tx/rx_pools with
-NULL adapter tx_pools/rx_pools pointer. Also add null pointer check in
-reset_tx_pools and reset_rx_pools to safe handle NULL pointer case.
+The existing reservation code goes back as far as the Linux git repo
+history (v2.6.12). It was likely never observed as a problem because
+the traditional file/directory creation transactions also include
+worst case block reservation for directory modifications, which most
+likely is able to make up for a single block deficiency in the inode
+allocation portion of the calculation. tmpfile support is relatively
+more recent (v3.15), less heavily used, and only includes the inode
+allocation block reservation as tmpfiles aren't linked into the
+directory tree on creation.
 
-Signed-off-by: Mingming Cao <mmc@linux.vnet.ibm.com>
-Signed-off-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix up the inode alloc block reservation macro and a couple of the
+block allocator minleft parameters that enforce an allocation to
+leave enough free blocks in the AG for a full inobt split.
+
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_ialloc.c      | 4 ++--
+ fs/xfs/libxfs/xfs_trans_space.h | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 2d20a48f0ba0a..de45b3709c14e 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -416,6 +416,9 @@ static int reset_rx_pools(struct ibmvnic_adapter *adapter)
- 	int i, j, rc;
- 	u64 *size_array;
+diff --git a/fs/xfs/libxfs/xfs_ialloc.c b/fs/xfs/libxfs/xfs_ialloc.c
+index 588d446130944..443cf33f66668 100644
+--- a/fs/xfs/libxfs/xfs_ialloc.c
++++ b/fs/xfs/libxfs/xfs_ialloc.c
+@@ -679,7 +679,7 @@ xfs_ialloc_ag_alloc(
+ 		args.minalignslop = igeo->cluster_align - 1;
  
-+	if (!adapter->rx_pool)
-+		return -1;
-+
- 	size_array = (u64 *)((u8 *)(adapter->login_rsp_buf) +
- 		be32_to_cpu(adapter->login_rsp_buf->off_rxadd_buff_size));
+ 		/* Allow space for the inode btree to split. */
+-		args.minleft = igeo->inobt_maxlevels - 1;
++		args.minleft = igeo->inobt_maxlevels;
+ 		if ((error = xfs_alloc_vextent(&args)))
+ 			return error;
  
-@@ -586,6 +589,9 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
- 	int tx_scrqs;
- 	int i, rc;
+@@ -727,7 +727,7 @@ xfs_ialloc_ag_alloc(
+ 		/*
+ 		 * Allow space for the inode btree to split.
+ 		 */
+-		args.minleft = igeo->inobt_maxlevels - 1;
++		args.minleft = igeo->inobt_maxlevels;
+ 		if ((error = xfs_alloc_vextent(&args)))
+ 			return error;
+ 	}
+diff --git a/fs/xfs/libxfs/xfs_trans_space.h b/fs/xfs/libxfs/xfs_trans_space.h
+index c6df01a2a1585..7ad3659c5d2a9 100644
+--- a/fs/xfs/libxfs/xfs_trans_space.h
++++ b/fs/xfs/libxfs/xfs_trans_space.h
+@@ -58,7 +58,7 @@
+ #define	XFS_IALLOC_SPACE_RES(mp)	\
+ 	(M_IGEO(mp)->ialloc_blks + \
+ 	 ((xfs_sb_version_hasfinobt(&mp->m_sb) ? 2 : 1) * \
+-	  (M_IGEO(mp)->inobt_maxlevels - 1)))
++	  M_IGEO(mp)->inobt_maxlevels))
  
-+	if (!adapter->tx_pool)
-+		return -1;
-+
- 	tx_scrqs = be32_to_cpu(adapter->login_rsp_buf->num_txsubm_subcrqs);
- 	for (i = 0; i < tx_scrqs; i++) {
- 		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
-@@ -1918,7 +1924,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 		    adapter->req_rx_add_entries_per_subcrq !=
- 		    old_num_rx_slots ||
- 		    adapter->req_tx_entries_per_subcrq !=
--		    old_num_tx_slots) {
-+		    old_num_tx_slots ||
-+		    !adapter->rx_pool ||
-+		    !adapter->tso_pool ||
-+		    !adapter->tx_pool) {
- 			release_rx_pools(adapter);
- 			release_tx_pools(adapter);
- 			release_napi(adapter);
-@@ -1931,10 +1940,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 		} else {
- 			rc = reset_tx_pools(adapter);
- 			if (rc)
-+				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
-+						rc);
- 				goto out;
- 
- 			rc = reset_rx_pools(adapter);
- 			if (rc)
-+				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
-+						rc);
- 				goto out;
- 		}
- 		ibmvnic_disable_irqs(adapter);
+ /*
+  * Space reservation values for various transactions.
 -- 
 2.25.1
 
