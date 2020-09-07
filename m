@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D9725FF8F
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E232600C6
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730605AbgIGQe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:34:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
+        id S1730750AbgIGQe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:34:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730744AbgIGQeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730746AbgIGQeR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Sep 2020 12:34:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF28D21D80;
-        Mon,  7 Sep 2020 16:34:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37C9C21D7D;
+        Mon,  7 Sep 2020 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496450;
-        bh=aL8L4JPV6nAQVF+hiDzhbM35OeSZuT8Epx32RXWWXkk=;
+        s=default; t=1599496451;
+        bh=Cez5YrJMd+kRD6GKDOhBagZay32pDINJhG2yn//Ywjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIegqkdXRUNIzgsdqt9GXFL9yfIuMK/n4mqKWXt0DaTkU91Sj1ygcoG8Xgmrx5MG9
-         Vnb4dCxbmbAcTasKVnSNumSfu0Xzdg2cPd4NavthsL/NpNa7l10G+WRKPH4a7H2c3S
-         AfW9erpDhoecCFW40Olal3rHlO1tJO0tGRbT1GGc=
+        b=rDKWCeMr4Ap5xJFa5UT4D7lKqKQ4Xs1UA5w1TxwbFkB1n8ZYPzk41K2wEr+R0QekX
+         wIphsmO+pAnNnSCgrE+VBwUZZsyw84T5mBAiaKa9q23mST2X6pGINsTa4Lgy9oVpB9
+         FZLD77UoiTvj0UMIyXr7cu5eA50z8acsaHIzjR/A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie He <xie.he.0141@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
-        Krzysztof Halasa <khc@pm.waw.pl>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 32/43] drivers/net/wan/hdlc_cisco: Add hard_header_len
-Date:   Mon,  7 Sep 2020 12:33:18 -0400
-Message-Id: <20200907163329.1280888-32-sashal@kernel.org>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 33/43] HID: elan: Fix memleak in elan_input_configured
+Date:   Mon,  7 Sep 2020 12:33:19 -0400
+Message-Id: <20200907163329.1280888-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
 References: <20200907163329.1280888-1-sashal@kernel.org>
@@ -44,38 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1a545ebe380bf4c1433e3c136e35a77764fda5ad ]
+[ Upstream commit b7429ea53d6c0936a0f10a5d64164f0aea440143 ]
 
-This driver didn't set hard_header_len. This patch sets hard_header_len
-for it according to its header_ops->create function.
+When input_mt_init_slots() fails, input should be freed
+to prevent memleak. When input_register_device() fails,
+we should call input_mt_destroy_slots() to free memory
+allocated by input_mt_init_slots().
 
-This driver's header_ops->create function (cisco_hard_header) creates
-a header of (struct hdlc_header), so hard_header_len should be set to
-sizeof(struct hdlc_header).
-
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_cisco.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-elan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
-index a030f5aa6b951..cc33441af4691 100644
---- a/drivers/net/wan/hdlc_cisco.c
-+++ b/drivers/net/wan/hdlc_cisco.c
-@@ -370,6 +370,7 @@ static int cisco_ioctl(struct net_device *dev, struct ifreq *ifr)
- 		memcpy(&state(hdlc)->settings, &new_settings, size);
- 		spin_lock_init(&state(hdlc)->lock);
- 		dev->header_ops = &cisco_header_ops;
-+		dev->hard_header_len = sizeof(struct hdlc_header);
- 		dev->type = ARPHRD_CISCO;
- 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
- 		netif_dormant_on(dev);
+diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
+index 45c4f888b7c4e..dae193749d443 100644
+--- a/drivers/hid/hid-elan.c
++++ b/drivers/hid/hid-elan.c
+@@ -188,6 +188,7 @@ static int elan_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	ret = input_mt_init_slots(input, ELAN_MAX_FINGERS, INPUT_MT_POINTER);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to init elan MT slots: %d\n", ret);
++		input_free_device(input);
+ 		return ret;
+ 	}
+ 
+@@ -198,6 +199,7 @@ static int elan_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to register elan input device: %d\n",
+ 			ret);
++		input_mt_destroy_slots(input);
+ 		input_free_device(input);
+ 		return ret;
+ 	}
 -- 
 2.25.1
 
