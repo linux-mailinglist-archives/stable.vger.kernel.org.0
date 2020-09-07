@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4026A260019
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA1E26000D
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730434AbgIGQnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:43:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
+        id S1730873AbgIGQgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:36:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730864AbgIGQfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:35:51 -0400
+        id S1730866AbgIGQfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:35:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAD0321D90;
-        Mon,  7 Sep 2020 16:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B58921D92;
+        Mon,  7 Sep 2020 16:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496550;
-        bh=FLjVWqdzzGbjc6JJXhuMZ4OiQNBkym+OTNYfGvDLGZY=;
+        s=default; t=1599496552;
+        bh=220WQSCvWpVzzRaLtJvMKBQoxy7hu4+7yitqzYcjZU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHxHkRRpx+1AzT38M68ZDbKkPxtUdS3YGRYm7fMZ3tGmXuPhmn7yVwrSjA5eBU2Qe
-         wFV0Q+c6hQgvscFL2lX1ecXRxda7FcG/8WhjBpy/wFB5ioRcW6ZiBzrtQuBPlf4SYP
-         gCVUTR/FwtXKx0WFkm5+obNZrbMktDkomEtbaitk=
+        b=gmZggTGw0Y3PPUm9HPmuze72AaYh/Iw7IryfZESMve7pcwU4R1/biLdptXDlvxY1x
+         h0jCiXLcs2aqDoCe6OeOE64JmpB0rUhvfdyObZ/un3AUjGt/PNmZlB8VblJaSq0IhW
+         fJBSzBkht21uzeiGGsL4HVWgl90ZKTA/tv5yJCVE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Himadri Pandya <himadrispandya@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/10] net: usb: Fix uninit-was-stored issue in asix_read_phy_addr()
-Date:   Mon,  7 Sep 2020 12:35:38 -0400
-Message-Id: <20200907163543.1281889-5-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/10] xfs: initialize the shortform attr header padding entry
+Date:   Mon,  7 Sep 2020 12:35:39 -0400
+Message-Id: <20200907163543.1281889-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163543.1281889-1-sashal@kernel.org>
 References: <20200907163543.1281889-1-sashal@kernel.org>
@@ -44,36 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himadri Pandya <himadrispandya@gmail.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit a092b7233f0e000cc6f2c71a49e2ecc6f917a5fc ]
+[ Upstream commit 125eac243806e021f33a1fdea3687eccbb9f7636 ]
 
-The buffer size is 2 Bytes and we expect to receive the same amount of
-data. But sometimes we receive less data and run into uninit-was-stored
-issue upon read. Hence modify the error check on the return value to match
-with the buffer size as a prevention.
+Don't leak kernel memory contents into the shortform attr fork.
 
-Reported-and-tested by: syzbot+a7e220df5a81d1ab400e@syzkaller.appspotmail.com
-Signed-off-by: Himadri Pandya <himadrispandya@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/asix_common.c b/drivers/net/usb/asix_common.c
-index 2092ef6431f20..712765976a221 100644
---- a/drivers/net/usb/asix_common.c
-+++ b/drivers/net/usb/asix_common.c
-@@ -251,7 +251,7 @@ int asix_read_phy_addr(struct usbnet *dev, int internal)
- 
- 	netdev_dbg(dev->net, "asix_get_phy_addr()\n");
- 
--	if (ret < 0) {
-+	if (ret < 2) {
- 		netdev_err(dev->net, "Error reading PHYID register: %02x\n", ret);
- 		goto out;
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index 445a3f2f871fb..da8747b870df3 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -514,8 +514,8 @@ xfs_attr_shortform_create(xfs_da_args_t *args)
+ 		ASSERT(ifp->if_flags & XFS_IFINLINE);
  	}
+ 	xfs_idata_realloc(dp, sizeof(*hdr), XFS_ATTR_FORK);
+-	hdr = (xfs_attr_sf_hdr_t *)ifp->if_u1.if_data;
+-	hdr->count = 0;
++	hdr = (struct xfs_attr_sf_hdr *)ifp->if_u1.if_data;
++	memset(hdr, 0, sizeof(*hdr));
+ 	hdr->totsize = cpu_to_be16(sizeof(*hdr));
+ 	xfs_trans_log_inode(args->trans, dp, XFS_ILOG_CORE | XFS_ILOG_ADATA);
+ }
 -- 
 2.25.1
 
