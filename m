@@ -2,121 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBC825FE28
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5E125FEF1
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 18:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729923AbgIGQIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 12:08:48 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53279 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730295AbgIGQIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 12:08:45 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 588EA773;
-        Mon,  7 Sep 2020 12:08:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 07 Sep 2020 12:08:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PIJI1T
-        3LAQlps2w0oEeech2BK8DPlN45SUebxedcE9Y=; b=YTq6vnqmfoV3mcNamFztHb
-        AdKVHpwRYhWYJeHSPLabaG6ajlm/JLbfV+j2+r6Aay7b98wNBycnCGQ7CfAIZBQk
-        4ez8ipCmq83goXVLsVN7ZX6hEnVztbXo0MHQL0XZdoX/lNXzD1tDcMQre87A/uKN
-        I3Whow7+4qsyacnDb4sVn5Wr+Oh60r/PxnSjrBu1rls8NKz2pDdUrLoCgIqIHZ59
-        Lq8vjvZikcEahz4L5/8rS9KuMu9aHY4NG72MyA9G/+/9uwV7ILXsrfkmG4K01x45
-        YqY5pErqdUYpG90SUomzcBYue1ms+D/qdh8PJBGSMdx+hXBq5xgFIzVkWBLuteZQ
-        ==
-X-ME-Sender: <xms:A1tWX4rmwf6yhVN-4lJMLkpPGXC4iD3G7UHE9c3pQX-ONNpNHWgr8A>
-    <xme:A1tWX-pA3Sh8PpgdN2bXplV2NUFHwzIpudYkXtmHyOHR6LYEwwSi9RN-M1E5yO7vJ
-    jbqShKYt84LWA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehtddgleekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:A1tWX9M3n-n3hCt-hox0Zft4BrKVNSVR4jDraQJb6LQOrSGhTsXkJQ>
-    <xmx:A1tWX_7CWTo0OgtRmWZeTu0u4ObcBL6ATL3QqBFiyJrYoiVeskTsng>
-    <xmx:A1tWX37-07_FihuPesrLiNzk8vVmXc9mqUyBOz3ZarjR0r97K6anrg>
-    <xmx:A1tWXxTwulG7YOsEBuKJNRmC6flJJqHUBs4D5qTpJdm-joWDmrhmh6LaN9M>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8981E3280063;
-        Mon,  7 Sep 2020 12:08:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: set the lockdep class for log tree extent buffers" failed to apply to 4.19-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Sep 2020 18:08:41 +0200
-Message-ID: <1599494921176226@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1730577AbgIGQZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 12:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730333AbgIGQMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:12:43 -0400
+Received: from kozik-lap.mshome.net (unknown [194.230.155.174])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18BEF207DE;
+        Mon,  7 Sep 2020 16:12:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599495163;
+        bh=oQutU7eoT4DFfkecRuD/WmWdYMLZJlQ9/R4YqBUhAgU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SHYWhNyqz/iY+3timtuojVIEZ3CNEAJ+Fr/n8RMz5apc1CZua9Lz/KBPEpWoebFc+
+         wqfw7dVGNSrjBREcVT7le9oozJm/yf9NOkC3Q8aCVrwq2/zxX2eXAqymf4ddfPDUAY
+         49a7cLoKYppZ3Wm0viNQsmDEMfAN10/9l+TW4jjw=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 04/25] ARM: dts: s5pv210: fix pinctrl property of "vibrator-en" regulator in Aries
+Date:   Mon,  7 Sep 2020 18:11:20 +0200
+Message-Id: <20200907161141.31034-5-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200907161141.31034-1-krzk@kernel.org>
+References: <20200907161141.31034-1-krzk@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Fix typo in pinctrl property of "vibrator-en" fixed regulator in Aries
+family of boards.  The error caused lack of pin configuration for the
+GPIO used in vibrator.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Fixes: 04568cb58a43 ("ARM: dts: s5pv210: Disable pull for vibrator enable GPIO on Aries boards")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ arch/arm/boot/dts/s5pv210-aries.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From d3beaa253fd6fa40b8b18a216398e6e5376a9d21 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Mon, 10 Aug 2020 11:42:31 -0400
-Subject: [PATCH] btrfs: set the lockdep class for log tree extent buffers
-
-These are special extent buffers that get rewound in order to lookup
-the state of the tree at a specific point in time.  As such they do not
-go through the normal initialization paths that set their lockdep class,
-so handle them appropriately when they are created and before they are
-locked.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index cd1cd673bc0b..cd392da69b81 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1297,6 +1297,8 @@ tree_mod_log_rewind(struct btrfs_fs_info *fs_info, struct btrfs_path *path,
- 	btrfs_tree_read_unlock_blocking(eb);
- 	free_extent_buffer(eb);
+diff --git a/arch/arm/boot/dts/s5pv210-aries.dtsi b/arch/arm/boot/dts/s5pv210-aries.dtsi
+index a3f83f668ce1..6ba23562da46 100644
+--- a/arch/arm/boot/dts/s5pv210-aries.dtsi
++++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
+@@ -59,7 +59,7 @@
+ 		gpio = <&gpj1 1 GPIO_ACTIVE_HIGH>;
  
-+	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb_rewin),
-+				       eb_rewin, btrfs_header_level(eb_rewin));
- 	btrfs_tree_read_lock(eb_rewin);
- 	__tree_mod_log_rewind(fs_info, eb_rewin, time_seq, tm);
- 	WARN_ON(btrfs_header_nritems(eb_rewin) >
-@@ -1370,7 +1372,6 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
+ 		pinctrl-names = "default";
+-		pinctr-0 = <&vibrator_ena>;
++		pinctrl-0 = <&vibrator_ena>;
+ 	};
  
- 	if (!eb)
- 		return NULL;
--	btrfs_tree_read_lock(eb);
- 	if (old_root) {
- 		btrfs_set_header_bytenr(eb, eb->start);
- 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
-@@ -1378,6 +1379,9 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
- 		btrfs_set_header_level(eb, old_root->level);
- 		btrfs_set_header_generation(eb, old_generation);
- 	}
-+	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb), eb,
-+				       btrfs_header_level(eb));
-+	btrfs_tree_read_lock(eb);
- 	if (tm)
- 		__tree_mod_log_rewind(fs_info, eb, time_seq, tm);
- 	else
+ 	touchkey_vdd: regulator-fixed-1 {
+-- 
+2.17.1
 
