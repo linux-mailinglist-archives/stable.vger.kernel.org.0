@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0642601C2
-	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66B52601B7
+	for <lists+stable@lfdr.de>; Mon,  7 Sep 2020 19:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727897AbgIGRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730795AbgIGRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Sep 2020 13:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46526 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729847AbgIGQck (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729864AbgIGQck (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Sep 2020 12:32:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE56821556;
-        Mon,  7 Sep 2020 16:32:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 871AC2080A;
+        Mon,  7 Sep 2020 16:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496357;
-        bh=FHTcrPnwNgdAZABEN21HVNkT3V+T3gP6yMDMA/0pYuA=;
+        s=default; t=1599496359;
+        bh=qrGrQGi+49D1Bobayjx6dob/oyG0cJnyBGPihvoBMYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHoci7QySEdpYa8Ne/qnSi9sXQGRcqWhh5Sl40UWOnwW3mafxZFfy9TwzCGk1zha5
-         /VsrhAnm0exAESggc98MVokTQoWZigsGdbXZ1rs5P530/EaXFwUZUYamw7o2vQfGip
-         /tGRtAX7mDqGU7J2sYxNQ0uWdYaMLaySsDU4zDMw=
+        b=ad6Z2xkOftAQb/6eYERzMPIRLCrHuCfFKicEY1rdCHkotGI739N/ECexxYHybBler
+         p2/CZ51XxzRf0v/eKlP8HM7QZlXT0HOyQhJ+dJtLhJKj7PNVO4A4duWPB0br4kc/5k
+         aBu636W6fOdT2BZEP76mFO83t4teQiIBe1Lf233o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 13/53] drivers/dma/dma-jz4780: Fix race condition between probe and irq handler
-Date:   Mon,  7 Sep 2020 12:31:39 -0400
-Message-Id: <20200907163220.1280412-13-sashal@kernel.org>
+Cc:     Mingming Cao <mmc@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 14/53] ibmvnic fix NULL tx_pools and rx_tools issue at do_reset
+Date:   Mon,  7 Sep 2020 12:31:40 -0400
+Message-Id: <20200907163220.1280412-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
 References: <20200907163220.1280412-1-sashal@kernel.org>
@@ -44,102 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Mingming Cao <mmc@linux.vnet.ibm.com>
 
-[ Upstream commit 6d6018fc30bee67290dbed2fa51123f7c6f3d691 ]
+[ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
 
-In probe, IRQ is requested before zchan->id is initialized which can be
-read in the irq handler. Hence, shift request irq after other initializations
-complete.
+At the time of do_rest, ibmvnic tries to re-initalize the tx_pools
+and rx_pools to avoid re-allocating the long term buffer. However
+there is a window inside do_reset that the tx_pools and
+rx_pools were freed before re-initialized making it possible to deference
+null pointers.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This patch fix this issue by always check the tx_pool
+and rx_pool are not NULL after ibmvnic_login. If so, re-allocating
+the pools. This will avoid getting into calling reset_tx/rx_pools with
+NULL adapter tx_pools/rx_pools pointer. Also add null pointer check in
+reset_tx_pools and reset_rx_pools to safe handle NULL pointer case.
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20200821034423.12713-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Mingming Cao <mmc@linux.vnet.ibm.com>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-jz4780.c | 38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dma-jz4780.c b/drivers/dma/dma-jz4780.c
-index 448f663da89c6..8beed91428bd6 100644
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -879,24 +879,11 @@ static int jz4780_dma_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 5afb3c9c52d20..d3a774331afc7 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -479,6 +479,9 @@ static int reset_rx_pools(struct ibmvnic_adapter *adapter)
+ 	int i, j, rc;
+ 	u64 *size_array;
  
--	ret = platform_get_irq(pdev, 0);
--	if (ret < 0)
--		return ret;
--
--	jzdma->irq = ret;
--
--	ret = request_irq(jzdma->irq, jz4780_dma_irq_handler, 0, dev_name(dev),
--			  jzdma);
--	if (ret) {
--		dev_err(dev, "failed to request IRQ %u!\n", jzdma->irq);
--		return ret;
--	}
--
- 	jzdma->clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(jzdma->clk)) {
- 		dev_err(dev, "failed to get clock\n");
- 		ret = PTR_ERR(jzdma->clk);
--		goto err_free_irq;
-+		return ret;
- 	}
- 
- 	clk_prepare_enable(jzdma->clk);
-@@ -949,10 +936,23 @@ static int jz4780_dma_probe(struct platform_device *pdev)
- 		jzchan->vchan.desc_free = jz4780_dma_desc_free;
- 	}
- 
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		goto err_disable_clk;
++	if (!adapter->rx_pool)
++		return -1;
 +
-+	jzdma->irq = ret;
+ 	size_array = (u64 *)((u8 *)(adapter->login_rsp_buf) +
+ 		be32_to_cpu(adapter->login_rsp_buf->off_rxadd_buff_size));
+ 
+@@ -649,6 +652,9 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
+ 	int tx_scrqs;
+ 	int i, rc;
+ 
++	if (!adapter->tx_pool)
++		return -1;
 +
-+	ret = request_irq(jzdma->irq, jz4780_dma_irq_handler, 0, dev_name(dev),
-+			  jzdma);
-+	if (ret) {
-+		dev_err(dev, "failed to request IRQ %u!\n", jzdma->irq);
-+		goto err_disable_clk;
-+	}
-+
- 	ret = dmaenginem_async_device_register(dd);
- 	if (ret) {
- 		dev_err(dev, "failed to register device\n");
--		goto err_disable_clk;
-+		goto err_free_irq;
- 	}
+ 	tx_scrqs = be32_to_cpu(adapter->login_rsp_buf->num_txsubm_subcrqs);
+ 	for (i = 0; i < tx_scrqs; i++) {
+ 		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
+@@ -2011,7 +2017,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		    adapter->req_rx_add_entries_per_subcrq !=
+ 		    old_num_rx_slots ||
+ 		    adapter->req_tx_entries_per_subcrq !=
+-		    old_num_tx_slots) {
++		    old_num_tx_slots ||
++		    !adapter->rx_pool ||
++		    !adapter->tso_pool ||
++		    !adapter->tx_pool) {
+ 			release_rx_pools(adapter);
+ 			release_tx_pools(adapter);
+ 			release_napi(adapter);
+@@ -2024,10 +2033,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		} else {
+ 			rc = reset_tx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
++						rc);
+ 				goto out;
  
- 	/* Register with OF DMA helpers. */
-@@ -960,17 +960,17 @@ static int jz4780_dma_probe(struct platform_device *pdev)
- 					 jzdma);
- 	if (ret) {
- 		dev_err(dev, "failed to register OF DMA controller\n");
--		goto err_disable_clk;
-+		goto err_free_irq;
- 	}
- 
- 	dev_info(dev, "JZ4780 DMA controller initialised\n");
- 	return 0;
- 
--err_disable_clk:
--	clk_disable_unprepare(jzdma->clk);
--
- err_free_irq:
- 	free_irq(jzdma->irq, jzdma);
-+
-+err_disable_clk:
-+	clk_disable_unprepare(jzdma->clk);
- 	return ret;
- }
- 
+ 			rc = reset_rx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
++						rc);
+ 				goto out;
+ 		}
+ 		ibmvnic_disable_irqs(adapter);
 -- 
 2.25.1
 
