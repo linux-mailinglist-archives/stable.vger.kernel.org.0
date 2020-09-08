@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A97E02619CB
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B9026194E
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729404AbgIHS0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
+        id S1731779AbgIHSMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:12:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731441AbgIHQKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:10:36 -0400
+        id S1731482AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:11:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 689E124807;
-        Tue,  8 Sep 2020 15:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8527D24751;
+        Tue,  8 Sep 2020 15:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579801;
-        bh=LuqAQTUqtL6HFzAzTGMqWk172HN34Be2mNrwsMi8xN0=;
+        s=default; t=1599579683;
+        bh=8aUkVrdlKzXA1oR6Zc/t9V+ViwSRjUFeYtF4BGaGNwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPt9hvXEUnR6jGKLceVAc7nZFc0r6nlLde3I1U16K+qnZirl0w+NcAOOoIpaITUWY
-         TgNJrD2oBPzT5+nBGCKXXEQSESpLCefNVqmSqQH5sZJlY9T6Bqkk1AyNVdLEgl1Xf1
-         /p7GaV9HCadl/lAT0/wk6Nw9L7URi9mRs2zCeVWM=
+        b=aKTDHDskIcrYpfkBucLnBxif6JiZ1H0ZAQXdvdQ7SKEQDxSDG2lfq39w00DC8f9p3
+         bgExHdCfcuONKoqAVSAJ8837AcI+zzasZ1FRePSn9Vft7WFxMWKFrKH7JlTt8fp5Jn
+         EAgTgoaqCtE31yTNTM/tyfyzhR8I7r0QYCW5YRE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/129] dmaengine: pl330: Fix burst length if burst size is smaller than bus width
-Date:   Tue,  8 Sep 2020 17:24:40 +0200
-Message-Id: <20200908152231.630693284@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.8 139/186] ALSA: hda/hdmi: always check pin power status in i915 pin fixup
+Date:   Tue,  8 Sep 2020 17:24:41 +0200
+Message-Id: <20200908152248.395837533@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
-References: <20200908152229.689878733@linuxfoundation.org>
+In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
+References: <20200908152241.646390211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 0661cef675d37e2c4b66a996389ebeae8568e49e ]
+commit 858e0ad9301d1270c02b5aca97537d2d6ee9dd68 upstream.
 
-Move the burst len fixup after setting the generic value for it. This
-finally enables the fixup introduced by commit 137bd11090d8 ("dmaengine:
-pl330: Align DMA memcpy operations to MFIFO width"), which otherwise was
-overwritten by the generic value.
+When system is suspended with active audio playback to HDMI/DP, two
+alternative sequences can happen at resume:
+  a) monitor is detected first and ALSA prepare follows normal
+     stream setup sequence, or
+  b) ALSA prepare is called first, but monitor is not yet detected,
+     so PCM is restarted without a pin,
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 137bd11090d8 ("dmaengine: pl330: Align DMA memcpy operations to MFIFO width")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20200825064617.16193-1-m.szyprowski@samsung.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In case of (b), on i915 systems, haswell_verify_D0() is not called at
+resume and the pin power state may be incorrect. Result is lack of audio
+after resume with no error reported back to user-space.
+
+Fix the problem by always verifying converter and pin state in the
+i915_pin_cvt_fixup().
+
+BugLink: https://github.com/thesofproject/linux/issues/2388
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200826170306.701566-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/pl330.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 6cce9ef61b294..cd81d10974a29 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2788,6 +2788,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	while (burst != (1 << desc->rqcfg.brst_size))
- 		desc->rqcfg.brst_size++;
- 
-+	desc->rqcfg.brst_len = get_burst_len(desc, len);
- 	/*
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
-@@ -2795,7 +2796,6 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
- 
--	desc->rqcfg.brst_len = get_burst_len(desc, len);
- 	desc->bytes_requested = len;
- 
- 	desc->txd.flags = flags;
--- 
-2.25.1
-
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2737,6 +2737,7 @@ static void i915_pin_cvt_fixup(struct hd
+ 			       hda_nid_t cvt_nid)
+ {
+ 	if (per_pin) {
++		haswell_verify_D0(codec, per_pin->cvt_nid, per_pin->pin_nid);
+ 		snd_hda_set_dev_select(codec, per_pin->pin_nid,
+ 			       per_pin->dev_id);
+ 		intel_verify_pin_cvt_connect(codec, per_pin);
 
 
