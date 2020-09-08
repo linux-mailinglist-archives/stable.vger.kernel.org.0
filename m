@@ -2,81 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C91F82616B6
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13357261640
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731755AbgIHRQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:16:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
+        id S1731781AbgIHRHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731637AbgIHQS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:18:26 -0400
+        id S1731808AbgIHQTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:19:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A73DC22B2C;
-        Tue,  8 Sep 2020 13:06:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 931C32245F;
+        Tue,  8 Sep 2020 15:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599570388;
-        bh=UjPlKjnFMWRSsJEdw3kVGk0wyHovwv3zHTf3Nn44oWg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dPHNZTV6XY3o3arSn/Ih5Vo5tLuDpx/Z9zAVSPIlvAeU5qFBy0nomTnodvhRxwf4a
-         gIicJQLVW5n96S4SgT/k/NlBB9Kz3pdCGs30Lqp45DQsB0u3Y56Bj+D5354E3rFkw5
-         4rss3mUOtZFbZ5AqaBC9/bFS5FsoAEkIVkTQ7P6A=
-Date:   Tue, 8 Sep 2020 15:06:40 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     sashal@kernel.org, alex.williamson@redhat.com, cohuck@redhat.com,
-        peterx@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        srivatsab@vmware.com, srivatsa@csail.mit.edu,
-        vsirnapalli@vmware.com
-Subject: Re: [PATCH v4.14.y 2/3] vfio-pci: Fault mmaps to enable vma tracking
-Message-ID: <20200908130640.GC3075407@kroah.com>
-References: <1599509828-23596-1-git-send-email-akaher@vmware.com>
- <1599509828-23596-2-git-send-email-akaher@vmware.com>
+        s=default; t=1599579370;
+        bh=8CtIqjoJ1SacnqIRXbMc/xIzgI0xr7BYm3qPaqxHkiQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lsb2Cdm5DaGdBQqqEApuMAvQfHQdgc0+OG5XJDw3dlUu+BZTD4HQ9dLqwyGCaR6Ry
+         YcPcm+6iM7T4YUWSxoBdxDL4JNKHh2+nG6k23x7ma+5PkfsWJJHsijz0g7I0Dqex/L
+         rhwu9qevz0A6Chy2P6TLHwtAaDke6SbSnRy+aeRM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 010/186] drm/msm: enable vblank during atomic commits
+Date:   Tue,  8 Sep 2020 17:22:32 +0200
+Message-Id: <20200908152242.151110870@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
+References: <20200908152241.646390211@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1599509828-23596-2-git-send-email-akaher@vmware.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 01:47:06AM +0530, Ajay Kaher wrote:
-> From: Alex Williamson <alex.williamson@redhat.com>
-> 
-> commit 11c4cd07ba111a09f49625f9e4c851d83daf0a22 upstream.
-> 
-> Rather than calling remap_pfn_range() when a region is mmap'd, setup
-> a vm_ops handler to support dynamic faulting of the range on access.
-> This allows us to manage a list of vmas actively mapping the area that
-> we can later use to invalidate those mappings.  The open callback
-> invalidates the vma range so that all tracking is inserted in the
-> fault handler and removed in the close handler.
-> 
-> Reviewed-by: Peter Xu <peterx@redhat.com>
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-> [Ajay: Regenerated the patch for v4.14]
-> Signed-off-by: Ajay Kaher <akaher@vmware.com>
-> ---
->  drivers/vfio/pci/vfio_pci.c         | 75 ++++++++++++++++++++++++++++++++++++-
->  drivers/vfio/pci/vfio_pci_private.h |  7 ++++
->  2 files changed, 80 insertions(+), 2 deletions(-)
+From: Rob Clark <robdclark@chromium.org>
 
-Oops, nope, this patch breaks the build:
+[ Upstream commit 43906812eaab06423f56af5cca9a9fcdbb4ac454 ]
 
-drivers/vfio/pci/vfio_pci.c:1183:11: error: initialization of \u2018int (*)(struct vm_fault *)\u2019 from incompatible pointer type \u2018int (*)(struct vm_area_struct *, struct vm_fault *)\u2019 [-Werror=incompatible-pointer-types]
- 1183 |  .fault = vfio_pci_mmap_fault,
-      |           ^~~~~~~~~~~~~~~~~~~
-drivers/vfio/pci/vfio_pci.c:1183:11: note: (near initialization for \u2018vfio_pci_mmap_ops.fault\u2019)
-cc1: some warnings being treated as errors
+This has roughly the same effect as drm_atomic_helper_wait_for_vblanks(),
+basically just ensuring that vblank accounting is enabled so that we get
+valid timestamp/seqn on pageflip events.
 
-Did you test this?
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/msm/msm_atomic.c | 36 ++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-Please fix up and resend the whole series for 4.14.y
+diff --git a/drivers/gpu/drm/msm/msm_atomic.c b/drivers/gpu/drm/msm/msm_atomic.c
+index 5ccfad794c6a5..561bfa48841c3 100644
+--- a/drivers/gpu/drm/msm/msm_atomic.c
++++ b/drivers/gpu/drm/msm/msm_atomic.c
+@@ -27,6 +27,34 @@ int msm_atomic_prepare_fb(struct drm_plane *plane,
+ 	return msm_framebuffer_prepare(new_state->fb, kms->aspace);
+ }
+ 
++/*
++ * Helpers to control vblanks while we flush.. basically just to ensure
++ * that vblank accounting is switched on, so we get valid seqn/timestamp
++ * on pageflip events (if requested)
++ */
++
++static void vblank_get(struct msm_kms *kms, unsigned crtc_mask)
++{
++	struct drm_crtc *crtc;
++
++	for_each_crtc_mask(kms->dev, crtc, crtc_mask) {
++		if (!crtc->state->active)
++			continue;
++		drm_crtc_vblank_get(crtc);
++	}
++}
++
++static void vblank_put(struct msm_kms *kms, unsigned crtc_mask)
++{
++	struct drm_crtc *crtc;
++
++	for_each_crtc_mask(kms->dev, crtc, crtc_mask) {
++		if (!crtc->state->active)
++			continue;
++		drm_crtc_vblank_put(crtc);
++	}
++}
++
+ static void msm_atomic_async_commit(struct msm_kms *kms, int crtc_idx)
+ {
+ 	unsigned crtc_mask = BIT(crtc_idx);
+@@ -44,6 +72,8 @@ static void msm_atomic_async_commit(struct msm_kms *kms, int crtc_idx)
+ 
+ 	kms->funcs->enable_commit(kms);
+ 
++	vblank_get(kms, crtc_mask);
++
+ 	/*
+ 	 * Flush hardware updates:
+ 	 */
+@@ -58,6 +88,8 @@ static void msm_atomic_async_commit(struct msm_kms *kms, int crtc_idx)
+ 	kms->funcs->wait_flush(kms, crtc_mask);
+ 	trace_msm_atomic_wait_flush_finish(crtc_mask);
+ 
++	vblank_put(kms, crtc_mask);
++
+ 	mutex_lock(&kms->commit_lock);
+ 	kms->funcs->complete_commit(kms, crtc_mask);
+ 	mutex_unlock(&kms->commit_lock);
+@@ -221,6 +253,8 @@ void msm_atomic_commit_tail(struct drm_atomic_state *state)
+ 	 */
+ 	kms->pending_crtc_mask &= ~crtc_mask;
+ 
++	vblank_get(kms, crtc_mask);
++
+ 	/*
+ 	 * Flush hardware updates:
+ 	 */
+@@ -235,6 +269,8 @@ void msm_atomic_commit_tail(struct drm_atomic_state *state)
+ 	kms->funcs->wait_flush(kms, crtc_mask);
+ 	trace_msm_atomic_wait_flush_finish(crtc_mask);
+ 
++	vblank_put(kms, crtc_mask);
++
+ 	mutex_lock(&kms->commit_lock);
+ 	kms->funcs->complete_commit(kms, crtc_mask);
+ 	mutex_unlock(&kms->commit_lock);
+-- 
+2.25.1
 
-thanks,
 
-greg k-h
+
