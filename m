@@ -2,156 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 821EA260BE3
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 09:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1459260BF1
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 09:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgIHHY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 03:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59508 "EHLO
+        id S1729295AbgIHH1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 03:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729142AbgIHHYy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 03:24:54 -0400
-Received: from mail-vs1-xe42.google.com (mail-vs1-xe42.google.com [IPv6:2607:f8b0:4864:20::e42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC5EC061756
-        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 00:24:53 -0700 (PDT)
-Received: by mail-vs1-xe42.google.com with SMTP id q67so8469478vsd.5
-        for <stable@vger.kernel.org>; Tue, 08 Sep 2020 00:24:53 -0700 (PDT)
+        with ESMTP id S1728654AbgIHH1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 03:27:48 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E8CC061573;
+        Tue,  8 Sep 2020 00:27:47 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id j2so17945113wrx.7;
+        Tue, 08 Sep 2020 00:27:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=dyif1skiZcwcYbpP3+xm5xpCB1/4ksaJ7JYhN4/9mdo=;
-        b=HDlco5w/yk6QgzNKxt1/Vbbgz8FZUF7jsz4EMLpANf1VebfYJBW8JHqm6Kigf5TmkM
-         ospSZzJEqyzdsMOW5XIcdx50P33RZNJPdlkh7WsSgh8LNc7bICd7w55HqZ8iZin+3KzG
-         +Q+GUniiwd/OnJb3r+29VN1X7mUWeFjgoojjRrOUL/cLmCurz2YPEFWP62nzvmCVGAHW
-         rGXlbYVHPv9pbj5aAJgOYD96+okoWMmHbZWx/Vhxt5/C8d0iQWMHpxyB4y1R6blOLTxf
-         MVN/pt1AsCvnrnMDLLVO8/XX1z8sGTbd4KLwyVUlKz8YTjxZhoJHOAAGTZgUneMXKvIs
-         VAKg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KOkWytvEQvcwRPaTbbeU+nJ2kZpJZSrQDxi081fe4SY=;
+        b=VYOBXZVmm6Me9qi2cd3T0B/OHWxYd9Ambemd6O5THwOeqoYikp+sY/gKnIm7j4SjE5
+         nVFpiqk8CNOhnkwk3Z0bUqDXZyYc4d7SD2dAsnn9g4HyCLk+kXTqxBr8ly6SsM6zBBLO
+         w/n7zcnOX9DC9ykasRnl+a2R/+yCpi25q5t9LQbCKdpGjiZzaA6DUGUWU/v+zKU41Xah
+         3v+dN1tAuBLvJ41uDHHJUI+9N+fy04RyuaKu0eeVLtMxE00q16uOds4Z2hnuFvdDat/d
+         4f9Dop7JC5IP6sZlOgVPP54Q+Epr3d78yyyDtWgtGftL/frpXXVK3527GizQK67Bel0P
+         /fxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=dyif1skiZcwcYbpP3+xm5xpCB1/4ksaJ7JYhN4/9mdo=;
-        b=LUUdKcRAIBfc7rb1JXAHnZ5ASKGA6Oax6wO2iD9DwAd1nuIvu0ORSSeNLhO6xQ4Lrl
-         RDjynv5WELHuh/VElKG159+PgCsDjrGnQWWLuHuUHdmmZJUJdVXlENhhsmDbuAtYiU0c
-         60b8HFsJ5ICFiPf1Pk2bQQeeEkfRnOFzRavRubIqqypwhcKYktxsi8Js/wmAAJLygutI
-         Ms2qKbW8yBr/U7F4ASLf1HHsbDTLYYX9u0IabN7Jp5jOXf2Lm3VHyCfMXIo+7wWNud/U
-         krEFR7e74TgJ64KmBedUnyN1eoFDM6uA+dMVNcjW4uzzaYWHIZQEKTdHyQz0/UKgYTGY
-         YGcA==
-X-Gm-Message-State: AOAM533Rche7rIZQwn5SOy3UOCgeFzBPGyuvDRB2Kc52uCKWEaqptlsS
-        wnIbmShNsnoVa2rYq05XOToQv6VBuny9YmIc72wUCXbIh7aISM1e
-X-Google-Smtp-Source: ABdhPJxHmscu239s0hfUNqpOefO/229NI9bGm+eHyPsf3yL4akjC/053yyQ8j07MYDfn0TmyZAafbX1KvQ6ZRiZMnAQ=
-X-Received: by 2002:a67:7c17:: with SMTP id x23mr15225386vsc.166.1599549891107;
- Tue, 08 Sep 2020 00:24:51 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KOkWytvEQvcwRPaTbbeU+nJ2kZpJZSrQDxi081fe4SY=;
+        b=oKBe8PwCAO7QIXyryiLbh3eMeJ0zIWc6Xb0nOTtjRkPoAp4EFJw88OpEkTItUIetAq
+         eO39rZdvWerHtVMNiLM/mk6R3phH7DpTLusTUxtVAJBDpTnVGuBAf2rkMbRWsjwKMD1P
+         awgNOkkokmJ+IZIMJ18N7m4l8R7SxgyH4dT5Sc/GMQ2zvzij9KOhCM40IlCYbizfy1x0
+         BlpP9zDOKXnw+FDI/gSqEdNktTJ9m9DUWCIBS03w/hgiEp/1zeate5CT5yBBKHMxEof9
+         oUVPgXJcyTDFoxN2Tl/kTqBlmn746+MW6KTeadYyHKs6w3ByS4uCQsWl1Cs+ijqtACUb
+         zoKQ==
+X-Gm-Message-State: AOAM530NlEf3j64Y+hZWGXoOsR4I78ZFMpf/ztpQARz+RUAg+e6n4I8D
+        jhmtQfDIcJgREEDAz/IeGPg/34wc6F9U2L2Xn0E=
+X-Google-Smtp-Source: ABdhPJzy45/B81xFTZ9qjxIyvVXE4rPehBDIzrqnJqdm5h0UGpJq905XCRaEh6NE80cNlJ8M295wsyMpnc8KnrLSWF8=
+X-Received: by 2002:a05:6000:36d:: with SMTP id f13mr24484491wrf.425.1599550066606;
+ Tue, 08 Sep 2020 00:27:46 -0700 (PDT)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 8 Sep 2020 12:54:40 +0530
-Message-ID: <CA+G9fYu+zRW6pvFm4ccufF+LzqVRBmYHQD-PD=1a9j0+aOTRZw@mail.gmail.com>
-Subject: stable-rc 4.19.144-rc1/58651549ea03: no regressions found in project
- stable v4.19.y on
-To:     linux- stable <stable@vger.kernel.org>
-Cc:     lkft-triage@lists.linaro.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
+References: <20200901152713.18629-1-krzk@kernel.org>
+In-Reply-To: <20200901152713.18629-1-krzk@kernel.org>
+From:   Chunyan Zhang <zhang.lyra@gmail.com>
+Date:   Tue, 8 Sep 2020 15:27:10 +0800
+Message-ID: <CAAfSe-u6Prn=nnX8Y67DearNEuHH90Fo71R7hmxbvWGuPxyk2w@mail.gmail.com>
+Subject: Re: [PATCH 01/11] spi: sprd: Release DMA channel also on probe deferral
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Masahisa Kojima <masahisa.kojima@linaro.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-spi@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-tegra@vger.kernel.org, stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On Tue, 1 Sep 2020 at 23:27, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>
+> If dma_request_chan() for TX channel fails with EPROBE_DEFER, the RX
+> channel would not be released and on next re-probe it would be requested
+> second time.
+>
+> Fixes: 386119bc7be9 ("spi: sprd: spi: sprd: Add DMA mode support")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Acked-by: Chunyan Zhang <zhang.lyra@gmail.com>
 
-Summary
-------------------------------------------------------------------------
+Thanks,
+Chunyan
 
-kernel: 4.19.144-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 58651549ea0369e2dd16baee518e5faa846eccbd
-git describe: v4.19.143-55-g58651549ea03
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.143-55-g58651549ea03
-
-No regressions (compared to build v4.19.143)
-
-
-No fixes (compared to build v4.19.143)
-
-Ran 35321 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* ltp-dio-tests
-* ltp-io-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-fs-tests
-* ltp-open-posix-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+> ---
+>  drivers/spi/spi-sprd.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/spi/spi-sprd.c b/drivers/spi/spi-sprd.c
+> index 6678f1cbc566..0443fec3a6ab 100644
+> --- a/drivers/spi/spi-sprd.c
+> +++ b/drivers/spi/spi-sprd.c
+> @@ -563,11 +563,11 @@ static int sprd_spi_dma_request(struct sprd_spi *ss)
+>
+>         ss->dma.dma_chan[SPRD_SPI_TX]  = dma_request_chan(ss->dev, "tx_chn");
+>         if (IS_ERR_OR_NULL(ss->dma.dma_chan[SPRD_SPI_TX])) {
+> +               dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
+>                 if (PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]) == -EPROBE_DEFER)
+>                         return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
+>
+>                 dev_err(ss->dev, "request TX DMA channel failed!\n");
+> -               dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
+>                 return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
+>         }
+>
+> --
+> 2.17.1
+>
