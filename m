@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF7F2618EE
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F388B2618E4
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:04:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732056AbgIHSEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
+        id S1731586AbgIHR6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731519AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:12:10 -0400
+        id S1731559AbgIHQMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:12:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EE4E2478F;
-        Tue,  8 Sep 2020 15:51:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A56324884;
+        Tue,  8 Sep 2020 15:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580279;
-        bh=oszbqs7PEBghjGCl+rJ3kmEUWpwsIgRPGgvaQAx0z2Q=;
+        s=default; t=1599580330;
+        bh=94jbiT/iviL3xFKjxO4CaHmUaM3rOn+3FKbtH+tRnok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ox286CfTG3JhqcfLgHnKI423JgvxtEtyu6fYRagF4ILGOWo/qrwR08LIn+a5Uh3aP
-         AW3sMHk9w2ol9IO9E/f8potJH4rZQZmLvV7WVqUhWAWs13oNRIyObwRPZAEQKDlMxH
-         kQvP1eV2hS1AgnDTmBk3ABDLLSi589SO9w+ELXSI=
+        b=jKyo+qWswoKU1zUNRESYhgSwiTcHUV1UcIyjguj8KJrk+iUc70agjsP12hCsIU8Wd
+         1C8ifipvzNINsqQsPWQ6EBY9rMf2eqWP30wxOU2p0fNyCKfDkt4mlNc01rEddXOO3c
+         QdS/4vFT4qjnMPlT+YZVkVOYh272muMb3F5nkkRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ab16e463b903f5a37036@syzkaller.appspotmail.com,
-        Sven Eckelmann <sven@narfation.org>,
-        Antonio Quartulli <a@unstable.cc>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/65] batman-adv: Avoid uninitialized chaddr when handling DHCP
-Date:   Tue,  8 Sep 2020 17:25:57 +0200
-Message-Id: <20200908152217.659257918@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/65] dmaengine: at_hdmac: check return value of of_find_device_by_node() in at_dma_xlate()
+Date:   Tue,  8 Sep 2020 17:26:00 +0200
+Message-Id: <20200908152217.822263235@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -47,50 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 303216e76dcab6049c9d42390b1032f0649a8206 ]
+[ Upstream commit 0cef8e2c5a07d482ec907249dbd6687e8697677f ]
 
-The gateway client code can try to optimize the delivery of DHCP packets to
-avoid broadcasting them through the whole mesh. But also transmissions to
-the client can be optimized by looking up the destination via the chaddr of
-the DHCP packet.
+The reurn value of of_find_device_by_node() is not checked, thus null
+pointer dereference will be triggered if of_find_device_by_node()
+failed.
 
-But the chaddr is currently only done when chaddr is fully inside the
-non-paged area of the skbuff. Otherwise it will not be initialized and the
-unoptimized path should have been taken.
-
-But the implementation didn't handle this correctly. It didn't retrieve the
-correct chaddr but still tried to perform the TT lookup with this
-uninitialized memory.
-
-Reported-by: syzbot+ab16e463b903f5a37036@syzkaller.appspotmail.com
-Fixes: 6c413b1c22a2 ("batman-adv: send every DHCP packet as bat-unicast")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: bbe89c8e3d59 ("at_hdmac: move to generic DMA binding")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20200817115728.1706719-2-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/gateway_client.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/dma/at_hdmac.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/batman-adv/gateway_client.c b/net/batman-adv/gateway_client.c
-index c6a7341f05270..056af2eec4a2a 100644
---- a/net/batman-adv/gateway_client.c
-+++ b/net/batman-adv/gateway_client.c
-@@ -674,8 +674,10 @@ batadv_gw_dhcp_recipient_get(struct sk_buff *skb, unsigned int *header_len,
+diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
+index 21ed0e20c5d91..cf3225a229890 100644
+--- a/drivers/dma/at_hdmac.c
++++ b/drivers/dma/at_hdmac.c
+@@ -1677,6 +1677,8 @@ static struct dma_chan *at_dma_xlate(struct of_phandle_args *dma_spec,
+ 		return NULL;
  
- 	chaddr_offset = *header_len + BATADV_DHCP_CHADDR_OFFSET;
- 	/* store the client address if the message is going to a client */
--	if (ret == BATADV_DHCP_TO_CLIENT &&
--	    pskb_may_pull(skb, chaddr_offset + ETH_ALEN)) {
-+	if (ret == BATADV_DHCP_TO_CLIENT) {
-+		if (!pskb_may_pull(skb, chaddr_offset + ETH_ALEN))
-+			return BATADV_DHCP_NO;
-+
- 		/* check if the DHCP packet carries an Ethernet DHCP */
- 		p = skb->data + *header_len + BATADV_DHCP_HTYPE_OFFSET;
- 		if (*p != BATADV_DHCP_HTYPE_ETHERNET)
+ 	dmac_pdev = of_find_device_by_node(dma_spec->np);
++	if (!dmac_pdev)
++		return NULL;
+ 
+ 	dma_cap_zero(mask);
+ 	dma_cap_set(DMA_SLAVE, mask);
 -- 
 2.25.1
 
