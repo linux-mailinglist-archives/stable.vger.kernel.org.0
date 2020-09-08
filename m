@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9079426183B
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0ABB2617A1
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:39:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732070AbgIHRuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:50:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S1731162AbgIHRjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57345 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731621AbgIHQN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:13:58 -0400
+        id S1731689AbgIHQOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:14:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E253248E7;
-        Tue,  8 Sep 2020 15:53:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68D3E24904;
+        Tue,  8 Sep 2020 15:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580381;
-        bh=cdTtW9ossjS0lKVMh9rDyZz8jLKbd4RxXqjxQeq8iO4=;
+        s=default; t=1599580413;
+        bh=ClG/J2D28CSekcsEzvDrVhqfY9dWzpT8JjtNaDePcb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVNReHhCtlEqn9nbpCc1XKvlNN+hOIxjOzZxN0YPhDWRNpr7UzxnwDQv5lI92H1Yy
-         WSjhffhIZWOyNhdpnL2calbZXjQoknUJ00+vdlRRpawJ8DXwVkD+S0L7N9RUlQ8c4n
-         aVcdWj4PYS2KQXkxI0vRBYeX1xbSfsv8lJPhL4uc=
+        b=1fq5yaRCI+cqK1sg5blx/2Bg2z/Vk22EMH/uarutCOeuarA6DHzzQcDFicnuaY8VL
+         6LwAZg3OGb9C3XTLHZJxVlBQttPBdcYHCrk+MvqB+I/tR0bfe+4QWvHimnOzvujzJw
+         McJmVm3nwYwqZFlj43ywCMviNF6kA3P5lZcZ9V/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rogan Dawes <rogan@dawes.za.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 46/65] usb: qmi_wwan: add D-Link DWM-222 A2 device ID
-Date:   Tue,  8 Sep 2020 17:26:31 +0200
-Message-Id: <20200908152219.417082248@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+23b22dc2e0b81cbfcc95@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 48/65] ALSA: pcm: oss: Remove superfluous WARN_ON() for mulaw sanity check
+Date:   Tue,  8 Sep 2020 17:26:33 +0200
+Message-Id: <20200908152219.520509097@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -44,31 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rogan Dawes <rogan@dawes.za.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 7d6053097311643545a8118100175a39bd6fa637 ]
+commit 949a1ebe8cea7b342085cb6a4946b498306b9493 upstream.
 
-Signed-off-by: Rogan Dawes <rogan@dawes.za.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The PCM OSS mulaw plugin has a check of the format of the counter part
+whether it's a linear format.  The check is with snd_BUG_ON() that
+emits WARN_ON() when the debug config is set, and it confuses
+syzkaller as if it were a serious issue.  Let's drop snd_BUG_ON() for
+avoiding that.
+
+While we're at it, correct the error code to a more suitable, EINVAL.
+
+Reported-by: syzbot+23b22dc2e0b81cbfcc95@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200901131802.18157-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/oss/mulaw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 03f84bf4b6ee4..3e3dca59b7a69 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1216,6 +1216,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x19d2, 0x2002, 4)},	/* ZTE (Vodafone) K3765-Z */
- 	{QMI_FIXED_INTF(0x2001, 0x7e19, 4)},	/* D-Link DWM-221 B1 */
- 	{QMI_FIXED_INTF(0x2001, 0x7e35, 4)},	/* D-Link DWM-222 */
-+	{QMI_FIXED_INTF(0x2001, 0x7e3d, 4)},	/* D-Link DWM-222 A2 */
- 	{QMI_FIXED_INTF(0x2020, 0x2031, 4)},	/* Olicard 600 */
- 	{QMI_FIXED_INTF(0x2020, 0x2033, 4)},	/* BroadMobi BM806U */
- 	{QMI_FIXED_INTF(0x2020, 0x2060, 4)},	/* BroadMobi BM818 */
--- 
-2.25.1
-
+--- a/sound/core/oss/mulaw.c
++++ b/sound/core/oss/mulaw.c
+@@ -329,8 +329,8 @@ int snd_pcm_plugin_build_mulaw(struct sn
+ 		snd_BUG();
+ 		return -EINVAL;
+ 	}
+-	if (snd_BUG_ON(!snd_pcm_format_linear(format->format)))
+-		return -ENXIO;
++	if (!snd_pcm_format_linear(format->format))
++		return -EINVAL;
+ 
+ 	err = snd_pcm_plugin_build(plug, "Mu-Law<->linear conversion",
+ 				   src_format, dst_format,
 
 
