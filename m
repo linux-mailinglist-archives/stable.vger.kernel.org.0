@@ -2,102 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BEF26145D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2ED6261527
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731709AbgIHQQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
+        id S1731933AbgIHQpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731675AbgIHQOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:14:06 -0400
+        id S1732008AbgIHQb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:31:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65E41248FB;
-        Tue,  8 Sep 2020 15:53:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F98A21D92;
+        Tue,  8 Sep 2020 12:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580400;
-        bh=PDpTh63eBWOfEUhzoY6Fns738LK5oZiUlp/lCa1qoFE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QiFRaNNqAk6liTisdSdiPEqXD/o1Q6xYA/7Nsq7eF1BFJh8G0Y1/w6T23pXZj5DqD
-         IL61+LKSKPvfMriiPj9njBbS+scT4/YmsfW707hZxG0dUVicvhFsIFW5XAD2k1cPxK
-         VB3L22PGursp8K/cBa6ASF+hgdMWNS/JuEoMHWv0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mrinal Pandey <mrinalmni@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Joe Perches <joe@perches.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 62/65] checkpatch: fix the usage of capture group ( ... )
-Date:   Tue,  8 Sep 2020 17:26:47 +0200
-Message-Id: <20200908152220.302551893@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
-References: <20200908152217.022816723@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=default; t=1599568276;
+        bh=CZiGhxtXA6qLf7HwNdEB1B3XnhJP7APKPdY8F1qbYpk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PytgGBcNzBvQcddJ00A6bN+BwotDmxlfVaRosJrJkLgJjgAM8FMo3ozkHK3vM7Fip
+         o9asVp+tNR8xXb9X4OWFlrEIn36YUNj8RkAuJ/jhEkIIehEteHvhOSanxQ6FyUnbgk
+         Mnnoaqp2fmw0mWGX+6WeYPCKdPDtayY1BmSIU+zM=
+Date:   Tue, 8 Sep 2020 14:31:29 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org
+Subject: Re: 5.8 io_uring stable
+Message-ID: <20200908123129.GA1960547@kroah.com>
+References: <49361215-3d71-71e8-7cd2-1f7009323a30@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <49361215-3d71-71e8-7cd2-1f7009323a30@kernel.dk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mrinal Pandey <mrinalmni@gmail.com>
+On Fri, Sep 04, 2020 at 03:06:28PM -0600, Jens Axboe wrote:
+> Hi,
+> 
+> Linus just pulled 3 fixes from me - 1+2 should apply directly, here's
+> the 3rd one which will need some love for 5.8-stable. I'm including it
+> below to preempt the failed to apply message :-)
+> 
+> 
+> commit fb8d4046d50f77a26570101e5b8a7a026320a610
+> Author: Jens Axboe <axboe@kernel.dk>
+> Date:   Wed Sep 2 10:19:04 2020 -0600
+> 
+>     io_uring: no read/write-retry on -EAGAIN error and O_NONBLOCK marked file
+>     
+>     Actually two things that need fixing up here:
+>     
+>     - The io_rw_reissue() -EAGAIN retry is explicit to block devices and
+>       regular files, so don't ever attempt to do that on other types of
+>       files.
+>     
+>     - If we hit -EAGAIN on a nonblock marked file, don't arm poll handler for
+>       it. It should just complete with -EAGAIN.
+>     
+>     Cc: stable@vger.kernel.org
+>     Reported-by: Norman Maurer <norman.maurer@googlemail.com>
+>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 82e15020d9a8..96be21ace79a 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -2726,6 +2726,12 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
+>  				ret = ret2;
+>  				goto done;
+>  			}
+> +			/* no retry on NONBLOCK marked file */
+> +			if (req->file->f_flags & O_NONBLOCK) {
+> +				ret = ret2;
+> +				goto done;
+> +			}
+> +
+>  			/* some cases will consume bytes even on error returns */
+>  			iov_iter_revert(iter, iov_count - iov_iter_count(iter));
+>  			ret2 = 0;
+> @@ -2869,9 +2875,15 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
+>  		 */
+>  		if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
+>  			ret2 = -EAGAIN;
+> +		/* no retry on NONBLOCK marked file */
+> +		if (ret2 == -EAGAIN && (req->file->f_flags & O_NONBLOCK)) {
+> +			ret = 0;
+> +			goto done;
+> +		}
+>  		if (!force_nonblock || ret2 != -EAGAIN) {
+>  			if ((req->ctx->flags & IORING_SETUP_IOPOLL) && ret2 == -EAGAIN)
+>  				goto copy_iov;
+> +done:
+>  			kiocb_done(kiocb, ret2);
+>  		} else {
+>  copy_iov:
+> 
+> -- 
+> Jens Axboe
 
-commit 13e45417cedbfc44b1926124b1846f5ee8c6ba4a upstream.
 
-The usage of "capture group (...)" in the immediate condition after `&&`
-results in `$1` being uninitialized.  This issues a warning "Use of
-uninitialized value $1 in regexp compilation at ./scripts/checkpatch.pl
-line 2638".
+Thanks for the backport, but this didn't apply at all to the 5.8.y tree.
+What one did you make it against?
 
-I noticed this bug while running checkpatch on the set of commits from
-v5.7 to v5.8-rc1 of the kernel on the commits with a diff content in
-their commit message.
+thanks,
 
-This bug was introduced in the script by commit e518e9a59ec3
-("checkpatch: emit an error when there's a diff in a changelog").  It
-has been in the script since then.
-
-The author intended to store the match made by capture group in variable
-`$1`.  This should have contained the name of the file as `[\w/]+`
-matched.  However, this couldn't be accomplished due to usage of capture
-group and `$1` in the same regular expression.
-
-Fix this by placing the capture group in the condition before `&&`.
-Thus, `$1` can be initialized to the text that capture group matches
-thereby setting it to the desired and required value.
-
-Fixes: e518e9a59ec3 ("checkpatch: emit an error when there's a diff in a changelog")
-Signed-off-by: Mrinal Pandey <mrinalmni@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Reviewed-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Cc: Joe Perches <joe@perches.com>
-Link: https://lkml.kernel.org/r/20200714032352.f476hanaj2dlmiot@mrinalpandey
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- scripts/checkpatch.pl |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -2428,8 +2428,8 @@ sub process {
- 
- # Check if the commit log has what seems like a diff which can confuse patch
- 		if ($in_commit_log && !$commit_log_has_diff &&
--		    (($line =~ m@^\s+diff\b.*a/[\w/]+@ &&
--		      $line =~ m@^\s+diff\b.*a/([\w/]+)\s+b/$1\b@) ||
-+		    (($line =~ m@^\s+diff\b.*a/([\w/]+)@ &&
-+		      $line =~ m@^\s+diff\b.*a/[\w/]+\s+b/$1\b@) ||
- 		     $line =~ m@^\s*(?:\-\-\-\s+a/|\+\+\+\s+b/)@ ||
- 		     $line =~ m/^\s*\@\@ \-\d+,\d+ \+\d+,\d+ \@\@/)) {
- 			ERROR("DIFF_IN_COMMIT_MSG",
-
-
+greg k-h
