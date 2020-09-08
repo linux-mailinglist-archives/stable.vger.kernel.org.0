@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A37026167E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1620261644
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbgIHRMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:12:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59098 "EHLO mail.kernel.org"
+        id S1732010AbgIHRHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731532AbgIHQTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:19:19 -0400
+        id S1731809AbgIHQTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:19:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DC37241A5;
-        Tue,  8 Sep 2020 15:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C9B32462D;
+        Tue,  8 Sep 2020 15:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579541;
-        bh=MEmvLFwTluSLMx2cM/SWoItoFmupNuwGFBxSHz1bvcg=;
+        s=default; t=1599579551;
+        bh=1GQgNymHoeCIHfdcap9t87zvzoo+WAD3uNYBjZOBY9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuZ0y6WjbuYdIfVBKHwrozGHH4mbwjiJuSfSujmzrdJQFK4V5lzANAbwRicqo2/IS
-         t+1loar+NJ2EIJsW+hLuF3gUbm0WYouQfeqiBW5o9BGQv7kZSYVjIC/FolW4w7SyvN
-         VmNytrz2UzfuiuDPUWTfU85VUjZgb6Ijhe0mAtCA=
+        b=RwvrgncBIhdsq9yNc56/2HEcCUAejJ5raoZKXXLORyfzExSVa7/97vmEf+PU0ed/j
+         GEg14DZBM7U3as6t/1L7Hj8iPUegmwTmUxt+zxRcFVhkSuEBHENEDBWSsRx5wtpWKS
+         rHj7DxpWSXvPBbwAgAVIEuw06wFSlhXjWp15icqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 121/186] ext2: dont update mtime on COW faults
-Date:   Tue,  8 Sep 2020 17:24:23 +0200
-Message-Id: <20200908152247.501700998@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 125/186] btrfs: drop path before adding new uuid tree entry
+Date:   Tue,  8 Sep 2020 17:24:27 +0200
+Message-Id: <20200908152247.694471710@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,61 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 1ef6ea0efe8e68d0299dad44c39dc6ad9e5d1f39 upstream.
+commit 9771a5cf937129307d9f58922d60484d58ababe7 upstream.
 
-When running in a dax mode, if the user maps a page with MAP_PRIVATE and
-PROT_WRITE, the ext2 filesystem would incorrectly update ctime and mtime
-when the user hits a COW fault.
+With the conversion of the tree locks to rwsem I got the following
+lockdep splat:
 
-This breaks building of the Linux kernel.  How to reproduce:
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925 Not tainted
+  ------------------------------------------------------
+  btrfs-uuid/7955 is trying to acquire lock:
+  ffff88bfbafec0f8 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
 
- 1. extract the Linux kernel tree on dax-mounted ext2 filesystem
- 2. run make clean
- 3. run make -j12
- 4. run make -j12
+  but task is already holding lock:
+  ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
 
-at step 4, make would incorrectly rebuild the whole kernel (although it
-was already built in step 3).
+  which lock already depends on the new lock.
 
-The reason for the breakage is that almost all object files depend on
-objtool.  When we run objtool, it takes COW page fault on its .data
-section, and these faults will incorrectly update the timestamp of the
-objtool binary.  The updated timestamp causes make to rebuild the whole
-tree.
+  the existing dependency chain (in reverse order) is:
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  -> #1 (btrfs-uuid-00){++++}-{3:3}:
+	 down_read_nested+0x3e/0x140
+	 __btrfs_tree_read_lock+0x39/0x180
+	 __btrfs_read_lock_root_node+0x3a/0x50
+	 btrfs_search_slot+0x4bd/0x990
+	 btrfs_uuid_tree_add+0x89/0x2d0
+	 btrfs_uuid_scan_kthread+0x330/0x390
+	 kthread+0x133/0x150
+	 ret_from_fork+0x1f/0x30
+
+  -> #0 (btrfs-root-00){++++}-{3:3}:
+	 __lock_acquire+0x1272/0x2310
+	 lock_acquire+0x9e/0x360
+	 down_read_nested+0x3e/0x140
+	 __btrfs_tree_read_lock+0x39/0x180
+	 __btrfs_read_lock_root_node+0x3a/0x50
+	 btrfs_search_slot+0x4bd/0x990
+	 btrfs_find_root+0x45/0x1b0
+	 btrfs_read_tree_root+0x61/0x100
+	 btrfs_get_root_ref.part.50+0x143/0x630
+	 btrfs_uuid_tree_iterate+0x207/0x314
+	 btrfs_uuid_rescan_kthread+0x12/0x50
+	 kthread+0x133/0x150
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(btrfs-uuid-00);
+				 lock(btrfs-root-00);
+				 lock(btrfs-uuid-00);
+    lock(btrfs-root-00);
+
+   *** DEADLOCK ***
+
+  1 lock held by btrfs-uuid/7955:
+   #0: ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+
+  stack backtrace:
+  CPU: 73 PID: 7955 Comm: btrfs-uuid Kdump: loaded Not tainted 5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925
+  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
+  Call Trace:
+   dump_stack+0x78/0xa0
+   check_noncircular+0x165/0x180
+   __lock_acquire+0x1272/0x2310
+   lock_acquire+0x9e/0x360
+   ? __btrfs_tree_read_lock+0x39/0x180
+   ? btrfs_root_node+0x1c/0x1d0
+   down_read_nested+0x3e/0x140
+   ? __btrfs_tree_read_lock+0x39/0x180
+   __btrfs_tree_read_lock+0x39/0x180
+   __btrfs_read_lock_root_node+0x3a/0x50
+   btrfs_search_slot+0x4bd/0x990
+   btrfs_find_root+0x45/0x1b0
+   btrfs_read_tree_root+0x61/0x100
+   btrfs_get_root_ref.part.50+0x143/0x630
+   btrfs_uuid_tree_iterate+0x207/0x314
+   ? btree_readpage+0x20/0x20
+   btrfs_uuid_rescan_kthread+0x12/0x50
+   kthread+0x133/0x150
+   ? kthread_create_on_node+0x60/0x60
+   ret_from_fork+0x1f/0x30
+
+This problem exists because we have two different rescan threads,
+btrfs_uuid_scan_kthread which creates the uuid tree, and
+btrfs_uuid_tree_iterate that goes through and updates or deletes any out
+of date roots.  The problem is they both do things in different order.
+btrfs_uuid_scan_kthread() reads the tree_root, and then inserts entries
+into the uuid_root.  btrfs_uuid_tree_iterate() scans the uuid_root, but
+then does a btrfs_get_fs_root() which can read from the tree_root.
+
+It's actually easy enough to not be holding the path in
+btrfs_uuid_scan_kthread() when we add a uuid entry, as we already drop
+it further down and re-start the search when we loop.  So simply move
+the path release before we add our entry to the uuid tree.
+
+This also fixes a problem where we're holding a path open after we do
+btrfs_end_transaction(), which has it's own problems.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext2/file.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/btrfs/volumes.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext2/file.c
-+++ b/fs/ext2/file.c
-@@ -93,8 +93,10 @@ static vm_fault_t ext2_dax_fault(struct
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
- 	struct ext2_inode_info *ei = EXT2_I(inode);
- 	vm_fault_t ret;
-+	bool write = (vmf->flags & FAULT_FLAG_WRITE) &&
-+		(vmf->vma->vm_flags & VM_SHARED);
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4462,6 +4462,7 @@ int btrfs_uuid_scan_kthread(void *data)
+ 			goto skip;
+ 		}
+ update_tree:
++		btrfs_release_path(path);
+ 		if (!btrfs_is_empty_uuid(root_item.uuid)) {
+ 			ret = btrfs_uuid_tree_add(trans, root_item.uuid,
+ 						  BTRFS_UUID_KEY_SUBVOL,
+@@ -4486,6 +4487,7 @@ update_tree:
+ 		}
  
--	if (vmf->flags & FAULT_FLAG_WRITE) {
-+	if (write) {
- 		sb_start_pagefault(inode->i_sb);
- 		file_update_time(vmf->vma->vm_file);
- 	}
-@@ -103,7 +105,7 @@ static vm_fault_t ext2_dax_fault(struct
- 	ret = dax_iomap_fault(vmf, PE_SIZE_PTE, NULL, NULL, &ext2_iomap_ops);
+ skip:
++		btrfs_release_path(path);
+ 		if (trans) {
+ 			ret = btrfs_end_transaction(trans);
+ 			trans = NULL;
+@@ -4493,7 +4495,6 @@ skip:
+ 				break;
+ 		}
  
- 	up_read(&ei->dax_sem);
--	if (vmf->flags & FAULT_FLAG_WRITE)
-+	if (write)
- 		sb_end_pagefault(inode->i_sb);
- 	return ret;
- }
+-		btrfs_release_path(path);
+ 		if (key.offset < (u64)-1) {
+ 			key.offset++;
+ 		} else if (key.type < BTRFS_ROOT_ITEM_KEY) {
 
 
