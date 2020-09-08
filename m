@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDAF2619BA
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEBA26198A
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730979AbgIHSUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
+        id S1731519AbgIHSUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731462AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731457AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:11:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0486C247F5;
-        Tue,  8 Sep 2020 15:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 720F2247F6;
+        Tue,  8 Sep 2020 15:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579769;
-        bh=lixp8BxmKE9x3A7XjRdy/g2rDI2HUaEJA24QkMcIIMs=;
+        s=default; t=1599579772;
+        bh=uB2QOgx5HvuM4Y4IZJTTuR3ftpGuETMv9FN5lvux/fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cII4VTeUvmHJJtdgVZplTdV/nwOY9rwMb+xIdpE7iiubTxBze4sPpnceJNVt820dE
-         z0pJjCbNPKrNeLz9RBZvdzVqo8GcywLNeTKdVdGSFGP8KyUbWXGSXHHYtzTZsjN2Aj
-         mXm1sZ91eTzhksvfUgH+uQL1RcyxiGZWHzSGsSqs=
+        b=zF4TvRzDKg7CJkqXp32r4NxXpGjd0Pnhlz3X5HiMwbOIIP37bZSokNYrYMB9x/vxY
+         m6iGvhpBzHatBYN81rYkeAE+HqAUEoRUjSr5QqX+qL0MzPfl9NwWicKAAtbiry0sTL
+         sBNPwHpn4bshAHBZ/EIM9zoq0rmg5dgTHeunv+uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 027/129] rxrpc: Keep the ACK serial in a var in rxrpc_input_ack()
-Date:   Tue,  8 Sep 2020 17:24:28 +0200
-Message-Id: <20200908152231.046700012@linuxfoundation.org>
+Subject: [PATCH 5.4 028/129] rxrpc: Make rxrpc_kernel_get_srtt() indicate validity
+Date:   Tue,  8 Sep 2020 17:24:29 +0200
+Message-Id: <20200908152231.095042252@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -45,95 +45,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 68528d937dcd675e79973061c1a314db598162d1 ]
+[ Upstream commit 1d4adfaf65746203861c72d9d78de349eb97d528 ]
 
-Keep the ACK serial number in a variable in rxrpc_input_ack() as it's used
-frequently.
+Fix rxrpc_kernel_get_srtt() to indicate the validity of the returned
+smoothed RTT.  If we haven't had any valid samples yet, the SRTT isn't
+useful.
 
+Fixes: c410bf01933e ("rxrpc: Fix the excessive initial retransmission timeout")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/input.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ fs/afs/fs_probe.c       |  4 ++--
+ fs/afs/vl_probe.c       |  4 ++--
+ include/net/af_rxrpc.h  |  2 +-
+ net/rxrpc/peer_object.c | 16 +++++++++++++---
+ 4 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 22dec6049e1bb..6cace43b217ee 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -844,7 +844,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 		struct rxrpc_ackinfo info;
- 		u8 acks[RXRPC_MAXACKS];
- 	} buf;
--	rxrpc_serial_t acked_serial;
-+	rxrpc_serial_t ack_serial, acked_serial;
- 	rxrpc_seq_t first_soft_ack, hard_ack, prev_pkt;
- 	int nr_acks, offset, ioffset;
- 
-@@ -857,6 +857,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	}
- 	offset += sizeof(buf.ack);
- 
-+	ack_serial = sp->hdr.serial;
- 	acked_serial = ntohl(buf.ack.serial);
- 	first_soft_ack = ntohl(buf.ack.firstPacket);
- 	prev_pkt = ntohl(buf.ack.previousPacket);
-@@ -865,31 +866,31 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	summary.ack_reason = (buf.ack.reason < RXRPC_ACK__INVALID ?
- 			      buf.ack.reason : RXRPC_ACK__INVALID);
- 
--	trace_rxrpc_rx_ack(call, sp->hdr.serial, acked_serial,
-+	trace_rxrpc_rx_ack(call, ack_serial, acked_serial,
- 			   first_soft_ack, prev_pkt,
- 			   summary.ack_reason, nr_acks);
- 
- 	if (buf.ack.reason == RXRPC_ACK_PING_RESPONSE)
- 		rxrpc_input_ping_response(call, skb->tstamp, acked_serial,
--					  sp->hdr.serial);
-+					  ack_serial);
- 	if (buf.ack.reason == RXRPC_ACK_REQUESTED)
- 		rxrpc_input_requested_ack(call, skb->tstamp, acked_serial,
--					  sp->hdr.serial);
-+					  ack_serial);
- 
- 	if (buf.ack.reason == RXRPC_ACK_PING) {
--		_proto("Rx ACK %%%u PING Request", sp->hdr.serial);
-+		_proto("Rx ACK %%%u PING Request", ack_serial);
- 		rxrpc_propose_ACK(call, RXRPC_ACK_PING_RESPONSE,
--				  sp->hdr.serial, true, true,
-+				  ack_serial, true, true,
- 				  rxrpc_propose_ack_respond_to_ping);
- 	} else if (sp->hdr.flags & RXRPC_REQUEST_ACK) {
- 		rxrpc_propose_ACK(call, RXRPC_ACK_REQUESTED,
--				  sp->hdr.serial, true, true,
-+				  ack_serial, true, true,
- 				  rxrpc_propose_ack_respond_to_ack);
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index 02e976ca5732f..51ee3dd79700f 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -92,8 +92,8 @@ responded:
+ 		}
  	}
  
- 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
- 	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
--		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
-+		trace_rxrpc_rx_discard_ack(call->debug_id, ack_serial,
- 					   first_soft_ack, call->ackr_first_seq,
- 					   prev_pkt, call->ackr_prev_seq);
- 		return;
-@@ -905,7 +906,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
+-	rtt_us = rxrpc_kernel_get_srtt(call->net->socket, call->rxcall);
+-	if (rtt_us < server->probe.rtt) {
++	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
++	    rtt_us < server->probe.rtt) {
+ 		server->probe.rtt = rtt_us;
+ 		alist->preferred = index;
+ 		have_result = true;
+diff --git a/fs/afs/vl_probe.c b/fs/afs/vl_probe.c
+index e3aa013c21779..081b7e5b13f58 100644
+--- a/fs/afs/vl_probe.c
++++ b/fs/afs/vl_probe.c
+@@ -92,8 +92,8 @@ responded:
+ 		}
+ 	}
  
- 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
- 	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
--		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
-+		trace_rxrpc_rx_discard_ack(call->debug_id, ack_serial,
- 					   first_soft_ack, call->ackr_first_seq,
- 					   prev_pkt, call->ackr_prev_seq);
- 		goto out;
-@@ -965,7 +966,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	    RXRPC_TX_ANNO_LAST &&
- 	    summary.nr_acks == call->tx_top - hard_ack &&
- 	    rxrpc_is_client_call(call))
--		rxrpc_propose_ACK(call, RXRPC_ACK_PING, sp->hdr.serial,
-+		rxrpc_propose_ACK(call, RXRPC_ACK_PING, ack_serial,
- 				  false, true,
- 				  rxrpc_propose_ack_ping_for_lost_reply);
- 
+-	rtt_us = rxrpc_kernel_get_srtt(call->net->socket, call->rxcall);
+-	if (rtt_us < server->probe.rtt) {
++	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
++	    rtt_us < server->probe.rtt) {
+ 		server->probe.rtt = rtt_us;
+ 		alist->preferred = index;
+ 		have_result = true;
+diff --git a/include/net/af_rxrpc.h b/include/net/af_rxrpc.h
+index ab988940bf045..55b980b21f4b4 100644
+--- a/include/net/af_rxrpc.h
++++ b/include/net/af_rxrpc.h
+@@ -59,7 +59,7 @@ bool rxrpc_kernel_abort_call(struct socket *, struct rxrpc_call *,
+ void rxrpc_kernel_end_call(struct socket *, struct rxrpc_call *);
+ void rxrpc_kernel_get_peer(struct socket *, struct rxrpc_call *,
+ 			   struct sockaddr_rxrpc *);
+-u32 rxrpc_kernel_get_srtt(struct socket *, struct rxrpc_call *);
++bool rxrpc_kernel_get_srtt(struct socket *, struct rxrpc_call *, u32 *);
+ int rxrpc_kernel_charge_accept(struct socket *, rxrpc_notify_rx_t,
+ 			       rxrpc_user_attach_call_t, unsigned long, gfp_t,
+ 			       unsigned int);
+diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
+index efce27802a74f..e011594adcd13 100644
+--- a/net/rxrpc/peer_object.c
++++ b/net/rxrpc/peer_object.c
+@@ -500,11 +500,21 @@ EXPORT_SYMBOL(rxrpc_kernel_get_peer);
+  * rxrpc_kernel_get_srtt - Get a call's peer smoothed RTT
+  * @sock: The socket on which the call is in progress.
+  * @call: The call to query
++ * @_srtt: Where to store the SRTT value.
+  *
+- * Get the call's peer smoothed RTT.
++ * Get the call's peer smoothed RTT in uS.
+  */
+-u32 rxrpc_kernel_get_srtt(struct socket *sock, struct rxrpc_call *call)
++bool rxrpc_kernel_get_srtt(struct socket *sock, struct rxrpc_call *call,
++			   u32 *_srtt)
+ {
+-	return call->peer->srtt_us >> 3;
++	struct rxrpc_peer *peer = call->peer;
++
++	if (peer->rtt_count == 0) {
++		*_srtt = 1000000; /* 1S */
++		return false;
++	}
++
++	*_srtt = call->peer->srtt_us >> 3;
++	return true;
+ }
+ EXPORT_SYMBOL(rxrpc_kernel_get_srtt);
 -- 
 2.25.1
 
