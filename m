@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47B2261ED2
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:55:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4FA261EDA
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732442AbgIHTzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59784 "EHLO mail.kernel.org"
+        id S1730525AbgIHTzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730574AbgIHPgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730578AbgIHPgu (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:36:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F92322583;
-        Tue,  8 Sep 2020 15:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECF08227C3;
+        Tue,  8 Sep 2020 15:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579318;
-        bh=9xF3pCnhJDst3nnSSl/WT0nA5l0CMHpfotCF6C81O0s=;
+        s=default; t=1599579320;
+        bh=SjN8iminpZiXmeBHQ3gKw/eRxDZLxp1Xr4nXn7Ml+q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXi/2jqAj9tub5FZfXJVwLhP3QwYdai6CjgXQYzN/S4jsTTaeHWTf8Q4F3Uy7AYHE
-         pZLMX604zwXGklyox+GxQ9SaTbCP/I0S30/e9DaaGf2lTEDvS2OM4SXBeg3PFWCEsP
-         Dzi73WFyKVAKR6b0RFVYukDwzKt2zqHpGKkc79Rw=
+        b=cuNvOEkClIccM4QlcTFevHFumBh3EgC9BRlyGvh6Jt/KAr5zTUFQuWgtCLLCa3hOO
+         vKZ2NLu6U1HwEVpHBkgxmGfjmwRsO8O5q7wOvK5bS1Z3/wuyE+iaKrmdS911fX4M+S
+         d5/rfNHGtfaJMbjl5trhR50xFpNXFjborJAdK6cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 028/186] s390: dont trace preemption in percpu macros
-Date:   Tue,  8 Sep 2020 17:22:50 +0200
-Message-Id: <20200908152243.024767797@linuxfoundation.org>
+Subject: [PATCH 5.8 029/186] drm/amd/display: should check error using DC_OK
+Date:   Tue,  8 Sep 2020 17:22:51 +0200
+Message-Id: <20200908152243.072935814@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,137 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
+[ Upstream commit ed9ab229fea24cbcab17f484297dc8344afb7ea9 ]
 
-Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
-to per-cpu variables") the lockdep code itself uses percpu variables. This
-leads to recursions because the percpu macros are calling preempt_enable()
-which might call trace_preempt_on().
+core_link_read_dpcd returns only DC_OK(1) and DC_ERROR_UNEXPECTED(-1),
+the caller should check error using DC_OK instead of checking against 0
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 50b4ce8cddfdc..918f0ba4f4d20 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -29,7 +29,7 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ old__, new__, prev__;				\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	prev__ = *ptr__;						\
- 	do {								\
-@@ -37,7 +37,7 @@
- 		new__ = old__ op (val);					\
- 		prev__ = cmpxchg(ptr__, old__, new__);			\
- 	} while (prev__ != old__);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	new__;								\
- })
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 91cd884d6f257..7728fd71d1f3a 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -4346,9 +4346,9 @@ bool dc_link_get_backlight_level_nits(struct dc_link *link,
+ 			link->connector_signal != SIGNAL_TYPE_DISPLAY_PORT))
+ 		return false;
  
-@@ -68,7 +68,7 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
- 	if (__builtin_constant_p(val__) &&				\
- 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
-@@ -84,7 +84,7 @@
- 			: [val__] "d" (val__)				\
- 			: "cc");					\
- 	}								\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
+-	if (!core_link_read_dpcd(link, DP_SOURCE_BACKLIGHT_CURRENT_PEAK,
++	if (core_link_read_dpcd(link, DP_SOURCE_BACKLIGHT_CURRENT_PEAK,
+ 			dpcd_backlight_get.raw,
+-			sizeof(union dpcd_source_backlight_get)))
++			sizeof(union dpcd_source_backlight_get)) != DC_OK)
+ 		return false;
  
- #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
-@@ -95,14 +95,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();						\
- 	old__ + val__;							\
- })
+ 	*backlight_millinits_avg =
+@@ -4387,9 +4387,9 @@ bool dc_link_read_default_bl_aux(struct dc_link *link, uint32_t *backlight_milli
+ 		link->connector_signal != SIGNAL_TYPE_DISPLAY_PORT))
+ 		return false;
  
-@@ -114,14 +114,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
+-	if (!core_link_read_dpcd(link, DP_SOURCE_BACKLIGHT_LEVEL,
++	if (core_link_read_dpcd(link, DP_SOURCE_BACKLIGHT_LEVEL,
+ 		(uint8_t *) backlight_millinits,
+-		sizeof(uint32_t)))
++		sizeof(uint32_t)) != DC_OK)
+ 		return false;
  
- #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
-@@ -136,10 +136,10 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ ret__;						\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = cmpxchg(ptr__, oval, nval);				\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -152,10 +152,10 @@
- ({									\
- 	typeof(pcp) *ptr__;						\
- 	typeof(pcp) ret__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = xchg(ptr__, nval);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -171,11 +171,11 @@
- 	typeof(pcp1) *p1__;						\
- 	typeof(pcp2) *p2__;						\
- 	int ret__;							\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	p1__ = raw_cpu_ptr(&(pcp1));					\
- 	p2__ = raw_cpu_ptr(&(pcp2));					\
- 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
+ 	return true;
 -- 
 2.25.1
 
