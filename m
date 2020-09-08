@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3760B26196F
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:14:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BD9A2619F9
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732295AbgIHSOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:14:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
+        id S1731353AbgIHS2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:28:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731481AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:43 -0400
+        id S1731412AbgIHQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE74E2474E;
-        Tue,  8 Sep 2020 15:41:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EDD424750;
+        Tue,  8 Sep 2020 15:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579678;
-        bh=wsxTGtB20xdsXfzfz5WUQgQxXBVoS2VI8LTkh0qe+kk=;
+        s=default; t=1599579680;
+        bh=MQc8Wj/iSwvEc0xqKu84iF1sHwPVVtPbYUR17fiYn58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1hXGrA45pwtn3DW/aTJ2t6345a0IzFZnMLG9UmWtl/dgO42ECB3QTiI8sLA4mHpo
-         UtNeoWT6L/l+Pv9SjhQin4k6iLzJdRkikYgC9GfMq74gZ7W8/iQZTOIMHADAF2riVC
-         GSRUhMbAC+vMTC5R/VvxvSz7rbIvGzOke0E29fUI=
+        b=0LjcfkdAkIKqepeALdo4bHEIyEWx/fO9hXTNYyL8dNIapJY9U7MWNVWk1v3VwRSDP
+         z14NnsqAUiG+zikoh47OFBg02yS0GaI5zXwyKDUvW1Uh0Q+Q6W97QBOheZl1fw4gM6
+         xNflxrQtymWTliopgaZRBC8x0/8KYpbuNpLFas+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.8 147/186] mmc: dt-bindings: Add resets/reset-names for Mediatek MMC bindings
-Date:   Tue,  8 Sep 2020 17:24:49 +0200
-Message-Id: <20200908152248.788645527@linuxfoundation.org>
+Subject: [PATCH 5.8 148/186] mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers
+Date:   Tue,  8 Sep 2020 17:24:50 +0200
+Message-Id: <20200908152248.836466906@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,34 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenbin Mei <wenbin.mei@mediatek.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 65557383191de46611dd3d6b639cbcfbade43c4a upstream.
+commit df57d73276b863af1debc48546b0e59e44998a55 upstream.
 
-Add description for resets/reset-names.
+For Intel controllers, SDHCI_RESET_ALL resets also CQHCI registers.
+Normally, SDHCI_RESET_ALL is not used while CQHCI is enabled, but that can
+happen on the error path. e.g. if mmc_cqe_recovery() fails, mmc_blk_reset()
+is called which, for a eMMC that does not support HW Reset, will cycle the
+bus power and the driver will perform SDHCI_RESET_ALL.
 
-Cc: <stable@vger.kernel.org> # v5.4+
-Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
-Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
-Tested-by: Frank Wunderlich <frank-w@public-files.de>
-Link: https://lore.kernel.org/r/20200814014346.6496-2-wenbin.mei@mediatek.com
+So whenever performing SDHCI_RESET_ALL ensure CQHCI is deactivated.
+That will force the driver to reinitialize CQHCI when it is next used.
+
+A similar change was done already for sdhci-msm, and other drivers using
+CQHCI might benefit from a similar change, if they also have CQHCI reset
+by SDHCI_RESET_ALL.
+
+Fixes: 8ee82bda230fc9 ("mmc: sdhci-pci: Add CQHCI support for Intel GLK")
+Cc: stable@vger.kernel.org # 5.4.x: 0ffa6cfbd949: mmc: cqhci: Add cqhci_deactivate()
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200819121848.16967-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/mmc/mtk-sd.txt |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci-pci-core.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/mmc/mtk-sd.txt
-+++ b/Documentation/devicetree/bindings/mmc/mtk-sd.txt
-@@ -49,6 +49,8 @@ Optional properties:
- 		     error caused by stop clock(fifo full)
- 		     Valid range = [0:0x7]. if not present, default value is 0.
- 		     applied to compatible "mediatek,mt2701-mmc".
-+- resets: Phandle and reset specifier pair to softreset line of MSDC IP.
-+- reset-names: Should be "hrst".
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -232,6 +232,14 @@ static void sdhci_pci_dumpregs(struct mm
+ 	sdhci_dumpregs(mmc_priv(mmc));
+ }
  
- Examples:
- mmc0: mmc@11230000 {
++static void sdhci_cqhci_reset(struct sdhci_host *host, u8 mask)
++{
++	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
++	    host->mmc->cqe_private)
++		cqhci_deactivate(host->mmc);
++	sdhci_reset(host, mask);
++}
++
+ /*****************************************************************************\
+  *                                                                           *
+  * Hardware specific quirk handling                                          *
+@@ -718,7 +726,7 @@ static const struct sdhci_ops sdhci_inte
+ 	.set_power		= sdhci_intel_set_power,
+ 	.enable_dma		= sdhci_pci_enable_dma,
+ 	.set_bus_width		= sdhci_set_bus_width,
+-	.reset			= sdhci_reset,
++	.reset			= sdhci_cqhci_reset,
+ 	.set_uhs_signaling	= sdhci_set_uhs_signaling,
+ 	.hw_reset		= sdhci_pci_hw_reset,
+ 	.irq			= sdhci_cqhci_irq,
 
 
