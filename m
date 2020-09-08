@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A32261423
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D71B26142C
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731249AbgIHQGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S1731303AbgIHQIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:08:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731217AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:05:22 -0400
+        id S1731272AbgIHQH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:07:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 008B8224B0;
-        Tue,  8 Sep 2020 15:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8CAF23EB2;
+        Tue,  8 Sep 2020 15:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579954;
-        bh=Vxf8thUXD9HDmFrlefoNCGBHtvxhE+QvMWyMaGEiawk=;
+        s=default; t=1599580043;
+        bh=Tei+YkRbVwQNRj+U+djwbgtzP0V+bTZ1sVJJ9lII7OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpIPdnIos3VGvS250go4Qjo0QZDovh2FGPm2ffxiJxFCFuAwQBtrW8IC/Dd+wtQev
-         6MhIr0hCsAxsPrRKKx9Riyh1YDLJFCk2+Wj1Gbg4o+94UrDZkeSOXeZuJbiqib2uVX
-         I6VP+LoprjKypMoCfD7new4S6ptNUyCzgS14JkLQ=
+        b=aMVZJqL5JKs6eEIq3rM6bUkkwAepJvBVy/n9YxTm7P0y3oVSW61Yhj2iF6ABspYN/
+         KsAMiEKKx21VdG4vlXPLtRDDU3x9cLeVVi4kALogcWOpY79XpzPcmRC9gbfRUamAB5
+         mMnVrDbpXwFB0aRB+V5TezL3xNiM/RiBKT4w8xJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 100/129] mmc: mediatek: add optional module reset property
-Date:   Tue,  8 Sep 2020 17:25:41 +0200
-Message-Id: <20200908152234.812316496@linuxfoundation.org>
+        stable@vger.kernel.org, Max Staudt <max@enpas.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 106/129] affs: fix basic permission bits to actually work
+Date:   Tue,  8 Sep 2020 17:25:47 +0200
+Message-Id: <20200908152235.132873066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -45,75 +43,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenbin Mei <wenbin.mei@mediatek.com>
+From: Max Staudt <max@enpas.org>
 
-commit 855d388df217989fbf1f18c781ae6490dbb48e86 upstream.
+commit d3a84a8d0dde4e26bc084b36ffcbdc5932ac85e2 upstream.
 
-This patch fixs eMMC-Access on mt7622/Bpi-64.
-Before we got these Errors on mounting eMMC ion R64:
-[   48.664925] blk_update_request: I/O error, dev mmcblk0, sector 204800 op 0x1:(WRITE)
-flags 0x800 phys_seg 1 prio class 0
-[   48.676019] Buffer I/O error on dev mmcblk0p1, logical block 0, lost sync page write
+The basic permission bits (protection bits in AmigaOS) have been broken
+in Linux' AFFS - it would only set bits, but never delete them.
+Also, contrary to the documentation, the Archived bit was not handled.
 
-This patch adds a optional reset management for msdc.
-Sometimes the bootloader does not bring msdc register
-to default state, so need reset the msdc controller.
+Let's fix this for good, and set the bits such that Linux and classic
+AmigaOS can coexist in the most peaceful manner.
 
-Cc: <stable@vger.kernel.org> # v5.4+
-Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
-Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Frank Wunderlich <frank-w@public-files.de>
-Link: https://lore.kernel.org/r/20200814014346.6496-4-wenbin.mei@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Also, update the documentation to represent the current state of things.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Staudt <max@enpas.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/mtk-sd.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ Documentation/filesystems/affs.txt |   16 ++++++++++------
+ fs/affs/amigaffs.c                 |   27 +++++++++++++++++++++++++++
+ fs/affs/file.c                     |   26 +++++++++++++++++++++++++-
+ 3 files changed, 62 insertions(+), 7 deletions(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -22,6 +22,7 @@
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
-+#include <linux/reset.h>
+--- a/Documentation/filesystems/affs.txt
++++ b/Documentation/filesystems/affs.txt
+@@ -93,13 +93,15 @@ The Amiga protection flags RWEDRWEDHSPAR
  
- #include <linux/mmc/card.h>
- #include <linux/mmc/core.h>
-@@ -412,6 +413,7 @@ struct msdc_host {
- 	struct pinctrl_state *pins_uhs;
- 	struct delayed_work req_timeout;
- 	int irq;		/* host interrupt */
-+	struct reset_control *reset;
+   - R maps to r for user, group and others. On directories, R implies x.
  
- 	struct clk *src_clk;	/* msdc source clock */
- 	struct clk *h_clk;      /* msdc h_clk */
-@@ -1474,6 +1476,12 @@ static void msdc_init_hw(struct msdc_hos
- 	u32 val;
- 	u32 tune_reg = host->dev_comp->pad_tune_reg;
+-  - If both W and D are allowed, w will be set.
++  - W maps to w.
  
-+	if (host->reset) {
-+		reset_control_assert(host->reset);
-+		usleep_range(10, 50);
-+		reset_control_deassert(host->reset);
+   - E maps to x.
+ 
+-  - H and P are always retained and ignored under Linux.
++  - D is ignored.
+ 
+-  - A is always reset when a file is written to.
++  - H, S and P are always retained and ignored under Linux.
++
++  - A is cleared when a file is written to.
+ 
+ User id and group id will be used unless set[gu]id are given as mount
+ options. Since most of the Amiga file systems are single user systems
+@@ -111,11 +113,13 @@ Linux -> Amiga:
+ 
+ The Linux rwxrwxrwx file mode is handled as follows:
+ 
+-  - r permission will set R for user, group and others.
++  - r permission will allow R for user, group and others.
++
++  - w permission will allow W for user, group and others.
+ 
+-  - w permission will set W and D for user, group and others.
++  - x permission of the user will allow E for plain files.
+ 
+-  - x permission of the user will set E for plain files.
++  - D will be allowed for user, group and others.
+ 
+   - All other flags (suid, sgid, ...) are ignored and will
+     not be retained.
+--- a/fs/affs/amigaffs.c
++++ b/fs/affs/amigaffs.c
+@@ -420,24 +420,51 @@ affs_mode_to_prot(struct inode *inode)
+ 	u32 prot = AFFS_I(inode)->i_protect;
+ 	umode_t mode = inode->i_mode;
+ 
++	/*
++	 * First, clear all RWED bits for owner, group, other.
++	 * Then, recalculate them afresh.
++	 *
++	 * We'll always clear the delete-inhibit bit for the owner, as that is
++	 * the classic single-user mode AmigaOS protection bit and we need to
++	 * stay compatible with all scenarios.
++	 *
++	 * Since multi-user AmigaOS is an extension, we'll only set the
++	 * delete-allow bit if any of the other bits in the same user class
++	 * (group/other) are used.
++	 */
++	prot &= ~(FIBF_NOEXECUTE | FIBF_NOREAD
++		  | FIBF_NOWRITE | FIBF_NODELETE
++		  | FIBF_GRP_EXECUTE | FIBF_GRP_READ
++		  | FIBF_GRP_WRITE   | FIBF_GRP_DELETE
++		  | FIBF_OTR_EXECUTE | FIBF_OTR_READ
++		  | FIBF_OTR_WRITE   | FIBF_OTR_DELETE);
++
++	/* Classic single-user AmigaOS flags. These are inverted. */
+ 	if (!(mode & 0100))
+ 		prot |= FIBF_NOEXECUTE;
+ 	if (!(mode & 0400))
+ 		prot |= FIBF_NOREAD;
+ 	if (!(mode & 0200))
+ 		prot |= FIBF_NOWRITE;
++
++	/* Multi-user extended flags. Not inverted. */
+ 	if (mode & 0010)
+ 		prot |= FIBF_GRP_EXECUTE;
+ 	if (mode & 0040)
+ 		prot |= FIBF_GRP_READ;
+ 	if (mode & 0020)
+ 		prot |= FIBF_GRP_WRITE;
++	if (mode & 0070)
++		prot |= FIBF_GRP_DELETE;
++
+ 	if (mode & 0001)
+ 		prot |= FIBF_OTR_EXECUTE;
+ 	if (mode & 0004)
+ 		prot |= FIBF_OTR_READ;
+ 	if (mode & 0002)
+ 		prot |= FIBF_OTR_WRITE;
++	if (mode & 0007)
++		prot |= FIBF_OTR_DELETE;
+ 
+ 	AFFS_I(inode)->i_protect = prot;
+ }
+--- a/fs/affs/file.c
++++ b/fs/affs/file.c
+@@ -428,6 +428,24 @@ static int affs_write_begin(struct file
+ 	return ret;
+ }
+ 
++static int affs_write_end(struct file *file, struct address_space *mapping,
++			  loff_t pos, unsigned int len, unsigned int copied,
++			  struct page *page, void *fsdata)
++{
++	struct inode *inode = mapping->host;
++	int ret;
++
++	ret = generic_write_end(file, mapping, pos, len, copied, page, fsdata);
++
++	/* Clear Archived bit on file writes, as AmigaOS would do */
++	if (AFFS_I(inode)->i_protect & FIBF_ARCHIVED) {
++		AFFS_I(inode)->i_protect &= ~FIBF_ARCHIVED;
++		mark_inode_dirty(inode);
 +	}
 +
- 	/* Configure to MMC/SD mode, clock free running */
- 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_MODE | MSDC_CFG_CKPDN);
- 
-@@ -2232,6 +2240,11 @@ static int msdc_drv_probe(struct platfor
- 	if (IS_ERR(host->src_clk_cg))
- 		host->src_clk_cg = NULL;
- 
-+	host->reset = devm_reset_control_get_optional_exclusive(&pdev->dev,
-+								"hrst");
-+	if (IS_ERR(host->reset))
-+		return PTR_ERR(host->reset);
++	return ret;
++}
 +
- 	host->irq = platform_get_irq(pdev, 0);
- 	if (host->irq < 0) {
- 		ret = -EINVAL;
+ static sector_t _affs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,affs_get_block);
+@@ -437,7 +455,7 @@ const struct address_space_operations af
+ 	.readpage = affs_readpage,
+ 	.writepage = affs_writepage,
+ 	.write_begin = affs_write_begin,
+-	.write_end = generic_write_end,
++	.write_end = affs_write_end,
+ 	.direct_IO = affs_direct_IO,
+ 	.bmap = _affs_bmap
+ };
+@@ -794,6 +812,12 @@ done:
+ 	if (tmp > inode->i_size)
+ 		inode->i_size = AFFS_I(inode)->mmu_private = tmp;
+ 
++	/* Clear Archived bit on file writes, as AmigaOS would do */
++	if (AFFS_I(inode)->i_protect & FIBF_ARCHIVED) {
++		AFFS_I(inode)->i_protect &= ~FIBF_ARCHIVED;
++		mark_inode_dirty(inode);
++	}
++
+ err_first_bh:
+ 	unlock_page(page);
+ 	put_page(page);
 
 
