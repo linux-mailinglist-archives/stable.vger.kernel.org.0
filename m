@@ -2,142 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A732612F8
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 16:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A94512613C2
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 17:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730189AbgIHOvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 10:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729789AbgIHO0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 10:26:07 -0400
+        id S1730481AbgIHPr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 11:47:59 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:60649 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730585AbgIHPrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 11:47:13 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id EF460FC0;
+        Tue,  8 Sep 2020 08:27:41 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 08 Sep 2020 08:27:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=F9Ps5Y
+        whDRypAMLNAKuUKZVlnu7n+WCwSTptlNVDPzE=; b=OfBkhnZLfqepfBjwKAztvV
+        3cEGMHzF2zVG9dVQhB7aGroEbeWh4xFohaYh6VauVFAwQ6+VgVKx72vXMOtBA8T+
+        r0ld/31/IhM/mzwu8Q158SkvRInHVAdR06TC9gY8PMbj6m3BTPxJvRoKdw55+8/D
+        KqHqouBl2ofJnRWZHKQt3ltI1ANZVrudiZTNCeI7NzhKfUwj5EtpEQZenOhFnaah
+        6RJkxLEOSzv7KmL0dgG4sYJlLX5QHYN8UPYtM5BGZMy/JqP//yqh0fwxrNQuzLhO
+        zhpoapU+koI8wMSNS8P8SKTlhsYFmksdt3nJgSUX9UfG0U2H3wbDgrB+k8lH6pmQ
+        ==
+X-ME-Sender: <xms:vXhXX-jui_Pmx-7oDQMDOaDizloCvqPSEQyV6s6Pr5iZ12LmloZCNw>
+    <xme:vXhXX_BEDyH6hl__vsGfBrc8iYuclKha8OOPw-uGENSY04JrHmLAgu1j3ubgl63TO
+    s-qZSwxpFAadQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedgfeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:vXhXX2FSEHCSAcq_SgWzdj83xDDskwdYURlIAGz06o1jkFTVsFix1Q>
+    <xmx:vXhXX3SlRbUW1-_B1XWHgz_KW6wUeDwocfG5LQDQ21EL764TFiMXSQ>
+    <xmx:vXhXX7xugRxit4pRoU7ItJ3KKYWuIzXVEJdruToSnVx4CcWp5vPnpw>
+    <xmx:vXhXX0pr2LDC5Bi7dlpBK94KpYvIHr66sLNzDSI1oxTfUjotH1__qUBVULg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 458D5206B5;
-        Tue,  8 Sep 2020 14:25:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599575139;
-        bh=lA7p6ft01iVQ4aSV1bXMf54gjdDibIub5R+aILwMSQ4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vhLWf11MuLvKymBVCzwuxZwrSQ6huj4m2FOagVdweEC61+tSwuX7bU0WQQzT/gEzS
-         SfX3wYUHZrIv28wlTxeAcvmFMStW0XHTj4QhTUwvNq4s060J0RynIlS+PyvmyMb965
-         BQ6aiIh4qUh4ua26aix12MjaizHXb3wOVGLIIKdE=
-Date:   Tue, 8 Sep 2020 16:25:52 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stable@vger.kernel.org
-Subject: Re: 5.8 io_uring stable
-Message-ID: <20200908142552.GA3426589@kroah.com>
-References: <49361215-3d71-71e8-7cd2-1f7009323a30@kernel.dk>
- <20200908123129.GA1960547@kroah.com>
- <9e66ef5d-0dfa-8061-1a17-7e2bb722e43e@kernel.dk>
- <7e412946-c85a-658d-1b07-dbe3551dc3cd@kernel.dk>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A49B2306467D;
+        Tue,  8 Sep 2020 08:27:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] block: ensure bdi->io_pages is always initialized" failed to apply to 4.14-stable tree
+To:     axboe@kernel.dk, hch@lst.de, hirofumi@mail.parknet.co.jp
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Sep 2020 14:27:53 +0200
+Message-ID: <15995680734215@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7e412946-c85a-658d-1b07-dbe3551dc3cd@kernel.dk>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 07:29:05AM -0600, Jens Axboe wrote:
-> On 9/8/20 7:11 AM, Jens Axboe wrote:
-> > On 9/8/20 6:31 AM, Greg KH wrote:
-> >> On Fri, Sep 04, 2020 at 03:06:28PM -0600, Jens Axboe wrote:
-> >>> Hi,
-> >>>
-> >>> Linus just pulled 3 fixes from me - 1+2 should apply directly, here's
-> >>> the 3rd one which will need some love for 5.8-stable. I'm including it
-> >>> below to preempt the failed to apply message :-)
-> >>>
-> >>>
-> >>> commit fb8d4046d50f77a26570101e5b8a7a026320a610
-> >>> Author: Jens Axboe <axboe@kernel.dk>
-> >>> Date:   Wed Sep 2 10:19:04 2020 -0600
-> >>>
-> >>>     io_uring: no read/write-retry on -EAGAIN error and O_NONBLOCK marked file
-> >>>     
-> >>>     Actually two things that need fixing up here:
-> >>>     
-> >>>     - The io_rw_reissue() -EAGAIN retry is explicit to block devices and
-> >>>       regular files, so don't ever attempt to do that on other types of
-> >>>       files.
-> >>>     
-> >>>     - If we hit -EAGAIN on a nonblock marked file, don't arm poll handler for
-> >>>       it. It should just complete with -EAGAIN.
-> >>>     
-> >>>     Cc: stable@vger.kernel.org
-> >>>     Reported-by: Norman Maurer <norman.maurer@googlemail.com>
-> >>>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> >>>
-> >>> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> >>> index 82e15020d9a8..96be21ace79a 100644
-> >>> --- a/fs/io_uring.c
-> >>> +++ b/fs/io_uring.c
-> >>> @@ -2726,6 +2726,12 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
-> >>>  				ret = ret2;
-> >>>  				goto done;
-> >>>  			}
-> >>> +			/* no retry on NONBLOCK marked file */
-> >>> +			if (req->file->f_flags & O_NONBLOCK) {
-> >>> +				ret = ret2;
-> >>> +				goto done;
-> >>> +			}
-> >>> +
-> >>>  			/* some cases will consume bytes even on error returns */
-> >>>  			iov_iter_revert(iter, iov_count - iov_iter_count(iter));
-> >>>  			ret2 = 0;
-> >>> @@ -2869,9 +2875,15 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
-> >>>  		 */
-> >>>  		if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
-> >>>  			ret2 = -EAGAIN;
-> >>> +		/* no retry on NONBLOCK marked file */
-> >>> +		if (ret2 == -EAGAIN && (req->file->f_flags & O_NONBLOCK)) {
-> >>> +			ret = 0;
-> >>> +			goto done;
-> >>> +		}
-> >>>  		if (!force_nonblock || ret2 != -EAGAIN) {
-> >>>  			if ((req->ctx->flags & IORING_SETUP_IOPOLL) && ret2 == -EAGAIN)
-> >>>  				goto copy_iov;
-> >>> +done:
-> >>>  			kiocb_done(kiocb, ret2);
-> >>>  		} else {
-> >>>  copy_iov:
-> >>>
-> >>> -- 
-> >>> Jens Axboe
-> >>
-> >>
-> >> Thanks for the backport, but this didn't apply at all to the 5.8.y tree.
-> >> What one did you make it against?
-> > 
-> > Oh, might have been because I have a pile of pending 5.8 stable patches...
-> > Let me apply to pristine stable, test, and then I'll send it to you.
-> 
-> Here it is:
-> 
-> 
-> commit d0ea3f3d17cf891244f17f8ceb43d4988c170471
-> Author: Jens Axboe <axboe@kernel.dk>
-> Date:   Tue Sep 8 07:16:12 2020 -0600
-> 
->     io_uring: no read/write-retry on -EAGAIN error and O_NONBLOCK marked file
->     
->     Actually two things that need fixing up here:
->     
->     - The io_rw_reissue() -EAGAIN retry is explicit to block devices and
->       regular files, so don't ever attempt to do that on other types of
->       files.
->     
->     - If we hit -EAGAIN on a nonblock marked file, don't arm poll handler for
->       it. It should just complete with -EAGAIN.
->     
->     Cc: stable@vger.kernel.org
->     Reported-by: Norman Maurer <norman.maurer@googlemail.com>
->     Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Much nicer, that worked, thanks!
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From de1b0ee490eafdf65fac9eef9925391a8369f2dc Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 31 Aug 2020 11:20:02 -0600
+Subject: [PATCH] block: ensure bdi->io_pages is always initialized
+
+If a driver leaves the limit settings as the defaults, then we don't
+initialize bdi->io_pages. This means that file systems may need to
+work around bdi->io_pages == 0, which is somewhat messy.
+
+Initialize the default value just like we do for ->ra_pages.
+
+Cc: stable@vger.kernel.org
+Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
+Reported-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index d9d632639bd1..10c08ac50697 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -539,6 +539,7 @@ struct request_queue *blk_alloc_queue(int node_id)
+ 		goto fail_stats;
+ 
+ 	q->backing_dev_info->ra_pages = VM_READAHEAD_PAGES;
++	q->backing_dev_info->io_pages = VM_READAHEAD_PAGES;
+ 	q->backing_dev_info->capabilities = BDI_CAP_CGROUP_WRITEBACK;
+ 	q->node = node_id;
+ 
+
