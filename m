@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC9626184D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F333261851
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732163AbgIHRvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
+        id S1731689AbgIHRvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:51:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730572AbgIHQNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731593AbgIHQNo (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:13:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46519248AF;
-        Tue,  8 Sep 2020 15:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA5B8248B3;
+        Tue,  8 Sep 2020 15:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580352;
-        bh=tH0WYc9LiYux1rTGMzgzCj9ahMv2kjb97oX/0ffA/C8=;
+        s=default; t=1599580355;
+        bh=ZKZ3RtOWtdxilubVi29qLuGkbyN0NVKey3aC5EiSLbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCQPfeL3+JLMoHDgfDZRFGwJ6m4/7fLaE8JZnJHuxDM1f2O1fe4jVq/VSzUGVLOs1
-         OhXKj0/lX13eKPNzuLqDUmTWQjLG1TVuTtpQ7oG0NWSCrE8BHydm5kvhAkDjQuyykR
-         Qiw61EV2wF8Fd4hEShxPf5QyeAlMBX/XI+4gumVU=
+        b=OHTB5RtgdpmCl0MeD5XzMsuw4i5vgg3NChZW5ldEU1sSoOiqMiWxYVm/NcZ3vivsg
+         Ol3b+OCe40e4PaQYBJzl0jmY6DgxM1RmFn+3S5rp5HxoIs6AkSYLLZZK16ez1GkpYo
+         +SFAM4Nxn7t2sD1f7nCIKRECAh8coL5djLW0PQ6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/65] btrfs: set the lockdep class for log tree extent buffers
-Date:   Tue,  8 Sep 2020 17:26:26 +0200
-Message-Id: <20200908152219.150008815@linuxfoundation.org>
+Subject: [PATCH 4.14 42/65] uaccess: Add non-pagefault user-space read functions
+Date:   Tue,  8 Sep 2020 17:26:27 +0200
+Message-Id: <20200908152219.211957098@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -45,57 +45,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit d3beaa253fd6fa40b8b18a216398e6e5376a9d21 ]
+[ Upstream commit 3d7081822f7f9eab867d9bcc8fd635208ec438e0 ]
 
-These are special extent buffers that get rewound in order to lookup
-the state of the tree at a specific point in time.  As such they do not
-go through the normal initialization paths that set their lockdep class,
-so handle them appropriately when they are created and before they are
-locked.
+Add probe_user_read(), strncpy_from_unsafe_user() and
+strnlen_unsafe_user() which allows caller to access user-space
+in IRQ context.
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Current probe_kernel_read() and strncpy_from_unsafe() are
+not available for user-space memory, because it sets
+KERNEL_DS while accessing data. On some arch, user address
+space and kernel address space can be co-exist, but others
+can not. In that case, setting KERNEL_DS means given
+address is treated as a kernel address space.
+Also strnlen_user() is only available from user context since
+it can sleep if pagefault is enabled.
+
+To access user-space memory without pagefault, we need
+these new functions which sets USER_DS while accessing
+the data.
+
+Link: http://lkml.kernel.org/r/155789869802.26965.4940338412595759063.stgit@devnote2
+
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/uaccess.h |  14 +++++
+ mm/maccess.c            | 122 ++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 130 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index ae8ac4837eb19..cf1e8ba50f6bf 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1367,6 +1367,8 @@ tree_mod_log_rewind(struct btrfs_fs_info *fs_info, struct btrfs_path *path,
- 	btrfs_tree_read_unlock_blocking(eb);
- 	free_extent_buffer(eb);
+diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+index ec4f0053d6d8e..c64a685a55640 100644
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -242,6 +242,17 @@ static inline unsigned long __copy_from_user_inatomic_nocache(void *to,
+ extern long probe_kernel_read(void *dst, const void *src, size_t size);
+ extern long __probe_kernel_read(void *dst, const void *src, size_t size);
  
-+	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb_rewin),
-+				       eb_rewin, btrfs_header_level(eb_rewin));
- 	btrfs_tree_read_lock(eb_rewin);
- 	__tree_mod_log_rewind(fs_info, eb_rewin, time_seq, tm);
- 	WARN_ON(btrfs_header_nritems(eb_rewin) >
-@@ -1437,7 +1439,6 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
++/*
++ * probe_user_read(): safely attempt to read from a location in user space
++ * @dst: pointer to the buffer that shall take the data
++ * @src: address to read from
++ * @size: size of the data chunk
++ *
++ * Safely read from address @src to the buffer at @dst.  If a kernel fault
++ * happens, handle that and return -EFAULT.
++ */
++extern long probe_user_read(void *dst, const void __user *src, size_t size);
++
+ /*
+  * probe_kernel_write(): safely attempt to write to a location
+  * @dst: address to write to
+@@ -255,6 +266,9 @@ extern long notrace probe_kernel_write(void *dst, const void *src, size_t size);
+ extern long notrace __probe_kernel_write(void *dst, const void *src, size_t size);
  
- 	if (!eb)
- 		return NULL;
--	btrfs_tree_read_lock(eb);
- 	if (old_root) {
- 		btrfs_set_header_bytenr(eb, eb->start);
- 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
-@@ -1445,6 +1446,9 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
- 		btrfs_set_header_level(eb, old_root->level);
- 		btrfs_set_header_generation(eb, old_generation);
- 	}
-+	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb), eb,
-+				       btrfs_header_level(eb));
-+	btrfs_tree_read_lock(eb);
- 	if (tm)
- 		__tree_mod_log_rewind(fs_info, eb, time_seq, tm);
- 	else
+ extern long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count);
++extern long strncpy_from_unsafe_user(char *dst, const void __user *unsafe_addr,
++				     long count);
++extern long strnlen_unsafe_user(const void __user *unsafe_addr, long count);
+ 
+ /**
+  * probe_kernel_address(): safely attempt to read from a location
+diff --git a/mm/maccess.c b/mm/maccess.c
+index 78f9274dd49d0..5ebf9a3ca3674 100644
+--- a/mm/maccess.c
++++ b/mm/maccess.c
+@@ -5,8 +5,20 @@
+ #include <linux/mm.h>
+ #include <linux/uaccess.h>
+ 
++static __always_inline long
++probe_read_common(void *dst, const void __user *src, size_t size)
++{
++	long ret;
++
++	pagefault_disable();
++	ret = __copy_from_user_inatomic(dst, src, size);
++	pagefault_enable();
++
++	return ret ? -EFAULT : 0;
++}
++
+ /**
+- * probe_kernel_read(): safely attempt to read from a location
++ * probe_kernel_read(): safely attempt to read from a kernel-space location
+  * @dst: pointer to the buffer that shall take the data
+  * @src: address to read from
+  * @size: size of the data chunk
+@@ -29,16 +41,40 @@ long __probe_kernel_read(void *dst, const void *src, size_t size)
+ 	mm_segment_t old_fs = get_fs();
+ 
+ 	set_fs(KERNEL_DS);
+-	pagefault_disable();
+-	ret = __copy_from_user_inatomic(dst,
+-			(__force const void __user *)src, size);
+-	pagefault_enable();
++	ret = probe_read_common(dst, (__force const void __user *)src, size);
+ 	set_fs(old_fs);
+ 
+-	return ret ? -EFAULT : 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(probe_kernel_read);
+ 
++/**
++ * probe_user_read(): safely attempt to read from a user-space location
++ * @dst: pointer to the buffer that shall take the data
++ * @src: address to read from. This must be a user address.
++ * @size: size of the data chunk
++ *
++ * Safely read from user address @src to the buffer at @dst. If a kernel fault
++ * happens, handle that and return -EFAULT.
++ */
++
++long __weak probe_user_read(void *dst, const void __user *src, size_t size)
++    __attribute__((alias("__probe_user_read")));
++
++long __probe_user_read(void *dst, const void __user *src, size_t size)
++{
++	long ret = -EFAULT;
++	mm_segment_t old_fs = get_fs();
++
++	set_fs(USER_DS);
++	if (access_ok(VERIFY_READ, src, size))
++		ret = probe_read_common(dst, src, size);
++	set_fs(old_fs);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(probe_user_read);
++
+ /**
+  * probe_kernel_write(): safely attempt to write to a location
+  * @dst: address to write to
+@@ -66,6 +102,7 @@ long __probe_kernel_write(void *dst, const void *src, size_t size)
+ }
+ EXPORT_SYMBOL_GPL(probe_kernel_write);
+ 
++
+ /**
+  * strncpy_from_unsafe: - Copy a NUL terminated string from unsafe address.
+  * @dst:   Destination address, in kernel space.  This buffer must be at
+@@ -105,3 +142,76 @@ long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count)
+ 
+ 	return ret ? -EFAULT : src - unsafe_addr;
+ }
++
++/**
++ * strncpy_from_unsafe_user: - Copy a NUL terminated string from unsafe user
++ *				address.
++ * @dst:   Destination address, in kernel space.  This buffer must be at
++ *         least @count bytes long.
++ * @unsafe_addr: Unsafe user address.
++ * @count: Maximum number of bytes to copy, including the trailing NUL.
++ *
++ * Copies a NUL-terminated string from unsafe user address to kernel buffer.
++ *
++ * On success, returns the length of the string INCLUDING the trailing NUL.
++ *
++ * If access fails, returns -EFAULT (some data may have been copied
++ * and the trailing NUL added).
++ *
++ * If @count is smaller than the length of the string, copies @count-1 bytes,
++ * sets the last byte of @dst buffer to NUL and returns @count.
++ */
++long strncpy_from_unsafe_user(char *dst, const void __user *unsafe_addr,
++			      long count)
++{
++	mm_segment_t old_fs = get_fs();
++	long ret;
++
++	if (unlikely(count <= 0))
++		return 0;
++
++	set_fs(USER_DS);
++	pagefault_disable();
++	ret = strncpy_from_user(dst, unsafe_addr, count);
++	pagefault_enable();
++	set_fs(old_fs);
++
++	if (ret >= count) {
++		ret = count;
++		dst[ret - 1] = '\0';
++	} else if (ret > 0) {
++		ret++;
++	}
++
++	return ret;
++}
++
++/**
++ * strnlen_unsafe_user: - Get the size of a user string INCLUDING final NUL.
++ * @unsafe_addr: The string to measure.
++ * @count: Maximum count (including NUL)
++ *
++ * Get the size of a NUL-terminated string in user space without pagefault.
++ *
++ * Returns the size of the string INCLUDING the terminating NUL.
++ *
++ * If the string is too long, returns a number larger than @count. User
++ * has to check the return value against "> count".
++ * On exception (or invalid count), returns 0.
++ *
++ * Unlike strnlen_user, this can be used from IRQ handler etc. because
++ * it disables pagefaults.
++ */
++long strnlen_unsafe_user(const void __user *unsafe_addr, long count)
++{
++	mm_segment_t old_fs = get_fs();
++	int ret;
++
++	set_fs(USER_DS);
++	pagefault_disable();
++	ret = strnlen_user(unsafe_addr, count);
++	pagefault_enable();
++	set_fs(old_fs);
++
++	return ret;
++}
 -- 
 2.25.1
 
