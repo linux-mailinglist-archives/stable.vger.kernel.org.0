@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED85261D10
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D514D261D16
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731085AbgIHTaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
+        id S1731611AbgIHTbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731003AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731012AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:58:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68449241A6;
-        Tue,  8 Sep 2020 15:39:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0B27241A7;
+        Tue,  8 Sep 2020 15:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579543;
-        bh=f6GXLjPnwDckJXfqaCiej5T99kNCaF2Wd8VaNkz/nI8=;
+        s=default; t=1599579546;
+        bh=/CmNhgqxZ+7MyzWgmRTnoJ1IsBiQQimdXO1C8uYuIbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLc0lQvSB124mDWLv5nuVP2POi1qW/bzNB7Gw8+9mhMI0DbbPXLhyhK/pEyscjITT
-         I5aabCSOEqffO/oqhCCbQzpp7CTNH74B+Lhc1kcQQOGloWnJ/wXkIn5SbUnPCV3Djm
-         Hu3R5TBtgdnx/ovC3KzIBFG1qAcKddTGFnYB6Eb4=
+        b=rHEf+EnRp5wwbO0V361Hjc3RDvIznJLQMLKuHBW+0x6n5iwEoD23RMLY8vmAxGNWr
+         y81ZM3dznFuZoXI2v0cAKRo50v1E3IPZtj5MluTkbNUdo8abievTq4npmfDDB47NLa
+         jhZOUimSzRJMlvoCDh2+CiP0CD54Po7QoQ+71Nvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 122/186] xfs: dont update mtime on COW faults
-Date:   Tue,  8 Sep 2020 17:24:24 +0200
-Message-Id: <20200908152247.550362107@linuxfoundation.org>
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.8 123/186] ARC: perf: dont bail setup if pct irq missing in device-tree
+Date:   Tue,  8 Sep 2020 17:24:25 +0200
+Message-Id: <20200908152247.597184161@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,73 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit b17164e258e3888d376a7434415013175d637377 upstream.
+commit feb92d7d3813456c11dce215b3421801a78a8986 upstream.
 
-When running in a dax mode, if the user maps a page with MAP_PRIVATE and
-PROT_WRITE, the xfs filesystem would incorrectly update ctime and mtime
-when the user hits a COW fault.
+Current code inadventely bails if hardware supports sampling/overflow
+interrupts, but the irq is missing from device tree.
 
-This breaks building of the Linux kernel.  How to reproduce:
+|
+| # perf stat -e cycles,instructions,major-faults,minor-faults ../hackbench
+| Running with 10 groups 400 process
+| Time: 0.921
+|
+| Performance counter stats for '../hackbench':
+|
+|   <not supported>      cycles
+|   <not supported>      instructions
+|                 0      major-faults
+|              8679      minor-faults
 
- 1. extract the Linux kernel tree on dax-mounted xfs filesystem
- 2. run make clean
- 3. run make -j12
- 4. run make -j12
+This need not be as we can still do simple counting based perf stat.
+This unborks perf on HSDK-4xD
 
-at step 4, make would incorrectly rebuild the whole kernel (although it
-was already built in step 3).
-
-The reason for the breakage is that almost all object files depend on
-objtool.  When we run objtool, it takes COW page fault on its .data
-section, and these faults will incorrectly update the timestamp of the
-objtool binary.  The updated timestamp causes make to rebuild the whole
-tree.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/xfs_file.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arc/kernel/perf_event.c |   14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -1220,6 +1220,14 @@ __xfs_filemap_fault(
- 	return ret;
- }
+--- a/arch/arc/kernel/perf_event.c
++++ b/arch/arc/kernel/perf_event.c
+@@ -562,7 +562,7 @@ static int arc_pmu_device_probe(struct p
+ {
+ 	struct arc_reg_pct_build pct_bcr;
+ 	struct arc_reg_cc_build cc_bcr;
+-	int i, has_interrupts;
++	int i, has_interrupts, irq;
+ 	int counter_size;	/* in bits */
  
-+static inline bool
-+xfs_is_write_fault(
-+	struct vm_fault		*vmf)
-+{
-+	return (vmf->flags & FAULT_FLAG_WRITE) &&
-+	       (vmf->vma->vm_flags & VM_SHARED);
-+}
-+
- static vm_fault_t
- xfs_filemap_fault(
- 	struct vm_fault		*vmf)
-@@ -1227,7 +1235,7 @@ xfs_filemap_fault(
- 	/* DAX can shortcut the normal fault path on write faults! */
- 	return __xfs_filemap_fault(vmf, PE_SIZE_PTE,
- 			IS_DAX(file_inode(vmf->vma->vm_file)) &&
--			(vmf->flags & FAULT_FLAG_WRITE));
-+			xfs_is_write_fault(vmf));
- }
+ 	union cc_name {
+@@ -637,13 +637,7 @@ static int arc_pmu_device_probe(struct p
+ 		.attr_groups	= arc_pmu->attr_groups,
+ 	};
  
- static vm_fault_t
-@@ -1240,7 +1248,7 @@ xfs_filemap_huge_fault(
+-	if (has_interrupts) {
+-		int irq = platform_get_irq(pdev, 0);
+-
+-		if (irq < 0) {
+-			pr_err("Cannot get IRQ number for the platform\n");
+-			return -ENODEV;
+-		}
++	if (has_interrupts && (irq = platform_get_irq(pdev, 0) >= 0)) {
  
- 	/* DAX can shortcut the normal fault path on write faults! */
- 	return __xfs_filemap_fault(vmf, pe_size,
--			(vmf->flags & FAULT_FLAG_WRITE));
-+			xfs_is_write_fault(vmf));
- }
+ 		arc_pmu->irq = irq;
  
- static vm_fault_t
+@@ -652,9 +646,9 @@ static int arc_pmu_device_probe(struct p
+ 				   this_cpu_ptr(&arc_pmu_cpu));
+ 
+ 		on_each_cpu(arc_cpu_pmu_irq_init, &irq, 1);
+-
+-	} else
++	} else {
+ 		arc_pmu->pmu.capabilities |= PERF_PMU_CAP_NO_INTERRUPT;
++	}
+ 
+ 	/*
+ 	 * perf parser doesn't really like '-' symbol in events name, so let's
 
 
