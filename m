@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E915261E6E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D76A7261E62
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730304AbgIHTvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
+        id S1731925AbgIHTvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgIHPt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730304AbgIHPt5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:49:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FC4A2485B;
-        Tue,  8 Sep 2020 15:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACE7B2485D;
+        Tue,  8 Sep 2020 15:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579919;
-        bh=B+THMT/KrhLC+I0rRLa1Y7RwoeheG+obqjCh+/v+jb4=;
+        s=default; t=1599579922;
+        bh=Q0s+No+VwSBihjIHi1xxZfkgr3aWqm7PPMb0lJeQw4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMIQsdH3OUhE4M25ml4cqvBNH4wnsRumqPw6zQ5b1hZ9f4Ef32JJX8CFfsXn+Z/2R
-         n/tUzXHWruU2VGIt3Lo3GBKA6jWwv4rZ0qakvuW1rgDzoNZYUfBmxcVueuILKCu+g2
-         6Mz15aBH67z/5BgjMkZ6/J9cFqAYB609k02dCG94=
+        b=rzKiQ7792d/hIt6YLu5j5PDIAUfhGYHYOliWXFlEiDEFbWV2c3742XUtasR5gDzMp
+         YYxj9qITEVHBNH4uhxwT7EIg3t5PYq1zzG/X/eRRZ8JvakUOgXHIq96MVVXKveeJFp
+         Z8pso5kZBaX7FYFPa+8WTlCEG5ZEVhJWonqzvBKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/129] btrfs: fix potential deadlock in the search ioctl
-Date:   Tue,  8 Sep 2020 17:25:28 +0200
-Message-Id: <20200908152234.051441852@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/129] Revert "net: dsa: microchip: set the correct number of ports"
+Date:   Tue,  8 Sep 2020 17:25:29 +0200
+Message-Id: <20200908152234.112893103@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -45,225 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+This reverts commit d55dad8b1d893fae0c4e778abf2ace048bcbad86.
 
-[ Upstream commit a48b73eca4ceb9b8a4b97f290a065335dbcd8a04 ]
+Upstream commit af199a1a9cb0 ("net: dsa: microchip: set the correct
+number of ports") seems to have been applied twice on top of the 5.4
+branch. This revert the second instance of said commit.
 
-With the conversion of the tree locks to rwsem I got the following
-lockdep splat:
-
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc7-00165-g04ec4da5f45f-dirty #922 Not tainted
-  ------------------------------------------------------
-  compsize/11122 is trying to acquire lock:
-  ffff889fabca8768 (&mm->mmap_lock#2){++++}-{3:3}, at: __might_fault+0x3e/0x90
-
-  but task is already holding lock:
-  ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #2 (btrfs-fs-00){++++}-{3:3}:
-	 down_write_nested+0x3b/0x70
-	 __btrfs_tree_lock+0x24/0x120
-	 btrfs_search_slot+0x756/0x990
-	 btrfs_lookup_inode+0x3a/0xb4
-	 __btrfs_update_delayed_inode+0x93/0x270
-	 btrfs_async_run_delayed_root+0x168/0x230
-	 btrfs_work_helper+0xd4/0x570
-	 process_one_work+0x2ad/0x5f0
-	 worker_thread+0x3a/0x3d0
-	 kthread+0x133/0x150
-	 ret_from_fork+0x1f/0x30
-
-  -> #1 (&delayed_node->mutex){+.+.}-{3:3}:
-	 __mutex_lock+0x9f/0x930
-	 btrfs_delayed_update_inode+0x50/0x440
-	 btrfs_update_inode+0x8a/0xf0
-	 btrfs_dirty_inode+0x5b/0xd0
-	 touch_atime+0xa1/0xd0
-	 btrfs_file_mmap+0x3f/0x60
-	 mmap_region+0x3a4/0x640
-	 do_mmap+0x376/0x580
-	 vm_mmap_pgoff+0xd5/0x120
-	 ksys_mmap_pgoff+0x193/0x230
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #0 (&mm->mmap_lock#2){++++}-{3:3}:
-	 __lock_acquire+0x1272/0x2310
-	 lock_acquire+0x9e/0x360
-	 __might_fault+0x68/0x90
-	 _copy_to_user+0x1e/0x80
-	 copy_to_sk.isra.32+0x121/0x300
-	 search_ioctl+0x106/0x200
-	 btrfs_ioctl_tree_search_v2+0x7b/0xf0
-	 btrfs_ioctl+0x106f/0x30a0
-	 ksys_ioctl+0x83/0xc0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  other info that might help us debug this:
-
-  Chain exists of:
-    &mm->mmap_lock#2 --> &delayed_node->mutex --> btrfs-fs-00
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(btrfs-fs-00);
-				 lock(&delayed_node->mutex);
-				 lock(btrfs-fs-00);
-    lock(&mm->mmap_lock#2);
-
-   *** DEADLOCK ***
-
-  1 lock held by compsize/11122:
-   #0: ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  stack backtrace:
-  CPU: 17 PID: 11122 Comm: compsize Kdump: loaded Not tainted 5.8.0-rc7-00165-g04ec4da5f45f-dirty #922
-  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x165/0x180
-   __lock_acquire+0x1272/0x2310
-   lock_acquire+0x9e/0x360
-   ? __might_fault+0x3e/0x90
-   ? find_held_lock+0x72/0x90
-   __might_fault+0x68/0x90
-   ? __might_fault+0x3e/0x90
-   _copy_to_user+0x1e/0x80
-   copy_to_sk.isra.32+0x121/0x300
-   ? btrfs_search_forward+0x2a6/0x360
-   search_ioctl+0x106/0x200
-   btrfs_ioctl_tree_search_v2+0x7b/0xf0
-   btrfs_ioctl+0x106f/0x30a0
-   ? __do_sys_newfstat+0x5a/0x70
-   ? ksys_ioctl+0x83/0xc0
-   ksys_ioctl+0x83/0xc0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x50/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The problem is we're doing a copy_to_user() while holding tree locks,
-which can deadlock if we have to do a page fault for the copy_to_user().
-This exists even without my locking changes, so it needs to be fixed.
-Rework the search ioctl to do the pre-fault and then
-copy_to_user_nofault for the copying.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c |  8 ++++----
- fs/btrfs/extent_io.h |  6 +++---
- fs/btrfs/ioctl.c     | 27 ++++++++++++++++++++-------
- 3 files changed, 27 insertions(+), 14 deletions(-)
+ drivers/net/dsa/microchip/ksz8795.c | 3 ---
+ drivers/net/dsa/microchip/ksz9477.c | 3 ---
+ 2 files changed, 6 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 5707bf0575d43..60c21cfb19480 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5607,9 +5607,9 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dstv,
- 	}
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index 8d50aacd19e51..84c4319e3b31f 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -1270,9 +1270,6 @@ static int ksz8795_switch_init(struct ksz_device *dev)
+ 	/* set the real number of ports */
+ 	dev->ds->num_ports = dev->port_cnt;
+ 
+-	/* set the real number of ports */
+-	dev->ds->num_ports = dev->port_cnt;
+-
+ 	return 0;
  }
  
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dstv,
--			       unsigned long start, unsigned long len)
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dstv,
-+				       unsigned long start, unsigned long len)
- {
- 	size_t cur;
- 	size_t offset;
-@@ -5630,7 +5630,7 @@ int read_extent_buffer_to_user(const struct extent_buffer *eb,
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index b15da9a8e3bb9..49ab1346dc3f7 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -515,9 +515,6 @@ static int ksz9477_port_vlan_filtering(struct dsa_switch *ds, int port,
+ 			     PORT_VLAN_LOOKUP_VID_0, false);
+ 	}
  
- 		cur = min(len, (PAGE_SIZE - offset));
- 		kaddr = page_address(page);
--		if (copy_to_user(dst, kaddr + offset, cur)) {
-+		if (probe_user_write(dst, kaddr + offset, cur)) {
- 			ret = -EFAULT;
- 			break;
- 		}
-diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
-index cf3424d58fec7..bc858c8cef0a6 100644
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -457,9 +457,9 @@ int memcmp_extent_buffer(const struct extent_buffer *eb, const void *ptrv,
- void read_extent_buffer(const struct extent_buffer *eb, void *dst,
- 			unsigned long start,
- 			unsigned long len);
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dst, unsigned long start,
--			       unsigned long len);
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dst, unsigned long start,
-+				       unsigned long len);
- void write_extent_buffer_fsid(struct extent_buffer *eb, const void *src);
- void write_extent_buffer_chunk_tree_uuid(struct extent_buffer *eb,
- 		const void *src);
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 88745b5182126..775fd5975191b 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2105,9 +2105,14 @@ static noinline int copy_to_sk(struct btrfs_path *path,
- 		sh.len = item_len;
- 		sh.transid = found_transid;
+-	/* set the real number of ports */
+-	dev->ds->num_ports = dev->port_cnt;
+-
+ 	return 0;
+ }
  
--		/* copy search result header */
--		if (copy_to_user(ubuf + *sk_offset, &sh, sizeof(sh))) {
--			ret = -EFAULT;
-+		/*
-+		 * Copy search result header. If we fault then loop again so we
-+		 * can fault in the pages and -EFAULT there if there's a
-+		 * problem. Otherwise we'll fault and then copy the buffer in
-+		 * properly this next time through
-+		 */
-+		if (probe_user_write(ubuf + *sk_offset, &sh, sizeof(sh))) {
-+			ret = 0;
- 			goto out;
- 		}
- 
-@@ -2115,10 +2120,14 @@ static noinline int copy_to_sk(struct btrfs_path *path,
- 
- 		if (item_len) {
- 			char __user *up = ubuf + *sk_offset;
--			/* copy the item */
--			if (read_extent_buffer_to_user(leaf, up,
--						       item_off, item_len)) {
--				ret = -EFAULT;
-+			/*
-+			 * Copy the item, same behavior as above, but reset the
-+			 * * sk_offset so we copy the full thing again.
-+			 */
-+			if (read_extent_buffer_to_user_nofault(leaf, up,
-+						item_off, item_len)) {
-+				ret = 0;
-+				*sk_offset -= sizeof(sh);
- 				goto out;
- 			}
- 
-@@ -2206,6 +2215,10 @@ static noinline int search_ioctl(struct inode *inode,
- 	key.offset = sk->min_offset;
- 
- 	while (1) {
-+		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
-+		if (ret)
-+			break;
-+
- 		ret = btrfs_search_forward(root, &key, path, sk->min_transid);
- 		if (ret != 0) {
- 			if (ret > 0)
 -- 
 2.25.1
 
