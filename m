@@ -2,342 +2,367 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA73E261842
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB612618B4
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732099AbgIHRvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:51:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:46562 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731625AbgIHQNq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 12:13:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599581614;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=LqQYTUR+Cjv5vE6YHnEmDezkOIUMwmu/uSfVyzwKLAM=;
-        b=bANS7+ZPwt5egDkbkXXBdw90vv6F+HPS1TIRfJzTFySd7yU3G0uE/DMUfCXDqBoWjpMEI7
-        Xu2nGvSrEgJ3pReGaW4cVAgotW41bwx2vjm1IjDflARDc9njrErI8IPsiOsLg4YIrWePRA
-        I31nRAFSL22Rdez0/p4nD7Kcvecgcpg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-294-fPVSGDbVPEmEQ5wnvJVFfQ-1; Tue, 08 Sep 2020 10:01:35 -0400
-X-MC-Unique: fPVSGDbVPEmEQ5wnvJVFfQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1732167AbgIHR7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:59:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731549AbgIHQMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:12:30 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7BE9B1091061
-        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 14:01:34 +0000 (UTC)
-Received: from [10.128.8.76] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 658BA5C1C4;
-        Tue,  8 Sep 2020 14:01:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        by mail.kernel.org (Postfix) with ESMTPSA id 81D05247F4;
+        Tue,  8 Sep 2020 15:51:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599580301;
+        bh=OpPXb8G3vytHHeZPbIBSIVK2+KKZGNcW2wmOBzBGdbo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dP8bjfsuxsIPJTztml60mh43QR2WnlY4qSJ6OR8X9khgEal8kxu7T8DzJQDNPnvN3
+         eNULPAmWFWaeaTO7hrq4KHfgH1pM1FX0tM2Vn3fr04DvTiGdsqxceILcNNsXLMXG6u
+         28Zyk4bTJRstIKEbGxmK+PlcbyvcjSXl5CqGeme4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.14 00/65] 4.14.197-rc1 review
+Date:   Tue,  8 Sep 2020 17:25:45 +0200
+Message-Id: <20200908152217.022816723@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.7-c448efd.cki
- (stable-queue)
-Date:   Tue, 08 Sep 2020 14:01:28 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.530060F1BD.ZW2T1OSX8N@redhat.com>
-X-Gitlab-Pipeline-ID: 613404
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/613404
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.197-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.197-rc1
+X-KernelTest-Deadline: 2020-09-10T15:22+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the start of the stable review cycle for the 4.14.197 release.
+There are 65 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Hello,
+Responses should be made by Thu, 10 Sep 2020 15:21:57 +0000.
+Anything received after that time might be too late.
 
-We ran automated tests on a recent commit from this kernel tree:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.197-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: c448efd37041 - x86/mm/32: Bring back vmalloc faulting on =
-x86_32
+thanks,
 
-The results of these automated tests are provided below.
+greg k-h
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse/2020/09/08/613404
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 kernel-rt: rt_migrate_test
-       =E2=9C=85 kernel-rt: rteval
-       =E2=9C=85 kernel-rt: sched_deadline
-       =E2=9C=85 kernel-rt: smidetect
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =F0=9F=92=A5 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
 -------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
+Pseudo-Shortlog of commits:
 
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.197-rc1
 
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+Himadri Pandya <himadrispandya@gmail.com>
+    net: usb: Fix uninit-was-stored issue in asix_read_phy_addr()
+
+Johannes Berg <johannes.berg@intel.com>
+    cfg80211: regulatory: reject invalid hints
+
+Muchun Song <songmuchun@bytedance.com>
+    mm/hugetlb: fix a race between hugetlb sysctl handlers
+
+Mrinal Pandey <mrinalmni@gmail.com>
+    checkpatch: fix the usage of capture group ( ... )
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Survive synchronous exceptions caused by AT instructions
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Defer guest entry when an asynchronous exception is pending
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Add kvm_extable for vaxorcism code
+
+Eugeniu Rosca <erosca@de.adit-jv.com>
+    mm: slub: fix conversion of freelist_corrupted()
+
+Ye Bin <yebin10@huawei.com>
+    dm thin metadata: Avoid returning cmd->bm wild pointer on error
+
+Ye Bin <yebin10@huawei.com>
+    dm cache metadata: Avoid returning cmd->bm wild pointer on error
+
+Tejun Heo <tj@kernel.org>
+    libata: implement ATA_HORKAGE_MAX_TRIM_128M and apply to Sandisks
+
+Bart Van Assche <bart.vanassche@wdc.com>
+    block: Move SECTOR_SIZE and SECTOR_SHIFT definitions into <linux/blkdev.h>
+
+Ming Lei <ming.lei@redhat.com>
+    block: allow for_each_bvec to support zero len bvec
+
+Max Staudt <max@enpas.org>
+    affs: fix basic permission bits to actually work
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA: firewire-digi00x: exclude Avid Adrenaline from detection
+
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda/hdmi: always check pin power status in i915 pin fixup
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Remove superfluous WARN_ON() for mulaw sanity check
+
+Tong Zhang <ztong0001@gmail.com>
+    ALSA: ca0106: fix error code handling
+
+Rogan Dawes <rogan@dawes.za.net>
+    usb: qmi_wwan: add D-Link DWM-222 A2 device ID
+
+Daniele Palmas <dnlplm@gmail.com>
+    net: usb: qmi_wwan: add Telit 0x1050 composition
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: fix potential deadlock in the search ioctl
+
+Daniel Borkmann <daniel@iogearbox.net>
+    uaccess: Add non-pagefault user-space write function
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    uaccess: Add non-pagefault user-space read functions
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: set the lockdep class for log tree extent buffers
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: Remove extraneous extent_buffer_get from tree_mod_log_rewind
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: Remove redundant extent_buffer_get in get_old_root
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: drop path before adding new uuid tree entry
+
+Jason Gunthorpe <jgg@nvidia.com>
+    include/linux/log2.h: add missing () around n in roundup_pow_of_two()
+
+Tony Lindgren <tony@atomide.com>
+    thermal: ti-soc-thermal: Fix bogus thermal shutdowns for omap4430
+
+Lu Baolu <baolu.lu@linux.intel.com>
+    iommu/vt-d: Serialize IOMMU GCMD register modifications
+
+Michael Chan <michael.chan@broadcom.com>
+    tg3: Fix soft lockup when tg3_reset_task() fails.
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    drm/radeon: Prefer lower feedback dividers
+
+Al Viro <viro@zeniv.linux.org.uk>
+    fix regression in "epoll: Keep a reference on files added to the check list"
+
+Shung-Hsi Yu <shung-hsi.yu@suse.com>
+    net: ethernet: mlx4: Fix memory allocation in mlx4_buddy_init()
+
+Al Grant <al.grant@foss.arm.com>
+    perf tools: Correct SNOOPX field offset
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    nvmet-fc: Fix a missed _irqsave version of spin_lock in 'nvmet_fc_fod_op_done()'
+
+Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+    bnxt_en: Fix PCI AER error recovery flow
+
+Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+    bnxt_en: Check for zero dir entries in NVRAM.
+
+Nicolas Dichtel <nicolas.dichtel@6wind.com>
+    gtp: add GTPA_LINK info to msg sent to userspace
+
+Marek Szyprowski <m.szyprowski@samsung.com>
+    dmaengine: pl330: Fix burst length if burst size is smaller than bus width
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: arc_emac: Fix memleak in arc_mdio_probe
+
+Yuusuke Ashizuka <ashiduka@fujitsu.com>
+    ravb: Fixed to be able to unload modules
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: systemport: Fix memleak in bcm_sysport_probe
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: hns: Fix memleak in hns_nic_dev_probe
+
+Florian Westphal <fw@strlen.de>
+    netfilter: nf_tables: fix destination register zeroing
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_tables: incorrect enum nft_list_attributes definition
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_tables: add NFTA_SET_USERDATA if not null
+
+Florian Fainelli <f.fainelli@gmail.com>
+    MIPS: BMIPS: Also call bmips_cpu_setup() for secondary cores
+
+Florian Fainelli <f.fainelli@gmail.com>
+    MIPS: mm: BMIPS5000 has inclusive physical caches
+
+Yu Kuai <yukuai3@huawei.com>
+    dmaengine: at_hdmac: check return value of of_find_device_by_node() in at_dma_xlate()
+
+Jussi Kivilinna <jussi.kivilinna@haltian.com>
+    batman-adv: bla: use netif_rx_ni when not in interrupt context
+
+Linus Lüssing <linus.luessing@c0d3.blue>
+    batman-adv: Fix own OGM check in aggregated OGMs
+
+Sven Eckelmann <sven@narfation.org>
+    batman-adv: Avoid uninitialized chaddr when handling DHCP
+
+Peter Ujfalusi <peter.ujfalusi@ti.com>
+    dmaengine: of-dma: Fix of_dma_router_xlate's of_dma_xlate handling
+
+Simon Leiner <simon@leiner.me>
+    xen/xenbus: Fix granting of vmalloc'd memory
+
+Sven Schnelle <svens@linux.ibm.com>
+    s390: don't trace preemption in percpu macros
+
+Peter Zijlstra <peterz@infradead.org>
+    cpuidle: Fixup IRQ state
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: don't allow setlease on cephfs
+
+Amit Engel <amit.engel@dell.com>
+    nvmet: Disable keep-alive timer when kato is cleared to 0h
+
+Tom Rix <trix@redhat.com>
+    hwmon: (applesmc) check status earlier.
+
+Krishna Manikandan <mkrishn@codeaurora.org>
+    drm/msm: add shutdown support for display platform_driver
+
+Kim Phillips <kim.phillips@amd.com>
+    perf record/stat: Explicitly call out event modifiers in the documentation
+
+Marc Zyngier <maz@kernel.org>
+    HID: core: Sanitize event code and type when mapping input
+
+Marc Zyngier <maz@kernel.org>
+    HID: core: Correctly handle ReportSize being zero
+
+
+-------------
+
+Diffstat:
+
+ Documentation/filesystems/affs.txt                 |  16 +-
+ Makefile                                           |   4 +-
+ arch/arm64/include/asm/kvm_arm.h                   |   3 +-
+ arch/arm64/include/asm/kvm_asm.h                   |  43 ++++++
+ arch/arm64/kernel/vmlinux.lds.S                    |   8 +
+ arch/arm64/kvm/hyp/entry.S                         |  26 +++-
+ arch/arm64/kvm/hyp/hyp-entry.S                     |  63 +++++---
+ arch/arm64/kvm/hyp/switch.c                        |  39 ++++-
+ arch/mips/kernel/smp-bmips.c                       |   2 +
+ arch/mips/mm/c-r4k.c                               |   4 +
+ arch/s390/include/asm/percpu.h                     |  28 ++--
+ arch/xtensa/platforms/iss/simdisk.c                |   1 -
+ drivers/ata/libata-core.c                          |   5 +-
+ drivers/ata/libata-scsi.c                          |   8 +-
+ drivers/block/brd.c                                |   1 -
+ drivers/block/null_blk.c                           |   2 -
+ drivers/block/rbd.c                                |   9 --
+ drivers/block/zram/zram_drv.h                      |   1 -
+ drivers/cpuidle/cpuidle.c                          |   3 +-
+ drivers/dma/at_hdmac.c                             |   2 +
+ drivers/dma/of-dma.c                               |   8 +-
+ drivers/dma/pl330.c                                |   2 +-
+ drivers/gpu/drm/msm/msm_drv.c                      |   8 +
+ drivers/gpu/drm/radeon/radeon_display.c            |   2 +-
+ drivers/hid/hid-core.c                             |  15 +-
+ drivers/hid/hid-input.c                            |   4 +
+ drivers/hid/hid-multitouch.c                       |   2 +
+ drivers/hwmon/applesmc.c                           |  31 ++--
+ drivers/ide/ide-cd.c                               |   8 +-
+ drivers/ide/ide-cd.h                               |   6 +-
+ drivers/iommu/intel_irq_remapping.c                |  10 +-
+ drivers/md/dm-cache-metadata.c                     |   8 +-
+ drivers/md/dm-thin-metadata.c                      |   8 +-
+ drivers/net/ethernet/arc/emac_mdio.c               |   1 +
+ drivers/net/ethernet/broadcom/bcmsysport.c         |   6 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |   3 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |   3 +
+ drivers/net/ethernet/broadcom/tg3.c                |  17 ++-
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c      |   9 +-
+ drivers/net/ethernet/mellanox/mlx4/mr.c            |   2 +-
+ drivers/net/ethernet/renesas/ravb_main.c           | 110 +++++++-------
+ drivers/net/gtp.c                                  |   1 +
+ drivers/net/usb/asix_common.c                      |   2 +-
+ drivers/net/usb/qmi_wwan.c                         |   2 +
+ drivers/nvdimm/nd.h                                |   1 -
+ drivers/nvme/target/core.c                         |   6 +
+ drivers/nvme/target/fc.c                           |   4 +-
+ drivers/scsi/gdth.h                                |   3 -
+ .../thermal/ti-soc-thermal/omap4-thermal-data.c    |  23 +--
+ drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h  |  10 +-
+ drivers/xen/xenbus/xenbus_client.c                 |  10 +-
+ fs/affs/amigaffs.c                                 |  27 ++++
+ fs/affs/file.c                                     |  26 +++-
+ fs/btrfs/ctree.c                                   |   8 +-
+ fs/btrfs/extent_io.c                               |   8 +-
+ fs/btrfs/extent_io.h                               |   6 +-
+ fs/btrfs/ioctl.c                                   |  27 +++-
+ fs/btrfs/volumes.c                                 |   3 +-
+ fs/ceph/file.c                                     |   1 +
+ fs/eventpoll.c                                     |   6 +-
+ include/linux/blkdev.h                             |  42 ++++--
+ include/linux/bvec.h                               |   9 +-
+ include/linux/device-mapper.h                      |   2 -
+ include/linux/hid.h                                |  42 ++++--
+ include/linux/ide.h                                |   1 -
+ include/linux/libata.h                             |   1 +
+ include/linux/log2.h                               |   2 +-
+ include/linux/uaccess.h                            |  26 ++++
+ include/net/netfilter/nf_tables.h                  |   2 +
+ include/uapi/linux/msdos_fs.h                      |   2 +
+ include/uapi/linux/netfilter/nf_tables.h           |   2 +-
+ mm/hugetlb.c                                       |  26 +++-
+ mm/maccess.c                                       | 167 +++++++++++++++++++--
+ mm/slub.c                                          |  12 +-
+ net/batman-adv/bat_v_ogm.c                         |  11 +-
+ net/batman-adv/bridge_loop_avoidance.c             |   5 +-
+ net/batman-adv/gateway_client.c                    |   6 +-
+ net/netfilter/nf_tables_api.c                      |   3 +-
+ net/netfilter/nft_payload.c                        |   4 +-
+ net/wireless/reg.c                                 |   3 +
+ scripts/checkpatch.pl                              |   4 +-
+ sound/core/oss/mulaw.c                             |   4 +-
+ sound/firewire/digi00x/digi00x.c                   |   5 +
+ sound/pci/ca0106/ca0106_main.c                     |   3 +-
+ sound/pci/hda/patch_hdmi.c                         |   1 +
+ tools/include/uapi/linux/perf_event.h              |   2 +-
+ tools/perf/Documentation/perf-record.txt           |   4 +
+ tools/perf/Documentation/perf-stat.txt             |   4 +
+ 88 files changed, 811 insertions(+), 289 deletions(-)
+
 
