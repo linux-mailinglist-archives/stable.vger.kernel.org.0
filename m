@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D5E261447
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C871261464
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731502AbgIHQLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
+        id S1731807AbgIHQTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731494AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:43 -0400
+        id S1731786AbgIHQS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:18:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DD7D24730;
-        Tue,  8 Sep 2020 15:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7BE32482C;
+        Tue,  8 Sep 2020 15:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579653;
-        bh=+zm7Fp+zxwREOLfIDfp8EndrVnZmnnp2r5XmiTl5G6g=;
+        s=default; t=1599579875;
+        bh=3KaYicKDGMNDnpLifiUlHK3tIkjkxgO2LtaIO+noLlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGO+xrw4ZXwZbVLZgI9KAJxK7QwPekH77kbegJTBjf/MYwqwWVzTq/ghDaYvkSa5e
-         8137S1KU5m8LQCNa3APczPaPoxCVxzrWRvii/n4MdDjv33PdgjOUzWqx3pj0t61eEn
-         4kR3M8MCWhCkSo65D8c06+Bpcrc/N8z1b8tWrEWg=
+        b=ji2BhEAsoxe3KITYItQMtiG9WxIcWfiLDH2GjhSUwUjet3IF39qFy1GSgeNo1thfT
+         2w9hMeb34R21F5KbO0kQvSdaGRZsT/qTdAAKv4V8GFYN9LYEtXydOicBXP2o9iBWkt
+         IHfVcLc4pD2lKAbPLLfX/bkMrUkg59pGc48AwOpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Marzinski <bmarzins@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.8 166/186] dm mpath: fix racey management of PG initialization
-Date:   Tue,  8 Sep 2020 17:25:08 +0200
-Message-Id: <20200908152249.710294557@linuxfoundation.org>
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 068/129] thermal: ti-soc-thermal: Fix bogus thermal shutdowns for omap4430
+Date:   Tue,  8 Sep 2020 17:25:09 +0200
+Message-Id: <20200908152233.093509491@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
-References: <20200908152241.646390211@linuxfoundation.org>
+In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
+References: <20200908152229.689878733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +47,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit c322ee9320eaa4013ca3620b1130992916b19b31 upstream.
+[ Upstream commit 30d24faba0532d6972df79a1bf060601994b5873 ]
 
-Commit 935fcc56abc3 ("dm mpath: only flush workqueue when needed")
-changed flush_multipath_work() to avoid needless workqueue
-flushing (of a multipath global workqueue). But that change didn't
-realize the surrounding flush_multipath_work() code should also only
-run if 'pg_init_in_progress' is set.
+We can sometimes get bogus thermal shutdowns on omap4430 at least with
+droid4 running idle with a battery charger connected:
 
-Fix this by only doing all of flush_multipath_work()'s PG init related
-work if 'pg_init_in_progress' is set.
+thermal thermal_zone0: critical temperature reached (143 C), shutting down
 
-Otherwise multipath_wait_for_pg_init_completion() will run
-unconditionally but the preceeding flush_workqueue(kmpath_handlerd)
-may not. This could lead to deadlock (though only if kmpath_handlerd
-never runs a corresponding work to decrement 'pg_init_in_progress').
+Dumping out the register values shows we can occasionally get a 0x7f value
+that is outside the TRM listed values in the ADC conversion table. And then
+we get a normal value when reading again after that. Reading the register
+multiple times does not seem help avoiding the bogus values as they stay
+until the next sample is ready.
 
-It could also be, though highly unlikely, that the kmpath_handlerd
-work that does PG init completes before 'pg_init_in_progress' is set,
-and then an intervening DM table reload's multipath_postsuspend()
-triggers flush_multipath_work().
+Looking at the TRM chapter "18.4.10.2.3 ADC Codes Versus Temperature", we
+should have values from 13 to 107 listed with a total of 95 values. But
+looking at the omap4430_adc_to_temp array, the values are off, and the
+end values are missing. And it seems that the 4430 ADC table is similar
+to omap3630 rather than omap4460.
 
-Fixes: 935fcc56abc3 ("dm mpath: only flush workqueue when needed")
-Cc: stable@vger.kernel.org
-Reported-by: Ben Marzinski <bmarzins@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's fix the issue by using values based on the omap3630 table and just
+ignoring invalid values. Compared to the 4430 TRM, the omap3630 table has
+the missing values added while the TRM table only shows every second
+value.
 
+Note that sometimes the ADC register values within the valid table can
+also be way off for about 1 out of 10 values. But it seems that those
+just show about 25 C too low values rather than too high values. So those
+do not cause a bogus thermal shutdown.
+
+Fixes: 1a31270e54d7 ("staging: omap-thermal: add OMAP4 data structures")
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200706183338.25622-1-tony@atomide.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ .../ti-soc-thermal/omap4-thermal-data.c       | 23 ++++++++++---------
+ .../thermal/ti-soc-thermal/omap4xxx-bandgap.h | 10 +++++---
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -1247,17 +1247,25 @@ static void multipath_wait_for_pg_init_c
- static void flush_multipath_work(struct multipath *m)
- {
- 	if (m->hw_handler_name) {
--		set_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
--		smp_mb__after_atomic();
-+		unsigned long flags;
-+
-+		if (!atomic_read(&m->pg_init_in_progress))
-+			goto skip;
-+
-+		spin_lock_irqsave(&m->lock, flags);
-+		if (atomic_read(&m->pg_init_in_progress) &&
-+		    !test_and_set_bit(MPATHF_PG_INIT_DISABLED, &m->flags)) {
-+			spin_unlock_irqrestore(&m->lock, flags);
+diff --git a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
+index 63b02bfb2adf6..fdb8a495ab69a 100644
+--- a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
++++ b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
+@@ -37,20 +37,21 @@ static struct temp_sensor_data omap4430_mpu_temp_sensor_data = {
  
--		if (atomic_read(&m->pg_init_in_progress))
- 			flush_workqueue(kmpath_handlerd);
--		multipath_wait_for_pg_init_completion(m);
-+			multipath_wait_for_pg_init_completion(m);
+ /*
+  * Temperature values in milli degree celsius
+- * ADC code values from 530 to 923
++ * ADC code values from 13 to 107, see TRM
++ * "18.4.10.2.3 ADC Codes Versus Temperature".
+  */
+ static const int
+ omap4430_adc_to_temp[OMAP4430_ADC_END_VALUE - OMAP4430_ADC_START_VALUE + 1] = {
+-	-38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000, -22000,
+-	-20000, -18000, -17000, -15000, -13000, -12000, -10000, -8000, -6000,
+-	-5000, -3000, -1000, 0, 2000, 3000, 5000, 6000, 8000, 10000, 12000,
+-	13000, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28000, 30000,
+-	32000, 33000, 35000, 37000, 38000, 40000, 42000, 43000, 45000, 47000,
+-	48000, 50000, 52000, 53000, 55000, 57000, 58000, 60000, 62000, 64000,
+-	66000, 68000, 70000, 71000, 73000, 75000, 77000, 78000, 80000, 82000,
+-	83000, 85000, 87000, 88000, 90000, 92000, 93000, 95000, 97000, 98000,
+-	100000, 102000, 103000, 105000, 107000, 109000, 111000, 113000, 115000,
+-	117000, 118000, 120000, 122000, 123000,
++	-40000, -38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000,
++	-22000,	-20000, -18500, -17000, -15000, -13500, -12000, -10000, -8000,
++	-6500, -5000, -3500, -1500, 0, 2000, 3500, 5000, 6500, 8500, 10000,
++	12000, 13500, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28500,
++	30000, 32000, 33500, 35000, 37000, 38500, 40000, 42000, 43500, 45000,
++	47000, 48500, 50000, 52000, 53500, 55000, 57000, 58500, 60000, 62000,
++	64000, 66000, 68000, 70000, 71500, 73500, 75000, 77000, 78500, 80000,
++	82000, 83500, 85000, 87000, 88500, 90000, 92000, 93500, 95000, 97000,
++	98500, 100000, 102000, 103500, 105000, 107000, 109000, 111000, 113000,
++	115000, 117000, 118500, 120000, 122000, 123500, 125000,
+ };
  
--		clear_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
--		smp_mb__after_atomic();
-+			spin_lock_irqsave(&m->lock, flags);
-+			clear_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
-+		}
-+		spin_unlock_irqrestore(&m->lock, flags);
- 	}
--
-+skip:
- 	if (m->queue_mode == DM_TYPE_BIO_BASED)
- 		flush_work(&m->process_queued_bios);
- 	flush_work(&m->trigger_event);
+ /* OMAP4430 data */
+diff --git a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
+index a453ff8eb313e..9a3955c3853ba 100644
+--- a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
++++ b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
+@@ -53,9 +53,13 @@
+  * and thresholds for OMAP4430.
+  */
+ 
+-/* ADC conversion table limits */
+-#define OMAP4430_ADC_START_VALUE			0
+-#define OMAP4430_ADC_END_VALUE				127
++/*
++ * ADC conversion table limits. Ignore values outside the TRM listed
++ * range to avoid bogus thermal shutdowns. See omap4430 TRM chapter
++ * "18.4.10.2.3 ADC Codes Versus Temperature".
++ */
++#define OMAP4430_ADC_START_VALUE			13
++#define OMAP4430_ADC_END_VALUE				107
+ /* bandgap clock limits (no control on 4430) */
+ #define OMAP4430_MAX_FREQ				32768
+ #define OMAP4430_MIN_FREQ				32768
+-- 
+2.25.1
+
 
 
