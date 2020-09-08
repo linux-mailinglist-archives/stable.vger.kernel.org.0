@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90319261CCB
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C2D261C25
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732165AbgIHT0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47740 "EHLO mail.kernel.org"
+        id S1731881AbgIHTPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:15:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731056AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:00:04 -0400
+        id S1731200AbgIHQEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:04:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58E722464B;
-        Tue,  8 Sep 2020 15:39:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A02C724670;
+        Tue,  8 Sep 2020 15:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579560;
-        bh=F6E0uU3Gz+72YBSzrH0izRjdV0y0ftaElR3dUaV65Ho=;
+        s=default; t=1599579563;
+        bh=742W3CbqKDvwbrn1NvU05FnnBNu/FeZctm0eV7DtrN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+7tHRIrn5U3qgeNsBuYkJcnm8msy2uIcJyo/udwWXkVBUECqw1fjzDvBBS+mIroa
-         ElOSNwWh/4wA7hefAKZ5kNLLu/prGFjQNmTLvAtegqvI5hn4R20Q+MuH1kczTQIVC0
-         HYW44BwxvbHr4UwYrAryyYtJkAthFSjPxuu0zQRc=
+        b=klyblTRCLx0jyepyLpcGpAw9a2yohPlCk/wONGo9iGn6OJUBNQeJrp1p3u4Jj/nRT
+         9VKVvyfd/p8WTNFGaiPDt88Ai28ZNpbMj5xnmE9FTGZT25y2i+Q74PNMXskTxwBSUf
+         TlhHBlkwsCgKm4Dsix8H4Mhs3L5nuZ5tBgI81aY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
         Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 128/186] btrfs: set the correct lockdep class for new nodes
-Date:   Tue,  8 Sep 2020 17:24:30 +0200
-Message-Id: <20200908152247.842898789@linuxfoundation.org>
+Subject: [PATCH 5.8 129/186] btrfs: set the lockdep class for log tree extent buffers
+Date:   Tue,  8 Sep 2020 17:24:31 +0200
+Message-Id: <20200908152247.892001151@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -47,41 +46,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit ad24466588ab7d7c879053c5afd919b0c555fec0 upstream.
+commit d3beaa253fd6fa40b8b18a216398e6e5376a9d21 upstream.
 
-When flipping over to the rw_semaphore I noticed I'd get a lockdep splat
-in replace_path(), which is weird because we're swapping the reloc root
-with the actual target root.  Turns out this is because we're using the
-root->root_key.objectid as the root id for the newly allocated tree
-block when setting the lockdep class, however we need to be using the
-actual owner of this new block, which is saved in owner.
+These are special extent buffers that get rewound in order to lookup
+the state of the tree at a specific point in time.  As such they do not
+go through the normal initialization paths that set their lockdep class,
+so handle them appropriately when they are created and before they are
+locked.
 
-The affected path is through btrfs_copy_root as all other callers of
-btrfs_alloc_tree_block (which calls init_new_buffer) have root_objectid
-== root->root_key.objectid .
-
-CC: stable@vger.kernel.org # 5.4+
+CC: stable@vger.kernel.org # 4.4+
 Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ctree.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -4527,7 +4527,7 @@ btrfs_init_new_buffer(struct btrfs_trans
- 		return ERR_PTR(-EUCLEAN);
- 	}
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1297,6 +1297,8 @@ tree_mod_log_rewind(struct btrfs_fs_info
+ 	btrfs_tree_read_unlock_blocking(eb);
+ 	free_extent_buffer(eb);
  
--	btrfs_set_buffer_lockdep_class(root->root_key.objectid, buf, level);
-+	btrfs_set_buffer_lockdep_class(owner, buf, level);
- 	btrfs_tree_lock(buf);
- 	btrfs_clean_tree_block(buf);
- 	clear_bit(EXTENT_BUFFER_STALE, &buf->bflags);
++	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb_rewin),
++				       eb_rewin, btrfs_header_level(eb_rewin));
+ 	btrfs_tree_read_lock(eb_rewin);
+ 	__tree_mod_log_rewind(fs_info, eb_rewin, time_seq, tm);
+ 	WARN_ON(btrfs_header_nritems(eb_rewin) >
+@@ -1370,7 +1372,6 @@ get_old_root(struct btrfs_root *root, u6
+ 
+ 	if (!eb)
+ 		return NULL;
+-	btrfs_tree_read_lock(eb);
+ 	if (old_root) {
+ 		btrfs_set_header_bytenr(eb, eb->start);
+ 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
+@@ -1378,6 +1379,9 @@ get_old_root(struct btrfs_root *root, u6
+ 		btrfs_set_header_level(eb, old_root->level);
+ 		btrfs_set_header_generation(eb, old_generation);
+ 	}
++	btrfs_set_buffer_lockdep_class(btrfs_header_owner(eb), eb,
++				       btrfs_header_level(eb));
++	btrfs_tree_read_lock(eb);
+ 	if (tm)
+ 		__tree_mod_log_rewind(fs_info, eb, time_seq, tm);
+ 	else
 
 
