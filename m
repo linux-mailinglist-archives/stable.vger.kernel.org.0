@@ -2,97 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED98826124B
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 16:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A732612F8
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 16:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbgIHOCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 10:02:07 -0400
-Received: from mga06.intel.com ([134.134.136.31]:12657 "EHLO mga06.intel.com"
+        id S1730189AbgIHOvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 10:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbgIHN6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 09:58:36 -0400
-IronPort-SDR: XKwwhD+FXuOQkBN/paSmOFeWfPxkx6SHIjyNHHgqR30LVerybp3K/9s+s1teeKdSx3smZOBEEp
- 9qmXF4kucdhQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9737"; a="219688132"
-X-IronPort-AV: E=Sophos;i="5.76,405,1592895600"; 
-   d="scan'208";a="219688132"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2020 06:45:25 -0700
-IronPort-SDR: bjY/o98d8EepQt7h8nZWe0WdED9G0VcFr6vdeMg5RIll0WD6OZt6R9YMnT6KCnIbqCn6xPlap7
- 6pBxoEdWtS/w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,405,1592895600"; 
-   d="scan'208";a="333477551"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga008.jf.intel.com with ESMTP; 08 Sep 2020 06:45:23 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1kFdw0-00FDYM-Me; Tue, 08 Sep 2020 16:45:20 +0300
-Date:   Tue, 8 Sep 2020 16:45:20 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Kent Gibson <warthog618@gmail.com>, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] gpio: mockup: fix resource leak in error path
-Message-ID: <20200908134520.GY1891694@smile.fi.intel.com>
-References: <20200908130749.9948-1-brgl@bgdev.pl>
+        id S1729789AbgIHO0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 10:26:07 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 458D5206B5;
+        Tue,  8 Sep 2020 14:25:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599575139;
+        bh=lA7p6ft01iVQ4aSV1bXMf54gjdDibIub5R+aILwMSQ4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vhLWf11MuLvKymBVCzwuxZwrSQ6huj4m2FOagVdweEC61+tSwuX7bU0WQQzT/gEzS
+         SfX3wYUHZrIv28wlTxeAcvmFMStW0XHTj4QhTUwvNq4s060J0RynIlS+PyvmyMb965
+         BQ6aiIh4qUh4ua26aix12MjaizHXb3wOVGLIIKdE=
+Date:   Tue, 8 Sep 2020 16:25:52 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org
+Subject: Re: 5.8 io_uring stable
+Message-ID: <20200908142552.GA3426589@kroah.com>
+References: <49361215-3d71-71e8-7cd2-1f7009323a30@kernel.dk>
+ <20200908123129.GA1960547@kroah.com>
+ <9e66ef5d-0dfa-8061-1a17-7e2bb722e43e@kernel.dk>
+ <7e412946-c85a-658d-1b07-dbe3551dc3cd@kernel.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200908130749.9948-1-brgl@bgdev.pl>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <7e412946-c85a-658d-1b07-dbe3551dc3cd@kernel.dk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 03:07:49PM +0200, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Tue, Sep 08, 2020 at 07:29:05AM -0600, Jens Axboe wrote:
+> On 9/8/20 7:11 AM, Jens Axboe wrote:
+> > On 9/8/20 6:31 AM, Greg KH wrote:
+> >> On Fri, Sep 04, 2020 at 03:06:28PM -0600, Jens Axboe wrote:
+> >>> Hi,
+> >>>
+> >>> Linus just pulled 3 fixes from me - 1+2 should apply directly, here's
+> >>> the 3rd one which will need some love for 5.8-stable. I'm including it
+> >>> below to preempt the failed to apply message :-)
+> >>>
+> >>>
+> >>> commit fb8d4046d50f77a26570101e5b8a7a026320a610
+> >>> Author: Jens Axboe <axboe@kernel.dk>
+> >>> Date:   Wed Sep 2 10:19:04 2020 -0600
+> >>>
+> >>>     io_uring: no read/write-retry on -EAGAIN error and O_NONBLOCK marked file
+> >>>     
+> >>>     Actually two things that need fixing up here:
+> >>>     
+> >>>     - The io_rw_reissue() -EAGAIN retry is explicit to block devices and
+> >>>       regular files, so don't ever attempt to do that on other types of
+> >>>       files.
+> >>>     
+> >>>     - If we hit -EAGAIN on a nonblock marked file, don't arm poll handler for
+> >>>       it. It should just complete with -EAGAIN.
+> >>>     
+> >>>     Cc: stable@vger.kernel.org
+> >>>     Reported-by: Norman Maurer <norman.maurer@googlemail.com>
+> >>>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> >>>
+> >>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> >>> index 82e15020d9a8..96be21ace79a 100644
+> >>> --- a/fs/io_uring.c
+> >>> +++ b/fs/io_uring.c
+> >>> @@ -2726,6 +2726,12 @@ static int io_read(struct io_kiocb *req, bool force_nonblock)
+> >>>  				ret = ret2;
+> >>>  				goto done;
+> >>>  			}
+> >>> +			/* no retry on NONBLOCK marked file */
+> >>> +			if (req->file->f_flags & O_NONBLOCK) {
+> >>> +				ret = ret2;
+> >>> +				goto done;
+> >>> +			}
+> >>> +
+> >>>  			/* some cases will consume bytes even on error returns */
+> >>>  			iov_iter_revert(iter, iov_count - iov_iter_count(iter));
+> >>>  			ret2 = 0;
+> >>> @@ -2869,9 +2875,15 @@ static int io_write(struct io_kiocb *req, bool force_nonblock)
+> >>>  		 */
+> >>>  		if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
+> >>>  			ret2 = -EAGAIN;
+> >>> +		/* no retry on NONBLOCK marked file */
+> >>> +		if (ret2 == -EAGAIN && (req->file->f_flags & O_NONBLOCK)) {
+> >>> +			ret = 0;
+> >>> +			goto done;
+> >>> +		}
+> >>>  		if (!force_nonblock || ret2 != -EAGAIN) {
+> >>>  			if ((req->ctx->flags & IORING_SETUP_IOPOLL) && ret2 == -EAGAIN)
+> >>>  				goto copy_iov;
+> >>> +done:
+> >>>  			kiocb_done(kiocb, ret2);
+> >>>  		} else {
+> >>>  copy_iov:
+> >>>
+> >>> -- 
+> >>> Jens Axboe
+> >>
+> >>
+> >> Thanks for the backport, but this didn't apply at all to the 5.8.y tree.
+> >> What one did you make it against?
+> > 
+> > Oh, might have been because I have a pile of pending 5.8 stable patches...
+> > Let me apply to pristine stable, test, and then I'll send it to you.
 > 
-> If the module init function fails after creating the debugs directory,
-> it's never removed. Add proper cleanup calls to avoid this resource
-> leak.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> Fixes: 9202ba2397d1 ("gpio: mockup: implement event injecting over debugfs")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
->  drivers/gpio/gpio-mockup.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Here it is:
 > 
-> diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
-> index bc345185db26..1652897fdf90 100644
-> --- a/drivers/gpio/gpio-mockup.c
-> +++ b/drivers/gpio/gpio-mockup.c
-> @@ -552,6 +552,7 @@ static int __init gpio_mockup_init(void)
->  	err = platform_driver_register(&gpio_mockup_driver);
->  	if (err) {
->  		gpio_mockup_err("error registering platform driver\n");
-> +		debugfs_remove_recursive(gpio_mockup_dbg_dir);
->  		return err;
->  	}
->  
-> @@ -582,6 +583,7 @@ static int __init gpio_mockup_init(void)
->  			gpio_mockup_err("error registering device");
->  			platform_driver_unregister(&gpio_mockup_driver);
->  			gpio_mockup_unregister_pdevs();
-> +			debugfs_remove_recursive(gpio_mockup_dbg_dir);
->  			return PTR_ERR(pdev);
->  		}
->  
-> -- 
-> 2.26.1
 > 
+> commit d0ea3f3d17cf891244f17f8ceb43d4988c170471
+> Author: Jens Axboe <axboe@kernel.dk>
+> Date:   Tue Sep 8 07:16:12 2020 -0600
+> 
+>     io_uring: no read/write-retry on -EAGAIN error and O_NONBLOCK marked file
+>     
+>     Actually two things that need fixing up here:
+>     
+>     - The io_rw_reissue() -EAGAIN retry is explicit to block devices and
+>       regular files, so don't ever attempt to do that on other types of
+>       files.
+>     
+>     - If we hit -EAGAIN on a nonblock marked file, don't arm poll handler for
+>       it. It should just complete with -EAGAIN.
+>     
+>     Cc: stable@vger.kernel.org
+>     Reported-by: Norman Maurer <norman.maurer@googlemail.com>
+>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
--- 
-With Best Regards,
-Andy Shevchenko
+Much nicer, that worked, thanks!
 
-
+greg k-h
