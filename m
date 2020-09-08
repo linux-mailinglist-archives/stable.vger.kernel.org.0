@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69DB7261988
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F3B261A07
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731735AbgIHSTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
+        id S1731461AbgIHS3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731458AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:11 -0400
+        id S1731399AbgIHQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0ED5223BD;
-        Tue,  8 Sep 2020 15:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 907412472E;
+        Tue,  8 Sep 2020 15:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579646;
-        bh=jo2hfuKv1CEXipIyUmxbXDOt8hRzTyCWXZBeh4jyNyY=;
+        s=default; t=1599579649;
+        bh=6qJvNmDRGejfAYEx5lKKBTmGe5r4//5E/gkQqoHT9U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlLpjn1UXkF/qHyjubJ6KIFizbpNqhl/lhaKtLkRpouO7l5AmjFC2mDLeqIuCI+jj
-         mD+UZwy5mWxkJbydUpBM6agQ+koTw2kho/Y7CZsvWJOdCWwcEcXl1ZeZR6Po1f2HaB
-         JMglVM/kZwKUPgkrdr/ZX0sLwC8HtKvNMShVyBKs=
+        b=E2Jy/8EQ/b2q0ul7PYg7oOvHdEekXFfBsNMRr9A3FJwgIHqdoBfc1FpXBIzHawlhV
+         Alf/aigqYMVDimkL+n0ILZaKRAowUGbLLnpEMkBhnY4x0NPsmffatC+HThoPP656gh
+         b7JZpy/MI1fAusFJIDbF/4sXWmRcIPIF/8k6enZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.8 163/186] drm/amd/pm: avoid false alarm due to confusing softwareshutdowntemp setting
-Date:   Tue,  8 Sep 2020 17:25:05 +0200
-Message-Id: <20200908152249.565336194@linuxfoundation.org>
+Subject: [PATCH 5.8 164/186] drm/amdgpu: Specify get_argument function for ci_smu_funcs
+Date:   Tue,  8 Sep 2020 17:25:06 +0200
+Message-Id: <20200908152249.612808835@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,47 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Sandeep Raghuraman <sandy.8925@gmail.com>
 
-commit 971df65cbf32da9bc9af52c1196ca504dd316086 upstream.
+commit f7b2e34b4afb8d712913dc199d3292ea9e078637 upstream.
 
-Normally softwareshutdowntemp should be greater than Thotspotlimit.
-However, on some VEGA10 ASIC, the softwareshutdowntemp is 91C while
-Thotspotlimit is 105C. This seems not right and may trigger some
-false alarms.
+Starting in Linux 5.8, the graphics and memory clock frequency were not being
+reported for CIK cards. This is a regression, since they were reported correctly
+in Linux 5.7.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+After investigation, I discovered that the smum_send_msg_to_smc() function,
+attempts to call the corresponding get_argument() function of ci_smu_funcs.
+However, the get_argument() function is not defined in ci_smu_funcs.
+
+This patch fixes the bug by specifying the correct get_argument() function.
+
+Fixes: a0ec225633d9f6 ("drm/amd/powerplay: unified interfaces for message issuing and response checking")
+Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-@@ -374,8 +374,18 @@ static int vega10_thermal_set_temperatur
- 	/* compare them in unit celsius degree */
- 	if (low < range->min / PP_TEMPERATURE_UNITS_PER_CENTIGRADES)
- 		low = range->min / PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
--	if (high > tdp_table->usSoftwareShutdownTemp)
--		high = tdp_table->usSoftwareShutdownTemp;
-+
-+	/*
-+	 * As a common sense, usSoftwareShutdownTemp should be bigger
-+	 * than ThotspotLimit. For any invalid usSoftwareShutdownTemp,
-+	 * we will just use the max possible setting VEGA10_THERMAL_MAXIMUM_ALERT_TEMP
-+	 * to avoid false alarms.
-+	 */
-+	if ((tdp_table->usSoftwareShutdownTemp >
-+	     range->hotspot_crit_max / PP_TEMPERATURE_UNITS_PER_CENTIGRADES)) {
-+		if (high > tdp_table->usSoftwareShutdownTemp)
-+			high = tdp_table->usSoftwareShutdownTemp;
-+	}
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -37,6 +37,7 @@
+ #include "cgs_common.h"
+ #include "atombios.h"
+ #include "pppcielanes.h"
++#include "smu7_smumgr.h"
  
- 	if (low > high)
- 		return -EINVAL;
+ #include "smu/smu_7_0_1_d.h"
+ #include "smu/smu_7_0_1_sh_mask.h"
+@@ -2948,6 +2949,7 @@ const struct pp_smumgr_func ci_smu_funcs
+ 	.request_smu_load_specific_fw = NULL,
+ 	.send_msg_to_smc = ci_send_msg_to_smc,
+ 	.send_msg_to_smc_with_parameter = ci_send_msg_to_smc_with_parameter,
++	.get_argument = smu7_get_argument,
+ 	.download_pptable_settings = NULL,
+ 	.upload_pptable_settings = NULL,
+ 	.get_offsetof = ci_get_offsetof,
 
 
