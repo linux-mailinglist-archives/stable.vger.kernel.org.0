@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E174261C5A
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61819261CF3
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732018AbgIHTSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:18:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52182 "EHLO mail.kernel.org"
+        id S1731818AbgIHT27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731139AbgIHQCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:02:51 -0400
+        id S1731048AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:00:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D7EF246E3;
-        Tue,  8 Sep 2020 15:40:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CFF6246F0;
+        Tue,  8 Sep 2020 15:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579618;
-        bh=IW5uSBcmOPPSkVi4qJhYfoEVWEe0kYakDz5/+FPWbEk=;
+        s=default; t=1599579626;
+        bh=8NdyMr0qdCkBqkHhbsdLzyk7q5G2WaeawI26KLzIdkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqPHP/JxVfMST3bSXczU4rOuDyQqEeMnTrvWjzsfmLmk5SmJxvnwgV6/dcNd6falK
-         +yPi4IGWsWkFJrN88pyBUAkQZPPxQ+O2rAc+C3s2PMl+EfNjJ7AVqjwKt1KoC3N0SH
-         ZSVM4GvJR616JpoLXL7yv7vHM9WBSKMFsg6t9C1A=
+        b=huTy24YQU8zcGoPGUQoPScqVn8Op+wxuPAAXxrrrOMdq8I7m+aGqRopuaj5za5GRr
+         2PP023RefNpy24tKPLzo8NYTG4V4EhAxCwTfLoPc5X9NsoBfSOuMv0KfM+f6b0AWxc
+         4Uo8QxipIVer/m447LdgLr2SsiQLpu4muxrqOQoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 153/186] block: ensure bdi->io_pages is always initialized
-Date:   Tue,  8 Sep 2020 17:24:55 +0200
-Message-Id: <20200908152249.075194644@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.8 156/186] s390: fix GENERIC_LOCKBREAK dependency typo in Kconfig
+Date:   Tue,  8 Sep 2020 17:24:58 +0200
+Message-Id: <20200908152249.222776843@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,36 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Eric Farman <farman@linux.ibm.com>
 
-commit de1b0ee490eafdf65fac9eef9925391a8369f2dc upstream.
+commit 114b9df419bf5db097b322ebb03fcf2f502f9380 upstream.
 
-If a driver leaves the limit settings as the defaults, then we don't
-initialize bdi->io_pages. This means that file systems may need to
-work around bdi->io_pages == 0, which is somewhat messy.
+Commit fa686453053b ("sched/rt, s390: Use CONFIG_PREEMPTION")
+changed a bunch of uses of CONFIG_PREEMPT to _PREEMPTION.
+Except in the Kconfig it used two T's. That's the only place
+in the system where that spelling exists, so let's fix that.
 
-Initialize the default value just like we do for ->ra_pages.
-
-Cc: stable@vger.kernel.org
-Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
-Reported-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: fa686453053b ("sched/rt, s390: Use CONFIG_PREEMPTION")
+Cc: <stable@vger.kernel.org> # 5.6
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-core.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -526,6 +526,7 @@ struct request_queue *__blk_alloc_queue(
- 		goto fail_stats;
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -30,7 +30,7 @@ config GENERIC_BUG_RELATIVE_POINTERS
+ 	def_bool y
  
- 	q->backing_dev_info->ra_pages = VM_READAHEAD_PAGES;
-+	q->backing_dev_info->io_pages = VM_READAHEAD_PAGES;
- 	q->backing_dev_info->capabilities = BDI_CAP_CGROUP_WRITEBACK;
- 	q->node = node_id;
+ config GENERIC_LOCKBREAK
+-	def_bool y if PREEMPTTION
++	def_bool y if PREEMPTION
  
+ config PGSTE
+ 	def_bool y if KVM
 
 
