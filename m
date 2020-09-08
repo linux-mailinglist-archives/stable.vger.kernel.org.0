@@ -2,106 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C7E261C27
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:15:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914E3261E8C
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731887AbgIHTPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:15:19 -0400
-Received: from host18.canaca.com ([66.49.204.205]:47170 "EHLO
-        host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731770AbgIHTPM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 15:15:12 -0400
-X-Greylist: delayed 1798 seconds by postgrey-1.27 at vger.kernel.org; Tue, 08 Sep 2020 15:15:11 EDT
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=mungewell.org; s=default; h=Content-Transfer-Encoding:Content-Type:
-        Message-ID:References:In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=0NuhWQcldBTxDdRHEdA5HQdXlMGQ0kB4cg2kzRhE4nU=; b=jcfqXA0g4BE3azXvQ6oOuI1222
-        MKa3Cexlprcf4yPE18W4BWQ0/DM5kytYj2gcp1NAW2c7KVyQZHd1s8YwT/QvoZFV2AWiRLHgteUz0
-        n9M6JxR5SelYuThhbU8G3H54pK9SdogEWfYxdNrWOJotqHpwcu//xjAjMx0LUYy6sIX8tOKlXiZZ1
-        GoZgq59T4eOo5GxSn5ab2xf56vGIlvdIr3EssbIwp7XOOdiwKkw9p2WEdMliUs9wsdae0BrvkkPma
-        qxRWpeGcYTvle+8Io5zd3NGGD2Z/arf+OchTKZeGg7RqUZM2avubca1m1SdGXL2InMctzgvDLTKO+
-        Fw1SStfA==;
-Received: from [::1] (port=54410 helo=host18.canaca.com)
-        by host18.canaca.com with esmtpa (Exim 4.93)
-        (envelope-from <simon@mungewell.org>)
-        id 1kFicC-0005pR-QJ; Tue, 08 Sep 2020 14:45:13 -0400
+        id S1730585AbgIHTws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:52:48 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57449 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730260AbgIHPsT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 11:48:19 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 8CE19F7D;
+        Tue,  8 Sep 2020 07:59:18 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 08 Sep 2020 07:59:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=k0D0mG
+        6epurme9F9+N42qu0YqiRtudIsXBCA8bdLYcU=; b=CZ7zJHWiXAVO2y8jwM71Gj
+        IScvpz4ktMQN9b5VhmAmfW3ksxO3B0eKghrAz4gmX5BTFtAp+iiA6US/1teF8Bpn
+        UvjGk//CyAw8Y3vMmhjlCTpkIp7AiRLux7kdPxViJnU+KNMQwlztEsQiwBqxy0CM
+        Tovp+4w9H5htDDUMbLDRu1FeclyyT5kFsWj228Ihgn9oYMt+PACoeDUAvulmHIR0
+        hXNxZgHnNRH7dSAUGRUgEL9K8JJxy8+tQc4vGEv5kBbKtLtCiT7NjwBOEKOK97U2
+        fwV2dO7h/bB8lczZ3lF5pj02sHBpeS1xcQD6SelPueDsQRbo+3NFCEXC2OJCY5WA
+        ==
+X-ME-Sender: <xms:FnJXX33aqWWCO7CjeOMfc_CVW0nAMqyX19Zvj74Y7C8TJJTuegJ05A>
+    <xme:FnJXX2Fx0PwX2eSaJVOtO8ETc-KCn1jhQfwALsiBeAhJ2BqKZ3hoEqsw6FdKjId4L
+    oAj0LDhit8VWA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedgvdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:FnJXX37EaYVct4SoOmVEHcondODQsjT8T1xKvY6VT-rzpdynQ0BFyw>
+    <xmx:FnJXX81JnYFahNdopUJuP1f8aGVXqwcQK55ttLKxDCgnz5eXFts4pw>
+    <xmx:FnJXX6Fehouyp3ZH5eEB3ebD9mtU5pJbFX_AGNvDim2kg3wK6aREjg>
+    <xmx:FnJXX1OzL7Sv9ufNp4dCkycynBrZYVxSzcypo7qI1lah2pXJ7ahP50jjxL8>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9B98B3064610;
+        Tue,  8 Sep 2020 07:59:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection" failed to apply to 4.9-stable tree
+To:     o-takashi@sakamocchi.jp, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Sep 2020 13:59:23 +0200
+Message-ID: <1599566363128138@kroah.com>
 MIME-Version: 1.0
-Date:   Tue, 08 Sep 2020 12:45:10 -0600
-From:   simon@mungewell.org
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH 4.19 69/88] ALSA: firewire-digi00x: exclude Avid
- Adrenaline from detection
-In-Reply-To: <20200908152224.621006485@linuxfoundation.org>
-References: <20200908152221.082184905@linuxfoundation.org>
- <20200908152224.621006485@linuxfoundation.org>
-User-Agent: Roundcube Webmail/1.4.7
-Message-ID: <e214540d9645c4e285ee7f6475476973@mungewell.org>
-X-Sender: simon@mungewell.org
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-OutGoing-Spam-Status: No, score=-1.0
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host18.canaca.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - mungewell.org
-X-Get-Message-Sender-Via: host18.canaca.com: authenticated_id: simon@mungewell.org
-X-Authenticated-Sender: host18.canaca.com: simon@mungewell.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-From-Rewrite: unmodified, already matched
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-09-08 09:26, Greg Kroah-Hartman wrote:
-> From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-> 
-> commit acd46a6b6de88569654567810acad2b0a0a25cea upstream.
-> 
-> Avid Adrenaline is reported that ALSA firewire-digi00x driver is bound 
-> to.
-> However, as long as he investigated, the design of this model is hardly
-> similar to the one of Digi 00x family. It's better to exclude the model
-> from modalias of ALSA firewire-digi00x driver.
-> 
-> This commit changes device entries so that the model is excluded.
-> 
 
-Just to add my 'ACK-BY'. Yes, the Avid Adrenaline seems to be based 
-around a totally different method of control and will likely need a 
-separate driver.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I believe that this includes the following devices: AVID Adrenaline, 
-AVID Mojo, AVID Mojo SDI, AVID AV Option and others... from Windows 
-driver 'FlameThrower' inf.
---
-[AvidHardware.NTx86]
-%Avid_Gryphon%		= Flamethrower, 1394\Avid_Technology&Gryphon
-%Avid_Raven%		= Flamethrower, 1394\Avid_Technology&Raven
-%Avid_Adrenaline%	= Flamethrower, 1394\Avid_Technology&Adrenaline
-%Avid_FireBobPro%	= Flamethrower, 1394\Avid_Technology&FireBobPro
-%Avid_Mojo%		= Flamethrower, 1394\Avid_Technology&Mojo
-%Avid_FireBoB%		= Flamethrower, 1394\Avid_Technology&FireBoB
-%Avid_FireBoBV2%	= Flamethrower, 1394\Avid_Technology&FireBoBV2
-%Avid_DigiBoB%		= Flamethrower, 1394\Avid_Technology&DigiBoB
-%Avid_AVoptionV10%	= Flamethrower, 1394\Avid_Technology&AVoptionV10
---
+thanks,
 
-There are some details in this thread, for anyone interested in 
-following up.
-https://sourceforge.net/p/ffado/mailman/message/37078754/
+greg k-h
 
-Cheers,
-Simon.
+------------------ original commit in Linus's tree ------------------
 
-PS. Have a Mojo SDI inbound, will confirm when it arrives.
+From 0bd8bce897b6697bbc286b8ba473aa0705fe394b Mon Sep 17 00:00:00 2001
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Date: Sun, 23 Aug 2020 16:55:37 +0900
+Subject: [PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
+
+Tascam FE-8 is known to support communication by asynchronous transaction
+only. The support can be implemented in userspace application and
+snd-firewire-ctl-services project has the support. However, ALSA
+firewire-tascam driver is bound to the model.
+
+This commit changes device entries so that the model is excluded. In a
+commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
+processing"), I addressed to the concern that version field in
+configuration differs depending on installed firmware. However, as long
+as I checked, the version number is fixed. It's safe to return version
+number back to modalias.
+
+Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200823075537.56255-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/firewire/tascam/tascam.c b/sound/firewire/tascam/tascam.c
+index 5dac0d9fc58e..75f2edd8e78f 100644
+--- a/sound/firewire/tascam/tascam.c
++++ b/sound/firewire/tascam/tascam.c
+@@ -39,9 +39,6 @@ static const struct snd_tscm_spec model_specs[] = {
+ 		.midi_capture_ports = 2,
+ 		.midi_playback_ports = 4,
+ 	},
+-	// This kernel module doesn't support FE-8 because the most of features
+-	// can be implemented in userspace without any specific support of this
+-	// module.
+ };
+ 
+ static int identify_model(struct snd_tscm *tscm)
+@@ -211,11 +208,39 @@ static void snd_tscm_remove(struct fw_unit *unit)
+ }
+ 
+ static const struct ieee1394_device_id snd_tscm_id_table[] = {
++	// Tascam, FW-1884.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800000,
++	},
++	// Tascam, FE-8 (.version = 0x800001)
++	// This kernel module doesn't support FE-8 because the most of features
++	// can be implemented in userspace without any specific support of this
++	// module.
++	//
++	// .version = 0x800002 is unknown.
++	//
++	// Tascam, FW-1082.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800003,
++	},
++	// Tascam, FW-1804.
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
+-			       IEEE1394_MATCH_SPECIFIER_ID,
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
+ 		.vendor_id = 0x00022e,
+ 		.specifier_id = 0x00022e,
++		.version = 0x800004,
+ 	},
+ 	{}
+ };
+
