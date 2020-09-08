@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD73261BE7
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D453261BD7
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731625AbgIHTKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
+        id S1731338AbgIHTJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:09:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731227AbgIHQFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:05:24 -0400
+        id S1731236AbgIHQFh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:05:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D599B227C3;
-        Tue,  8 Sep 2020 15:46:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD75623CD2;
+        Tue,  8 Sep 2020 15:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579964;
-        bh=8ldGaysk1rOS0RCdkgORFtYP2YNgBG8K1SiOLUDPewA=;
+        s=default; t=1599579971;
+        bh=MEmvLFwTluSLMx2cM/SWoItoFmupNuwGFBxSHz1bvcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSkDFdFW4e1k+RdTTD2Zyx8nfjJB6CWWpCovFLI4sOhvn6+nF2B1mkTKUxIQVNmHU
-         4xdlBWIZEPpWvM7qB5Tpy2QhcGNiP4GaH11QxKMUalNvW80MTKfRWndRn53Ir3SphO
-         8k06ws1djVhO+pThVnzcl+OeJc0OXV6pKgnNIJHg=
+        b=sFpg0S48KOFyCmvo598XHjanPOE/vnsF7ItVcNW0gLX9doliqsfNkGDIebKSbCzs9
+         /prhWfmDhjNLnurlIxe0r9qVriGohoeE/H5/YtgCd7ojyf19O7Nx/DXzfZPoUFAq79
+         cyf+aNvX4o6/DXQ+G6L4mWjH/a2Jm0XW6yNYE7GU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 077/129] tracing/kprobes, x86/ptrace: Fix regs argument order for i386
-Date:   Tue,  8 Sep 2020 17:25:18 +0200
-Message-Id: <20200908152233.543918093@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 078/129] ext2: dont update mtime on COW faults
+Date:   Tue,  8 Sep 2020 17:25:19 +0200
+Message-Id: <20200908152233.596628167@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -46,43 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 2356bb4b8221d7dc8c7beb810418122ed90254c9 upstream.
+commit 1ef6ea0efe8e68d0299dad44c39dc6ad9e5d1f39 upstream.
 
-On i386, the order of parameters passed on regs is eax,edx,and ecx
-(as per regparm(3) calling conventions).
+When running in a dax mode, if the user maps a page with MAP_PRIVATE and
+PROT_WRITE, the ext2 filesystem would incorrectly update ctime and mtime
+when the user hits a COW fault.
 
-Change the mapping in regs_get_kernel_argument(), so that arg1=ax
-arg2=dx, and arg3=cx.
+This breaks building of the Linux kernel.  How to reproduce:
 
-Running the selftests testcase kprobes_args_use.tc shows the result
-as passed.
+ 1. extract the Linux kernel tree on dax-mounted ext2 filesystem
+ 2. run make clean
+ 3. run make -j12
+ 4. run make -j12
 
-Fixes: 3c88ee194c28 ("x86: ptrace: Add function argument access API")
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200828113242.GA1424@cosmos
+at step 4, make would incorrectly rebuild the whole kernel (although it
+was already built in step 3).
+
+The reason for the breakage is that almost all object files depend on
+objtool.  When we run objtool, it takes COW page fault on its .data
+section, and these faults will incorrectly update the timestamp of the
+objtool binary.  The updated timestamp causes make to rebuild the whole
+tree.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/ptrace.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext2/file.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -309,8 +309,8 @@ static inline unsigned long regs_get_ker
- 	static const unsigned int argument_offs[] = {
- #ifdef __i386__
- 		offsetof(struct pt_regs, ax),
--		offsetof(struct pt_regs, cx),
- 		offsetof(struct pt_regs, dx),
-+		offsetof(struct pt_regs, cx),
- #define NR_REG_ARGUMENTS 3
- #else
- 		offsetof(struct pt_regs, di),
+--- a/fs/ext2/file.c
++++ b/fs/ext2/file.c
+@@ -93,8 +93,10 @@ static vm_fault_t ext2_dax_fault(struct
+ 	struct inode *inode = file_inode(vmf->vma->vm_file);
+ 	struct ext2_inode_info *ei = EXT2_I(inode);
+ 	vm_fault_t ret;
++	bool write = (vmf->flags & FAULT_FLAG_WRITE) &&
++		(vmf->vma->vm_flags & VM_SHARED);
+ 
+-	if (vmf->flags & FAULT_FLAG_WRITE) {
++	if (write) {
+ 		sb_start_pagefault(inode->i_sb);
+ 		file_update_time(vmf->vma->vm_file);
+ 	}
+@@ -103,7 +105,7 @@ static vm_fault_t ext2_dax_fault(struct
+ 	ret = dax_iomap_fault(vmf, PE_SIZE_PTE, NULL, NULL, &ext2_iomap_ops);
+ 
+ 	up_read(&ei->dax_sem);
+-	if (vmf->flags & FAULT_FLAG_WRITE)
++	if (write)
+ 		sb_end_pagefault(inode->i_sb);
+ 	return ret;
+ }
 
 
