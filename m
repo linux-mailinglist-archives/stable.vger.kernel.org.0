@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5201261A26
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5115261A2F
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbgIHSbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1731736AbgIHScJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731375AbgIHQJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731376AbgIHQJf (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:09:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53042241A3;
-        Tue,  8 Sep 2020 15:49:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBE602463C;
+        Tue,  8 Sep 2020 15:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580191;
-        bh=/EX9EiUO7EKKl32UqMlP7UBxy3ovcwPdEaANNdKgzLU=;
+        s=default; t=1599580194;
+        bh=ClG/J2D28CSekcsEzvDrVhqfY9dWzpT8JjtNaDePcb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbYGW68C9PZo6wd6/EG4qJbCz+xLu031B+1y1GIqwe214a9O8qd3uh/cjMHD8rkVz
-         7NnlRJOUuFJWe5PFI82ja3D/UDG3uHErPzuUaQthuhipiTIQqSPuMGf+paqTVwMxSu
-         QxZhFFEqQF5eSdDY0x2lAciF07EVz3BT7JaY3lMs=
+        b=JZhnRetBX7O+lQRdOxYYKWUoCrqsDMv8zn0Orp4R7SjIykNaRhleYQDK0I+PKBy1v
+         YYTjXZWBAC3tJsAXApUYcw24+76C8PegvhUBxPXJ/z1AYmoW+V232/9ciL+FQezQPI
+         yfetfik8z+HsvC5GeLTMWe2t/hPwVokfKnFqMrfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+23b22dc2e0b81cbfcc95@syzkaller.appspotmail.com,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 66/88] ALSA: ca0106: fix error code handling
-Date:   Tue,  8 Sep 2020 17:26:07 +0200
-Message-Id: <20200908152224.428945387@linuxfoundation.org>
+Subject: [PATCH 4.19 67/88] ALSA: pcm: oss: Remove superfluous WARN_ON() for mulaw sanity check
+Date:   Tue,  8 Sep 2020 17:26:08 +0200
+Message-Id: <20200908152224.511519032@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -43,35 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ee0761d1d8222bcc5c86bf10849dc86cf008557c upstream.
+commit 949a1ebe8cea7b342085cb6a4946b498306b9493 upstream.
 
-snd_ca0106_spi_write() returns 1 on error, snd_ca0106_pcm_power_dac()
-is returning the error code directly, and the caller is expecting an
-negative error code
+The PCM OSS mulaw plugin has a check of the format of the counter part
+whether it's a linear format.  The check is with snd_BUG_ON() that
+emits WARN_ON() when the debug config is set, and it confuses
+syzkaller as if it were a serious issue.  Let's drop snd_BUG_ON() for
+avoiding that.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+While we're at it, correct the error code to a more suitable, EINVAL.
+
+Reported-by: syzbot+23b22dc2e0b81cbfcc95@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200824224541.1260307-1-ztong0001@gmail.com
+Link: https://lore.kernel.org/r/20200901131802.18157-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/ca0106/ca0106_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/core/oss/mulaw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/ca0106/ca0106_main.c
-+++ b/sound/pci/ca0106/ca0106_main.c
-@@ -551,7 +551,8 @@ static int snd_ca0106_pcm_power_dac(stru
- 		else
- 			/* Power down */
- 			chip->spi_dac_reg[reg] |= bit;
--		return snd_ca0106_spi_write(chip, chip->spi_dac_reg[reg]);
-+		if (snd_ca0106_spi_write(chip, chip->spi_dac_reg[reg]) != 0)
-+			return -ENXIO;
+--- a/sound/core/oss/mulaw.c
++++ b/sound/core/oss/mulaw.c
+@@ -329,8 +329,8 @@ int snd_pcm_plugin_build_mulaw(struct sn
+ 		snd_BUG();
+ 		return -EINVAL;
  	}
- 	return 0;
- }
+-	if (snd_BUG_ON(!snd_pcm_format_linear(format->format)))
+-		return -ENXIO;
++	if (!snd_pcm_format_linear(format->format))
++		return -EINVAL;
+ 
+ 	err = snd_pcm_plugin_build(plug, "Mu-Law<->linear conversion",
+ 				   src_format, dst_format,
 
 
