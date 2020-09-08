@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C65462618F1
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2536261907
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731737AbgIHSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:04:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55394 "EHLO mail.kernel.org"
+        id S1731522AbgIHSGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731525AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:12:10 -0400
+        id S1731521AbgIHQMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:12:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A39A2247BD;
-        Tue,  8 Sep 2020 15:51:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 215A3247C4;
+        Tue,  8 Sep 2020 15:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580284;
-        bh=Qoayjoiq0uSKgxLGXmLIhulkMjEAiiCj6O1lrgz1Tlc=;
+        s=default; t=1599580286;
+        bh=CyQWGRvj67cqowJfDn4vuv/txn4szGizTTVBdxHOyvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHczBkCd87lGh72ECWimUP+jO0BpRQL7NKLePr0ZdKGmZ7BOpHP0Pb8kmXnvI3ogb
-         yMESldtRKXZhViwMskFO40FR618A4TIZxS8EhfYaQHOaYnFMl26bTAV5VtyGR1pBhU
-         9GWD58rEL7Jz1z64GRx+IX2gFAnVD+31GW5Tuohk=
+        b=th7dMz3k+8IOuzYO4UfKrHwcC1mNucMnaoxwDr/2cz1xmGbz3xqd/+CMU1Mx2i4gm
+         RrL+knsh7U7V6u1TJwZIQfmpeDYDO8HvJUIhOzrL9cGg33JCOyPVzKAOfgw4M0/mW5
+         dm7rhqNW415HPIR42eXlV/CJqAlpaIuutIB2CvsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Clarke <pc@us.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Tony Jones <tonyj@suse.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 03/65] perf record/stat: Explicitly call out event modifiers in the documentation
-Date:   Tue,  8 Sep 2020 17:25:48 +0200
-Message-Id: <20200908152217.194473530@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krishna Manikandan <mkrishn@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 04/65] drm/msm: add shutdown support for display platform_driver
+Date:   Tue,  8 Sep 2020 17:25:49 +0200
+Message-Id: <20200908152217.254848720@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -55,63 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Krishna Manikandan <mkrishn@codeaurora.org>
 
-commit e48a73a312ebf19cc3d72aa74985db25c30757c1 upstream.
+[ Upstream commit 9d5cbf5fe46e350715389d89d0c350d83289a102 ]
 
-Event modifiers are not mentioned in the perf record or perf stat
-manpages.  Add them to orient new users more effectively by pointing
-them to the perf list manpage for details.
+Define shutdown callback for display drm driver,
+so as to disable all the CRTCS when shutdown
+notification is received by the driver.
 
-Fixes: 2055fdaf8703 ("perf list: Document precise event sampling for AMD IBS")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Clarke <pc@us.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tony Jones <tonyj@suse.de>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200901215853.276234-1-kim.phillips@amd.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change will turn off the timing engine so
+that no display transactions are requested
+while mmu translations are getting disabled
+during reboot sequence.
 
+Signed-off-by: Krishna Manikandan <mkrishn@codeaurora.org>
+
+Changes in v2:
+	- Remove NULL check from msm_pdev_shutdown (Stephen Boyd)
+	- Change commit text to reflect when this issue
+	  was uncovered (Sai Prakash Ranjan)
+
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Documentation/perf-record.txt |    4 ++++
- tools/perf/Documentation/perf-stat.txt   |    4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/msm/msm_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/tools/perf/Documentation/perf-record.txt
-+++ b/tools/perf/Documentation/perf-record.txt
-@@ -33,6 +33,10 @@ OPTIONS
-         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index d9c0687435a05..c59240b566d83 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1134,6 +1134,13 @@ static int msm_pdev_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
++static void msm_pdev_shutdown(struct platform_device *pdev)
++{
++	struct drm_device *drm = platform_get_drvdata(pdev);
 +
- 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
- 	  'param1', 'param2', etc are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*.
---- a/tools/perf/Documentation/perf-stat.txt
-+++ b/tools/perf/Documentation/perf-stat.txt
-@@ -39,6 +39,10 @@ report::
- 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
- 
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
++	drm_atomic_helper_shutdown(drm);
++}
 +
- 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
- 	  param1 and param2 are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*
+ static const struct of_device_id dt_match[] = {
+ 	{ .compatible = "qcom,mdp4", .data = (void *)4 },	/* MDP4 */
+ 	{ .compatible = "qcom,mdss", .data = (void *)5 },	/* MDP5 MDSS */
+@@ -1144,6 +1151,7 @@ MODULE_DEVICE_TABLE(of, dt_match);
+ static struct platform_driver msm_platform_driver = {
+ 	.probe      = msm_pdev_probe,
+ 	.remove     = msm_pdev_remove,
++	.shutdown   = msm_pdev_shutdown,
+ 	.driver     = {
+ 		.name   = "msm",
+ 		.of_match_table = dt_match,
+-- 
+2.25.1
+
 
 
