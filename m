@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC83261DA6
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68557261D12
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731008AbgIHTkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S1731560AbgIHTbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730791AbgIHPyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:54:44 -0400
+        id S1730999AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 11:58:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1498820738;
-        Tue,  8 Sep 2020 15:35:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E9C923D3C;
+        Tue,  8 Sep 2020 15:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579339;
-        bh=sC/pvJDDeet3Ha/GqvpnS3F62bLdQE5Ay7fgjWIf91E=;
+        s=default; t=1599579449;
+        bh=iKePNMRyYjuk70vMsaDLL0LcdLKGJj7Qdt4/LFD3uuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKOznwzqffhxGKLFhChVDSWNQn8Z7Mh2muymlFrbEspNKDgh6e2MDQ2EocsLGXtn1
-         IVcGFlNRsPjhTzggZOOh6dVDmfaXJQIxZy7hrr6GLZl2nyHi8VfmOf5LJzcAbVXlQx
-         tB8DLl7AjAmi55Jv2y0PFp5tlLySC4czEKO+2hac=
+        b=p9qo7YP9qXUu2VLBiHWyBeTOkT0vDQqnTnlCFCRWmc1GMuIWe7EnmVhYyto06Dsbb
+         ksHQiSSmQibj3l7LdU9Eh4wQRS55HKvov3rcNzYvtdAUOR/nsbiZjsL5YRcaWxDb+b
+         r7fNkoZIbCN7Saa6NQsfb5qosScOu7tdWlPqjG98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Jussi Kivilinna <jussi.kivilinna@haltian.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 036/186] drm/amd/display: Fix memleak in amdgpu_dm_mode_config_init
-Date:   Tue,  8 Sep 2020 17:22:58 +0200
-Message-Id: <20200908152243.426255581@linuxfoundation.org>
+Subject: [PATCH 5.8 042/186] batman-adv: bla: use netif_rx_ni when not in interrupt context
+Date:   Tue,  8 Sep 2020 17:23:04 +0200
+Message-Id: <20200908152243.708000869@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,46 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 
-[ Upstream commit b67a468a4ccef593cd8df6a02ba3d167b77f0c81 ]
+[ Upstream commit 279e89b2281af3b1a9f04906e157992c19c9f163 ]
 
-When amdgpu_display_modeset_create_props() fails, state and
-state->context should be freed to prevent memleak. It's the
-same when amdgpu_dm_audio_init() fails.
+batadv_bla_send_claim() gets called from worker thread context through
+batadv_bla_periodic_work(), thus netif_rx_ni needs to be used in that
+case. This fixes "NOHZ: local_softirq_pending 08" log messages seen
+when batman-adv is enabled.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Signed-off-by: Jussi Kivilinna <jussi.kivilinna@haltian.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 7ec810ebf4ce4..3f7eced92c0c8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2822,12 +2822,18 @@ static int amdgpu_dm_mode_config_init(struct amdgpu_device *adev)
- 				    &dm_atomic_state_funcs);
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index 41cc87f06b142..cfb9e16afe38a 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -437,7 +437,10 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
+ 	batadv_add_counter(bat_priv, BATADV_CNT_RX_BYTES,
+ 			   skb->len + ETH_HLEN);
  
- 	r = amdgpu_display_modeset_create_props(adev);
--	if (r)
-+	if (r) {
-+		dc_release_state(state->context);
-+		kfree(state);
- 		return r;
-+	}
- 
- 	r = amdgpu_dm_audio_init(adev);
--	if (r)
-+	if (r) {
-+		dc_release_state(state->context);
-+		kfree(state);
- 		return r;
-+	}
- 
- 	return 0;
- }
+-	netif_rx(skb);
++	if (in_interrupt())
++		netif_rx(skb);
++	else
++		netif_rx_ni(skb);
+ out:
+ 	if (primary_if)
+ 		batadv_hardif_put(primary_if);
 -- 
 2.25.1
 
