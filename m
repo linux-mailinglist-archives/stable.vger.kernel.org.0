@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C81261C9D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE313261B45
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731859AbgIHTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:23:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
+        id S1731167AbgIHTA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731028AbgIHQBa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:01:30 -0400
+        id S1731201AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:08:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D8D8246F5;
-        Tue,  8 Sep 2020 15:40:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5191D23EB3;
+        Tue,  8 Sep 2020 15:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579629;
-        bh=Ip1cd+LUYZN48wmMT0S8Ar/UPgVJ/4po2YP2C7OXg5g=;
+        s=default; t=1599580045;
+        bh=jRAfFpWjDzSiVLWJ/01vaQ66oeAPndpYE2EnvInALxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYO5rwkwUW/iBLNxngdLkGYbhemUogpjIphgLkm5NRu5zBMOjBP5OfMolWrvyW4Tl
-         Xb+9CrDWyUy6dRmL1FooSbox332e5pZFhsUabj8KpGTLxGa1rL+y1MvmMB8AcDZjeo
-         ec93byxA7qYfWvSEmF2bfIp3HTDVNvNhIzTu4xgE=
+        b=cOMu+pkZxzwDQB5jvHCNFRJCkK7BNLtyErS9bgS3jjRs8XNrUE+y2gBnOoeD5UNGZ
+         nVuEvFRvbQp1vp7w0LYQJKCqUGpucm40tnT5nBRatmbp0VuxXj6IYhIfJuCnm6jABs
+         3F8BFYsirB2QWVeLWgreAN3GNB8VWMDqCfttlIuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Karthik Shivaram <karthikgs@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 157/186] libata: implement ATA_HORKAGE_MAX_TRIM_128M and apply to Sandisks
-Date:   Tue,  8 Sep 2020 17:24:59 +0200
-Message-Id: <20200908152249.272904068@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH 4.19 01/88] HID: core: Correctly handle ReportSize being zero
+Date:   Tue,  8 Sep 2020 17:25:02 +0200
+Message-Id: <20200908152221.161126100@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
-References: <20200908152241.646390211@linuxfoundation.org>
+In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
+References: <20200908152221.082184905@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,79 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 3b5455636fe26ea21b4189d135a424a6da016418 upstream.
+commit bce1305c0ece3dc549663605e567655dd701752c upstream.
 
-All three generations of Sandisk SSDs lock up hard intermittently.
-Experiments showed that disabling NCQ lowered the failure rate significantly
-and the kernel has been disabling NCQ for some models of SD7's and 8's,
-which is obviously undesirable.
+It appears that a ReportSize value of zero is legal, even if a bit
+non-sensical. Most of the HID code seems to handle that gracefully,
+except when computing the total size in bytes. When fed as input to
+memset, this leads to some funky outcomes.
 
-Karthik worked with Sandisk to root cause the hard lockups to trim commands
-larger than 128M. This patch implements ATA_HORKAGE_MAX_TRIM_128M which
-limits max trim size to 128M and applies it to all three generations of
-Sandisk SSDs.
+Detect the corner case and correctly compute the size.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Karthik Shivaram <karthikgs@fb.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/libata-core.c |    5 ++---
- drivers/ata/libata-scsi.c |    8 +++++++-
- include/linux/libata.h    |    1 +
- 3 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3868,9 +3868,8 @@ static const struct ata_blacklist_entry
- 	/* https://bugzilla.kernel.org/show_bug.cgi?id=15573 */
- 	{ "C300-CTFDDAC128MAG",	"0001",		ATA_HORKAGE_NONCQ, },
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1426,6 +1426,17 @@ static void hid_output_field(const struc
+ }
  
--	/* Some Sandisk SSDs lock up hard with NCQ enabled.  Reported on
--	   SD7SN6S256G and SD8SN8U256G */
--	{ "SanDisk SD[78]SN*G",	NULL,		ATA_HORKAGE_NONCQ, },
-+	/* Sandisk SD7/8/9s lock up hard on large trims */
-+	{ "SanDisk SD[789]*",	NULL,		ATA_HORKAGE_MAX_TRIM_128M, },
- 
- 	/* devices which puke on READ_NATIVE_MAX */
- 	{ "HDS724040KLSA80",	"KFAOA20N",	ATA_HORKAGE_BROKEN_HPA, },
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -2080,6 +2080,7 @@ static unsigned int ata_scsiop_inq_89(st
- 
- static unsigned int ata_scsiop_inq_b0(struct ata_scsi_args *args, u8 *rbuf)
- {
-+	struct ata_device *dev = args->dev;
- 	u16 min_io_sectors;
- 
- 	rbuf[1] = 0xb0;
-@@ -2105,7 +2106,12 @@ static unsigned int ata_scsiop_inq_b0(st
- 	 * with the unmap bit set.
- 	 */
- 	if (ata_id_has_trim(args->id)) {
--		put_unaligned_be64(65535 * ATA_MAX_TRIM_RNUM, &rbuf[36]);
-+		u64 max_blocks = 65535 * ATA_MAX_TRIM_RNUM;
+ /*
++ * Compute the size of a report.
++ */
++static size_t hid_compute_report_size(struct hid_report *report)
++{
++	if (report->size)
++		return ((report->size - 1) >> 3) + 1;
 +
-+		if (dev->horkage & ATA_HORKAGE_MAX_TRIM_128M)
-+			max_blocks = 128 << (20 - SECTOR_SHIFT);
++	return 0;
++}
 +
-+		put_unaligned_be64(max_blocks, &rbuf[36]);
- 		put_unaligned_be32(1, &rbuf[28]);
++/*
+  * Create a report. 'data' has to be allocated using
+  * hid_alloc_report_buf() so that it has proper size.
+  */
+@@ -1437,7 +1448,7 @@ void hid_output_report(struct hid_report
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
+-	memset(data, 0, ((report->size - 1) >> 3) + 1);
++	memset(data, 0, hid_compute_report_size(report));
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->device, report->field[n], data);
+ }
+@@ -1564,7 +1575,7 @@ int hid_report_raw_event(struct hid_devi
+ 		csize--;
  	}
  
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -421,6 +421,7 @@ enum {
- 	ATA_HORKAGE_NO_DMA_LOG	= (1 << 23),	/* don't use DMA for log read */
- 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
- 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
-+	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
+-	rsize = ((report->size - 1) >> 3) + 1;
++	rsize = hid_compute_report_size(report);
  
- 	 /* DMA mask for user DMA control: User visible values; DO NOT
- 	    renumber */
+ 	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
+ 		rsize = HID_MAX_BUFFER_SIZE - 1;
 
 
