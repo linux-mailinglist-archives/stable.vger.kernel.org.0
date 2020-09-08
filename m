@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EE0261411
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D5E261447
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731106AbgIHQBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:01:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
+        id S1731502AbgIHQLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731052AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:00:04 -0400
+        id S1731494AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:11:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 548FB24686;
-        Tue,  8 Sep 2020 15:39:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DD7D24730;
+        Tue,  8 Sep 2020 15:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579574;
-        bh=bCYj+CVTtz6pdLbobrnZ0A1auravAHZ1ELgrs5yFnkg=;
+        s=default; t=1599579653;
+        bh=+zm7Fp+zxwREOLfIDfp8EndrVnZmnnp2r5XmiTl5G6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0ALHnyEjtvcm4AzGlDhgOqJDQ0H55flsjIiFcNXjaHF9OGMf6g2xRTB17Q5fTXO+
-         Z3slVYk8kR8MqGY4vPe2CTo2y0TVXreL0ukk9TCAOsMOrdPIIy3gaY0YSMN15yBQOA
-         b6P2zIcfFP8EgODQzjb2ZTsrxI78TLyGyDZh6dk0=
+        b=jGO+xrw4ZXwZbVLZgI9KAJxK7QwPekH77kbegJTBjf/MYwqwWVzTq/ghDaYvkSa5e
+         8137S1KU5m8LQCNa3APczPaPoxCVxzrWRvii/n4MdDjv33PdgjOUzWqx3pj0t61eEn
+         4kR3M8MCWhCkSo65D8c06+Bpcrc/N8z1b8tWrEWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 134/186] Revert "ALSA: hda: Add support for Loongson 7A1000 controller"
-Date:   Tue,  8 Sep 2020 17:24:36 +0200
-Message-Id: <20200908152248.140892075@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Marzinski <bmarzins@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.8 166/186] dm mpath: fix racey management of PG initialization
+Date:   Tue,  8 Sep 2020 17:25:08 +0200
+Message-Id: <20200908152249.710294557@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,67 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit eed8f88b109aa927fbf0d0c80ff9f8d00444ca7f upstream.
+commit c322ee9320eaa4013ca3620b1130992916b19b31 upstream.
 
-This reverts commit 61eee4a7fc40 ("ALSA: hda: Add support for Loongson
-7A1000 controller") to fix the following error on the Loongson LS7A
-platform:
+Commit 935fcc56abc3 ("dm mpath: only flush workqueue when needed")
+changed flush_multipath_work() to avoid needless workqueue
+flushing (of a multipath global workqueue). But that change didn't
+realize the surrounding flush_multipath_work() code should also only
+run if 'pg_init_in_progress' is set.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-<SNIP>
-NMI backtrace for cpu 0
-CPU: 0 PID: 68 Comm: kworker/0:2 Not tainted 5.8.0+ #3
-Hardware name:  , BIOS
-Workqueue: events azx_probe_work [snd_hda_intel]
-<SNIP>
-Call Trace:
-[<ffffffff80211a64>] show_stack+0x9c/0x130
-[<ffffffff8065a740>] dump_stack+0xb0/0xf0
-[<ffffffff80665774>] nmi_cpu_backtrace+0x134/0x140
-[<ffffffff80665910>] nmi_trigger_cpumask_backtrace+0x190/0x200
-[<ffffffff802b1abc>] rcu_dump_cpu_stacks+0x12c/0x190
-[<ffffffff802b08cc>] rcu_sched_clock_irq+0xa2c/0xfc8
-[<ffffffff802b91d4>] update_process_times+0x2c/0xb8
-[<ffffffff802cad80>] tick_sched_timer+0x40/0xb8
-[<ffffffff802ba5f0>] __hrtimer_run_queues+0x118/0x1d0
-[<ffffffff802bab74>] hrtimer_interrupt+0x12c/0x2d8
-[<ffffffff8021547c>] c0_compare_interrupt+0x74/0xa0
-[<ffffffff80296bd0>] __handle_irq_event_percpu+0xa8/0x198
-[<ffffffff80296cf0>] handle_irq_event_percpu+0x30/0x90
-[<ffffffff8029d958>] handle_percpu_irq+0x88/0xb8
-[<ffffffff80296124>] generic_handle_irq+0x44/0x60
-[<ffffffff80b3cfd0>] do_IRQ+0x18/0x28
-[<ffffffff8067ace4>] plat_irq_dispatch+0x64/0x100
-[<ffffffff80209a20>] handle_int+0x140/0x14c
-[<ffffffff802402e8>] irq_exit+0xf8/0x100
+Fix this by only doing all of flush_multipath_work()'s PG init related
+work if 'pg_init_in_progress' is set.
 
-Because AZX_DRIVER_GENERIC can not work well for Loongson LS7A HDA
-controller, it needs some workarounds which are not merged into the
-upstream kernel at this time, so it should revert this patch now.
+Otherwise multipath_wait_for_pg_init_completion() will run
+unconditionally but the preceeding flush_workqueue(kmpath_handlerd)
+may not. This could lead to deadlock (though only if kmpath_handlerd
+never runs a corresponding work to decrement 'pg_init_in_progress').
 
-Fixes: 61eee4a7fc40 ("ALSA: hda: Add support for Loongson 7A1000 controller")
-Cc: <stable@vger.kernel.org> # 5.9-rc1+
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/r/1598348388-2518-1-git-send-email-yangtiezhu@loongson.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It could also be, though highly unlikely, that the kmpath_handlerd
+work that does PG init completes before 'pg_init_in_progress' is set,
+and then an intervening DM table reload's multipath_postsuspend()
+triggers flush_multipath_work().
+
+Fixes: 935fcc56abc3 ("dm mpath: only flush workqueue when needed")
+Cc: stable@vger.kernel.org
+Reported-by: Ben Marzinski <bmarzins@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/md/dm-mpath.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2747,8 +2747,6 @@ static const struct pci_device_id azx_id
- 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_HDMI },
- 	/* Zhaoxin */
- 	{ PCI_DEVICE(0x1d17, 0x3288), .driver_data = AZX_DRIVER_ZHAOXIN },
--	/* Loongson */
--	{ PCI_DEVICE(0x0014, 0x7a07), .driver_data = AZX_DRIVER_GENERIC },
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, azx_ids);
+--- a/drivers/md/dm-mpath.c
++++ b/drivers/md/dm-mpath.c
+@@ -1247,17 +1247,25 @@ static void multipath_wait_for_pg_init_c
+ static void flush_multipath_work(struct multipath *m)
+ {
+ 	if (m->hw_handler_name) {
+-		set_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
+-		smp_mb__after_atomic();
++		unsigned long flags;
++
++		if (!atomic_read(&m->pg_init_in_progress))
++			goto skip;
++
++		spin_lock_irqsave(&m->lock, flags);
++		if (atomic_read(&m->pg_init_in_progress) &&
++		    !test_and_set_bit(MPATHF_PG_INIT_DISABLED, &m->flags)) {
++			spin_unlock_irqrestore(&m->lock, flags);
+ 
+-		if (atomic_read(&m->pg_init_in_progress))
+ 			flush_workqueue(kmpath_handlerd);
+-		multipath_wait_for_pg_init_completion(m);
++			multipath_wait_for_pg_init_completion(m);
+ 
+-		clear_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
+-		smp_mb__after_atomic();
++			spin_lock_irqsave(&m->lock, flags);
++			clear_bit(MPATHF_PG_INIT_DISABLED, &m->flags);
++		}
++		spin_unlock_irqrestore(&m->lock, flags);
+ 	}
+-
++skip:
+ 	if (m->queue_mode == DM_TYPE_BIO_BASED)
+ 		flush_work(&m->process_queued_bios);
+ 	flush_work(&m->trigger_event);
 
 
