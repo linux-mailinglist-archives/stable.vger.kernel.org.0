@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92B2261B3E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE12261B39
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731365AbgIHTAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:00:05 -0400
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:51727 "EHLO
+        id S1731095AbgIHS6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:58:51 -0400
+Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:51734 "EHLO
         EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728585AbgIHS63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 14:58:29 -0400
+        by vger.kernel.org with ESMTP id S1726229AbgIHS6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 14:58:32 -0400
 Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
  EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Tue, 8 Sep 2020 11:58:24 -0700
+ 15.0.1156.6; Tue, 8 Sep 2020 11:58:30 -0700
 Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 0EBA140B4E;
-        Tue,  8 Sep 2020 11:58:26 -0700 (PDT)
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 9D69740B4E;
+        Tue,  8 Sep 2020 11:58:31 -0700 (PDT)
 From:   Ajay Kaher <akaher@vmware.com>
 To:     <gregkh@linuxfoundation.org>, <sashal@kernel.org>
 CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
@@ -24,10 +24,12 @@ CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
         <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
         <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
         <vsirnapalli@vmware.com>, <akaher@vmware.com>
-Subject: [PATCH v2 v4.14.y 1/3] vfio/type1: Support faulting PFNMAP vmas
-Date:   Wed, 9 Sep 2020 00:24:20 +0530
-Message-ID: <1599591263-46520-1-git-send-email-akaher@vmware.com>
+Subject: [PATCH v2 v4.14.y 2/3] vfio-pci: Fault mmaps to enable vma tracking
+Date:   Wed, 9 Sep 2020 00:24:21 +0530
+Message-ID: <1599591263-46520-2-git-send-email-akaher@vmware.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1599591263-46520-1-git-send-email-akaher@vmware.com>
+References: <1599591263-46520-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
@@ -39,77 +41,150 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alex Williamson <alex.williamson@redhat.com>
 
-commit 41311242221e3482b20bfed10fa4d9db98d87016 upstream.
+commit 11c4cd07ba111a09f49625f9e4c851d83daf0a22 upstream.
 
-With conversion to follow_pfn(), DMA mapping a PFNMAP range depends on
-the range being faulted into the vma.  Add support to manually provide
-that, in the same way as done on KVM with hva_to_pfn_remapped().
+Rather than calling remap_pfn_range() when a region is mmap'd, setup
+a vm_ops handler to support dynamic faulting of the range on access.
+This allows us to manage a list of vmas actively mapping the area that
+we can later use to invalidate those mappings.  The open callback
+invalidates the vma range so that all tracking is inserted in the
+fault handler and removed in the close handler.
 
 Reviewed-by: Peter Xu <peterx@redhat.com>
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 [Ajay: Regenerated the patch for v4.14]
 Signed-off-by: Ajay Kaher <akaher@vmware.com>
 ---
- drivers/vfio/vfio_iommu_type1.c | 36 +++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
+ drivers/vfio/pci/vfio_pci.c         | 76 ++++++++++++++++++++++++++++++++++++-
+ drivers/vfio/pci/vfio_pci_private.h |  7 ++++
+ 2 files changed, 81 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 35a3750..150be10 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -336,6 +336,32 @@ static int put_pfn(unsigned long pfn, int prot)
- 	return 0;
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 550ab77..c20c5ed 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1120,6 +1120,70 @@ static ssize_t vfio_pci_write(void *device_data, const char __user *buf,
+ 	return vfio_pci_rw(device_data, (char __user *)buf, count, ppos, true);
  }
  
-+static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
-+			    unsigned long vaddr, unsigned long *pfn,
-+			    bool write_fault)
++static int vfio_pci_add_vma(struct vfio_pci_device *vdev,
++			    struct vm_area_struct *vma)
 +{
-+	int ret;
++	struct vfio_pci_mmap_vma *mmap_vma;
 +
-+	ret = follow_pfn(vma, vaddr, pfn);
-+	if (ret) {
-+		bool unlocked = false;
++	mmap_vma = kmalloc(sizeof(*mmap_vma), GFP_KERNEL);
++	if (!mmap_vma)
++		return -ENOMEM;
 +
-+		ret = fixup_user_fault(NULL, mm, vaddr,
-+				       FAULT_FLAG_REMOTE |
-+				       (write_fault ?  FAULT_FLAG_WRITE : 0),
-+				       &unlocked);
-+		if (unlocked)
-+			return -EAGAIN;
++	mmap_vma->vma = vma;
 +
-+		if (ret)
-+			return ret;
++	mutex_lock(&vdev->vma_lock);
++	list_add(&mmap_vma->vma_next, &vdev->vma_list);
++	mutex_unlock(&vdev->vma_lock);
 +
-+		ret = follow_pfn(vma, vaddr, pfn);
-+	}
-+
-+	return ret;
++	return 0;
 +}
 +
- static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
- 			 int prot, unsigned long *pfn)
- {
-@@ -375,12 +401,16 @@ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
- 
- 	down_read(&mm->mmap_sem);
- 
-+retry:
- 	vma = find_vma_intersection(mm, vaddr, vaddr + 1);
- 
- 	if (vma && vma->vm_flags & VM_PFNMAP) {
--		if (!follow_pfn(vma, vaddr, pfn) &&
--		    is_invalid_reserved_pfn(*pfn))
--			ret = 0;
-+		ret = follow_fault_pfn(vma, mm, vaddr, pfn, prot & IOMMU_WRITE);
-+		if (ret == -EAGAIN)
-+			goto retry;
++/*
++ * Zap mmaps on open so that we can fault them in on access and therefore
++ * our vma_list only tracks mappings accessed since last zap.
++ */
++static void vfio_pci_mmap_open(struct vm_area_struct *vma)
++{
++	zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
++}
 +
-+		if (!ret && !is_invalid_reserved_pfn(*pfn))
-+			ret = -EFAULT;
- 	}
++static void vfio_pci_mmap_close(struct vm_area_struct *vma)
++{
++	struct vfio_pci_device *vdev = vma->vm_private_data;
++	struct vfio_pci_mmap_vma *mmap_vma;
++
++	mutex_lock(&vdev->vma_lock);
++	list_for_each_entry(mmap_vma, &vdev->vma_list, vma_next) {
++		if (mmap_vma->vma == vma) {
++			list_del(&mmap_vma->vma_next);
++			kfree(mmap_vma);
++			break;
++		}
++	}
++	mutex_unlock(&vdev->vma_lock);
++}
++
++static int vfio_pci_mmap_fault(struct vm_fault *vmf)
++{
++	struct vm_area_struct *vma = vmf->vma;
++	struct vfio_pci_device *vdev = vma->vm_private_data;
++
++	if (vfio_pci_add_vma(vdev, vma))
++		return VM_FAULT_OOM;
++
++	if (remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
++			    vma->vm_end - vma->vm_start, vma->vm_page_prot))
++		return VM_FAULT_SIGBUS;
++
++	return VM_FAULT_NOPAGE;
++}
++
++static const struct vm_operations_struct vfio_pci_mmap_ops = {
++	.open = vfio_pci_mmap_open,
++	.close = vfio_pci_mmap_close,
++	.fault = vfio_pci_mmap_fault,
++};
++
+ static int vfio_pci_mmap(void *device_data, struct vm_area_struct *vma)
+ {
+ 	struct vfio_pci_device *vdev = device_data;
+@@ -1185,8 +1249,14 @@ static int vfio_pci_mmap(void *device_data, struct vm_area_struct *vma)
+ 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+ 	vma->vm_pgoff = (pci_resource_start(pdev, index) >> PAGE_SHIFT) + pgoff;
  
- 	up_read(&mm->mmap_sem);
+-	return remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
+-			       req_len, vma->vm_page_prot);
++	/*
++	 * See remap_pfn_range(), called from vfio_pci_fault() but we can't
++	 * change vm_flags within the fault handler.  Set them now.
++	 */
++	vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
++	vma->vm_ops = &vfio_pci_mmap_ops;
++
++	return 0;
+ }
+ 
+ static void vfio_pci_request(void *device_data, unsigned int count)
+@@ -1243,6 +1313,8 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	vdev->irq_type = VFIO_PCI_NUM_IRQS;
+ 	mutex_init(&vdev->igate);
+ 	spin_lock_init(&vdev->irqlock);
++	mutex_init(&vdev->vma_lock);
++	INIT_LIST_HEAD(&vdev->vma_list);
+ 
+ 	ret = vfio_add_group_dev(&pdev->dev, &vfio_pci_ops, vdev);
+ 	if (ret) {
+diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+index f561ac1..4b78f12 100644
+--- a/drivers/vfio/pci/vfio_pci_private.h
++++ b/drivers/vfio/pci/vfio_pci_private.h
+@@ -63,6 +63,11 @@ struct vfio_pci_dummy_resource {
+ 	struct list_head	res_next;
+ };
+ 
++struct vfio_pci_mmap_vma {
++	struct vm_area_struct	*vma;
++	struct list_head	vma_next;
++};
++
+ struct vfio_pci_device {
+ 	struct pci_dev		*pdev;
+ 	void __iomem		*barmap[PCI_STD_RESOURCE_END + 1];
+@@ -95,6 +100,8 @@ struct vfio_pci_device {
+ 	struct eventfd_ctx	*err_trigger;
+ 	struct eventfd_ctx	*req_trigger;
+ 	struct list_head	dummy_resources_list;
++	struct mutex		vma_lock;
++	struct list_head	vma_list;
+ };
+ 
+ #define is_intx(vdev) (vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX)
 -- 
 2.7.4
 
