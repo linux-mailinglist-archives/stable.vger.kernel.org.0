@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65718261C00
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F1C261CE9
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731114AbgIHTNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52114 "EHLO mail.kernel.org"
+        id S1732100AbgIHT1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731090AbgIHQFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:05:09 -0400
+        id S1731063AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:00:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3FA8229C7;
-        Tue,  8 Sep 2020 15:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A04A2253D;
+        Tue,  8 Sep 2020 15:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579327;
-        bh=pGPGvz4isoVU6Q1OPF74SRiL0p/6cTxaeGQRmI3go7w=;
+        s=default; t=1599579329;
+        bh=eJeG5xJT/gGRtkMyOdssQU+oYgX6r/G8jIetuUHAuMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVNL4R+LGVKVgwoJ8RAqAwl3/+wVW2Ru76+64jKNMaOVvADHqEpF0U4mJE8sgk/m+
-         TsJeFGRP+f2sXng3+3NIH/xTRu4ooH4wovQaW8KubrDiBOjLH2Vqx5V2q2CWlVZw8n
-         BuzQId7ScVE5Zi6B4hLH3Y0u22juhpmhoAhFzaCg=
+        b=lMmu5A9auB4vDxpu8UbNtmMmUVxw9B3bI+i+DJ7cC2bRal+YkomEahSeNqAwzwlNc
+         DkJK38IcCjDwQVSJQGs2BBHRldoIOy+vls+IgXPeZbj47u3s5dhmfKzSOeb71u+1I+
+         Wj8aPmnAipUSJFx9XZHCcO4IhqRDqLdBBFmzOqBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Furquan Shaikh <furquan@google.com>,
+        stable@vger.kernel.org, Jaehyun Chung <jaehyun.chung@amd.com>,
+        Wenjing Liu <Wenjing.Liu@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 031/186] drivers: gpu: amd: Initialize amdgpu_dm_backlight_caps object to 0 in amdgpu_dm_update_backlight_caps
-Date:   Tue,  8 Sep 2020 17:22:53 +0200
-Message-Id: <20200908152243.164605314@linuxfoundation.org>
+Subject: [PATCH 5.8 032/186] drm/amd/display: Revert HDCP disable sequence change
+Date:   Tue,  8 Sep 2020 17:22:54 +0200
+Message-Id: <20200908152243.211893881@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -46,39 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Furquan Shaikh <furquan@google.com>
+From: Jaehyun Chung <jaehyun.chung@amd.com>
 
-[ Upstream commit 5896585512e5156482335e902f7c7393b940da51 ]
+[ Upstream commit b61f05622ace5b9498ae279cdfd1c9f0c1ce3f75 ]
 
-In `amdgpu_dm_update_backlight_caps()`, there is a local
-`amdgpu_dm_backlight_caps` object that is filled in by
-`amdgpu_acpi_get_backlight_caps()`. However, this object is
-uninitialized before the call and hence the subsequent check for
-aux_support can fail since it is not initialized by
-`amdgpu_acpi_get_backlight_caps()` as well. This change initializes
-this local `amdgpu_dm_backlight_caps` object to 0.
+[Why]
+Revert HDCP disable sequence change that blanks stream before
+disabling HDCP. PSP and HW teams are currently investigating the
+root cause of why HDCP cannot be disabled before stream blank,
+which is expected to work without issues.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Furquan Shaikh <furquan@google.com>
+Signed-off-by: Jaehyun Chung <jaehyun.chung@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Eryk Brol <eryk.brol@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 666ebe04837af..7ec810ebf4ce4 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2844,6 +2844,8 @@ static void amdgpu_dm_update_backlight_caps(struct amdgpu_display_manager *dm)
- #if defined(CONFIG_ACPI)
- 	struct amdgpu_dm_backlight_caps caps;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 31aa31c280ee6..bdddb46727b1f 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3265,10 +3265,10 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
+ 		core_link_set_avmute(pipe_ctx, true);
+ 	}
  
-+	memset(&caps, 0, sizeof(caps));
-+
- 	if (dm->backlight_caps.caps_valid)
- 		return;
+-	dc->hwss.blank_stream(pipe_ctx);
+ #if defined(CONFIG_DRM_AMD_DC_HDCP)
+ 	update_psp_stream_config(pipe_ctx, true);
+ #endif
++	dc->hwss.blank_stream(pipe_ctx);
  
+ 	if (pipe_ctx->stream->signal == SIGNAL_TYPE_DISPLAY_PORT_MST)
+ 		deallocate_mst_payload(pipe_ctx);
 -- 
 2.25.1
 
