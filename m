@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B8E3261C56
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E90261C51
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731535AbgIHTSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
+        id S1725997AbgIHTSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731140AbgIHQCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:02:52 -0400
+        id S1731144AbgIHQCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:02:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFCF823EF1;
-        Tue,  8 Sep 2020 15:37:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BDB924147;
+        Tue,  8 Sep 2020 15:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579478;
-        bh=R4RDt6MB6w6jlYYnXl0Sp5AbezBpq9SsMLs9+AC9t24=;
+        s=default; t=1599579512;
+        bh=jYmkvO4JgWaK0dz1wwE7dMugPeoMLh4sDC5DGhK7VwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uj2DTWBH77JI6Hk5bvkYkRb3PfVd7aB4c5+8hQxEz6vB06W+B+aDWKTr2+FVQLqIq
-         x9eT2iHwkEJDMKTuacMCE7MmZPS76LzLqkyacp4017Lp5suXRE4eD8xYX5Dc6Tq6Zp
-         RKyC7bskXGgjz2ME62i++kDv4aesZ2QrbUuA4vTo=
+        b=PrfHXPtWiXE2RqtDCSFCan5rN5A4RMQLr+8ZxT3MtgkqsHIYYBs6PICG3Ki9KxBtV
+         J0akThM6TFybhPswXS+3IH90B8Di6XN87mXRjgOn1jMUNGPBojh+90N8J5xqaQkiC5
+         rsCyMeMOUfdQd3qFwU0ANtyNB8l1kg9mr2EOT0vM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 077/186] media: cedrus: Add missing v4l2_ctrl_request_hdl_put()
-Date:   Tue,  8 Sep 2020 17:23:39 +0200
-Message-Id: <20200908152245.381408480@linuxfoundation.org>
+Subject: [PATCH 5.8 079/186] media: i2c: imx214: select V4L2_FWNODE
+Date:   Tue,  8 Sep 2020 17:23:41 +0200
+Message-Id: <20200908152245.477803800@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -45,52 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit b30063976f29fc221a99d18d37d22ca035068aa9 ]
+[ Upstream commit bca82e3557ee1fbfbdacb09033a2d81ac76c86eb ]
 
-The check for a required control in the request was missing a call to
-v4l2_ctrl_request_hdl_put() in the error path. Fix it.
+After the recent conversion of the media build infrastructure to select
+V4L2 components instead of depending on their presence, which took place
+in:
+32a363d0b0b14 ("media: Kconfig files: use select for V4L2 subdevs and MC")
 
-Fixes: 50e761516f2b8c ("media: platform: Add Cedrus VPU decoder driver")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+imx214 stands out as being the (only?) media I2C driver that still depends
+on a V4L2 core symbol instead of selecting it.
+
+This confuses the build system which claims it has detected a circular
+dependency when other drivers select the same symbol as the imx214
+driver does.
+
+drivers/media/i2c/Kconfig:728:error: recursive dependency detected!
+drivers/media/i2c/Kconfig:728:	symbol VIDEO_IMX214 depends on V4L2_FWNODE
+drivers/media/v4l2-core/Kconfig:71:	symbol V4L2_FWNODE is selected by VIDEO_BCM2835_UNICAM
+drivers/media/platform/bcm2835/Kconfig:3:	symbol VIDEO_BCM2835_UNICAM depends on VIDEO_V4L2_SUBDEV_API
+drivers/media/v4l2-core/Kconfig:19:	symbol VIDEO_V4L2_SUBDEV_API depends on MEDIA_CONTROLLER
+drivers/media/Kconfig:168:	symbol MEDIA_CONTROLLER is selected by VIDEO_IMX214
+
+Fix this by making the imx214 driver select V4L2_FWNODE instead of
+depending on it and align it with all the other drivers.
+
+Fixes: 32a363d0b0b14 ("media: Kconfig files: use select for V4L2 subdevs and MC")
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/media/i2c/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.c b/drivers/staging/media/sunxi/cedrus/cedrus.c
-index bc27f9430eeb1..7c6b91f0e780a 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
-@@ -199,6 +199,7 @@ static int cedrus_request_validate(struct media_request *req)
- 	struct v4l2_ctrl *ctrl_test;
- 	unsigned int count;
- 	unsigned int i;
-+	int ret = 0;
- 
- 	list_for_each_entry(obj, &req->objects, list) {
- 		struct vb2_buffer *vb;
-@@ -243,12 +244,16 @@ static int cedrus_request_validate(struct media_request *req)
- 		if (!ctrl_test) {
- 			v4l2_info(&ctx->dev->v4l2_dev,
- 				  "Missing required codec control\n");
--			return -ENOENT;
-+			ret = -ENOENT;
-+			break;
- 		}
- 	}
- 
- 	v4l2_ctrl_request_hdl_put(hdl);
- 
-+	if (ret)
-+		return ret;
-+
- 	return vb2_request_validate(req);
- }
- 
+diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+index da11036ad804d..6b1a6851ccb0b 100644
+--- a/drivers/media/i2c/Kconfig
++++ b/drivers/media/i2c/Kconfig
+@@ -728,7 +728,7 @@ config VIDEO_HI556
+ config VIDEO_IMX214
+ 	tristate "Sony IMX214 sensor support"
+ 	depends on GPIOLIB && I2C && VIDEO_V4L2
+-	depends on V4L2_FWNODE
++	select V4L2_FWNODE
+ 	select MEDIA_CONTROLLER
+ 	select VIDEO_V4L2_SUBDEV_API
+ 	select REGMAP_I2C
 -- 
 2.25.1
 
