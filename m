@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F02A26185E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 783C4261885
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732136AbgIHRxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57298 "EHLO mail.kernel.org"
+        id S1731548AbgIHRxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731587AbgIHQNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731586AbgIHQNJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:13:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B9842489F;
-        Tue,  8 Sep 2020 15:52:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8720C248A5;
+        Tue,  8 Sep 2020 15:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580345;
-        bh=tJeB+CAlsKIHOKpJcSG7HjtM4OMNYiYbT2EYatNwtKU=;
+        s=default; t=1599580348;
+        bh=Wmb9tXluiT6qEG93jAG038HMJ32OR4eUqlf3c58sI2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+MvAT7UAP/GVADTsHF/e9Y6Tvj5ZcH9bpdy7DmS8XGb6y0KZhvhaiXZAnk1svUka
-         SCh5xvKpeNM8W+ZlCyQeukQDh3QhCTvV2DwygSIkklFTZHehz1WqficSjRLQ3sTcw3
-         PV0LhQiu/fPCSq1VrnGQyttPTKhmJCOf8ugFwaVk=
+        b=PD12uB1e1B/1XICsJtggQomPHn9SprIYZsCm9inHx3lOgBPNh3FYUPlcNQ6yZVLLm
+         3Z8c0637FyrtOestZTXxgqSHLkrwzO58WanRJyx293oTD633FIiQE7oxOlJoa4l6m2
+         OFo9cN09+W1ANU1UifxUH52AjgJDJMFS9+egkOu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 38/65] btrfs: drop path before adding new uuid tree entry
-Date:   Tue,  8 Sep 2020 17:26:23 +0200
-Message-Id: <20200908152218.999136573@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/65] btrfs: Remove redundant extent_buffer_get in get_old_root
+Date:   Tue,  8 Sep 2020 17:26:24 +0200
+Message-Id: <20200908152219.039795888@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -44,145 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 9771a5cf937129307d9f58922d60484d58ababe7 upstream.
+[ Upstream commit 6c122e2a0c515cfb3f3a9cefb5dad4cb62109c78 ]
 
-With the conversion of the tree locks to rwsem I got the following
-lockdep splat:
+get_old_root used used only by btrfs_search_old_slot to initialise the
+path structure. The old root is always a cloned buffer (either via alloc
+dummy or via btrfs_clone_extent_buffer) and its reference count is 2: 1
+from allocation, 1 from extent_buffer_get call in get_old_root.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925 Not tainted
-  ------------------------------------------------------
-  btrfs-uuid/7955 is trying to acquire lock:
-  ffff88bfbafec0f8 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+This latter explicit ref count acquire operation is in fact unnecessary
+since the semantic is such that the newly allocated buffer is handed
+over to the btrfs_path for lifetime management. Considering this just
+remove the extra extent_buffer_get in get_old_root.
 
-  but task is already holding lock:
-  ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #1 (btrfs-uuid-00){++++}-{3:3}:
-	 down_read_nested+0x3e/0x140
-	 __btrfs_tree_read_lock+0x39/0x180
-	 __btrfs_read_lock_root_node+0x3a/0x50
-	 btrfs_search_slot+0x4bd/0x990
-	 btrfs_uuid_tree_add+0x89/0x2d0
-	 btrfs_uuid_scan_kthread+0x330/0x390
-	 kthread+0x133/0x150
-	 ret_from_fork+0x1f/0x30
-
-  -> #0 (btrfs-root-00){++++}-{3:3}:
-	 __lock_acquire+0x1272/0x2310
-	 lock_acquire+0x9e/0x360
-	 down_read_nested+0x3e/0x140
-	 __btrfs_tree_read_lock+0x39/0x180
-	 __btrfs_read_lock_root_node+0x3a/0x50
-	 btrfs_search_slot+0x4bd/0x990
-	 btrfs_find_root+0x45/0x1b0
-	 btrfs_read_tree_root+0x61/0x100
-	 btrfs_get_root_ref.part.50+0x143/0x630
-	 btrfs_uuid_tree_iterate+0x207/0x314
-	 btrfs_uuid_rescan_kthread+0x12/0x50
-	 kthread+0x133/0x150
-	 ret_from_fork+0x1f/0x30
-
-  other info that might help us debug this:
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(btrfs-uuid-00);
-				 lock(btrfs-root-00);
-				 lock(btrfs-uuid-00);
-    lock(btrfs-root-00);
-
-   *** DEADLOCK ***
-
-  1 lock held by btrfs-uuid/7955:
-   #0: ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  stack backtrace:
-  CPU: 73 PID: 7955 Comm: btrfs-uuid Kdump: loaded Not tainted 5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925
-  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x165/0x180
-   __lock_acquire+0x1272/0x2310
-   lock_acquire+0x9e/0x360
-   ? __btrfs_tree_read_lock+0x39/0x180
-   ? btrfs_root_node+0x1c/0x1d0
-   down_read_nested+0x3e/0x140
-   ? __btrfs_tree_read_lock+0x39/0x180
-   __btrfs_tree_read_lock+0x39/0x180
-   __btrfs_read_lock_root_node+0x3a/0x50
-   btrfs_search_slot+0x4bd/0x990
-   btrfs_find_root+0x45/0x1b0
-   btrfs_read_tree_root+0x61/0x100
-   btrfs_get_root_ref.part.50+0x143/0x630
-   btrfs_uuid_tree_iterate+0x207/0x314
-   ? btree_readpage+0x20/0x20
-   btrfs_uuid_rescan_kthread+0x12/0x50
-   kthread+0x133/0x150
-   ? kthread_create_on_node+0x60/0x60
-   ret_from_fork+0x1f/0x30
-
-This problem exists because we have two different rescan threads,
-btrfs_uuid_scan_kthread which creates the uuid tree, and
-btrfs_uuid_tree_iterate that goes through and updates or deletes any out
-of date roots.  The problem is they both do things in different order.
-btrfs_uuid_scan_kthread() reads the tree_root, and then inserts entries
-into the uuid_root.  btrfs_uuid_tree_iterate() scans the uuid_root, but
-then does a btrfs_get_fs_root() which can read from the tree_root.
-
-It's actually easy enough to not be holding the path in
-btrfs_uuid_scan_kthread() when we add a uuid entry, as we already drop
-it further down and re-start the search when we loop.  So simply move
-the path release before we add our entry to the uuid tree.
-
-This also fixes a problem where we're holding a path open after we do
-btrfs_end_transaction(), which has it's own problems.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4174,6 +4174,7 @@ static int btrfs_uuid_scan_kthread(void
- 			goto skip;
- 		}
- update_tree:
-+		btrfs_release_path(path);
- 		if (!btrfs_is_empty_uuid(root_item.uuid)) {
- 			ret = btrfs_uuid_tree_add(trans, fs_info,
- 						  root_item.uuid,
-@@ -4199,6 +4200,7 @@ update_tree:
- 		}
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index f5a8c0d26cf36..492a781c27cd4 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1438,7 +1438,6 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
  
- skip:
-+		btrfs_release_path(path);
- 		if (trans) {
- 			ret = btrfs_end_transaction(trans);
- 			trans = NULL;
-@@ -4206,7 +4208,6 @@ skip:
- 				break;
- 		}
- 
--		btrfs_release_path(path);
- 		if (key.offset < (u64)-1) {
- 			key.offset++;
- 		} else if (key.type < BTRFS_ROOT_ITEM_KEY) {
+ 	if (!eb)
+ 		return NULL;
+-	extent_buffer_get(eb);
+ 	btrfs_tree_read_lock(eb);
+ 	if (old_root) {
+ 		btrfs_set_header_bytenr(eb, eb->start);
+-- 
+2.25.1
+
 
 
