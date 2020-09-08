@@ -2,102 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F1F2613C8
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 17:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C744261429
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730761AbgIHPth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 11:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37662 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730599AbgIHPt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:49:28 -0400
+        id S1730981AbgIHQHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:07:30 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:36741 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731106AbgIHQG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 12:06:26 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 1B144F6D;
+        Tue,  8 Sep 2020 07:59:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 08 Sep 2020 07:59:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=drP9z5
+        GNx4ImftOf4SiGHgAOmYLknMpBuOychzPpL/M=; b=JPpdUJB6eddsZUFwS9g1vd
+        dff+glpK/Z5bxDHPV1t3U/pbKRvxiLUEppYJfzp84GES8bsro7B8YpfN7Qvnwh8E
+        /tVMyvEzg3qJtRY0j3/WJZS5PPRo0Umw+LIsg19/1fs1T8ZTbE9m7B4sWqc8015J
+        2PZSKCchkfxxOch8zdzQGkSc6AKphOGCgERU9l5ICDAypMJq+t7gxkmUYhUXelaq
+        DKiATioOyxNup58t5beSmodngWPuFVJH0vNzGpQVHFTtGoghmWI4B3MEOZCCCs4L
+        4F5jXTNGP/mQeFk8/JXU9gTYgXsuHk4ldscJ4pRS1SNCerQHHzmepyG5345RsRtg
+        ==
+X-ME-Sender: <xms:D3JXXzvaVLlf3oWjJP9sWa-dygwYFMZjlKC0FZXLFAFpqrHov8Gr5A>
+    <xme:D3JXX0cJjMVpyfr0RvXzcyS0B0EWFRdtfcPXF4hUC220UmQAhYxqhT5KN1FKNGDxh
+    gsKdpTJY0foFg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedgvdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:D3JXX2wVygPX5eqCjc-x9OT3fSjQQH6l0TyuTSdLj3whZC8KcUHdGA>
+    <xmx:D3JXXyOTvdjHJpEk85Rs-y2Oc7MRTeDlgqwwLlds69BHPce8rS4vnA>
+    <xmx:D3JXXz_ccNUxMUTOwQdnXzp4P-L0NhRB7yYTiKSysQDHMd4Rp-KVVA>
+    <xmx:D3JXXwH0Q1Uz7FDQU9Xwu-MjATWXTzdtXAtskSLSo8NJjkwG4xOb8sHyYTI>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68FA42482B;
-        Tue,  8 Sep 2020 15:44:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579883;
-        bh=7Pzg1WVdz2wq0y7jIJVV0/6t7pgXAjx9arQklN+Os+0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oE1EC1P3+K7cfPl2h8QxzDOiiK2rK9jgpr6F7NySnZI9Yg2/Gy01um/i75EwXU+hV
-         Q72BVwpllqsO0DhnQ3tFb1Ql2IBpqEaDPomS7QiIoTJ64YFvHC0zapzF8mgcBfnTwn
-         AQjCfpMq85+f19FSKJiGnsWPFC28re7bZzzqK5Os=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/129] net/packet: fix overflow in tpacket_rcv
-Date:   Tue,  8 Sep 2020 17:25:12 +0200
-Message-Id: <20200908152233.248148317@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
-References: <20200908152229.689878733@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5DBC0328005D;
+        Tue,  8 Sep 2020 07:59:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection" failed to apply to 4.4-stable tree
+To:     o-takashi@sakamocchi.jp, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Sep 2020 13:59:22 +0200
+Message-ID: <1599566362199225@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
 
-[ Upstream commit acf69c946233259ab4d64f8869d4037a198c7f06 ]
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Using tp_reserve to calculate netoff can overflow as
-tp_reserve is unsigned int and netoff is unsigned short.
+thanks,
 
-This may lead to macoff receving a smaller value then
-sizeof(struct virtio_net_hdr), and if po->has_vnet_hdr
-is set, an out-of-bounds write will occur when
-calling virtio_net_hdr_from_skb.
+greg k-h
 
-The bug is fixed by converting netoff to unsigned int
-and checking if it exceeds USHRT_MAX.
+------------------ original commit in Linus's tree ------------------
 
-This addresses CVE-2020-14386
+From 0bd8bce897b6697bbc286b8ba473aa0705fe394b Mon Sep 17 00:00:00 2001
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Date: Sun, 23 Aug 2020 16:55:37 +0900
+Subject: [PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
 
-Fixes: 8913336a7e8d ("packet: add PACKET_RESERVE sockopt")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/packet/af_packet.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Tascam FE-8 is known to support communication by asynchronous transaction
+only. The support can be implemented in userspace application and
+snd-firewire-ctl-services project has the support. However, ALSA
+firewire-tascam driver is bound to the model.
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 7735340c892eb..fbc2d4dfddf0e 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2169,7 +2169,8 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
- 	int skb_len = skb->len;
- 	unsigned int snaplen, res;
- 	unsigned long status = TP_STATUS_USER;
--	unsigned short macoff, netoff, hdrlen;
-+	unsigned short macoff, hdrlen;
-+	unsigned int netoff;
- 	struct sk_buff *copy_skb = NULL;
- 	struct timespec ts;
- 	__u32 ts_status;
-@@ -2238,6 +2239,10 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
- 		}
- 		macoff = netoff - maclen;
- 	}
-+	if (netoff > USHRT_MAX) {
-+		atomic_inc(&po->tp_drops);
-+		goto drop_n_restore;
-+	}
- 	if (po->tp_version <= TPACKET_V2) {
- 		if (macoff + snaplen > po->rx_ring.frame_size) {
- 			if (po->copy_thresh &&
--- 
-2.25.1
+This commit changes device entries so that the model is excluded. In a
+commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
+processing"), I addressed to the concern that version field in
+configuration differs depending on installed firmware. However, as long
+as I checked, the version number is fixed. It's safe to return version
+number back to modalias.
 
+Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200823075537.56255-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
+diff --git a/sound/firewire/tascam/tascam.c b/sound/firewire/tascam/tascam.c
+index 5dac0d9fc58e..75f2edd8e78f 100644
+--- a/sound/firewire/tascam/tascam.c
++++ b/sound/firewire/tascam/tascam.c
+@@ -39,9 +39,6 @@ static const struct snd_tscm_spec model_specs[] = {
+ 		.midi_capture_ports = 2,
+ 		.midi_playback_ports = 4,
+ 	},
+-	// This kernel module doesn't support FE-8 because the most of features
+-	// can be implemented in userspace without any specific support of this
+-	// module.
+ };
+ 
+ static int identify_model(struct snd_tscm *tscm)
+@@ -211,11 +208,39 @@ static void snd_tscm_remove(struct fw_unit *unit)
+ }
+ 
+ static const struct ieee1394_device_id snd_tscm_id_table[] = {
++	// Tascam, FW-1884.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800000,
++	},
++	// Tascam, FE-8 (.version = 0x800001)
++	// This kernel module doesn't support FE-8 because the most of features
++	// can be implemented in userspace without any specific support of this
++	// module.
++	//
++	// .version = 0x800002 is unknown.
++	//
++	// Tascam, FW-1082.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800003,
++	},
++	// Tascam, FW-1804.
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
+-			       IEEE1394_MATCH_SPECIFIER_ID,
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
+ 		.vendor_id = 0x00022e,
+ 		.specifier_id = 0x00022e,
++		.version = 0x800004,
+ 	},
+ 	{}
+ };
 
