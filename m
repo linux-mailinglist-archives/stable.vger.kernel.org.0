@@ -2,72 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AEDA261F17
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BA7261D78
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730176AbgIHT65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730474AbgIHPfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:35:39 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E52B206DB;
-        Tue,  8 Sep 2020 12:12:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599567145;
-        bh=qmVm2cBZbFlDXg2K5rwPxPvrNmapd2esw84x5y2TZFA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NQ7N43mQZ4LkTz66NIKWIOC2tQ5F40LoHwfxM6xc2UuMF2nup3sPRlDg2/4oHVOgE
-         ueQDJCcgHx6hagKe8KacN6yDsSoeaI90haVA0MrSWqN19Ht8L0EgNacfxJSXPfOOzo
-         XziLjCQjkwu0AgW5+bxQSftlzmQ6q6ckvclcRO5g=
-Date:   Tue, 8 Sep 2020 08:12:24 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Lars Melin <larsm17@gmail.com>
-Cc:     Kristian Evensen <kristian.evensen@gmail.com>,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Daniele Palmas <dnlplm@gmail.com>,
-        =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Network Development <netdev@vger.kernel.org>,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 17/33] net: usb: qmi_wwan: add Telit 0x1050
- composition
-Message-ID: <20200908121224.GT8670@sasha-vm>
-References: <20191026132110.4026-1-sashal@kernel.org>
- <20191026132110.4026-17-sashal@kernel.org>
- <CAKfDRXjjuW4VM03HeVoeEyG=cULUK8ZXexWu48rfFvJE+DD8_g@mail.gmail.com>
- <20200907181552.GN8670@sasha-vm>
- <6e09f3e2-674d-f7c1-e868-c170dff1dbb9@gmail.com>
+        id S1732072AbgIHThe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53410 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730827AbgIHPzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 11:55:47 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7032DC0612A7
+        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 06:08:03 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id a65so17212779wme.5
+        for <stable@vger.kernel.org>; Tue, 08 Sep 2020 06:08:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YaYfBY/nWyV15237QqlCB6gaunpe9sapW1LpGGaZFmI=;
+        b=PQ9FpH0sWVEYKXkmkpGFj8lM+SXrPTK7FsqwWAXuNeb0DermnRd5fNv24TZMEQMSi5
+         6rnR7/UFQT86UeHCZlIojA8tN/1UK70ZR4CuAm+RhnbYsM3fmVkkmKg1u2K/5DZBeIiT
+         F7psEX9g30KC4el3BNij5xIoWiLfg4iXkT4JOU8Qu4Gb6/j/dbVe7QckB3toI0QD3NSc
+         BUrLpK24R5GNTIAjreSy7244Y94uNWeuiOiXYtS8462EI+6ptbP6VFqS49GWgBIZCar7
+         SVF2YJpMvvBMn7pMCG3KmPKUk7WKH6sU65i03kq4p+nCS+6jt62w+QJOPnm4BG/lqnnZ
+         X24A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YaYfBY/nWyV15237QqlCB6gaunpe9sapW1LpGGaZFmI=;
+        b=X/5khsrhDTBcYZ2dSKXWKfAl0somucCBCz3SY9gKda4SH7QaGXyXM4HAWpa3kEqSSk
+         LXfkCeAAOJ+6ckELifaTfYbKtQmXnZu4O1ZqFPJ6ydQsSKR5nUALln2SlZnYYUcvXGMy
+         NnIrEjxd3tMU4rl6yEZSSb9pq4iVtLuyCHWYUq65tBxrNSjDlg3YPL8tJolJKobS4Sj0
+         MaoCoZaauKXQQbt4d9fjCeNgPJSrtIotGME6UaB33qAMhyO6oN+ZW4GQhHaHUdhUcAtz
+         2v5kL7njE2M/Vzi84DslOaBZ+lWc7eQZVnkGKk3C/fmEdLRAapMdvqYhJ4srjfCDGm7S
+         DYEQ==
+X-Gm-Message-State: AOAM530M+JTkVMWf08NJ5amnAzx8WyagpeJZhsnyosCzWsrLitFU6RTO
+        fNCKFH+bGkWvifrhpKOZeyxXSg==
+X-Google-Smtp-Source: ABdhPJzslhyYw7bWYKOTM5J83rbaOJq0mY3hHSuDFQ686C4hzftuOd+FgwLykWDkYZu4RwLETxv0Sw==
+X-Received: by 2002:a1c:9e0e:: with SMTP id h14mr1690491wme.18.1599570482144;
+        Tue, 08 Sep 2020 06:08:02 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id b2sm32254400wmh.47.2020.09.08.06.08.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2020 06:08:01 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kent Gibson <warthog618@gmail.com>
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] gpio: mockup: fix resource leak in error path
+Date:   Tue,  8 Sep 2020 15:07:49 +0200
+Message-Id: <20200908130749.9948-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <6e09f3e2-674d-f7c1-e868-c170dff1dbb9@gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 07:33:21AM +0700, Lars Melin wrote:
->On 9/8/2020 01:15, Sasha Levin wrote:
->>On Mon, Sep 07, 2020 at 11:36:37AM +0200, Kristian Evensen wrote:
->// snip
->
->>>When testing the FN980 with kernel 4.14, I noticed that the qmi device
->>>was not there. Checking the git log, I see that this patch was never
->>>applied. The patch applies fine, so I guess it was just missed
->>>somewhere. If it could be added to the next 4.14 release, it would be
->>>much appreciated.
->>
->>Interesting, yes - I'm not sure why it's missing. I'll queue it up.
->>
->
->The patch is missing from all 4.x LTS kernels, not only 4.14
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Right, it's queued up for all the trees.
+If the module init function fails after creating the debugs directory,
+it's never removed. Add proper cleanup calls to avoid this resource
+leak.
 
+Fixes: 9202ba2397d1 ("gpio: mockup: implement event injecting over debugfs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/gpio/gpio-mockup.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
+index bc345185db26..1652897fdf90 100644
+--- a/drivers/gpio/gpio-mockup.c
++++ b/drivers/gpio/gpio-mockup.c
+@@ -552,6 +552,7 @@ static int __init gpio_mockup_init(void)
+ 	err = platform_driver_register(&gpio_mockup_driver);
+ 	if (err) {
+ 		gpio_mockup_err("error registering platform driver\n");
++		debugfs_remove_recursive(gpio_mockup_dbg_dir);
+ 		return err;
+ 	}
+ 
+@@ -582,6 +583,7 @@ static int __init gpio_mockup_init(void)
+ 			gpio_mockup_err("error registering device");
+ 			platform_driver_unregister(&gpio_mockup_driver);
+ 			gpio_mockup_unregister_pdevs();
++			debugfs_remove_recursive(gpio_mockup_dbg_dir);
+ 			return PTR_ERR(pdev);
+ 		}
+ 
 -- 
-Thanks,
-Sasha
+2.26.1
+
