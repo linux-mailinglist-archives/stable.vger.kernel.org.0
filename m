@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21955261BF1
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4997B261BE8
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731473AbgIHTLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
+        id S1731442AbgIHTKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:10:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731223AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:05:22 -0400
+        id S1731225AbgIHQFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:05:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F046722583;
-        Tue,  8 Sep 2020 15:45:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F32A22955;
+        Tue,  8 Sep 2020 15:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579959;
-        bh=iPx38k3mMcCJ+riztXVJPgkP4xb3An7I8mthAfHsqDs=;
+        s=default; t=1599579962;
+        bh=RezpmUjsFU+umMHOxybRqN7vi2bYzZEu5LKhvRcVjBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlbG6LtmsmMQ+fBxhQ0XNZ5OXK2/lbT5BDJ72HpdyUz2TYkGPELoNB2mFRk3Ev6Ka
-         DcqiUCFKjv+E2v9U3WhklD8UR5SM3mKByN688TQT1Mhf/uIEG1MQkxWCyVLMyICgnW
-         Ij8zZafaUg+vn4JmQbH1e8YPKkSYY/AaK1vpxkyY=
+        b=hIK5c6uFah5vk9PGZOauaekhKH9wtcMCZ3SV/6vHmvEYddRjIAPmBal0ytB90agoN
+         IqUGY+Aej3Ryk/bslFwbCBNN5fiYgiyerTPfh3FURuvm1uK7SfQCp5N0zn1E/0oMhZ
+         gB4ljqcJJpzdVthC/04g9RvsR084ub4eHsZnTJLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 102/129] mmc: cqhci: Add cqhci_deactivate()
-Date:   Tue,  8 Sep 2020 17:25:43 +0200
-Message-Id: <20200908152234.933730101@linuxfoundation.org>
+Subject: [PATCH 5.4 103/129] mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers
+Date:   Tue,  8 Sep 2020 17:25:44 +0200
+Message-Id: <20200908152234.983654774@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -46,59 +45,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 0ffa6cfbd94982e6c028a8924b06a96c1b91bed8 upstream.
+commit df57d73276b863af1debc48546b0e59e44998a55 upstream.
 
-Host controllers can reset CQHCI either directly or as a consequence of
-host controller reset. Add cqhci_deactivate() which puts the CQHCI
-driver into a state that is consistent with that.
+For Intel controllers, SDHCI_RESET_ALL resets also CQHCI registers.
+Normally, SDHCI_RESET_ALL is not used while CQHCI is enabled, but that can
+happen on the error path. e.g. if mmc_cqe_recovery() fails, mmc_blk_reset()
+is called which, for a eMMC that does not support HW Reset, will cycle the
+bus power and the driver will perform SDHCI_RESET_ALL.
 
+So whenever performing SDHCI_RESET_ALL ensure CQHCI is deactivated.
+That will force the driver to reinitialize CQHCI when it is next used.
+
+A similar change was done already for sdhci-msm, and other drivers using
+CQHCI might benefit from a similar change, if they also have CQHCI reset
+by SDHCI_RESET_ALL.
+
+Fixes: 8ee82bda230fc9 ("mmc: sdhci-pci: Add CQHCI support for Intel GLK")
+Cc: stable@vger.kernel.org # 5.4.x: 0ffa6cfbd949: mmc: cqhci: Add cqhci_deactivate()
+Cc: stable@vger.kernel.org # 5.4+
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-Link: https://lore.kernel.org/r/1583503724-13943-2-git-send-email-vbadigan@codeaurora.org
+Link: https://lore.kernel.org/r/20200819121848.16967-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/cqhci.c |    6 +++---
- drivers/mmc/host/cqhci.h |    6 +++++-
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-pci-core.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/cqhci.c
-+++ b/drivers/mmc/host/cqhci.c
-@@ -299,16 +299,16 @@ static void __cqhci_disable(struct cqhci
- 	cq_host->activated = false;
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -232,6 +232,14 @@ static void sdhci_pci_dumpregs(struct mm
+ 	sdhci_dumpregs(mmc_priv(mmc));
  }
  
--int cqhci_suspend(struct mmc_host *mmc)
-+int cqhci_deactivate(struct mmc_host *mmc)
- {
- 	struct cqhci_host *cq_host = mmc->cqe_private;
- 
--	if (cq_host->enabled)
-+	if (cq_host->enabled && cq_host->activated)
- 		__cqhci_disable(cq_host);
- 
- 	return 0;
- }
--EXPORT_SYMBOL(cqhci_suspend);
-+EXPORT_SYMBOL(cqhci_deactivate);
- 
- int cqhci_resume(struct mmc_host *mmc)
- {
---- a/drivers/mmc/host/cqhci.h
-+++ b/drivers/mmc/host/cqhci.h
-@@ -230,7 +230,11 @@ irqreturn_t cqhci_irq(struct mmc_host *m
- 		      int data_error);
- int cqhci_init(struct cqhci_host *cq_host, struct mmc_host *mmc, bool dma64);
- struct cqhci_host *cqhci_pltfm_init(struct platform_device *pdev);
--int cqhci_suspend(struct mmc_host *mmc);
-+int cqhci_deactivate(struct mmc_host *mmc);
-+static inline int cqhci_suspend(struct mmc_host *mmc)
++static void sdhci_cqhci_reset(struct sdhci_host *host, u8 mask)
 +{
-+	return cqhci_deactivate(mmc);
++	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
++	    host->mmc->cqe_private)
++		cqhci_deactivate(host->mmc);
++	sdhci_reset(host, mask);
 +}
- int cqhci_resume(struct mmc_host *mmc);
- 
- #endif
++
+ /*****************************************************************************\
+  *                                                                           *
+  * Hardware specific quirk handling                                          *
+@@ -722,7 +730,7 @@ static const struct sdhci_ops sdhci_inte
+ 	.set_power		= sdhci_intel_set_power,
+ 	.enable_dma		= sdhci_pci_enable_dma,
+ 	.set_bus_width		= sdhci_set_bus_width,
+-	.reset			= sdhci_reset,
++	.reset			= sdhci_cqhci_reset,
+ 	.set_uhs_signaling	= sdhci_set_uhs_signaling,
+ 	.hw_reset		= sdhci_pci_hw_reset,
+ 	.irq			= sdhci_cqhci_irq,
 
 
