@@ -2,361 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A55DD260D10
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 10:07:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F539260EB4
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 11:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729597AbgIHIHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 04:07:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44653 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729627AbgIHIGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 04:06:38 -0400
+        id S1728676AbgIHJdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 05:33:06 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56368 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728490AbgIHJdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 05:33:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599552395;
+        s=mimecast20190719; t=1599557582;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=2j+bXb4XJafhhpzRin0rdyqrtprY6TMkLA/bywD/T0I=;
-        b=XsrRD706+LlCtxh+ImkNEK5FgsnM+X3bc6O/LYEVbHT5aQGDpz5pF+VEC2bbZHF6/OPCrV
-        7eWdTABO754PXmQb+k2spix34gPV8pkEQz1XIVCnhxYxm7JxkhU3DnrcUMCFjTcTWItQkC
-        t895d7HFT3m7MiceaNwtndcdDQnaL14=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-105-7d-QbKDzNl6k5PUkxv1suQ-1; Tue, 08 Sep 2020 04:06:32 -0400
-X-MC-Unique: 7d-QbKDzNl6k5PUkxv1suQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 372988030C4
-        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 08:06:31 +0000 (UTC)
-Received: from [10.128.8.76] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 33072838A0;
-        Tue,  8 Sep 2020 08:06:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TWRBEZKMCc5VGF75ZN1/AgJxL+3qKsaBfwiLkDmrWck=;
+        b=GYmKkxceI0i+pov4d6JnUnHKrg6tsvY+KOVCWIkUWmY2PEtKJdEhgLxic4VjZS6v7dfn5L
+        a1bzfXVnutFNkb4J81g1slajHgzGm3qRtXvH0EExEmyO91BfshT14/3x01FuN3+EzDOZDd
+        S2+j1pPaAJ+g69EBHVGBtbN6PkrUCmY=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-147-WjkreNacNXWqAz4JDkOAUA-1; Tue, 08 Sep 2020 05:33:01 -0400
+X-MC-Unique: WjkreNacNXWqAz4JDkOAUA-1
+Received: by mail-ed1-f69.google.com with SMTP id y1so5922694edw.16
+        for <stable@vger.kernel.org>; Tue, 08 Sep 2020 02:33:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=TWRBEZKMCc5VGF75ZN1/AgJxL+3qKsaBfwiLkDmrWck=;
+        b=MsdXlNiNbDyUDUkQaf2UT0Ahq9w1N/lfa9KZOGna7thtmUV73OT3AaWKtHpaIaFYHR
+         gJMa8RZeuxT4Qtxr0kKhifcLJ0xGJoiUs3Ohy0YonHYeLjhpj3ui7AuByXziQZ1KW2sH
+         nmAVGzkczEIzSjDx2ILk/1WeExx0iqMiLWG9JaerYvvSYWe51KixCfIZQY1gdDbZvV2S
+         JbxxruzIyspZa/gf8NuuExgCKMVjodQnCZ1Dxz1hRps7TDa4PlgYGXxEXnN4xGaIa3Sg
+         AnbGNFIV71TL4dzUA2mzZO0MGlkjhKUXa4LSdCfKMZr9h+tNsXrPCCVi1bhqcpMhfh9b
+         s1NA==
+X-Gm-Message-State: AOAM531Ta3Z7QPHMV9h8rmVX8+WzIY3HnRzSW7KzewsN7Le3pRNwfsEr
+        r4yw523RG6MVJx+c2xuzi/+Dr2QV4gn5mpAznRbZAa0yQ4Ao8FEd83wDTzc45WOZB+N1V8t4A2j
+        eVZPwDvA+ZBqbUlg9
+X-Received: by 2002:a17:906:fa8a:: with SMTP id lt10mr24474903ejb.307.1599557579880;
+        Tue, 08 Sep 2020 02:32:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzmxPal4Zwdn9IOiQzmqIei2WO84Yv/Jo5FJKgA4YRkRq+EbDsFl5vx5q/vfyhf72J6POOomA==
+X-Received: by 2002:a17:906:fa8a:: with SMTP id lt10mr24474889ejb.307.1599557579679;
+        Tue, 08 Sep 2020 02:32:59 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id t10sm10432369edw.86.2020.09.08.02.32.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Sep 2020 02:32:58 -0700 (PDT)
+Subject: Re: [PATCH v2 1/2] media: uvcvideo: Fix uvc_ctrl_fixup_xu_info() not
+ having any effect
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     linux-media@vger.kernel.org, stable@vger.kernel.org
+References: <20200728112209.26207-1-hdegoede@redhat.com>
+ <20200728195818.GO13753@pendragon.ideasonboard.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <b393a148-12a4-e995-6ff2-a79104097776@redhat.com>
+Date:   Tue, 8 Sep 2020 11:32:58 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.7-351cf3a.cki
- (stable-queue)
-Date:   Tue, 08 Sep 2020 08:06:27 -0000
-Message-ID: <cki.176109FD89.J2ZA5TA56G@redhat.com>
-X-Gitlab-Pipeline-ID: 613397
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/613397
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <20200728195818.GO13753@pendragon.ideasonboard.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-Hello,
+On 7/28/20 9:58 PM, Laurent Pinchart wrote:
+> Hi Hans,
+> 
+> Thank you for the patch.
+> 
+> On Tue, Jul 28, 2020 at 01:22:08PM +0200, Hans de Goede wrote:
+>> uvc_ctrl_add_info() calls uvc_ctrl_get_flags() which will override
+>> the fixed-up flags set by uvc_ctrl_fixup_xu_info().
+>>
+>> uvc_ctrl_init_xu_ctrl() already calls uvc_ctrl_get_flags() before
+>> calling uvc_ctrl_add_info(), so the uvc_ctrl_get_flags() call in
+>> uvc_ctrl_add_info() is not necessary for xu ctrls.
+>>
+>> This commit moves the uvc_ctrl_get_flags() call for normal controls
+>> from uvc_ctrl_add_info() to uvc_ctrl_init_ctrl(), so that we no longer
+>> call uvc_ctrl_get_flags() twice for xu controls and so that we no longer
+>> override the fixed-up flags set by uvc_ctrl_fixup_xu_info().
+>>
+>> This fixes the xu motor controls not working properly on a Logitech
+>> 046d:08cc, and presumably also on the other Logitech models which have
+>> a quirk for this in the uvc_ctrl_fixup_xu_info() function.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> 
+> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-We ran automated tests on a recent commit from this kernel tree:
+The first patch in this series is a bug-fix for a real-world issue,
+and I'm still not seeing this in -next, let alone in a fixed branch for Linus.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 351cf3a3c398 - x86/mm/32: Bring back vmalloc faulting on =
-x86_32
+Can we get these 2 patches merged please?
 
-The results of these automated tests are provided below.
+Regards,
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse/2020/09/07/613397
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+Hans
 
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  ppc64le:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-  s390x:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  x86_64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 kernel-rt: rt_migrate_test
-       =E2=9C=85 kernel-rt: rteval
-       =E2=9C=85 kernel-rt: sched_deadline
-       =E2=9C=85 kernel-rt: smidetect
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+> 
+>> ---
+>> Changes in v2:
+>> - Move the uvc_ctrl_get_flags() call for normal controls to uvc_ctrl_init_ctrl()
+>> ---
+>>   drivers/media/usb/uvc/uvc_ctrl.c | 14 +++++++-------
+>>   1 file changed, 7 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+>> index e399b9fad757..b78aba991212 100644
+>> --- a/drivers/media/usb/uvc/uvc_ctrl.c
+>> +++ b/drivers/media/usb/uvc/uvc_ctrl.c
+>> @@ -2024,13 +2024,6 @@ static int uvc_ctrl_add_info(struct uvc_device *dev, struct uvc_control *ctrl,
+>>   		goto done;
+>>   	}
+>>   
+>> -	/*
+>> -	 * Retrieve control flags from the device. Ignore errors and work with
+>> -	 * default flag values from the uvc_ctrl array when the device doesn't
+>> -	 * properly implement GET_INFO on standard controls.
+>> -	 */
+>> -	uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
+>> -
+>>   	ctrl->initialized = 1;
+>>   
+>>   	uvc_trace(UVC_TRACE_CONTROL, "Added control %pUl/%u to device %s "
+>> @@ -2253,6 +2246,13 @@ static void uvc_ctrl_init_ctrl(struct uvc_device *dev, struct uvc_control *ctrl)
+>>   		if (uvc_entity_match_guid(ctrl->entity, info->entity) &&
+>>   		    ctrl->index == info->index) {
+>>   			uvc_ctrl_add_info(dev, ctrl, info);
+>> +			/*
+>> +			 * Retrieve control flags from the device. Ignore errors
+>> +			 * and work with default flag values from the uvc_ctrl
+>> +			 * array when the device doesn't properly implement
+>> +			 * GET_INFO on standard controls.
+>> +			 */
+>> +			uvc_ctrl_get_flags(dev, ctrl, &ctrl->info);
+>>   			break;
+>>   		 }
+>>   	}
+> 
 
