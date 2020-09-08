@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA182618EA
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9EB261910
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731768AbgIHSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:04:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S1732173AbgIHSGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731527AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:12:10 -0400
+        id S1731508AbgIHQLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:11:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1738A2477B;
-        Tue,  8 Sep 2020 15:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FE3924738;
+        Tue,  8 Sep 2020 15:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580267;
-        bh=Z9D407PuPDjKdFeYg8ua1Pb572B3W8AuPKajpC6UwCM=;
+        s=default; t=1599580236;
+        bh=YmKM60/68ndnzZUcOXK7s2TLkM2ViEOzSoelXnFuAC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=szoSm7fSUelPFPxmIBySPpMp2akMgfkgIkLeosFlD0LOKg1sC/gllq2A/qYe+fpF2
-         7lXr9qFWJcBuM1G6Tns29KXAvdE0cvoSEEwwbYFLBraMhNUg8AOAUTALEuYtrlb1Fl
-         x82IHdSvzOIGMoGfd5TtbGWEecjACDZkDyTkx3aI=
+        b=I5Ohv+6D1DQFv4Uw6jxtEQu8LuyD4jk44aTHvxerSiCOG7vCU1sPUG80AH2uJLmnV
+         5RDL7tKmCHz++Wv3jGbqAGTXJDVK64csp/n5/g/HrlNCkCMq4GV7SlezQ84vU4soMi
+         BIQTcvEhMlQh+vbGdK302wDKsRYpemL8czctbjWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.19 84/88] vfio/pci: Fix SR-IOV VF handling with MMIO blocking
-Date:   Tue,  8 Sep 2020 17:26:25 +0200
-Message-Id: <20200908152225.394999368@linuxfoundation.org>
+        stable@vger.kernel.org, Mrinal Pandey <mrinalmni@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Joe Perches <joe@perches.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 85/88] checkpatch: fix the usage of capture group ( ... )
+Date:   Tue,  8 Sep 2020 17:26:26 +0200
+Message-Id: <20200908152225.447590577@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -43,62 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Mrinal Pandey <mrinalmni@gmail.com>
 
-commit ebfa440ce38b7e2e04c3124aa89c8a9f4094cf21 upstream.
+commit 13e45417cedbfc44b1926124b1846f5ee8c6ba4a upstream.
 
-SR-IOV VFs do not implement the memory enable bit of the command
-register, therefore this bit is not set in config space after
-pci_enable_device().  This leads to an unintended difference
-between PF and VF in hand-off state to the user.  We can correct
-this by setting the initial value of the memory enable bit in our
-virtualized config space.  There's really no need however to
-ever fault a user on a VF though as this would only indicate an
-error in the user's management of the enable bit, versus a PF
-where the same access could trigger hardware faults.
+The usage of "capture group (...)" in the immediate condition after `&&`
+results in `$1` being uninitialized.  This issues a warning "Use of
+uninitialized value $1 in regexp compilation at ./scripts/checkpatch.pl
+line 2638".
 
-Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+I noticed this bug while running checkpatch on the set of commits from
+v5.7 to v5.8-rc1 of the kernel on the commits with a diff content in
+their commit message.
+
+This bug was introduced in the script by commit e518e9a59ec3
+("checkpatch: emit an error when there's a diff in a changelog").  It
+has been in the script since then.
+
+The author intended to store the match made by capture group in variable
+`$1`.  This should have contained the name of the file as `[\w/]+`
+matched.  However, this couldn't be accomplished due to usage of capture
+group and `$1` in the same regular expression.
+
+Fix this by placing the capture group in the condition before `&&`.
+Thus, `$1` can be initialized to the text that capture group matches
+thereby setting it to the desired and required value.
+
+Fixes: e518e9a59ec3 ("checkpatch: emit an error when there's a diff in a changelog")
+Signed-off-by: Mrinal Pandey <mrinalmni@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Reviewed-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc: Joe Perches <joe@perches.com>
+Link: https://lkml.kernel.org/r/20200714032352.f476hanaj2dlmiot@mrinalpandey
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/pci/vfio_pci_config.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ scripts/checkpatch.pl |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -401,9 +401,15 @@ static inline void p_setd(struct perm_bi
- /* Caller should hold memory_lock semaphore */
- bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
- {
-+	struct pci_dev *pdev = vdev->pdev;
- 	u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -2541,8 +2541,8 @@ sub process {
  
--	return cmd & PCI_COMMAND_MEMORY;
-+	/*
-+	 * SR-IOV VF memory enable is handled by the MSE bit in the
-+	 * PF SR-IOV capability, there's therefore no need to trigger
-+	 * faults based on the virtual value.
-+	 */
-+	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
- }
- 
- /*
-@@ -1732,6 +1738,15 @@ int vfio_config_init(struct vfio_pci_dev
- 				 vconfig[PCI_INTERRUPT_PIN]);
- 
- 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
-+
-+		/*
-+		 * VFs do no implement the memory enable bit of the COMMAND
-+		 * register therefore we'll not have it set in our initial
-+		 * copy of config space after pci_enable_device().  For
-+		 * consistency with PFs, set the virtual enable bit here.
-+		 */
-+		*(__le16 *)&vconfig[PCI_COMMAND] |=
-+					cpu_to_le16(PCI_COMMAND_MEMORY);
- 	}
- 
- 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)
+ # Check if the commit log has what seems like a diff which can confuse patch
+ 		if ($in_commit_log && !$commit_log_has_diff &&
+-		    (($line =~ m@^\s+diff\b.*a/[\w/]+@ &&
+-		      $line =~ m@^\s+diff\b.*a/([\w/]+)\s+b/$1\b@) ||
++		    (($line =~ m@^\s+diff\b.*a/([\w/]+)@ &&
++		      $line =~ m@^\s+diff\b.*a/[\w/]+\s+b/$1\b@) ||
+ 		     $line =~ m@^\s*(?:\-\-\-\s+a/|\+\+\+\s+b/)@ ||
+ 		     $line =~ m/^\s*\@\@ \-\d+,\d+ \+\d+,\d+ \@\@/)) {
+ 			ERROR("DIFF_IN_COMMIT_MSG",
 
 
