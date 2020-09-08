@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB155261A22
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F167C261A14
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731639AbgIHSav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53448 "EHLO mail.kernel.org"
+        id S1731386AbgIHSat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731380AbgIHQJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:09:37 -0400
+        id S1731382AbgIHQJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:09:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B88222463F;
-        Tue,  8 Sep 2020 15:50:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02D2E24641;
+        Tue,  8 Sep 2020 15:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580204;
-        bh=a/0utpbekIn7tOkcbHZ+dGokUhYv1MTxnUVOIa07WYw=;
+        s=default; t=1599580206;
+        bh=dSgfDF7A+7Ljbs8JZpiJIeXcJxK9p0Odimxqp23FnoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDuLThEmcaJCNV2nfeS9utpwA3AaokpCkl5mW/pBCqblqsojxP54ywIVTisdTK37o
-         CzyWOuhzTq8M/ZyHv3d88G8prPsp8TSTwmNsBUYBFwEZv40rJuNbR/qdE1Y0oDesiT
-         4jzkKfGD765NFTLxmXBjp8Xt9+xDS/TY3jNEnQY0=
+        b=Kg+314HE8WH2lxtTDmsYluclG0oTPnCTB0c80VymJEw3ki87hEqyRL+RrlWZn6JlY
+         778QuF3NIG4dCkb/jEXkWnoj4deXhWMna19IAvxakGDzNCcstV+VEIgjMa29PWqiKi
+         UTe2XglTx1A+hsHNBlFD0qiYt6qdJv7dz8KjAsWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        stable@vger.kernel.org,
+        syzbot+ceef16277388d6f24898@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 71/88] media: rc: do not access device via sysfs after rc_unregister_device()
-Date:   Tue,  8 Sep 2020 17:26:12 +0200
-Message-Id: <20200908152224.731943085@linuxfoundation.org>
+Subject: [PATCH 4.19 72/88] media: rc: uevent sysfs file races with rc_unregister_device()
+Date:   Tue,  8 Sep 2020 17:26:13 +0200
+Message-Id: <20200908152224.785231848@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -45,55 +47,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Young <sean@mess.org>
 
-commit a2e2d73fa28136598e84db9d021091f1b98cbb1a upstream.
+commit 4f0835d6677dc69263f90f976524cb92b257d9f4 upstream.
 
-Device drivers do not expect to have change_protocol or wakeup
-re-programming to be accesed after rc_unregister_device(). This can
-cause the device driver to access deallocated resources.
+Only report uevent file contents if device still registered, else we
+might read freed memory.
 
+Reported-by: syzbot+ceef16277388d6f24898@syzkaller.appspotmail.com
+Cc: Hillf Danton <hdanton@sina.com>
 Cc: <stable@vger.kernel.org> # 4.16+
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/media/rc/rc-main.c |   32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
 --- a/drivers/media/rc/rc-main.c
 +++ b/drivers/media/rc/rc-main.c
-@@ -1245,6 +1245,10 @@ static ssize_t store_protocols(struct de
- 	}
+@@ -1568,25 +1568,25 @@ static void rc_dev_release(struct device
+ 	kfree(dev);
+ }
  
+-#define ADD_HOTPLUG_VAR(fmt, val...)					\
+-	do {								\
+-		int err = add_uevent_var(env, fmt, val);		\
+-		if (err)						\
+-			return err;					\
+-	} while (0)
+-
+ static int rc_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ {
+ 	struct rc_dev *dev = to_rc_dev(device);
++	int ret = 0;
+ 
+-	if (dev->rc_map.name)
+-		ADD_HOTPLUG_VAR("NAME=%s", dev->rc_map.name);
+-	if (dev->driver_name)
+-		ADD_HOTPLUG_VAR("DRV_NAME=%s", dev->driver_name);
+-	if (dev->device_name)
+-		ADD_HOTPLUG_VAR("DEV_NAME=%s", dev->device_name);
++	mutex_lock(&dev->lock);
+ 
+-	return 0;
++	if (!dev->registered)
++		ret = -ENODEV;
++	if (ret == 0 && dev->rc_map.name)
++		ret = add_uevent_var(env, "NAME=%s", dev->rc_map.name);
++	if (ret == 0 && dev->driver_name)
++		ret = add_uevent_var(env, "DRV_NAME=%s", dev->driver_name);
++	if (ret == 0 && dev->device_name)
++		ret = add_uevent_var(env, "DEV_NAME=%s", dev->device_name);
++
++	mutex_unlock(&dev->lock);
++
++	return ret;
+ }
+ 
+ /*
+@@ -1970,14 +1970,14 @@ void rc_unregister_device(struct rc_dev
+ 	del_timer_sync(&dev->timer_keyup);
+ 	del_timer_sync(&dev->timer_repeat);
+ 
+-	rc_free_rx_device(dev);
+-
  	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
+ 	if (dev->users && dev->close)
+ 		dev->close(dev);
+ 	dev->registered = false;
+ 	mutex_unlock(&dev->lock);
  
- 	old_protocols = *current_protocols;
- 	new_protocols = old_protocols;
-@@ -1383,6 +1387,10 @@ static ssize_t store_filter(struct devic
- 		return -EINVAL;
- 
- 	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
- 
- 	new_filter = *filter;
- 	if (fattr->mask)
-@@ -1497,6 +1505,10 @@ static ssize_t store_wakeup_protocols(st
- 	int i;
- 
- 	mutex_lock(&dev->lock);
-+	if (!dev->registered) {
-+		mutex_unlock(&dev->lock);
-+		return -ENODEV;
-+	}
- 
- 	allowed = dev->allowed_wakeup_protocols;
- 
++	rc_free_rx_device(dev);
++
+ 	/*
+ 	 * lirc device should be freed with dev->registered = false, so
+ 	 * that userspace polling will get notified.
 
 
