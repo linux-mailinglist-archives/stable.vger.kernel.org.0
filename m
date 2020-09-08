@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 357D4261948
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:12:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BFD52619E4
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbgIHSME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:12:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
+        id S1731661AbgIHS2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:28:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731489AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:43 -0400
+        id S1731418AbgIHQK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A610F2477C;
-        Tue,  8 Sep 2020 15:42:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1C3D24753;
+        Tue,  8 Sep 2020 15:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579722;
-        bh=QUNd9U2D0FIKd8CMrZu8G74GmA9dtKwfLxlZRU8UKMw=;
+        s=default; t=1599579685;
+        bh=i/iSAcRSNQtgeSaHtVlew7ecZjdIBqe0JatNzf05h4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y97NaJXBabKNFxJnbbhZx2/8SAhDE4A22O9cxUMiNupkj8C0U6zIWdcR9//QSmmCa
-         s9RvQW468wsyvTH+hPMenmqMFttWl1jOrkoX/OEHIk2mxbPEFYE671s8oHOHXsUTBs
-         L6S5JspYgFU91sRTQFX0/i3CcE5FbjKzPlmSxM28=
+        b=hbz5pEKcaq8aVk5ob2/Z0fHikWzT22V9nTtXeVULOc68K3PcFtsj/IqO+wtNw6w92
+         KwrNNI66+uAAbA3JEelS1bJ1j/NsxJDRjmCQDOXcEmaLk9i+ZkbLQXAIVPrSVyvuER
+         SM761YsugavnGJ9lsk/z8h9OERHz+buyQbkUboAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.8 171/186] dm thin metadata: Fix use-after-free in dm_bm_set_read_only
-Date:   Tue,  8 Sep 2020 17:25:13 +0200
-Message-Id: <20200908152249.948684597@linuxfoundation.org>
+        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        Joe Jin <joe.jin@oracle.com>, Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 172/186] mm: slub: fix conversion of freelist_corrupted()
+Date:   Tue,  8 Sep 2020 17:25:14 +0200
+Message-Id: <20200908152249.997094184@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,110 +49,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-commit 3a653b205f29b3f9827a01a0c88bfbcb0d169494 upstream.
+commit dc07a728d49cf025f5da2c31add438d839d076c0 upstream.
 
-The following error ocurred when testing disk online/offline:
+Commit 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in
+deactivate_slab()") suffered an update when picked up from LKML [1].
 
-[  301.798344] device-mapper: thin: 253:5: aborting current metadata transaction
-[  301.848441] device-mapper: thin: 253:5: failed to abort metadata transaction
-[  301.849206] Aborting journal on device dm-26-8.
-[  301.850489] EXT4-fs error (device dm-26) in __ext4_new_inode:943: Journal has aborted
-[  301.851095] EXT4-fs (dm-26): Delayed block allocation failed for inode 398742 at logical offset 181 with max blocks 19 with error 30
-[  301.854476] BUG: KASAN: use-after-free in dm_bm_set_read_only+0x3a/0x40 [dm_persistent_data]
+Specifically, relocating 'freelist = NULL' into 'freelist_corrupted()'
+created a no-op statement.  Fix it by sticking to the behavior intended
+in the original patch [1].  In addition, make freelist_corrupted()
+immune to passing NULL instead of &freelist.
 
-Reason is:
+The issue has been spotted via static analysis and code review.
 
- metadata_operation_failed
-    abort_transaction
-        dm_pool_abort_metadata
-	    __create_persistent_data_objects
-	        r = __open_or_format_metadata
-	        if (r) --> If failed will free pmd->bm but pmd->bm not set NULL
-		    dm_block_manager_destroy(pmd->bm);
-    set_pool_mode
-	dm_pool_metadata_read_only(pool->pmd);
-	dm_bm_set_read_only(pmd->bm);  --> use-after-free
+[1] https://lore.kernel.org/linux-mm/20200331031450.12182-1-dongli.zhang@oracle.com/
 
-Add checks to see if pmd->bm is NULL in dm_bm_set_read_only and
-dm_bm_set_read_write functions.  If bm is NULL it means creating the
-bm failed and so dm_bm_is_read_only must return true.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 52f23478081ae0 ("mm/slub.c: fix corrupted freechain in deactivate_slab()")
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: Joe Jin <joe.jin@oracle.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200824130643.10291-1-erosca@de.adit-jv.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-thin-metadata.c                 |    2 +-
- drivers/md/persistent-data/dm-block-manager.c |   14 ++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ mm/slub.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -958,7 +958,7 @@ int dm_pool_metadata_close(struct dm_poo
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -680,12 +680,12 @@ static void slab_fix(struct kmem_cache *
+ }
+ 
+ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
+-			       void *freelist, void *nextfree)
++			       void **freelist, void *nextfree)
+ {
+ 	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
+-	    !check_valid_pointer(s, page, nextfree)) {
+-		object_err(s, page, freelist, "Freechain corrupt");
+-		freelist = NULL;
++	    !check_valid_pointer(s, page, nextfree) && freelist) {
++		object_err(s, page, *freelist, "Freechain corrupt");
++		*freelist = NULL;
+ 		slab_fix(s, "Isolate corrupted freechain");
+ 		return true;
  	}
+@@ -1425,7 +1425,7 @@ static inline void dec_slabs_node(struct
+ 							int objects) {}
  
- 	pmd_write_lock_in_core(pmd);
--	if (!dm_bm_is_read_only(pmd->bm) && !pmd->fail_io) {
-+	if (!pmd->fail_io && !dm_bm_is_read_only(pmd->bm)) {
- 		r = __commit_transaction(pmd);
- 		if (r < 0)
- 			DMWARN("%s: __commit_transaction() failed, error = %d",
---- a/drivers/md/persistent-data/dm-block-manager.c
-+++ b/drivers/md/persistent-data/dm-block-manager.c
-@@ -493,7 +493,7 @@ int dm_bm_write_lock(struct dm_block_man
- 	void *p;
- 	int r;
- 
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	p = dm_bufio_read(bm->bufio, b, (struct dm_buffer **) result);
-@@ -562,7 +562,7 @@ int dm_bm_write_lock_zero(struct dm_bloc
- 	struct buffer_aux *aux;
- 	void *p;
- 
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	p = dm_bufio_new(bm->bufio, b, (struct dm_buffer **) result);
-@@ -602,7 +602,7 @@ EXPORT_SYMBOL_GPL(dm_bm_unlock);
- 
- int dm_bm_flush(struct dm_block_manager *bm)
+ static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
+-			       void *freelist, void *nextfree)
++			       void **freelist, void *nextfree)
  {
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	return dm_bufio_write_dirty_buffers(bm->bufio);
-@@ -616,19 +616,21 @@ void dm_bm_prefetch(struct dm_block_mana
- 
- bool dm_bm_is_read_only(struct dm_block_manager *bm)
- {
--	return bm->read_only;
-+	return (bm ? bm->read_only : true);
+ 	return false;
  }
- EXPORT_SYMBOL_GPL(dm_bm_is_read_only);
+@@ -2117,7 +2117,7 @@ static void deactivate_slab(struct kmem_
+ 		 * 'freelist' is already corrupted.  So isolate all objects
+ 		 * starting at 'freelist'.
+ 		 */
+-		if (freelist_corrupted(s, page, freelist, nextfree))
++		if (freelist_corrupted(s, page, &freelist, nextfree))
+ 			break;
  
- void dm_bm_set_read_only(struct dm_block_manager *bm)
- {
--	bm->read_only = true;
-+	if (bm)
-+		bm->read_only = true;
- }
- EXPORT_SYMBOL_GPL(dm_bm_set_read_only);
- 
- void dm_bm_set_read_write(struct dm_block_manager *bm)
- {
--	bm->read_only = false;
-+	if (bm)
-+		bm->read_only = false;
- }
- EXPORT_SYMBOL_GPL(dm_bm_set_read_write);
- 
+ 		do {
 
 
