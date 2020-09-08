@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4EB261EA2
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED85261D10
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgIHTxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S1731085AbgIHTaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:30:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730435AbgIHPrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:47:07 -0400
+        id S1731003AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 11:58:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3F4F24817;
-        Tue,  8 Sep 2020 15:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68449241A6;
+        Tue,  8 Sep 2020 15:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579825;
-        bh=5ePKBMfeaj0yn28QZxRNSBjZOD5l6c9FmLawo2B3Y3Y=;
+        s=default; t=1599579543;
+        bh=f6GXLjPnwDckJXfqaCiej5T99kNCaF2Wd8VaNkz/nI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5O/PebHiH3mN0kmHPHZRNdhdaZ6LqOigNKXDJvo/xAJJeJCnZf6YUn9leyJCAHnD
-         3N88fYuPZn1qJXJXWJxA1p03/TwyNayVFzsPKAynqdwVmqanhEyz+ejqtzsOcDN+R1
-         qPQjvkxRqzdKM+SWp2MPbp1i5S739Ibb4hei+GFM=
+        b=MLc0lQvSB124mDWLv5nuVP2POi1qW/bzNB7Gw8+9mhMI0DbbPXLhyhK/pEyscjITT
+         I5aabCSOEqffO/oqhCCbQzpp7CTNH74B+Lhc1kcQQOGloWnJ/wXkIn5SbUnPCV3Djm
+         Hu3R5TBtgdnx/ovC3KzIBFG1qAcKddTGFnYB6Eb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/129] drm/amd/display: Fix memleak in amdgpu_dm_mode_config_init
-Date:   Tue,  8 Sep 2020 17:24:20 +0200
-Message-Id: <20200908152230.665995175@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 122/186] xfs: dont update mtime on COW faults
+Date:   Tue,  8 Sep 2020 17:24:24 +0200
+Message-Id: <20200908152247.550362107@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
-References: <20200908152229.689878733@linuxfoundation.org>
+In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
+References: <20200908152241.646390211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit b67a468a4ccef593cd8df6a02ba3d167b77f0c81 ]
+commit b17164e258e3888d376a7434415013175d637377 upstream.
 
-When amdgpu_display_modeset_create_props() fails, state and
-state->context should be freed to prevent memleak. It's the
-same when amdgpu_dm_audio_init() fails.
+When running in a dax mode, if the user maps a page with MAP_PRIVATE and
+PROT_WRITE, the xfs filesystem would incorrectly update ctime and mtime
+when the user hits a COW fault.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This breaks building of the Linux kernel.  How to reproduce:
+
+ 1. extract the Linux kernel tree on dax-mounted xfs filesystem
+ 2. run make clean
+ 3. run make -j12
+ 4. run make -j12
+
+at step 4, make would incorrectly rebuild the whole kernel (although it
+was already built in step 3).
+
+The reason for the breakage is that almost all object files depend on
+objtool.  When we run objtool, it takes COW page fault on its .data
+section, and these faults will incorrectly update the timestamp of the
+objtool binary.  The updated timestamp causes make to rebuild the whole
+tree.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_file.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 3d131f21e5ab2..60e50181f6d39 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2043,12 +2043,18 @@ static int amdgpu_dm_mode_config_init(struct amdgpu_device *adev)
- 				    &dm_atomic_state_funcs);
- 
- 	r = amdgpu_display_modeset_create_props(adev);
--	if (r)
-+	if (r) {
-+		dc_release_state(state->context);
-+		kfree(state);
- 		return r;
-+	}
- 
- 	r = amdgpu_dm_audio_init(adev);
--	if (r)
-+	if (r) {
-+		dc_release_state(state->context);
-+		kfree(state);
- 		return r;
-+	}
- 
- 	return 0;
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -1220,6 +1220,14 @@ __xfs_filemap_fault(
+ 	return ret;
  }
--- 
-2.25.1
-
+ 
++static inline bool
++xfs_is_write_fault(
++	struct vm_fault		*vmf)
++{
++	return (vmf->flags & FAULT_FLAG_WRITE) &&
++	       (vmf->vma->vm_flags & VM_SHARED);
++}
++
+ static vm_fault_t
+ xfs_filemap_fault(
+ 	struct vm_fault		*vmf)
+@@ -1227,7 +1235,7 @@ xfs_filemap_fault(
+ 	/* DAX can shortcut the normal fault path on write faults! */
+ 	return __xfs_filemap_fault(vmf, PE_SIZE_PTE,
+ 			IS_DAX(file_inode(vmf->vma->vm_file)) &&
+-			(vmf->flags & FAULT_FLAG_WRITE));
++			xfs_is_write_fault(vmf));
+ }
+ 
+ static vm_fault_t
+@@ -1240,7 +1248,7 @@ xfs_filemap_huge_fault(
+ 
+ 	/* DAX can shortcut the normal fault path on write faults! */
+ 	return __xfs_filemap_fault(vmf, pe_size,
+-			(vmf->flags & FAULT_FLAG_WRITE));
++			xfs_is_write_fault(vmf));
+ }
+ 
+ static vm_fault_t
 
 
