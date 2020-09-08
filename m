@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F9F26173D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91F82616B6
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbgIHR2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58192 "EHLO mail.kernel.org"
+        id S1731755AbgIHRQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731548AbgIHQQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:16:09 -0400
+        id S1731637AbgIHQS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:18:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE40222597;
-        Tue,  8 Sep 2020 13:03:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A73DC22B2C;
+        Tue,  8 Sep 2020 13:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599570205;
-        bh=Mjj6isNwDffeAOtdV0P2jtlwiRjss5m7SJ9I3ziDE20=;
+        s=default; t=1599570388;
+        bh=UjPlKjnFMWRSsJEdw3kVGk0wyHovwv3zHTf3Nn44oWg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tYB4yF899rvv7EuFVWA4A63efOaGo9YF6nOXNCWrneHHV+LlFHuwCpjtJNa/3tPLP
-         mYVqIC/HBmH9ce9qyRQMgITuyG1GepgzcxT/XXbGDNgAOhojhyPcsMAZnVYZopJqK/
-         WYdl2OUrhmAhqd5BR+BEx/6/uKR8OVoajwV9XOWQ=
-Date:   Tue, 8 Sep 2020 15:03:37 +0200
+        b=dPHNZTV6XY3o3arSn/Ih5Vo5tLuDpx/Z9zAVSPIlvAeU5qFBy0nomTnodvhRxwf4a
+         gIicJQLVW5n96S4SgT/k/NlBB9Kz3pdCGs30Lqp45DQsB0u3Y56Bj+D5354E3rFkw5
+         4rss3mUOtZFbZ5AqaBC9/bFS5FsoAEkIVkTQ7P6A=
+Date:   Tue, 8 Sep 2020 15:06:40 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Ajay Kaher <akaher@vmware.com>
 Cc:     sashal@kernel.org, alex.williamson@redhat.com, cohuck@redhat.com,
@@ -31,56 +31,52 @@ Cc:     sashal@kernel.org, alex.williamson@redhat.com, cohuck@redhat.com,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         srivatsab@vmware.com, srivatsa@csail.mit.edu,
         vsirnapalli@vmware.com
-Subject: Re: [PATCH v4.9.y 0/3] vfio: Fix for CVE-2020-12888
-Message-ID: <20200908130337.GB3075407@kroah.com>
-References: <1599510917-23734-1-git-send-email-akaher@vmware.com>
- <1599510917-23734-4-git-send-email-akaher@vmware.com>
+Subject: Re: [PATCH v4.14.y 2/3] vfio-pci: Fault mmaps to enable vma tracking
+Message-ID: <20200908130640.GC3075407@kroah.com>
+References: <1599509828-23596-1-git-send-email-akaher@vmware.com>
+ <1599509828-23596-2-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1599510917-23734-4-git-send-email-akaher@vmware.com>
+In-Reply-To: <1599509828-23596-2-git-send-email-akaher@vmware.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 02:05:17AM +0530, Ajay Kaher wrote:
-> CVE-2020-12888 Kernel: vfio: access to disabled MMIO space of some
-> devices may lead to DoS scenario
->     
-> The VFIO modules allow users (guest VMs) to enable or disable access to the
-> devices' MMIO memory address spaces. If a user attempts to access (read/write)
-> the devices' MMIO address space when it is disabled, some h/w devices issue an
-> interrupt to the CPU to indicate a fatal error condition, crashing the system.
-> This flaw allows a guest user or process to crash the host system resulting in
-> a denial of service.
->     
-> Patch 1/ is to force the user fault if PFNMAP vma might be DMA mapped
-> before user access.
->     
-> Patch 2/ setup a vm_ops handler to support dynamic faulting instead of calling
-> remap_pfn_range(). Also provides a list of vmas actively mapping the area which
-> can later use to invalidate those mappings.
->     
-> Patch 3/ block the user from accessing memory spaces which is disabled by using
-> new vma list support to zap, or invalidate, those memory mappings in order to
-> force them to be faulted back in on access.
->     
-> Upstreamed patches link:
-> https://lore.kernel.org/kvm/158871401328.15589.17598154478222071285.stgit@gimli.home
->         
-> [PATCH v4.9.y 1/3]:
-> Backporting of upsream commit 41311242221e:
-> vfio/type1: Support faulting PFNMAP vmas
->         
-> [PATCH v4.9.y 2/3]:
-> Backporting of upsream commit 11c4cd07ba11:
-> vfio-pci: Fault mmaps to enable vma tracking
->         
-> [PATCH v4.9.y 3/3]:
-> Backporting of upsream commit abafbc551fdd:
-> vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
+On Tue, Sep 08, 2020 at 01:47:06AM +0530, Ajay Kaher wrote:
+> From: Alex Williamson <alex.williamson@redhat.com>
+> 
+> commit 11c4cd07ba111a09f49625f9e4c851d83daf0a22 upstream.
+> 
+> Rather than calling remap_pfn_range() when a region is mmap'd, setup
+> a vm_ops handler to support dynamic faulting of the range on access.
+> This allows us to manage a list of vmas actively mapping the area that
+> we can later use to invalidate those mappings.  The open callback
+> invalidates the vma range so that all tracking is inserted in the
+> fault handler and removed in the close handler.
+> 
+> Reviewed-by: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> [Ajay: Regenerated the patch for v4.14]
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
+> ---
+>  drivers/vfio/pci/vfio_pci.c         | 75 ++++++++++++++++++++++++++++++++++++-
+>  drivers/vfio/pci/vfio_pci_private.h |  7 ++++
+>  2 files changed, 80 insertions(+), 2 deletions(-)
 
-All now queued up, thanks.
+Oops, nope, this patch breaks the build:
+
+drivers/vfio/pci/vfio_pci.c:1183:11: error: initialization of \u2018int (*)(struct vm_fault *)\u2019 from incompatible pointer type \u2018int (*)(struct vm_area_struct *, struct vm_fault *)\u2019 [-Werror=incompatible-pointer-types]
+ 1183 |  .fault = vfio_pci_mmap_fault,
+      |           ^~~~~~~~~~~~~~~~~~~
+drivers/vfio/pci/vfio_pci.c:1183:11: note: (near initialization for \u2018vfio_pci_mmap_ops.fault\u2019)
+cc1: some warnings being treated as errors
+
+Did you test this?
+
+Please fix up and resend the whole series for 4.14.y
+
+thanks,
 
 greg k-h
