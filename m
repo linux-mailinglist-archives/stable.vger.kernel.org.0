@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4997B261BE8
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04702261BE6
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731442AbgIHTKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
+        id S1731210AbgIHTKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731225AbgIHQFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:05:23 -0400
+        id S1731228AbgIHQFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:05:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F32A22955;
-        Tue,  8 Sep 2020 15:46:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2770F229C4;
+        Tue,  8 Sep 2020 15:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579962;
-        bh=RezpmUjsFU+umMHOxybRqN7vi2bYzZEu5LKhvRcVjBw=;
+        s=default; t=1599579966;
+        bh=NqMaoRw+5/BsIKvTRlZSxaEi2PjZWGU9pYqi2JqcjVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIK5c6uFah5vk9PGZOauaekhKH9wtcMCZ3SV/6vHmvEYddRjIAPmBal0ytB90agoN
-         IqUGY+Aej3Ryk/bslFwbCBNN5fiYgiyerTPfh3FURuvm1uK7SfQCp5N0zn1E/0oMhZ
-         gB4ljqcJJpzdVthC/04g9RvsR084ub4eHsZnTJLA=
+        b=VCQyvzSZTngePZrtJTSrJ2+si+OXoi76GMDb8jr0h4uCQ3nkLtoVAOgv7N09Ve6u9
+         mZUdlhWVbXIVb9I3cA9NhI1lCDoSwZAqW198mFpo9Qw2faXqUhwZOeVbgOM1HAJKke
+         1lPawg0ohyn42hZirYD0f/b6XJzR9G57DteqtOSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 103/129] mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers
-Date:   Tue,  8 Sep 2020 17:25:44 +0200
-Message-Id: <20200908152234.983654774@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 104/129] media: rc: do not access device via sysfs after rc_unregister_device()
+Date:   Tue,  8 Sep 2020 17:25:45 +0200
+Message-Id: <20200908152235.032347423@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -43,60 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Sean Young <sean@mess.org>
 
-commit df57d73276b863af1debc48546b0e59e44998a55 upstream.
+commit a2e2d73fa28136598e84db9d021091f1b98cbb1a upstream.
 
-For Intel controllers, SDHCI_RESET_ALL resets also CQHCI registers.
-Normally, SDHCI_RESET_ALL is not used while CQHCI is enabled, but that can
-happen on the error path. e.g. if mmc_cqe_recovery() fails, mmc_blk_reset()
-is called which, for a eMMC that does not support HW Reset, will cycle the
-bus power and the driver will perform SDHCI_RESET_ALL.
+Device drivers do not expect to have change_protocol or wakeup
+re-programming to be accesed after rc_unregister_device(). This can
+cause the device driver to access deallocated resources.
 
-So whenever performing SDHCI_RESET_ALL ensure CQHCI is deactivated.
-That will force the driver to reinitialize CQHCI when it is next used.
-
-A similar change was done already for sdhci-msm, and other drivers using
-CQHCI might benefit from a similar change, if they also have CQHCI reset
-by SDHCI_RESET_ALL.
-
-Fixes: 8ee82bda230fc9 ("mmc: sdhci-pci: Add CQHCI support for Intel GLK")
-Cc: stable@vger.kernel.org # 5.4.x: 0ffa6cfbd949: mmc: cqhci: Add cqhci_deactivate()
-Cc: stable@vger.kernel.org # 5.4+
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200819121848.16967-1-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: <stable@vger.kernel.org> # 4.16+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-core.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/rc/rc-main.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -232,6 +232,14 @@ static void sdhci_pci_dumpregs(struct mm
- 	sdhci_dumpregs(mmc_priv(mmc));
- }
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -1256,6 +1256,10 @@ static ssize_t store_protocols(struct de
+ 	}
  
-+static void sdhci_cqhci_reset(struct sdhci_host *host, u8 mask)
-+{
-+	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
-+	    host->mmc->cqe_private)
-+		cqhci_deactivate(host->mmc);
-+	sdhci_reset(host, mask);
-+}
-+
- /*****************************************************************************\
-  *                                                                           *
-  * Hardware specific quirk handling                                          *
-@@ -722,7 +730,7 @@ static const struct sdhci_ops sdhci_inte
- 	.set_power		= sdhci_intel_set_power,
- 	.enable_dma		= sdhci_pci_enable_dma,
- 	.set_bus_width		= sdhci_set_bus_width,
--	.reset			= sdhci_reset,
-+	.reset			= sdhci_cqhci_reset,
- 	.set_uhs_signaling	= sdhci_set_uhs_signaling,
- 	.hw_reset		= sdhci_pci_hw_reset,
- 	.irq			= sdhci_cqhci_irq,
+ 	mutex_lock(&dev->lock);
++	if (!dev->registered) {
++		mutex_unlock(&dev->lock);
++		return -ENODEV;
++	}
+ 
+ 	old_protocols = *current_protocols;
+ 	new_protocols = old_protocols;
+@@ -1394,6 +1398,10 @@ static ssize_t store_filter(struct devic
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&dev->lock);
++	if (!dev->registered) {
++		mutex_unlock(&dev->lock);
++		return -ENODEV;
++	}
+ 
+ 	new_filter = *filter;
+ 	if (fattr->mask)
+@@ -1508,6 +1516,10 @@ static ssize_t store_wakeup_protocols(st
+ 	int i;
+ 
+ 	mutex_lock(&dev->lock);
++	if (!dev->registered) {
++		mutex_unlock(&dev->lock);
++		return -ENODEV;
++	}
+ 
+ 	allowed = dev->allowed_wakeup_protocols;
+ 
 
 
