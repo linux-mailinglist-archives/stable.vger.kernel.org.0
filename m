@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7536261AD5
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0618261AD7
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731500AbgIHSko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:40:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
+        id S1728443AbgIHSlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:41:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731211AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731290AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:08:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8DE523ECF;
-        Tue,  8 Sep 2020 15:47:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 078B123EF2;
+        Tue,  8 Sep 2020 15:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580050;
-        bh=HIels2xaM95JxAYzkcpSe0vmR3lhNMI/XaUw8mYvcQ4=;
+        s=default; t=1599580062;
+        bh=/IvZsneCXeaOhikdorhW99mg/h1pdfob0kUSatt8uFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BR2kI9up5OadJTQMnCiqhjV5p9ZTCVtwB8FKzCQnRjqPCCPSrX7gklsIrUHmccjfL
-         BII3jzVC9gbj4BEXLYUVWBFHDZt2+59WivJ/dRdcR1F+YiVoeyHWhvP9PN3m5NTGyw
-         XXVdTPGMWM/FvXU4smmKdP1BZae6n9RLZISC1E48=
+        b=WbOdr5nKF6S5cRJE6S2z6jvw+C2YkPQHkxlc4llJVmRow6be8B963ytMYNXgO8BhY
+         76/0f7HBWJCYwST7+xpaBGiKOG/Sfl8sJGaxGEE2T41HVg2K60xlWw/j1S7XIiyH2c
+         THR+DQq0jB7PISAMVG0qvRf5D8t8JB4mQzROm9GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 4.19 02/88] HID: core: Sanitize event code and type when mapping input
-Date:   Tue,  8 Sep 2020 17:25:03 +0200
-Message-Id: <20200908152221.209662874@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krishna Manikandan <mkrishn@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/88] drm/msm: add shutdown support for display platform_driver
+Date:   Tue,  8 Sep 2020 17:25:08 +0200
+Message-Id: <20200908152221.460370773@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -43,132 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Krishna Manikandan <mkrishn@codeaurora.org>
 
-commit 35556bed836f8dc07ac55f69c8d17dce3e7f0e25 upstream.
+[ Upstream commit 9d5cbf5fe46e350715389d89d0c350d83289a102 ]
 
-When calling into hid_map_usage(), the passed event code is
-blindly stored as is, even if it doesn't fit in the associated bitmap.
+Define shutdown callback for display drm driver,
+so as to disable all the CRTCS when shutdown
+notification is received by the driver.
 
-This event code can come from a variety of sources, including devices
-masquerading as input devices, only a bit more "programmable".
+This change will turn off the timing engine so
+that no display transactions are requested
+while mmu translations are getting disabled
+during reboot sequence.
 
-Instead of taking the event code at face value, check that it actually
-fits the corresponding bitmap, and if it doesn't:
-- spit out a warning so that we know which device is acting up
-- NULLify the bitmap pointer so that we catch unexpected uses
+Signed-off-by: Krishna Manikandan <mkrishn@codeaurora.org>
 
-Code paths that can make use of untrusted inputs can now check
-that the mapping was indeed correct and bail out if not.
+Changes in v2:
+	- Remove NULL check from msm_pdev_shutdown (Stephen Boyd)
+	- Change commit text to reflect when this issue
+	  was uncovered (Sai Prakash Ranjan)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c      |    4 ++++
- drivers/hid/hid-multitouch.c |    2 ++
- include/linux/hid.h          |   42 +++++++++++++++++++++++++++++-------------
- 3 files changed, 35 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/msm/msm_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1125,6 +1125,10 @@ static void hidinput_configure_usage(str
- 	}
- 
- mapped:
-+	/* Mapping failed, bail out */
-+	if (!bit)
-+		return;
-+
- 	if (device->driver->input_mapped &&
- 	    device->driver->input_mapped(device, hidinput, field, usage,
- 					 &bit, &max) < 0) {
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -841,6 +841,8 @@ static int mt_touch_input_mapping(struct
- 			code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
- 
- 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-+		if (!*bit)
-+			return -1;
- 		input_set_capability(hi->input, EV_KEY, code);
- 		return 1;
- 
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -956,34 +956,49 @@ static inline void hid_device_io_stop(st
-  * @max: maximal valid usage->code to consider later (out parameter)
-  * @type: input event type (EV_KEY, EV_REL, ...)
-  * @c: code which corresponds to this usage and type
-+ *
-+ * The value pointed to by @bit will be set to NULL if either @type is
-+ * an unhandled event type, or if @c is out of range for @type. This
-+ * can be used as an error condition.
-  */
- static inline void hid_map_usage(struct hid_input *hidinput,
- 		struct hid_usage *usage, unsigned long **bit, int *max,
--		__u8 type, __u16 c)
-+		__u8 type, unsigned int c)
- {
- 	struct input_dev *input = hidinput->input;
--
--	usage->type = type;
--	usage->code = c;
-+	unsigned long *bmap = NULL;
-+	unsigned int limit = 0;
- 
- 	switch (type) {
- 	case EV_ABS:
--		*bit = input->absbit;
--		*max = ABS_MAX;
-+		bmap = input->absbit;
-+		limit = ABS_MAX;
- 		break;
- 	case EV_REL:
--		*bit = input->relbit;
--		*max = REL_MAX;
-+		bmap = input->relbit;
-+		limit = REL_MAX;
- 		break;
- 	case EV_KEY:
--		*bit = input->keybit;
--		*max = KEY_MAX;
-+		bmap = input->keybit;
-+		limit = KEY_MAX;
- 		break;
- 	case EV_LED:
--		*bit = input->ledbit;
--		*max = LED_MAX;
-+		bmap = input->ledbit;
-+		limit = LED_MAX;
- 		break;
- 	}
-+
-+	if (unlikely(c > limit || !bmap)) {
-+		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
-+				    input->name, c, type);
-+		*bit = NULL;
-+		return;
-+	}
-+
-+	usage->type = type;
-+	usage->code = c;
-+	*max = limit;
-+	*bit = bmap;
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 6f81de85fb860..7f45486b6650b 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1358,6 +1358,13 @@ static int msm_pdev_remove(struct platform_device *pdev)
+ 	return 0;
  }
  
- /**
-@@ -997,7 +1012,8 @@ static inline void hid_map_usage_clear(s
- 		__u8 type, __u16 c)
- {
- 	hid_map_usage(hidinput, usage, bit, max, type, c);
--	clear_bit(c, *bit);
-+	if (*bit)
-+		clear_bit(usage->code, *bit);
- }
- 
- /**
++static void msm_pdev_shutdown(struct platform_device *pdev)
++{
++	struct drm_device *drm = platform_get_drvdata(pdev);
++
++	drm_atomic_helper_shutdown(drm);
++}
++
+ static const struct of_device_id dt_match[] = {
+ 	{ .compatible = "qcom,mdp4", .data = (void *)KMS_MDP4 },
+ 	{ .compatible = "qcom,mdss", .data = (void *)KMS_MDP5 },
+@@ -1369,6 +1376,7 @@ MODULE_DEVICE_TABLE(of, dt_match);
+ static struct platform_driver msm_platform_driver = {
+ 	.probe      = msm_pdev_probe,
+ 	.remove     = msm_pdev_remove,
++	.shutdown   = msm_pdev_shutdown,
+ 	.driver     = {
+ 		.name   = "msm",
+ 		.of_match_table = dt_match,
+-- 
+2.25.1
+
 
 
