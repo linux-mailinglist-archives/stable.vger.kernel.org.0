@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 740D2261448
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E88B261440
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731532AbgIHQMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S1731461AbgIHQLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731506AbgIHQLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:55 -0400
+        id S1731420AbgIHQK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7C57247A7;
-        Tue,  8 Sep 2020 15:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A7C1247D9;
+        Tue,  8 Sep 2020 15:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579741;
-        bh=6ABlp9+wcVdx81zzzjvzeQsU7AAr4YpLoxK1KXLo8P0=;
+        s=default; t=1599579751;
+        bh=RazqLH9uDWL+hfSipxTzeDHvS/5XJ6j9dFUUdoFDnB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0XGVNHcUW357EaTdA/mPJCMPWZGRpkwoPvI7m5K00iNk86u/FzFzDRGkV2w1CaT6
-         rkTBoPVsxd5nKC0tpv3NaM4662PX6b92dwQ/CWEWg+gZhgtBNarjoT09lGXbabu8fj
-         KkVJZetZxccFmOyz4MmJIfOdctFuOl3HElaxgiRY=
+        b=Je56071eBScf76zl4Z3elK4MG5rz0gBw52sL6bFdYZQt9lB4lFsg07+1GrA8yzqn7
+         1Hcot/vbmbQ9/vR+7wwdLqzONzq7MaWu0cy4Ms8s7kuvBkdRsFBW/V6Eu05yGVmDiF
+         B04qbk5WtVen8DIoy6jcUTlVOm0xZ1Pn01EKXDUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Bitton <obitton@habana.ai>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
+        stable@vger.kernel.org, Simon Leiner <simon@leiner.me>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 008/129] habanalabs: validate FW file size
-Date:   Tue,  8 Sep 2020 17:24:09 +0200
-Message-Id: <20200908152230.106783696@linuxfoundation.org>
+Subject: [PATCH 5.4 020/129] xen/xenbus: Fix granting of vmallocd memory
+Date:   Tue,  8 Sep 2020 17:24:21 +0200
+Message-Id: <20200908152230.714475270@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -44,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Simon Leiner <simon@leiner.me>
 
-[ Upstream commit bce382a8bb080ed5f2f3a06754526dc58b91cca2 ]
+[ Upstream commit d742db70033c745e410523e00522ee0cfe2aa416 ]
 
-We must validate FW size in order not to corrupt memory in case
-a malicious FW file will be present in system.
+On some architectures (like ARM), virt_to_gfn cannot be used for
+vmalloc'd memory because of its reliance on virt_to_phys. This patch
+introduces a check for vmalloc'd addresses and obtains the PFN using
+vmalloc_to_pfn in that case.
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Simon Leiner <simon@leiner.me>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20200825093153.35500-1-simon@leiner.me
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/firmware_if.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/xen/xenbus/xenbus_client.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/firmware_if.c b/drivers/misc/habanalabs/firmware_if.c
-index ea2ca67fbfbfa..153858475abc1 100644
---- a/drivers/misc/habanalabs/firmware_if.c
-+++ b/drivers/misc/habanalabs/firmware_if.c
-@@ -11,6 +11,7 @@
- #include <linux/genalloc.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index a38292ef79f6d..f38bdaea0ef11 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -363,8 +363,14 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
+ 	int i, j;
  
-+#define FW_FILE_MAX_SIZE	0x1400000 /* maximum size of 20MB */
- /**
-  * hl_fw_push_fw_to_device() - Push FW code to device.
-  * @hdev: pointer to hl_device structure.
-@@ -43,6 +44,14 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
- 
- 	dev_dbg(hdev->dev, "%s firmware size == %zu\n", fw_name, fw_size);
- 
-+	if (fw_size > FW_FILE_MAX_SIZE) {
-+		dev_err(hdev->dev,
-+			"FW file size %zu exceeds maximum of %u bytes\n",
-+			fw_size, FW_FILE_MAX_SIZE);
-+		rc = -EINVAL;
-+		goto out;
-+	}
+ 	for (i = 0; i < nr_pages; i++) {
+-		err = gnttab_grant_foreign_access(dev->otherend_id,
+-						  virt_to_gfn(vaddr), 0);
++		unsigned long gfn;
 +
- 	fw_data = (const u64 *) fw->data;
- 
- 	memcpy_toio(dst, fw_data, fw_size);
++		if (is_vmalloc_addr(vaddr))
++			gfn = pfn_to_gfn(vmalloc_to_pfn(vaddr));
++		else
++			gfn = virt_to_gfn(vaddr);
++
++		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
+ 		if (err < 0) {
+ 			xenbus_dev_fatal(dev, err,
+ 					 "granting access to ring page");
 -- 
 2.25.1
 
