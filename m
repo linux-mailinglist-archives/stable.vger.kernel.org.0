@@ -2,78 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 128ED261B2C
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457DF261B74
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgIHS6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:58:50 -0400
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:51744 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729014AbgIHS6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 14:58:39 -0400
-Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Tue, 8 Sep 2020 11:58:37 -0700
-Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id C256E40B4F;
-        Tue,  8 Sep 2020 11:58:38 -0700 (PDT)
-From:   Ajay Kaher <akaher@vmware.com>
-To:     <gregkh@linuxfoundation.org>, <sashal@kernel.org>
-CC:     <alex.williamson@redhat.com>, <cohuck@redhat.com>,
-        <peterx@redhat.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
-        <vsirnapalli@vmware.com>, <akaher@vmware.com>
-Subject: [PATCH v2 v4.14.y 0/3] vfio: Fix for CVE-2020-12888
-Date:   Wed, 9 Sep 2020 00:24:23 +0530
-Message-ID: <1599591263-46520-4-git-send-email-akaher@vmware.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1599591263-46520-1-git-send-email-akaher@vmware.com>
-References: <1599591263-46520-1-git-send-email-akaher@vmware.com>
+        id S1731277AbgIHTDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:03:14 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:46683 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731275AbgIHQHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 12:07:30 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 3794DF86;
+        Tue,  8 Sep 2020 07:59:20 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 08 Sep 2020 07:59:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=wObusc
+        aNGjWjUP35I82EPS4b5+oWsrcENNKLsc/aGWw=; b=mgblwx0GPgmGxa3FX1dROd
+        S2OL/qEUGLwuq//a8y5zqYRPEg40iwGJEqIYBUNauiGzi8s6VdG24E0XcIKkLfYJ
+        Ah0B4G2NB0QLloCOCoUY6F3uvrh9SxuyUdNBs0sQ9Lhh0986iM7h9LYPOaHJSuDv
+        KakgwI0H7G6TgY/bEzoufzbFFLJsQo9y8b3gkS0tjZdq1A6BEHUcJuam+lXyR/ch
+        16k+dLqOUi9AJF6zw7uV0wj3LGu/l7V39rOqksq2PkD6fGe2teUzmJs+O7bsVcRt
+        V1DTyaBypK7Km7Yp1BlGoM4wEJsejeMvk/Re6PEAmNFS7RbBxIGan+6OHaX5DzOg
+        ==
+X-ME-Sender: <xms:F3JXX3vgLjJ5J8D1MU4f9bDbDXQlnq0UER7nHIkVbyCONXDrTAgOxg>
+    <xme:F3JXX4cy_l53sYBtyLCvc0mdcSsk8yqZtWcRQH0HQPh3WQXPhn5saOcc7CxLcq5Ru
+    LF__DeBqKp-fA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedgvdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:F3JXX6wldXHqpS8ncaF0Zax_oWCEUxQcBVaGfnjrn99V-JgggbJ3Cg>
+    <xmx:F3JXX2P-LLaiiQJoTi3l9Yb46Vl25mbXJFMII_8ImhIXgdESm4XQXQ>
+    <xmx:F3JXX38GPZclvtpXusPW0pMc9a81xYI-NZwgoxxnZDLUZ7SmiUOW-Q>
+    <xmx:F3JXX0HMqNDBsCKpYlCJzkYz1h01DEx-lk7KUvApT1pty-2lxcdZV6RloQE>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6DEE9328005D;
+        Tue,  8 Sep 2020 07:59:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection" failed to apply to 4.14-stable tree
+To:     o-takashi@sakamocchi.jp, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Sep 2020 13:59:24 +0200
+Message-ID: <1599566364192190@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
- designate permitted sender hosts)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CVE-2020-12888 Kernel: vfio: access to disabled MMIO space of some
-devices may lead to DoS scenario
-    
-The VFIO modules allow users (guest VMs) to enable or disable access to the
-devices' MMIO memory address spaces. If a user attempts to access (read/write)
-the devices' MMIO address space when it is disabled, some h/w devices issue an
-interrupt to the CPU to indicate a fatal error condition, crashing the system.
-This flaw allows a guest user or process to crash the host system resulting in
-a denial of service.
-    
-Patch 1/ is to force the user fault if PFNMAP vma might be DMA mapped
-before user access.
-    
-Patch 2/ setup a vm_ops handler to support dynamic faulting instead of calling
-remap_pfn_range(). Also provides a list of vmas actively mapping the area which
-can later use to invalidate those mappings.
-    
-Patch 3/ block the user from accessing memory spaces which is disabled by using
-new vma list support to zap, or invalidate, those memory mappings in order to
-force them to be faulted back in on access.
-    
-Upstreamed patches link:
-https://lore.kernel.org/kvm/158871401328.15589.17598154478222071285.stgit@gimli.home
 
-Diff from v1:
-Fixed build break problem.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-[PATCH v2 v4.14.y 1/3]:
-Backporting of upsream commit 41311242221e:
-vfio/type1: Support faulting PFNMAP vmas
-        
-[PATCH v2 v4.14.y 2/3]:
-Backporting of upsream commit 11c4cd07ba11:
-vfio-pci: Fault mmaps to enable vma tracking
-        
-[PATCH v2 v4.14.y 3/3]:
-Backporting of upsream commit abafbc551fdd:
-vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0bd8bce897b6697bbc286b8ba473aa0705fe394b Mon Sep 17 00:00:00 2001
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Date: Sun, 23 Aug 2020 16:55:37 +0900
+Subject: [PATCH] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
+
+Tascam FE-8 is known to support communication by asynchronous transaction
+only. The support can be implemented in userspace application and
+snd-firewire-ctl-services project has the support. However, ALSA
+firewire-tascam driver is bound to the model.
+
+This commit changes device entries so that the model is excluded. In a
+commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
+processing"), I addressed to the concern that version field in
+configuration differs depending on installed firmware. However, as long
+as I checked, the version number is fixed. It's safe to return version
+number back to modalias.
+
+Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200823075537.56255-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/firewire/tascam/tascam.c b/sound/firewire/tascam/tascam.c
+index 5dac0d9fc58e..75f2edd8e78f 100644
+--- a/sound/firewire/tascam/tascam.c
++++ b/sound/firewire/tascam/tascam.c
+@@ -39,9 +39,6 @@ static const struct snd_tscm_spec model_specs[] = {
+ 		.midi_capture_ports = 2,
+ 		.midi_playback_ports = 4,
+ 	},
+-	// This kernel module doesn't support FE-8 because the most of features
+-	// can be implemented in userspace without any specific support of this
+-	// module.
+ };
+ 
+ static int identify_model(struct snd_tscm *tscm)
+@@ -211,11 +208,39 @@ static void snd_tscm_remove(struct fw_unit *unit)
+ }
+ 
+ static const struct ieee1394_device_id snd_tscm_id_table[] = {
++	// Tascam, FW-1884.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800000,
++	},
++	// Tascam, FE-8 (.version = 0x800001)
++	// This kernel module doesn't support FE-8 because the most of features
++	// can be implemented in userspace without any specific support of this
++	// module.
++	//
++	// .version = 0x800002 is unknown.
++	//
++	// Tascam, FW-1082.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800003,
++	},
++	// Tascam, FW-1804.
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
+-			       IEEE1394_MATCH_SPECIFIER_ID,
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
+ 		.vendor_id = 0x00022e,
+ 		.specifier_id = 0x00022e,
++		.version = 0x800004,
+ 	},
+ 	{}
+ };
+
