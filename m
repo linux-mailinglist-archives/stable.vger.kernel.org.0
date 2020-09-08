@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C52F26198D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFD12619E8
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731698AbgIHSUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
+        id S1731688AbgIHS2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:28:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731454AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:11 -0400
+        id S1731408AbgIHQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F83624736;
-        Tue,  8 Sep 2020 15:41:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91C1424743;
+        Tue,  8 Sep 2020 15:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579660;
-        bh=RVr8PcWE29fyPNXwUF/aGB4qkOtdGavpST2mHQkdMws=;
+        s=default; t=1599579668;
+        bh=fAwFO1P7fVr5Y3Eo8Ta4MRRO6FnQf2ilbIIAN3MRW8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpRLfyUdIZBK8DxjYP/miDMT0BSxN2JWgsAAZYzqFZZYrl9PXgXwMZaGt8r5XGEIA
-         rXqVjynSGVR7bR6qH5+gubITv9hRnRQWJHPKfMc9VrPwx7EcutqSYaEYaJTasK4fg1
-         Z50jr0zcFgqZvrS11NQYQnHS6WSzLrr3zze4V8lM=
+        b=MhHjaWlF49E73yoDL7VvR1JLPukZyjk0ZrFTL2Z43E8rtOng3sMb5JL2eXKcfdGbt
+         2AkKPh7kADft2kYHzZ8zmapp72k2BiO14Q3vB46+L4kvbt5X8LMYUiJD25IxtwFPCg
+         4WU2saQIo3sSd8en+hWVijtDewydVyu47VfRDUds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org,
+        Adrien Crivelli <adrien.crivelli@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 142/186] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
-Date:   Tue,  8 Sep 2020 17:24:44 +0200
-Message-Id: <20200908152248.546056788@linuxfoundation.org>
+Subject: [PATCH 5.8 143/186] ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion NT950XCJ-X716A
+Date:   Tue,  8 Sep 2020 17:24:45 +0200
+Message-Id: <20200908152248.594845012@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -43,85 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Adrien Crivelli <adrien.crivelli@gmail.com>
 
-commit 0bd8bce897b6697bbc286b8ba473aa0705fe394b upstream.
+commit 8bcea6cb2cbc1f749e574954569323dec5e2920e upstream.
 
-Tascam FE-8 is known to support communication by asynchronous transaction
-only. The support can be implemented in userspace application and
-snd-firewire-ctl-services project has the support. However, ALSA
-firewire-tascam driver is bound to the model.
+The Galaxy Book Ion NT950XCJ-X716A (15 inches) uses the same ALC298
+codec as other Samsung laptops which have the no headphone sound bug. I
+confirmed on my own hardware that this fixes the bug.
 
-This commit changes device entries so that the model is excluded. In a
-commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
-processing"), I addressed to the concern that version field in
-configuration differs depending on installed firmware. However, as long
-as I checked, the version number is fixed. It's safe to return version
-number back to modalias.
+This also correct the model name for the 13 inches version. It was
+incorrectly referenced as NT950XCJ-X716A in commit e17f02d05. But it
+should have been NP930XCJ-K01US.
 
-Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
-Cc: <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20200823075537.56255-1-o-takashi@sakamocchi.jp
+Fixes: e17f02d0559c ("ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
+Signed-off-by: Adrien Crivelli <adrien.crivelli@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200826084014.211217-1-adrien.crivelli@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/tascam/tascam.c |   33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/tascam/tascam.c
-+++ b/sound/firewire/tascam/tascam.c
-@@ -39,9 +39,6 @@ static const struct snd_tscm_spec model_
- 		.midi_capture_ports = 2,
- 		.midi_playback_ports = 4,
- 	},
--	// This kernel module doesn't support FE-8 because the most of features
--	// can be implemented in userspace without any specific support of this
--	// module.
- };
- 
- static int identify_model(struct snd_tscm *tscm)
-@@ -211,11 +208,39 @@ static void snd_tscm_remove(struct fw_un
- }
- 
- static const struct ieee1394_device_id snd_tscm_id_table[] = {
-+	// Tascam, FW-1884.
-+	{
-+		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
-+		.vendor_id = 0x00022e,
-+		.specifier_id = 0x00022e,
-+		.version = 0x800000,
-+	},
-+	// Tascam, FE-8 (.version = 0x800001)
-+	// This kernel module doesn't support FE-8 because the most of features
-+	// can be implemented in userspace without any specific support of this
-+	// module.
-+	//
-+	// .version = 0x800002 is unknown.
-+	//
-+	// Tascam, FW-1082.
-+	{
-+		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
-+		.vendor_id = 0x00022e,
-+		.specifier_id = 0x00022e,
-+		.version = 0x800003,
-+	},
-+	// Tascam, FW-1804.
- 	{
- 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
--			       IEEE1394_MATCH_SPECIFIER_ID,
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
- 		.vendor_id = 0x00022e,
- 		.specifier_id = 0x00022e,
-+		.version = 0x800004,
- 	},
- 	{}
- };
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7708,7 +7708,8 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+-	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
 
 
