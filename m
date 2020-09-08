@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C871A261975
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A772619BF
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732108AbgIHSOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55370 "EHLO mail.kernel.org"
+        id S1732103AbgIHSVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731476AbgIHQLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:43 -0400
+        id S1731456AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:11:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 311B02477A;
-        Tue,  8 Sep 2020 15:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F0A24756;
+        Tue,  8 Sep 2020 15:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579719;
-        bh=PNEcaQnF359NXQheKId83+7GCoF5t3rRV8n1Xzw/K/Q=;
+        s=default; t=1599579687;
+        bh=Q1MWV3QF384tQ47rClttc12k8j/Mj6/7MqE4HXzRMng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+guFlvrQB8CW7i7y+0pk95N3MjaYAApCygXb8Cu2vdmsDzU9pOr65aF6cW6Zi23p
-         /IK9msCJUXjioXwM7gWHJdeu4Gj2cszGs2sLGhEmmcKUhmKYbVD/rzFmsQ0ot2nGid
-         TO9uvKW8AInxLnSZKZDf54zOWQkZz7vc0iRDN65M=
+        b=ZAF0fx/gI/8o6dHxvbWtxw/8ZoiMOLXgZvMQbMIyYD+UDjtlxpJCpska9Pm2c8/j0
+         EbfficM4DMfJPctPLhASMmNwXBvavXKA7BKfkmRxPL+2Qgv4Vwfpl89w0oOsOHxBbW
+         UPXKPtZqasPTEUhWBw7tcMwAhCkEcqY9cvbUcj8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mrinal Pandey <mrinalmni@gmail.com>,
+        stable@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Joe Perches <joe@perches.com>,
+        Peter Xu <peterx@redhat.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 180/186] checkpatch: fix the usage of capture group ( ... )
-Date:   Tue,  8 Sep 2020 17:25:22 +0200
-Message-Id: <20200908152250.397742499@linuxfoundation.org>
+Subject: [PATCH 5.8 181/186] mm/migrate: fixup setting UFFD_WP flag
+Date:   Tue,  8 Sep 2020 17:25:23 +0200
+Message-Id: <20200908152250.448253850@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -46,58 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mrinal Pandey <mrinalmni@gmail.com>
+From: Alistair Popple <alistair@popple.id.au>
 
-commit 13e45417cedbfc44b1926124b1846f5ee8c6ba4a upstream.
+commit ebdf8321eeeb623aed60f7ed16f7445363230118 upstream.
 
-The usage of "capture group (...)" in the immediate condition after `&&`
-results in `$1` being uninitialized.  This issues a warning "Use of
-uninitialized value $1 in regexp compilation at ./scripts/checkpatch.pl
-line 2638".
+Commit f45ec5ff16a75 ("userfaultfd: wp: support swap and page migration")
+introduced support for tracking the uffd wp bit during page migration.
+However the non-swap PTE variant was used to set the flag for zone device
+private pages which are a type of swap page.
 
-I noticed this bug while running checkpatch on the set of commits from
-v5.7 to v5.8-rc1 of the kernel on the commits with a diff content in
-their commit message.
+This leads to corruption of the swap offset if the original PTE has the
+uffd_wp flag set.
 
-This bug was introduced in the script by commit e518e9a59ec3
-("checkpatch: emit an error when there's a diff in a changelog").  It
-has been in the script since then.
-
-The author intended to store the match made by capture group in variable
-`$1`.  This should have contained the name of the file as `[\w/]+`
-matched.  However, this couldn't be accomplished due to usage of capture
-group and `$1` in the same regular expression.
-
-Fix this by placing the capture group in the condition before `&&`.
-Thus, `$1` can be initialized to the text that capture group matches
-thereby setting it to the desired and required value.
-
-Fixes: e518e9a59ec3 ("checkpatch: emit an error when there's a diff in a changelog")
-Signed-off-by: Mrinal Pandey <mrinalmni@gmail.com>
+Fixes: f45ec5ff16a75 ("userfaultfd: wp: support swap and page migration")
+Signed-off-by: Alistair Popple <alistair@popple.id.au>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Reviewed-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Cc: Joe Perches <joe@perches.com>
-Link: https://lkml.kernel.org/r/20200714032352.f476hanaj2dlmiot@mrinalpandey
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Link: https://lkml.kernel.org/r/20200825064232.10023-1-alistair@popple.id.au
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/checkpatch.pl |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/migrate.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -2636,8 +2636,8 @@ sub process {
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -251,7 +251,7 @@ static bool remove_migration_pte(struct
+ 				entry = make_device_private_entry(new, pte_write(pte));
+ 				pte = swp_entry_to_pte(entry);
+ 				if (pte_swp_uffd_wp(*pvmw.pte))
+-					pte = pte_mkuffd_wp(pte);
++					pte = pte_swp_mkuffd_wp(pte);
+ 			}
+ 		}
  
- # Check if the commit log has what seems like a diff which can confuse patch
- 		if ($in_commit_log && !$commit_log_has_diff &&
--		    (($line =~ m@^\s+diff\b.*a/[\w/]+@ &&
--		      $line =~ m@^\s+diff\b.*a/([\w/]+)\s+b/$1\b@) ||
-+		    (($line =~ m@^\s+diff\b.*a/([\w/]+)@ &&
-+		      $line =~ m@^\s+diff\b.*a/[\w/]+\s+b/$1\b@) ||
- 		     $line =~ m@^\s*(?:\-\-\-\s+a/|\+\+\+\s+b/)@ ||
- 		     $line =~ m/^\s*\@\@ \-\d+,\d+ \+\d+,\d+ \@\@/)) {
- 			ERROR("DIFF_IN_COMMIT_MSG",
 
 
