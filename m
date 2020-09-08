@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3734261D64
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4EB261EA2
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730379AbgIHTgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47746 "EHLO mail.kernel.org"
+        id S1730501AbgIHTxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730909AbgIHP5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:57:16 -0400
+        id S1730435AbgIHPrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 11:47:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61EA92419A;
-        Tue,  8 Sep 2020 15:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3F4F24817;
+        Tue,  8 Sep 2020 15:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579531;
-        bh=g3vQ2oDJKgDlhB3cbf7hrGx14UNunJnM8n2Tk8ZCffc=;
+        s=default; t=1599579825;
+        bh=5ePKBMfeaj0yn28QZxRNSBjZOD5l6c9FmLawo2B3Y3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLofb3tJ/lKUId033ZNptgACsJzsixybS1Ye8Zi2pflOw/cuZ+chjWAMt6diKctMg
-         PGlP3c/TTe8IggKuBwqH89y507VLqsmFW+fdMS1ef0NWl4o8b42pc7jRCD7WEL6qvZ
-         wBfnCr6j810+6YcYEIXosWRt8kArZ3blrBfyq8AU=
+        b=y5O/PebHiH3mN0kmHPHZRNdhdaZ6LqOigNKXDJvo/xAJJeJCnZf6YUn9leyJCAHnD
+         3N88fYuPZn1qJXJXWJxA1p03/TwyNayVFzsPKAynqdwVmqanhEyz+ejqtzsOcDN+R1
+         qPQjvkxRqzdKM+SWp2MPbp1i5S739Ibb4hei+GFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        James Sewart <jamessewart@arista.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.8 117/186] iommu/vt-d: Handle 36bit addressing for x86-32
-Date:   Tue,  8 Sep 2020 17:24:19 +0200
-Message-Id: <20200908152247.308207572@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 019/129] drm/amd/display: Fix memleak in amdgpu_dm_mode_config_init
+Date:   Tue,  8 Sep 2020 17:24:20 +0200
+Message-Id: <20200908152230.665995175@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
-References: <20200908152241.646390211@linuxfoundation.org>
+In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
+References: <20200908152229.689878733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 29aaebbca4abc4cceb38738483051abefafb6950 upstream.
+[ Upstream commit b67a468a4ccef593cd8df6a02ba3d167b77f0c81 ]
 
-Beware that the address size for x86-32 may exceed unsigned long.
+When amdgpu_display_modeset_create_props() fails, state and
+state->context should be freed to prevent memleak. It's the
+same when amdgpu_dm_audio_init() fails.
 
-[    0.368971] UBSAN: shift-out-of-bounds in drivers/iommu/intel/iommu.c:128:14
-[    0.369055] shift exponent 36 is too large for 32-bit type 'long unsigned int'
-
-If we don't handle the wide addresses, the pages are mismapped and the
-device read/writes go astray, detected as DMAR faults and leading to
-device failure. The behaviour changed (from working to broken) in commit
-fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer"), but
-the error looks older.
-
-Fixes: fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: James Sewart <jamessewart@arista.com>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: <stable@vger.kernel.org> # v5.3+
-Link: https://lore.kernel.org/r/20200822160209.28512-1-chris@chris-wilson.co.uk
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -123,29 +123,29 @@ static inline unsigned int level_to_offs
- 	return (level - 1) * LEVEL_STRIDE;
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 3d131f21e5ab2..60e50181f6d39 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2043,12 +2043,18 @@ static int amdgpu_dm_mode_config_init(struct amdgpu_device *adev)
+ 				    &dm_atomic_state_funcs);
  
--static inline int pfn_level_offset(unsigned long pfn, int level)
-+static inline int pfn_level_offset(u64 pfn, int level)
- {
- 	return (pfn >> level_to_offset_bits(level)) & LEVEL_MASK;
- }
+ 	r = amdgpu_display_modeset_create_props(adev);
+-	if (r)
++	if (r) {
++		dc_release_state(state->context);
++		kfree(state);
+ 		return r;
++	}
  
--static inline unsigned long level_mask(int level)
-+static inline u64 level_mask(int level)
- {
--	return -1UL << level_to_offset_bits(level);
-+	return -1ULL << level_to_offset_bits(level);
- }
+ 	r = amdgpu_dm_audio_init(adev);
+-	if (r)
++	if (r) {
++		dc_release_state(state->context);
++		kfree(state);
+ 		return r;
++	}
  
--static inline unsigned long level_size(int level)
-+static inline u64 level_size(int level)
- {
--	return 1UL << level_to_offset_bits(level);
-+	return 1ULL << level_to_offset_bits(level);
+ 	return 0;
  }
- 
--static inline unsigned long align_to_level(unsigned long pfn, int level)
-+static inline u64 align_to_level(u64 pfn, int level)
- {
- 	return (pfn + level_size(level) - 1) & level_mask(level);
- }
- 
- static inline unsigned long lvl_to_nr_pages(unsigned int lvl)
- {
--	return  1 << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
-+	return 1UL << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
- }
- 
- /* VT-d pages must always be _smaller_ than MM pages. Otherwise things
+-- 
+2.25.1
+
 
 
