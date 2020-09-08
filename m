@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC82261CD4
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35415261C1D
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731903AbgIHT1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
+        id S1731455AbgIHTOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:14:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731051AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:00:04 -0400
+        id S1731199AbgIHQEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:04:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B9ED2404D;
-        Tue,  8 Sep 2020 15:38:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8A9024050;
+        Tue,  8 Sep 2020 15:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579492;
-        bh=qGT3/ySqSqFR13Q+ieA5/jBlGs2udlquAiRUcFkiAeY=;
+        s=default; t=1599579495;
+        bh=7j1Y0MkesorvcN29yjN4r5m84+5UT2GqpTVNZgL5Aew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opQPvir0AxgMCWno4AZpd1owBhpmIl+CRxgrzMEuCliHzCG77WP9xIwo76DE74C2J
-         /xreb6KxZdaL+kZizMHbxtLtrESUlnWycWfPKug7B+Nydq5HEebVIp2j2mS2k7Opf8
-         FjJp7nWQdRzIAHgQCZroXH/JoVKm5995g+iiUhlo=
+        b=dRensi2GV61U6SDBPSztMy8qMybs3tmjlmvmyZOsRH5nyUVbe1vOakQo3qmNLQXvZ
+         U4cnd76VNv7FTBjYBolKBbQfdcbUDbCr5nUEj8uVW0usptBC39i7us88QFet3QSXib
+         K0TbuTf+OjdbKjhTUpCbM1PC6SU3IN4fNz7fGWSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 100/186] net: dp83867: Fix WoL SecureOn password
-Date:   Tue,  8 Sep 2020 17:24:02 +0200
-Message-Id: <20200908152246.483465624@linuxfoundation.org>
+Subject: [PATCH 5.8 101/186] drm/radeon: Prefer lower feedback dividers
+Date:   Tue,  8 Sep 2020 17:24:03 +0200
+Message-Id: <20200908152246.531365310@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -46,39 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Murphy <dmurphy@ti.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 8b4a11c67da538504d60ae917ffe5254f59b1248 ]
+[ Upstream commit fc8c70526bd30733ea8667adb8b8ffebea30a8ed ]
 
-Fix the registers being written to as the values were being over written
-when writing the same registers.
+Commit 2e26ccb119bd ("drm/radeon: prefer lower reference dividers")
+fixed screen flicker for HP Compaq nx9420 but breaks other laptops like
+Asus X50SL.
 
-Fixes: caabee5b53f5 ("net: phy: dp83867: support Wake on LAN")
-Signed-off-by: Dan Murphy <dmurphy@ti.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Turns out we also need to favor lower feedback dividers.
+
+Users confirmed this change fixes the regression and doesn't regress the
+original fix.
+
+Fixes: 2e26ccb119bd ("drm/radeon: prefer lower reference dividers")
+BugLink: https://bugs.launchpad.net/bugs/1791312
+BugLink: https://bugs.launchpad.net/bugs/1861554
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/radeon_display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index f3c04981b8da6..cd7032628a28c 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -215,9 +215,9 @@ static int dp83867_set_wol(struct phy_device *phydev,
- 		if (wol->wolopts & WAKE_MAGICSECURE) {
- 			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RXFSOP1,
- 				      (wol->sopass[1] << 8) | wol->sopass[0]);
--			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RXFSOP1,
-+			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RXFSOP2,
- 				      (wol->sopass[3] << 8) | wol->sopass[2]);
--			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RXFSOP1,
-+			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RXFSOP3,
- 				      (wol->sopass[5] << 8) | wol->sopass[4]);
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index df1a7eb736517..840c4bf6307fd 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -933,7 +933,7 @@ static void avivo_get_fb_ref_div(unsigned nom, unsigned den, unsigned post_div,
  
- 			val_rxcfg |= DP83867_WOL_SEC_EN;
+ 	/* get matching reference and feedback divider */
+ 	*ref_div = min(max(den/post_div, 1u), ref_div_max);
+-	*fb_div = DIV_ROUND_CLOSEST(nom * *ref_div * post_div, den);
++	*fb_div = max(nom * *ref_div * post_div / den, 1u);
+ 
+ 	/* limit fb divider to its maximum */
+ 	if (*fb_div > fb_div_max) {
 -- 
 2.25.1
 
