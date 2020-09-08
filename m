@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C871261464
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC51D261420
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731807AbgIHQTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
+        id S1730710AbgIHQGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:06:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731786AbgIHQS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:18:58 -0400
+        id S1731214AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:05:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7BE32482C;
-        Tue,  8 Sep 2020 15:44:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61C2A21D80;
+        Tue,  8 Sep 2020 15:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579875;
-        bh=3KaYicKDGMNDnpLifiUlHK3tIkjkxgO2LtaIO+noLlg=;
+        s=default; t=1599579937;
+        bh=zuZmKb8WP9O1Bn85UWwWrQPriHdYTxy/O7xpjBrkROo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ji2BhEAsoxe3KITYItQMtiG9WxIcWfiLDH2GjhSUwUjet3IF39qFy1GSgeNo1thfT
-         2w9hMeb34R21F5KbO0kQvSdaGRZsT/qTdAAKv4V8GFYN9LYEtXydOicBXP2o9iBWkt
-         IHfVcLc4pD2lKAbPLLfX/bkMrUkg59pGc48AwOpc=
+        b=f9vd4PXsN4Sk+GRABeqtBOr1ySY3ikD02LNMrTLQ0sYfOmUO48arVZWjHxI4pF89X
+         AMXrejJoXNPpJXxlK9Uv0FUNEnR0q0hTmN3CO/rVQjwRb0zBTkjJn8xeitm4c8M4gt
+         krw9qyNTAuT2a7AStfYTRwzeR2Wd3t1j4XVTUvDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/129] thermal: ti-soc-thermal: Fix bogus thermal shutdowns for omap4430
-Date:   Tue,  8 Sep 2020 17:25:09 +0200
-Message-Id: <20200908152233.093509491@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        James Sewart <jamessewart@arista.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 076/129] iommu/vt-d: Handle 36bit addressing for x86-32
+Date:   Tue,  8 Sep 2020 17:25:17 +0200
+Message-Id: <20200908152233.495213316@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -47,110 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 30d24faba0532d6972df79a1bf060601994b5873 ]
+commit 29aaebbca4abc4cceb38738483051abefafb6950 upstream.
 
-We can sometimes get bogus thermal shutdowns on omap4430 at least with
-droid4 running idle with a battery charger connected:
+Beware that the address size for x86-32 may exceed unsigned long.
 
-thermal thermal_zone0: critical temperature reached (143 C), shutting down
+[    0.368971] UBSAN: shift-out-of-bounds in drivers/iommu/intel/iommu.c:128:14
+[    0.369055] shift exponent 36 is too large for 32-bit type 'long unsigned int'
 
-Dumping out the register values shows we can occasionally get a 0x7f value
-that is outside the TRM listed values in the ADC conversion table. And then
-we get a normal value when reading again after that. Reading the register
-multiple times does not seem help avoiding the bogus values as they stay
-until the next sample is ready.
+If we don't handle the wide addresses, the pages are mismapped and the
+device read/writes go astray, detected as DMAR faults and leading to
+device failure. The behaviour changed (from working to broken) in commit
+fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer"), but
+the error looks older.
 
-Looking at the TRM chapter "18.4.10.2.3 ADC Codes Versus Temperature", we
-should have values from 13 to 107 listed with a total of 95 values. But
-looking at the omap4430_adc_to_temp array, the values are off, and the
-end values are missing. And it seems that the 4430 ADC table is similar
-to omap3630 rather than omap4460.
+Fixes: fa954e683178 ("iommu/vt-d: Delegate the dma domain to upper layer")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: James Sewart <jamessewart@arista.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org> # v5.3+
+Link: https://lore.kernel.org/r/20200822160209.28512-1-chris@chris-wilson.co.uk
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Let's fix the issue by using values based on the omap3630 table and just
-ignoring invalid values. Compared to the 4430 TRM, the omap3630 table has
-the missing values added while the TRM table only shows every second
-value.
-
-Note that sometimes the ADC register values within the valid table can
-also be way off for about 1 out of 10 values. But it seems that those
-just show about 25 C too low values rather than too high values. So those
-do not cause a bogus thermal shutdown.
-
-Fixes: 1a31270e54d7 ("staging: omap-thermal: add OMAP4 data structures")
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200706183338.25622-1-tony@atomide.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ti-soc-thermal/omap4-thermal-data.c       | 23 ++++++++++---------
- .../thermal/ti-soc-thermal/omap4xxx-bandgap.h | 10 +++++---
- 2 files changed, 19 insertions(+), 14 deletions(-)
+ drivers/iommu/intel-iommu.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-index 63b02bfb2adf6..fdb8a495ab69a 100644
---- a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-+++ b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-@@ -37,20 +37,21 @@ static struct temp_sensor_data omap4430_mpu_temp_sensor_data = {
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -123,29 +123,29 @@ static inline unsigned int level_to_offs
+ 	return (level - 1) * LEVEL_STRIDE;
+ }
  
- /*
-  * Temperature values in milli degree celsius
-- * ADC code values from 530 to 923
-+ * ADC code values from 13 to 107, see TRM
-+ * "18.4.10.2.3 ADC Codes Versus Temperature".
-  */
- static const int
- omap4430_adc_to_temp[OMAP4430_ADC_END_VALUE - OMAP4430_ADC_START_VALUE + 1] = {
--	-38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000, -22000,
--	-20000, -18000, -17000, -15000, -13000, -12000, -10000, -8000, -6000,
--	-5000, -3000, -1000, 0, 2000, 3000, 5000, 6000, 8000, 10000, 12000,
--	13000, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28000, 30000,
--	32000, 33000, 35000, 37000, 38000, 40000, 42000, 43000, 45000, 47000,
--	48000, 50000, 52000, 53000, 55000, 57000, 58000, 60000, 62000, 64000,
--	66000, 68000, 70000, 71000, 73000, 75000, 77000, 78000, 80000, 82000,
--	83000, 85000, 87000, 88000, 90000, 92000, 93000, 95000, 97000, 98000,
--	100000, 102000, 103000, 105000, 107000, 109000, 111000, 113000, 115000,
--	117000, 118000, 120000, 122000, 123000,
-+	-40000, -38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000,
-+	-22000,	-20000, -18500, -17000, -15000, -13500, -12000, -10000, -8000,
-+	-6500, -5000, -3500, -1500, 0, 2000, 3500, 5000, 6500, 8500, 10000,
-+	12000, 13500, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28500,
-+	30000, 32000, 33500, 35000, 37000, 38500, 40000, 42000, 43500, 45000,
-+	47000, 48500, 50000, 52000, 53500, 55000, 57000, 58500, 60000, 62000,
-+	64000, 66000, 68000, 70000, 71500, 73500, 75000, 77000, 78500, 80000,
-+	82000, 83500, 85000, 87000, 88500, 90000, 92000, 93500, 95000, 97000,
-+	98500, 100000, 102000, 103500, 105000, 107000, 109000, 111000, 113000,
-+	115000, 117000, 118500, 120000, 122000, 123500, 125000,
- };
+-static inline int pfn_level_offset(unsigned long pfn, int level)
++static inline int pfn_level_offset(u64 pfn, int level)
+ {
+ 	return (pfn >> level_to_offset_bits(level)) & LEVEL_MASK;
+ }
  
- /* OMAP4430 data */
-diff --git a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-index a453ff8eb313e..9a3955c3853ba 100644
---- a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-+++ b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-@@ -53,9 +53,13 @@
-  * and thresholds for OMAP4430.
-  */
+-static inline unsigned long level_mask(int level)
++static inline u64 level_mask(int level)
+ {
+-	return -1UL << level_to_offset_bits(level);
++	return -1ULL << level_to_offset_bits(level);
+ }
  
--/* ADC conversion table limits */
--#define OMAP4430_ADC_START_VALUE			0
--#define OMAP4430_ADC_END_VALUE				127
-+/*
-+ * ADC conversion table limits. Ignore values outside the TRM listed
-+ * range to avoid bogus thermal shutdowns. See omap4430 TRM chapter
-+ * "18.4.10.2.3 ADC Codes Versus Temperature".
-+ */
-+#define OMAP4430_ADC_START_VALUE			13
-+#define OMAP4430_ADC_END_VALUE				107
- /* bandgap clock limits (no control on 4430) */
- #define OMAP4430_MAX_FREQ				32768
- #define OMAP4430_MIN_FREQ				32768
--- 
-2.25.1
-
+-static inline unsigned long level_size(int level)
++static inline u64 level_size(int level)
+ {
+-	return 1UL << level_to_offset_bits(level);
++	return 1ULL << level_to_offset_bits(level);
+ }
+ 
+-static inline unsigned long align_to_level(unsigned long pfn, int level)
++static inline u64 align_to_level(u64 pfn, int level)
+ {
+ 	return (pfn + level_size(level) - 1) & level_mask(level);
+ }
+ 
+ static inline unsigned long lvl_to_nr_pages(unsigned int lvl)
+ {
+-	return  1 << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
++	return 1UL << min_t(int, (lvl - 1) * LEVEL_STRIDE, MAX_AGAW_PFN_WIDTH);
+ }
+ 
+ /* VT-d pages must always be _smaller_ than MM pages. Otherwise things
 
 
