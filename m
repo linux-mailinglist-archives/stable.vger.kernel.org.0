@@ -2,68 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1440B261DC4
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F0F4261E25
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731009AbgIHTmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:42:02 -0400
-Received: from sonic310-20.consmr.mail.sg3.yahoo.com ([106.10.244.140]:45531
-        "EHLO sonic310-20.consmr.mail.sg3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731669AbgIHTmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 15:42:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1599594119; bh=Kmf4PGGAW4hFohRwP8VxB1XRE0jvKX4FRcFJqsGTJuM=; h=Date:From:Reply-To:Subject:References:From:Subject; b=qlH0Fvs+enc2nf0B5o+qbKogS8hKE6aC4yPX/YIKVFW+u2ic7Lwju+NSQYfLaRDJjcBdUT/0fLjrjIw6UjMCFshPOjhdlYz90hxfwcl7w4aGyI+G4AZddQpst3bAWxvuTUZ4gXho6ITRMQfNOTPExB/fm56UWyhHXtoC9+nNr1pK/6x5pDsOgd2NrOzAxLyXRq4p5mldVYyxUoxoZ8LFCkoEa7thf+3cgaWFo8kBXxxX08zWZPuqx+GvtkSNBtcryZpWwRcjYBl9vWYzCWuDbUiy8Zt3d6jYVyJo3oxAtkaiSnNFPZYrlHF6IJvd9WGCiJ7WJS9H9BWXEIy8UvhRdg==
-X-YMail-OSG: rQcpOp8VM1kWelZjXphNpDOZJ3GbQeL.FGE6oJIex6u8X4Hi7m67gxAV8gvuwuH
- yZN.xwFE.AGn6bBj4HQq6R49o8EU.oK0zWjcrOs0pD58VuYy1HqYQihdzyokRDmTIdwT3wHo8.cL
- Yhbm33Lt.fVyNOrW_6NRc0BHymXANIAWcHmdwxUrIP4g_s.zdpuQ3vQ3K9M3fHqPLs_TEdm8VL6c
- bYtWBeBy8odZEjfQCulf3djPMR3XeKRmjau5Wl.gNqcle.nkBx75ntzw32c3a3VWd0SG3PJ5y6uJ
- N9UN8STJkwznpQp1k9dOiIso1yOd5lB1PZ6R0rxdqtsYPlk5nu9Ijg.U40DlzoOyHtW_QuEce7b7
- LngzBm5D6u7W1SkjD2FdTi4cgPNA8aJbFxcA7FXor1cBvC0BZL0onYMtdSmqb7pybs1XQmmoFuS8
- ILYdgM2GBNQKzzKXDqyqhUfuAIl7dmoja.bGZ52Qm79H4Phw73fUpD3iPfim8VnVeWcGQ0gL23hW
- 2iJdkcMJta2Vg_Q8LnY3IAjBAjK2dlcEZZjnIyQEhOI7CRKv0smhAs2L8WYXpVoXl14EmPMAuC.K
- Pon8XzHHzOuvsxHoNsKdD3tJEH3Bo96GypHAIkC2QoURoKuWqoQMczuW9CA.c7L_3keQrEjEyMXV
- dawK9wWnvRBGm.Hp8VJWgbWXR5Zun0gOwG.K5.l20A8mrBPar0on.RGKElg.0rdG8YoSqWWd9N8x
- 2C2ehG.qp_O64yRwipP429NaJkgBo6fuWn8AcLX77G4sykebW04ccGXiBJI9TFpuBVVSZtnWmuXr
- gr4TMxRHmV7MkEZKcmpYJu6IGaEJ5d7yV3deIAiHnIBhqTTKCdQi9N1WbYHLIEC5zBZmUWXlbpgA
- NbDv65cMdGmSxTuvEh_8nu_Yo5T.zzJ_plNyqGQnHihGeZimQHYtU2KGLyGXlp8KsG.hXnwImxKc
- YcolYPKwqb_d.IRyI_sLoq245QeoolmMb4SeR39QT6i.g7oU3LfA7wWmPKGhqFubOXVqJUFVJ6Mx
- pSyX_o9lj7sGtksTY92OOJ7nmzK4RH2aHgbMhTu5bfJ9OgB1JRc.F4AqJHmmWz_T_6GKb3.bpA_Y
- wQEAA.Xd3VjhYLPSwWwogJcf8WWO_GhGw_IndBiB3Eq0hxMTZHZKVX49MEjnJlAXEWTLTisQ9XRF
- QbTb0PuFpDb3aTA6wBNFT83Jbx0ysSXLgMj6iMHdnuKmyDG.BuNdhM7PNqt6fcU9GPKslE8aq5kM
- syMaiznaYXslsa0FwcZ99hGWXPPfkQ1ckSx_jpIynGgaugF_Gra3CaoNBa4lybTxnbwHBU.XF9qf
- 5IUogiz0iOCLXhiOhrYOtXBrsVjXzf7wKQo.N2TsrxUES7EGElh.xRsEl.cKB1bD1oCNkM5iN.0i
- nrxQdr_fKinP9cWuNFLiwbyIQx7VYVeoJStNMnEV6yi7mJCNKClGc
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.sg3.yahoo.com with HTTP; Tue, 8 Sep 2020 19:41:59 +0000
-Date:   Tue, 8 Sep 2020 19:41:55 +0000 (UTC)
-From:   Celine Marchand <official017891@uymail.com>
-Reply-To: celine88492@gmail.com
-Message-ID: <1265728737.3047869.1599594115774@mail.yahoo.com>
-Subject: 
+        id S1732392AbgIHTrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:47:35 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:46044 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732210AbgIHTr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 15:47:28 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 194181C0B87; Tue,  8 Sep 2020 21:47:24 +0200 (CEST)
+Date:   Tue, 8 Sep 2020 21:47:23 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Marc Smith <msmith626@gmail.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 34/88] bnxt_en: fix HWRM error when querying VF
+ temperature
+Message-ID: <20200908194723.GB6758@duo.ucw.cz>
+References: <20200908152221.082184905@linuxfoundation.org>
+ <20200908152222.792503974@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1265728737.3047869.1599594115774.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16565 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="8P1HSweYDcXXzwPJ"
+Content-Disposition: inline
+In-Reply-To: <20200908152222.792503974@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+--8P1HSweYDcXXzwPJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hello
-Dearest, how are you? I am sorry for intruding your mailbox, but I need to =
-talk to you. I got your email address in my dream and i wonder if it is cor=
-rect because i emailed you earlier without any response. You should know th=
-at my contact to you is by the special grace of God. I am in urgent need of=
- a reliable and reputable person and i believe you are a person of fine rep=
-ute, hence the revelation of your email to me in the dream.
-I am Mrs. Celine Marchand a citizen of France (French). But reside in Burki=
-na Faso for business purposes. I need your collaboration to execute some pr=
-ojects worth =E2=82=AC 2.800.000 Euro and it is very urgent as am presently=
- in very critical condition.
-Please reply through this email address ( celine88492@gmail.com ) with your=
- full contact information for more private and confidential communication.
+Hi!
 
-Thank you as i wait for your reply.
-Mrs. Celine Marchand
+> Firmware returns RESOURCE_ACCESS_DENIED for HWRM_TEMP_MONITORY_QUERY for
+> VFs. This produces unpleasing error messages in the log when temp1_input
+> is queried via the hwmon sysfs interface from a VF.
+>=20
+> The error is harmless and expected, so silence it and return unknown as
+> the value. Since the device temperature is not particularly sensitive
+> information, provide flexibility to change this policy in future by
+> silencing the error rather than avoiding the HWRM call entirely for VFs.
+>=20
+> Fixes: cde49a42a9bb ("bnxt_en: Add hwmon sysfs support to read
+> temperature")
+
+Is this new interface described somewhere?
+
+> +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+> @@ -6836,16 +6836,19 @@ static ssize_t bnxt_show_temp(struct device *dev,
+=2E..
+> -	return sprintf(buf, "%u\n", temp);
+> +	if (len)
+> +		return len;
+> +
+> +	return sprintf(buf, "unknown\n");
+>  }
+
+We normally just do return -EIO (or other error code) in such cases.
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--8P1HSweYDcXXzwPJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX1ffywAKCRAw5/Bqldv6
+8sXIAJ9BSVZ2KXHsgjvUYGiaxLJKhy8r7ACfQV6tWW2ZhZfSs4Nji2Stw5c2MYM=
+=fB9W
+-----END PGP SIGNATURE-----
+
+--8P1HSweYDcXXzwPJ--
