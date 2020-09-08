@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E541261444
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:11:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B147261441
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731235AbgIHQLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
+        id S1731102AbgIHQLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:11:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731138AbgIHQLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:11:20 -0400
+        id S1731438AbgIHQKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ED92247F8;
-        Tue,  8 Sep 2020 15:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25780247FF;
+        Tue,  8 Sep 2020 15:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579774;
-        bh=Ul1ge7AJKE/v1VgH/yt3dlwsH7LrnJcVrQYexuK4AFA=;
+        s=default; t=1599579784;
+        bh=xEyKS4E47yTjH2Bua1sZXek4xDKW+5vOh+n8Igii48E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYdCjfjWGe6genx4qw+1LzPjjoF3v0ypdebiFHwjVnqF+t84z9e7iuteFR1Ze+yI/
-         iywhfDKhMxoz7HjPZ813nQRr8r9u2fcwHDA/tZqUZdojALZuYerox0eHxd4JHSBzBk
-         0nAXDsOWbt/mmZVuWe1A7uXI8huWhbkL3TFQkIKg=
+        b=Fz6WrSVxn8SmjBbSVC3OKg/hPzyK3PgYiCyrpJ4vs/WLjSm3OcugPHR7Kcs3sGJis
+         YOWJbs7NgQ/F/tT+9rGT9pur6aFqePbI9eZ64QRomEp1LRLuW+gawM23GUhKJkVZmN
+         1SwBU130CDy/TtccRM5ZCJ0KL3TYgA7PfMAZ6n5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/129] MIPS: mm: BMIPS5000 has inclusive physical caches
-Date:   Tue,  8 Sep 2020 17:24:30 +0200
-Message-Id: <20200908152231.143076933@linuxfoundation.org>
+Subject: [PATCH 5.4 032/129] netfilter: nf_tables: add NFTA_SET_USERDATA if not null
+Date:   Tue,  8 Sep 2020 17:24:33 +0200
+Message-Id: <20200908152231.300051626@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -44,39 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit dbfc95f98f0158958d1f1e6bf06d74be38dbd821 ]
+[ Upstream commit 6f03bf43ee05b31d3822def2a80f11b3591c55b3 ]
 
-When the BMIPS generic cpu-feature-overrides.h file was introduced,
-cpu_has_inclusive_caches/MIPS_CPU_INCLUSIVE_CACHES was not set for
-BMIPS5000 CPUs. Correct this when we have initialized the MIPS secondary
-cache successfully.
+Kernel sends an empty NFTA_SET_USERDATA attribute with no value if
+userspace adds a set with no NFTA_SET_USERDATA attribute.
 
-Fixes: f337967d6d87 ("MIPS: BMIPS: Add cpu-feature-overrides.h")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: e6d8ecac9e68 ("netfilter: nf_tables: Add new attributes into nft_set to store user data.")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/c-r4k.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nf_tables_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/mm/c-r4k.c b/arch/mips/mm/c-r4k.c
-index 89b9c851d8227..c4785a456dedc 100644
---- a/arch/mips/mm/c-r4k.c
-+++ b/arch/mips/mm/c-r4k.c
-@@ -1676,7 +1676,11 @@ static void setup_scache(void)
- 				printk("MIPS secondary cache %ldkB, %s, linesize %d bytes.\n",
- 				       scache_size >> 10,
- 				       way_string[c->scache.ways], c->scache.linesz);
-+
-+				if (current_cpu_type() == CPU_BMIPS5000)
-+					c->options |= MIPS_CPU_INCLUSIVE_CACHES;
- 			}
-+
- #else
- 			if (!(c->scache.flags & MIPS_CACHE_NOT_PRESENT))
- 				panic("Dunno how to handle MIPS32 / MIPS64 second level cache");
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index f7129232c8250..c1920adb27e62 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3353,7 +3353,8 @@ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
+ 			goto nla_put_failure;
+ 	}
+ 
+-	if (nla_put(skb, NFTA_SET_USERDATA, set->udlen, set->udata))
++	if (set->udata &&
++	    nla_put(skb, NFTA_SET_USERDATA, set->udlen, set->udata))
+ 		goto nla_put_failure;
+ 
+ 	desc = nla_nest_start_noflag(skb, NFTA_SET_DESC);
 -- 
 2.25.1
 
