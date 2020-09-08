@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1C326168F
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185C126168B
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731498AbgIHROG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:14:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58450 "EHLO mail.kernel.org"
+        id S1732102AbgIHRNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731757AbgIHQTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:19:08 -0400
+        id S1731794AbgIHQTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:19:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E00962483A;
-        Tue,  8 Sep 2020 15:44:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 117672485F;
+        Tue,  8 Sep 2020 15:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579880;
-        bh=dkd1VTGWkDPbUY99d0zFvWomNILn15OcG/cU8vcH9A8=;
+        s=default; t=1599579929;
+        bh=1BZhO4+UQ67mZNfApbi5PQu9vhFmjk3MHNhnyVGGy3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+b8QiT4cv+om4Fs3DmwwluvaigrnhZA0ta5mMwvROFzk2YcHhGm7jh1+4x5ojp2K
-         WT+LxSqDBCtXiYHcgfA7fRWd4yEk0XFo5hV+R1OVkbR08mrql3ttD8qwYlhl2O+OMI
-         lICHeB14Ek3AUhPIJNj+M/9M+x4mGHTu6DF2RMaU=
+        b=1V3dYgjRVNfMIlQKCyLjgRL5hfHeC/xduEAn92GQXYamRmVQsvE76AksEss/qq4V9
+         QewW+Je9vjkDc8v+qF+AAOFuQAYI+GYkg8LxJioITWeZxLrkDBzEcSfuaMcRX1P5Kj
+         Qk8QqRzot6vH/52MHqyuh5THnmssANyNHvS40908=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/129] iommu/amd: Restore IRTE.RemapEn bit after programming IRTE
-Date:   Tue,  8 Sep 2020 17:25:11 +0200
-Message-Id: <20200908152233.197523349@linuxfoundation.org>
+        stable@vger.kernel.org, Joshua Sivec <sivec@posteo.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 091/129] ALSA: usb-audio: Add implicit feedback quirk for UR22C
+Date:   Tue,  8 Sep 2020 17:25:32 +0200
+Message-Id: <20200908152234.284393777@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -45,46 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Joshua Sivec <sivec@posteo.net>
 
-[ Upstream commit 26e495f341075c09023ba16dee9a7f37a021e745 ]
+commit 7c5b892e0871655fea3294ffac6fa3cc3400b60d upstream.
 
-Currently, the RemapEn (valid) bit is accidentally cleared when
-programming IRTE w/ guestMode=0. It should be restored to
-the prior state.
+This uses the same quirk as the Motu and SSL2 devices.
+Tested on the UR22C.
 
-Fixes: b9fc6b56f478 ("iommu/amd: Implements irq_set_vcpu_affinity() hook to setup vapic mode for pass-through devices")
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
-Link: https://lore.kernel.org/r/20200903093822.52012-2-suravee.suthikulpanit@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes bug 208851.
+
+Signed-off-by: Joshua Sivec <sivec@posteo.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208851
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200825165515.8239-1-sivec@posteo.net
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/amd_iommu.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/pcm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 3a7094f4813f2..cdafc652d9d1a 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -4431,6 +4431,7 @@ int amd_iommu_deactivate_guest_mode(void *data)
- 	struct amd_ir_data *ir_data = (struct amd_ir_data *)data;
- 	struct irte_ga *entry = (struct irte_ga *) ir_data->entry;
- 	struct irq_cfg *cfg = ir_data->cfg;
-+	u64 valid = entry->lo.fields_remap.valid;
- 
- 	if (!AMD_IOMMU_GUEST_IR_VAPIC(amd_iommu_guest_ir) ||
- 	    !entry || !entry->lo.fields_vapic.guest_mode)
-@@ -4439,6 +4440,7 @@ int amd_iommu_deactivate_guest_mode(void *data)
- 	entry->lo.val = 0;
- 	entry->hi.val = 0;
- 
-+	entry->lo.fields_remap.valid       = valid;
- 	entry->lo.fields_remap.dm          = apic->irq_dest_mode;
- 	entry->lo.fields_remap.int_type    = apic->irq_delivery_mode;
- 	entry->hi.fields.vector            = cfg->vector;
--- 
-2.25.1
-
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -356,6 +356,7 @@ static int set_sync_ep_implicit_fb_quirk
+ 	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
+ 	case USB_ID(0x31e9, 0x0001): /* Solid State Logic SSL2 */
+ 	case USB_ID(0x31e9, 0x0002): /* Solid State Logic SSL2+ */
++	case USB_ID(0x0499, 0x172f): /* Steinberg UR22C */
+ 	case USB_ID(0x0d9a, 0x00df): /* RTX6001 */
+ 		ep = 0x81;
+ 		ifnum = 2;
 
 
