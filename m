@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F167C261A14
+	by mail.lfdr.de (Postfix) with ESMTP id 817E2261A13
 	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731386AbgIHSat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726484AbgIHSat (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 8 Sep 2020 14:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731382AbgIHQJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:09:38 -0400
+        id S1731388AbgIHQJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:09:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02D2E24641;
-        Tue,  8 Sep 2020 15:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C20062465E;
+        Tue,  8 Sep 2020 15:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580206;
-        bh=dSgfDF7A+7Ljbs8JZpiJIeXcJxK9p0Odimxqp23FnoM=;
+        s=default; t=1599580213;
+        bh=q14keo6eWb52D3/Vm7501xybZhIhWe9Zs++ipQhJZ3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kg+314HE8WH2lxtTDmsYluclG0oTPnCTB0c80VymJEw3ki87hEqyRL+RrlWZn6JlY
-         778QuF3NIG4dCkb/jEXkWnoj4deXhWMna19IAvxakGDzNCcstV+VEIgjMa29PWqiKi
-         UTe2XglTx1A+hsHNBlFD0qiYt6qdJv7dz8KjAsWY=
+        b=SRgQL3uhhb2VK0MJHmQIjsKQOL8zW4xAucX2/MBubHzrLtKj0qn8fDKpFDrj/VT5G
+         WxSISXWOZxWbg02zOLBNBoHbI/zDMkcMFaLZ/wm22jaDnjXJaV5XuY5YkBf//OQxzh
+         eLbBcnQJ8tVVJnMtwHliUcYGRyYE3q9rRTDuGgZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ceef16277388d6f24898@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 72/88] media: rc: uevent sysfs file races with rc_unregister_device()
-Date:   Tue,  8 Sep 2020 17:26:13 +0200
-Message-Id: <20200908152224.785231848@linuxfoundation.org>
+        syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 74/88] block: allow for_each_bvec to support zero len bvec
+Date:   Tue,  8 Sep 2020 17:26:15 +0200
+Message-Id: <20200908152224.875359983@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -45,82 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 4f0835d6677dc69263f90f976524cb92b257d9f4 upstream.
+commit 7e24969022cbd61ddc586f14824fc205661bb124 upstream.
 
-Only report uevent file contents if device still registered, else we
-might read freed memory.
+Block layer usually doesn't support or allow zero-length bvec. Since
+commit 1bdc76aea115 ("iov_iter: use bvec iterator to implement
+iterate_bvec()"), iterate_bvec() switches to bvec iterator. However,
+Al mentioned that 'Zero-length segments are not disallowed' in iov_iter.
 
-Reported-by: syzbot+ceef16277388d6f24898@syzkaller.appspotmail.com
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: <stable@vger.kernel.org> # 4.16+
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes for_each_bvec() so that it can move on after seeing one zero
+length bvec.
+
+Fixes: 1bdc76aea115 ("iov_iter: use bvec iterator to implement iterate_bvec()")
+Reported-by: syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg2262077.html
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |   32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ include/linux/bvec.h |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -1568,25 +1568,25 @@ static void rc_dev_release(struct device
- 	kfree(dev);
+--- a/include/linux/bvec.h
++++ b/include/linux/bvec.h
+@@ -119,11 +119,18 @@ static inline bool bvec_iter_rewind(cons
+ 	return true;
  }
  
--#define ADD_HOTPLUG_VAR(fmt, val...)					\
--	do {								\
--		int err = add_uevent_var(env, fmt, val);		\
--		if (err)						\
--			return err;					\
--	} while (0)
--
- static int rc_dev_uevent(struct device *device, struct kobj_uevent_env *env)
- {
- 	struct rc_dev *dev = to_rc_dev(device);
-+	int ret = 0;
- 
--	if (dev->rc_map.name)
--		ADD_HOTPLUG_VAR("NAME=%s", dev->rc_map.name);
--	if (dev->driver_name)
--		ADD_HOTPLUG_VAR("DRV_NAME=%s", dev->driver_name);
--	if (dev->device_name)
--		ADD_HOTPLUG_VAR("DEV_NAME=%s", dev->device_name);
-+	mutex_lock(&dev->lock);
- 
--	return 0;
-+	if (!dev->registered)
-+		ret = -ENODEV;
-+	if (ret == 0 && dev->rc_map.name)
-+		ret = add_uevent_var(env, "NAME=%s", dev->rc_map.name);
-+	if (ret == 0 && dev->driver_name)
-+		ret = add_uevent_var(env, "DRV_NAME=%s", dev->driver_name);
-+	if (ret == 0 && dev->device_name)
-+		ret = add_uevent_var(env, "DEV_NAME=%s", dev->device_name);
++static inline void bvec_iter_skip_zero_bvec(struct bvec_iter *iter)
++{
++	iter->bi_bvec_done = 0;
++	iter->bi_idx++;
++}
 +
-+	mutex_unlock(&dev->lock);
-+
-+	return ret;
- }
+ #define for_each_bvec(bvl, bio_vec, iter, start)			\
+ 	for (iter = (start);						\
+ 	     (iter).bi_size &&						\
+ 		((bvl = bvec_iter_bvec((bio_vec), (iter))), 1);	\
+-	     bvec_iter_advance((bio_vec), &(iter), (bvl).bv_len))
++	     (bvl).bv_len ? (void)bvec_iter_advance((bio_vec), &(iter),	\
++		     (bvl).bv_len) : bvec_iter_skip_zero_bvec(&(iter)))
  
- /*
-@@ -1970,14 +1970,14 @@ void rc_unregister_device(struct rc_dev
- 	del_timer_sync(&dev->timer_keyup);
- 	del_timer_sync(&dev->timer_repeat);
- 
--	rc_free_rx_device(dev);
--
- 	mutex_lock(&dev->lock);
- 	if (dev->users && dev->close)
- 		dev->close(dev);
- 	dev->registered = false;
- 	mutex_unlock(&dev->lock);
- 
-+	rc_free_rx_device(dev);
-+
- 	/*
- 	 * lirc device should be freed with dev->registered = false, so
- 	 * that userspace polling will get notified.
+ /* for iterating one bio from start to end */
+ #define BVEC_ITER_ALL_INIT (struct bvec_iter)				\
 
 
