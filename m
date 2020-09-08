@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A150A261B94
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A96261B91
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731527AbgIHTEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:04:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S1731537AbgIHTEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731268AbgIHQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731269AbgIHQH0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:07:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3189F23E53;
-        Tue,  8 Sep 2020 15:47:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9098F23E54;
+        Tue,  8 Sep 2020 15:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580033;
-        bh=yvT6yK6uDpm1fil5NPH3jIOhIuMTvfb3Xnuf17cwW3g=;
+        s=default; t=1599580036;
+        bh=gx/x1KIyaGq2px02H7lQekeYP8L8gZ5gvdqxveJIdl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MyI+eJaqiF/skAsYjtEh7fyV7WVgJMpSFdM36jkpOXJqm2afqkGzxTiuBx/5qxufe
-         KwUE9nUqflmUNCOn9AhA557lgfNcetiWd/F6SMRlXO8lUG22SYwBgzAVwdeCXPD3QQ
-         S4mYcEijwiv/NtkdKpC+n7EeT058ObD12EDNVV3A=
+        b=ouMnt4dWMNqqonaoTX1YQO0a0BlTxKNlTHebispG9nS0QXFesEqMgpJNe8ntwaFDl
+         Nev4orOPesq6rdLCy6MpnCd8AAL/yG3hnsBzILOsWHCrfQPpqBfcqG52bTrPBUdYkr
+         4vhsyII0Agmnsqv+yZ2tMBfIwno4ROKVZeOS+loE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 112/129] drm/amd/pm: avoid false alarm due to confusing softwareshutdowntemp setting
-Date:   Tue,  8 Sep 2020 17:25:53 +0200
-Message-Id: <20200908152235.436199841@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 113/129] dm writecache: handle DAX to partitions on persistent memory correctly
+Date:   Tue,  8 Sep 2020 17:25:54 +0200
+Message-Id: <20200908152235.488073296@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -43,47 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 971df65cbf32da9bc9af52c1196ca504dd316086 upstream.
+commit f9e040efcc28309e5c592f7e79085a9a52e31f58 upstream.
 
-Normally softwareshutdowntemp should be greater than Thotspotlimit.
-However, on some VEGA10 ASIC, the softwareshutdowntemp is 91C while
-Thotspotlimit is 105C. This seems not right and may trigger some
-false alarms.
+The function dax_direct_access doesn't take partitions into account,
+it always maps pages from the beginning of the device. Therefore,
+persistent_memory_claim() must get the partition offset using
+get_start_sect() and add it to the page offsets passed to
+dax_direct_access().
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/md/dm-writecache.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
-@@ -375,8 +375,18 @@ static int vega10_thermal_set_temperatur
- 	/* compare them in unit celsius degree */
- 	if (low < range->min / PP_TEMPERATURE_UNITS_PER_CENTIGRADES)
- 		low = range->min / PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
--	if (high > tdp_table->usSoftwareShutdownTemp)
--		high = tdp_table->usSoftwareShutdownTemp;
-+
-+	/*
-+	 * As a common sense, usSoftwareShutdownTemp should be bigger
-+	 * than ThotspotLimit. For any invalid usSoftwareShutdownTemp,
-+	 * we will just use the max possible setting VEGA10_THERMAL_MAXIMUM_ALERT_TEMP
-+	 * to avoid false alarms.
-+	 */
-+	if ((tdp_table->usSoftwareShutdownTemp >
-+	     range->hotspot_crit_max / PP_TEMPERATURE_UNITS_PER_CENTIGRADES)) {
-+		if (high > tdp_table->usSoftwareShutdownTemp)
-+			high = tdp_table->usSoftwareShutdownTemp;
-+	}
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -224,6 +224,7 @@ static int persistent_memory_claim(struc
+ 	pfn_t pfn;
+ 	int id;
+ 	struct page **pages;
++	sector_t offset;
  
- 	if (low > high)
- 		return -EINVAL;
+ 	wc->memory_vmapped = false;
+ 
+@@ -242,9 +243,16 @@ static int persistent_memory_claim(struc
+ 		goto err1;
+ 	}
+ 
++	offset = get_start_sect(wc->ssd_dev->bdev);
++	if (offset & (PAGE_SIZE / 512 - 1)) {
++		r = -EINVAL;
++		goto err1;
++	}
++	offset >>= PAGE_SHIFT - 9;
++
+ 	id = dax_read_lock();
+ 
+-	da = dax_direct_access(wc->ssd_dev->dax_dev, 0, p, &wc->memory_map, &pfn);
++	da = dax_direct_access(wc->ssd_dev->dax_dev, offset, p, &wc->memory_map, &pfn);
+ 	if (da < 0) {
+ 		wc->memory_map = NULL;
+ 		r = da;
+@@ -266,7 +274,7 @@ static int persistent_memory_claim(struc
+ 		i = 0;
+ 		do {
+ 			long daa;
+-			daa = dax_direct_access(wc->ssd_dev->dax_dev, i, p - i,
++			daa = dax_direct_access(wc->ssd_dev->dax_dev, offset + i, p - i,
+ 						NULL, &pfn);
+ 			if (daa <= 0) {
+ 				r = daa ? daa : -EINVAL;
 
 
