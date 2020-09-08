@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64AA4261BAD
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDB4261BA5
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731117AbgIHTGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52114 "EHLO mail.kernel.org"
+        id S1731338AbgIHTGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731177AbgIHQHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731264AbgIHQHV (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:07:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88BBC23DC4;
-        Tue,  8 Sep 2020 15:46:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B0323E25;
+        Tue,  8 Sep 2020 15:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580014;
-        bh=xTbTZQwcFfwTu49vSPOjDxR+iw+rx0T18NBD7Z6Jznw=;
+        s=default; t=1599580026;
+        bh=cFbV4bMzr3uLQwoyjcoR+aScCk6g1+iDXnHpLnB7Wg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJEDcbPWQvFSf6PB3+UUksknb391BExWzYezHLlSwFc14IjnFlWt8fXPiDJ5e7O/z
-         XTHpB3OlO0f2e61an5APJ7zo10ogShiNUGUcgBafLA9AjWnyFvK1vTUTmFk0YobNtg
-         rDDal2/9mRfBN4LABufyJm9thgGx49JBfWoWsOVU=
+        b=MLGKfRwt5JDmEYti+nsql4dr74BW+jGgKzZG4KppT9yE0dTpsO9Jhd1S0mjEm79M7
+         3KXcoN3TxMEYov26OofUfk2TX1VM7KGtzJ/pjiF1qKiqoJLTyUKwc6RNuJxj5Ol0bk
+         0qrqzpF0o4NT9ZGEZ2LVyTBpSOXVbBpZLZJE5HFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 108/129] block: ensure bdi->io_pages is always initialized
-Date:   Tue,  8 Sep 2020 17:25:49 +0200
-Message-Id: <20200908152235.235494023@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Karthik Shivaram <karthikgs@fb.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 109/129] libata: implement ATA_HORKAGE_MAX_TRIM_128M and apply to Sandisks
+Date:   Tue,  8 Sep 2020 17:25:50 +0200
+Message-Id: <20200908152235.284614536@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -44,36 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Tejun Heo <tj@kernel.org>
 
-commit de1b0ee490eafdf65fac9eef9925391a8369f2dc upstream.
+commit 3b5455636fe26ea21b4189d135a424a6da016418 upstream.
 
-If a driver leaves the limit settings as the defaults, then we don't
-initialize bdi->io_pages. This means that file systems may need to
-work around bdi->io_pages == 0, which is somewhat messy.
+All three generations of Sandisk SSDs lock up hard intermittently.
+Experiments showed that disabling NCQ lowered the failure rate significantly
+and the kernel has been disabling NCQ for some models of SD7's and 8's,
+which is obviously undesirable.
 
-Initialize the default value just like we do for ->ra_pages.
+Karthik worked with Sandisk to root cause the hard lockups to trim commands
+larger than 128M. This patch implements ATA_HORKAGE_MAX_TRIM_128M which
+limits max trim size to 128M and applies it to all three generations of
+Sandisk SSDs.
 
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Karthik Shivaram <karthikgs@fb.com>
 Cc: stable@vger.kernel.org
-Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
-Reported-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/libata-core.c |    5 ++---
+ drivers/ata/libata-scsi.c |    8 +++++++-
+ include/linux/libata.h    |    1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -502,6 +502,7 @@ struct request_queue *blk_alloc_queue_no
- 		goto fail_stats;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4474,9 +4474,8 @@ static const struct ata_blacklist_entry
+ 	/* https://bugzilla.kernel.org/show_bug.cgi?id=15573 */
+ 	{ "C300-CTFDDAC128MAG",	"0001",		ATA_HORKAGE_NONCQ, },
  
- 	q->backing_dev_info->ra_pages = VM_READAHEAD_PAGES;
-+	q->backing_dev_info->io_pages = VM_READAHEAD_PAGES;
- 	q->backing_dev_info->capabilities = BDI_CAP_CGROUP_WRITEBACK;
- 	q->backing_dev_info->name = "block";
- 	q->node = node_id;
+-	/* Some Sandisk SSDs lock up hard with NCQ enabled.  Reported on
+-	   SD7SN6S256G and SD8SN8U256G */
+-	{ "SanDisk SD[78]SN*G",	NULL,		ATA_HORKAGE_NONCQ, },
++	/* Sandisk SD7/8/9s lock up hard on large trims */
++	{ "SanDisk SD[789]*",	NULL,		ATA_HORKAGE_MAX_TRIM_128M, },
+ 
+ 	/* devices which puke on READ_NATIVE_MAX */
+ 	{ "HDS724040KLSA80",	"KFAOA20N",	ATA_HORKAGE_BROKEN_HPA, },
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -2374,6 +2374,7 @@ static unsigned int ata_scsiop_inq_89(st
+ 
+ static unsigned int ata_scsiop_inq_b0(struct ata_scsi_args *args, u8 *rbuf)
+ {
++	struct ata_device *dev = args->dev;
+ 	u16 min_io_sectors;
+ 
+ 	rbuf[1] = 0xb0;
+@@ -2399,7 +2400,12 @@ static unsigned int ata_scsiop_inq_b0(st
+ 	 * with the unmap bit set.
+ 	 */
+ 	if (ata_id_has_trim(args->id)) {
+-		put_unaligned_be64(65535 * ATA_MAX_TRIM_RNUM, &rbuf[36]);
++		u64 max_blocks = 65535 * ATA_MAX_TRIM_RNUM;
++
++		if (dev->horkage & ATA_HORKAGE_MAX_TRIM_128M)
++			max_blocks = 128 << (20 - SECTOR_SHIFT);
++
++		put_unaligned_be64(max_blocks, &rbuf[36]);
+ 		put_unaligned_be32(1, &rbuf[28]);
+ 	}
+ 
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -422,6 +422,7 @@ enum {
+ 	ATA_HORKAGE_NO_DMA_LOG	= (1 << 23),	/* don't use DMA for log read */
+ 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
+ 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
++	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
 
 
