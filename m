@@ -2,80 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACB926215F
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 22:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478C82621FA
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 23:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730178AbgIHUt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 16:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726434AbgIHUt5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 16:49:57 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37471C061573
-        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 13:49:57 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id 60so421024otw.3
-        for <stable@vger.kernel.org>; Tue, 08 Sep 2020 13:49:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xoSQAwVM8O1hGcY9QbkiTZZ+wX5qFR4tgBBCr4zK6gc=;
-        b=G4q9KXsoVWjFo1yfWah0XOvDMKKhbO6/pYmh3TuTkdj2y3H0X2x9mToCv9vPUQEMzi
-         +yX6E5wgORsLlIgUM+Hlv916qks9eP6hUwYTwsb1oyDvxDdxz1qQEcItmYY95XZkQx0Y
-         oz91YkTKLsUW4S2+hZdvRZJqyZWtRTachOcyM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xoSQAwVM8O1hGcY9QbkiTZZ+wX5qFR4tgBBCr4zK6gc=;
-        b=q9t2AB9j5bfts1TZPKJRUTejhDakF1MrmyDG6njPrOIPwghGWYm1RVmGLrw7TRvv8E
-         cMHs7OBU9Yymfg9U0EpFayRdk0uFzn5fuBiHiLz6WdJQMkSPSX/iql837MUaiPXX9l0E
-         QkObEBHkw0pLPlITwnwFtMfIsdoNLscDV96xxr1Q/5ZsSauE38dpxJDIrSAhUwQcNu1e
-         HNgyPvRRinokMQzueveKxOA63pO5LNHivJcWgZygSpSUTkkiB48nK4pQsVCxuQ+wV3ym
-         EAdYm/xZHUm/knaHaZcDkZ+Cjz6Q96PfODYGlUZi8KhSI8hOtw/x7Gd39PULXwYjL9QD
-         WnPQ==
-X-Gm-Message-State: AOAM530McJOdp51HR5X4G6daq1FwGNLOgQIXbvjR3kgawNnoNrFrqkGi
-        Z8oQx02zrBNGxM60tH9UdNLdbuqBu+4jsKnc3PXhuA==
-X-Google-Smtp-Source: ABdhPJyJt9Rt0B4lyD0AkxF+1Ro4wJ/4KYHDHCEMfBW/IpC3QiRIiciKIY9vSc/SBpKtIDWuU/abMl9huChAFCRJMTc=
-X-Received: by 2002:a9d:908:: with SMTP id 8mr671619otp.356.1599598196384;
- Tue, 08 Sep 2020 13:49:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200908152221.082184905@linuxfoundation.org> <20200908152222.792503974@linuxfoundation.org>
- <20200908194723.GB6758@duo.ucw.cz>
-In-Reply-To: <20200908194723.GB6758@duo.ucw.cz>
-From:   Edwin Peer <edwin.peer@broadcom.com>
-Date:   Tue, 8 Sep 2020 13:49:20 -0700
-Message-ID: <CAKOOJTzmLvd15tbRd+hzkWnmU3MyWyLTuOoB8-x9j7RLC51KfA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 34/88] bnxt_en: fix HWRM error when querying VF temperature
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Marc Smith <msmith626@gmail.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        id S1726591AbgIHVfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 17:35:37 -0400
+Received: from dispatch1-us1.ppe-hosted.com ([67.231.154.164]:43482 "EHLO
+        dispatch1-us1.ppe-hosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726490AbgIHVff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 17:35:35 -0400
+Received: from mx1-us1.ppe-hosted.com (unknown [10.110.50.143])
+        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 407E8200C8;
+        Tue,  8 Sep 2020 21:35:33 +0000 (UTC)
+Received: from us4-mdac16-57.at1.mdlocal (unknown [10.110.50.149])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 3E7538009B;
+        Tue,  8 Sep 2020 21:35:33 +0000 (UTC)
+X-Virus-Scanned: Proofpoint Essentials engine
+Received: from mx1-us1.ppe-hosted.com (unknown [10.110.49.6])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id C04CC40072;
+        Tue,  8 Sep 2020 21:35:32 +0000 (UTC)
+Received: from webmail.solarflare.com (uk.solarflare.com [193.34.186.16])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 7ED40B00080;
+        Tue,  8 Sep 2020 21:35:32 +0000 (UTC)
+Received: from [10.17.20.203] (10.17.20.203) by ukex01.SolarFlarecom.com
+ (10.17.10.4) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 8 Sep 2020
+ 22:35:25 +0100
+Subject: Re: [PATCH 5.4 086/129] net: core: use listified Rx for GRO_NORMAL in
+ napi_gro_receive()
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, Alexander Lobakin <alobakin@dlink.ru>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Hyunsoon Kim <h10.kim@samsung.com>
+References: <20200908152229.689878733@linuxfoundation.org>
+ <20200908152234.000867723@linuxfoundation.org>
+From:   Edward Cree <ecree@solarflare.com>
+Message-ID: <70529b6c-7b00-d760-c0c0-42f0ea5784f3@solarflare.com>
+Date:   Tue, 8 Sep 2020 22:35:22 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <20200908152234.000867723@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-GB
+X-Originating-IP: [10.17.20.203]
+X-ClientProxiedBy: ocex03.SolarFlarecom.com (10.20.40.36) To
+ ukex01.SolarFlarecom.com (10.17.10.4)
+X-TM-AS-Product-Ver: SMEX-12.5.0.1300-8.6.1012-25652.007
+X-TM-AS-Result: No-1.974400-8.000000-10
+X-TMASE-MatchedRID: zGP2F0O7j/v4ECMHJTM/ufZvT2zYoYOwC/ExpXrHizwZFDQxUvPcmL6Y
+        VRYkPkYCSCF6HRRH3gIN25tj8sME0lpGtZpuPG16tKV49RpAH3tOxMIe1e/Q+lT4wXE1Q3+tocP
+        Vrs+9l2WrarPPtIvi4uYoVJQ9TcQivz6xGurTfloBnSWdyp4eoWgU1o1xV13fYcgF3TR2TfI5pz
+        FMSqNkwrysmJ3Ri+UacaFM17gO4IyR9GF2J2xqM4MbH85DUZXyseWplitmp0j6C0ePs7A07Sib6
+        hcH39TzeqiyYsWDasnfZjOmAfXU7ARUs+MuSyMTpgHjzELc15CjObMcXmcytw5LZNIb/Wv0bMa8
+        YIGFldTr/ToUHXs83CgS77Whwf5LUdNvZjjOj9C63BPMcrcQuXeYWV2RaAfD8VsfdwUmMsnAvpL
+        E+mvX8g==
+X-TM-AS-User-Approved-Sender: Yes
+X-TM-AS-User-Blocked-Sender: No
+X-TMASE-Result: 10--1.974400-8.000000
+X-TMASE-Version: SMEX-12.5.0.1300-8.6.1012-25652.007
+X-MDID: 1599600933-oajcFjSGPQmL
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 8, 2020 at 12:47 PM Pavel Machek <pavel@denx.de> wrote:
-
-> > +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-> > @@ -6836,16 +6836,19 @@ static ssize_t bnxt_show_temp(struct device *dev,
-> ...
-> > -     return sprintf(buf, "%u\n", temp);
-> > +     if (len)
-> > +             return len;
-> > +
-> > +     return sprintf(buf, "unknown\n");
-> >  }
+On 08/09/2020 16:25, Greg Kroah-Hartman wrote:
+> From: Alexander Lobakin <alobakin@dlink.ru>
 >
-> We normally just do return -EIO (or other error code) in such cases.
+> commit 6570bc79c0dfff0f228b7afd2de720fb4e84d61d upstream.
+>
+> Commit 323ebb61e32b4 ("net: use listified RX for handling GRO_NORMAL
+> skbs") made use of listified skb processing for the users of
+> napi_gro_frags().
+> The same technique can be used in a way more common napi_gro_receive()
+> to speed up non-merged (GRO_NORMAL) skbs for a wide range of drivers
+> including gro_cells and mac80211 users.
+> This slightly changes the return value in cases where skb is being
+> dropped by the core stack, but it seems to have no impact on related
+> drivers' functionality.
+> gro_normal_batch is left untouched as it's very individual for every
+> single system configuration and might be tuned in manual order to
+> achieve an optimal performance.
+>
+> Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+> Acked-by: Edward Cree <ecree@solarflare.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Hyunsoon Kim <h10.kim@samsung.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I'm not quite sure why this is stable material(it's a performance
+ enhancement, rather than a fix).  But if you do want to take it,
+ make sure you've also got
+c80794323e82 ("net: Fix packet reordering caused by GRO and listified RX cooperation")
+b167191e2a85 ("net: wireless: intel: iwlwifi: fix GRO_NORMAL packet stalling")
+ in your tree, particularly the latter as without it this commit
+ triggers a severe regression in iwlwifi.
 
-That does seem more appropriate. I will fix it, thank you.
-
-Regards,
-Edwin Peer
+-ed
