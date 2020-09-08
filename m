@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05E6261EF8
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15301261EFF
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732512AbgIHT5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
+        id S1730552AbgIHT57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730552AbgIHPfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730554AbgIHPfu (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:35:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3276E2256B;
-        Tue,  8 Sep 2020 15:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86E8E22574;
+        Tue,  8 Sep 2020 15:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579308;
-        bh=1EUNTz1A1r0KvF51vxWoUiWimGOeA2XSyupkEDGyzRA=;
+        s=default; t=1599579311;
+        bh=x2ZL+9z3yoSFuBrSRbMbhuMdewZjuNnz87joNEjtnKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzR50uws6mQbvkYNxiI30E7yTbtIjjwu2w0aJ8iKCf6ZEBCKx0c78XLNtMgHLah/S
-         GPzGoSL38gK5t4YKBmbT0j2nBpBVpZuZqVFyyEIYQcsXx2mIUVidHXvI0hCNWX7Zhm
-         l1bQ15kLFQMfU9+zWy/4RWasW2ylVIpRkIDvkq1c=
+        b=nEwdlOp55irkDpVXzVxRSBrLbgdBgxtEY2TnGjziiXcOIogy2Y8McUN1E9pOFT+XN
+         Td7DMctcsmesQ6v7HoKKpD88DqO6E8fRi/3FnaqCyTvEV80zC0F7G0VguGHmfk5nMi
+         XVMuzfjlP6Cd4elazCP284ltH0CoEKga3lBBBaa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 024/186] drm/omap: fix incorrect lock state
-Date:   Tue,  8 Sep 2020 17:22:46 +0200
-Message-Id: <20200908152242.827276905@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 025/186] irqchip/ingenic: Leave parent IRQ unmasked on suspend
+Date:   Tue,  8 Sep 2020 17:22:47 +0200
+Message-Id: <20200908152242.875259657@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,73 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 7fd5b25499bcec157dd4de9a713425efcf4571cd ]
+[ Upstream commit 821fc9e261f3af235752f46e59084467cfd440c4 ]
 
-After commit 92cc68e35863c1c61c449efa2b2daef6e9926048 ("drm/vblank: Use
-spin_(un)lock_irq() in drm_crtc_vblank_on()") omapdrm locking is broken:
+All the wakeup sources we possibly want will go through the interrupt
+controller, so the parent IRQ must not be masked during suspend, or
+there won't be any way to wake up the system.
 
-WARNING: inconsistent lock state
-5.8.0-rc2-00483-g92cc68e35863 #13 Tainted: G        W
---------------------------------
-inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-W} usage.
-swapper/0/0 [HC1[1]:SC0[0]:HE0:SE1] takes:
-ea98222c (&dev->event_lock#2){?.+.}-{2:2}, at: drm_handle_vblank+0x4c/0x520 [drm]
-{HARDIRQ-ON-W} state was registered at:
-  trace_hardirqs_on+0x9c/0x1ec
-  _raw_spin_unlock_irq+0x20/0x58
-  omap_crtc_atomic_enable+0x54/0xa0 [omapdrm]
-  drm_atomic_helper_commit_modeset_enables+0x218/0x270 [drm_kms_helper]
-  omap_atomic_commit_tail+0x48/0xc4 [omapdrm]
-  commit_tail+0x9c/0x190 [drm_kms_helper]
-  drm_atomic_helper_commit+0x154/0x188 [drm_kms_helper]
-  drm_client_modeset_commit_atomic+0x228/0x268 [drm]
-  drm_client_modeset_commit_locked+0x60/0x1d0 [drm]
-  drm_client_modeset_commit+0x24/0x40 [drm]
-  drm_fb_helper_restore_fbdev_mode_unlocked+0x54/0xa8 [drm_kms_helper]
-  drm_fb_helper_set_par+0x2c/0x5c [drm_kms_helper]
-  drm_fb_helper_hotplug_event.part.0+0xa0/0xbc [drm_kms_helper]
-  drm_kms_helper_hotplug_event+0x24/0x30 [drm_kms_helper]
-  output_poll_execute+0x1a8/0x1c0 [drm_kms_helper]
-  process_one_work+0x268/0x800
-  worker_thread+0x30/0x4e0
-  kthread+0x164/0x190
-  ret_from_fork+0x14/0x20
-
-The reason for this is that omapdrm calls drm_crtc_vblank_on() while
-holding event_lock taken with spin_lock_irq().
-
-It is not clear why drm_crtc_vblank_on() and drm_crtc_vblank_get() are
-called while holding event_lock. I don't see any problem with moving
-those calls outside the lock, which is what this patch does.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200819103021.440288-1-tomi.valkeinen@ti.com
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200819180602.136969-1-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/omap_crtc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-ingenic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
-index 6d40914675dad..328a4a74f534e 100644
---- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-+++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-@@ -451,11 +451,12 @@ static void omap_crtc_atomic_enable(struct drm_crtc *crtc,
- 	if (omap_state->manually_updated)
- 		return;
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index 9f3da4260ca65..b61a8901ef722 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -125,7 +125,7 @@ static int __init ingenic_intc_of_init(struct device_node *node,
+ 		irq_reg_writel(gc, IRQ_MSK(32), JZ_REG_INTC_SET_MASK);
+ 	}
  
--	spin_lock_irq(&crtc->dev->event_lock);
- 	drm_crtc_vblank_on(crtc);
-+
- 	ret = drm_crtc_vblank_get(crtc);
- 	WARN_ON(ret != 0);
- 
-+	spin_lock_irq(&crtc->dev->event_lock);
- 	omap_crtc_arm_event(crtc);
- 	spin_unlock_irq(&crtc->dev->event_lock);
- }
+-	if (request_irq(parent_irq, intc_cascade, 0,
++	if (request_irq(parent_irq, intc_cascade, IRQF_NO_SUSPEND,
+ 			"SoC intc cascade interrupt", NULL))
+ 		pr_err("Failed to register SoC intc cascade interrupt\n");
+ 	return 0;
 -- 
 2.25.1
 
