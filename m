@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFE42618A6
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5005E2618B0
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731955AbgIHR6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
+        id S1732184AbgIHR7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:59:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731233AbgIHQM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:12:27 -0400
+        id S1731546AbgIHQM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:12:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5C1E247DB;
-        Tue,  8 Sep 2020 15:51:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AFDD247E7;
+        Tue,  8 Sep 2020 15:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580296;
-        bh=LEXzpf0Yr1MJMeyZOqHXNeywTob//8NuwXE8+HwZI8o=;
+        s=default; t=1599580298;
+        bh=yFj9wFJzRYj+I4nblJ/YqFf6MOl/OYX7fko2fanX+cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpsCUYKdm0jF8SJb/dCoRrjom57YFYzFP7EKGWaHZdDrU+bTJEt10IMg3G0pPBXHk
-         ehf0XAAVuRue1r4etvAWph3EIhVcrXiYTPzTiUboJbICwPJtmdIOcw7QlzBhuWmCSE
-         RTl+4UBtPbVVSXdMcaYWtH8vTfO26QJvIpPfPpAk=
+        b=NUOnsSsL0mP7Cq6Few3Pp6Bjw9NqeElvXdHLGn/U4xZ4Xgp34H6rDYS7n0JUUJA1a
+         DEj7E8rtNX6nueCotrYgdCixSScwjGB0U2ydS6ArR3Q+OCN2KyzTPsuz29x4NQhZUu
+         x8i57rOWfBbgWSeHNbo8PL/R4ZFrBQCDaDK1e4RU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Marco Elver <elver@google.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/65] cpuidle: Fixup IRQ state
-Date:   Tue,  8 Sep 2020 17:25:53 +0200
-Message-Id: <20200908152217.457938642@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 09/65] s390: dont trace preemption in percpu macros
+Date:   Tue,  8 Sep 2020 17:25:54 +0200
+Message-Id: <20200908152217.506108579@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -47,37 +44,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 49d9c5936314e44d314c605c39cce0fd947f9c3a ]
+[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
 
-Match the pattern elsewhere in this file.
+Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
+to per-cpu variables") the lockdep code itself uses percpu variables. This
+leads to recursions because the percpu macros are calling preempt_enable()
+which might call trace_preempt_on().
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Marco Elver <elver@google.com>
-Link: https://lkml.kernel.org/r/20200821085348.251340558@infradead.org
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
-index ed4df58a855e1..da9eb38d79d9c 100644
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -144,7 +144,8 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
- 	 */
- 	stop_critical_timings();
- 	drv->states[index].enter_s2idle(dev, drv, index);
--	WARN_ON(!irqs_disabled());
-+	if (WARN_ON_ONCE(!irqs_disabled()))
-+		local_irq_disable();
- 	/*
- 	 * timekeeping_resume() that will be called by tick_unfreeze() for the
- 	 * first CPU executing it calls functions containing RCU read-side
+diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
+index 0095ddb58ff69..50f6661ba5664 100644
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -29,7 +29,7 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ old__, new__, prev__;				\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	prev__ = *ptr__;						\
+ 	do {								\
+@@ -37,7 +37,7 @@
+ 		new__ = old__ op (val);					\
+ 		prev__ = cmpxchg(ptr__, old__, new__);			\
+ 	} while (prev__ != old__);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	new__;								\
+ })
+ 
+@@ -68,7 +68,7 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
+ 	if (__builtin_constant_p(val__) &&				\
+ 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
+@@ -84,7 +84,7 @@
+ 			: [val__] "d" (val__)				\
+ 			: "cc");					\
+ 	}								\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ }
+ 
+ #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
+@@ -95,14 +95,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();						\
+ 	old__ + val__;							\
+ })
+ 
+@@ -114,14 +114,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ }
+ 
+ #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
+@@ -136,10 +136,10 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ ret__;						\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = cmpxchg(ptr__, oval, nval);				\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
+@@ -152,10 +152,10 @@
+ ({									\
+ 	typeof(pcp) *ptr__;						\
+ 	typeof(pcp) ret__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = xchg(ptr__, nval);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
+@@ -171,11 +171,11 @@
+ 	typeof(pcp1) *p1__;						\
+ 	typeof(pcp2) *p2__;						\
+ 	int ret__;							\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	p1__ = raw_cpu_ptr(&(pcp1));					\
+ 	p2__ = raw_cpu_ptr(&(pcp2));					\
+ 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
 -- 
 2.25.1
 
