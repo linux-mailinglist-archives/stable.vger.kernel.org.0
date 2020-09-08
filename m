@@ -2,126 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13937261FB6
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 22:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53FD261FBD
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 22:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbgIHUGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 16:06:07 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45329 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730356AbgIHPVx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 11:21:53 -0400
+        id S1730206AbgIHUGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 16:06:13 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37479 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729912AbgIHPVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 11:21:42 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id DF4013A7;
-        Tue,  8 Sep 2020 08:36:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 08 Sep 2020 08:36:18 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 2DA495C01DD;
+        Tue,  8 Sep 2020 09:14:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 08 Sep 2020 09:14:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=2qA2WwVOYTJ/JKgn5QKD5CyblkA
+        Y4zDi6p6kW5fywlg=; b=mxduW+tKdNbTwHGOez6fvBmNdK7lYsPlETKXUYK+v0d
+        DAqiNaftey51UE9+y8s2tlTgdQm6lZ+E2Eapz1PadTBE5V7wVIB1rmOMhr3u/wRg
+        k8sMg3dyI1+h3ai0d2oktWKn82SBsBTs91S7b2l2Eb7ree0QUphWqhvBrnbvmxVj
+        ymuNsu2nZAic2eSJsNdW/BMLPpfSJWkx7D7azTl13nf5tZP8BhIyHzGx+9rNVj76
+        FYW8FIA8gYkT49qXa0cwsgieFZaD8GnSrn+5dHZhE0pVjCe420iT0DEMXvGp+JHC
+        wcXrs570996TW7f9gGbdmIYbFAYnrQjsk32PijApKNw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Ni13fB
-        1iW6o8bCI0xHQDN2lGlA6wTEiSQMdQuHroRrc=; b=bXCms11ACZegYZ/Fayj9kD
-        /wUgffYpmKP+Hy3qcsGCS1IiHgSxBZPyauY7+0ZBnb1AtZCFwHstEjguDhju/UZ1
-        w4bMwhps8bBWIM6aHDSgH33j3yiQuZQvdPC+l7s0HndaQz1K3ItF/OzxXJEctt+A
-        tYk2cIPtZ6c1CmJMXYedcIKlCTPH4ZUVaaKHj1LNHHrsIfei8GTmaYq31Dh3YGlw
-        EPgmffmhJsvj+TKSmoVrDMWd571lMvUcUhti0UVNBven2gkMI66Fwu3VXw1yo+pC
-        ePWG3DMjmTHNxdYBfl5/E2yf57AEu0DOUlXb8v6suKxkcMPyW3vuHokqcq/RkB/w
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2qA2Ww
+        VOYTJ/JKgn5QKD5CyblkAY4zDi6p6kW5fywlg=; b=nWMyEuJgtvi9DoGOOMxMy+
+        qEw0JY2SUat/yVPxd8xQE51TxRYsZoRQSnqNFvfxmnyhzdPrIP09IJOL7uV2S6il
+        6qvoP0/w+WikPlbN6OF2EEIkrtXPzQmzSqSK7YLVXnUNBblfJGDM5aF9G6bYQiF2
+        0CAfPjjEjj1cBnErOBKgkctZ6kidXMSlvyhjBBM765tls3qVDLpFth9Jl4iRwf3C
+        VvP3ssIcgSoydmVTNVc8umCCu71u/WKlWgfos8clTitkhupppt4o5M6SgpxL/g77
+        vAfRKvlLrWm4BkYg5+OPg1omN7jC/zAOaj2tBV14BlLsEeGJUiDuajOkmegFoIBA
         ==
-X-ME-Sender: <xms:wXpXXzFWl16f0E1gBY2mWt0tvf-qMWNvj8yAIx7bQ4DcycSq6kVHxg>
-    <xme:wXpXXwXVAXnx6Ix7xNjjxRMRX8PEifefqgam-Heq6yLuZ0wuJd4XJNKE0Tc_t1R3K
-    vtRs08emx_PnA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedgfeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:l4NXX3vqohG3EZ5yDEt8v2s7qofZANuz7VjTraUCdNMR8F4EaQotPA>
+    <xme:l4NXX4d0YvyzxYRfkSfPKAi9Lkk2l-WU5VJCGtu9aUsAGAtOJhKFfNicA8TRxCTRt
+    _vfIy7P66cGmg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehfedggeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:wXpXX1KJJtnoi1fAVrKPIK78kpdGFFr6HmUWfBcdLP2exJYItf8pRA>
-    <xmx:wXpXXxGQQw2ZsEkoJa7ymkrjRR0JHZpk2oA21LPSepoM1ReNQAahDg>
-    <xmx:wXpXX5VhIyMYDAuvcbSCVc26k_2wW4WjbdbmGL9mh_FcrcNl6Eh8Pg>
-    <xmx:wXpXX7KpukyMGuMLFp5EIAwq7nHT8qudWzGoAg7fuIyqiE45_nS0qE_FacM>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:l4NXX6w_cWBcc0e0yQLJySA_F8eraGM5r9132rc_8GNVvYc6jQ6cMg>
+    <xmx:l4NXX2MQ4O7mD-IhxfOvGrv4WyL2fYIA9k8p3ZKm77u2Rl__U8bBDw>
+    <xmx:l4NXX3-wpzWVirztDz6qHU83Ak7Mf0t7QnB7118vApgvmyeXBJICJw>
+    <xmx:mINXX5KuYjF0XQTuSZ07ayQ_96_Iw9llbcONc3npn4rU02npOoeN6w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 27F0B306467D;
-        Tue,  8 Sep 2020 08:36:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Clear the repeater bit on HDCP disable" failed to apply to 4.19-stable tree
-To:     seanpaul@chromium.org, chris@chris-wilson.co.uk,
-        daniel.vetter@ffwll.ch, jani.nikula@intel.com,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        ramalingam.c@intel.com, rodrigo.vivi@intel.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Sep 2020 14:36:30 +0200
-Message-ID: <15995685902343@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 622523280065;
+        Tue,  8 Sep 2020 09:13:59 -0400 (EDT)
+Date:   Tue, 8 Sep 2020 15:14:12 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Andre Przywara <andre.przywara@arm.com>
+Cc:     stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH stable v4.19 0/4] KVM: arm64: Fix AT instruction handling
+Message-ID: <20200908131412.GA3173498@kroah.com>
+References: <20200902100821.149574-1-andre.przywara@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200902100821.149574-1-andre.przywara@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 02, 2020 at 11:08:17AM +0100, Andre Przywara wrote:
+> In some architectural corner cases, AT instructions can generate an
+> exception, which KVM is not really ready to handle properly.
+> Teach the code to handle this situation gracefully.
+> 
+> This is a backport of the respective upstream patches to v4.19(.142).
+> James prepared and tested these already, but we were lacking the upstream
+> commit IDs so far.
+> I am sending this on his behalf, since he is off this week.
+> 
+> The original patches contained stable tags, but with a prerequisite
+> patch in v5.3. Patch 2/4 is a backport of this one, patches 1/4 and 3/4
+> needed some massaging to apply and work on 4.19.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 57537b4e1d37002ed8cbd0a9be082104749e9d8f Mon Sep 17 00:00:00 2001
-From: Sean Paul <seanpaul@chromium.org>
-Date: Tue, 18 Aug 2020 11:38:50 -0400
-Subject: [PATCH] drm/i915: Clear the repeater bit on HDCP disable
-
-On HDCP disable, clear the repeater bit. This ensures if we connect a
-non-repeater sink after a repeater, the bit is in the state we expect.
-
-Fixes: ee5e5e7a5e0f ("drm/i915: Add HDCP framework + base implementation")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.17+
-Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Ramalingam C <ramalingam.c@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200818153910.27894-3-sean@poorly.run
-(cherry picked from commit 2cc0c7b520bf8ea20ec42285d4e3d37b467eb7f9)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
-index 6189b7583277..1a0d49af2a08 100644
---- a/drivers/gpu/drm/i915/display/intel_hdcp.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
-@@ -795,6 +795,7 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 	struct intel_hdcp *hdcp = &connector->hdcp;
- 	enum port port = dig_port->base.port;
- 	enum transcoder cpu_transcoder = hdcp->cpu_transcoder;
-+	u32 repeater_ctl;
- 	int ret;
- 
- 	drm_dbg_kms(&dev_priv->drm, "[%s:%d] HDCP is being disabled...\n",
-@@ -810,6 +811,11 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 		return -ETIMEDOUT;
- 	}
- 
-+	repeater_ctl = intel_hdcp_get_repeater_ctl(dev_priv, cpu_transcoder,
-+						   port);
-+	intel_de_write(dev_priv, HDCP_REP_CTL,
-+		       intel_de_read(dev_priv, HDCP_REP_CTL) & ~repeater_ctl);
-+
- 	ret = hdcp->shim->toggle_signalling(dig_port, false);
- 	if (ret) {
- 		drm_err(&dev_priv->drm, "Failed to disable HDCP signalling\n");
-
