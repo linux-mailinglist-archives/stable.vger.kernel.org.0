@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B804626190E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407CA2619FB
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731602AbgIHSGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
+        id S1731568AbgIHS2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731531AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:12:10 -0400
+        id S1731398AbgIHQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A011247D4;
-        Tue,  8 Sep 2020 15:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E377524691;
+        Tue,  8 Sep 2020 15:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580291;
-        bh=eQe1wYGLHkgxe6Ouy//U4712xeQz8re6/WlsK2ceVuQ=;
+        s=default; t=1599580226;
+        bh=MWldclkLT2ejU4gXw1s6mzAyfj9BbJJiTX74FrTI57g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+wRlImRNKLDhI9HWjUYdgpHxWtvcBYhxXt6PRIe4n4M5WKpp+1M/CAeVRjid7fJ3
-         QpNtvsmMNqpDRiUs2qQevFE+ogOkD7efbvTomwRTQiEalsTAshtHtNdQL6IAW49bQe
-         x1EbutwVzhntQpVq0FOsZvK9/YLHM7Z3lJxYoKfg=
+        b=gfFrKDDEmwukjOs73bhZmLVJzOH5YLoGJCJfOD3japPcr7QagkoabHYi62CdX+jBb
+         0W33eFJAMMmFAf1VBruOWsgueHXvQu26t5/4Nct1SgbnVfSs66O+pzsJTY2qBNONgf
+         Gu/jhCn0Nu1+8AYV/Q7psuvtRbaf3D/g5Y2Uo7MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/65] nvmet: Disable keep-alive timer when kato is cleared to 0h
-Date:   Tue,  8 Sep 2020 17:25:51 +0200
-Message-Id: <20200908152217.351593528@linuxfoundation.org>
+Subject: [PATCH 4.19 51/88] include/linux/log2.h: add missing () around n in roundup_pow_of_two()
+Date:   Tue,  8 Sep 2020 17:25:52 +0200
+Message-Id: <20200908152223.678299437@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
-References: <20200908152217.022816723@linuxfoundation.org>
+In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
+References: <20200908152221.082184905@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <amit.engel@dell.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 0d3b6a8d213a30387b5104b2fb25376d18636f23 ]
+[ Upstream commit 428fc0aff4e59399ec719ffcc1f7a5d29a4ee476 ]
 
-Based on nvme spec, when keep alive timeout is set to zero
-the keep-alive timer should be disabled.
+Otherwise gcc generates warnings if the expression is complicated.
 
-Signed-off-by: Amit Engel <amit.engel@dell.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 312a0c170945 ("[PATCH] LOG2: Alter roundup_pow_of_two() so that it can use a ilog2() on a constant")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lkml.kernel.org/r/0-v1-8a2697e3c003+41165-log_brackets_jgg@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/log2.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 09a39f4aaf821..d0be85d0c289a 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -208,6 +208,9 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
- 
- static void nvmet_start_keep_alive_timer(struct nvmet_ctrl *ctrl)
- {
-+	if (unlikely(ctrl->kato == 0))
-+		return;
-+
- 	pr_debug("ctrl %d start keep-alive timer for %d secs\n",
- 		ctrl->cntlid, ctrl->kato);
- 
-@@ -217,6 +220,9 @@ static void nvmet_start_keep_alive_timer(struct nvmet_ctrl *ctrl)
- 
- static void nvmet_stop_keep_alive_timer(struct nvmet_ctrl *ctrl)
- {
-+	if (unlikely(ctrl->kato == 0))
-+		return;
-+
- 	pr_debug("ctrl %d stop keep-alive\n", ctrl->cntlid);
- 
- 	cancel_delayed_work_sync(&ctrl->ka_work);
+diff --git a/include/linux/log2.h b/include/linux/log2.h
+index 2af7f77866d03..78496801cddf0 100644
+--- a/include/linux/log2.h
++++ b/include/linux/log2.h
+@@ -177,7 +177,7 @@ unsigned long __rounddown_pow_of_two(unsigned long n)
+ #define roundup_pow_of_two(n)			\
+ (						\
+ 	__builtin_constant_p(n) ? (		\
+-		(n == 1) ? 1 :			\
++		((n) == 1) ? 1 :		\
+ 		(1UL << (ilog2((n) - 1) + 1))	\
+ 				   ) :		\
+ 	__roundup_pow_of_two(n)			\
 -- 
 2.25.1
 
