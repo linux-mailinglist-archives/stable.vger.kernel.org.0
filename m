@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61819261CF3
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C81261C9D
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:23:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731818AbgIHT27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
+        id S1731859AbgIHTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:23:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731048AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:00:04 -0400
+        id S1731028AbgIHQBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:01:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CFF6246F0;
-        Tue,  8 Sep 2020 15:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D8D8246F5;
+        Tue,  8 Sep 2020 15:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579626;
-        bh=8NdyMr0qdCkBqkHhbsdLzyk7q5G2WaeawI26KLzIdkE=;
+        s=default; t=1599579629;
+        bh=Ip1cd+LUYZN48wmMT0S8Ar/UPgVJ/4po2YP2C7OXg5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huTy24YQU8zcGoPGUQoPScqVn8Op+wxuPAAXxrrrOMdq8I7m+aGqRopuaj5za5GRr
-         2PP023RefNpy24tKPLzo8NYTG4V4EhAxCwTfLoPc5X9NsoBfSOuMv0KfM+f6b0AWxc
-         4Uo8QxipIVer/m447LdgLr2SsiQLpu4muxrqOQoo=
+        b=VYO5rwkwUW/iBLNxngdLkGYbhemUogpjIphgLkm5NRu5zBMOjBP5OfMolWrvyW4Tl
+         Xb+9CrDWyUy6dRmL1FooSbox332e5pZFhsUabj8KpGTLxGa1rL+y1MvmMB8AcDZjeo
+         ec93byxA7qYfWvSEmF2bfIp3HTDVNvNhIzTu4xgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.8 156/186] s390: fix GENERIC_LOCKBREAK dependency typo in Kconfig
-Date:   Tue,  8 Sep 2020 17:24:58 +0200
-Message-Id: <20200908152249.222776843@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Karthik Shivaram <karthikgs@fb.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.8 157/186] libata: implement ATA_HORKAGE_MAX_TRIM_128M and apply to Sandisks
+Date:   Tue,  8 Sep 2020 17:24:59 +0200
+Message-Id: <20200908152249.272904068@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,36 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 114b9df419bf5db097b322ebb03fcf2f502f9380 upstream.
+commit 3b5455636fe26ea21b4189d135a424a6da016418 upstream.
 
-Commit fa686453053b ("sched/rt, s390: Use CONFIG_PREEMPTION")
-changed a bunch of uses of CONFIG_PREEMPT to _PREEMPTION.
-Except in the Kconfig it used two T's. That's the only place
-in the system where that spelling exists, so let's fix that.
+All three generations of Sandisk SSDs lock up hard intermittently.
+Experiments showed that disabling NCQ lowered the failure rate significantly
+and the kernel has been disabling NCQ for some models of SD7's and 8's,
+which is obviously undesirable.
 
-Fixes: fa686453053b ("sched/rt, s390: Use CONFIG_PREEMPTION")
-Cc: <stable@vger.kernel.org> # 5.6
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Karthik worked with Sandisk to root cause the hard lockups to trim commands
+larger than 128M. This patch implements ATA_HORKAGE_MAX_TRIM_128M which
+limits max trim size to 128M and applies it to all three generations of
+Sandisk SSDs.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Karthik Shivaram <karthikgs@fb.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-core.c |    5 ++---
+ drivers/ata/libata-scsi.c |    8 +++++++-
+ include/linux/libata.h    |    1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -30,7 +30,7 @@ config GENERIC_BUG_RELATIVE_POINTERS
- 	def_bool y
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3868,9 +3868,8 @@ static const struct ata_blacklist_entry
+ 	/* https://bugzilla.kernel.org/show_bug.cgi?id=15573 */
+ 	{ "C300-CTFDDAC128MAG",	"0001",		ATA_HORKAGE_NONCQ, },
  
- config GENERIC_LOCKBREAK
--	def_bool y if PREEMPTTION
-+	def_bool y if PREEMPTION
+-	/* Some Sandisk SSDs lock up hard with NCQ enabled.  Reported on
+-	   SD7SN6S256G and SD8SN8U256G */
+-	{ "SanDisk SD[78]SN*G",	NULL,		ATA_HORKAGE_NONCQ, },
++	/* Sandisk SD7/8/9s lock up hard on large trims */
++	{ "SanDisk SD[789]*",	NULL,		ATA_HORKAGE_MAX_TRIM_128M, },
  
- config PGSTE
- 	def_bool y if KVM
+ 	/* devices which puke on READ_NATIVE_MAX */
+ 	{ "HDS724040KLSA80",	"KFAOA20N",	ATA_HORKAGE_BROKEN_HPA, },
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -2080,6 +2080,7 @@ static unsigned int ata_scsiop_inq_89(st
+ 
+ static unsigned int ata_scsiop_inq_b0(struct ata_scsi_args *args, u8 *rbuf)
+ {
++	struct ata_device *dev = args->dev;
+ 	u16 min_io_sectors;
+ 
+ 	rbuf[1] = 0xb0;
+@@ -2105,7 +2106,12 @@ static unsigned int ata_scsiop_inq_b0(st
+ 	 * with the unmap bit set.
+ 	 */
+ 	if (ata_id_has_trim(args->id)) {
+-		put_unaligned_be64(65535 * ATA_MAX_TRIM_RNUM, &rbuf[36]);
++		u64 max_blocks = 65535 * ATA_MAX_TRIM_RNUM;
++
++		if (dev->horkage & ATA_HORKAGE_MAX_TRIM_128M)
++			max_blocks = 128 << (20 - SECTOR_SHIFT);
++
++		put_unaligned_be64(max_blocks, &rbuf[36]);
+ 		put_unaligned_be32(1, &rbuf[28]);
+ 	}
+ 
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -421,6 +421,7 @@ enum {
+ 	ATA_HORKAGE_NO_DMA_LOG	= (1 << 23),	/* don't use DMA for log read */
+ 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
+ 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
++	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
 
 
