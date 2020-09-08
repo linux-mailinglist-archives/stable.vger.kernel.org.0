@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E40D2618ED
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E792618FE
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:05:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbgIHSEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
+        id S1732013AbgIHSFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:05:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731520AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731528AbgIHQMK (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:12:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39F9724762;
-        Tue,  8 Sep 2020 15:50:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 382B824767;
+        Tue,  8 Sep 2020 15:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580258;
-        bh=K98OJv2GkRlivNz34fJtumK8rOF+TnINn+n3z1nP8KI=;
+        s=default; t=1599580262;
+        bh=MJAJA/fN2pD/X3JSdBk4OSXnYveTo8IA0F8VPCEkQgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycZEGvGvJXATZMaOroP/DtFEsSYuSrGh1qYNvarU7GPytliRm+ZgBmq2aVQwh4AYF
-         KyekqE9pSwEP9akgu0pMWC4SHpd/NTAzIfHPvnpb9BHtxaUPxHfLv3FZapA3FkGZY2
-         5CKOnJXb0BxvmiG6s8/8+lNjS44I4oNsIUJUsvik=
+        b=0DoL1MdyLTl4mXfdvpVUXOyTG+G0J4NY5/yBbb0LcWiucpFFQiXW0FFqdHkZRc5Bq
+         UBBZm19MwktKswLBE62cPgEasdhnJex6hyXC4N7w7K/w9P2WGtOB1Fkik0C+lHKwT0
+         Ym+oQutewvOeGK10LDsKoPtppcAYWoTUuP9FwEeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Morse <james.morse@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Andre Przywara <andre.przywara@arm.com>
-Subject: [PATCH 4.19 81/88] KVM: arm64: Defer guest entry when an asynchronous exception is pending
-Date:   Tue,  8 Sep 2020 17:26:22 +0200
-Message-Id: <20200908152225.234291269@linuxfoundation.org>
+Subject: [PATCH 4.19 82/88] KVM: arm64: Survive synchronous exceptions caused by AT instructions
+Date:   Tue,  8 Sep 2020 17:26:23 +0200
+Message-Id: <20200908152225.296499433@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -46,69 +47,136 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 5dcd0fdbb492d49dac6bf21c436dfcb5ded0a895 upstream.
+commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
 
-SError that occur during world-switch's entry to the guest will be
-accounted to the guest, as the exception is masked until we enter the
-guest... but we want to attribute the SError as precisely as possible.
+KVM doesn't expect any synchronous exceptions when executing, any such
+exception leads to a panic(). AT instructions access the guest page
+tables, and can cause a synchronous external abort to be taken.
 
-Reading DISR_EL1 before guest entry requires free registers, and using
-ESB+DISR_EL1 to consume and read back the ESR would leave KVM holding
-a host SError... We would rather leave the SError pending and let the
-host take it once we exit world-switch. To do this, we need to defer
-guest-entry if an SError is pending.
+The arm-arm is unclear on what should happen if the guest has configured
+the hardware update of the access-flag, and a memory type in TCR_EL1 that
+does not support atomic operations. B2.2.6 "Possible implementation
+restrictions on using atomic instructions" from DDI0487F.a lists
+synchronous external abort as a possible behaviour of atomic instructions
+that target memory that isn't writeback cacheable, but the page table
+walker may behave differently.
 
-Read the ISR to see if SError (or an IRQ) is pending. If so fake an
-exit. Place this check between __guest_enter()'s save of the host
-registers, and restore of the guest's. SError that occur between
-here and the eret into the guest must have affected the guest's
-registers, which we can naturally attribute to the guest.
+Make KVM robust to synchronous exceptions caused by AT instructions.
+Add a get_user() style helper for AT instructions that returns -EFAULT
+if an exception was generated.
 
-The dsb is needed to ensure any previous writes have been done before
-we read ISR_EL1. On systems without the v8.2 RAS extensions this
-doesn't give us anything as we can't contain errors, and the ESR bits
-to describe the severity are all implementation-defined. Replace
-this with a nop for these systems.
+While KVM's version of the exception table mixes synchronous and
+asynchronous exceptions, only one of these can occur at each location.
+
+Re-enter the guest when the AT instructions take an exception on the
+assumption the guest will take the same exception. This isn't guaranteed
+to make forward progress, as the AT instructions may always walk the page
+tables, but guest execution may use the translation cached in the TLB.
+
+This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
+entry when an asynchronous exception is pending"), KVM will return to the
+host to process IRQs allowing the rest of the system to keep running.
 
 Cc: stable@vger.kernel.org # v4.19
 Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/hyp/entry.S |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/arm64/include/asm/kvm_asm.h |   28 ++++++++++++++++++++++++++++
+ arch/arm64/kvm/hyp/hyp-entry.S   |   12 ++++++++++--
+ arch/arm64/kvm/hyp/switch.c      |    8 ++++----
+ 3 files changed, 42 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/kvm/hyp/entry.S
-+++ b/arch/arm64/kvm/hyp/entry.S
-@@ -17,6 +17,7 @@
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -87,6 +87,34 @@ extern u32 __init_stage2_translation(voi
+ 		*__hyp_this_cpu_ptr(sym);				\
+ 	 })
  
- #include <linux/linkage.h>
- 
-+#include <asm/alternative.h>
- #include <asm/asm-offsets.h>
- #include <asm/assembler.h>
- #include <asm/fpsimdmacros.h>
-@@ -62,6 +63,20 @@ ENTRY(__guest_enter)
- 	// Store the host regs
- 	save_callee_saved_regs x1
- 
-+	// Now the host state is stored if we have a pending RAS SError it must
-+	// affect the host. If any asynchronous exception is pending we defer
-+	// the guest entry. The DSB isn't necessary before v8.2 as any SError
-+	// would be fatal.
-+alternative_if ARM64_HAS_RAS_EXTN
-+	dsb	nshst
-+	isb
-+alternative_else_nop_endif
-+	mrs	x1, isr_el1
-+	cbz	x1,  1f
-+	mov	x0, #ARM_EXCEPTION_IRQ
-+	ret
++#define __KVM_EXTABLE(from, to)						\
++	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
++	"	.align		3\n"					\
++	"	.long		(" #from " - .), (" #to " - .)\n"	\
++	"	.popsection\n"
 +
-+1:
- 	add	x18, x0, #VCPU_CONTEXT
++
++#define __kvm_at(at_op, addr)						\
++( { 									\
++	int __kvm_at_err = 0;						\
++	u64 spsr, elr;							\
++	asm volatile(							\
++	"	mrs	%1, spsr_el2\n"					\
++	"	mrs	%2, elr_el2\n"					\
++	"1:	at	"at_op", %3\n"					\
++	"	isb\n"							\
++	"	b	9f\n"						\
++	"2:	msr	spsr_el2, %1\n"					\
++	"	msr	elr_el2, %2\n"					\
++	"	mov	%w0, %4\n"					\
++	"9:\n"								\
++	__KVM_EXTABLE(1b, 2b)						\
++	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
++	: "r" (addr), "i" (-EFAULT));					\
++	__kvm_at_err;							\
++} )
++
++
+ #else /* __ASSEMBLY__ */
  
- 	// Restore guest regs x0-x17
+ .macro hyp_adr_this_cpu reg, sym, tmp
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -186,6 +186,15 @@ el1_error:
+ 	mov	x0, #ARM_EXCEPTION_EL1_SERROR
+ 	b	__guest_exit
+ 
++el2_sync:
++	save_caller_saved_regs_vect
++	stp     x29, x30, [sp, #-16]!
++	bl	kvm_unexpected_el2_exception
++	ldp     x29, x30, [sp], #16
++	restore_caller_saved_regs_vect
++
++	eret
++
+ el2_error:
+ 	save_caller_saved_regs_vect
+ 	stp     x29, x30, [sp, #-16]!
+@@ -223,7 +232,6 @@ ENDPROC(\label)
+ 	invalid_vector	el2t_irq_invalid
+ 	invalid_vector	el2t_fiq_invalid
+ 	invalid_vector	el2t_error_invalid
+-	invalid_vector	el2h_sync_invalid
+ 	invalid_vector	el2h_irq_invalid
+ 	invalid_vector	el2h_fiq_invalid
+ 	invalid_vector	el1_fiq_invalid
+@@ -251,7 +259,7 @@ ENTRY(__kvm_hyp_vector)
+ 	invalid_vect	el2t_fiq_invalid	// FIQ EL2t
+ 	invalid_vect	el2t_error_invalid	// Error EL2t
+ 
+-	invalid_vect	el2h_sync_invalid	// Synchronous EL2h
++	valid_vect	el2_sync		// Synchronous EL2h
+ 	invalid_vect	el2h_irq_invalid	// IRQ EL2h
+ 	invalid_vect	el2h_fiq_invalid	// FIQ EL2h
+ 	valid_vect	el2_error		// Error EL2h
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -268,10 +268,10 @@ static bool __hyp_text __translate_far_t
+ 	 * saved the guest context yet, and we may return early...
+ 	 */
+ 	par = read_sysreg(par_el1);
+-	asm volatile("at s1e1r, %0" : : "r" (far));
+-	isb();
+-
+-	tmp = read_sysreg(par_el1);
++	if (!__kvm_at("s1e1r", far))
++		tmp = read_sysreg(par_el1);
++	else
++		tmp = 1; /* back to the guest */
+ 	write_sysreg(par, par_el1);
+ 
+ 	if (unlikely(tmp & 1))
 
 
