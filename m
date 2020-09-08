@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C794261718
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB1626173B
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbgIHRYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:24:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
+        id S1731760AbgIHR2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730976AbgIHQRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:17:20 -0400
+        id S1730655AbgIHQQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:16:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74E4A24829;
-        Tue,  8 Sep 2020 15:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CACC524833;
+        Tue,  8 Sep 2020 15:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579867;
-        bh=vf6uV5E11+J3SooCKztpUUMOjfYjPpiT8i5gbUY2EeI=;
+        s=default; t=1599579870;
+        bh=KzG/T3Soqo1YupOU7YWJJa7dc0wh1hTNzVJEFlGPp1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=josDkeNcWaNAz4xDK7NzPt5bEVTAkGw/FA7XdeqwxQ7J1CK5kFRCaMezRN0SiZBLA
-         vJvN7loIXonboEU9wQIs/hvstCE/CfxNsTsoIHF3tgcvvPnx8Oc70NcQB1MpatH8KK
-         JY0BBkWZ7ZqchQ2JFw8lR/8Wtbl4kwBy5oPu2DA4=
+        b=MW7d5q0R/TEYJpu+z4TfjhSx/uVsfUamiKjVaO5n14TOLeUE4RcVBWrChCsqCZqV7
+         DWVA0hMCjjG5E3Tj3qjA2m0J2zzY2Qu3Q3h6DRlPnOszQZR1CHav0wyOLU6+tEoQt1
+         TPd/ZwDsIAiD87c2RXD6Tk95iIAq0pfMRdT/csZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Christensen <drc@linux.vnet.ibm.com>,
-        Baptiste Covolato <baptiste@arista.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/129] tg3: Fix soft lockup when tg3_reset_task() fails.
-Date:   Tue,  8 Sep 2020 17:25:06 +0200
-Message-Id: <20200908152232.939879067@linuxfoundation.org>
+        stable@vger.kernel.org, "Huang, Ying" <ying.huang@intel.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 066/129] x86, fakenuma: Fix invalid starting node ID
+Date:   Tue,  8 Sep 2020 17:25:07 +0200
+Message-Id: <20200908152232.993279347@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -46,78 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Huang Ying <ying.huang@intel.com>
 
-[ Upstream commit 556699341efa98243e08e34401b3f601da91f5a3 ]
+[ Upstream commit ccae0f36d500aef727f98acd8d0601e6b262a513 ]
 
-If tg3_reset_task() fails, the device state is left in an inconsistent
-state with IFF_RUNNING still set but NAPI state not enabled.  A
-subsequent operation, such as ifdown or AER error can cause it to
-soft lock up when it tries to disable NAPI state.
+Commit:
 
-Fix it by bringing down the device to !IFF_RUNNING state when
-tg3_reset_task() fails.  tg3_reset_task() running from workqueue
-will now call tg3_close() when the reset fails.  We need to
-modify tg3_reset_task_cancel() slightly to avoid tg3_close()
-calling cancel_work_sync() to cancel tg3_reset_task().  Otherwise
-cancel_work_sync() will wait forever for tg3_reset_task() to
-finish.
+  cc9aec03e58f ("x86/numa_emulation: Introduce uniform split capability")
 
-Reported-by: David Christensen <drc@linux.vnet.ibm.com>
-Reported-by: Baptiste Covolato <baptiste@arista.com>
-Fixes: db2199737990 ("tg3: Schedule at most one tg3_reset_task run")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+uses "-1" as the starting node ID, which causes the strange kernel log as
+follows, when "numa=fake=32G" is added to the kernel command line:
+
+    Faking node -1 at [mem 0x0000000000000000-0x0000000893ffffff] (35136MB)
+    Faking node 0 at [mem 0x0000001840000000-0x000000203fffffff] (32768MB)
+    Faking node 1 at [mem 0x0000000894000000-0x000000183fffffff] (64192MB)
+    Faking node 2 at [mem 0x0000002040000000-0x000000283fffffff] (32768MB)
+    Faking node 3 at [mem 0x0000002840000000-0x000000303fffffff] (32768MB)
+
+And finally the kernel crashes:
+
+    BUG: Bad page state in process swapper  pfn:00011
+    page:(____ptrval____) refcount:0 mapcount:1 mapping:(____ptrval____) index:0x55cd7e44b270 pfn:0x11
+    failed to read mapping contents, not a valid kernel address?
+    flags: 0x5(locked|uptodate)
+    raw: 0000000000000005 000055cd7e44af30 000055cd7e44af50 0000000100000006
+    raw: 000055cd7e44b270 000055cd7e44b290 0000000000000000 000055cd7e44b510
+    page dumped because: page still charged to cgroup
+    page->mem_cgroup:000055cd7e44b510
+    Modules linked in:
+    CPU: 0 PID: 0 Comm: swapper Not tainted 5.9.0-rc2 #1
+    Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
+    Call Trace:
+     dump_stack+0x57/0x80
+     bad_page.cold+0x63/0x94
+     __free_pages_ok+0x33f/0x360
+     memblock_free_all+0x127/0x195
+     mem_init+0x23/0x1f5
+     start_kernel+0x219/0x4f5
+     secondary_startup_64+0xb6/0xc0
+
+Fix this bug via using 0 as the starting node ID.  This restores the
+original behavior before cc9aec03e58f.
+
+[ mingo: Massaged the changelog. ]
+
+Fixes: cc9aec03e58f ("x86/numa_emulation: Introduce uniform split capability")
+Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200904061047.612950-1-ying.huang@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/x86/mm/numa_emulation.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index e12ba81288e64..70bd79dc43f2e 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -7227,8 +7227,8 @@ static inline void tg3_reset_task_schedule(struct tg3 *tp)
- 
- static inline void tg3_reset_task_cancel(struct tg3 *tp)
+diff --git a/arch/x86/mm/numa_emulation.c b/arch/x86/mm/numa_emulation.c
+index abffa0be80da1..87282258d5bea 100644
+--- a/arch/x86/mm/numa_emulation.c
++++ b/arch/x86/mm/numa_emulation.c
+@@ -321,7 +321,7 @@ static int __init split_nodes_size_interleave(struct numa_meminfo *ei,
+ 					      u64 addr, u64 max_addr, u64 size)
  {
--	cancel_work_sync(&tp->reset_task);
--	tg3_flag_clear(tp, RESET_TASK_PENDING);
-+	if (test_and_clear_bit(TG3_FLAG_RESET_TASK_PENDING, tp->tg3_flags))
-+		cancel_work_sync(&tp->reset_task);
- 	tg3_flag_clear(tp, TX_RECOVERY_PENDING);
+ 	return split_nodes_size_interleave_uniform(ei, pi, addr, max_addr, size,
+-			0, NULL, NUMA_NO_NODE);
++			0, NULL, 0);
  }
  
-@@ -11219,18 +11219,27 @@ static void tg3_reset_task(struct work_struct *work)
- 
- 	tg3_halt(tp, RESET_KIND_SHUTDOWN, 0);
- 	err = tg3_init_hw(tp, true);
--	if (err)
-+	if (err) {
-+		tg3_full_unlock(tp);
-+		tp->irq_sync = 0;
-+		tg3_napi_enable(tp);
-+		/* Clear this flag so that tg3_reset_task_cancel() will not
-+		 * call cancel_work_sync() and wait forever.
-+		 */
-+		tg3_flag_clear(tp, RESET_TASK_PENDING);
-+		dev_close(tp->dev);
- 		goto out;
-+	}
- 
- 	tg3_netif_start(tp);
- 
--out:
- 	tg3_full_unlock(tp);
- 
- 	if (!err)
- 		tg3_phy_start(tp);
- 
- 	tg3_flag_clear(tp, RESET_TASK_PENDING);
-+out:
- 	rtnl_unlock();
- }
- 
+ int __init setup_emu2phys_nid(int *dfl_phys_nid)
 -- 
 2.25.1
 
