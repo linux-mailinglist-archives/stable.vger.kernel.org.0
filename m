@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD3C261C2E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5B8261C9E
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731205AbgIHTPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:15:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S1731446AbgIHTXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731179AbgIHQEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:04:45 -0400
+        id S1731092AbgIHQBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:01:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D0B23E1D;
-        Tue,  8 Sep 2020 15:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EE8E23E21;
+        Tue,  8 Sep 2020 15:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579464;
-        bh=0OpwguM5VuIK0HzhVOAJGjUbPJq9mNBmUvNdlbS1eyw=;
+        s=default; t=1599579466;
+        bh=1VUBi6fqR7yZIoBA187luCNz/xF8VTAhf9Sv8APOTzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eca0E/wwios6s6k+JvvI/LOlhtHhgsOkhR3CBEFLiMDS9KbErUBj0RNfPXOZo9ycR
-         cjARc+mPN8a0T3kE80xMFA+MS8bLw5whIGrroikjvHSfiYJLNTO2nAomBOrLJTI+IY
-         ylAxdl/y73ot8XkFewgZlwX9iNP+bD8GhRSmK8W0=
+        b=1oY9hhu4VtqkC/1hzc5b2CmP1DKl9jiNm5QWpz3gpEVc5AfYCaq8EMYNvXtVItsgk
+         aLpsc4mn3cB0x2CuUExY80QdBbJD6t3ZOO0nTSLZnJHpLyD4cvyTK3sDgVe/4//kh0
+         pV1BODINiZtwLNgLUNusysG0fW3etDz4ovzLC2Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        syzbot+6448f3c229bc52b82f69@syzkaller.appspotmail.com,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 089/186] MIPS: perf: Fix wrong check condition of Loongson event IDs
-Date:   Tue,  8 Sep 2020 17:23:51 +0200
-Message-Id: <20200908152245.958909094@linuxfoundation.org>
+Subject: [PATCH 5.8 090/186] block: fix locking in bdev_del_partition
+Date:   Tue,  8 Sep 2020 17:23:52 +0200
+Message-Id: <20200908152246.007784365@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -45,41 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit a231995700c392c0807da95deea231b23fc51a3c ]
+[ Upstream commit 08fc1ab6d748ab1a690fd483f41e2938984ce353 ]
 
-According to the user's manual chapter 8.2.1 of Loongson 3A2000 CPU [1]
-and 3A3000 CPU [2], we should take some event IDs such as 274, 358, 359
-and 360 as valid in the check condition, otherwise they are recognized
-as "not supported", fix it.
+We need to hold the whole device bd_mutex to protect against
+other thread concurrently deleting out partition before we get
+to it, and thus causing a use after free.
 
-[1] http://www.loongson.cn/uploadfile/cpu/3A2000/Loongson3A2000_user2.pdf
-[2] http://www.loongson.cn/uploadfile/cpu/3A3000/Loongson3A3000_3B3000user2.pdf
-
-Fixes: e9dfbaaeef1c ("MIPS: perf: Add hardware perf events support for new Loongson-3")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Acked-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: cddae808aeb7 ("block: pass a hd_struct to delete_partition")
+Reported-by: syzbot+6448f3c229bc52b82f69@syzkaller.appspotmail.com
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/perf_event_mipsxx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/partitions/core.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/arch/mips/kernel/perf_event_mipsxx.c b/arch/mips/kernel/perf_event_mipsxx.c
-index efce5defcc5cf..011eb6bbf81a5 100644
---- a/arch/mips/kernel/perf_event_mipsxx.c
-+++ b/arch/mips/kernel/perf_event_mipsxx.c
-@@ -1898,8 +1898,8 @@ static const struct mips_perf_event *mipsxx_pmu_map_raw_event(u64 config)
- 				(base_id >= 64 && base_id < 90) ||
- 				(base_id >= 128 && base_id < 164) ||
- 				(base_id >= 192 && base_id < 200) ||
--				(base_id >= 256 && base_id < 274) ||
--				(base_id >= 320 && base_id < 358) ||
-+				(base_id >= 256 && base_id < 275) ||
-+				(base_id >= 320 && base_id < 361) ||
- 				(base_id >= 384 && base_id < 574))
- 				break;
+diff --git a/block/partitions/core.c b/block/partitions/core.c
+index 78951e33b2d7c..534e11285a8d4 100644
+--- a/block/partitions/core.c
++++ b/block/partitions/core.c
+@@ -524,19 +524,20 @@ int bdev_add_partition(struct block_device *bdev, int partno,
+ int bdev_del_partition(struct block_device *bdev, int partno)
+ {
+ 	struct block_device *bdevp;
+-	struct hd_struct *part;
+-	int ret = 0;
+-
+-	part = disk_get_part(bdev->bd_disk, partno);
+-	if (!part)
+-		return -ENXIO;
++	struct hd_struct *part = NULL;
++	int ret;
+ 
+-	ret = -ENOMEM;
+-	bdevp = bdget(part_devt(part));
++	bdevp = bdget_disk(bdev->bd_disk, partno);
+ 	if (!bdevp)
+-		goto out_put_part;
++		return -ENOMEM;
+ 
+ 	mutex_lock(&bdevp->bd_mutex);
++	mutex_lock_nested(&bdev->bd_mutex, 1);
++
++	ret = -ENXIO;
++	part = disk_get_part(bdev->bd_disk, partno);
++	if (!part)
++		goto out_unlock;
+ 
+ 	ret = -EBUSY;
+ 	if (bdevp->bd_openers)
+@@ -545,16 +546,14 @@ int bdev_del_partition(struct block_device *bdev, int partno)
+ 	sync_blockdev(bdevp);
+ 	invalidate_bdev(bdevp);
+ 
+-	mutex_lock_nested(&bdev->bd_mutex, 1);
+ 	delete_partition(bdev->bd_disk, part);
+-	mutex_unlock(&bdev->bd_mutex);
+-
+ 	ret = 0;
+ out_unlock:
++	mutex_unlock(&bdev->bd_mutex);
+ 	mutex_unlock(&bdevp->bd_mutex);
+ 	bdput(bdevp);
+-out_put_part:
+-	disk_put_part(part);
++	if (part)
++		disk_put_part(part);
+ 	return ret;
+ }
  
 -- 
 2.25.1
