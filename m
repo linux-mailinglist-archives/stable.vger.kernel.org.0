@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1E2261C34
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D54261C3D
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731590AbgIHTPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
+        id S1731818AbgIHTQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:16:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731176AbgIHQEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:04:40 -0400
+        id S1730910AbgIHQEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:04:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB20C23CD3;
-        Tue,  8 Sep 2020 15:36:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6B7E22470;
+        Tue,  8 Sep 2020 15:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579413;
-        bh=eWXvw12jKk2fVfZJ6GFWhus/h0ADtQcj6KHW9wEg1eo=;
+        s=default; t=1599579420;
+        bh=aX/T//x1amBJx3NMDymbydpLmjyMzPOQPyzS9kFjhUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MW3WLTghdqifSltS/70TCBQqVsUQdfCRPef8GO3+ix6ScXetJLMx8BtOiDAg19Iaa
-         TdS4FFsVSvq8D2KEg0CMx91gLYnk/96UKmWlju1MoIR8/8lRhDFsUtyMIAC5gcqwqG
-         5KEdTFU2qo9avZEuX2tlvgYCl4ySoPpb8rzSGTQU=
+        b=ipcQXslFFP4gRN+9C13TkWftsAwqB0dALffIGEcFXYb9kKL85YYE8mraXeV2XskVe
+         j7GL4kloSWrDwo95wVuydpa8t7qlLel2Zt+ql6sCMpB9OUBVdmCqj0V6b0I6FLu2Zj
+         ytPEcvB5RVpYHpXX9sWDxUq4AHUumXnQ23OElIg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 067/186] bnxt_en: Dont query FW when netif_running() is false.
-Date:   Tue,  8 Sep 2020 17:23:29 +0200
-Message-Id: <20200908152244.906154725@linuxfoundation.org>
+Subject: [PATCH 5.8 070/186] bnxt_en: Fix PCI AER error recovery flow
+Date:   Tue,  8 Sep 2020 17:23:32 +0200
+Message-Id: <20200908152245.052297495@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -45,38 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit c1c2d77408022a398a1a7c51cf20488c922629de ]
+[ Upstream commit df3875ec550396974b1d8a518bd120d034738236 ]
 
-In rare conditions like two stage OS installation, the
-ethtool's get_channels function may be called when the
-device is in D3 state, leading to uncorrectable PCI error.
-Check netif_running() first before making any query to FW
-which involves writing to BAR.
+When a PCI error is detected the PCI state could be corrupt, save
+the PCI state after initialization and restore it after the slot
+reset.
 
-Fixes: db4723b3cd2d ("bnxt_en: Check max_tx_scheduler_inputs value from firmware.")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index b4aa56dc4f9fb..dcb3f61af7ab0 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -847,7 +847,7 @@ static void bnxt_get_channels(struct net_device *dev,
- 	int max_tx_sch_inputs;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 7463a1847cebd..e71a99555b4bc 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -12065,6 +12065,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		    (long)pci_resource_start(pdev, 0), dev->dev_addr);
+ 	pcie_print_link_status(pdev);
  
- 	/* Get the most up-to-date max_tx_sch_inputs. */
--	if (BNXT_NEW_RM(bp))
-+	if (netif_running(dev) && BNXT_NEW_RM(bp))
- 		bnxt_hwrm_func_resc_qcaps(bp, false);
- 	max_tx_sch_inputs = hw_resc->max_tx_sch_inputs;
++	pci_save_state(pdev);
+ 	return 0;
  
+ init_err_cleanup:
+@@ -12260,6 +12261,8 @@ static pci_ers_result_t bnxt_io_slot_reset(struct pci_dev *pdev)
+ 			"Cannot re-enable PCI device after reset.\n");
+ 	} else {
+ 		pci_set_master(pdev);
++		pci_restore_state(pdev);
++		pci_save_state(pdev);
+ 
+ 		err = bnxt_hwrm_func_reset(bp);
+ 		if (!err) {
 -- 
 2.25.1
 
