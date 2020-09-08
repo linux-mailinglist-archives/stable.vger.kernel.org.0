@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3E3261EA5
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECE8261E88
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730446AbgIHTxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:53:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39002 "EHLO mail.kernel.org"
+        id S1730885AbgIHTwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730511AbgIHPrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 11:47:07 -0400
+        id S1730707AbgIHPtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 11:49:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 899F024816;
-        Tue,  8 Sep 2020 15:43:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD87F24835;
+        Tue,  8 Sep 2020 15:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579830;
-        bh=8rZ08HburNd4t19qWY2jSL42tAVbf1sq2C5q0vdp868=;
+        s=default; t=1599579885;
+        bh=aPvRp2GFGXKWnxLSh/2v5G+RNreiEk74ofFsmRYx6yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4lkCpLWqiQIa12r87PVKmTPmudrbU5SDqRi8jJRz/iOtHilr9pJKrVrgoyzKIIG3
-         6r9kLgGh1vBHkUesmrEzc8Gr/cPjaU3HnJ+94WpEy8skY0FEvI8YJDQtCI60CJj1He
-         MPlCz3VYk5oK2OQuQFHyB6mV9W10PBEse/rGZFW8=
+        b=TtoN4sLipymub9CwWq/7u8m6CLWFP5C7JvgdX1p/jq82ARqNnv44+aAnWHxo8UI4/
+         OYM04a0KXKYOrtN3EXd0Yd5OoUN9DegQsiwSW6FRgzZizJ+VGLoQNr2hZJGh42iJ3o
+         JGwCMtxF7B4m9rK/xMM8TppvOoyFPtpBu+ZMnqow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 043/129] bnxt_en: Check for zero dir entries in NVRAM.
-Date:   Tue,  8 Sep 2020 17:24:44 +0200
-Message-Id: <20200908152231.831201640@linuxfoundation.org>
+Subject: [PATCH 5.4 045/129] bnxt_en: Fix possible crash in bnxt_fw_reset_task().
+Date:   Tue,  8 Sep 2020 17:24:46 +0200
+Message-Id: <20200908152231.953636248@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -46,37 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit dbbfa96ad920c50d58bcaefa57f5f33ceef9d00e ]
+[ Upstream commit b148bb238c02f0c7797efed026e9bba5892d2172 ]
 
-If firmware goes into unstable state, HWRM_NVM_GET_DIR_INFO firmware
-command may return zero dir entries. Return error in such case to
-avoid zero length dma buffer request.
+bnxt_fw_reset_task() is run from a delayed workqueue.  The current
+code is not cancelling the workqueue in the driver's .remove()
+method and it can potentially crash if the device is removed with
+the workqueue still pending.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+The fix is to clear the BNXT_STATE_IN_FW_RESET flag and then cancel
+the delayed workqueue in bnxt_remove_one().  bnxt_queue_fw_reset_work()
+also needs to check that this flag is set before scheduling.  This
+will guarantee that no rescheduling will be done after it is cancelled.
+
+Fixes: 230d1f0de754 ("bnxt_en: Handle firmware reset.")
+Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index de9b34a255cf1..fd01bcc8e28d4 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -2161,6 +2161,9 @@ static int bnxt_get_nvram_directory(struct net_device *dev, u32 len, u8 *data)
- 	if (rc != 0)
- 		return rc;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 7cb74d7a78e3c..16462d21fea38 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -1143,6 +1143,9 @@ static int bnxt_discard_rx(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
  
-+	if (!dir_entries || !entry_length)
-+		return -EIO;
+ static void bnxt_queue_fw_reset_work(struct bnxt *bp, unsigned long delay)
+ {
++	if (!(test_bit(BNXT_STATE_IN_FW_RESET, &bp->state)))
++		return;
 +
- 	/* Insert 2 bytes of directory info (count and size of entries) */
- 	if (len < 2)
- 		return -EINVAL;
+ 	if (BNXT_PF(bp))
+ 		queue_delayed_work(bnxt_pf_wq, &bp->fw_reset_task, delay);
+ 	else
+@@ -1159,10 +1162,12 @@ static void bnxt_queue_sp_work(struct bnxt *bp)
+ 
+ static void bnxt_cancel_sp_work(struct bnxt *bp)
+ {
+-	if (BNXT_PF(bp))
++	if (BNXT_PF(bp)) {
+ 		flush_workqueue(bnxt_pf_wq);
+-	else
++	} else {
+ 		cancel_work_sync(&bp->sp_task);
++		cancel_delayed_work_sync(&bp->fw_reset_task);
++	}
+ }
+ 
+ static void bnxt_sched_reset(struct bnxt *bp, struct bnxt_rx_ring_info *rxr)
+@@ -11386,6 +11391,7 @@ static void bnxt_remove_one(struct pci_dev *pdev)
+ 	unregister_netdev(dev);
+ 	bnxt_dl_unregister(bp);
+ 	bnxt_shutdown_tc(bp);
++	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
+ 	bnxt_cancel_sp_work(bp);
+ 	bp->sp_event = 0;
+ 
 -- 
 2.25.1
 
