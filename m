@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B082126198C
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C3126198F
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731724AbgIHSUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
+        id S1732145AbgIHSVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731455AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730920AbgIHQLL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:11:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E68024740;
-        Tue,  8 Sep 2020 15:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 028432474C;
+        Tue,  8 Sep 2020 15:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579673;
-        bh=FylbTEiD/DWhvOUoe0WCFuShSIlax8Y8+fievbYrx4M=;
+        s=default; t=1599579675;
+        bh=KY2vcxFNoq1KroSzVSsQo4HQfEBCab7hchzMg52KxXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUR2Zo8f+LNjtOAuUzZ72jRVnkonmwrXthCThYJaH8SKjDHx58DgguGqkg5TwKzZF
-         tneh3+kVIsynF9b3TFF7ZcUP3a8Mygi5CJZVB0ND7nqNNsoFk92gGgliY6J3amg047
-         oKtVatKwDiBCLxXxsA1h5BnmvNVeqJdT3Ij/zTTk=
+        b=UCIvLayGeNSvYRGD93c6+uHwAK6PURvSTcF2z9xVeczMW5cx+wo/qnK/PyCTgbboA
+         JKBDVR93ylfNaDhtdapZS0toZjTEn6YHWkIoMrvnFcmP9l86qC22iVID+sk9fxl7Ah
+         TjFLNXeOFt4K0WH6pjESgZESyXnqUfI3Iapk4G94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Frank Wunderlich <frank-w@public-files.de>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.8 145/186] arm64: dts: mt7622: add reset node for mmc device
-Date:   Tue,  8 Sep 2020 17:24:47 +0200
-Message-Id: <20200908152248.692679781@linuxfoundation.org>
+Subject: [PATCH 5.8 146/186] mmc: mediatek: add optional module reset property
+Date:   Tue,  8 Sep 2020 17:24:48 +0200
+Message-Id: <20200908152248.738325498@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -47,33 +47,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-commit d6f6cbeee4e5ee6976792851e0461c19f1ede864 upstream.
+commit 855d388df217989fbf1f18c781ae6490dbb48e86 upstream.
 
-This commit adds reset node for mmc device.
+This patch fixs eMMC-Access on mt7622/Bpi-64.
+Before we got these Errors on mounting eMMC ion R64:
+[   48.664925] blk_update_request: I/O error, dev mmcblk0, sector 204800 op 0x1:(WRITE)
+flags 0x800 phys_seg 1 prio class 0
+[   48.676019] Buffer I/O error on dev mmcblk0p1, logical block 0, lost sync page write
+
+This patch adds a optional reset management for msdc.
+Sometimes the bootloader does not bring msdc register
+to default state, so need reset the msdc controller.
 
 Cc: <stable@vger.kernel.org> # v5.4+
 Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
 Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 Tested-by: Frank Wunderlich <frank-w@public-files.de>
-Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20200814014346.6496-3-wenbin.mei@mediatek.com
+Link: https://lore.kernel.org/r/20200814014346.6496-4-wenbin.mei@mediatek.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/mediatek/mt7622.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/mtk-sd.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-@@ -686,6 +686,8 @@
- 		clocks = <&pericfg CLK_PERI_MSDC30_0_PD>,
- 			 <&topckgen CLK_TOP_MSDC50_0_SEL>;
- 		clock-names = "source", "hclk";
-+		resets = <&pericfg MT7622_PERI_MSDC0_SW_RST>;
-+		reset-names = "hrst";
- 		status = "disabled";
- 	};
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -22,6 +22,7 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
++#include <linux/reset.h>
  
+ #include <linux/mmc/card.h>
+ #include <linux/mmc/core.h>
+@@ -414,6 +415,7 @@ struct msdc_host {
+ 	struct pinctrl_state *pins_uhs;
+ 	struct delayed_work req_timeout;
+ 	int irq;		/* host interrupt */
++	struct reset_control *reset;
+ 
+ 	struct clk *src_clk;	/* msdc source clock */
+ 	struct clk *h_clk;      /* msdc h_clk */
+@@ -1516,6 +1518,12 @@ static void msdc_init_hw(struct msdc_hos
+ 	u32 val;
+ 	u32 tune_reg = host->dev_comp->pad_tune_reg;
+ 
++	if (host->reset) {
++		reset_control_assert(host->reset);
++		usleep_range(10, 50);
++		reset_control_deassert(host->reset);
++	}
++
+ 	/* Configure to MMC/SD mode, clock free running */
+ 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_MODE | MSDC_CFG_CKPDN);
+ 
+@@ -2273,6 +2281,11 @@ static int msdc_drv_probe(struct platfor
+ 	if (IS_ERR(host->src_clk_cg))
+ 		host->src_clk_cg = NULL;
+ 
++	host->reset = devm_reset_control_get_optional_exclusive(&pdev->dev,
++								"hrst");
++	if (IS_ERR(host->reset))
++		return PTR_ERR(host->reset);
++
+ 	host->irq = platform_get_irq(pdev, 0);
+ 	if (host->irq < 0) {
+ 		ret = -EINVAL;
 
 
