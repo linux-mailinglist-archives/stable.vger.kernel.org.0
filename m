@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB372618A0
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3482618AE
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732250AbgIHR6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
+        id S1731612AbgIHR7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:59:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731561AbgIHQMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731560AbgIHQMq (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:12:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6872824864;
-        Tue,  8 Sep 2020 15:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC32D24869;
+        Tue,  8 Sep 2020 15:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580312;
-        bh=EgAZVoJkcU9g96Eq+0GmQBlRdDPDI1IYhg6F0CWfoUI=;
+        s=default; t=1599580317;
+        bh=fDqoV5fVIw6t9pvVgOsGrg3g0OZCcVnoJBrIK2iPz5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfQ9ih5TvlEbQ69io4lFKbLlpmedTSMgpDQG05W9Ez1s/Tc7w0rtdP44MJhymKh6+
-         WW2I0UL9CVJvNRIwYIwGIYa5Tmd51Q+weZH700IVNNOEx7LTzuObcbWiyrdEveDTwp
-         pF8eu5ugegZ1cvn7+1I+s5xsNQkaAZw64m7saETA=
+        b=O/QxIcSKfcDT2SF364HACPU6MeMlZhWz3rw9Aypaxux44o01/tS9F9qFeXwfT9ax1
+         K/OEslPtxpO5RncF3CXDYKFCSQNU96V89hQI4EkkhUmFZEAzUG5FqCQH31wCa7Tswv
+         WbAa8B37+yF6pKK9yMObrbqX5GzpydFCv/h6JDPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Gabriel Ganne <gabriel.ganne@6wind.com>,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/65] gtp: add GTPA_LINK info to msg sent to userspace
-Date:   Tue,  8 Sep 2020 17:26:11 +0200
-Message-Id: <20200908152218.387702883@linuxfoundation.org>
+Subject: [PATCH 4.14 28/65] bnxt_en: Fix PCI AER error recovery flow
+Date:   Tue,  8 Sep 2020 17:26:13 +0200
+Message-Id: <20200908152218.488197386@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -46,34 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit b274e47d9e3f4dcd4ad4028a316ec22dc4533ac7 ]
+[ Upstream commit df3875ec550396974b1d8a518bd120d034738236 ]
 
-During a dump, this attribute is essential, it enables the userspace to
-know on which interface the context is linked to.
+When a PCI error is detected the PCI state could be corrupt, save
+the PCI state after initialization and restore it after the slot
+reset.
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Tested-by: Gabriel Ganne <gabriel.ganne@6wind.com>
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 090607e725a24..d3ccd6929579a 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -1187,6 +1187,7 @@ static int gtp_genl_fill_info(struct sk_buff *skb, u32 snd_portid, u32 snd_seq,
- 		goto nlmsg_failure;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index a189061d8f97e..7de38ae5c18f2 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8251,6 +8251,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  
- 	if (nla_put_u32(skb, GTPA_VERSION, pctx->gtp_version) ||
-+	    nla_put_u32(skb, GTPA_LINK, pctx->dev->ifindex) ||
- 	    nla_put_be32(skb, GTPA_PEER_ADDRESS, pctx->peer_addr_ip4.s_addr) ||
- 	    nla_put_be32(skb, GTPA_MS_ADDRESS, pctx->ms_addr_ip4.s_addr))
- 		goto nla_put_failure;
+ 	bnxt_parse_log_pcie_link(bp);
+ 
++	pci_save_state(pdev);
+ 	return 0;
+ 
+ init_err_cleanup_tc:
+@@ -8412,6 +8413,8 @@ static pci_ers_result_t bnxt_io_slot_reset(struct pci_dev *pdev)
+ 			"Cannot re-enable PCI device after reset.\n");
+ 	} else {
+ 		pci_set_master(pdev);
++		pci_restore_state(pdev);
++		pci_save_state(pdev);
+ 
+ 		err = bnxt_hwrm_func_reset(bp);
+ 		if (!err && netif_running(netdev))
 -- 
 2.25.1
 
