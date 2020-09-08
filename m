@@ -2,120 +2,345 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF21A2607B9
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 02:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F812607E5
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 03:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbgIHAiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Sep 2020 20:38:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727058AbgIHAiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 20:38:14 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04316C061573;
-        Mon,  7 Sep 2020 17:38:11 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id z25so15277738iol.10;
-        Mon, 07 Sep 2020 17:38:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YDR6IsWSX2xd81R8pk5pE8RqAtPXHJYLYB8HvcgF40Q=;
-        b=F8CWiqHclIEdY8g1HNYHVl1wXcuDgUrP5VqGkVOqMlgxVsnhY/g3zHfKmnNqKfx5rr
-         lXjBlca+wJp2qFC+oRwEyKderhMcdUV0i/HGtdc+kmTwSgcLTkHx1gZV650Qtwgr8DSN
-         cfbpMV23yjcPd2htmPPRJE+sb8EX9u2sUA0i0hkP47BGaSgO+bEOZhwsIV53SLn+pjEc
-         4auekbs2AZ/26MipcOlJbnv0c4YNagTq8IBYIigGIHdxugF7rPGLDzNt/NRCnmEBxZqX
-         hHbmHjn91tAT2P+0g2zQy+6XpNSZP+H0QwsX3ytZmPsllFgKw2pVcNFXHbJCDD9pkPK1
-         yIOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YDR6IsWSX2xd81R8pk5pE8RqAtPXHJYLYB8HvcgF40Q=;
-        b=Lt+NO1V+JlwZQYQamgmLMABfurJsKQfB3NTiqWWKCJF0DEFcbRfschTFRDXGE9M0sd
-         V0d6HZsx1zE76F6nSiQIheu79Qe7+6B7BHSiFDFWqAQk8nm9nMjZ8VWiJ7rb6sxbd4QC
-         mlxl5ULJE4IijlkAaBwibfLcrfK+3fkVdMkP1Fkepowhfg+wTRRRLj9z0mrKbZ8u5f6C
-         nku/BUSpVD0OyyVTpqcNwq48SjEEAmkBTgTJ4BueQ57Qw4cxLwkJ89kr98125/iQNkrp
-         gV56Icb3OCdj9BDeO8cF4KwV83VH+z9UB/CTZ5xbbF1YRI+32CAwJRlsXm25Nb89mLeH
-         GJsw==
-X-Gm-Message-State: AOAM5324XdEJkLKh7zDQwNa9JBA/D4UYdA0tXG+PK0zUEUWAGOhgbklg
-        SQeVe2Kn9hzykt1y2wukeXkv5CQBpyXq6tp1w9P/u+U8Z38=
-X-Google-Smtp-Source: ABdhPJyKNOiTqAZYzxBv2arYN0x03aWPF1RbNx7tn+o1OGJW+GJAeuV1DOsC/QQ8ZOF2/hEVe7ATtCVswkAox0zLEAo=
-X-Received: by 2002:a5d:8604:: with SMTP id f4mr254925iol.196.1599525489023;
- Mon, 07 Sep 2020 17:38:09 -0700 (PDT)
+        id S1728085AbgIHBAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Sep 2020 21:00:42 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:34277 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726918AbgIHBAl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Sep 2020 21:00:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599526838;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=pm7OxTHs4dL6gNOBnqEABj0lP1riyMrkD3isFyesF9g=;
+        b=bjTvnzUznYhaE/7Mx2t+Q6HC21bb+C89hCApjpilzgo/IjsVBohVaMJL2I22CJhN7EzslM
+        eL4wzd9hlIgFIkkl/HdGhBSuoHgOtYDK5WbrBIEPZaeV4ITDfvobIVVktpIhIVSQhoj7lH
+        QDYaEAIBVALzQlMa21eKU8g7WnLATi0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-347-wmQeT_yzNIuBFFV6jkfsHQ-1; Mon, 07 Sep 2020 21:00:35 -0400
+X-MC-Unique: wmQeT_yzNIuBFFV6jkfsHQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4B4851DDF6
+        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 01:00:34 +0000 (UTC)
+Received: from [10.128.8.76] (unknown [10.0.117.154])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 769A727BDC;
+        Tue,  8 Sep 2020 01:00:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <1598348388-2518-1-git-send-email-yangtiezhu@loongson.cn> <s5hsgcb59gw.wl-tiwai@suse.de>
-In-Reply-To: <s5hsgcb59gw.wl-tiwai@suse.de>
-From:   Huacai Chen <chenhuacai@gmail.com>
-Date:   Tue, 8 Sep 2020 08:37:56 +0800
-Message-ID: <CAAhV-H5V5adhY2OjJLxW7x3zDaHGgBxxy45hjf22+qMSEBQuww@mail.gmail.com>
-Subject: Re: [PATCH v2] Revert "ALSA: hda: Add support for Loongson 7A1000 controller"
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>, alsa-devel@alsa-project.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Takashi Iwai <tiwai@suse.com>,
-        Xuefeng Li <lixuefeng@loongson.cn>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.8-rc1-445a0c3.cki
+ (stable)
+Date:   Tue, 08 Sep 2020 01:00:28 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>, David Arcari <darcari@redhat.com>
+Message-ID: <cki.892F48C28F.MV854QJ5G4@redhat.com>
+X-Gitlab-Pipeline-ID: 613386
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/613386
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, all
 
-This patch should be backported to 5.4.
+Hello,
 
-Huacai
+We ran automated tests on a recent commit from this kernel tree:
 
-On Tue, Aug 25, 2020 at 6:03 PM Takashi Iwai <tiwai@suse.de> wrote:
->
-> On Tue, 25 Aug 2020 11:39:48 +0200,
-> Tiezhu Yang wrote:
-> >
-> > This reverts commit 61eee4a7fc40 ("ALSA: hda: Add support for Loongson
-> > 7A1000 controller") to fix the following error on the Loongson LS7A
-> > platform:
-> >
-> > rcu: INFO: rcu_preempt self-detected stall on CPU
-> > <SNIP>
-> > NMI backtrace for cpu 0
-> > CPU: 0 PID: 68 Comm: kworker/0:2 Not tainted 5.8.0+ #3
-> > Hardware name:  , BIOS
-> > Workqueue: events azx_probe_work [snd_hda_intel]
-> > <SNIP>
-> > Call Trace:
-> > [<ffffffff80211a64>] show_stack+0x9c/0x130
-> > [<ffffffff8065a740>] dump_stack+0xb0/0xf0
-> > [<ffffffff80665774>] nmi_cpu_backtrace+0x134/0x140
-> > [<ffffffff80665910>] nmi_trigger_cpumask_backtrace+0x190/0x200
-> > [<ffffffff802b1abc>] rcu_dump_cpu_stacks+0x12c/0x190
-> > [<ffffffff802b08cc>] rcu_sched_clock_irq+0xa2c/0xfc8
-> > [<ffffffff802b91d4>] update_process_times+0x2c/0xb8
-> > [<ffffffff802cad80>] tick_sched_timer+0x40/0xb8
-> > [<ffffffff802ba5f0>] __hrtimer_run_queues+0x118/0x1d0
-> > [<ffffffff802bab74>] hrtimer_interrupt+0x12c/0x2d8
-> > [<ffffffff8021547c>] c0_compare_interrupt+0x74/0xa0
-> > [<ffffffff80296bd0>] __handle_irq_event_percpu+0xa8/0x198
-> > [<ffffffff80296cf0>] handle_irq_event_percpu+0x30/0x90
-> > [<ffffffff8029d958>] handle_percpu_irq+0x88/0xb8
-> > [<ffffffff80296124>] generic_handle_irq+0x44/0x60
-> > [<ffffffff80b3cfd0>] do_IRQ+0x18/0x28
-> > [<ffffffff8067ace4>] plat_irq_dispatch+0x64/0x100
-> > [<ffffffff80209a20>] handle_int+0x140/0x14c
-> > [<ffffffff802402e8>] irq_exit+0xf8/0x100
-> >
-> > Because AZX_DRIVER_GENERIC can not work well for Loongson LS7A HDA
-> > controller, it needs some workarounds which are not merged into the
-> > upstream kernel at this time, so it should revert this patch now.
-> >
-> > Fixes: 61eee4a7fc40 ("ALSA: hda: Add support for Loongson 7A1000 controller")
-> > Cc: <stable@vger.kernel.org> # 5.9-rc1+
-> > Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-> > ---
-> >
-> > v2: update commit message
->
-> Applied now.  Thanks.
->
->
-> Takashi
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 445a0c3807cd - Linux 5.8.8-rc1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse/2020/09/07/613386
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
+nity test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 kernel-rt: rt_migrate_test
+       =E2=9C=85 kernel-rt: rteval
+       =E2=9C=85 kernel-rt: sched_deadline
+       =E2=9C=85 kernel-rt: smidetect
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+
