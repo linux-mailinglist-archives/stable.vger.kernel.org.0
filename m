@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 381F7261424
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F22BE261425
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 18:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730920AbgIHQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
+        id S1731143AbgIHQHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 12:07:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731167AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731219AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:05:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9926223BE;
-        Tue,  8 Sep 2020 15:45:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED1AD223C8;
+        Tue,  8 Sep 2020 15:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579939;
-        bh=gbyumvFlrTGeYAdvEwA8qyZf3hhTSQZBc/wWw/9Qi68=;
+        s=default; t=1599579949;
+        bh=/24qU1YF+DNhXqOglgtPE5LMLxhOMM44FY3ibsFAl5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXfuF7rzIzy2J+dq3OY1jX9dcAXrlG4fZQ5ySksWmAzTSKKM6PDPCMPy69R9Mhk1E
-         gpAGl0RJp/2wR2aKlWjHxV8NomWxCQiLpOoJx2F814ljjNYJscOh931G8IrL8VoPaF
-         sFIBOWlq9wbAC32xIuVUD8NSOWvdeRh/WoXu22Y8=
+        b=pDaNv/q9YzgrmApT9hROh+p7I6aRNlxNEg7Hkvg0ZbX6ay8fUwDiGdkeCHoisFnxu
+         XlRmKzRaUqIzQGkkPM2WMnFB1yWm9RbmJWU0xEcsPI5aLPEWh7dSDFCPPTmPHBEjM/
+         RA1Gv1IZP3sZYuSyoElpKnRfIWpWiTCESdpD81OA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Wood <simon@mungewell.org>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 094/129] ALSA: firewire-digi00x: exclude Avid Adrenaline from detection
-Date:   Tue,  8 Sep 2020 17:25:35 +0200
-Message-Id: <20200908152234.452706583@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Benjamin Poirier <benjamin.poirier@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 098/129] ALSA: hda/realtek - Improved routing for Thinkpad X1 7th/8th Gen
+Date:   Tue,  8 Sep 2020 17:25:39 +0200
+Message-Id: <20200908152234.701976064@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -44,109 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit acd46a6b6de88569654567810acad2b0a0a25cea upstream.
+commit 6a6660d049f88b89fd9a4b9db3581b245f7782fa upstream.
 
-Avid Adrenaline is reported that ALSA firewire-digi00x driver is bound to.
-However, as long as he investigated, the design of this model is hardly
-similar to the one of Digi 00x family. It's better to exclude the model
-from modalias of ALSA firewire-digi00x driver.
+There've been quite a few regression reports about the lowered volume
+(reduced to ca 65% from the previous level) on Lenovo Thinkpad X1
+after the commit d2cd795c4ece ("ALSA: hda - fixup for the bass speaker
+on Lenovo Carbon X1 7th gen").  Although the commit itself does the
+right thing from HD-audio POV in order to have a volume control for
+bass speakers, it seems that the machine has some secret recipe under
+the hood.
 
-This commit changes device entries so that the model is excluded.
+Through experiments, Benjamin Poirier found out that the following
+routing gives the best result:
+* DAC1 (NID 0x02) -> Speaker pin (NID 0x14)
+* DAC2 (NID 0x03) -> Shared by both Bass Speaker pin (NID 0x17) &
+                     Headphone pin (0x21)
+* DAC3 (NID 0x06) -> Unused
 
-$ python3 crpp < ~/git/am-config-rom/misc/avid-adrenaline.img
-               ROM header and bus information block
-               -----------------------------------------------------------------
-400  04203a9c  bus_info_length 4, crc_length 32, crc 15004
-404  31333934  bus_name "1394"
-408  e064a002  irmc 1, cmc 1, isc 1, bmc 0, cyc_clk_acc 100, max_rec 10 (2048)
-40c  00a07e01  company_id 00a07e     |
-410  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+DAC1 seems to have some equalizer internally applied, and you'd get
+again the output in a bad quality if you connect this to the
+headphone pin.  Hence the headphone is connected to DAC2, which is now
+shared with the bass speaker pin.  DAC3 has no volume amp, hence it's
+not connected at all.
 
-               root directory
-               -----------------------------------------------------------------
-414  0005d08c  directory_length 5, crc 53388
-418  0300a07e  vendor
-41c  8100000c  --> descriptor leaf at 44c
-420  0c008380  node capabilities
-424  8d000002  --> eui-64 leaf at 42c
-428  d1000004  --> unit directory at 438
+For achieving the routing above, this patch introduced a couple of
+workarounds:
 
-               eui-64 leaf at 42c
-               -----------------------------------------------------------------
-42c  0002410f  leaf_length 2, crc 16655
-430  00a07e01  company_id 00a07e     |
-434  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+* The connection list of bass speaker pin (NID 0x17) is reduced not to
+  include DAC3 (NID 0x06)
+* Pass preferred_pairs array to specify the fixed connection
 
-               unit directory at 438
-               -----------------------------------------------------------------
-438  0004d6c9  directory_length 4, crc 54985
-43c  1200a02d  specifier id: 1394 TA
-440  13014001  version: Vender Unique and AV/C
-444  17000001  model
-448  81000009  --> descriptor leaf at 46c
+Here, both workarounds are needed because the generic parser prefers
+the individual DAC assignment over others.
 
-               descriptor leaf at 44c
-               -----------------------------------------------------------------
-44c  00077205  leaf_length 7, crc 29189
-450  00000000  textual descriptor
-454  00000000  minimal ASCII
-458  41766964  "Avid"
-45c  20546563  " Tec"
-460  686e6f6c  "hnol"
-464  6f677900  "ogy"
-468  00000000
+When the routing above is applied, the generic parser creates the two
+volume controls "Front" and "Bass Speaker".  Since we have only two
+DACs for three output pins, those are not fully controlling each
+output individually, and it would confuse PulseAudio.  For avoiding
+the pitfall, in this patch, we rename those volume controls to some
+unique ones ("DAC1" and "DAC2").  Then PulseAudio ignore them and
+concentrate only on the still good-working "Master" volume control.
+If a user still wants to control each DAC volume, they can still
+change manually via "DAC1" and "DAC2" volume controls.
 
-               descriptor leaf at 46c
-               -----------------------------------------------------------------
-46c  000599a5  leaf_length 5, crc 39333
-470  00000000  textual descriptor
-474  00000000  minimal ASCII
-478  41647265  "Adre"
-47c  6e616c69  "nali"
-480  6e650000  "ne"
-
-Reported-by: Simon Wood <simon@mungewell.org>
-Fixes: 9edf723fd858 ("ALSA: firewire-digi00x: add skeleton for Digi 002/003 family")
-Cc: <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20200823075545.56305-1-o-takashi@sakamocchi.jp
+Fixes: d2cd795c4ece ("ALSA: hda - fixup for the bass speaker on Lenovo Carbon X1 7th gen")
+Reported-by: Benjamin Poirier <benjamin.poirier@gmail.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Tested-by: Benjamin Poirier <benjamin.poirier@gmail.com>
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207407#c10
+BugLink: https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3214171
+BugLink: https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3276276
+Link: https://lore/kernel.org/r/20200829112746.3118-1-benjamin.poirier@gmail.com
+Link: https://lore.kernel.org/r/20200903083300.6333-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/digi00x/digi00x.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c |   42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/digi00x/digi00x.c
-+++ b/sound/firewire/digi00x/digi00x.c
-@@ -14,6 +14,7 @@ MODULE_LICENSE("GPL v2");
- #define VENDOR_DIGIDESIGN	0x00a07e
- #define MODEL_CONSOLE		0x000001
- #define MODEL_RACK		0x000002
-+#define SPEC_VERSION		0x000001
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5850,6 +5850,39 @@ static void alc275_fixup_gpio4_off(struc
+ 	}
+ }
  
- static int name_card(struct snd_dg00x *dg00x)
- {
-@@ -175,14 +176,18 @@ static const struct ieee1394_device_id s
- 	/* Both of 002/003 use the same ID. */
- 	{
- 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_VERSION |
- 			       IEEE1394_MATCH_MODEL_ID,
- 		.vendor_id = VENDOR_DIGIDESIGN,
-+		.version = SPEC_VERSION,
- 		.model_id = MODEL_CONSOLE,
++/* Quirk for Thinkpad X1 7th and 8th Gen
++ * The following fixed routing needed
++ * DAC1 (NID 0x02) -> Speaker (NID 0x14); some eq applied secretly
++ * DAC2 (NID 0x03) -> Bass (NID 0x17) & Headphone (NID 0x21); sharing a DAC
++ * DAC3 (NID 0x06) -> Unused, due to the lack of volume amp
++ */
++static void alc285_fixup_thinkpad_x1_gen7(struct hda_codec *codec,
++					  const struct hda_fixup *fix, int action)
++{
++	static const hda_nid_t conn[] = { 0x02, 0x03 }; /* exclude 0x06 */
++	static const hda_nid_t preferred_pairs[] = {
++		0x14, 0x02, 0x17, 0x03, 0x21, 0x03, 0
++	};
++	struct alc_spec *spec = codec->spec;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
++		spec->gen.preferred_dacs = preferred_pairs;
++		break;
++	case HDA_FIXUP_ACT_BUILD:
++		/* The generic parser creates somewhat unintuitive volume ctls
++		 * with the fixed routing above, and the shared DAC2 may be
++		 * confusing for PA.
++		 * Rename those to unique names so that PA doesn't touch them
++		 * and use only Master volume.
++		 */
++		rename_ctl(codec, "Front Playback Volume", "DAC1 Playback Volume");
++		rename_ctl(codec, "Bass Speaker Playback Volume", "DAC2 Playback Volume");
++		break;
++	}
++}
++
+ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
+ 					 const struct hda_fixup *fix,
+ 					 int action)
+@@ -6118,6 +6151,7 @@ enum {
+ 	ALC289_FIXUP_DUAL_SPK,
+ 	ALC294_FIXUP_SPK2_TO_DAC1,
+ 	ALC294_FIXUP_ASUS_DUAL_SPK,
++	ALC285_FIXUP_THINKPAD_X1_GEN7,
+ 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
+ 	ALC294_FIXUP_ASUS_HPE,
+ 	ALC294_FIXUP_ASUS_COEF_1B,
+@@ -7263,11 +7297,17 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_SPK2_TO_DAC1
  	},
- 	{
- 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_VERSION |
- 			       IEEE1394_MATCH_MODEL_ID,
- 		.vendor_id = VENDOR_DIGIDESIGN,
-+		.version = SPEC_VERSION,
- 		.model_id = MODEL_RACK,
++	[ALC285_FIXUP_THINKPAD_X1_GEN7] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_thinkpad_x1_gen7,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_THINKPAD_ACPI
++	},
+ 	[ALC285_FIXUP_THINKPAD_HEADSET_JACK] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_headset_jack,
+ 		.chained = true,
+-		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1
++		.chain_id = ALC285_FIXUP_THINKPAD_X1_GEN7
  	},
- 	{}
+ 	[ALC294_FIXUP_ASUS_HPE] = {
+ 		.type = HDA_FIXUP_VERBS,
 
 
