@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3440C26178E
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C86426179C
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:39:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731776AbgIHRhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57570 "EHLO mail.kernel.org"
+        id S1729129AbgIHRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731692AbgIHQOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:14:25 -0400
+        id S1731693AbgIHQOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:14:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D2762490A;
-        Tue,  8 Sep 2020 15:53:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91B512490C;
+        Tue,  8 Sep 2020 15:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580421;
-        bh=UiT+te9JUW4wlzjOjVa3ADVR0CS6B9RsZbWsXfGBPl0=;
+        s=default; t=1599580424;
+        bh=mDAayG0BYTRGLjATShtsFVr8E+gMhNmqROIsuzBvSvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iod8nBKFXE+qiuwhR5F8HYTbOcNgJGuBhfagSbuj3R+pJXmS4Nr9GpNjCQ7zz4XbC
-         QVrRwmYU/c4+SN7MoP3h/Q0wsn17Lo8/ZgFn5pprWGlJO9wi6BouCqRwyISRmSTE1A
-         x8+Kn2CsQ50M0TLYgG4LuB+QHZnxyR5IrJUP4mvs=
+        b=iy649z7VgLfwV2CbNsxJv071Gg3zBB7zogZxQ811WB2vHmgUqNmlDwah8AYV+TB4T
+         hYQUxgT5Bubyw+YUSLhwGGY3oDmHjYS13Q+moJPSpZ+KJ/A9gJrYnzGH+dycKcY7Sl
+         L1YkPrfZtBLT5UEolQstFs8ZNuVHDpigm2RATL70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Staudt <max@enpas.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 51/65] affs: fix basic permission bits to actually work
-Date:   Tue,  8 Sep 2020 17:26:36 +0200
-Message-Id: <20200908152219.701932055@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 52/65] block: allow for_each_bvec to support zero len bvec
+Date:   Tue,  8 Sep 2020 17:26:37 +0200
+Message-Id: <20200908152219.764818884@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -43,171 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Staudt <max@enpas.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit d3a84a8d0dde4e26bc084b36ffcbdc5932ac85e2 upstream.
+commit 7e24969022cbd61ddc586f14824fc205661bb124 upstream.
 
-The basic permission bits (protection bits in AmigaOS) have been broken
-in Linux' AFFS - it would only set bits, but never delete them.
-Also, contrary to the documentation, the Archived bit was not handled.
+Block layer usually doesn't support or allow zero-length bvec. Since
+commit 1bdc76aea115 ("iov_iter: use bvec iterator to implement
+iterate_bvec()"), iterate_bvec() switches to bvec iterator. However,
+Al mentioned that 'Zero-length segments are not disallowed' in iov_iter.
 
-Let's fix this for good, and set the bits such that Linux and classic
-AmigaOS can coexist in the most peaceful manner.
+Fixes for_each_bvec() so that it can move on after seeing one zero
+length bvec.
 
-Also, update the documentation to represent the current state of things.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Staudt <max@enpas.org>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 1bdc76aea115 ("iov_iter: use bvec iterator to implement iterate_bvec()")
+Reported-by: syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg2262077.html
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/filesystems/affs.txt |   16 ++++++++++------
- fs/affs/amigaffs.c                 |   27 +++++++++++++++++++++++++++
- fs/affs/file.c                     |   26 +++++++++++++++++++++++++-
- 3 files changed, 62 insertions(+), 7 deletions(-)
+ include/linux/bvec.h |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/Documentation/filesystems/affs.txt
-+++ b/Documentation/filesystems/affs.txt
-@@ -93,13 +93,15 @@ The Amiga protection flags RWEDRWEDHSPAR
- 
-   - R maps to r for user, group and others. On directories, R implies x.
- 
--  - If both W and D are allowed, w will be set.
-+  - W maps to w.
- 
-   - E maps to x.
- 
--  - H and P are always retained and ignored under Linux.
-+  - D is ignored.
- 
--  - A is always reset when a file is written to.
-+  - H, S and P are always retained and ignored under Linux.
-+
-+  - A is cleared when a file is written to.
- 
- User id and group id will be used unless set[gu]id are given as mount
- options. Since most of the Amiga file systems are single user systems
-@@ -111,11 +113,13 @@ Linux -> Amiga:
- 
- The Linux rwxrwxrwx file mode is handled as follows:
- 
--  - r permission will set R for user, group and others.
-+  - r permission will allow R for user, group and others.
-+
-+  - w permission will allow W for user, group and others.
- 
--  - w permission will set W and D for user, group and others.
-+  - x permission of the user will allow E for plain files.
- 
--  - x permission of the user will set E for plain files.
-+  - D will be allowed for user, group and others.
- 
-   - All other flags (suid, sgid, ...) are ignored and will
-     not be retained.
---- a/fs/affs/amigaffs.c
-+++ b/fs/affs/amigaffs.c
-@@ -419,24 +419,51 @@ affs_mode_to_prot(struct inode *inode)
- 	u32 prot = AFFS_I(inode)->i_protect;
- 	umode_t mode = inode->i_mode;
- 
-+	/*
-+	 * First, clear all RWED bits for owner, group, other.
-+	 * Then, recalculate them afresh.
-+	 *
-+	 * We'll always clear the delete-inhibit bit for the owner, as that is
-+	 * the classic single-user mode AmigaOS protection bit and we need to
-+	 * stay compatible with all scenarios.
-+	 *
-+	 * Since multi-user AmigaOS is an extension, we'll only set the
-+	 * delete-allow bit if any of the other bits in the same user class
-+	 * (group/other) are used.
-+	 */
-+	prot &= ~(FIBF_NOEXECUTE | FIBF_NOREAD
-+		  | FIBF_NOWRITE | FIBF_NODELETE
-+		  | FIBF_GRP_EXECUTE | FIBF_GRP_READ
-+		  | FIBF_GRP_WRITE   | FIBF_GRP_DELETE
-+		  | FIBF_OTR_EXECUTE | FIBF_OTR_READ
-+		  | FIBF_OTR_WRITE   | FIBF_OTR_DELETE);
-+
-+	/* Classic single-user AmigaOS flags. These are inverted. */
- 	if (!(mode & 0100))
- 		prot |= FIBF_NOEXECUTE;
- 	if (!(mode & 0400))
- 		prot |= FIBF_NOREAD;
- 	if (!(mode & 0200))
- 		prot |= FIBF_NOWRITE;
-+
-+	/* Multi-user extended flags. Not inverted. */
- 	if (mode & 0010)
- 		prot |= FIBF_GRP_EXECUTE;
- 	if (mode & 0040)
- 		prot |= FIBF_GRP_READ;
- 	if (mode & 0020)
- 		prot |= FIBF_GRP_WRITE;
-+	if (mode & 0070)
-+		prot |= FIBF_GRP_DELETE;
-+
- 	if (mode & 0001)
- 		prot |= FIBF_OTR_EXECUTE;
- 	if (mode & 0004)
- 		prot |= FIBF_OTR_READ;
- 	if (mode & 0002)
- 		prot |= FIBF_OTR_WRITE;
-+	if (mode & 0007)
-+		prot |= FIBF_OTR_DELETE;
- 
- 	AFFS_I(inode)->i_protect = prot;
- }
---- a/fs/affs/file.c
-+++ b/fs/affs/file.c
-@@ -428,6 +428,24 @@ static int affs_write_begin(struct file
- 	return ret;
+--- a/include/linux/bvec.h
++++ b/include/linux/bvec.h
+@@ -119,10 +119,17 @@ static inline bool bvec_iter_rewind(cons
+ 	return true;
  }
  
-+static int affs_write_end(struct file *file, struct address_space *mapping,
-+			  loff_t pos, unsigned int len, unsigned int copied,
-+			  struct page *page, void *fsdata)
++static inline void bvec_iter_skip_zero_bvec(struct bvec_iter *iter)
 +{
-+	struct inode *inode = mapping->host;
-+	int ret;
-+
-+	ret = generic_write_end(file, mapping, pos, len, copied, page, fsdata);
-+
-+	/* Clear Archived bit on file writes, as AmigaOS would do */
-+	if (AFFS_I(inode)->i_protect & FIBF_ARCHIVED) {
-+		AFFS_I(inode)->i_protect &= ~FIBF_ARCHIVED;
-+		mark_inode_dirty(inode);
-+	}
-+
-+	return ret;
++	iter->bi_bvec_done = 0;
++	iter->bi_idx++;
 +}
 +
- static sector_t _affs_bmap(struct address_space *mapping, sector_t block)
- {
- 	return generic_block_bmap(mapping,block,affs_get_block);
-@@ -437,7 +455,7 @@ const struct address_space_operations af
- 	.readpage = affs_readpage,
- 	.writepage = affs_writepage,
- 	.write_begin = affs_write_begin,
--	.write_end = generic_write_end,
-+	.write_end = affs_write_end,
- 	.direct_IO = affs_direct_IO,
- 	.bmap = _affs_bmap
- };
-@@ -794,6 +812,12 @@ done:
- 	if (tmp > inode->i_size)
- 		inode->i_size = AFFS_I(inode)->mmu_private = tmp;
+ #define for_each_bvec(bvl, bio_vec, iter, start)			\
+ 	for (iter = (start);						\
+ 	     (iter).bi_size &&						\
+ 		((bvl = bvec_iter_bvec((bio_vec), (iter))), 1);	\
+-	     bvec_iter_advance((bio_vec), &(iter), (bvl).bv_len))
++	     (bvl).bv_len ? (void)bvec_iter_advance((bio_vec), &(iter),	\
++		     (bvl).bv_len) : bvec_iter_skip_zero_bvec(&(iter)))
  
-+	/* Clear Archived bit on file writes, as AmigaOS would do */
-+	if (AFFS_I(inode)->i_protect & FIBF_ARCHIVED) {
-+		AFFS_I(inode)->i_protect &= ~FIBF_ARCHIVED;
-+		mark_inode_dirty(inode);
-+	}
-+
- err_first_bh:
- 	unlock_page(page);
- 	put_page(page);
+ #endif /* __LINUX_BVEC_ITER_H */
 
 
