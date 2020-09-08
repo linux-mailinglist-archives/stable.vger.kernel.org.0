@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35415261C1D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED579261C21
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731455AbgIHTOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:14:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52176 "EHLO mail.kernel.org"
+        id S1731786AbgIHTPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731199AbgIHQEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730303AbgIHQEu (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:04:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8A9024050;
-        Tue,  8 Sep 2020 15:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A43CC24078;
+        Tue,  8 Sep 2020 15:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579495;
-        bh=7j1Y0MkesorvcN29yjN4r5m84+5UT2GqpTVNZgL5Aew=;
+        s=default; t=1599579507;
+        bh=EXGBLxErFJSF4VLwQyO8FppM6IWx1j6ZUvdeyM5Rk9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRensi2GV61U6SDBPSztMy8qMybs3tmjlmvmyZOsRH5nyUVbe1vOakQo3qmNLQXvZ
-         U4cnd76VNv7FTBjYBolKBbQfdcbUDbCr5nUEj8uVW0usptBC39i7us88QFet3QSXib
-         K0TbuTf+OjdbKjhTUpCbM1PC6SU3IN4fNz7fGWSA=
+        b=Juypm0yIYPHcm78GUD0hUnuKKKQRc7DVBifMzgGv8n015jhylnTm171gbx2p+khO6
+         y0ZotG3XDwlNtchzdZFaXjS/6fwXz2MrhAQfnOvxa1dZloU7J/aa3uB67y0tk6usXB
+         Fgg2lUAlQJyi+CjukaEP6Q81Vm81ylQGrmqUlb70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <andi@firstfloor.org>, Jiri Olsa <jolsa@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        William Cohen <wcohen@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 101/186] drm/radeon: Prefer lower feedback dividers
-Date:   Tue,  8 Sep 2020 17:24:03 +0200
-Message-Id: <20200908152246.531365310@linuxfoundation.org>
+Subject: [PATCH 5.8 105/186] perf jevents: Fix suspicious code in fixregex()
+Date:   Tue,  8 Sep 2020 17:24:07 +0200
+Message-Id: <20200908152246.724078464@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -46,43 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit fc8c70526bd30733ea8667adb8b8ffebea30a8ed ]
+[ Upstream commit e62458e3940eb3dfb009481850e140fbee183b04 ]
 
-Commit 2e26ccb119bd ("drm/radeon: prefer lower reference dividers")
-fixed screen flicker for HP Compaq nx9420 but breaks other laptops like
-Asus X50SL.
+The new string should have enough space for the original string and the
+back slashes IMHO.
 
-Turns out we also need to favor lower feedback dividers.
-
-Users confirmed this change fixes the regression and doesn't regress the
-original fix.
-
-Fixes: 2e26ccb119bd ("drm/radeon: prefer lower reference dividers")
-BugLink: https://bugs.launchpad.net/bugs/1791312
-BugLink: https://bugs.launchpad.net/bugs/1861554
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: fbc2844e84038ce3 ("perf vendor events: Use more flexible pattern matching for CPU identification for mapfile.csv")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Reviewed-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <andi@firstfloor.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: William Cohen <wcohen@redhat.com>
+Link: http://lore.kernel.org/lkml/20200903152510.489233-1-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_display.c | 2 +-
+ tools/perf/pmu-events/jevents.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index df1a7eb736517..840c4bf6307fd 100644
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -933,7 +933,7 @@ static void avivo_get_fb_ref_div(unsigned nom, unsigned den, unsigned post_div,
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index fa86c5f997cc5..fc9c158bfa134 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -137,7 +137,7 @@ static char *fixregex(char *s)
+ 		return s;
  
- 	/* get matching reference and feedback divider */
- 	*ref_div = min(max(den/post_div, 1u), ref_div_max);
--	*fb_div = DIV_ROUND_CLOSEST(nom * *ref_div * post_div, den);
-+	*fb_div = max(nom * *ref_div * post_div / den, 1u);
+ 	/* allocate space for a new string */
+-	fixed = (char *) malloc(len + 1);
++	fixed = (char *) malloc(len + esc_count + 1);
+ 	if (!fixed)
+ 		return NULL;
  
- 	/* limit fb divider to its maximum */
- 	if (*fb_div > fb_div_max) {
 -- 
 2.25.1
 
