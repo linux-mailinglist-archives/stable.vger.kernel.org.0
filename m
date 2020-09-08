@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B12261D14
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62FE6261D3A
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbgIHTbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
+        id S1731788AbgIHTeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:34:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730203AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731018AbgIHP6F (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:58:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BFB23D57;
-        Tue,  8 Sep 2020 15:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 709DA2405E;
+        Tue,  8 Sep 2020 15:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579452;
-        bh=mqOp7faWMHjB+BCoPMZBYO0zRn3ohRGM5EpDtKb3YVs=;
+        s=default; t=1599579504;
+        bh=4l/U46XanlA4DH8H4B0VrxArJ8T6qxn2PzfMC1WuoQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AohbE4Mx8u8I4x+faguWnK5GCLBDuy68vqis60O8/2+6H76qhj46dZ+5Fvoy2eG6p
-         Ff81p4WiZ+0/TmdribZO7ORq/DFELTcixHKiPwA5kLkQsWSGd43YeG4L9hnIJazhQ2
-         wUTHrTP95ITWr8TURF/RnzkeEmT7+2qkSUl+p2T0=
+        b=Vlls4VxWhXKYqRl13CjuNMVARoU4pImjO5smgp7704RYI10v05AHoYGzJRtB1J7m6
+         SuilgCUL8Xpmk046/KqUj116UzEcmn9xxKH1YlnZTcYpX7WDWhR/X0CBx5LeLWZ7LX
+         7c1shIL8fKsuNQ411h24nqr1Cx1KYx/FhSpL3OJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 076/186] media: vicodec: add missing v4l2_ctrl_request_hdl_put()
-Date:   Tue,  8 Sep 2020 17:23:38 +0200
-Message-Id: <20200908152245.333172985@linuxfoundation.org>
+Subject: [PATCH 5.8 078/186] net: ethernet: ti: cpsw_new: fix error handling in cpsw_ndo_vlan_rx_kill_vid()
+Date:   Tue,  8 Sep 2020 17:23:40 +0200
+Message-Id: <20200908152245.429151911@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -45,35 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Murali Karicheri <m-karicheri2@ti.com>
 
-[ Upstream commit 2e7c8fb8942773f412fe12f3b63e8bb92c18ab3f ]
+[ Upstream commit af8ea111134624855710a0ef5543b871d49b0162 ]
 
-The check for a required control in the request was missing a call to
-v4l2_ctrl_request_hdl_put(), so the control request object was never
-released.
+This patch fixes a bunch of issues in cpsw_ndo_vlan_rx_kill_vid()
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 997deb811bf5 ("media: vicodec: Add support for stateless decoder.")
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ - pm_runtime_get_sync() returns non zero value. This results in
+   non zero value return to caller which will be interpreted as error.
+   So overwrite ret with zero.
+ - If VID matches with port VLAN VID, then set error code.
+ - Currently when VLAN interface is deleted, all of the VLAN mc addresses
+   are removed from ALE table, however the return values from ale function
+   calls are not checked. These functions can return error code -ENOENT.
+   But that shouldn't happen in a normal case. So add error print to
+   catch the situations so that these can be investigated and addressed.
+   return zero in these cases as these are not real error case, but only
+   serve to catch ALE table update related issues and help address the
+   same in the driver.
+
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/test-drivers/vicodec/vicodec-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/ti/cpsw_new.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/test-drivers/vicodec/vicodec-core.c b/drivers/media/test-drivers/vicodec/vicodec-core.c
-index e879290727ef4..25c4ca6884dda 100644
---- a/drivers/media/test-drivers/vicodec/vicodec-core.c
-+++ b/drivers/media/test-drivers/vicodec/vicodec-core.c
-@@ -1994,6 +1994,7 @@ static int vicodec_request_validate(struct media_request *req)
+diff --git a/drivers/net/ethernet/ti/cpsw_new.c b/drivers/net/ethernet/ti/cpsw_new.c
+index 8d0a2bc7128d4..8ed78577cdedf 100644
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -1032,19 +1032,34 @@ static int cpsw_ndo_vlan_rx_kill_vid(struct net_device *ndev,
+ 		return ret;
  	}
- 	ctrl = v4l2_ctrl_request_hdl_ctrl_find(hdl,
- 					       vicodec_ctrl_stateless_state.id);
-+	v4l2_ctrl_request_hdl_put(hdl);
- 	if (!ctrl) {
- 		v4l2_info(&ctx->dev->v4l2_dev,
- 			  "Missing required codec control\n");
+ 
++	/* reset the return code as pm_runtime_get_sync() can return
++	 * non zero values as well.
++	 */
++	ret = 0;
+ 	for (i = 0; i < cpsw->data.slaves; i++) {
+ 		if (cpsw->slaves[i].ndev &&
+-		    vid == cpsw->slaves[i].port_vlan)
++		    vid == cpsw->slaves[i].port_vlan) {
++			ret = -EINVAL;
+ 			goto err;
++		}
+ 	}
+ 
+ 	dev_dbg(priv->dev, "removing vlanid %d from vlan filter\n", vid);
+-	cpsw_ale_del_vlan(cpsw->ale, vid, 0);
+-	cpsw_ale_del_ucast(cpsw->ale, priv->mac_addr,
+-			   HOST_PORT_NUM, ALE_VLAN, vid);
+-	cpsw_ale_del_mcast(cpsw->ale, priv->ndev->broadcast,
+-			   0, ALE_VLAN, vid);
++	ret = cpsw_ale_del_vlan(cpsw->ale, vid, 0);
++	if (ret)
++		dev_err(priv->dev, "cpsw_ale_del_vlan() failed: ret %d\n", ret);
++	ret = cpsw_ale_del_ucast(cpsw->ale, priv->mac_addr,
++				 HOST_PORT_NUM, ALE_VLAN, vid);
++	if (ret)
++		dev_err(priv->dev, "cpsw_ale_del_ucast() failed: ret %d\n",
++			ret);
++	ret = cpsw_ale_del_mcast(cpsw->ale, priv->ndev->broadcast,
++				 0, ALE_VLAN, vid);
++	if (ret)
++		dev_err(priv->dev, "cpsw_ale_del_mcast failed. ret %d\n",
++			ret);
+ 	cpsw_ale_flush_multicast(cpsw->ale, ALE_PORT_HOST, vid);
++	ret = 0;
+ err:
+ 	pm_runtime_put(cpsw->dev);
+ 	return ret;
 -- 
 2.25.1
 
