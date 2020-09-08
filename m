@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57490261B46
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E719261B5F
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731347AbgIHTA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
+        id S1731355AbgIHTCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:02:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731210AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731285AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:08:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4071023EB4;
-        Tue,  8 Sep 2020 15:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0AB723ED0;
+        Tue,  8 Sep 2020 15:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580052;
-        bh=Qoayjoiq0uSKgxLGXmLIhulkMjEAiiCj6O1lrgz1Tlc=;
+        s=default; t=1599580055;
+        bh=eJp0/DnFSscwd70dd5JbDYkMNPYryCg7Ab/hvU1fyZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zcg3eiGwV9ovLNXAd/aH+w9lKa4wkZ+BD0/IJWs3eAfhYZCZCwR+2l2ysMQs3FMna
-         gPaqxii2haK7fgUnntJtCdS5SY8TRXbGtvnV4CEKK9YTtlt9Im6DAYA6MT5ub/SxAY
-         e9HyFowugL1BdpRJjEfwwmEde1iChLAWNdu+zGa8=
+        b=s3+R1OnLTqSxQVMRv2qbINAG1fGb7UEcjaXeMOV3VE4HZ+a37v5hbKKnBCeKR3wSd
+         WfRuuUI8d2XxC2U84RtPDF/1JgPpxcf2sxlrFSIU/uaaOAjpgHCmpj8FdnpU9Me5Z1
+         nUwmvxzXNJfMmsZ6gkS+qw4Sa5nrTVtwCjhrAapg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Clarke <pc@us.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Tony Jones <tonyj@suse.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 03/88] perf record/stat: Explicitly call out event modifiers in the documentation
-Date:   Tue,  8 Sep 2020 17:25:04 +0200
-Message-Id: <20200908152221.258114730@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 04/88] scsi: target: tcmu: Fix size in calls to tcmu_flush_dcache_range
+Date:   Tue,  8 Sep 2020 17:25:05 +0200
+Message-Id: <20200908152221.304149512@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -55,63 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-commit e48a73a312ebf19cc3d72aa74985db25c30757c1 upstream.
+commit 8c4e0f212398cdd1eb4310a5981d06a723cdd24f upstream.
 
-Event modifiers are not mentioned in the perf record or perf stat
-manpages.  Add them to orient new users more effectively by pointing
-them to the perf list manpage for details.
+1) If remaining ring space before the end of the ring is smaller then the
+   next cmd to write, tcmu writes a padding entry which fills the remaining
+   space at the end of the ring.
 
-Fixes: 2055fdaf8703 ("perf list: Document precise event sampling for AMD IBS")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Clarke <pc@us.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tony Jones <tonyj@suse.de>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200901215853.276234-1-kim.phillips@amd.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+   Then tcmu calls tcmu_flush_dcache_range() with the size of struct
+   tcmu_cmd_entry as data length to flush.  If the space filled by the
+   padding was smaller then tcmu_cmd_entry, tcmu_flush_dcache_range() is
+   called for an address range reaching behind the end of the vmalloc'ed
+   ring.
+
+   tcmu_flush_dcache_range() in a loop calls
+   flush_dcache_page(virt_to_page(start)); for every page being part of the
+   range. On x86 the line is optimized out by the compiler, as
+   flush_dcache_page() is empty on x86.
+
+   But I assume the above can cause trouble on other architectures that
+   really have a flush_dcache_page().  For paddings only the header part of
+   an entry is relevant due to alignment rules the header always fits in
+   the remaining space, if padding is needed.  So tcmu_flush_dcache_range()
+   can safely be called with sizeof(entry->hdr) as the length here.
+
+2) After it has written a command to cmd ring, tcmu calls
+   tcmu_flush_dcache_range() using the size of a struct tcmu_cmd_entry as
+   data length to flush.  But if a command needs many iovecs, the real size
+   of the command may be bigger then tcmu_cmd_entry, so a part of the
+   written command is not flushed then.
+
+Link: https://lore.kernel.org/r/20200528193108.9085-1-bstroesser@ts.fujitsu.com
+Acked-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/Documentation/perf-record.txt |    4 ++++
- tools/perf/Documentation/perf-stat.txt   |    4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/target/target_core_user.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/perf/Documentation/perf-record.txt
-+++ b/tools/perf/Documentation/perf-record.txt
-@@ -33,6 +33,10 @@ OPTIONS
-         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -1018,7 +1018,7 @@ static int queue_cmd_ring(struct tcmu_cm
+ 		entry->hdr.cmd_id = 0; /* not used for PAD */
+ 		entry->hdr.kflags = 0;
+ 		entry->hdr.uflags = 0;
+-		tcmu_flush_dcache_range(entry, sizeof(*entry));
++		tcmu_flush_dcache_range(entry, sizeof(entry->hdr));
  
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
- 	  'param1', 'param2', etc are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*.
---- a/tools/perf/Documentation/perf-stat.txt
-+++ b/tools/perf/Documentation/perf-stat.txt
-@@ -39,6 +39,10 @@ report::
- 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
+ 		UPDATE_HEAD(mb->cmd_head, pad_size, udev->cmdr_size);
+ 		tcmu_flush_dcache_range(mb, sizeof(*mb));
+@@ -1083,7 +1083,7 @@ static int queue_cmd_ring(struct tcmu_cm
+ 	cdb_off = CMDR_OFF + cmd_head + base_command_size;
+ 	memcpy((void *) mb + cdb_off, se_cmd->t_task_cdb, scsi_command_size(se_cmd->t_task_cdb));
+ 	entry->req.cdb_off = cdb_off;
+-	tcmu_flush_dcache_range(entry, sizeof(*entry));
++	tcmu_flush_dcache_range(entry, command_size);
  
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
- 	  param1 and param2 are defined as formats for the PMU in
- 	  /sys/bus/event_source/devices/<pmu>/format/*
+ 	UPDATE_HEAD(mb->cmd_head, command_size, udev->cmdr_size);
+ 	tcmu_flush_dcache_range(mb, sizeof(*mb));
 
 
