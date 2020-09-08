@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFD7261ACD
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC741261A9A
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731343AbgIHQI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 12:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1731448AbgIHShn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:37:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731297AbgIHQIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:08:02 -0400
+        id S1731317AbgIHQJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:09:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE6FD23F33;
-        Tue,  8 Sep 2020 15:48:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D37BA23F5C;
+        Tue,  8 Sep 2020 15:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580084;
-        bh=/d6blObAe5VISG8pssX/+RsbDXxLlxLYTvkMDNsadpg=;
+        s=default; t=1599580096;
+        bh=s90aUzkvdM91NHGAnM48+ESinedEbs0jyCdCaIRERok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOB1+bv7G+HazhV6YzW9JGAEkPMEVmm9N5xSacf0gSsOL/YMwe+5vIaJrs6ph5Oz1
-         maCzXvg5V8T6l2fx6LqzBCtI5VwOGDs4UL4WBk5FjFj5h8SYuyminiQ7x+5oPXqmWE
-         rLtI6vtEYB8TyshXda5FGiBJkLZ9N9K7iwWkjUS8=
+        b=YyuOy2cFFZyqrqpr79N/j4+cCW2RlPWBwl2L2WrrzYvL3kiElL27ZS242BiS2rfSy
+         PYtSL//IyuQ6W6er0sesU5Hyw5rigb+OdG4K9Dyxt4Xea0Fk0/v1ndqyM5p3nj5Ozc
+         P3+UoA/cFczFAg97fi45lENFWMhK7D472yoFNd00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Gabriel Ganne <gabriel.ganne@6wind.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/88] net: hns: Fix memleak in hns_nic_dev_probe
-Date:   Tue,  8 Sep 2020 17:25:26 +0200
-Message-Id: <20200908152222.324764551@linuxfoundation.org>
+Subject: [PATCH 4.19 30/88] gtp: add GTPA_LINK info to msg sent to userspace
+Date:   Tue,  8 Sep 2020 17:25:31 +0200
+Message-Id: <20200908152222.580536629@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
 References: <20200908152221.082184905@linuxfoundation.org>
@@ -44,48 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 100e3345c6e719d2291e1efd5de311cc24bb9c0b ]
+[ Upstream commit b274e47d9e3f4dcd4ad4028a316ec22dc4533ac7 ]
 
-hns_nic_dev_probe allocates ndev, but not free it on
-two error handling paths, which may lead to memleak.
+During a dump, this attribute is essential, it enables the userspace to
+know on which interface the context is linked to.
 
-Fixes: 63434888aaf1b ("net: hns: net: hns: enet adds support of acpi")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Tested-by: Gabriel Ganne <gabriel.ganne@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/gtp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-index 024b08fafd3b2..4de65a9de0a63 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -2297,8 +2297,10 @@ static int hns_nic_dev_probe(struct platform_device *pdev)
- 			priv->enet_ver = AE_VERSION_1;
- 		else if (acpi_dev_found(hns_enet_acpi_match[1].id))
- 			priv->enet_ver = AE_VERSION_2;
--		else
--			return -ENXIO;
-+		else {
-+			ret = -ENXIO;
-+			goto out_read_prop_fail;
-+		}
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index d73850ebb671f..f2fecb6842209 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -1187,6 +1187,7 @@ static int gtp_genl_fill_info(struct sk_buff *skb, u32 snd_portid, u32 snd_seq,
+ 		goto nlmsg_failure;
  
- 		/* try to find port-idx-in-ae first */
- 		ret = acpi_node_get_property_reference(dev->fwnode,
-@@ -2314,7 +2316,8 @@ static int hns_nic_dev_probe(struct platform_device *pdev)
- 		priv->fwnode = args.fwnode;
- 	} else {
- 		dev_err(dev, "cannot read cfg data from OF or acpi\n");
--		return -ENXIO;
-+		ret = -ENXIO;
-+		goto out_read_prop_fail;
- 	}
- 
- 	ret = device_property_read_u32(dev, "port-idx-in-ae", &port_id);
+ 	if (nla_put_u32(skb, GTPA_VERSION, pctx->gtp_version) ||
++	    nla_put_u32(skb, GTPA_LINK, pctx->dev->ifindex) ||
+ 	    nla_put_be32(skb, GTPA_PEER_ADDRESS, pctx->peer_addr_ip4.s_addr) ||
+ 	    nla_put_be32(skb, GTPA_MS_ADDRESS, pctx->ms_addr_ip4.s_addr))
+ 		goto nla_put_failure;
 -- 
 2.25.1
 
