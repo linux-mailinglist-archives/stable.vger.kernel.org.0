@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E32E9261C4D
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94DEA261CF8
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731659AbgIHTRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:17:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
+        id S1731081AbgIHT26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731145AbgIHQCx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:02:53 -0400
+        id S1730989AbgIHQAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:00:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 800AE23F36;
-        Tue,  8 Sep 2020 15:38:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E2FB23F58;
+        Tue,  8 Sep 2020 15:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579485;
-        bh=TvJ69wG3VXuC5EM2oQcpZMYtkRi/Ez1en9ZuywHkQt8=;
+        s=default; t=1599579487;
+        bh=1fxuIfBwAjEqiOizcTcWza3Cdoa0cViFmNnsCS2gGew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/7XYO8MEZu5Ps3DUYC+hq1dEmuI0DTgPEM2LxmSOMKlPRlO8/iZkXsgLOy+cUt/p
-         d5MBZbZvBWFYlXI6lYZtHeEoRfBZIomdn2QAyhknGBfV2e+wBEeoydaB0lpTi5cWrg
-         dr8VZpQFBDFRaeayajhRZ0V+U/VNy+3Qa1LH2aSU=
+        b=vNpqNSyMaz0n/CGIhcBjOtXBgocEl2mxDn26przAzSoM+sQStBr/pdlurdW826/wS
+         MZs9Q+ScPSA5NCJunbSFs9imIwJXX7pCGLXgFsjc+QS9SGliOfY9ywEaUDbQzINLgw
+         8obuCEFJJNUJHGBUzkp5Aq06hXdTy1QLWG8vO2qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 097/186] net: bcmgenet: fix mask check in bcmgenet_validate_flow()
-Date:   Tue,  8 Sep 2020 17:23:59 +0200
-Message-Id: <20200908152246.334553792@linuxfoundation.org>
+Subject: [PATCH 5.8 098/186] net: gemini: Fix another missing clk_disable_unprepare() in probe
+Date:   Tue,  8 Sep 2020 17:24:00 +0200
+Message-Id: <20200908152246.385353745@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -46,37 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1996cf46e4673a25ef2478eb266714f409a98221 ]
+[ Upstream commit eb0f3bc463d59d86402f19c59aa44e82dc3fab6d ]
 
-VALIDATE_MASK(eth_mask->h_source) is checked twice in a row in
-bcmgenet_validate_flow(). Add VALIDATE_MASK(eth_mask->h_dest)
-instead.
+We recently added some calls to clk_disable_unprepare() but we missed
+the last error path if register_netdev() fails.
 
-Fixes: 3e370952287c ("net: bcmgenet: add support for ethtool rxnfc flows")
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+I made a couple cleanups so we avoid mistakes like this in the future.
+First I reversed the "if (!ret)" condition and pulled the code in one
+indent level.  Also, the "port->netdev = NULL;" is not required because
+"port" isn't used again outside this function so I deleted that line.
+
+Fixes: 4d5ae32f5e1e ("net: ethernet: Add a driver for Gemini gigabit ethernet")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cortina/gemini.c | 34 +++++++++++++--------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index e471b14fc6e98..f0074c873da3b 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1364,7 +1364,7 @@ static int bcmgenet_validate_flow(struct net_device *dev,
- 	case ETHER_FLOW:
- 		eth_mask = &cmd->fs.m_u.ether_spec;
- 		/* don't allow mask which isn't valid */
--		if (VALIDATE_MASK(eth_mask->h_source) ||
-+		if (VALIDATE_MASK(eth_mask->h_dest) ||
- 		    VALIDATE_MASK(eth_mask->h_source) ||
- 		    VALIDATE_MASK(eth_mask->h_proto)) {
- 			netdev_err(dev, "rxnfc: Unsupported mask\n");
+diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
+index 62e271aea4a50..ffec0f3dd9578 100644
+--- a/drivers/net/ethernet/cortina/gemini.c
++++ b/drivers/net/ethernet/cortina/gemini.c
+@@ -2446,8 +2446,8 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
+ 	port->reset = devm_reset_control_get_exclusive(dev, NULL);
+ 	if (IS_ERR(port->reset)) {
+ 		dev_err(dev, "no reset\n");
+-		clk_disable_unprepare(port->pclk);
+-		return PTR_ERR(port->reset);
++		ret = PTR_ERR(port->reset);
++		goto unprepare;
+ 	}
+ 	reset_control_reset(port->reset);
+ 	usleep_range(100, 500);
+@@ -2502,25 +2502,25 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
+ 					IRQF_SHARED,
+ 					port_names[port->id],
+ 					port);
+-	if (ret) {
+-		clk_disable_unprepare(port->pclk);
+-		return ret;
+-	}
++	if (ret)
++		goto unprepare;
+ 
+ 	ret = register_netdev(netdev);
+-	if (!ret) {
++	if (ret)
++		goto unprepare;
++
++	netdev_info(netdev,
++		    "irq %d, DMA @ 0x%pap, GMAC @ 0x%pap\n",
++		    port->irq, &dmares->start,
++		    &gmacres->start);
++	ret = gmac_setup_phy(netdev);
++	if (ret)
+ 		netdev_info(netdev,
+-			    "irq %d, DMA @ 0x%pap, GMAC @ 0x%pap\n",
+-			    port->irq, &dmares->start,
+-			    &gmacres->start);
+-		ret = gmac_setup_phy(netdev);
+-		if (ret)
+-			netdev_info(netdev,
+-				    "PHY init failed, deferring to ifup time\n");
+-		return 0;
+-	}
++			    "PHY init failed, deferring to ifup time\n");
++	return 0;
+ 
+-	port->netdev = NULL;
++unprepare:
++	clk_disable_unprepare(port->pclk);
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
