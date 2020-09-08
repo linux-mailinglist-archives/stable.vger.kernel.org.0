@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6501F261E85
+	by mail.lfdr.de (Postfix) with ESMTP id D4FEA261E86
 	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730713AbgIHTwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:52:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37604 "EHLO mail.kernel.org"
+        id S1730716AbgIHTwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbgIHPtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730715AbgIHPtb (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 11:49:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9C7C24839;
-        Tue,  8 Sep 2020 15:44:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 632C22483B;
+        Tue,  8 Sep 2020 15:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579892;
-        bh=t9oVmlAucUPz8wGFixUVdC8fAehFz3C3ZSo8YUF4qKE=;
+        s=default; t=1599579894;
+        bh=mECtXbiRFJUbuleY1pmT6Ktiv9PX7GzbC8Bl9dfQ3N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUi9voyZ+uduZSCbHDGhatykNuRsucdyh7XherfXxWlKuJyZPDcQIq9/nBSL/9g2q
-         3UpR5Tn/qcCMeuxj3EGtaWzSckZHPxZxk7yH7aYsqi265ylxgeouZxSnoybpoyKYDm
-         4C2d34TDMl5AWga44leKJfTP9zNNzyVnDtHb4i4g=
+        b=qyuxbq7o6EpMboBHKmVD9k4u8EmSKyjOyz7Rkshj7bTaH4afpc2LviZmCbIKccRTm
+         qhXCdbG/fQMJ9O+xy+1ngMvxVbY5hmUBo2Xc4SP4+DW0fX5j5y/IGW3+8+RKab9Ywe
+         FcayABey6Q7MuyWfhpach+F1tCzPwBFo436q8TBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Smith <msmith626@gmail.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/129] bnxt_en: fix HWRM error when querying VF temperature
-Date:   Tue,  8 Sep 2020 17:24:47 +0200
-Message-Id: <20200908152232.002539599@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 047/129] xfs: fix boundary test in xfs_attr_shortform_verify
+Date:   Tue,  8 Sep 2020 17:24:48 +0200
+Message-Id: <20200908152232.053568703@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -46,58 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-[ Upstream commit 12cce90b934bf2b0ed9c339b4d5503e69954351a ]
+[ Upstream commit f4020438fab05364018c91f7e02ebdd192085933 ]
 
-Firmware returns RESOURCE_ACCESS_DENIED for HWRM_TEMP_MONITORY_QUERY for
-VFs. This produces unpleasing error messages in the log when temp1_input
-is queried via the hwmon sysfs interface from a VF.
+The boundary test for the fixed-offset parts of xfs_attr_sf_entry in
+xfs_attr_shortform_verify is off by one, because the variable array
+at the end is defined as nameval[1] not nameval[].
+Hence we need to subtract 1 from the calculation.
 
-The error is harmless and expected, so silence it and return unknown as
-the value. Since the device temperature is not particularly sensitive
-information, provide flexibility to change this policy in future by
-silencing the error rather than avoiding the HWRM call entirely for VFs.
+This can be shown by:
 
-Fixes: cde49a42a9bb ("bnxt_en: Add hwmon sysfs support to read temperature")
-Cc: Marc Smith <msmith626@gmail.com>
-Reported-by: Marc Smith <msmith626@gmail.com>
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+# touch file
+# setfattr -n root.a file
+
+and verifications will fail when it's written to disk.
+
+This only matters for a last attribute which has a single-byte name
+and no value, otherwise the combination of namelen & valuelen will
+push endp further out and this test won't fail.
+
+Fixes: 1e1bbd8e7ee06 ("xfs: create structure verifier function for shortform xattrs")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 16462d21fea38..089d7b9cc409d 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8938,16 +8938,19 @@ static ssize_t bnxt_show_temp(struct device *dev,
- 	struct hwrm_temp_monitor_query_input req = {0};
- 	struct hwrm_temp_monitor_query_output *resp;
- 	struct bnxt *bp = dev_get_drvdata(dev);
--	u32 temp = 0;
-+	u32 len = 0;
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index f0089e862216c..fe277ee5ec7c4 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -946,8 +946,10 @@ xfs_attr_shortform_verify(
+ 		 * struct xfs_attr_sf_entry has a variable length.
+ 		 * Check the fixed-offset parts of the structure are
+ 		 * within the data buffer.
++		 * xfs_attr_sf_entry is defined with a 1-byte variable
++		 * array at the end, so we must subtract that off.
+ 		 */
+-		if (((char *)sfep + sizeof(*sfep)) >= endp)
++		if (((char *)sfep + sizeof(*sfep) - 1) >= endp)
+ 			return __this_address;
  
- 	resp = bp->hwrm_cmd_resp_addr;
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_TEMP_MONITOR_QUERY, -1, -1);
- 	mutex_lock(&bp->hwrm_cmd_lock);
--	if (!_hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT))
--		temp = resp->temp * 1000; /* display millidegree */
-+	if (!_hwrm_send_message_silent(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT))
-+		len = sprintf(buf, "%u\n", resp->temp * 1000); /* display millidegree */
- 	mutex_unlock(&bp->hwrm_cmd_lock);
- 
--	return sprintf(buf, "%u\n", temp);
-+	if (len)
-+		return len;
-+
-+	return sprintf(buf, "unknown\n");
- }
- static SENSOR_DEVICE_ATTR(temp1_input, 0444, bnxt_show_temp, NULL, 0);
- 
+ 		/* Don't allow names with known bad length. */
 -- 
 2.25.1
 
