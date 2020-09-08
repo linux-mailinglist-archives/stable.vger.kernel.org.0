@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 278EC26172B
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C794261718
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731831AbgIHR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:27:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
+        id S1727088AbgIHRYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:24:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731731AbgIHQQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:16:58 -0400
+        id S1730976AbgIHQRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:17:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D741E24828;
-        Tue,  8 Sep 2020 15:44:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74E4A24829;
+        Tue,  8 Sep 2020 15:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579865;
-        bh=T/kkUQEE7+ok0kqx2oPASSM9vF53iFJ2MbQnnJfEleM=;
+        s=default; t=1599579867;
+        bh=vf6uV5E11+J3SooCKztpUUMOjfYjPpiT8i5gbUY2EeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6pgKb6yLsPGxv3A7zW4WlE0OjSwnGYdDn0Atr1uLzyUOa7d8Cw+RL1YCUVfjvltl
-         Plbx69nKAo136+A50dXFP1lLzP+YPOHXgvWehpskw2JL9yrKz0foAzvwuSD65Yb1z2
-         Zd3tz+JbOmRK1+WHFq7Q6EFXCuqPowpJcCeXXZjk=
+        b=josDkeNcWaNAz4xDK7NzPt5bEVTAkGw/FA7XdeqwxQ7J1CK5kFRCaMezRN0SiZBLA
+         vJvN7loIXonboEU9wQIs/hvstCE/CfxNsTsoIHF3tgcvvPnx8Oc70NcQB1MpatH8KK
+         JY0BBkWZ7ZqchQ2JFw8lR/8Wtbl4kwBy5oPu2DA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <andi@firstfloor.org>, Jiri Olsa <jolsa@redhat.com>,
-        John Garry <john.garry@huawei.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        William Cohen <wcohen@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, David Christensen <drc@linux.vnet.ibm.com>,
+        Baptiste Covolato <baptiste@arista.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/129] perf jevents: Fix suspicious code in fixregex()
-Date:   Tue,  8 Sep 2020 17:25:05 +0200
-Message-Id: <20200908152232.892355478@linuxfoundation.org>
+Subject: [PATCH 5.4 065/129] tg3: Fix soft lockup when tg3_reset_task() fails.
+Date:   Tue,  8 Sep 2020 17:25:06 +0200
+Message-Id: <20200908152232.939879067@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -53,44 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit e62458e3940eb3dfb009481850e140fbee183b04 ]
+[ Upstream commit 556699341efa98243e08e34401b3f601da91f5a3 ]
 
-The new string should have enough space for the original string and the
-back slashes IMHO.
+If tg3_reset_task() fails, the device state is left in an inconsistent
+state with IFF_RUNNING still set but NAPI state not enabled.  A
+subsequent operation, such as ifdown or AER error can cause it to
+soft lock up when it tries to disable NAPI state.
 
-Fixes: fbc2844e84038ce3 ("perf vendor events: Use more flexible pattern matching for CPU identification for mapfile.csv")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Reviewed-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <andi@firstfloor.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: William Cohen <wcohen@redhat.com>
-Link: http://lore.kernel.org/lkml/20200903152510.489233-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fix it by bringing down the device to !IFF_RUNNING state when
+tg3_reset_task() fails.  tg3_reset_task() running from workqueue
+will now call tg3_close() when the reset fails.  We need to
+modify tg3_reset_task_cancel() slightly to avoid tg3_close()
+calling cancel_work_sync() to cancel tg3_reset_task().  Otherwise
+cancel_work_sync() will wait forever for tg3_reset_task() to
+finish.
+
+Reported-by: David Christensen <drc@linux.vnet.ibm.com>
+Reported-by: Baptiste Covolato <baptiste@arista.com>
+Fixes: db2199737990 ("tg3: Schedule at most one tg3_reset_task run")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/tg3.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index 99e3fd04a5cb3..d36ae65ae3330 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -137,7 +137,7 @@ static char *fixregex(char *s)
- 		return s;
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index e12ba81288e64..70bd79dc43f2e 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -7227,8 +7227,8 @@ static inline void tg3_reset_task_schedule(struct tg3 *tp)
  
- 	/* allocate space for a new string */
--	fixed = (char *) malloc(len + 1);
-+	fixed = (char *) malloc(len + esc_count + 1);
- 	if (!fixed)
- 		return NULL;
+ static inline void tg3_reset_task_cancel(struct tg3 *tp)
+ {
+-	cancel_work_sync(&tp->reset_task);
+-	tg3_flag_clear(tp, RESET_TASK_PENDING);
++	if (test_and_clear_bit(TG3_FLAG_RESET_TASK_PENDING, tp->tg3_flags))
++		cancel_work_sync(&tp->reset_task);
+ 	tg3_flag_clear(tp, TX_RECOVERY_PENDING);
+ }
+ 
+@@ -11219,18 +11219,27 @@ static void tg3_reset_task(struct work_struct *work)
+ 
+ 	tg3_halt(tp, RESET_KIND_SHUTDOWN, 0);
+ 	err = tg3_init_hw(tp, true);
+-	if (err)
++	if (err) {
++		tg3_full_unlock(tp);
++		tp->irq_sync = 0;
++		tg3_napi_enable(tp);
++		/* Clear this flag so that tg3_reset_task_cancel() will not
++		 * call cancel_work_sync() and wait forever.
++		 */
++		tg3_flag_clear(tp, RESET_TASK_PENDING);
++		dev_close(tp->dev);
+ 		goto out;
++	}
+ 
+ 	tg3_netif_start(tp);
+ 
+-out:
+ 	tg3_full_unlock(tp);
+ 
+ 	if (!err)
+ 		tg3_phy_start(tp);
+ 
+ 	tg3_flag_clear(tp, RESET_TASK_PENDING);
++out:
+ 	rtnl_unlock();
+ }
  
 -- 
 2.25.1
