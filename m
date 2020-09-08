@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 294D9261BEF
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B5AC261BFF
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 21:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731225AbgIHTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 15:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53448 "EHLO mail.kernel.org"
+        id S1730532AbgIHTNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 15:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731218AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731216AbgIHQFW (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Sep 2020 12:05:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96722223C7;
-        Tue,  8 Sep 2020 15:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 783ED223FB;
+        Tue,  8 Sep 2020 15:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579947;
-        bh=P5jnhtT33Oq8lnZmSI2Idi6KUJNovb0cJrHELk4FGGs=;
+        s=default; t=1599579952;
+        bh=FylbTEiD/DWhvOUoe0WCFuShSIlax8Y8+fievbYrx4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyHzLwVZn21T08fuf0e336bwx6hcfLvuzT9MLuwlNTiAFGylcBMWDwROr12SS5qQ1
-         hQApGA+HKA2nu8Qt1ErzPldvsKPctv7k52/2XKLVhxCf+kfoW2ArYyfMYx6u8HY/MD
-         u91kEqTUKLjH6pDFUI1AQdMlgCMVDAFgdHoKoxeo=
+        b=sY4H5PXP63ku9hSmDKToYKpgEDyVn1zby9PuV67dxmMniat1Aqb1BQ+ykYs5s06tF
+         UGtxVVhCrbV3zzaPQ37B98T4f4OMKzdhBB8XRcPGnmMoxnRNIO2qh+R1Qn9xuD2+Ys
+         jY3BuDKAkQhJ7X3NMKVGM30vR89MO+GJog3rKAwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adrien Crivelli <adrien.crivelli@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 097/129] ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion NT950XCJ-X716A
-Date:   Tue,  8 Sep 2020 17:25:38 +0200
-Message-Id: <20200908152234.646756609@linuxfoundation.org>
+        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 099/129] arm64: dts: mt7622: add reset node for mmc device
+Date:   Tue,  8 Sep 2020 17:25:40 +0200
+Message-Id: <20200908152234.752514916@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152229.689878733@linuxfoundation.org>
 References: <20200908152229.689878733@linuxfoundation.org>
@@ -44,41 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrien Crivelli <adrien.crivelli@gmail.com>
+From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-commit 8bcea6cb2cbc1f749e574954569323dec5e2920e upstream.
+commit d6f6cbeee4e5ee6976792851e0461c19f1ede864 upstream.
 
-The Galaxy Book Ion NT950XCJ-X716A (15 inches) uses the same ALC298
-codec as other Samsung laptops which have the no headphone sound bug. I
-confirmed on my own hardware that this fixes the bug.
+This commit adds reset node for mmc device.
 
-This also correct the model name for the 13 inches version. It was
-incorrectly referenced as NT950XCJ-X716A in commit e17f02d05. But it
-should have been NP930XCJ-K01US.
-
-Fixes: e17f02d0559c ("ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
-Signed-off-by: Adrien Crivelli <adrien.crivelli@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200826084014.211217-1-adrien.crivelli@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: <stable@vger.kernel.org> # v5.4+
+Fixes: 966580ad236e ("mmc: mediatek: add support for MT7622 SoC")
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Tested-by: Frank Wunderlich <frank-w@public-files.de>
+Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20200814014346.6496-3-wenbin.mei@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt7622.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7678,7 +7678,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
- 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+--- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+@@ -686,6 +686,8 @@
+ 		clocks = <&pericfg CLK_PERI_MSDC30_0_PD>,
+ 			 <&topckgen CLK_TOP_MSDC50_0_SEL>;
+ 		clock-names = "source", "hclk";
++		resets = <&pericfg MT7622_PERI_MSDC0_SW_RST>;
++		reset-names = "hrst";
+ 		status = "disabled";
+ 	};
+ 
 
 
