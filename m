@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EC126182F
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:51:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653A42618AF
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 19:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731627AbgIHRtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 13:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56674 "EHLO mail.kernel.org"
+        id S1731631AbgIHR7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 13:59:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731612AbgIHQN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:13:59 -0400
+        id S1731545AbgIHQMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:12:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2036248E5;
-        Tue,  8 Sep 2020 15:52:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14434247FA;
+        Tue,  8 Sep 2020 15:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599580379;
-        bh=6Fez109ttIMLRmVVxANrHk+iYVZxm0H8XRvVFoMJ/EU=;
+        s=default; t=1599580303;
+        bh=IBX1WGPmxvS3xq3KJipHAvSCKXBKoVkgP2Ym2HNLzUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lcm6zXRsbrxA3SoCFjmVGl6UNFw+wMJ9MA6VBZUWXwwBL81cVaaMJr7eQAASEHXUY
-         9Rgyl53O6dtB/SMy4JWFLJ2zti+kmGzT4XeVbiOj2akJi5DYN9nN442O2SU5BodKJo
-         TJVjDhXAYzsi1a4AqhwwQtYpO0r0NF6h399ZHC1w=
+        b=aKY2puzXgGhjLVHSphR4cwLcWVYNvYIF2/hTh4SOTVZ1tcD9kOihQvHBWQuyxzpDK
+         WNRTJKCO2SgE6SaCSbVjVSFtkSMK9STvnjApzznOlWWjRPK+ovBLSpcmXvDvs+ZKlq
+         V3K4xX2caUlX2QOXc7C3f0A6crV50Cwv7sf9osJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Jussi Kivilinna <jussi.kivilinna@haltian.com>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/65] batman-adv: Fix own OGM check in aggregated OGMs
-Date:   Tue,  8 Sep 2020 17:25:58 +0200
-Message-Id: <20200908152217.709656446@linuxfoundation.org>
+Subject: [PATCH 4.14 14/65] batman-adv: bla: use netif_rx_ni when not in interrupt context
+Date:   Tue,  8 Sep 2020 17:25:59 +0200
+Message-Id: <20200908152217.766744882@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
 References: <20200908152217.022816723@linuxfoundation.org>
@@ -46,60 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 
-[ Upstream commit d8bf0c01642275c7dca1e5d02c34e4199c200b1f ]
+[ Upstream commit 279e89b2281af3b1a9f04906e157992c19c9f163 ]
 
-The own OGM check is currently misplaced and can lead to the following
-issues:
+batadv_bla_send_claim() gets called from worker thread context through
+batadv_bla_periodic_work(), thus netif_rx_ni needs to be used in that
+case. This fixes "NOHZ: local_softirq_pending 08" log messages seen
+when batman-adv is enabled.
 
-For one thing we might receive an aggregated OGM from a neighbor node
-which has our own OGM in the first place. We would then not only skip
-our own OGM but erroneously also any other, following OGM in the
-aggregate.
-
-For another, we might receive an OGM aggregate which has our own OGM in
-a place other then the first one. Then we would wrongly not skip this
-OGM, leading to populating the orginator and gateway table with ourself.
-
-Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Signed-off-by: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_ogm.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/bat_v_ogm.c b/net/batman-adv/bat_v_ogm.c
-index f0abbbdafe07f..c49c48866a3fc 100644
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -715,6 +715,12 @@ static void batadv_v_ogm_process(const struct sk_buff *skb, int ogm_offset,
- 		   ntohl(ogm_packet->seqno), ogm_throughput, ogm_packet->ttl,
- 		   ogm_packet->version, ntohs(ogm_packet->tvlv_len));
- 
-+	if (batadv_is_my_mac(bat_priv, ogm_packet->orig)) {
-+		batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
-+			   "Drop packet: originator packet from ourself\n");
-+		return;
-+	}
-+
- 	/* If the throughput metric is 0, immediately drop the packet. No need
- 	 * to create orig_node / neigh_node for an unusable route.
- 	 */
-@@ -842,11 +848,6 @@ int batadv_v_ogm_packet_recv(struct sk_buff *skb,
- 	if (batadv_is_my_mac(bat_priv, ethhdr->h_source))
- 		goto free_skb;
- 
--	ogm_packet = (struct batadv_ogm2_packet *)skb->data;
--
--	if (batadv_is_my_mac(bat_priv, ogm_packet->orig))
--		goto free_skb;
--
- 	batadv_inc_counter(bat_priv, BATADV_CNT_MGMT_RX);
- 	batadv_add_counter(bat_priv, BATADV_CNT_MGMT_RX_BYTES,
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index c761c0c233e4b..ae647fa69ce85 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -450,7 +450,10 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
+ 	batadv_add_counter(bat_priv, BATADV_CNT_RX_BYTES,
  			   skb->len + ETH_HLEN);
+ 
+-	netif_rx(skb);
++	if (in_interrupt())
++		netif_rx(skb);
++	else
++		netif_rx_ni(skb);
+ out:
+ 	if (primary_if)
+ 		batadv_hardif_put(primary_if);
 -- 
 2.25.1
 
