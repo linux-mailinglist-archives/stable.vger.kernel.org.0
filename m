@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BFD12619E8
-	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C23902619DF
+	for <lists+stable@lfdr.de>; Tue,  8 Sep 2020 20:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731688AbgIHS2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 14:28:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55370 "EHLO mail.kernel.org"
+        id S1731427AbgIHS1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 14:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731408AbgIHQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Sep 2020 12:10:25 -0400
+        id S1731428AbgIHQK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91C1424743;
-        Tue,  8 Sep 2020 15:41:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24BE824747;
+        Tue,  8 Sep 2020 15:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599579668;
-        bh=fAwFO1P7fVr5Y3Eo8Ta4MRRO6FnQf2ilbIIAN3MRW8Y=;
+        s=default; t=1599579670;
+        bh=NGMD93V9ArFeuIG8EFdY9DZSKhb0K8Og0xZXFCbWbnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhHjaWlF49E73yoDL7VvR1JLPukZyjk0ZrFTL2Z43E8rtOng3sMb5JL2eXKcfdGbt
-         2AkKPh7kADft2kYHzZ8zmapp72k2BiO14Q3vB46+L4kvbt5X8LMYUiJD25IxtwFPCg
-         4WU2saQIo3sSd8en+hWVijtDewydVyu47VfRDUds=
+        b=VDFbi1B05OEFV1BpNiYcR9mbgdza+teXnByipYPjhcjHFjx6cfD2yEGz2IMvG1tGZ
+         RKSdUMg+GxPs0UYoYm4HiTm04l6jH3d0nkOio2bcUBAv2Amg5dv9tZWxDLIcIi97SZ
+         ERkz9hLK0JQ2n/KjqMarM9xpUTzcidBgCNGLoIHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Adrien Crivelli <adrien.crivelli@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 143/186] ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion NT950XCJ-X716A
-Date:   Tue,  8 Sep 2020 17:24:45 +0200
-Message-Id: <20200908152248.594845012@linuxfoundation.org>
+        Benjamin Poirier <benjamin.poirier@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.8 144/186] ALSA: hda/realtek - Improved routing for Thinkpad X1 7th/8th Gen
+Date:   Tue,  8 Sep 2020 17:24:46 +0200
+Message-Id: <20200908152248.643397994@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
 References: <20200908152241.646390211@linuxfoundation.org>
@@ -44,41 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrien Crivelli <adrien.crivelli@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8bcea6cb2cbc1f749e574954569323dec5e2920e upstream.
+commit 6a6660d049f88b89fd9a4b9db3581b245f7782fa upstream.
 
-The Galaxy Book Ion NT950XCJ-X716A (15 inches) uses the same ALC298
-codec as other Samsung laptops which have the no headphone sound bug. I
-confirmed on my own hardware that this fixes the bug.
+There've been quite a few regression reports about the lowered volume
+(reduced to ca 65% from the previous level) on Lenovo Thinkpad X1
+after the commit d2cd795c4ece ("ALSA: hda - fixup for the bass speaker
+on Lenovo Carbon X1 7th gen").  Although the commit itself does the
+right thing from HD-audio POV in order to have a volume control for
+bass speakers, it seems that the machine has some secret recipe under
+the hood.
 
-This also correct the model name for the 13 inches version. It was
-incorrectly referenced as NT950XCJ-X716A in commit e17f02d05. But it
-should have been NP930XCJ-K01US.
+Through experiments, Benjamin Poirier found out that the following
+routing gives the best result:
+* DAC1 (NID 0x02) -> Speaker pin (NID 0x14)
+* DAC2 (NID 0x03) -> Shared by both Bass Speaker pin (NID 0x17) &
+                     Headphone pin (0x21)
+* DAC3 (NID 0x06) -> Unused
 
-Fixes: e17f02d0559c ("ALSA: hda/realtek: Add quirk for Samsung Galaxy Book Ion")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
-Signed-off-by: Adrien Crivelli <adrien.crivelli@gmail.com>
+DAC1 seems to have some equalizer internally applied, and you'd get
+again the output in a bad quality if you connect this to the
+headphone pin.  Hence the headphone is connected to DAC2, which is now
+shared with the bass speaker pin.  DAC3 has no volume amp, hence it's
+not connected at all.
+
+For achieving the routing above, this patch introduced a couple of
+workarounds:
+
+* The connection list of bass speaker pin (NID 0x17) is reduced not to
+  include DAC3 (NID 0x06)
+* Pass preferred_pairs array to specify the fixed connection
+
+Here, both workarounds are needed because the generic parser prefers
+the individual DAC assignment over others.
+
+When the routing above is applied, the generic parser creates the two
+volume controls "Front" and "Bass Speaker".  Since we have only two
+DACs for three output pins, those are not fully controlling each
+output individually, and it would confuse PulseAudio.  For avoiding
+the pitfall, in this patch, we rename those volume controls to some
+unique ones ("DAC1" and "DAC2").  Then PulseAudio ignore them and
+concentrate only on the still good-working "Master" volume control.
+If a user still wants to control each DAC volume, they can still
+change manually via "DAC1" and "DAC2" volume controls.
+
+Fixes: d2cd795c4ece ("ALSA: hda - fixup for the bass speaker on Lenovo Carbon X1 7th gen")
+Reported-by: Benjamin Poirier <benjamin.poirier@gmail.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Tested-by: Benjamin Poirier <benjamin.poirier@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200826084014.211217-1-adrien.crivelli@gmail.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207407#c10
+BugLink: https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3214171
+BugLink: https://gist.github.com/hamidzr/dd81e429dc86f4327ded7a2030e7d7d9#gistcomment-3276276
+Link: https://lore/kernel.org/r/20200829112746.3118-1-benjamin.poirier@gmail.com
+Link: https://lore.kernel.org/r/20200903083300.6333-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -7708,7 +7708,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
- 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+@@ -5880,6 +5880,39 @@ static void alc275_fixup_gpio4_off(struc
+ 	}
+ }
+ 
++/* Quirk for Thinkpad X1 7th and 8th Gen
++ * The following fixed routing needed
++ * DAC1 (NID 0x02) -> Speaker (NID 0x14); some eq applied secretly
++ * DAC2 (NID 0x03) -> Bass (NID 0x17) & Headphone (NID 0x21); sharing a DAC
++ * DAC3 (NID 0x06) -> Unused, due to the lack of volume amp
++ */
++static void alc285_fixup_thinkpad_x1_gen7(struct hda_codec *codec,
++					  const struct hda_fixup *fix, int action)
++{
++	static const hda_nid_t conn[] = { 0x02, 0x03 }; /* exclude 0x06 */
++	static const hda_nid_t preferred_pairs[] = {
++		0x14, 0x02, 0x17, 0x03, 0x21, 0x03, 0
++	};
++	struct alc_spec *spec = codec->spec;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
++		spec->gen.preferred_dacs = preferred_pairs;
++		break;
++	case HDA_FIXUP_ACT_BUILD:
++		/* The generic parser creates somewhat unintuitive volume ctls
++		 * with the fixed routing above, and the shared DAC2 may be
++		 * confusing for PA.
++		 * Rename those to unique names so that PA doesn't touch them
++		 * and use only Master volume.
++		 */
++		rename_ctl(codec, "Front Playback Volume", "DAC1 Playback Volume");
++		rename_ctl(codec, "Bass Speaker Playback Volume", "DAC2 Playback Volume");
++		break;
++	}
++}
++
+ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
+ 					 const struct hda_fixup *fix,
+ 					 int action)
+@@ -6148,6 +6181,7 @@ enum {
+ 	ALC289_FIXUP_DUAL_SPK,
+ 	ALC294_FIXUP_SPK2_TO_DAC1,
+ 	ALC294_FIXUP_ASUS_DUAL_SPK,
++	ALC285_FIXUP_THINKPAD_X1_GEN7,
+ 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
+ 	ALC294_FIXUP_ASUS_HPE,
+ 	ALC294_FIXUP_ASUS_COEF_1B,
+@@ -7293,11 +7327,17 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_SPK2_TO_DAC1
+ 	},
++	[ALC285_FIXUP_THINKPAD_X1_GEN7] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_thinkpad_x1_gen7,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_THINKPAD_ACPI
++	},
+ 	[ALC285_FIXUP_THINKPAD_HEADSET_JACK] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_headset_jack,
+ 		.chained = true,
+-		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1
++		.chain_id = ALC285_FIXUP_THINKPAD_X1_GEN7
+ 	},
+ 	[ALC294_FIXUP_ASUS_HPE] = {
+ 		.type = HDA_FIXUP_VERBS,
 
 
