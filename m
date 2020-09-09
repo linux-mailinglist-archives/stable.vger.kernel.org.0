@@ -2,80 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A54F42637EB
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 22:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F3726382C
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 23:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726714AbgIIUzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 16:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726534AbgIIUzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 16:55:39 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 676DCC061573
-        for <stable@vger.kernel.org>; Wed,  9 Sep 2020 13:55:39 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id z25so4687537iol.10
-        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 13:55:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=xrVeslsouNmjEEkhvRC1xFIJrnFHed0GEV4QLk1xY5U=;
-        b=Tzkquys7VIPGJw5S/s5LuBC6uJ5KOw5vFvdewcyWak5Zw1SK/1nUhQWnBu82yij/qc
-         iZf0RNOAejlHu/vYn/AHjwp2n/zyitsyeybLYHjvno1zqZPWejrnnuw0+TpFpo6XgA5J
-         3UcX5lkkPjplODOBfE3wS7DCsypSXRzOPa2abv4DCslBKtKi4jjRoLuyNdCSbek1zl1K
-         s00wSqiHly0hLj3JK8aNOhU0uGfmtV+6ahSMITvGAYShTeDL2sfPV8Sewtfi0YyIfU5Z
-         eeYIYq4xEk42Tu8uKXTazYb0AExMvMft/4N2qMddqQt+NfUa5L0SrhqoItZ+fvNlZZy2
-         DU1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=xrVeslsouNmjEEkhvRC1xFIJrnFHed0GEV4QLk1xY5U=;
-        b=aQs6OqcjvNOtzMJHMJo1c/OqI6szW5LNrk7HXIxb3HxsJbyWQZwz2lDINiY1amL4nN
-         vJeI1qjc7zFFSuvaSU23gqoYzvBYKbVEEeFEc9jUt/9CWxLhZUT+7B0BudAF2XaT6BiR
-         mGRcgFgps9j39bOEOP3574jxB1rqRd/5aD9NB32zCMqxK3jjVf+9AwsNAggPoYw4qrJD
-         mEzCVrW/8a4TV+g7TWhK8uOY98o+S8ZxqbbWeaht32jQlRudkiKwuzOPzPNvQ3Ne1X/Z
-         1/UYFqvsZAAfnhjtJRQ5o37uNOscqu7GtEX4XFWiOlnIm+YJvU+wHnrYe9j9vye4LC9S
-         QUHA==
-X-Gm-Message-State: AOAM533WUcf9woAT7/kyCEbJKy2UoZox3nzaagFv9cTYcLSliiBMxw9f
-        L/QIHFjTXkuoXReuCfxGdImdTjVR/HeKk67qCu0=
-X-Google-Smtp-Source: ABdhPJyDnf0GVj7+5N/TPYGLQMSMR/cJjiWE5bA3nRXaUC8TIRQ7stT/UFIAz6rtYyel0ta74sg8Xb7WMUWi++zm5t8=
-X-Received: by 2002:a6b:7f0b:: with SMTP id l11mr5006685ioq.182.1599684938453;
- Wed, 09 Sep 2020 13:55:38 -0700 (PDT)
+        id S1729822AbgIIVFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 17:05:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727900AbgIIVFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Sep 2020 17:05:40 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 775CE206D4;
+        Wed,  9 Sep 2020 21:05:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599685539;
+        bh=LunnJpliQgRjiEVetnhJXASncAl1C5s7uWNB3u6DaZc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=yqxa7ehxphXmc1T3J8702keaNZyzLzfHp45qqOxhKoqwabHtfrEUWcq7srxebCNUI
+         I4PrpOwLZw6yf0zYFngGR50EtCphaC86t+43egW+/Ze9bZQgFeAVGFmsGh1roS1WF4
+         b32khP0ng3815bkR56+t2w8Q3+5NKFJK1ub5LxGk=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=hot-poop.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kG7Hd-00ATLQ-Ju; Wed, 09 Sep 2020 22:05:37 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        kvmarm@lists.cs.columbia.edu
+Cc:     Will Deacon <will@kernel.org>, James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: [PATCH] KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch
+Date:   Wed,  9 Sep 2020 22:05:27 +0100
+Message-Id: <20200909210527.1926996-1-maz@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Received: by 2002:a05:6e02:8e8:0:0:0:0 with HTTP; Wed, 9 Sep 2020 13:55:38
- -0700 (PDT)
-Reply-To: mrssuzaramaling661@gmail.com
-From:   Mrs Suzara Maling Wan <jasonmsmarie@gmail.com>
-Date:   Thu, 10 Sep 2020 05:55:38 +0900
-Message-ID: <CACKV8n8+kKhG-thRsh+tZug8ThSJ0ouwwPtRFwSLNWZ5Yb6ZKA@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, will@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beloved,
+KVM currently assumes that an instruction abort can never be a write.
+This is in general true, except when the abort is triggered by
+a S1PTW on instruction fetch that tries to update the S1 page tables
+(to set AF, for example).
 
-I am Mrs Suzara Maling Wan from (Philippine) but based in West Africa
-Burkina Faso since eight years ago as a business woman dealing with
-gold exportation, I have a dream and desire of building an orphanage
-home in yo Ur country, but presently my health condition we not allow
-me to carry out the project my self, as my doctor has already told me
-that I have just few period of time to leave because of my ovarian
-cancer disease.
+This can happen if the page tables have been paged out and brought
+back in without seeing a direct write to them (they are thus marked
+read only), and the fault handling code will make the PT executable(!)
+instead of writable. The guest gets stuck forever.
 
-I have $4.5 Million US Dollars at (ECO BANK PLC) here in Burkina Faso
-and I have decided to wile the money to your name and instruct the
-bank to transfer the money to you for you to use it to execute the
-orphanage home project in my name in your country as it has ever been
-my desire to put down such foundation to help people that are in needs
-to the Glory of GOD.
+In these conditions, the permission fault must be considered as
+a write so that the Stage-1 update can take place. This is essentially
+the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: KVM:
+Take S1 walks into account when determining S2 write faults").
 
-If you have the mind to help me in this project, contact me privet
-email address  for more details on the way forward
+Update both kvm_is_write_fault() to return true on IABT+S1PTW, as well
+as kvm_vcpu_trap_is_iabt() to return false in the same conditions.
 
-With kind Regards,
-Mrs Suzara Maling Wan
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+This could do with some cleanup (kvm_vcpu_dabt_iss1tw has nothing to do
+with data aborts), but I've chosen to keep the patch simple in order to
+ease backporting.
+
+ arch/arm64/include/asm/kvm_emulate.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+index d21676409a24..33d7e16edaa3 100644
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -480,7 +480,8 @@ static __always_inline u8 kvm_vcpu_trap_get_class(const struct kvm_vcpu *vcpu)
+ 
+ static inline bool kvm_vcpu_trap_is_iabt(const struct kvm_vcpu *vcpu)
+ {
+-	return kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW;
++	return (kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW &&
++		!kvm_vcpu_dabt_iss1tw(vcpu));
+ }
+ 
+ static __always_inline u8 kvm_vcpu_trap_get_fault(const struct kvm_vcpu *vcpu)
+@@ -520,6 +521,9 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
+ 
+ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+ {
++	if (kvm_vcpu_dabt_iss1tw(vcpu))
++		return true;
++
+ 	if (kvm_vcpu_trap_is_iabt(vcpu))
+ 		return false;
+ 
+-- 
+2.28.0
+
