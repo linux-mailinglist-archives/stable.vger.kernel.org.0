@@ -2,124 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96090262622
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 06:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982722626DE
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 07:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725811AbgIIEN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 00:13:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55834 "EHLO
+        id S1725826AbgIIFtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 01:49:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725767AbgIIENz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 00:13:55 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A69C061573;
-        Tue,  8 Sep 2020 21:13:55 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id z19so998701pfn.8;
-        Tue, 08 Sep 2020 21:13:55 -0700 (PDT)
+        with ESMTP id S1725807AbgIIFtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 01:49:12 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06E0FC061755
+        for <stable@vger.kernel.org>; Tue,  8 Sep 2020 22:49:12 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id j3so687201vsm.0
+        for <stable@vger.kernel.org>; Tue, 08 Sep 2020 22:49:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=SK7c8zygBhocwtQGCubxomcP9y8grV0ZdMS3bUk6cLE=;
-        b=aMeBodJOsaAEBMAf80kY/k/JsoGhhCSWrHBwCDJUHUDUxC4bD6GtzD/SoujJfLUlc4
-         hwyAXE3/aiFyptIsDSWvAfWb6PjcIYwpVtx/cToi2/pEbh5KUcv4t95tL4jlnso+h57c
-         2D/Jp6uxvTRDKwhxyFKDwfUh+UT4CCndBz21Mf9PUlKNj6cAzQYsKF5XxjQl8zQpodUP
-         8yFY8Y8x0y8F566n0tWypTMkTjj+CQ5mfkiFSsZTmsZzdf6XG4SSN2NuuWa/Etc1jOpe
-         ndh8/BVTPYR/UD3d1r+p+8IQeh5eoYKy31USSLPHIJPA+hx9SwdPmUjmpZ+DygEZxl/8
-         m8Vg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=P0ez4cWjUUyq1ZAM7GWoUf4wC5G9nmNzRjitsaqGkY8=;
+        b=WdrPPCWW3iGd70z716OSVZVu++nHDQLesP+JY/eZaWupfkuM7bDSvtWA9CGqplnU71
+         Cdry+dvU5xwbaDuSMr7znQU3X1BNlLfkaYjfPwcem+EAKCQfr7wMuxcfR50TC3pGsUlU
+         LNFPF3CXp9TSUlExDCEA0uBOmBjWq2YXA7kgvGcDoexo8WBeuVyBOeHvCJ/ZTZDPB73w
+         y7tbpJ0QZA3AtCDKVTjQlq1oFo84r2GmQxSWt98WFvwCjl4GL5jp6eWqWBeMyjANsUOs
+         xhF//sPpqSkkMytTLAZfirUVPdasY1bObPLtNNk80UP6Rass7GzuARnqMTmQqWmh2Jfo
+         t2sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=SK7c8zygBhocwtQGCubxomcP9y8grV0ZdMS3bUk6cLE=;
-        b=lEJ0HmwNeKDdY2gO/9okWOb/7Tu/g1e8x4oT+I29ah74T0BdGArBY+QbJx7VXW12P4
-         yVoPv84n997AbWiDeNhpCTzi5f9gjoeQ434/t4sOwn3K4jr6NyR43NwMmf2jzizwBMSl
-         9/SD2Y+xlywfumOBWF3QiQNyo+7gYWtMCIBfBs1Sj72YI28Tysuz4TWJLMpbQJn5l2II
-         ZVWZkkUEpMt2y4Rx4y8n6QYgtYBougZ24NiwoUiH99uiwducjC6SqAS6/KwMF3DO/TcK
-         gKkg77ip+TFRiVppqwud51pemHiorIGg9xRqEGKttbtdBP2jRoVNHWBybhJmAk723+6I
-         1gGw==
-X-Gm-Message-State: AOAM531NInV52zlccgLQsewsDHZCcZcHsmX8Od0VzCGjWexEMgVcIsdC
-        mwJkXbpie6ZyZDPFEXCl5dQ=
-X-Google-Smtp-Source: ABdhPJyzsiula4D1EMgUXWX1+1iQpgQ7943H2ofj5WzT7GrW0SMIuI3z1jFAuoymws5igFtl9CF2kw==
-X-Received: by 2002:a17:902:aa0b:b029:d0:89f4:6229 with SMTP id be11-20020a170902aa0bb02900d089f46229mr2245361plb.17.1599624834939;
-        Tue, 08 Sep 2020 21:13:54 -0700 (PDT)
-Received: from software.domain.org ([45.77.13.216])
-        by smtp.gmail.com with ESMTPSA id m7sm901436pfm.31.2020.09.08.21.13.50
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Sep 2020 21:13:54 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>
-Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
-Subject: [PATCH 3/3] irqchip/loongson-pch-pic: Reserve legacy LPC irqs
-Date:   Wed,  9 Sep 2020 12:09:12 +0800
-Message-Id: <1599624552-17523-3-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
-References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=P0ez4cWjUUyq1ZAM7GWoUf4wC5G9nmNzRjitsaqGkY8=;
+        b=PdWRR8+kHdqB1nKs7Kl/yb9HRYShWnC3HICVzeIl6x+3zPKJ0ooMGkyyLBR2SN4q9E
+         JRl+Viz515pwrZOK2zXN3bqLI/na+u+qqLfTJAZRXjQoFg8iKUr9fQHsytQ7chDnki3g
+         TWSLPBqJVCHqfy1uxbnrnDPrZgUWIxsexM71pBjtHS9GWLn4VFo6eOqhTIYHr7nXkSv2
+         dPgxA/b1LR40jGKfxOnAWbyGgaDy4zuR6dQrA4GqBnt5eLGgNVpD81ujgXq7YkJ5Ygjb
+         OvRpkSq1ryWJs3Cp5kr/8VkTLznNF9GG4w+p8d4V8SJ30e3tOpZ8h1NCi+w/QAx8YxM3
+         84Nw==
+X-Gm-Message-State: AOAM5312yhLOv9R7Ax03DR0LXBeO6JEynBJSKAcZIOyFGeTBemveMVi3
+        ktJXrihCbDKyE37YRAR2Z2n64wfAOgTkmHH9sls1JOq11Xih+6Pr
+X-Google-Smtp-Source: ABdhPJwrULB2Obj/3hy7iZLzOkGI1uuLfdZrHtfOjUdl755KUzQU6wr4NrO+94eOhajtmc7n93vWeoYKd49fFvGXqRs=
+X-Received: by 2002:a05:6102:204b:: with SMTP id q11mr1639904vsr.40.1599630548956;
+ Tue, 08 Sep 2020 22:49:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200908152241.646390211@linuxfoundation.org>
+In-Reply-To: <20200908152241.646390211@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 9 Sep 2020 11:18:57 +0530
+Message-ID: <CA+G9fYsUF_7qVThy7Q-HcSs19_VsGnqCJCYTcpJmwdx0oBpO0g@mail.gmail.com>
+Subject: Re: [PATCH 5.8 000/186] 5.8.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reserve legacy LPC irqs (0~15) to avoid spurious interrupts.
+On Tue, 8 Sep 2020 at 21:05, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.8.8 release.
+> There are 186 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 10 Sep 2020 15:21:57 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.8.8-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.8.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- drivers/irqchip/irq-loongson-pch-pic.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
-index 9bf6b9a..9f6719c 100644
---- a/drivers/irqchip/irq-loongson-pch-pic.c
-+++ b/drivers/irqchip/irq-loongson-pch-pic.c
-@@ -35,6 +35,7 @@
- 
- struct pch_pic {
- 	void __iomem		*base;
-+	struct irq_domain	*lpc_domain;
- 	struct irq_domain	*pic_domain;
- 	u32			ht_vec_base;
- 	raw_spinlock_t		pic_lock;
-@@ -184,9 +185,9 @@ static void pch_pic_reset(struct pch_pic *priv)
- static int pch_pic_of_init(struct device_node *node,
- 				struct device_node *parent)
- {
-+	int i, base, err;
- 	struct pch_pic *priv;
- 	struct irq_domain *parent_domain;
--	int err;
- 
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -213,6 +214,22 @@ static int pch_pic_of_init(struct device_node *node,
- 		goto iounmap_base;
- 	}
- 
-+	base = irq_alloc_descs(-1, 0, NR_IRQS_LEGACY, 0);
-+	if (base < 0) {
-+		pr_err("Failed to allocate LPC IRQ numbers\n");
-+		goto iounmap_base;
-+	}
-+
-+	priv->lpc_domain = irq_domain_add_legacy(node, NR_IRQS_LEGACY, 0, 0,
-+						 &irq_domain_simple_ops, NULL);
-+	if (!priv->lpc_domain) {
-+		pr_err("Failed to add irqdomain for LPC controller");
-+		goto iounmap_base;
-+	}
-+
-+	for (i = 0; i < NR_IRQS_LEGACY; i++)
-+		irq_set_chip_and_handler(i, &dummy_irq_chip, handle_simple_irq);
-+
- 	priv->pic_domain = irq_domain_create_hierarchy(parent_domain, 0,
- 						       PIC_COUNT,
- 						       of_node_to_fwnode(node),
--- 
-2.7.0
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.8.8-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.8.y
+git commit: 456fe9607f8f8a55179d2527598b8e90a2591e4d
+git describe: v5.8.7-187-g456fe9607f8f
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.8-oe/bui=
+ld/v5.8.7-187-g456fe9607f8f
+
+No regressions (compared to build v5.8.7)
+
+
+No fixes (compared to build v5.8.7)
+
+Ran 36239 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* ltp-containers-tests
+* ltp-ipc-tests
+* ltp-tracing-tests
+* network-basic-tests
+* ltp-dio-tests
+* ltp-io-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
