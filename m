@@ -2,118 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 009632626E9
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 07:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D000926273E
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 08:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725826AbgIIFyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 01:54:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36198 "EHLO mail.kernel.org"
+        id S1725863AbgIIGhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 02:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725807AbgIIFyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Sep 2020 01:54:07 -0400
-Received: from localhost (unknown [172.98.75.202])
+        id S1725772AbgIIGhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Sep 2020 02:37:08 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC8532166E;
-        Wed,  9 Sep 2020 05:54:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F413220936;
+        Wed,  9 Sep 2020 06:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599630846;
-        bh=pbyS4ZMWYMUKwmpi3BhxrHHLzLjXuJLnUN/DArAAcCk=;
+        s=default; t=1599633427;
+        bh=V9NR7nDo2UszOuOP8RDVwdq8XRt9ah6sdjjX5rYls7s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Up3DXdI8JG6lYgGcC0tVjYoVSP1nLZyG6no0UVGh0mcYcuP7bLalh/ZHMcaxkd8ZT
-         4hKkD4LUFJoxQFZYfY0KmG9+m5OcFoTb6CHL9YtBOQqvWQ53gbXqE+GdKD+ZcMeAHE
-         2uF6//oVS8x+8pzmKdA8VqSS/nBIguX1Si2IuUBY=
-Date:   Wed, 9 Sep 2020 07:54:03 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Felipe Franciosi <felipe@nutanix.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Matej Genci <matej.genci@nutanix.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mst@redhat.com" <mst@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "stefanha@redhat.com" <stefanha@redhat.com>,
-        "jejb@linux.ibm.com" <jejb@linux.ibm.com>,
-        "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] Rescan the entire target on transport reset when LUN is 0
-Message-ID: <20200909055403.GA310264@kroah.com>
-References: <CY4PR02MB33354370E0A81E75DD9DFE74FB520@CY4PR02MB3335.namprd02.prod.outlook.com>
- <200ad446-1242-9555-96b6-4fa94ee27ec7@redhat.com>
- <CCFAFEBB-8250-4627-B25D-3B9054954C45@nutanix.com>
+        b=NlwPLZIgF1GL/oHuvSsxzRQI0AHkOimDqAW5+k22UOG/xweMctkbOEjtlJerTdkMZ
+         t7nWuGmH0TygNx0gEVDvPGkfelGdhfgyJj6D4DmjYBwl4SSwYM+nWNfCfj20ufMDSw
+         2/hAVYXQkW5uztKEQYJ7Hsvg0AF7CJJ4Nf8TeDCU=
+Date:   Wed, 9 Sep 2020 08:37:18 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Edward Cree <ecree@solarflare.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alexander Lobakin <alobakin@dlink.ru>,
+        "David S. Miller" <davem@davemloft.net>,
+        Hyunsoon Kim <h10.kim@samsung.com>
+Subject: Re: [PATCH 5.4 086/129] net: core: use listified Rx for GRO_NORMAL
+ in napi_gro_receive()
+Message-ID: <20200909063718.GA311356@kroah.com>
+References: <20200908152229.689878733@linuxfoundation.org>
+ <20200908152234.000867723@linuxfoundation.org>
+ <70529b6c-7b00-d760-c0c0-42f0ea5784f3@solarflare.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <CCFAFEBB-8250-4627-B25D-3B9054954C45@nutanix.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <70529b6c-7b00-d760-c0c0-42f0ea5784f3@solarflare.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 08, 2020 at 05:53:16PM +0000, Felipe Franciosi wrote:
-> 
-> 
-> > On Sep 8, 2020, at 3:22 PM, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> > 
-> > On 28/08/20 14:21, Matej Genci wrote:
-> >> VirtIO 1.0 spec says
-> >>    The removed and rescan events ... when sent for LUN 0, they MAY
-> >>    apply to the entire target so the driver can ask the initiator
-> >>    to rescan the target to detect this.
-> >> 
-> >> This change introduces the behaviour described above by scanning the
-> >> entire scsi target when LUN is set to 0. This is both a functional and a
-> >> performance fix. It aligns the driver with the spec and allows control
-> >> planes to hotplug targets with large numbers of LUNs without having to
-> >> request a RESCAN for each one of them.
-> >> 
-> >> Signed-off-by: Matej Genci <matej@nutanix.com>
-> >> Suggested-by: Felipe Franciosi <felipe@nutanix.com>
-> >> ---
-> >> drivers/scsi/virtio_scsi.c | 7 ++++++-
-> >> 1 file changed, 6 insertions(+), 1 deletion(-)
-> >> 
-> >> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> >> index bfec84aacd90..a4b9bc7b4b4a 100644
-> >> --- a/drivers/scsi/virtio_scsi.c
-> >> +++ b/drivers/scsi/virtio_scsi.c
-> >> @@ -284,7 +284,12 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
-> >> 
-> >> 	switch (virtio32_to_cpu(vscsi->vdev, event->reason)) {
-> >> 	case VIRTIO_SCSI_EVT_RESET_RESCAN:
-> >> -		scsi_add_device(shost, 0, target, lun);
-> >> +		if (lun == 0) {
-> >> +			scsi_scan_target(&shost->shost_gendev, 0, target,
-> >> +					 SCAN_WILD_CARD, SCSI_SCAN_INITIAL);
-> >> +		} else {
-> >> +			scsi_add_device(shost, 0, target, lun);
-> >> +		}
-> >> 		break;
-> >> 	case VIRTIO_SCSI_EVT_RESET_REMOVED:
-> >> 		sdev = scsi_device_lookup(shost, 0, target, lun);
-> >> 
-> > 
-> > 
-> > Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-> 
-> Cc: stable@vger.kernel.org
-> 
-> Thanks, Paolo.
-> 
-> I'm Cc'ing stable as I believe this fixes a driver bug where it
-> doesn't follow the spec. Per commit message, today devices are
-> required to issue RESCAN events for each LUN behind a target when
-> hotplugging, or risking the driver not seeing the new LUNs.
-> 
-> Is this enough? Or should we resend after merge per below?
-> https://www.kernel.org/doc/Documentation/process/stable-kernel-rules.rst
+On Tue, Sep 08, 2020 at 10:35:22PM +0100, Edward Cree wrote:
+> On 08/09/2020 16:25, Greg Kroah-Hartman wrote:
+> > From: Alexander Lobakin <alobakin@dlink.ru>
+> >
+> > commit 6570bc79c0dfff0f228b7afd2de720fb4e84d61d upstream.
+> >
+> > Commit 323ebb61e32b4 ("net: use listified RX for handling GRO_NORMAL
+> > skbs") made use of listified skb processing for the users of
+> > napi_gro_frags().
+> > The same technique can be used in a way more common napi_gro_receive()
+> > to speed up non-merged (GRO_NORMAL) skbs for a wide range of drivers
+> > including gro_cells and mac80211 users.
+> > This slightly changes the return value in cases where skb is being
+> > dropped by the core stack, but it seems to have no impact on related
+> > drivers' functionality.
+> > gro_normal_batch is left untouched as it's very individual for every
+> > single system configuration and might be tuned in manual order to
+> > achieve an optimal performance.
+> >
+> > Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+> > Acked-by: Edward Cree <ecree@solarflare.com>
+> > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > Signed-off-by: Hyunsoon Kim <h10.kim@samsung.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> I'm not quite sure why this is stable material(it's a performance
+>  enhancement, rather than a fix).  But if you do want to take it,
+>  make sure you've also got
+> c80794323e82 ("net: Fix packet reordering caused by GRO and listified RX cooperation")
+> b167191e2a85 ("net: wireless: intel: iwlwifi: fix GRO_NORMAL packet stalling")
+>  in your tree, particularly the latter as without it this commit
+>  triggers a severe regression in iwlwifi.
 
-You need to let stable know the git commit id of the patch in Linus's
-tree if the cc: stable is not on the final commit that gets merged.
+Hm, that feels bad, I'll go drop this for now.
+
+Hyunsoon was the one who asked for this, so I will let them defend the
+request.  I thought they were asking for this because it was a bug fix,
+but if it is a performance issue, that's fine as long as it doesn't also
+cause problems :)
+
+Hyunsoon, should all of these be taken, and if so, what exactly is the
+performance increase here?
 
 thanks,
 
 greg k-h
-
