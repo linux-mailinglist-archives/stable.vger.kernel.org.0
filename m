@@ -2,84 +2,314 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D63263539
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 20:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E529526353B
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 20:01:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgIISBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 14:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
+        id S1729005AbgIISBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 14:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726408AbgIISBN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Sep 2020 14:01:13 -0400
+        id S1726408AbgIISBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Sep 2020 14:01:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2C4321D46;
-        Wed,  9 Sep 2020 18:01:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2203921D7D;
+        Wed,  9 Sep 2020 18:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599674472;
-        bh=pgP4b85+7vWCX47zJKllmqZNSN2rbSk1645eUT2KDcI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Fsfo9hAEgI98VGQewvG8mYFbBBuD0TO3DbV1GR5yA3kHtDXak0puLOTW7yRtYQuQT
-         Ecbmjum8Z0yLAE0YNqSTzciTsAs1/XXh7pHVvEH5hGI4j8vXnV/2bUKo7Xw1wTmH0r
-         teG7ruPbCR67OKzBV99SZu1FFnNhrxEIv+C2Pbg4=
-Date:   Wed, 9 Sep 2020 20:01:21 +0200
+        s=default; t=1599674483;
+        bh=pqBwXE/MlvOmKGGUnvodLguzMdenC4+YwV8ft5qGr4s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=s2W7tberUxzL2fmmequ2Wknl5bNf4mkq5fAT6Wd814BpxPeudDCUgWi6/+sHAo4QN
+         fOg8ypEcjV8PDMNNRBSzQNCv3QAh6h/a+temaAt9QAodoZtwZxpSlMXhFPXgHmzVz3
+         FPJv+tpavioG9ucGa6lOEkKlRoucx7aWAmBxVGec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/186] 5.8.8-rc1 review
-Message-ID: <20200909180121.GD1003763@kroah.com>
-References: <20200908152241.646390211@linuxfoundation.org>
- <20200909164705.GE1479@roeck-us.net>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.14.197
+Date:   Wed,  9 Sep 2020 20:01:32 +0200
+Message-Id: <1599674492171214@kroah.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200909164705.GE1479@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 09, 2020 at 09:47:05AM -0700, Guenter Roeck wrote:
-> On Tue, Sep 08, 2020 at 05:22:22PM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.8.8 release.
-> > There are 186 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 10 Sep 2020 15:21:57 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 154 pass: 153 fail: 1
-> Failed builds:
-> 	powerpc:allmodconfig
-> Qemu test results:
-> 	total: 430 pass: 430 fail: 0
-> 
-> The powerpc problem is the same as before:
-> 
-> Inconsistent kallsyms data
-> Try make KALLSYMS_EXTRA_PASS=1 as a workaround
-> 
-> KALLSYMS_EXTRA_PASS=1 doesn't help. The problem is sporadic, elusive, and all
-> but impossible to bisect. The same build passes on another system, for example,
-> with a different load pattern. It may pass with -j30 and fail with -j40.
-> The problem started at some point after v5.8, and got worse over time; by now
-> it almost always happens. I'd be happy to debug if there is a means to do it,
-> but I don't have an idea where to even start. I'd disable KALLSYMS in my
-> test configurations, but the symbol is selected from various places and thus
-> difficult to disable. So unless I stop building ppc:allmodconfig entirely
-> we'll just have to live with the failure.
+I'm announcing the release of the 4.14.197 kernel.
 
-Ah, I was worried when I saw your dashboard orange for this kernel.
+All users of the 4.14 kernel series must upgrade.
 
-I guess the powerpc maintainers don't care?  Sad :(
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Anyway, thanks for testing them all and letting me know.
+thanks,
 
 greg k-h
+
+------------
+
+ Documentation/filesystems/affs.txt                  |   16 +
+ Makefile                                            |    2 
+ arch/arm64/include/asm/kvm_arm.h                    |    3 
+ arch/arm64/include/asm/kvm_asm.h                    |   43 +++++
+ arch/arm64/kernel/vmlinux.lds.S                     |    8 
+ arch/arm64/kvm/hyp/entry.S                          |   26 ++-
+ arch/arm64/kvm/hyp/hyp-entry.S                      |   63 +++++--
+ arch/arm64/kvm/hyp/switch.c                         |   39 ++++
+ arch/mips/kernel/smp-bmips.c                        |    2 
+ arch/mips/mm/c-r4k.c                                |    4 
+ arch/s390/include/asm/percpu.h                      |   28 +--
+ arch/xtensa/platforms/iss/simdisk.c                 |    1 
+ drivers/ata/libata-core.c                           |    5 
+ drivers/ata/libata-scsi.c                           |    8 
+ drivers/block/brd.c                                 |    1 
+ drivers/block/null_blk.c                            |    2 
+ drivers/block/rbd.c                                 |    9 -
+ drivers/block/zram/zram_drv.h                       |    1 
+ drivers/cpuidle/cpuidle.c                           |    3 
+ drivers/dma/at_hdmac.c                              |    2 
+ drivers/dma/of-dma.c                                |    8 
+ drivers/dma/pl330.c                                 |    2 
+ drivers/gpu/drm/msm/msm_drv.c                       |    8 
+ drivers/hid/hid-core.c                              |   15 +
+ drivers/hid/hid-input.c                             |    4 
+ drivers/hid/hid-multitouch.c                        |    2 
+ drivers/hwmon/applesmc.c                            |   31 +--
+ drivers/ide/ide-cd.c                                |    8 
+ drivers/ide/ide-cd.h                                |    6 
+ drivers/iommu/intel_irq_remapping.c                 |   10 -
+ drivers/md/dm-cache-metadata.c                      |    8 
+ drivers/md/dm-thin-metadata.c                       |    8 
+ drivers/net/ethernet/arc/emac_mdio.c                |    1 
+ drivers/net/ethernet/broadcom/bcmsysport.c          |    6 
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c           |    3 
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c   |    3 
+ drivers/net/ethernet/broadcom/tg3.c                 |   17 +-
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c       |    9 -
+ drivers/net/ethernet/mellanox/mlx4/mr.c             |    2 
+ drivers/net/ethernet/renesas/ravb_main.c            |  110 ++++++-------
+ drivers/net/gtp.c                                   |    1 
+ drivers/net/usb/asix_common.c                       |    2 
+ drivers/net/usb/qmi_wwan.c                          |    2 
+ drivers/nvdimm/nd.h                                 |    1 
+ drivers/nvme/target/core.c                          |    6 
+ drivers/nvme/target/fc.c                            |    4 
+ drivers/scsi/gdth.h                                 |    3 
+ drivers/thermal/ti-soc-thermal/omap4-thermal-data.c |   23 +-
+ drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h   |   10 -
+ drivers/xen/xenbus/xenbus_client.c                  |   10 -
+ fs/affs/amigaffs.c                                  |   27 +++
+ fs/affs/file.c                                      |   26 ++-
+ fs/btrfs/ctree.c                                    |    8 
+ fs/btrfs/extent_io.c                                |    8 
+ fs/btrfs/extent_io.h                                |    6 
+ fs/btrfs/ioctl.c                                    |   27 ++-
+ fs/btrfs/volumes.c                                  |    3 
+ fs/ceph/file.c                                      |    1 
+ fs/eventpoll.c                                      |    6 
+ include/linux/blkdev.h                              |   42 +++--
+ include/linux/bvec.h                                |    9 -
+ include/linux/device-mapper.h                       |    2 
+ include/linux/hid.h                                 |   42 +++--
+ include/linux/ide.h                                 |    1 
+ include/linux/libata.h                              |    1 
+ include/linux/log2.h                                |    2 
+ include/linux/uaccess.h                             |   26 +++
+ include/net/netfilter/nf_tables.h                   |    2 
+ include/uapi/linux/msdos_fs.h                       |    2 
+ include/uapi/linux/netfilter/nf_tables.h            |    2 
+ mm/hugetlb.c                                        |   26 ++-
+ mm/maccess.c                                        |  167 ++++++++++++++++++--
+ mm/slub.c                                           |   12 -
+ net/batman-adv/bat_v_ogm.c                          |   11 -
+ net/batman-adv/bridge_loop_avoidance.c              |    5 
+ net/batman-adv/gateway_client.c                     |    6 
+ net/netfilter/nf_tables_api.c                       |    3 
+ net/netfilter/nft_payload.c                         |    4 
+ net/wireless/reg.c                                  |    3 
+ scripts/checkpatch.pl                               |    4 
+ sound/core/oss/mulaw.c                              |    4 
+ sound/firewire/digi00x/digi00x.c                    |    5 
+ sound/pci/ca0106/ca0106_main.c                      |    3 
+ sound/pci/hda/patch_hdmi.c                          |    1 
+ tools/include/uapi/linux/perf_event.h               |    2 
+ tools/perf/Documentation/perf-record.txt            |    4 
+ tools/perf/Documentation/perf-stat.txt              |    4 
+ 87 files changed, 809 insertions(+), 287 deletions(-)
+
+Al Grant (1):
+      perf tools: Correct SNOOPX field offset
+
+Al Viro (1):
+      fix regression in "epoll: Keep a reference on files added to the check list"
+
+Amit Engel (1):
+      nvmet: Disable keep-alive timer when kato is cleared to 0h
+
+Bart Van Assche (1):
+      block: Move SECTOR_SIZE and SECTOR_SHIFT definitions into <linux/blkdev.h>
+
+Christophe JAILLET (1):
+      nvmet-fc: Fix a missed _irqsave version of spin_lock in 'nvmet_fc_fod_op_done()'
+
+Daniel Borkmann (1):
+      uaccess: Add non-pagefault user-space write function
+
+Daniele Palmas (1):
+      net: usb: qmi_wwan: add Telit 0x1050 composition
+
+Dinghao Liu (3):
+      net: hns: Fix memleak in hns_nic_dev_probe
+      net: systemport: Fix memleak in bcm_sysport_probe
+      net: arc_emac: Fix memleak in arc_mdio_probe
+
+Eugeniu Rosca (1):
+      mm: slub: fix conversion of freelist_corrupted()
+
+Florian Fainelli (2):
+      MIPS: mm: BMIPS5000 has inclusive physical caches
+      MIPS: BMIPS: Also call bmips_cpu_setup() for secondary cores
+
+Florian Westphal (1):
+      netfilter: nf_tables: fix destination register zeroing
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.197
+
+Himadri Pandya (1):
+      net: usb: Fix uninit-was-stored issue in asix_read_phy_addr()
+
+James Morse (4):
+      KVM: arm64: Add kvm_extable for vaxorcism code
+      KVM: arm64: Defer guest entry when an asynchronous exception is pending
+      KVM: arm64: Survive synchronous exceptions caused by AT instructions
+      KVM: arm64: Set HCR_EL2.PTW to prevent AT taking synchronous exception
+
+Jason Gunthorpe (1):
+      include/linux/log2.h: add missing () around n in roundup_pow_of_two()
+
+Jeff Layton (1):
+      ceph: don't allow setlease on cephfs
+
+Johannes Berg (1):
+      cfg80211: regulatory: reject invalid hints
+
+Josef Bacik (3):
+      btrfs: drop path before adding new uuid tree entry
+      btrfs: set the lockdep class for log tree extent buffers
+      btrfs: fix potential deadlock in the search ioctl
+
+Jussi Kivilinna (1):
+      batman-adv: bla: use netif_rx_ni when not in interrupt context
+
+Kai Vehmanen (1):
+      ALSA: hda/hdmi: always check pin power status in i915 pin fixup
+
+Kim Phillips (1):
+      perf record/stat: Explicitly call out event modifiers in the documentation
+
+Krishna Manikandan (1):
+      drm/msm: add shutdown support for display platform_driver
+
+Linus Lüssing (1):
+      batman-adv: Fix own OGM check in aggregated OGMs
+
+Lu Baolu (1):
+      iommu/vt-d: Serialize IOMMU GCMD register modifications
+
+Marc Zyngier (2):
+      HID: core: Correctly handle ReportSize being zero
+      HID: core: Sanitize event code and type when mapping input
+
+Marek Szyprowski (1):
+      dmaengine: pl330: Fix burst length if burst size is smaller than bus width
+
+Masami Hiramatsu (1):
+      uaccess: Add non-pagefault user-space read functions
+
+Max Staudt (1):
+      affs: fix basic permission bits to actually work
+
+Michael Chan (1):
+      tg3: Fix soft lockup when tg3_reset_task() fails.
+
+Ming Lei (1):
+      block: allow for_each_bvec to support zero len bvec
+
+Mrinal Pandey (1):
+      checkpatch: fix the usage of capture group ( ... )
+
+Muchun Song (1):
+      mm/hugetlb: fix a race between hugetlb sysctl handlers
+
+Nicolas Dichtel (1):
+      gtp: add GTPA_LINK info to msg sent to userspace
+
+Nikolay Borisov (2):
+      btrfs: Remove redundant extent_buffer_get in get_old_root
+      btrfs: Remove extraneous extent_buffer_get from tree_mod_log_rewind
+
+Pablo Neira Ayuso (2):
+      netfilter: nf_tables: add NFTA_SET_USERDATA if not null
+      netfilter: nf_tables: incorrect enum nft_list_attributes definition
+
+Peter Ujfalusi (1):
+      dmaengine: of-dma: Fix of_dma_router_xlate's of_dma_xlate handling
+
+Peter Zijlstra (1):
+      cpuidle: Fixup IRQ state
+
+Rogan Dawes (1):
+      usb: qmi_wwan: add D-Link DWM-222 A2 device ID
+
+Shung-Hsi Yu (1):
+      net: ethernet: mlx4: Fix memory allocation in mlx4_buddy_init()
+
+Simon Leiner (1):
+      xen/xenbus: Fix granting of vmalloc'd memory
+
+Sven Eckelmann (1):
+      batman-adv: Avoid uninitialized chaddr when handling DHCP
+
+Sven Schnelle (1):
+      s390: don't trace preemption in percpu macros
+
+Takashi Iwai (1):
+      ALSA: pcm: oss: Remove superfluous WARN_ON() for mulaw sanity check
+
+Takashi Sakamoto (1):
+      ALSA: firewire-digi00x: exclude Avid Adrenaline from detection
+
+Tejun Heo (1):
+      libata: implement ATA_HORKAGE_MAX_TRIM_128M and apply to Sandisks
+
+Tom Rix (1):
+      hwmon: (applesmc) check status earlier.
+
+Tong Zhang (1):
+      ALSA: ca0106: fix error code handling
+
+Tony Lindgren (1):
+      thermal: ti-soc-thermal: Fix bogus thermal shutdowns for omap4430
+
+Vasundhara Volam (2):
+      bnxt_en: Check for zero dir entries in NVRAM.
+      bnxt_en: Fix PCI AER error recovery flow
+
+Ye Bin (2):
+      dm cache metadata: Avoid returning cmd->bm wild pointer on error
+      dm thin metadata: Avoid returning cmd->bm wild pointer on error
+
+Yu Kuai (1):
+      dmaengine: at_hdmac: check return value of of_find_device_by_node() in at_dma_xlate()
+
+Yuusuke Ashizuka (1):
+      ravb: Fixed to be able to unload modules
+
