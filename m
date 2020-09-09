@@ -2,39 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF45262EBA
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 14:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F000262EE8
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 15:07:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729990AbgIIMve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 08:51:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
+        id S1727893AbgIINGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 09:06:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45478 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730239AbgIIMhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Sep 2020 08:37:45 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C8421941;
-        Wed,  9 Sep 2020 12:36:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599654987;
-        bh=MyTxeMGJ0aUch6xrrUFEzK1mWKVG/hL4CJaX7/Slcb4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C19O5ED9pwEGaBq3WjWQS4SEZ5Lwz/9O2+IjIPFpWqNr+we1f2lRLe54jer5JqlNM
-         0eSNjuQLOcEhFYhT4ftwMDXBld7PGwh/f/JVfvv+XZE6TQig928vZxQqqZDRZPZQsc
-         zPOFUH1l4t7YyS3kNcaMlIRHQgbQ9Wd+oQufliok=
-Date:   Wed, 9 Sep 2020 14:36:37 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1730177AbgIINF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Sep 2020 09:05:27 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E6EF7AD18;
+        Wed,  9 Sep 2020 12:45:40 +0000 (UTC)
+Date:   Wed, 9 Sep 2020 14:45:24 +0200
+From:   Michal Hocko <mhocko@suse.com>
 To:     David Hildenbrand <david@redhat.com>
-Cc:     Laurent Dufour <ldufour@linux.ibm.com>,
-        Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org,
-        Oscar Salvador <osalvador@suse.de>, rafael@kernel.org,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        akpm@linux-foundation.org, Oscar Salvador <osalvador@suse.de>,
+        rafael@kernel.org, nathanl@linux.ibm.com, cheloha@linux.ibm.com,
         stable@vger.kernel.org, linux-mm@kvack.org,
         LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
  operations
-Message-ID: <20200909123637.GA671204@kroah.com>
+Message-ID: <20200909124524.GJ7348@dhcp22.suse.cz>
 References: <5cbd92e1-c00a-4253-0119-c872bfa0f2bc@redhat.com>
  <20200908170835.85440-1-ldufour@linux.ibm.com>
  <20200909074011.GD7348@dhcp22.suse.cz>
@@ -53,7 +45,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 09, 2020 at 02:32:57PM +0200, David Hildenbrand wrote:
+On Wed 09-09-20 14:32:57, David Hildenbrand wrote:
 > On 09.09.20 14:30, Greg Kroah-Hartman wrote:
 > > On Wed, Sep 09, 2020 at 11:24:24AM +0200, David Hildenbrand wrote:
 > >>>> I am not sure an enum is going to make the existing situation less
@@ -79,15 +71,28 @@ On Wed, Sep 09, 2020 at 02:32:57PM +0200, David Hildenbrand wrote:
 > > recover from the problem.
 > 
 > Maybe VM_WARN_ON_ONCE() then to detect this during testing?
-
-If you all use that, sure.
-
+> 
 > (we basically turned WARN_ON_ONCE() useless with 'panic on warn' getting
 > used in production - behaves like BUG_ON and BUG_ON is frowned upon)
 
-Yes we have, but in the end, it's good, those things should be fixed and
-not accessable by anything a user can trigger.
+VM_WARN* is not that much different from panic on warn. Still one can
+argue that many workloads enable it just because. And I would disagree
+that we should care much about those because those are debugging
+features and everybody has to take consequences.
 
-thanks,
+On the other hand the question is whether WARN is giving us much. So
+what is the advantage over a simple pr_err? We will get a backtrace.
+Interesting but not really that useful because there are only few code
+paths this can trigger from. Registers dump? Not really useful here.
+Taint flag, probably useful because follow up problems might give us a
+hint that this might be related. People tend to pay more attention to
+WARN splat than a single line error. Well, not really a strong reason, I
+would say.
 
-greg k-h
+So while I wouldn't argue against WARN* in general (just because somebody
+might be setting the system to panic), I would also think of how much
+useful the splat is.
+
+-- 
+Michal Hocko
+SUSE Labs
