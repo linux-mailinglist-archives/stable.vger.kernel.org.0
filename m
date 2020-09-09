@@ -2,181 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5B4262A0A
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 10:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB34262A28
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 10:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbgIIITh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 04:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726642AbgIIITe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 04:19:34 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E91C061573
-        for <stable@vger.kernel.org>; Wed,  9 Sep 2020 01:19:32 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id j185so867622vsc.3
-        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 01:19:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=kxsSOAH08Cb/1H/bCrBQPy36KVRAJlGoYW7Z2pWiU/Y=;
-        b=cOMX0UY4FYViplh6wKAtEd2R02thFI01xq7M4Hwgzxr6DPjpx42kGVOuNX4FehUxDq
-         jtAGZKKTc6CogSuICHLSl5SVGpHJkzvjjT7/R78wtczR//U3KOad5nXbPLZYPd4qgbCI
-         6AxM0h99CzEZm/aoWs1a1guDPj1fzCO1LCRnLXGj3P8OFgLfJYndgpu075HF8j/XPbRD
-         URtJTARScj6SDwUPxmmK9zlDqJjEbFzV60qjEY38Wub9w2YKtT4SfavjVepnbQsjPM6k
-         83pCPUfZpfEz7OxT059ibeEv7jn1z7AZmPjRKol+duvekZVImqc5Z7Dfcc6fIHOHAYw0
-         q5Iw==
+        id S1727087AbgIIIX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 04:23:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41368 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726489AbgIIIX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 04:23:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599639804;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ipg+kGRxf4wxWeQOhvAJYTIzegDq0gtF7D+pA4396Qw=;
+        b=hye34L+gA6pRupUUmu0wORcHDDnfHuPyyhSkc/7vgNzOm001FvlwV9kK8tltHtDeT8E6z7
+        3iRSvsPmMQTHum5xHoEZ8CP4Mfm3WL987XCvo0ktDMvE8Mv0wfy3fT99IWy9qArjpNOej8
+        0e44kih1xtZ+Lyun7K80DH+8/WjpvnI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-204-OmFFzw7TPpahNU-1BanXxw-1; Wed, 09 Sep 2020 04:23:23 -0400
+X-MC-Unique: OmFFzw7TPpahNU-1BanXxw-1
+Received: by mail-wm1-f71.google.com with SMTP id c198so508286wme.5
+        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 01:23:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=kxsSOAH08Cb/1H/bCrBQPy36KVRAJlGoYW7Z2pWiU/Y=;
-        b=Fr9vNTqXmHgRAncgTJbNu4f95RZ3AOKHLVuDosXq/v6gIu6i09tBIyv6t3keoYLU0H
-         C72pmq6DxGw80gK+t4PlVPz8utCe9fM8EnyzTgUrdPkhgX4yHe63zJbIRo/LnwboATFe
-         rj9PTrDSYiK78Q5Qy50aSWdQt09YrVnbWPShW3nUXpwsqUG1yzV7AQ+u/usz/H7izXMZ
-         v8DSrVNo9QJzffYFRPw28XI9CUAz62KT5kWhIOkVNU3LS6NAU8LZwtV5akci0pOLdsIJ
-         uvugs/KvL+W1bKGfbde0bet+RdcJgbFy11PrR9J3959yJ7gcneDiB91Dw5YY7Fg/pax2
-         T/GQ==
-X-Gm-Message-State: AOAM533d816sORl/66FFkJ0WcmAgbSWU7t6FkaMHPdkm2TGTX3Ps62+7
-        Sno1vgufNu/aIK7DkYOb/L8X+x1zyWMzuY8HrBqPbQ==
-X-Google-Smtp-Source: ABdhPJzGs/uInKpVTHQiAOSJVnUQ3v1i+kKqOuY/ow1h7pWk17jvJw6jTMYM/5DIOGoGbnIx822Dej3ONmk1xHi0lMk=
-X-Received: by 2002:a05:6102:204b:: with SMTP id q11mr1845302vsr.40.1599639571640;
- Wed, 09 Sep 2020 01:19:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+         :message-id:mime-version;
+        bh=ipg+kGRxf4wxWeQOhvAJYTIzegDq0gtF7D+pA4396Qw=;
+        b=iIr+4TVb+3nPSo5P75X0mk6rWyiJhiskTTB7QBLT1040OsvcQftMkrZNRQvcstsz5O
+         O9LReTLE9ZNB6zGA9jJRqSmmntjBYu1jXY1JUhlUspi2mBxhSKEyxey47temdAWICIIB
+         Z4DXi/7tkrcUuNTYjcF7LVH1pYE9qqxdLaKOtzTUBWUMI/+xZs68HDoCXIXIvFJf+JR3
+         OphhrO42oo8EeC5+Uj290703Xtp92vZhiB00Vi8rLhMA8VG3rVoQPb9/tBo4oGaZGUYm
+         VjsllltphyQiMYWfoH5HGZw2inaiv7yNRC29KNys6jrG/VHE0pW4IhaZD5SIvt+JnqpP
+         R98w==
+X-Gm-Message-State: AOAM532zJkrvaD9/RHwwuVOJbnNvor6yKW1vZ8qLSyxuMehivBu3Ibu3
+        ZiG0YMxU9Q5lC7zrBwgERMcYw5KC8RDXCfjFYw7Ic4SpUZ7MejJXtZFaZXErKCUMm61aOwMEOYs
+        4nRhxGBx6whHAKhEN
+X-Received: by 2002:a05:600c:2246:: with SMTP id a6mr2493840wmm.38.1599639801899;
+        Wed, 09 Sep 2020 01:23:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxe4nQzns/RJMYzARqqL49tYar+YFQfC6QojwjzqbtuqOGYc6Q3M7yHZV1wTiTye79EV4m7mA==
+X-Received: by 2002:a05:600c:2246:: with SMTP id a6mr2493821wmm.38.1599639801726;
+        Wed, 09 Sep 2020 01:23:21 -0700 (PDT)
+Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
+        by smtp.gmail.com with ESMTPSA id m3sm3246714wme.31.2020.09.09.01.23.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2020 01:23:21 -0700 (PDT)
+From:   Vitaly Kuznetsov <vkuznets@redhat.com>
+To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        "Paul K ." <kronenpj@kronenpj.dyndns.org>, <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/3] KVM: SVM: Get rid of handle_fastpath_set_msr_irqoff()
+In-Reply-To: <1599620043-12908-1-git-send-email-wanpengli@tencent.com>
+References: <1599620043-12908-1-git-send-email-wanpengli@tencent.com>
+Date:   Wed, 09 Sep 2020 10:23:20 +0200
+Message-ID: <87h7s7mk93.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-References: <20200908152217.022816723@linuxfoundation.org>
-In-Reply-To: <20200908152217.022816723@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 9 Sep 2020 13:49:20 +0530
-Message-ID: <CA+G9fYt2CNnV+-7jbvwff=0q=UvMp4baCPy61evpXtVT-f-xVw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/65] 4.14.197-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 8 Sep 2020 at 21:22, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Wanpeng Li <kernellwp@gmail.com> writes:
+
+> From: Wanpeng Li <wanpengli@tencent.com>
 >
-> This is the start of the stable review cycle for the 4.14.197 release.
-> There are 65 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Analysis from Sean:
 >
-> Responses should be made by Thu, 10 Sep 2020 15:21:57 +0000.
-> Anything received after that time might be too late.
+>  | svm->next_rip is reset in svm_vcpu_run() only after calling 
+>  | svm_exit_handlers_fastpath(), which will cause SVM's 
+>  | skip_emulated_instruction() to write a stale RIP.
+>  
+
+This should only happen when svm->vmcb->control.next_rip is not set by
+hardware as skip_emulated_instruction() itself sets 'svm->next_rip'
+otherwise, right?
+
+> Let's get rid of handle_fastpath_set_msr_irqoff() in svm_exit_handlers_fastpath()
+> to have a quick fix.
+
+which in the light of the whole seeries seems to be appropriate, so:
+
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.197-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
+> Reported-by: Paul K. <kronenpj@kronenpj.dyndns.org>
+> Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> Cc: Paul K. <kronenpj@kronenpj.dyndns.org>
+> Cc: <stable@vger.kernel.org> # v5.8-rc1+
+> Fixes: 404d5d7bff0d (KVM: X86: Introduce more exit_fastpath_completion enum values)
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> ---
+>  arch/x86/kvm/svm/svm.c | 5 -----
+>  1 file changed, 5 deletions(-)
 >
-> thanks,
->
-> greg k-h
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 19e622a..c61bc3b 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -3349,11 +3349,6 @@ static void svm_cancel_injection(struct kvm_vcpu *vcpu)
+>  
+>  static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+>  {
+> -	if (!is_guest_mode(vcpu) &&
+> -	    to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_MSR &&
+> -	    to_svm(vcpu)->vmcb->control.exit_info_1)
+> -		return handle_fastpath_set_msr_irqoff(vcpu);
+> -
+>  	return EXIT_FASTPATH_NONE;
+>  }
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+-- 
+Vitaly
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.14.197-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: d520aac0cd79e557dd7d2ae06370d104a9f48645
-git describe: v4.14.196-66-gd520aac0cd79
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.196-66-gd520aac0cd79
-
-No regressions (compared to build v4.14.196)
-
-No fixes (compared to build v4.14.196)
-
-Ran 33476 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* v4l2-compliance
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-fs-tests
-* ltp-open-posix-tests
-* ltp-tracing-tests
-* igt-gpu-tools
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
