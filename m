@@ -2,328 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00EA326292B
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 09:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013F52629BF
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 10:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726169AbgIIHtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 03:49:17 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49434 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725975AbgIIHtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 03:49:16 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0896Xjba042536;
-        Wed, 9 Sep 2020 03:49:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=BNnuQrTRsQSggOyfXyC6BDKmGqKusAIVtGXkoNLzTcQ=;
- b=KNqmX7wJDmyZW6fBOw+ONu98/dLnnUn9WrBSWJ8vp6Md4Rg9DKDn2GLCOA7/h2g8fHfq
- 8r2rL6R84IDzFxdp3NlrRVdOaGzTMm+w8AlnosU0qrx94q+C2wmywcjXUR9Y/74Ojke3
- TRPA0pJE1P/81PLlXOofmN0SW07ie6sC6tB2vx6UJClNtT8IZ+M8QnYO9r+i7QoPJ63t
- h5twJ2yzftV7FBJcaYhGS547YxSg95uFwshpXlwDmwj1BOwWHFFkskhK8hW2AA6F/nJr
- n6+PeJ0lqDXbLIOLTRIWWMgT0M5NK6Foqy/dDNcTQFAFaAUl2M0nd3qI+wD8USptbb5e QQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33er125h3a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Sep 2020 03:49:06 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0897n5Zc094646;
-        Wed, 9 Sep 2020 03:49:05 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33er125h2h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Sep 2020 03:49:05 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0897gMii010534;
-        Wed, 9 Sep 2020 07:49:03 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 33e5gmrkqh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Sep 2020 07:49:03 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0897lSmw61407730
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Sep 2020 07:47:28 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C98864C044;
-        Wed,  9 Sep 2020 07:49:00 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C0C94C059;
-        Wed,  9 Sep 2020 07:49:00 +0000 (GMT)
-Received: from pomme.local (unknown [9.145.19.60])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Sep 2020 07:49:00 +0000 (GMT)
-Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
- operations
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, rafael@kernel.org,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>
-References: <5cbd92e1-c00a-4253-0119-c872bfa0f2bc@redhat.com>
- <20200908170835.85440-1-ldufour@linux.ibm.com>
- <20200909074011.GD7348@dhcp22.suse.cz>
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-Message-ID: <9faac1ce-c02d-7dbc-f79a-4aaaa5a73d28@linux.ibm.com>
-Date:   Wed, 9 Sep 2020 09:48:59 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.12.0
+        id S1729802AbgIIIMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 04:12:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730203AbgIIIL6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 04:11:58 -0400
+Received: from mail-vs1-xe44.google.com (mail-vs1-xe44.google.com [IPv6:2607:f8b0:4864:20::e44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA74BC061573
+        for <stable@vger.kernel.org>; Wed,  9 Sep 2020 01:11:57 -0700 (PDT)
+Received: by mail-vs1-xe44.google.com with SMTP id a16so828741vsp.12
+        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 01:11:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=nKdqPjqDFfHRMf/XA+KUr72ZflIzyRtrjQk6IDY1xAE=;
+        b=HC5Ww9NtA0ci3XvaOTxTTQu5xn6MYQ0fbWSI8XpDmXdD5/zURS4DHti0j2deZrqQxf
+         BsoHZHOPDTzwpJPG4nrr1DUYw4E/2CnLlOAqnFAkGomr9XXzd+8f+BdL+zyRL3H5Gk3t
+         0sT4JTOY7gmPywBd8128yMTp9sjQ3cVxGf+r5gHyiLALFuE7obUQhn/SAGmMZg/d5xB8
+         HV9elqNF5GSxucmsrHz+a9YXID4gvx+rERxM6KecjYsmsgnUog4jmMExk0s8jIM8Aj9g
+         48tfp85bAoEPAQpkCGuccLvfy9hzRaUkqFisvSatHNuA1X/VHC122zDIk/6EJ0+1TWR+
+         BE2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=nKdqPjqDFfHRMf/XA+KUr72ZflIzyRtrjQk6IDY1xAE=;
+        b=fbFUmYlUUMnJroiX4N5s87pQvuTBWg9eNEd7I4VisDzyM7pbEo3+uIgQ/X7TzvPiA0
+         rNt9/iWX0G+L+3PNp9nJ2SlEzC8hN4jjG43E0a+rIlDC5wiwmRPgS7uuJUEOjELJ1JWm
+         Gv1J/wzZhcS+KAEP7k4xzzTpjLR7AEKE9dWmIjEzwYmXppjfO7QU0TjdsB7Lnm/Hr1OX
+         5BCSXv0WahJMNxbnL/7sKWtsQBPSr6ugb9DzK3U7RCcZlhNu/q0yB4YqCuQGQ71mLk6V
+         LxTFdHb+ymsJGTXGURZ3ECwCCGq4+z+ZiLQkDDzDwfMl5Bnpww9VApKzp6KPB4N2i7g7
+         ORSg==
+X-Gm-Message-State: AOAM531DZ2v/P/FTCNsFBYpIE7yajZjuYy9Abp5D0LAcG3qjpaY0/gSc
+        xBeFni9Xqcf2lrirjiAC6BBbEdKEkAokCBmaaZC8UA==
+X-Google-Smtp-Source: ABdhPJwOrsN0F3PCf7X8sxg5rr2tDNxsyMAPCRs0iEwwBZyxPVE2ENQnIIsDNxArWPzu2lDFlX3pP59bN7/EAYDZoDk=
+X-Received: by 2002:a67:7c52:: with SMTP id x79mr1548525vsc.21.1599639117011;
+ Wed, 09 Sep 2020 01:11:57 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200909074011.GD7348@dhcp22.suse.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-09_03:2020-09-08,2020-09-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- adultscore=0 mlxlogscore=999 bulkscore=0 priorityscore=1501 suspectscore=0
- impostorscore=0 malwarescore=0 phishscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009090059
+References: <20200908152221.082184905@linuxfoundation.org>
+In-Reply-To: <20200908152221.082184905@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 9 Sep 2020 13:41:45 +0530
+Message-ID: <CA+G9fYsjO2khWuitvNrtrmVuOW3hQiWNc+XHoTmTE0+xKT3dBw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/88] 4.19.144-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le 09/09/2020 à 09:40, Michal Hocko a écrit :
-> [reposting because the malformed cc list confused my email client]
-> 
-> On Tue 08-09-20 19:08:35, Laurent Dufour wrote:
->> In register_mem_sect_under_node() the system_state’s value is checked to
->> detect whether the operation the call is made during boot time or during an
->> hot-plug operation. Unfortunately, that check is wrong on some
->> architecture, and may lead to sections being registered under multiple
->> nodes if node's memory ranges are interleaved.
-> 
-> Why is this check arch specific?
+On Tue, 8 Sep 2020 at 21:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.144 release.
+> There are 88 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 10 Sep 2020 15:21:57 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.144-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-I was wrong the check is not arch specific.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
->> This can be seen on PowerPC LPAR after multiple memory hot-plug and
->> hot-unplug operations are done. At the next reboot the node's memory ranges
->> can be interleaved
-> 
-> What is the exact memory layout?
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-For instance:
-[    0.000000] Early memory node ranges
-[    0.000000]   node   1: [mem 0x0000000000000000-0x000000011fffffff]
-[    0.000000]   node   2: [mem 0x0000000120000000-0x000000014fffffff]
-[    0.000000]   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
-[    0.000000]   node   0: [mem 0x0000000200000000-0x000000048fffffff]
-[    0.000000]   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
+Summary
+------------------------------------------------------------------------
 
-> 
->> and since the call to link_mem_sections() is made in
->> topology_init() while the system is in the SYSTEM_SCHEDULING state, the
->> node's id is not checked, and the sections registered multiple times.
-> 
-> So a single memory section/memblock belongs to two numa nodes?
+kernel: 4.19.144-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 539e30e8c9cd0a71379976e504f64e148d714ba3
+git describe: v4.19.143-89-g539e30e8c9cd
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.143-89-g539e30e8c9cd
 
-If the node id is not checked in register_mem_sect_under_node(), yes that the case.
+No regressions (compared to build v4.19.143)
 
-> 
->> In
->> that case, the system is able to boot but later hot-plug operation may lead
->> to this panic because the node's links are correctly broken:
-> 
-> Correctly broken? Could you provide more details on the inconsistency
-> please?
+No fixes (compared to build v4.19.143)
 
-laurent@ltczep3-lp4:~$ ls -l /sys/devices/system/memory/memory21
-total 0
-lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
-lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
--rw-r--r-- 1 root root 65536 Aug 24 05:27 online
--r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
--r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
-drwxr-xr-x 2 root root     0 Aug 24 05:27 power
--r--r--r-- 1 root root 65536 Aug 24 05:27 removable
--rw-r--r-- 1 root root 65536 Aug 24 05:27 state
-lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
--rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
--r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
+Ran 36520 total tests in the following environments and test suites.
 
-> 
-> Which physical memory range you are trying to add here and what is the
-> node affinity?
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
 
-None is added, the root cause of the issue is happening at boot time.
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-controllers-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* network-basic-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* igt-gpu-tools
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
 
-> 
->> ------------[ cut here ]------------
->> kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
->> Oops: Exception in kernel mode, sig: 5 [#1]
->> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
->> Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
->> CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
->> NIP:  c000000000403f34 LR: c000000000403f2c CTR: 0000000000000000
->> REGS: c0000004876e3660 TRAP: 0700   Not tainted  (5.9.0-rc1+)
->> MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24000448  XER: 20040000
->> CFAR: c000000000846d20 IRQMASK: 0
->> GPR00: c000000000403f2c c0000004876e38f0 c0000000012f6f00 ffffffffffffffef
->> GPR04: 0000000000000227 c0000004805ae680 0000000000000000 00000004886f0000
->> GPR08: 0000000000000226 0000000000000003 0000000000000002 fffffffffffffffd
->> GPR12: 0000000088000484 c00000001ec96280 0000000000000000 0000000000000000
->> GPR16: 0000000000000000 0000000000000000 0000000000000004 0000000000000003
->> GPR20: c00000047814ffe0 c0000007ffff7c08 0000000000000010 c0000000013332c8
->> GPR24: 0000000000000000 c0000000011f6cc0 0000000000000000 0000000000000000
->> GPR28: ffffffffffffffef 0000000000000001 0000000150000000 0000000010000000
->> NIP [c000000000403f34] add_memory_resource+0x244/0x340
->> LR [c000000000403f2c] add_memory_resource+0x23c/0x340
->> Call Trace:
->> [c0000004876e38f0] [c000000000403f2c] add_memory_resource+0x23c/0x340 (unreliable)
->> [c0000004876e39c0] [c00000000040408c] __add_memory+0x5c/0xf0
->> [c0000004876e39f0] [c0000000000e2b94] dlpar_add_lmb+0x1b4/0x500
->> [c0000004876e3ad0] [c0000000000e3888] dlpar_memory+0x1f8/0xb80
->> [c0000004876e3b60] [c0000000000dc0d0] handle_dlpar_errorlog+0xc0/0x190
->> [c0000004876e3bd0] [c0000000000dc398] dlpar_store+0x198/0x4a0
->> [c0000004876e3c90] [c00000000072e630] kobj_attr_store+0x30/0x50
->> [c0000004876e3cb0] [c00000000051f954] sysfs_kf_write+0x64/0x90
->> [c0000004876e3cd0] [c00000000051ee40] kernfs_fop_write+0x1b0/0x290
->> [c0000004876e3d20] [c000000000438dd8] vfs_write+0xe8/0x290
->> [c0000004876e3d70] [c0000000004391ac] ksys_write+0xdc/0x130
->> [c0000004876e3dc0] [c000000000034e40] system_call_exception+0x160/0x270
->> [c0000004876e3e20] [c00000000000d740] system_call_common+0xf0/0x27c
->> Instruction dump:
->> 48442e35 60000000 0b030000 3cbe0001 7fa3eb78 7bc48402 38a5fffe 7ca5fa14
->> 78a58402 48442db1 60000000 7c7c1b78 <0b030000> 7f23cb78 4bda371d 60000000
->> ---[ end trace 562fd6c109cd0fb2 ]---
-> 
-> The BUG_ON on failure is absolutely horrendous. There must be a better
-> way to handle a failure like that. The failure means that
-> sysfs_create_link_nowarn has failed. Please describe why that is the
-> case.
-> 
->> This patch addresses the root cause by not relying on the system_state
->> value to detect whether the call is due to a hot-plug operation or not. An
->> additional parameter is added to link_mem_sections() to tell the context of
->> the call and this parameter is propagated to register_mem_sect_under_node()
->> throuugh the walk_memory_blocks()'s call.
-> 
-> This looks like a hack to me and it deserves a better explanation. The
-> existing code is a hack on its own and it is inconsistent with other
-> boot time detection. We are using (system_state < SYSTEM_RUNNING) at other
-> places IIRC. Would it help to use the same here as well? Maybe we want to
-> wrap that inside a helper (early_memory_init()) and use it at all
-> places.
-
-I agree, this looks like a hack to check for the system_state value.
-I'll follow the David's proposal and introduce an enum detailing when the node 
-id check has to be done or not.
-The option of the wrapper seems good to me to, but it doesn't highlight why the 
-early processing is differing from the hot plug one. By using an enum explicitly 
-saying that the node id check is not done seems better to me.
-
->> Fixes: 4fbce633910e ("mm/memory_hotplug.c: make register_mem_sect_under_node() a callback of walk_memory_range()")
->> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
->> Cc: stable@vger.kernel.org
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> ---
->>   drivers/base/node.c  | 20 +++++++++++++++-----
->>   include/linux/node.h |  6 +++---
->>   mm/memory_hotplug.c  |  3 ++-
->>   3 files changed, 20 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/base/node.c b/drivers/base/node.c
->> index 508b80f6329b..27f828eeb531 100644
->> --- a/drivers/base/node.c
->> +++ b/drivers/base/node.c
->> @@ -762,14 +762,19 @@ static int __ref get_nid_for_pfn(unsigned long pfn)
->>   }
->>   
->>   /* register memory section under specified node if it spans that node */
->> +struct rmsun_args {
->> +	int	nid;
->> +	bool	hotadd;
->> +};
->>   static int register_mem_sect_under_node(struct memory_block *mem_blk,
->> -					 void *arg)
->> +					void *args)
->>   {
->>   	unsigned long memory_block_pfns = memory_block_size_bytes() / PAGE_SIZE;
->>   	unsigned long start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
->>   	unsigned long end_pfn = start_pfn + memory_block_pfns - 1;
->> -	int ret, nid = *(int *)arg;
->> +	int ret, nid = ((struct rmsun_args *)args)->nid;
->>   	unsigned long pfn;
->> +	bool hotadd = ((struct rmsun_args *)args)->hotadd;
->>   
->>   	for (pfn = start_pfn; pfn <= end_pfn; pfn++) {
->>   		int page_nid;
->> @@ -789,7 +794,7 @@ static int register_mem_sect_under_node(struct memory_block *mem_blk,
->>   		 * case, during hotplug we know that all pages in the memory
->>   		 * block belong to the same node.
->>   		 */
->> -		if (system_state == SYSTEM_BOOTING) {
->> +		if (!hotadd) {
->>   			page_nid = get_nid_for_pfn(pfn);
->>   			if (page_nid < 0)
->>   				continue;
->> @@ -832,10 +837,15 @@ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->>   			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
->>   }
->>   
->> -int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
->> +int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
->> +		      bool hotadd)
->>   {
->> +	struct rmsun_args args;
->> +
->> +	args.nid = nid;
->> +	args.hotadd = hotadd;
->>   	return walk_memory_blocks(PFN_PHYS(start_pfn),
->> -				  PFN_PHYS(end_pfn - start_pfn), (void *)&nid,
->> +				  PFN_PHYS(end_pfn - start_pfn), (void *)&args,
->>   				  register_mem_sect_under_node);
->>   }
->>   
->> diff --git a/include/linux/node.h b/include/linux/node.h
->> index 4866f32a02d8..6df9a4548650 100644
->> --- a/include/linux/node.h
->> +++ b/include/linux/node.h
->> @@ -100,10 +100,10 @@ typedef  void (*node_registration_func_t)(struct node *);
->>   
->>   #if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_NUMA)
->>   extern int link_mem_sections(int nid, unsigned long start_pfn,
->> -			     unsigned long end_pfn);
->> +			     unsigned long end_pfn, bool hotadd);
->>   #else
->>   static inline int link_mem_sections(int nid, unsigned long start_pfn,
->> -				    unsigned long end_pfn)
->> +				    unsigned long end_pfn, bool hotadd)
->>   {
->>   	return 0;
->>   }
->> @@ -128,7 +128,7 @@ static inline int register_one_node(int nid)
->>   		if (error)
->>   			return error;
->>   		/* link memory sections under this node */
->> -		error = link_mem_sections(nid, start_pfn, end_pfn);
->> +		error = link_mem_sections(nid, start_pfn, end_pfn, false);
->>   	}
->>   
->>   	return error;
->> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->> index e9d5ab5d3ca0..28028db8364a 100644
->> --- a/mm/memory_hotplug.c
->> +++ b/mm/memory_hotplug.c
->> @@ -1080,7 +1080,8 @@ int __ref add_memory_resource(int nid, struct resource *res)
->>   	}
->>   
->>   	/* link memory sections under this node.*/
->> -	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1));
->> +	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
->> +				true);
->>   	BUG_ON(ret);
->>   
->>   	/* create new memmap entry */
->> -- 
->> 2.28.0
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
