@@ -2,94 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF972624B3
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 04:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F159D26256A
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 04:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbgIICBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Sep 2020 22:01:35 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:60318 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726369AbgIICBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 22:01:35 -0400
-Received: from [123.114.44.221] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1kFpQR-0001uy-88; Wed, 09 Sep 2020 02:01:32 +0000
-From:   Hui Wang <hui.wang@canonical.com>
-To:     tiwai@suse.de, alsa-devel@alsa-project.org
-Cc:     stable@vger.kernel.org, kailang@realtek.com
-Subject: [PATCH] ALSA: hda/realtek - The Mic on a RedmiBook doesn't work
-Date:   Wed,  9 Sep 2020 10:00:41 +0800
-Message-Id: <20200909020041.8967-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726657AbgIICyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Sep 2020 22:54:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726369AbgIICyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Sep 2020 22:54:20 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38363C061573;
+        Tue,  8 Sep 2020 19:54:20 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id o68so983296pfg.2;
+        Tue, 08 Sep 2020 19:54:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=vXOzzvFu8SFrA4CAW0a5T7SuJva0VHxNKr87gI4K2Fc=;
+        b=CwBN50eN7o0q7KiTBQZvxw5uvd8HjF6WD82DNjv3bwUJuYulRVSgV+qRsMk4V+GepA
+         nHobjfDBdNcOC2CulA06+2Hosqa4zymYH8uz9bB9Vn+7TEGxu50ttHQSWj7ljUdNHOn3
+         RnxKKaCpfqVzVV6xjKql7RYlKWFwCV8PhBmsiO3lq7CJKXWkl+IfN4D+2VEr9sgNKTHT
+         jofbSOD1kbC/gOfW2P8AJGq4RMHEF3ujcXPVu8wjbYaK2z98bVER1/tcB3hSOFILZsZc
+         FelekrZ+C7xfR0I/0IV86P4hluoCUDRMPs+VKSdVITRCfe9m2rcqlDMIX1IPFCtWXHx4
+         P86Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=vXOzzvFu8SFrA4CAW0a5T7SuJva0VHxNKr87gI4K2Fc=;
+        b=oAuDk+5gnk9jlOrRbT9BeIa8Jn+lYs2JSfPsubhgYurf/JgRfkv6wthFiYG12oNehP
+         LPAln6rnE/MRKtMjhXWZphBCySmWb/8hGMGpGoRP4P5NwF2DN+aKrWcyhyPdd8W5nRoS
+         SF6D/x0a0A0H97jBzhHWFEqC5pC0ORlrqfW5oct0tOyg6Tgp+SRHVDR1QgXnJEclzpus
+         ww0yssy70MroGf1x7gtBnbR6Tg6GfOPSK0LxqVagRCC1hBBWREW/q+bAzNYGxAdMwubT
+         8WvxNXrgjYNieItn2g0JDIyk1kSg2VRzOFnRys1cjBjUeog9k0PpX5qpBNVowuvsXH0u
+         ykvA==
+X-Gm-Message-State: AOAM530jmYLY4Po9+mgP02KOmX6DBepy2GrhaJXPIt/c11xnjFRd7qQU
+        rfVG8es4EwDQQQkInLQi7XX6aNQKvNw=
+X-Google-Smtp-Source: ABdhPJwfjhhVWsy0V0vhZW43FiuW5FnfCQPx25is8fPCLesvGC6gJ+WVWSl0DV5dnZNVvRPNIGa6Iw==
+X-Received: by 2002:a62:5f02:0:b029:13c:1611:6536 with SMTP id t2-20020a625f020000b029013c16116536mr1925839pfb.8.1599620059482;
+        Tue, 08 Sep 2020 19:54:19 -0700 (PDT)
+Received: from localhost.localdomain ([103.7.29.6])
+        by smtp.googlemail.com with ESMTPSA id p68sm739865pfb.40.2020.09.08.19.54.16
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Sep 2020 19:54:18 -0700 (PDT)
+From:   Wanpeng Li <kernellwp@gmail.com>
+X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        "Paul K ." <kronenpj@kronenpj.dyndns.org>,
+        "# v5 . 8-rc1+" <stable@vger.kernel.org>
+Subject: [PATCH 1/3] KVM: SVM: Get rid of handle_fastpath_set_msr_irqoff()
+Date:   Wed,  9 Sep 2020 10:54:03 +0800
+Message-Id: <1599620043-12908-1-git-send-email-wanpengli@tencent.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Mic connects to the Nid 0x19, but the configuration of Nid 0x19
-is not defined to Mic, and also need to set the coeff to enable the
-auto detection on the Nid 0x19. After this change, the Mic plugging
-in or plugging out could be detected and could record the sound from
-the Mic.
+From: Wanpeng Li <wanpengli@tencent.com>
 
-And the coeff value is suggested by Kailang of Realtek.
+Analysis from Sean:
 
-Cc: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
+ | svm->next_rip is reset in svm_vcpu_run() only after calling 
+ | svm_exit_handlers_fastpath(), which will cause SVM's 
+ | skip_emulated_instruction() to write a stale RIP.
+ 
+Let's get rid of handle_fastpath_set_msr_irqoff() in svm_exit_handlers_fastpath()
+to have a quick fix.
+
+Reported-by: Paul K. <kronenpj@kronenpj.dyndns.org>
+Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: Paul K. <kronenpj@kronenpj.dyndns.org>
+Cc: <stable@vger.kernel.org> # v5.8-rc1+
+Fixes: 404d5d7bff0d (KVM: X86: Introduce more exit_fastpath_completion enum values)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
 ---
- sound/pci/hda/patch_realtek.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kvm/svm/svm.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index abfc602c3b92..85e207173f5d 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6228,6 +6228,7 @@ enum {
- 	ALC269_FIXUP_LEMOTE_A1802,
- 	ALC269_FIXUP_LEMOTE_A190X,
- 	ALC256_FIXUP_INTEL_NUC8_RUGGED,
-+	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
- };
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 19e622a..c61bc3b 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3349,11 +3349,6 @@ static void svm_cancel_injection(struct kvm_vcpu *vcpu)
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7591,6 +7592,16 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE
- 	},
-+	[ALC255_FIXUP_XIAOMI_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC289_FIXUP_ASUS_GA401
-+	},
- };
+ static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ {
+-	if (!is_guest_mode(vcpu) &&
+-	    to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_MSR &&
+-	    to_svm(vcpu)->vmcb->control.exit_info_1)
+-		return handle_fastpath_set_msr_irqoff(vcpu);
+-
+ 	return EXIT_FASTPATH_NONE;
+ }
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7888,6 +7899,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1b35, 0x1236, "CZC TMI", ALC269_FIXUP_CZC_TMI),
- 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
-+	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
-@@ -8065,6 +8077,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
- 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
-+	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
 -- 
-2.25.1
+2.7.4
 
