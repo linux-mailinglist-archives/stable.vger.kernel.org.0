@@ -2,182 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5A1262D8A
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 13:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22061262DC4
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 13:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgIIK7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 06:59:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33408 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726036AbgIIK7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Sep 2020 06:59:19 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 61DE9AC8C;
-        Wed,  9 Sep 2020 10:59:17 +0000 (UTC)
-Date:   Wed, 9 Sep 2020 12:59:14 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Laurent Dufour <ldufour@linux.ibm.com>
-Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, rafael@kernel.org,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
- operations
-Message-ID: <20200909105914.GF7348@dhcp22.suse.cz>
-References: <5cbd92e1-c00a-4253-0119-c872bfa0f2bc@redhat.com>
- <20200908170835.85440-1-ldufour@linux.ibm.com>
- <20200909074011.GD7348@dhcp22.suse.cz>
- <9faac1ce-c02d-7dbc-f79a-4aaaa5a73d28@linux.ibm.com>
- <20200909090953.GE7348@dhcp22.suse.cz>
- <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
+        id S1728611AbgIILZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 07:25:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35084 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727055AbgIILIq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 07:08:46 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 358ACC061797
+        for <stable@vger.kernel.org>; Wed,  9 Sep 2020 04:08:26 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id w8so1889099ilj.8
+        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 04:08:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mRUOfV6+ZqYqfW6xUFOI46xmoCz/PY+Ae+dYUc7wCZk=;
+        b=1N+0P+hFuG4Uwy6+7Kh2vXTyvL4DQpoUpLsXxoam8VgSx64eayoD1rarhWhB/mTSys
+         pSy+T5Rc3zLwEwkQ+XoEIk52rQUBc7MM5wUxdipsnrslayuiDBVjm35jn1ya5T7oOSp0
+         H1YPydcuaeL4dCTtYYCKkEiX97LKU2VVDG+bJOcOWMgKmfZUP/l5U9BNQAs/00FWlmkx
+         H/ex/jf8Kgh7hllr3q+yv9obCQ6FKeWl+CMH95BtxFPfXlQmTmWjBpebAdFN3TGIPx6e
+         QeLr6cApXGfa7h1OTNFzaTnszrPGbsHOjKOwQ7QHj+5UZZw5Roh9bJWOpU4v8kuxGS3h
+         3yWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mRUOfV6+ZqYqfW6xUFOI46xmoCz/PY+Ae+dYUc7wCZk=;
+        b=K+pn5KYdFtdDDP0PGu+GKdzDAwAxqRLvl1unTAU1ael+pBC9DT6AO+ZAz+nu8zKBcR
+         BcLMeZQ3PfHTdSE0EDqmBm28G1B0TX7L1TNpHAt27VZXbF42c4xtvJE259T0DZbeZkBq
+         kJTJf8HxQ0wCqFH7Pt1J1u5tYN356gaxBianO2jxyP04kLhi+RGhx6N3uBqEGu+capxX
+         c68AClp+p3NlmsdH3Lm9EenFbvfd8oZB3ID/4GikCmySSJr5aLZQuS+MSXBASt4pEKLz
+         S0fccsxbZvZtQ34IAgHQXuICr8IYCC1hHtXd2NZ6UaJgU0rnq7TuKvb8yn85QsOy3Rsu
+         AmRQ==
+X-Gm-Message-State: AOAM530SO5A4aoO/RN8HPV6N13G9s3IgPIhHHfVTGgMh6DBUfL/bL3SP
+        dhy3/MffsP2B9mT4jWKoBCCLtuwMDpahEtcmY4uhaA==
+X-Google-Smtp-Source: ABdhPJxDbic+qefGx7meiMSqlNbXappfPb9WHSzF3vDvGMHVTvSzbDpYMJZnpVMw7OleL/TgNt9XkX6rsMJ03h8ERu8=
+X-Received: by 2002:a92:c8c4:: with SMTP id c4mr846645ilq.287.1599649705603;
+ Wed, 09 Sep 2020 04:08:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
+References: <20200908130749.9948-1-brgl@bgdev.pl> <20200908134520.GY1891694@smile.fi.intel.com>
+In-Reply-To: <20200908134520.GY1891694@smile.fi.intel.com>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Wed, 9 Sep 2020 13:08:14 +0200
+Message-ID: <CAMRc=Mfta3PG0Ea7ABchhfL8E2hEtTo1ejBeR8ig7sTJKyZ5Ug@mail.gmail.com>
+Subject: Re: [PATCH] gpio: mockup: fix resource leak in error path
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Kent Gibson <warthog618@gmail.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 09-09-20 11:21:58, Laurent Dufour wrote:
-> Le 09/09/2020 à 11:09, Michal Hocko a écrit :
-> > On Wed 09-09-20 09:48:59, Laurent Dufour wrote:
-> > > Le 09/09/2020 à 09:40, Michal Hocko a écrit :
-[...]
-> > > > > In
-> > > > > that case, the system is able to boot but later hot-plug operation may lead
-> > > > > to this panic because the node's links are correctly broken:
-> > > > 
-> > > > Correctly broken? Could you provide more details on the inconsistency
-> > > > please?
-> > > 
-> > > laurent@ltczep3-lp4:~$ ls -l /sys/devices/system/memory/memory21
-> > > total 0
-> > > lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
-> > > lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
-> > > -rw-r--r-- 1 root root 65536 Aug 24 05:27 online
-> > > -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
-> > > -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
-> > > drwxr-xr-x 2 root root     0 Aug 24 05:27 power
-> > > -r--r--r-- 1 root root 65536 Aug 24 05:27 removable
-> > > -rw-r--r-- 1 root root 65536 Aug 24 05:27 state
-> > > lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
-> > > -rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
-> > > -r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
-> > 
-> > OK, so there are two nodes referenced here. Not terrible from the user
-> > point of view. Such a memory block will refuse to offline or online
-> > IIRC.
-> 
-> No the memory block is still owned by one node, only the sysfs
-> representation is wrong. So the memory block can be hot unplugged, but only
-> one node's link will be cleaned, and a '/syss/devices/system/node#/memory21'
-> link will remain and that will be detected later when that memory block is
-> hot plugged again.
+On Tue, Sep 8, 2020 at 3:45 PM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> On Tue, Sep 08, 2020 at 03:07:49PM +0200, Bartosz Golaszewski wrote:
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >
+> > If the module init function fails after creating the debugs directory,
+> > it's never removed. Add proper cleanup calls to avoid this resource
+> > leak.
+>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-OK, so you need to hotremove first and hotadd again to trigger the
-problem. It is not like you would be a hot adding something new. This is
-a useful information to have in the changelog.
+Thanks. This is uncontroversial so I queued right away for fixes.
 
-> > > > Which physical memory range you are trying to add here and what is the
-> > > > node affinity?
-> > > 
-> > > None is added, the root cause of the issue is happening at boot time.
-> > 
-> > Let me clarify my question. The crash has clearly happened during the
-> > hotplug add_memory_resource - which is clearly not a boot time path.
-> > I was askin for more information about why this has failed. It is quite
-> > clear that sysfs machinery has failed and that led to BUG_ON but we are
-> > mising an information on why. What was the physical memory range to be
-> > added and why sysfs failed?
-> 
-> The BUG_ON is detecting a bad state generated earlier, at boot time because
-> register_mem_sect_under_node() didn't check for the block's node id.
-> 
-> > > > > ------------[ cut here ]------------
-> > > > > kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
-> > > > > Oops: Exception in kernel mode, sig: 5 [#1]
-> > > > > LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-> > > > > Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
-> > > > > CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
-> > > > > NIP:  c000000000403f34 LR: c000000000403f2c CTR: 0000000000000000
-> > > > > REGS: c0000004876e3660 TRAP: 0700   Not tainted  (5.9.0-rc1+)
-> > > > > MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24000448  XER: 20040000
-> > > > > CFAR: c000000000846d20 IRQMASK: 0
-> > > > > GPR00: c000000000403f2c c0000004876e38f0 c0000000012f6f00 ffffffffffffffef
-> > > > > GPR04: 0000000000000227 c0000004805ae680 0000000000000000 00000004886f0000
-> > > > > GPR08: 0000000000000226 0000000000000003 0000000000000002 fffffffffffffffd
-> > > > > GPR12: 0000000088000484 c00000001ec96280 0000000000000000 0000000000000000
-> > > > > GPR16: 0000000000000000 0000000000000000 0000000000000004 0000000000000003
-> > > > > GPR20: c00000047814ffe0 c0000007ffff7c08 0000000000000010 c0000000013332c8
-> > > > > GPR24: 0000000000000000 c0000000011f6cc0 0000000000000000 0000000000000000
-> > > > > GPR28: ffffffffffffffef 0000000000000001 0000000150000000 0000000010000000
-> > > > > NIP [c000000000403f34] add_memory_resource+0x244/0x340
-> > > > > LR [c000000000403f2c] add_memory_resource+0x23c/0x340
-> > > > > Call Trace:
-> > > > > [c0000004876e38f0] [c000000000403f2c] add_memory_resource+0x23c/0x340 (unreliable)
-> > > > > [c0000004876e39c0] [c00000000040408c] __add_memory+0x5c/0xf0
-> > > > > [c0000004876e39f0] [c0000000000e2b94] dlpar_add_lmb+0x1b4/0x500
-> > > > > [c0000004876e3ad0] [c0000000000e3888] dlpar_memory+0x1f8/0xb80
-> > > > > [c0000004876e3b60] [c0000000000dc0d0] handle_dlpar_errorlog+0xc0/0x190
-> > > > > [c0000004876e3bd0] [c0000000000dc398] dlpar_store+0x198/0x4a0
-> > > > > [c0000004876e3c90] [c00000000072e630] kobj_attr_store+0x30/0x50
-> > > > > [c0000004876e3cb0] [c00000000051f954] sysfs_kf_write+0x64/0x90
-> > > > > [c0000004876e3cd0] [c00000000051ee40] kernfs_fop_write+0x1b0/0x290
-> > > > > [c0000004876e3d20] [c000000000438dd8] vfs_write+0xe8/0x290
-> > > > > [c0000004876e3d70] [c0000000004391ac] ksys_write+0xdc/0x130
-> > > > > [c0000004876e3dc0] [c000000000034e40] system_call_exception+0x160/0x270
-> > > > > [c0000004876e3e20] [c00000000000d740] system_call_common+0xf0/0x27c
-> > > > > Instruction dump:
-> > > > > 48442e35 60000000 0b030000 3cbe0001 7fa3eb78 7bc48402 38a5fffe 7ca5fa14
-> > > > > 78a58402 48442db1 60000000 7c7c1b78 <0b030000> 7f23cb78 4bda371d 60000000
-> > > > > ---[ end trace 562fd6c109cd0fb2 ]---
-> > > > 
-> > > > The BUG_ON on failure is absolutely horrendous. There must be a better
-> > > > way to handle a failure like that. The failure means that
-> > > > sysfs_create_link_nowarn has failed. Please describe why that is the
-> > > > case.
-> > > > 
-> > > > > This patch addresses the root cause by not relying on the system_state
-> > > > > value to detect whether the call is due to a hot-plug operation or not. An
-> > > > > additional parameter is added to link_mem_sections() to tell the context of
-> > > > > the call and this parameter is propagated to register_mem_sect_under_node()
-> > > > > throuugh the walk_memory_blocks()'s call.
-> > > > 
-> > > > This looks like a hack to me and it deserves a better explanation. The
-> > > > existing code is a hack on its own and it is inconsistent with other
-> > > > boot time detection. We are using (system_state < SYSTEM_RUNNING) at other
-> > > > places IIRC. Would it help to use the same here as well? Maybe we want to
-> > > > wrap that inside a helper (early_memory_init()) and use it at all
-> > > > places.
-> > > 
-> > > I agree, this looks like a hack to check for the system_state value.
-> > > I'll follow the David's proposal and introduce an enum detailing when the
-> > > node id check has to be done or not.
-> > 
-> > I am not sure an enum is going to make the existing situation less
-> > messy. Sure we somehow have to distinguish boot init and runtime hotplug
-> > because they have different constrains. I am arguing that a) we should
-> > have a consistent way to check for those and b) we shouldn't blow up
-> > easily just because sysfs infrastructure has failed to initialize.
-> 
-> For the point a, using the enum allows to know in
-> register_mem_sect_under_node() if the link operation is due to a hotplug
-> operation or done at boot time.
-
-Yes, but let me repeat. We have a mess here and different paths check
-for the very same condition by different ways. We need to unify those.
-
-> For the point b, one option would be ignore the link error in the case the
-> link is already existing, but that BUG_ON() had the benefit to highlight the
-> root issue.
-
-Yes BUG_ON is obviously an over-reaction. The system is not in a state
-to die anytime soon.
--- 
-Michal Hocko
-SUSE Labs
+Bartosz
