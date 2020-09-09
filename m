@@ -2,55 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92AC0262DED
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 13:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1FC262E92
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 14:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728954AbgIILfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 07:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S1729525AbgIIMb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 08:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729622AbgIILfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Sep 2020 07:35:30 -0400
+        id S1730030AbgIIMae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Sep 2020 08:30:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4F7C21D7B;
-        Wed,  9 Sep 2020 11:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D0321D93;
+        Wed,  9 Sep 2020 12:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599650682;
-        bh=LsZZCgcD9CKkSW0yTqr5sXk2HVFb9a1pnywslo7fZww=;
+        s=default; t=1599654591;
+        bh=kLzIbSajdRz1W80PzG78m/ukaUR6VgdyxOemY3uuv9I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vIur60NMEckDbV+dW9IzqmRMhQRqdG47fgB2CmYQCO4frCQmILdcuxdpwkGsZk3Ut
-         MS6De6rBF8MOvEMUxl1qnrdy7RKi7swqmuyJ5RTtCLEHXtSahUJ0SgRlkwtzGg3CC3
-         aA8hRwkCVNcsZHlg/uAXJpPt5P+opjQ5xPXgy5RI=
-Date:   Wed, 9 Sep 2020 13:24:52 +0200
+        b=XN1JLSjxX3db+1p0W9RYsRlQf4MqjgINmFg8dNg6De2EpU8/rLho7nnPFUQL3/bhs
+         HaUn5avZLdYnGTOzc/XwLBALpYkHBCOm5SDTmUg0Z/saMCr8AguCOwFjMhtiwROwir
+         F7bHFc4TnVjoLe4AO9CKYFvgTrBgp57hEi7rzq6U=
+Date:   Wed, 9 Sep 2020 14:30:01 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.8 101/186] drm/radeon: Prefer lower feedback dividers
-Message-ID: <20200909112452.GA621541@kroah.com>
-References: <20200908152241.646390211@linuxfoundation.org>
- <20200908152246.531365310@linuxfoundation.org>
- <77ec0338-32a1-6379-858c-359f636a0e58@amd.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Laurent Dufour <ldufour@linux.ibm.com>,
+        Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org,
+        Oscar Salvador <osalvador@suse.de>, rafael@kernel.org,
+        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+        stable@vger.kernel.org, linux-mm@kvack.org,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
+ operations
+Message-ID: <20200909123001.GA670250@kroah.com>
+References: <5cbd92e1-c00a-4253-0119-c872bfa0f2bc@redhat.com>
+ <20200908170835.85440-1-ldufour@linux.ibm.com>
+ <20200909074011.GD7348@dhcp22.suse.cz>
+ <9faac1ce-c02d-7dbc-f79a-4aaaa5a73d28@linux.ibm.com>
+ <20200909090953.GE7348@dhcp22.suse.cz>
+ <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
+ <9ad553f2-ebbf-cae5-5570-f60d2c965c41@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <77ec0338-32a1-6379-858c-359f636a0e58@amd.com>
+In-Reply-To: <9ad553f2-ebbf-cae5-5570-f60d2c965c41@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 09, 2020 at 01:15:13PM +0200, Christian König wrote:
-> Hi Greg,
+On Wed, Sep 09, 2020 at 11:24:24AM +0200, David Hildenbrand wrote:
+> >> I am not sure an enum is going to make the existing situation less
+> >> messy. Sure we somehow have to distinguish boot init and runtime hotplug
+> >> because they have different constrains. I am arguing that a) we should
+> >> have a consistent way to check for those and b) we shouldn't blow up
+> >> easily just because sysfs infrastructure has failed to initialize.
+> > 
+> > For the point a, using the enum allows to know in register_mem_sect_under_node() 
+> > if the link operation is due to a hotplug operation or done at boot time.
+> > 
+> > For the point b, one option would be ignore the link error in the case the link 
+> > is already existing, but that BUG_ON() had the benefit to highlight the root issue.
+> > 
 > 
-> please drop that patch. It turned out to break a lot of different setups and
-> we are going to revert it now.
+> WARN_ON_ONCE() would be preferred  - not crash the system but still
+> highlight the issue.
 
-Ok, now dropped from all trees, thanks.
+Many many systems now run with 'panic on warn' enabled, so that wouldn't
+change much :(
+
+If you can warn, you can properly just print an error message and
+recover from the problem.
+
+thanks,
 
 greg k-h
