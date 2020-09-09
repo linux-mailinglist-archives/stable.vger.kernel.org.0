@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5648A262620
-	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 06:13:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96090262622
+	for <lists+stable@lfdr.de>; Wed,  9 Sep 2020 06:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725864AbgIIENX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 00:13:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
+        id S1725811AbgIIEN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 00:13:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725767AbgIIENX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 00:13:23 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955F5C061573;
-        Tue,  8 Sep 2020 21:13:22 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id s2so684541pjr.4;
-        Tue, 08 Sep 2020 21:13:22 -0700 (PDT)
+        with ESMTP id S1725767AbgIIENz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 00:13:55 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A69C061573;
+        Tue,  8 Sep 2020 21:13:55 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id z19so998701pfn.8;
+        Tue, 08 Sep 2020 21:13:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=lQt4U1iP+l97io+9Y7fL8PAkQ11+CExjcyqCQ8vCFRA=;
-        b=p/blGdmgrz0MGuPluJGs7YvUAd2rUGzhj8WK8QU/Vrp15gpsz2ZDSErz4eQk3ysmHt
-         Zpr9kiZrJCnLlOQXwwX4HLdicnMQDscdRPsOMRMLkbpmx0K0dhal3ud8p+zTRBL2hvEE
-         be6hcg2uXQ7LnKu0tUy2+64AxLmnajdcQEv0z1Ce2kP36dQ/cjug5X6dHwoz0I7bqU1l
-         G7NpwDBvq+VBIpVmtChaLtTPv5vKFXin5sWLBT/28FCnazHm4lshFP+vqr95qQCx0Gl5
-         DxlbY0FLDiOMy63+oJ5Uvtn7vEeqgQ7j+nLLM92T+yCn9uTWqtAxkl5Ff4pEvp9mWcAO
-         1U4g==
+        bh=SK7c8zygBhocwtQGCubxomcP9y8grV0ZdMS3bUk6cLE=;
+        b=aMeBodJOsaAEBMAf80kY/k/JsoGhhCSWrHBwCDJUHUDUxC4bD6GtzD/SoujJfLUlc4
+         hwyAXE3/aiFyptIsDSWvAfWb6PjcIYwpVtx/cToi2/pEbh5KUcv4t95tL4jlnso+h57c
+         2D/Jp6uxvTRDKwhxyFKDwfUh+UT4CCndBz21Mf9PUlKNj6cAzQYsKF5XxjQl8zQpodUP
+         8yFY8Y8x0y8F566n0tWypTMkTjj+CQ5mfkiFSsZTmsZzdf6XG4SSN2NuuWa/Etc1jOpe
+         ndh8/BVTPYR/UD3d1r+p+8IQeh5eoYKy31USSLPHIJPA+hx9SwdPmUjmpZ+DygEZxl/8
+         m8Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=lQt4U1iP+l97io+9Y7fL8PAkQ11+CExjcyqCQ8vCFRA=;
-        b=FWQqfP1qAILTSCj8b8t9AsD1KPLp9StapSE2GclDfxBWraEA9n15LkwV08JgGx327o
-         FhciVd3Lk/F7xVNbPSVtM/3hldReIPgH7FenvZbr8HeXGUK2GprZbaknSqL0KUnmb25u
-         AmdiIeAj4Uk6WzoVrkAJTToil7Thj9P+Wuw7HIZKrPJRclgPNhAFTGfcAjVptx1S3LJC
-         L9L/bVlLHlf4PQBzr2OCIHGS81JhDbua3PPqxOQTvsJuDvvOBDWkElXQmLFeYCHujC3H
-         nMSGBO5XaDAQfEUaNp2DIQQf8XTQDAFIYr0qpjasjh3Ol6SX6zwtqiR2FEzsUqMgTBKc
-         XcaQ==
-X-Gm-Message-State: AOAM532DQDpddijSL1BaPhX8KcJY+UmjeBv7Wd2GV5qL4N7fYu6flAq/
-        /nMOHsI5x/HR9Oomk9RonkrbJRs5IOVFdQ==
-X-Google-Smtp-Source: ABdhPJx/6uvrGfCJFnrWEzdkdqWFXBlq0UAQBBHMZpi+zIyrSZAzrQ2ko6Y93CVNfPZSoPRDzvO68g==
-X-Received: by 2002:a17:90b:20a:: with SMTP id fy10mr1923767pjb.209.1599624802211;
-        Tue, 08 Sep 2020 21:13:22 -0700 (PDT)
+        bh=SK7c8zygBhocwtQGCubxomcP9y8grV0ZdMS3bUk6cLE=;
+        b=lEJ0HmwNeKDdY2gO/9okWOb/7Tu/g1e8x4oT+I29ah74T0BdGArBY+QbJx7VXW12P4
+         yVoPv84n997AbWiDeNhpCTzi5f9gjoeQ434/t4sOwn3K4jr6NyR43NwMmf2jzizwBMSl
+         9/SD2Y+xlywfumOBWF3QiQNyo+7gYWtMCIBfBs1Sj72YI28Tysuz4TWJLMpbQJn5l2II
+         ZVWZkkUEpMt2y4Rx4y8n6QYgtYBougZ24NiwoUiH99uiwducjC6SqAS6/KwMF3DO/TcK
+         gKkg77ip+TFRiVppqwud51pemHiorIGg9xRqEGKttbtdBP2jRoVNHWBybhJmAk723+6I
+         1gGw==
+X-Gm-Message-State: AOAM531NInV52zlccgLQsewsDHZCcZcHsmX8Od0VzCGjWexEMgVcIsdC
+        mwJkXbpie6ZyZDPFEXCl5dQ=
+X-Google-Smtp-Source: ABdhPJyzsiula4D1EMgUXWX1+1iQpgQ7943H2ofj5WzT7GrW0SMIuI3z1jFAuoymws5igFtl9CF2kw==
+X-Received: by 2002:a17:902:aa0b:b029:d0:89f4:6229 with SMTP id be11-20020a170902aa0bb02900d089f46229mr2245361plb.17.1599624834939;
+        Tue, 08 Sep 2020 21:13:54 -0700 (PDT)
 Received: from software.domain.org ([45.77.13.216])
-        by smtp.gmail.com with ESMTPSA id m7sm901436pfm.31.2020.09.08.21.13.18
+        by smtp.gmail.com with ESMTPSA id m7sm901436pfm.31.2020.09.08.21.13.50
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Sep 2020 21:13:21 -0700 (PDT)
+        Tue, 08 Sep 2020 21:13:54 -0700 (PDT)
 From:   Huacai Chen <chenhc@lemote.com>
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -55,9 +55,9 @@ Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
         Huacai Chen <chenhuacai@gmail.com>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
-Subject: [PATCH 2/3] irqchip/loongson-htvec: Fix initial interrupts clearing
-Date:   Wed,  9 Sep 2020 12:09:11 +0800
-Message-Id: <1599624552-17523-2-git-send-email-chenhc@lemote.com>
+Subject: [PATCH 3/3] irqchip/loongson-pch-pic: Reserve legacy LPC irqs
+Date:   Wed,  9 Sep 2020 12:09:12 +0800
+Message-Id: <1599624552-17523-3-git-send-email-chenhc@lemote.com>
 X-Mailer: git-send-email 2.7.0
 In-Reply-To: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
 References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
@@ -66,42 +66,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In htvec_reset() only the first group of initial interrupts is cleared.
-This sometimes causes spurious interrupts, so let's clear all groups.
-
-BTW, commit c47e388cfc648421bd821f ("irqchip/loongson-htvec: Support 8
-groups of HT vectors") increase interrupt lines from 4 to 8, so update
-comments as well.
+Reserve legacy LPC irqs (0~15) to avoid spurious interrupts.
 
 Cc: stable@vger.kernel.org
-Fixes: 818e915fbac518e8c78e1877 ("irqchip: Add Loongson HyperTransport Vector support")
 Signed-off-by: Huacai Chen <chenhc@lemote.com>
 ---
- drivers/irqchip/irq-loongson-htvec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-loongson-pch-pic.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-loongson-htvec.c b/drivers/irqchip/irq-loongson-htvec.c
-index 13e6016..6392aaf 100644
---- a/drivers/irqchip/irq-loongson-htvec.c
-+++ b/drivers/irqchip/irq-loongson-htvec.c
-@@ -151,7 +151,7 @@ static void htvec_reset(struct htvec *priv)
- 	/* Clear IRQ cause registers, mask all interrupts */
- 	for (idx = 0; idx < priv->num_parents; idx++) {
- 		writel_relaxed(0x0, priv->base + HTVEC_EN_OFF + 4 * idx);
--		writel_relaxed(0xFFFFFFFF, priv->base);
-+		writel_relaxed(0xFFFFFFFF, priv->base + 4 * idx);
- 	}
- }
+diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
+index 9bf6b9a..9f6719c 100644
+--- a/drivers/irqchip/irq-loongson-pch-pic.c
++++ b/drivers/irqchip/irq-loongson-pch-pic.c
+@@ -35,6 +35,7 @@
  
-@@ -172,7 +172,7 @@ static int htvec_of_init(struct device_node *node,
- 		goto free_priv;
+ struct pch_pic {
+ 	void __iomem		*base;
++	struct irq_domain	*lpc_domain;
+ 	struct irq_domain	*pic_domain;
+ 	u32			ht_vec_base;
+ 	raw_spinlock_t		pic_lock;
+@@ -184,9 +185,9 @@ static void pch_pic_reset(struct pch_pic *priv)
+ static int pch_pic_of_init(struct device_node *node,
+ 				struct device_node *parent)
+ {
++	int i, base, err;
+ 	struct pch_pic *priv;
+ 	struct irq_domain *parent_domain;
+-	int err;
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -213,6 +214,22 @@ static int pch_pic_of_init(struct device_node *node,
+ 		goto iounmap_base;
  	}
  
--	/* Interrupt may come from any of the 4 interrupt line */
-+	/* Interrupt may come from any of the 8 interrupt lines */
- 	for (i = 0; i < HTVEC_MAX_PARENT_IRQ; i++) {
- 		parent_irq[i] = irq_of_parse_and_map(node, i);
- 		if (parent_irq[i] <= 0)
++	base = irq_alloc_descs(-1, 0, NR_IRQS_LEGACY, 0);
++	if (base < 0) {
++		pr_err("Failed to allocate LPC IRQ numbers\n");
++		goto iounmap_base;
++	}
++
++	priv->lpc_domain = irq_domain_add_legacy(node, NR_IRQS_LEGACY, 0, 0,
++						 &irq_domain_simple_ops, NULL);
++	if (!priv->lpc_domain) {
++		pr_err("Failed to add irqdomain for LPC controller");
++		goto iounmap_base;
++	}
++
++	for (i = 0; i < NR_IRQS_LEGACY; i++)
++		irq_set_chip_and_handler(i, &dummy_irq_chip, handle_simple_irq);
++
+ 	priv->pic_domain = irq_domain_create_hierarchy(parent_domain, 0,
+ 						       PIC_COUNT,
+ 						       of_node_to_fwnode(node),
 -- 
 2.7.0
 
