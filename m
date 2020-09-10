@@ -2,88 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6B4264ACA
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 19:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04702264DAE
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 20:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727026AbgIJRM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 13:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S1727800AbgIJSqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 14:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726474AbgIJRMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Sep 2020 13:12:51 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        id S1727794AbgIJSqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Sep 2020 14:46:38 -0400
+Received: from lt-jalone-7480.mtl.com (c-24-6-56-119.hsd1.ca.comcast.net [24.6.56.119])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B811120C09;
-        Thu, 10 Sep 2020 17:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5822220855;
+        Thu, 10 Sep 2020 18:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599757971;
-        bh=PUBpYQj0CxzLrTEIPelTfB5FM7z8aFgQE0RamhRKdGk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EKml8Bp/9LmNdjeMi1rCzFyiQzegEeGNrtKf/vFqrtC10kEjnhTIxRe8hB5Fle0t6
-         7uDN6w35OLtDdE66DdKTs0hbqzABuv0/xOPYY4y/aU5Q6aO8CQMGTJLFJhZB+mbNPD
-         xJtDa0Yi6FsRPugbXzyqZtdbxk2aEPJyCbwfgXWE=
-Date:   Thu, 10 Sep 2020 19:12:58 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     sashal@kernel.org, alex.williamson@redhat.com, cohuck@redhat.com,
-        peterx@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        srivatsab@vmware.com, srivatsa@csail.mit.edu,
-        vsirnapalli@vmware.com
-Subject: Re: [PATCH v2 v4.14.y 0/3] vfio: Fix for CVE-2020-12888
-Message-ID: <20200910171258.GC1621093@kroah.com>
-References: <1599591263-46520-1-git-send-email-akaher@vmware.com>
- <1599591263-46520-4-git-send-email-akaher@vmware.com>
+        s=default; t=1599763597;
+        bh=SWNGqWijdR8em/8AiFsYsX8TxgqfsnS8CcMHhK9zfPc=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=tKdGRYXiW7oXQ1+0KDRE0csTftOJglN79bwl6wl7BeKTYOjIBIGuoTGnBOSFb0u3v
+         JeM4IgIpGkRB4VAF5bwNN8+JEY/3oXS9jmO3933yaVNGd1EpZCCmRD1VuKK3T402gY
+         CdNMW4f4wv1ru4k3Zg/KLOBDFip506n22AGurQic=
+Message-ID: <fc4effe1bbe6e9c68f4bdd863e3d38cbab52a285.camel@kernel.org>
+Subject: Re: [PATCH 4.19] net/mlx5e: Don't support phys switch id if not in
+ switchdev mode
+From:   Saeed Mahameed <saeed@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        netdev@vger.kernel.org, Roi Dayan <roid@mellanox.com>
+Date:   Thu, 10 Sep 2020 11:46:36 -0700
+In-Reply-To: <20200807131323.GA664450@kroah.com>
+References: <20200807020542.636290-1-saeedm@mellanox.com>
+         <20200807131323.GA664450@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1599591263-46520-4-git-send-email-akaher@vmware.com>
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 09, 2020 at 12:24:23AM +0530, Ajay Kaher wrote:
-> CVE-2020-12888 Kernel: vfio: access to disabled MMIO space of some
-> devices may lead to DoS scenario
->     
-> The VFIO modules allow users (guest VMs) to enable or disable access to the
-> devices' MMIO memory address spaces. If a user attempts to access (read/write)
-> the devices' MMIO address space when it is disabled, some h/w devices issue an
-> interrupt to the CPU to indicate a fatal error condition, crashing the system.
-> This flaw allows a guest user or process to crash the host system resulting in
-> a denial of service.
->     
-> Patch 1/ is to force the user fault if PFNMAP vma might be DMA mapped
-> before user access.
->     
-> Patch 2/ setup a vm_ops handler to support dynamic faulting instead of calling
-> remap_pfn_range(). Also provides a list of vmas actively mapping the area which
-> can later use to invalidate those mappings.
->     
-> Patch 3/ block the user from accessing memory spaces which is disabled by using
-> new vma list support to zap, or invalidate, those memory mappings in order to
-> force them to be faulted back in on access.
->     
-> Upstreamed patches link:
-> https://lore.kernel.org/kvm/158871401328.15589.17598154478222071285.stgit@gimli.home
+On Fri, 2020-08-07 at 15:13 +0200, Greg Kroah-Hartman wrote:
+> On Thu, Aug 06, 2020 at 07:05:42PM -0700, Saeed Mahameed wrote:
+> > From: Roi Dayan <roid@mellanox.com>
+> > 
+> > Support for phys switch id ndo added for representors and if
+> > we do not have representors there is no need to support it.
+> > Since each port return different switch id supporting this
+> > block support for creating bond over PFs and attaching to bridge
+> > in legacy mode.
+> > 
+> > This bug doesn't exist upstream as the code got refactored and the
+> > netdev api is totally different.
+> > 
+> > Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+> > Signed-off-by: Roi Dayan <roid@mellanox.com>
+> > Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+> > ---
+> > Hi Greg,
+> > 
+> > Sorry for submitting a non upstream patch, but this bug is
+> > bothering some users on 4.19-stable kernels and it doesn't exist
+> > upstream, so i hope you are ok with backporting this one liner
+> > patch.
 > 
-> Diff from v1:
-> Fixed build break problem.
+> Also queued up to 4.9.y and 4.14.y.
 > 
-> [PATCH v2 v4.14.y 1/3]:
-> Backporting of upsream commit 41311242221e:
-> vfio/type1: Support faulting PFNMAP vmas
->         
-> [PATCH v2 v4.14.y 2/3]:
-> Backporting of upsream commit 11c4cd07ba11:
-> vfio-pci: Fault mmaps to enable vma tracking
->         
-> [PATCH v2 v4.14.y 3/3]:
-> Backporting of upsream commit abafbc551fdd:
-> vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
 
-This worked better, now all queued up, thanks!
+Hi Greg, the request was originally made for 4.19.y kernel,
+I see the patch in 4.9 and 4.14 but not in 4.19 can we push it to 4.19
+as well ? 
 
-greg k-h
+Thanks,
+Saeed.
+
+
+
