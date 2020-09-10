@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C54264AEB
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 19:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52AC0264AE4
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 19:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726890AbgIJRQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 13:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44960 "EHLO mail.kernel.org"
+        id S1726167AbgIJRQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 13:16:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725820AbgIJQeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Sep 2020 12:34:20 -0400
+        id S1726970AbgIJQee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Sep 2020 12:34:34 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0D1421D81;
-        Thu, 10 Sep 2020 16:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFAEC221E2;
+        Thu, 10 Sep 2020 16:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599755660;
-        bh=uBnRwLuv38RqJ8K3uYlMUsMCJOCQCkwNTv/0ekTsosM=;
+        s=default; t=1599755661;
+        bh=mNlP4ZrHGlhkDK0ugXlEzoq3K3ZLkqBvofzdPSoe+vI=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=KbPsp8hC/XzdIKmngvcR2OBTU3qh4V99zAKMJnopFaGSBvQBGmwlH5XmIfC7JHnrX
-         ARlIIPIi1SD6hjk27CrCVt7VQoolK4yj3s095efJlJlS57VH32eYrd2NJqe08nGtEV
-         U934xPKfNZrDrnkauSI9aewrVs9sjlL6HCOjtoAM=
-Date:   Thu, 10 Sep 2020 16:34:19 +0000
+        b=iyLnNADRcEtXDXWuS9gAVtLDHgaS73WIsuw8yfJ+bQ0jys4rD6jd0O0bHbxn3yPE7
+         LTizhwvNZrQaCSyvN5YD22//YDK6lDFPFMFfBfPnTZ4vqfXYv1JyXNuWQLFJzETuxs
+         V/QsldXFJ65BXk4hhIaZd2bmpMjMUdHuC2xfrCK8=
+Date:   Thu, 10 Sep 2020 16:34:20 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Huacai Chen <chenhc@lemote.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org
+To:     Arnd Bergmann <arnd@arndb.de>
+To:     Kashyap Desai <kashyap.desai@broadcom.com>
+Cc:     hch@infradead.org, Arnd Bergmann <arnd@arndb.de>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: MIPS: Change the definition of kvm type
-In-Reply-To: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
-References: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
-Message-Id: <20200910163419.E0D1421D81@mail.kernel.org>
+Subject: Re: [PATCH 2/3] scsi: megaraid_sas: check user-provided offsets
+In-Reply-To: <20200908213715.3553098-2-arnd@arndb.de>
+References: <20200908213715.3553098-2-arnd@arndb.de>
+Message-Id: <20200910163420.CFAEC221E2@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -52,32 +52,37 @@ The bot has tested the following trees: v5.8.7, v5.4.63, v4.19.143, v4.14.196, v
 v5.8.7: Build OK!
 v5.4.63: Build OK!
 v4.19.143: Build OK!
-v4.14.196: Build OK!
+v4.14.196: Failed to apply! Possible dependencies:
+    107a60dd71b5 ("scsi: megaraid_sas: Add support for 64bit consistent DMA")
+    1b4bed206159 ("scsi: megaraid_sas: Create separate functions for allocating and freeing controller DMA buffers")
+    201a810cc188 ("scsi: megaraid_sas: Re-Define enum DCMD_RETURN_STATUS")
+    2ce435087902 ("scsi: megaraid_sas: Enhance internal DCMD timeout prints")
+    7535f27d1f14 ("scsi: megaraid_sas: Move initialization of instance parameters inside newly created function megasas_init_ctrl_params")
+    82add4e1b354 ("scsi: megaraid_sas: Incorrect processing of IOCTL frames for SMP/STP commands")
+    e5d65b4b81af ("scsi: megaraid_sas: Move controller memory allocations and DMA mask settings from probe to megasas_init_fw")
+    e97e673ca63b ("scsi: megaraid_sas: Retry with reduced queue depth when alloc fails for higher QD")
+
 v4.9.235: Failed to apply! Possible dependencies:
-    06c158c96ed8 ("KVM: MIPS/MMU: Convert guest physical map to page table")
-    1534b3964901 ("KVM: MIPS/MMU: Simplify ASID restoration")
-    1581ff3dbf69 ("KVM: MIPS/MMU: Move preempt/ASID handling to implementation")
-    91cdee5710d5 ("KVM: MIPS/T&E: Restore host asid on return to host")
-    a2c046e40ff1 ("KVM: MIPS: Add vcpu_run() & vcpu_reenter() callbacks")
-    a31b50d741bd ("KVM: MIPS/MMU: Invalidate GVA PTs on ASID changes")
-    a60b8438bdba ("KVM: MIPS: Convert get/set_regs -> vcpu_load/put")
-    a7ebb2e410f8 ("KVM: MIPS/T&E: active_mm = init_mm in guest context")
-    a8a3c426772e ("KVM: MIPS: Add VZ & TE capabilities")
-    c550d53934d8 ("KVM: MIPS: Remove duplicated ASIDs from vcpu")
-    c92701322711 ("KVM: PPC: Book3S HV: Add userspace interfaces for POWER9 MMU")
+    201a810cc188 ("scsi: megaraid_sas: Re-Define enum DCMD_RETURN_STATUS")
+    2493c67e518c ("scsi: megaraid_sas: 128 MSIX Support")
+    3e5eadb1a881 ("scsi: megaraid_sas: Enable or Disable Fast path based on the PCI Threshold Bandwidth")
+    45b8a35eed7b ("scsi: megaraid_sas: 32 bit descriptor fire cmd optimization")
+    45f4f2eb3da3 ("scsi: megaraid_sas: Add new pci device Ids for SAS3.5 Generic Megaraid Controllers")
+    82add4e1b354 ("scsi: megaraid_sas: Incorrect processing of IOCTL frames for SMP/STP commands")
+    8823abeddbbc ("scsi: megaraid_sas: Fix endianness issues in DCMD handling")
+    95c060869e68 ("scsi: megaraid_sas: latest controller OCR capability from FW before sending shutdown DCMD")
+    d0fc91d67c59 ("scsi: megaraid_sas: Send SYNCHRONIZE_CACHE for VD to firmware")
+    f4fc209326c7 ("scsi: megaraid_sas: change issue_dcmd to return void from int")
+    fad119b707f8 ("scsi: megaraid_sas: switch to pci_alloc_irq_vectors")
 
 v4.4.235: Failed to apply! Possible dependencies:
-    107d44a2c5bf ("KVM: document KVM_REINJECT_CONTROL ioctl")
-    366baf28ee3f ("KVM: PPC: Use RCU for arch.spapr_tce_tables")
-    462ee11e58c9 ("KVM: PPC: Replace SPAPR_TCE_SHIFT with IOMMU_PAGE_SHIFT_4K")
-    58ded4201ff0 ("KVM: PPC: Add support for 64bit TCE windows")
-    5ee7af18642c ("KVM: PPC: Move reusable bits of H_PUT_TCE handler to helpers")
-    a8a3c426772e ("KVM: MIPS: Add VZ & TE capabilities")
-    c92701322711 ("KVM: PPC: Book3S HV: Add userspace interfaces for POWER9 MMU")
-    d3695aa4f452 ("KVM: PPC: Add support for multiple-TCE hcalls")
-    f8626985c7c2 ("KVM: PPC: Account TCE-containing pages in locked_vm")
-    fcbb2ce67284 ("KVM: PPC: Rework H_PUT_TCE/H_GET_TCE handlers")
-    fe26e52712cc ("KVM: PPC: Add @page_shift to kvmppc_spapr_tce_table")
+    201a810cc188 ("scsi: megaraid_sas: Re-Define enum DCMD_RETURN_STATUS")
+    6d40afbc7d13 ("megaraid_sas: MFI IO timeout handling")
+    82add4e1b354 ("scsi: megaraid_sas: Incorrect processing of IOCTL frames for SMP/STP commands")
+    8823abeddbbc ("scsi: megaraid_sas: Fix endianness issues in DCMD handling")
+    8a01a41d8647 ("megaraid_sas: Make adprecovery variable atomic")
+    95c060869e68 ("scsi: megaraid_sas: latest controller OCR capability from FW before sending shutdown DCMD")
+    f4fc209326c7 ("scsi: megaraid_sas: change issue_dcmd to return void from int")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
