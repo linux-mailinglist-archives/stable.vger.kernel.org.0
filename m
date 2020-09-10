@@ -2,190 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51B6264342
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 12:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4305264349
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 12:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgIJKGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 06:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S1730150AbgIJKIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 06:08:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730523AbgIJKGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Sep 2020 06:06:37 -0400
-Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com [209.85.167.173])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725887AbgIJKIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Sep 2020 06:08:37 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8197B21D80;
-        Thu, 10 Sep 2020 10:06:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 645E920BED;
+        Thu, 10 Sep 2020 10:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599732396;
-        bh=PsgV3/p7HeIxS4BDkyn1Hz8uhnBf8EDv0rx5idJ+6iw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=EOhIebwwXUwe3ifWsLdqeXcJhzZ+u4e9RHyS20FYpNjUUKBPmQot4iV18AtmUEfW0
-         Eu7gtA6IrHE75kCgs8wEzO0Qu3kLUYp5V8vqHa/a8mikB2age+7TlSynQUDdeKHWm0
-         3+heFSxPgS61ZpmRclX9kbCkBoNHhkyqQAXkL9mg=
-Received: by mail-oi1-f173.google.com with SMTP id c13so5379944oiy.6;
-        Thu, 10 Sep 2020 03:06:36 -0700 (PDT)
-X-Gm-Message-State: AOAM533egzEjdWIocBhHDtGSAEivtFBQA92IwPuZJ5XwnywEUacpg8mo
-        5hTtwlPTNIfkFJuN+trsXGq5I49Li1ZR3M+pUL0=
-X-Google-Smtp-Source: ABdhPJz2vXLwznJzG7G9XegKF0TCGXzgUeoxI4CtyIa3q99Kdzxypfv6JDuj8TZ9L0IMAIjb7rdHepQhNcigO8z75gI=
-X-Received: by 2002:aca:d845:: with SMTP id p66mr3033135oig.47.1599732395679;
- Thu, 10 Sep 2020 03:06:35 -0700 (PDT)
+        s=default; t=1599732516;
+        bh=GSM8J+48mwsvILRs4rmqaKqBdd8oi047X8MVr/4pEOQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=AGn50qCzqlhgIZc4JK7k4G+YPcOs3M4SFoiMYMAYsbkrULYwsOqdLoDcT49/wpTwi
+         mkPK5r1z2D4fugmTfvnJhunpwBWBfSEH0P1mbyj+BN2UQol6snDyYoMRgZtW0hSOig
+         a6FHgyYXmWhSTCeYy/feVHkJjZQIBScn+ZBAWhKU=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kGJVK-00Ae3W-DK; Thu, 10 Sep 2020 11:08:34 +0100
 MIME-Version: 1.0
-References: <20200909225354.3118328-1-keescook@chromium.org>
-In-Reply-To: <20200909225354.3118328-1-keescook@chromium.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 10 Sep 2020 13:06:24 +0300
-X-Gmail-Original-Message-ID: <CAMj1kXGP_EH661xYXKydo5ph5BKLhs9DeLrgr9gtxeXrwBSCLg@mail.gmail.com>
-Message-ID: <CAMj1kXGP_EH661xYXKydo5ph5BKLhs9DeLrgr9gtxeXrwBSCLg@mail.gmail.com>
-Subject: Re: [PATCH v5] test_firmware: Test platform fw loading on non-EFI systems
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Hans de Goede <hdegoede@redhat.com>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Thu, 10 Sep 2020 11:08:34 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Huacai Chen <chenhc@lemote.com>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 3/3] irqchip/loongson-pch-pic: Reserve legacy LPC irqs
+In-Reply-To: <1599624552-17523-3-git-send-email-chenhc@lemote.com>
+References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
+ <1599624552-17523-3-git-send-email-chenhc@lemote.com>
+User-Agent: Roundcube Webmail/1.4.8
+Message-ID: <613dd7bc4d7eeec1a5fd30f679fc83eb@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: chenhc@lemote.com, tsbogend@alpha.franken.de, tglx@linutronix.de, jason@lakedaemon.net, linux-mips@vger.kernel.org, zhangfx@lemote.com, chenhuacai@gmail.com, jiaxun.yang@flygoat.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Sep 2020 at 01:54, Kees Cook <keescook@chromium.org> wrote:
->
-> On non-EFI systems, it wasn't possible to test the platform firmware
-> loader because it will have never set "checked_fw" during __init.
-> Instead, allow the test code to override this check. Additionally split
-> the declarations into a private symbol namespace so there is greater
-> enforcement of the symbol visibility.
->
-> Fixes: 548193cba2a7 ("test_firmware: add support for firmware_request_platform")
+On 2020-09-09 05:09, Huacai Chen wrote:
+> Reserve legacy LPC irqs (0~15) to avoid spurious interrupts.
+
+How can they be spurious? Why are they enabled the first place?
+
+This looks like you are papering over a much bigger issue.
+
+         M.
+> 
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Huacai Chen <chenhc@lemote.com>
 > ---
-> This is split out from the larger kernel_read_file series:
->     https://lore.kernel.org/lkml/20200729175845.1745471-1-keescook@chromium.org/
-> specifically this was:
->     https://lore.kernel.org/lkml/20200729175845.1745471-2-keescook@chromium.org/
->
-> I've dropped the review tags, since this is changing the "how" of the patch...
-> ---
->  drivers/firmware/efi/embedded-firmware.c | 10 +++++-----
->  include/linux/efi_embedded_fw.h          |  6 ++----
->  lib/test_firmware.c                      |  9 +++++++++
->  3 files changed, 16 insertions(+), 9 deletions(-)
->
-
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-
-> diff --git a/drivers/firmware/efi/embedded-firmware.c b/drivers/firmware/efi/embedded-firmware.c
-> index a1b199de9006..84e32634ed6c 100644
-> --- a/drivers/firmware/efi/embedded-firmware.c
-> +++ b/drivers/firmware/efi/embedded-firmware.c
-> @@ -16,9 +16,9 @@
->
->  /* Exported for use by lib/test_firmware.c only */
->  LIST_HEAD(efi_embedded_fw_list);
-> -EXPORT_SYMBOL_GPL(efi_embedded_fw_list);
-> -
-> -static bool checked_for_fw;
-> +EXPORT_SYMBOL_NS_GPL(efi_embedded_fw_list, TEST_FIRMWARE);
-> +bool efi_embedded_fw_checked;
-> +EXPORT_SYMBOL_NS_GPL(efi_embedded_fw_checked, TEST_FIRMWARE);
->
->  static const struct dmi_system_id * const embedded_fw_table[] = {
->  #ifdef CONFIG_TOUCHSCREEN_DMI
-> @@ -119,14 +119,14 @@ void __init efi_check_for_embedded_firmwares(void)
->                 }
->         }
->
-> -       checked_for_fw = true;
-> +       efi_embedded_fw_checked = true;
->  }
->
->  int efi_get_embedded_fw(const char *name, const u8 **data, size_t *size)
+>  drivers/irqchip/irq-loongson-pch-pic.c | 19 ++++++++++++++++++-
+>  1 file changed, 18 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/irqchip/irq-loongson-pch-pic.c
+> b/drivers/irqchip/irq-loongson-pch-pic.c
+> index 9bf6b9a..9f6719c 100644
+> --- a/drivers/irqchip/irq-loongson-pch-pic.c
+> +++ b/drivers/irqchip/irq-loongson-pch-pic.c
+> @@ -35,6 +35,7 @@
+> 
+>  struct pch_pic {
+>  	void __iomem		*base;
+> +	struct irq_domain	*lpc_domain;
+>  	struct irq_domain	*pic_domain;
+>  	u32			ht_vec_base;
+>  	raw_spinlock_t		pic_lock;
+> @@ -184,9 +185,9 @@ static void pch_pic_reset(struct pch_pic *priv)
+>  static int pch_pic_of_init(struct device_node *node,
+>  				struct device_node *parent)
 >  {
->         struct efi_embedded_fw *iter, *fw = NULL;
->
-> -       if (!checked_for_fw) {
-> +       if (!efi_embedded_fw_checked) {
->                 pr_warn("Warning %s called while we did not check for embedded fw\n",
->                         __func__);
->                 return -ENOENT;
-> diff --git a/include/linux/efi_embedded_fw.h b/include/linux/efi_embedded_fw.h
-> index 57eac5241303..a97a12bb2c9e 100644
-> --- a/include/linux/efi_embedded_fw.h
-> +++ b/include/linux/efi_embedded_fw.h
-> @@ -8,8 +8,8 @@
->  #define EFI_EMBEDDED_FW_PREFIX_LEN             8
->
->  /*
-> - * This struct and efi_embedded_fw_list are private to the efi-embedded fw
-> - * implementation they are in this header for use by lib/test_firmware.c only!
-> + * This struct is private to the efi-embedded fw implementation.
-> + * They are in this header for use by lib/test_firmware.c only!
->   */
->  struct efi_embedded_fw {
->         struct list_head list;
-> @@ -18,8 +18,6 @@ struct efi_embedded_fw {
->         size_t length;
->  };
->
-> -extern struct list_head efi_embedded_fw_list;
-> -
->  /**
->   * struct efi_embedded_fw_desc - This struct is used by the EFI embedded-fw
->   *                               code to search for embedded firmwares.
-> diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-> index 9fee2b93a8d1..06c955057756 100644
-> --- a/lib/test_firmware.c
-> +++ b/lib/test_firmware.c
-> @@ -26,6 +26,8 @@
->  #include <linux/vmalloc.h>
->  #include <linux/efi_embedded_fw.h>
->
-> +MODULE_IMPORT_NS(TEST_FIRMWARE);
+> +	int i, base, err;
+>  	struct pch_pic *priv;
+>  	struct irq_domain *parent_domain;
+> -	int err;
+> 
+>  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+>  	if (!priv)
+> @@ -213,6 +214,22 @@ static int pch_pic_of_init(struct device_node 
+> *node,
+>  		goto iounmap_base;
+>  	}
+> 
+> +	base = irq_alloc_descs(-1, 0, NR_IRQS_LEGACY, 0);
+> +	if (base < 0) {
+> +		pr_err("Failed to allocate LPC IRQ numbers\n");
+> +		goto iounmap_base;
+> +	}
 > +
->  #define TEST_FIRMWARE_NAME     "test-firmware.bin"
->  #define TEST_FIRMWARE_NUM_REQS 4
->  #define TEST_FIRMWARE_BUF_SIZE SZ_1K
-> @@ -489,6 +491,9 @@ static ssize_t trigger_request_store(struct device *dev,
->  static DEVICE_ATTR_WO(trigger_request);
->
->  #ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
-> +extern struct list_head efi_embedded_fw_list;
-> +extern bool efi_embedded_fw_checked;
+> +	priv->lpc_domain = irq_domain_add_legacy(node, NR_IRQS_LEGACY, 0, 0,
+> +						 &irq_domain_simple_ops, NULL);
+> +	if (!priv->lpc_domain) {
+> +		pr_err("Failed to add irqdomain for LPC controller");
+> +		goto iounmap_base;
+> +	}
 > +
->  static ssize_t trigger_request_platform_store(struct device *dev,
->                                               struct device_attribute *attr,
->                                               const char *buf, size_t count)
-> @@ -501,6 +506,7 @@ static ssize_t trigger_request_platform_store(struct device *dev,
->         };
->         struct efi_embedded_fw efi_embedded_fw;
->         const struct firmware *firmware = NULL;
-> +       bool saved_efi_embedded_fw_checked;
->         char *name;
->         int rc;
->
-> @@ -513,6 +519,8 @@ static ssize_t trigger_request_platform_store(struct device *dev,
->         efi_embedded_fw.data = (void *)test_data;
->         efi_embedded_fw.length = sizeof(test_data);
->         list_add(&efi_embedded_fw.list, &efi_embedded_fw_list);
-> +       saved_efi_embedded_fw_checked = efi_embedded_fw_checked;
-> +       efi_embedded_fw_checked = true;
->
->         pr_info("loading '%s'\n", name);
->         rc = firmware_request_platform(&firmware, name, dev);
-> @@ -530,6 +538,7 @@ static ssize_t trigger_request_platform_store(struct device *dev,
->         rc = count;
->
->  out:
-> +       efi_embedded_fw_checked = saved_efi_embedded_fw_checked;
->         release_firmware(firmware);
->         list_del(&efi_embedded_fw.list);
->         kfree(name);
-> --
-> 2.25.1
->
+> +	for (i = 0; i < NR_IRQS_LEGACY; i++)
+> +		irq_set_chip_and_handler(i, &dummy_irq_chip, handle_simple_irq);
+> +
+>  	priv->pic_domain = irq_domain_create_hierarchy(parent_domain, 0,
+>  						       PIC_COUNT,
+>  						       of_node_to_fwnode(node),
+
+-- 
+Jazz is not dead. It just smells funny...
