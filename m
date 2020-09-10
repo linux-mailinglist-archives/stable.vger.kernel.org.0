@@ -2,174 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853DD263B48
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 05:18:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E97B263B51
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 05:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgIJDS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 23:18:27 -0400
-Received: from relay-us1.mymailcheap.com ([51.81.35.219]:35610 "EHLO
-        relay-us1.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725772AbgIJDSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 23:18:18 -0400
-X-Greylist: delayed 4199 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Sep 2020 23:18:17 EDT
-Received: from relay5.mymailcheap.com (relay5.mymailcheap.com [159.100.241.64])
-        by relay-us1.mymailcheap.com (Postfix) with ESMTPS id 1CC8D20F05;
-        Thu, 10 Sep 2020 00:52:56 +0000 (UTC)
-Received: from relay4.mymailcheap.com (relay4.mymailcheap.com [137.74.80.156])
-        by relay5.mymailcheap.com (Postfix) with ESMTPS id B3CBE200FE;
-        Thu, 10 Sep 2020 00:52:51 +0000 (UTC)
-Received: from filter2.mymailcheap.com (filter2.mymailcheap.com [91.134.140.82])
-        by relay4.mymailcheap.com (Postfix) with ESMTPS id 336373F162;
-        Thu, 10 Sep 2020 02:52:48 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by filter2.mymailcheap.com (Postfix) with ESMTP id 046F02A911;
-        Thu, 10 Sep 2020 02:52:48 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
-        s=default; t=1599699168;
-        bh=D8Rx4XNdW7iycZCOZNL/5TBrTdaKyK7RNrdOMjIaj38=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=rmvLqgAqrZ2hvUHsTsa5co0Jzwu6DeChyQfOPHPdXOcMyYrSeC1pCCfx+OGeP+M3Q
-         OZx0Pu7Y653bf7EVektXeSLcPJoRV+i7vNxaudLfuxoGZaaqsO1PXTMkwHTkHVkS22
-         +TzcsFygQlghg6rHg+QeSR63dBbxM4JO4V59D10Y=
-X-Virus-Scanned: Debian amavisd-new at filter2.mymailcheap.com
-Received: from filter2.mymailcheap.com ([127.0.0.1])
-        by localhost (filter2.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id uKQKwz0uYRLp; Thu, 10 Sep 2020 02:52:46 +0200 (CEST)
-Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by filter2.mymailcheap.com (Postfix) with ESMTPS;
-        Thu, 10 Sep 2020 02:52:46 +0200 (CEST)
-Received: from [213.133.102.83] (ml.mymailcheap.com [213.133.102.83])
-        by mail20.mymailcheap.com (Postfix) with ESMTP id CEEBA40FF4;
-        Thu, 10 Sep 2020 00:52:43 +0000 (UTC)
-Authentication-Results: mail20.mymailcheap.com;
-        dkim=pass (1024-bit key; unprotected) header.d=flygoat.com header.i=@flygoat.com header.b="HM6emQRP";
-        dkim-atps=neutral
-AI-Spam-Status: Not processed
-Received: from [0.0.0.0] (li1197-90.members.linode.com [45.79.98.90])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail20.mymailcheap.com (Postfix) with ESMTPSA id EF4ED40FF4;
-        Thu, 10 Sep 2020 00:52:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=flygoat.com;
-        s=default; t=1599699134;
-        bh=D8Rx4XNdW7iycZCOZNL/5TBrTdaKyK7RNrdOMjIaj38=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=HM6emQRPCVOt4SGBD43g0qbp9tNA0mgb+xhruqhuSSyOXGv82rEBe1JD2e75hT+NC
-         lc9PyvXGYxkugBNB6ZWiByQ1H/pS8J6mWTmHXQ+YuFoTf+UNlxvMJBl3gRYwOcNQgU
-         OMPQYmjvx5k3SjVL/K20ZmT1aZeQyvwEb49/feM0=
-Subject: Re: [PATCH 3/3] irqchip/loongson-pch-pic: Reserve legacy LPC irqs
-To:     Huacai Chen <chenhc@lemote.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>
-Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>, stable@vger.kernel.org
-References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
- <1599624552-17523-3-git-send-email-chenhc@lemote.com>
-From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
-Message-ID: <be0840ac-ecb4-1c93-828f-0773f348f4b0@flygoat.com>
-Date:   Thu, 10 Sep 2020 08:51:58 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.2.1
+        id S1728611AbgIJDWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 23:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725772AbgIJDV6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 23:21:58 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64234C061573;
+        Wed,  9 Sep 2020 20:21:58 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id o8so6521355ejb.10;
+        Wed, 09 Sep 2020 20:21:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jms.id.au; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=A79j38TeGo0FTeKhZJ6Z5HVKC+rNAm+2XLbIiEuCKUY=;
+        b=aVrMkYlo/d+zmyouXTJxSqtB33bFfF1/mNixCVCCODQPmxJhhUiurbpS/1nRAOrm6o
+         M8pON54OhrBwxLNcItuOcyfQnJK26edZu8Do4NxxPQoqMoGIeDFGaWwG3ADZCs9fUq1m
+         8zuZ4YYIv1t1KKfwfaGw+isSSyNpgR6Cm4ZpU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=A79j38TeGo0FTeKhZJ6Z5HVKC+rNAm+2XLbIiEuCKUY=;
+        b=AbqWG5ulRkvDqCSuW46bK6/hgR3CybMvdP7CVxtwW9YM0GgqYzmngRh8PVIL8kkgQ7
+         E1P9efkn+Hfe/vPOT99LVmh/AVRGkk7N9IILhyKDAADtgFFzIwGSLyaRATOyTUvsfZ7V
+         v/V12qFbGXFvbH5bSz9te1k63McQicC2Bze/prFp2G+jjSkWyMQxtI1zc403XfaFWAjQ
+         NMJun/zD5c5vy939ugTS7hfL1eb6ZpZxSmcFWoC4IShtpPT/ugiKb/5ycmt6NujwK27d
+         OVr+Zisf8GzkOGu/73QHWZ0VdguZSeEe53PrSlMEKY+ee1fMeHC56o1bgD62wx0ocDKC
+         0Gaw==
+X-Gm-Message-State: AOAM533aaJYpHwX8dzzwt3Y/9zm/eFDoHt9rqWJXtjksSoqhhp0y9+P6
+        dcbfiohbPJSlG58M/S0exVnwMwwxojDR2cv28gc=
+X-Google-Smtp-Source: ABdhPJyKppctq6u7ic9iz13bTUlMW2PIg2/iotUNWAl8CNxSQjvLXnJMdPO7f/onda7kLt48QCQ9ONhY4jV5TO6/oKg=
+X-Received: by 2002:a17:906:4c58:: with SMTP id d24mr7092918ejw.108.1599708116944;
+ Wed, 09 Sep 2020 20:21:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1599624552-17523-3-git-send-email-chenhc@lemote.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: CEEBA40FF4
-X-Spamd-Result: default: False [-0.10 / 10.00];
-         RCVD_VIA_SMTP_AUTH(0.00)[];
-         ARC_NA(0.00)[];
-         R_DKIM_ALLOW(0.00)[flygoat.com:s=default];
-         HFILTER_HELO_BAREIP(3.00)[213.133.102.83,1];
-         FROM_HAS_DN(0.00)[];
-         TO_DN_SOME(0.00)[];
-         FREEMAIL_ENVRCPT(0.00)[gmail.com];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         MIME_GOOD(-0.10)[text/plain];
-         R_SPF_SOFTFAIL(0.00)[~all];
-         ML_SERVERS(-3.10)[213.133.102.83];
-         DKIM_TRACE(0.00)[flygoat.com:+];
-         DMARC_POLICY_ALLOW(0.00)[flygoat.com,none];
-         RCPT_COUNT_SEVEN(0.00)[9];
-         DMARC_POLICY_ALLOW_WITH_FAILURES(0.00)[];
-         RCVD_NO_TLS_LAST(0.10)[];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         ASN(0.00)[asn:24940, ipnet:213.133.96.0/19, country:DE];
-         FREEMAIL_CC(0.00)[vger.kernel.org,lemote.com,gmail.com];
-         MID_RHS_MATCH_FROM(0.00)[];
-         RCVD_COUNT_TWO(0.00)[2]
-X-Rspamd-Server: mail20.mymailcheap.com
+References: <20200826071916.3081953-1-joel@jms.id.au>
+In-Reply-To: <20200826071916.3081953-1-joel@jms.id.au>
+From:   Joel Stanley <joel@jms.id.au>
+Date:   Thu, 10 Sep 2020 03:21:43 +0000
+Message-ID: <CACPK8XcNc=O99Fuup=OnFacJJnRHd0bt0BiuSrYUCTSVs_shuw@mail.gmail.com>
+Subject: Re: [PATCH] ARM: config: aspeed: Fix selection of media drivers
+To:     Andrew Jeffery <andrew@aj.id.au>, Arnd Bergmann <arnd@arndb.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc:     =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-aspeed <linux-aspeed@lists.ozlabs.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-ÔÚ 2020/9/9 12:09, Huacai Chen Ð´µÀ:
-> Reserve legacy LPC irqs (0~15) to avoid spurious interrupts.
-
-It doesn't make sense at all.
-
-How can you allocate IRQ without irqchip backing it?
-
-- Jiaxun
-
+On Wed, 26 Aug 2020 at 07:19, Joel Stanley <joel@jms.id.au> wrote:
 >
+> In the 5.7 merge window the media kconfig was restructued. For most
+> platforms these changes set CONFIG_MEDIA_SUPPORT_FILTER=y which keeps
+> unwanted drivers disabled.
+>
+> The exception is if a config sets EMBEDDED or EXPERT (see b0cd4fb27665).
+> In that case the filter is set to =n, causing a bunch of DVB tuner drivers
+> (MEDIA_TUNER_*) to be accidentally enabled. This was noticed as it blew
+> out the build time for the Aspeed defconfigs.
+>
+> Enabling the filter means the Aspeed config also needs to set
+> CONFIG_MEDIA_PLATFORM_SUPPORT=y in order to have the CONFIG_VIDEO_ASPEED
+> driver enabled.
+>
+> Fixes: 06b93644f4d1 ("media: Kconfig: add an option to filter in/out platform drivers")
+> Fixes: b0cd4fb27665 ("media: Kconfig: on !EMBEDDED && !EXPERT, enable driver filtering")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Huacai Chen <chenhc@lemote.com>
+> CC: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
 > ---
->   drivers/irqchip/irq-loongson-pch-pic.c | 19 ++++++++++++++++++-
->   1 file changed, 18 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
-> index 9bf6b9a..9f6719c 100644
-> --- a/drivers/irqchip/irq-loongson-pch-pic.c
-> +++ b/drivers/irqchip/irq-loongson-pch-pic.c
-> @@ -35,6 +35,7 @@
->   
->   struct pch_pic {
->   	void __iomem		*base;
-> +	struct irq_domain	*lpc_domain;
->   	struct irq_domain	*pic_domain;
->   	u32			ht_vec_base;
->   	raw_spinlock_t		pic_lock;
-> @@ -184,9 +185,9 @@ static void pch_pic_reset(struct pch_pic *priv)
->   static int pch_pic_of_init(struct device_node *node,
->   				struct device_node *parent)
->   {
-> +	int i, base, err;
->   	struct pch_pic *priv;
->   	struct irq_domain *parent_domain;
-> -	int err;
->   
->   	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
->   	if (!priv)
-> @@ -213,6 +214,22 @@ static int pch_pic_of_init(struct device_node *node,
->   		goto iounmap_base;
->   	}
->   
-> +	base = irq_alloc_descs(-1, 0, NR_IRQS_LEGACY, 0);
-> +	if (base < 0) {
-> +		pr_err("Failed to allocate LPC IRQ numbers\n");
-> +		goto iounmap_base;
-> +	}
-> +
-> +	priv->lpc_domain = irq_domain_add_legacy(node, NR_IRQS_LEGACY, 0, 0,
-> +						 &irq_domain_simple_ops, NULL);
-> +	if (!priv->lpc_domain) {
-> +		pr_err("Failed to add irqdomain for LPC controller");
-> +		goto iounmap_base;
-> +	}
-> +
-> +	for (i = 0; i < NR_IRQS_LEGACY; i++)
-> +		irq_set_chip_and_handler(i, &dummy_irq_chip, handle_simple_irq);
-> +
->   	priv->pic_domain = irq_domain_create_hierarchy(parent_domain, 0,
->   						       PIC_COUNT,
->   						       of_node_to_fwnode(node),
+> Another solution would be to revert b0cd4fb27665 ("media: Kconfig: on
+> !EMBEDDED && !EXPERT, enable driver filtering"). I assume this was done
+> to be helpful, but in practice it has enabled the TUNER drivers (and
+> others) for the following configs that didn't have them before:
+
+Mauro, did you have any thoughts here?
+
+Otherwise I'll merge the fix for the aspeed configs for 5.10.
+
+Cheers,
+
+Joel
+
+>
+> $ git grep -lE "(CONFIG_EXPERT|CONFIG_EMBEDDED)"  arch/*/configs/ | xargs grep -l MEDIA_SUPPORT
+> arch/arm/configs/aspeed_g4_defconfig
+> arch/arm/configs/aspeed_g5_defconfig
+> arch/arm/configs/at91_dt_defconfig
+> arch/arm/configs/bcm2835_defconfig
+> arch/arm/configs/davinci_all_defconfig
+> arch/arm/configs/ezx_defconfig
+> arch/arm/configs/imote2_defconfig
+> arch/arm/configs/imx_v4_v5_defconfig
+> arch/arm/configs/imx_v6_v7_defconfig
+> arch/arm/configs/milbeaut_m10v_defconfig
+> arch/arm/configs/multi_v7_defconfig
+> arch/arm/configs/omap2plus_defconfig
+> arch/arm/configs/pxa_defconfig
+> arch/arm/configs/qcom_defconfig
+> arch/arm/configs/sama5_defconfig
+> arch/arm/configs/tegra_defconfig
+> arch/mips/configs/ci20_defconfig
+> arch/mips/configs/lemote2f_defconfig
+> arch/mips/configs/loongson3_defconfig
+> arch/mips/configs/pistachio_defconfig
+>
+> I've cc'd the maintainers of these defconfigs so they are aware.
+>
+> ---
+>  arch/arm/configs/aspeed_g4_defconfig | 3 ++-
+>  arch/arm/configs/aspeed_g5_defconfig | 3 ++-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm/configs/aspeed_g4_defconfig b/arch/arm/configs/aspeed_g4_defconfig
+> index 303f75a3baec..58d293b63581 100644
+> --- a/arch/arm/configs/aspeed_g4_defconfig
+> +++ b/arch/arm/configs/aspeed_g4_defconfig
+> @@ -160,7 +160,8 @@ CONFIG_SENSORS_TMP421=y
+>  CONFIG_SENSORS_W83773G=y
+>  CONFIG_WATCHDOG_SYSFS=y
+>  CONFIG_MEDIA_SUPPORT=y
+> -CONFIG_MEDIA_CAMERA_SUPPORT=y
+> +CONFIG_MEDIA_SUPPORT_FILTER=y
+> +CONFIG_MEDIA_PLATFORM_SUPPORT=y
+>  CONFIG_V4L_PLATFORM_DRIVERS=y
+>  CONFIG_VIDEO_ASPEED=y
+>  CONFIG_DRM=y
+> diff --git a/arch/arm/configs/aspeed_g5_defconfig b/arch/arm/configs/aspeed_g5_defconfig
+> index b0d056d49abe..cc2449ed6e6d 100644
+> --- a/arch/arm/configs/aspeed_g5_defconfig
+> +++ b/arch/arm/configs/aspeed_g5_defconfig
+> @@ -175,7 +175,8 @@ CONFIG_SENSORS_TMP421=y
+>  CONFIG_SENSORS_W83773G=y
+>  CONFIG_WATCHDOG_SYSFS=y
+>  CONFIG_MEDIA_SUPPORT=y
+> -CONFIG_MEDIA_CAMERA_SUPPORT=y
+> +CONFIG_MEDIA_SUPPORT_FILTER=y
+> +CONFIG_MEDIA_PLATFORM_SUPPORT=y
+>  CONFIG_V4L_PLATFORM_DRIVERS=y
+>  CONFIG_VIDEO_ASPEED=y
+>  CONFIG_DRM=y
+> --
+> 2.28.0
+>
