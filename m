@@ -2,139 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0242654A5
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 23:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D24C265495
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 23:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725892AbgIJV7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 17:59:40 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:35845 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730636AbgIJLKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 07:10:24 -0400
-Received: by mail-lj1-f196.google.com with SMTP id r24so7650738ljm.3;
-        Thu, 10 Sep 2020 04:10:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=khsISv6KrMDMd3j57rJbO3CE20Pfs/l3bC/RR73dbF4=;
-        b=YcLdyUsHp/qQnTy5Xw0TQwgBcNeDgwAlOYNJ8SwNmKzSha5n8+lFdk6T/Lz6DGWM7I
-         E/OsKLldIY4iEMpfnPnHnH53F50ryBUHMrE2sQE1Aan5oKF+YnOuHOMkoTS8xfN3OKUQ
-         GUph7HfsQ2+xsBjVS5kH/dVzeQNekilVfpuiQGP07BQjt3CP3bJxvI1kP5bIdIosmvoF
-         sk25YVnKGQkEi0W7BwFC+XhJ8+0yDA1TBo1IDfxd5zwKlq0PWB8SieaekHbgnThr7ViC
-         EsM2kOMcsgoUiLMoxN37NCTj2+uMCyy7Za8EkkUwtJErixfa28WxpfamBrixFIezqSLf
-         ahMw==
-X-Gm-Message-State: AOAM532KB5A5NSjo3uKbpydEMvFPCkI0GzWW3BoncNY7xQWC7CNUkS+y
-        F1zakHXHBQrp2Q4fCP1Wiew=
-X-Google-Smtp-Source: ABdhPJxE2eVsfsgDJpsGn8d/K4cY6mYTZqt67kV/mH7Rg97qgCPm6khS6FyHNSOfUaFmKUJ/C0/beA==
-X-Received: by 2002:a05:651c:319:: with SMTP id a25mr4059203ljp.281.1599736219850;
-        Thu, 10 Sep 2020 04:10:19 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id k14sm1280483lfm.90.2020.09.10.04.10.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Sep 2020 04:10:19 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kGKT1-0006qV-S1; Thu, 10 Sep 2020 13:10:15 +0200
-Date:   Thu, 10 Sep 2020 13:10:15 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Johan Hovold <johan@kernel.org>, Tony Lindgren <tony@atomide.com>,
+        id S1725763AbgIJV6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 17:58:41 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22698 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730206AbgIJLlq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 07:41:46 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08ABXV2H086899;
+        Thu, 10 Sep 2020 07:35:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=43Zp61683vjVVWofNj/lwqGmm7TBNx9KEoiLeaHuiJw=;
+ b=ni4zoTFNhK2odYrOepHEOrN5j8lxasAW9h6S2BQDJdSrLCw9welaMGLGGPVU1vDgEgq5
+ G66NBANAHz4McE02a3cuF9JDroKS8fszer4zOmzwP7nHvj6cnFC/41nvWCaenKf6N+qA
+ bh56XLkUEcChS6w/5e3ssZ1lbbv4JZ4wy/IolUY/fIUZGwT2XoAr1+CwQn31nnNCnMx/
+ Xj8FnXLZag0C9blTpN73v7Lb0FQI9rNKEiPcdl4dB5y3IKfIViRzdQbS/uXNWdacfv6e
+ kb/G+CsJQBdyConQPz0jm3sUIDkyYKC7vkFlaPXyGPgyfwZIyFJuuf6Lh+NWxCve0WXQ QA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33fh2hmyxn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Sep 2020 07:35:39 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08ABY51c089423;
+        Thu, 10 Sep 2020 07:35:38 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33fh2hmywv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Sep 2020 07:35:38 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08ABRKxc002916;
+        Thu, 10 Sep 2020 11:35:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 33dxdr35jn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Sep 2020 11:35:36 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08ABZXv036635092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Sep 2020 11:35:33 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6EA9DA4055;
+        Thu, 10 Sep 2020 11:35:33 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B76CBA4051;
+        Thu, 10 Sep 2020 11:35:32 +0000 (GMT)
+Received: from pomme.local (unknown [9.145.147.189])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Sep 2020 11:35:32 +0000 (GMT)
+Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
+ operations
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, rafael@kernel.org,
+        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+        stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] serial: core: fix console port-lock regression
-Message-ID: <20200910111015.GE24441@localhost>
-References: <20200909143101.15389-1-johan@kernel.org>
- <20200909143101.15389-3-johan@kernel.org>
- <20200909154815.GD1891694@smile.fi.intel.com>
- <20200910073527.GC24441@localhost>
- <20200910092715.GM1891694@smile.fi.intel.com>
+        linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>
+References: <5cbd92e1-c00a-4253-0119-c872bfa0f2bc@redhat.com>
+ <20200908170835.85440-1-ldufour@linux.ibm.com>
+ <20200909074011.GD7348@dhcp22.suse.cz>
+ <9faac1ce-c02d-7dbc-f79a-4aaaa5a73d28@linux.ibm.com>
+ <20200909090953.GE7348@dhcp22.suse.cz>
+ <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
+ <20200909105914.GF7348@dhcp22.suse.cz>
+ <74a62b00-235e-7deb-2814-f3b240fea25e@linux.ibm.com>
+ <20200910072331.GB28354@dhcp22.suse.cz>
+ <31cfdf35-618f-6f56-ef16-0d999682ad02@linux.ibm.com>
+ <20200910111246.GE28354@dhcp22.suse.cz>
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+Message-ID: <bd6f2d09-f4e2-0a63-3511-e0f9bf283fe3@linux.ibm.com>
+Date:   Thu, 10 Sep 2020 13:35:32 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200910092715.GM1891694@smile.fi.intel.com>
+In-Reply-To: <20200910111246.GE28354@dhcp22.suse.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-10_03:2020-09-10,2020-09-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 malwarescore=0
+ spamscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2009100107
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 12:27:15PM +0300, Andy Shevchenko wrote:
-> +Cc: Tony, let me add Tony to the discussion.
+Le 10/09/2020 à 13:12, Michal Hocko a écrit :
+> On Thu 10-09-20 09:51:39, Laurent Dufour wrote:
+>> Le 10/09/2020 à 09:23, Michal Hocko a écrit :
+>>> On Wed 09-09-20 18:07:15, Laurent Dufour wrote:
+>>>> Le 09/09/2020 à 12:59, Michal Hocko a écrit :
+>>>>> On Wed 09-09-20 11:21:58, Laurent Dufour wrote:
+>>> [...]
+>>>>>> For the point a, using the enum allows to know in
+>>>>>> register_mem_sect_under_node() if the link operation is due to a hotplug
+>>>>>> operation or done at boot time.
+>>>>>
+>>>>> Yes, but let me repeat. We have a mess here and different paths check
+>>>>> for the very same condition by different ways. We need to unify those.
+>>>>
+>>>> What are you suggesting to unify these checks (using a MP_* enum as
+>>>> suggested by David, something else)?
+>>>
+>>> We do have system_state check spread at different places. I would use
+>>> this one and wrap it behind a helper. Or have I missed any reason why
+>>> that wouldn't work for this case?
+>>
+>> That would not work in that case because memory can be hot-added at the
+>> SYSTEM_SCHEDULING system state and the regular memory is also registered at
+>> that system state too. So system state is not enough to discriminate between
+>> the both.
 > 
-> On Thu, Sep 10, 2020 at 09:35:27AM +0200, Johan Hovold wrote:
-> > On Wed, Sep 09, 2020 at 06:48:15PM +0300, Andy Shevchenko wrote:
-> > > On Wed, Sep 09, 2020 at 04:31:01PM +0200, Johan Hovold wrote:
-> > > > Fix the port-lock initialisation regression introduced by commit
-> > > > a3cb39d258ef ("serial: core: Allow detach and attach serial device for
-> > > > console") by making sure that the lock is again initialised during
-> > > > console setup.
-> > > > 
-> > > > The console may be registered before the serial controller has been
-> > > > probed in which case the port lock needs to be initialised during
-> > > > console setup by a call to uart_set_options(). The console-detach
-> > > > changes introduced a regression in several drivers by effectively
-> > > > removing that initialisation by not initialising the lock when the port
-> > > > is used as a console (which is always the case during console setup).
-> > > > 
-> > > > Add back the early lock initialisation and instead use a new
-> > > > console-reinit flag to handle the case where a console is being
-> > > > re-attached through sysfs.
-> > > > 
-> > > > The question whether the console-detach interface should have been added
-> > > > in the first place is left for another discussion.
-> > > 
-> > > It was discussed in [1]. TL;DR: OMAP would like to keep runtime PM available
-> > > for UART while at the same time we disable it for kernel consoles in
-> > > bedb404e91bb.
-> > > 
-> > > [1]: https://lists.openwall.net/linux-kernel/2018/09/29/65
-> > 
-> > Yeah, I remember that. My fear is just that the new interface opens up a
-> > can of worms as it removes the earlier assumption that the console would
-> > essentially never be deregistered without really fixing all those
-> > drivers, and core functions, written under that assumption. Just to
-> > mention a few issues; we have drivers enabling clocks and other
-> > resources during console setup which can now be done repeatedly,
+> If that is really the case all other places need a fix as well.
+> Btw. could you be more specific about memory hotplug during early boot?
+> How that happens? I am only aware of https://lkml.kernel.org/r/20200818110046.6664-1-osalvador@suse.de
+> and that doesn't happen as early as SYSTEM_SCHEDULING.
+
+That points has been raised by David, quoting him here:
+
+> IIRC, ACPI can hotadd memory while SCHEDULING, this patch would break that.
 > 
-> The series introduced the console ->exit() callback, so it should be
-> easy to fix.
+> Ccing Oscar, I think he mentioned recently that this is the case with ACPI.
 
-I'm not saying it's necessarily hard, I'm suggesting it should have been
-considered before merging. But there could still be complications as the
-console have always been considered a special case that's been hacked
-around.
+Oscar told that he need to investigate further on that.
 
-> >	and
-> > several drivers whose setup callbacks are marked __init and will oops
-> > the minute you reattach the console.
-> 
-> I believe this can be fixed relatively easy. As a last resort it can
-> be a quirk that disables console detachment for problematic consoles.
+On my side I can't get these ACPI "early" hot-plug operations to happen so I 
+can't check that.
 
-Sure, but just removing the __init without vetting the drivers and
-testing the new interface may not be much better than letting them oops.
-
-> > And what about power management
-> > which was the reason for wanting this on OMAP in the first place; tty
-> > core never calls shutdown() for a console port, not even when it's been
-> > detached using the new interface.
-> 
-> That is interesting... Tony, do we have OMAP case working because of luck?
-> 
-> > I know, the console setup is all a mess, but this still seems a little
-> > rushed to me. I'm even inclined to suggest a revert until the above and
-> > similar issues have been addressed properly rather keeping a known buggy
-> > interface.
-> 
-> You know that it will be a dead end. Any solution how to move forward?
-
-I guess that depends on how broken this is. I only gave a few examples
-of the top of my head of issues that needs to be considered. 
-
-But if this is to stay then making the feature opt-in by only exposing
-the attribute for console drivers that implement the new exit() callback
-or some other serial-driver flag might work.
-
-Johan
+If this is clear that ACPI memory hotplug doesn't happen at SYSTEM_SCHEDULING, 
+the patch I proposed at first is enough to fix the issue.
