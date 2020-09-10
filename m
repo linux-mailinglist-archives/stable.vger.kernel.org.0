@@ -2,116 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA552639D9
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 04:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E99D263A1A
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 04:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730533AbgIJCHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Sep 2020 22:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730423AbgIJCDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 22:03:51 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88CFBC0617A2
-        for <stable@vger.kernel.org>; Wed,  9 Sep 2020 19:03:49 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id 67so3370873pgd.12
-        for <stable@vger.kernel.org>; Wed, 09 Sep 2020 19:03:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/yPI8VL7bGbbnk36rkQ5JhczpBqwBfUQEjN7SSFGabI=;
-        b=tVTMCQTj6+Z47dSpFubfbEmUNrZ7E6t5mzzbxzdX0eq42KhwPaShGzgs/o3Z7uFYJI
-         zGFWVD9udNAVVT1DEbipFqkuehpFsNJQTbyiLq8VHgmZA0BB7djvqFj67cHIu6Z4WdgV
-         g/JojPg2rpOyXp2p+vmeTA55SsS7J8Tuf6lRwfSVWz36PeBLGf0xWAcdwaYcCSDJhxzH
-         hFYPhoFSAALAArtq5US9uqqqoO+/+Qh8oSdxf82VbHOfryLtr58sGG2flGM4/i93Apty
-         nIAQh3Q2Szda3SIS84N3A9ksq0uqIaH0ZVYeawVx7B024mdYM5TtY2CCOgiKHZxvTdBo
-         uByw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/yPI8VL7bGbbnk36rkQ5JhczpBqwBfUQEjN7SSFGabI=;
-        b=oIS1wrfLwPLTofBg3jJYrnoCvFGfLU+JCwTmlTgAcqvTYYnMtwJDZvQHEWksKGWRCd
-         71X9qxt9k10TJt+j4rllPzC0W542IXl5ckG5OJUJtN0kFrSDKdpLC5tikur6V7kIHvzS
-         TXzF4IEjVbD8ef1eKJiiNlV9k2buFq4+qCB0gp072vYKBoZo6R0uCfnHjYnvo0VCXJsQ
-         CEhHdKVkkDX7TXYWAIOsA7cJw7yQc26C082tGeEqZQ3SVVzOQvfdbsAT/zdk3hUI7lKs
-         DoXeAuMeOBezow19iM+r+Fu4hCGHof5Q4mon4UssKB4+tW79uH0JvLpEeXyNKWy4wZBw
-         mk1Q==
-X-Gm-Message-State: AOAM533MOklBcFdCGlqRl1Hrd+cWMMKf68lzhpNH/xrLBJj9CPCJuZDP
-        qDn7mRsZLeafZiwwv8AHKtWeRpctFY/6BA==
-X-Google-Smtp-Source: ABdhPJwyYAFQlqObmUBUvYMu1nHpGrSXnXyquD7xFPYPyn74+E4X+FmRJiUz4dacsifo2HfsEE7xlg==
-X-Received: by 2002:aa7:8ec7:0:b029:13e:d13d:a137 with SMTP id b7-20020aa78ec70000b029013ed13da137mr3187648pfr.31.1599703426803;
-        Wed, 09 Sep 2020 19:03:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m7sm3861105pfm.31.2020.09.09.19.03.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2020 19:03:46 -0700 (PDT)
-Message-ID: <5f598982.1c69fb81.70608.bd1b@mx.google.com>
-Date:   Wed, 09 Sep 2020 19:03:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1729455AbgIJCTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Sep 2020 22:19:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52230 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730170AbgIJCRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Sep 2020 22:17:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599704262;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0hRuaCM4UO0QYlTpMIEqBgJQxJgieRpUxJTH6YhefOQ=;
+        b=PfQUYc+5peHE5ZERC1xZTp5LKs4GtqKU32MQdHcdbAAKm/LgXUEexm9UpfPpjhAnX3MsVY
+        mMxn1xYrqCQM10lDl2WwxEc1CMRkcZCkhTMkGnXmABYIwpUSPu5XdH9RwJhai11v7W9ADz
+        9pYk58obg5zbmFOZwZDguMuKRG6La4s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-15-levCQ31sNTGtP_svl2bqAA-1; Wed, 09 Sep 2020 22:17:38 -0400
+X-MC-Unique: levCQ31sNTGtP_svl2bqAA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B8D7E1882FB0;
+        Thu, 10 Sep 2020 02:17:36 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AC6151002393;
+        Thu, 10 Sep 2020 02:17:36 +0000 (UTC)
+Received: from zmail21.collab.prod.int.phx2.redhat.com (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 953A018095FF;
+        Thu, 10 Sep 2020 02:17:36 +0000 (UTC)
+Date:   Wed, 9 Sep 2020 22:17:35 -0400 (EDT)
+From:   Jason Wang <jasowang@redhat.com>
+To:     Ashok Raj <ashok.raj@intel.com>
+Cc:     dwmw2@infradead.org, baolu lu <baolu.lu@linux.intel.com>,
+        joro@8bytes.org, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, eperezma@redhat.com,
+        peterx@redhat.com, mst@redhat.com, stable@vger.kernel.org,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Message-ID: <491540137.16465450.1599704255365.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200909171056.GF104641@otc-nc-03>
+References: <20200909083432.9464-1-jasowang@redhat.com> <20200909171056.GF104641@otc-nc-03>
+Subject: Re: [PATCH] intel-iommu: don't disable ATS for device without page
+ aligned request
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.197
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 147 runs, 1 regressions (v4.14.197)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.68.5.20, 10.4.195.24]
+Thread-Topic: intel-iommu: don't disable ATS for device without page aligned request
+Thread-Index: OZU0O/7OadpZCvrZzmt7QzTbbYaicg==
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 147 runs, 1 regressions (v4.14.197)
-
-Regressions Summary
--------------------
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.197/plan/baseline/
+----- Original Message -----
+> Hi Jason
+> 
+> On Wed, Sep 09, 2020 at 04:34:32PM +0800, Jason Wang wrote:
+> > Commit 61363c1474b1 ("iommu/vt-d: Enable ATS only if the device uses
+> > page aligned address.") disables ATS for device that can do unaligned
+> > page request.
+> 
+> Did you take a look at the PCI specification?
+> Page Aligned Request is in the ATS capability Register.
+> 
+> ATS Capability Register (Offset 0x04h)
+> 
+> bit (5):
+> Page Aligned Request - If Set, indicates the Untranslated address is always
+> aligned to 4096 byte boundary. Setting this field is recommended. This
+> field permits software to distinguish between implemntations compatible
+> with this specification and those compatible with an earlier version of
+> this specification in which a Requester was permitted to supply anything in
+> bits [11:2].
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.197
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      458a534cac0c808fce164cc961f8384ffc8c455e =
+Yes, my understanding is that this is optional not mandatory.
 
+> 
+> > 
+> > This looks wrong, since the commit log said it's because the page
+> > request descriptor doesn't support reporting unaligned request.
+> 
+> I don't think you can change the definition from ATS to PRI. Both are
+> orthogonal feature.
 
+I may miss something, here's my understanding is that:
 
-Test Regressions
----------------- =
+- page request descriptor will only be used when PRS is enabled
+- ATS spec allows unaligned request
 
+So any reason for disabling ATS for unaligned request even if PRS is
+not enabled?
 
+> 
+> > 
+> > A victim is Qemu's virtio-pci which doesn't advertise the page aligned
+> > address. Fixing by disable PRI instead of ATS if device doesn't have
+> > page aligned request.
+> 
+> This is a requirement for the Intel IOMMU's.
+> 
+> You say virtio, so is it all emulated device or you talking about some
+> hardware that implemented virtio-pci compliant hw? If you are sure the
+> device actually does comply with the requirement, but just not enumerating
+> the capability, you can maybe work a quirk to overcome that?
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+So far only emulated devices. But we are helping some vendor to
+implement virtio hardware so  we need to understand the connection
+between ATS alignment and page request descriptor.
 
+> 
+> Now PRI also has an alignment requirement, and Intel IOMMU's requires that
+> as well. If your device supports SRIOV as well, PASID and PRI are
+> enumerated just on the PF and not the VF. You might want to pay attension
+> to that. We are still working on a solution for that problem.
 
-  Details:     https://kernelci.org/test/plan/id/5f595502e0bde478ced35395
+Thanks for the reminding, but it looks to me according to the ATS
+spec, all PRI message is 4096 byte aligned? E.g lower bites were used
+for group index etc.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-97/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-97/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
+Thanks
 
+> 
+> I don't think this is the right fix for your problem.
+> 
+> > 
+> > Cc: stable@vger.kernel.org
+> > Cc: Ashok Raj <ashok.raj@intel.com>
+> > Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+> > Cc: Keith Busch <keith.busch@intel.com>
+> > Cc: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/iommu/intel/iommu.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> 
+> 
 
-  * baseline.login: https://kernelci.org/test/case/id/5f595502e0bde478ced35=
-396
-      failing since 162 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23)  =20
