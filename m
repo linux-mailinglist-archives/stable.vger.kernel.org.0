@@ -2,73 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C55E2649EC
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 18:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F0F264A0B
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 18:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbgIJQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 12:35:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45098 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726997AbgIJQed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Sep 2020 12:34:33 -0400
-Received: from localhost (unknown [70.37.104.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2E45221E7;
-        Thu, 10 Sep 2020 16:34:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599755662;
-        bh=AVr+KGSCdzQ6xTrmfRGUpuSjtsa56NMukFTGjePtzIo=;
-        h=Date:From:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=FhbQ6LDq+orsxc51/ttPZOUzDgglwdDLQgg2NsVsK+KDnV640orkKGsqeQPeORaua
-         HoPkGkDXV9Xn2yT334FlL7bxJCLLn+UcBoWoLTFMm98bzIOwSDCP95azaov8E01B+o
-         61HQpO3Gmdiqlknm8bzmUnDv/0GPkNpr1UpYJt/A=
-Date:   Thu, 10 Sep 2020 16:34:21 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
-To:     <alsa-devel@alsa-project.org>
-CC:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: usb-audio: Add delay quirk for H570e USB headsets
-In-Reply-To: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
-References: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
-Message-Id: <20200910163421.C2E45221E7@mail.kernel.org>
+        id S1726914AbgIJQmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 12:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726855AbgIJQln (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 12:41:43 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB393C061573
+        for <stable@vger.kernel.org>; Thu, 10 Sep 2020 09:41:42 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id t16so6253669ilf.13
+        for <stable@vger.kernel.org>; Thu, 10 Sep 2020 09:41:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=wde2ZEVQEyQFNE8hGTsR4P/8gEx04M1P4qp+DMirfOs=;
+        b=jLT2SWZWgvzHApxjwGH5ohT1EuVS5w/Eb9D2qI2h+W8CkzK8R6/MMY6TZ6w3RNsCom
+         r7qsRJ9wAEPEFI/4mFwy4bNCfH6et7KYEsdT++EkRP1ZvuIMEQfvRbM3cfOEwxO7dOG8
+         5FIjJRccSfdg8RgOFHR/F0LVXNamw9y9V8IfYWF+VqQhOF+AdZs26hIwU8Blo37g1RL9
+         JvTMN3CnRn0PH+uH7o3U4URGoUuvkGJB3GsFlN1cpJCFG4j2b+M5NWSMetVBRMpNXHzj
+         zF9hHFtrjKlLa4YSRENsQlNsChktHsYtN2po18Sg6r+D98DKzfrfL0I5YkHu/6rcn1tS
+         9sZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=wde2ZEVQEyQFNE8hGTsR4P/8gEx04M1P4qp+DMirfOs=;
+        b=HfRjLUl8vd1722FMhcPndaCB8QBoKIHm+3G3oyT0yjM+2UGhmC6PWxVpfgrUDSuAi+
+         Y2emlNKdrS2Gx9/sjpNShialPH55CE7qbWK9qrPCLCIHe5Lh07s5DhUh1vWOqKWJW7qI
+         C168vwbCdvO6puqK8Qcd1SEAa7SipYTqPrkWWziTXNpWJ1ve0V7YxIeL9UJR6prwLZDl
+         zySoydAu93sw9LnapMYYlT1pnLH+eQNTph+wM52jZXZRZaQp/XtjkE8Eg8F+RVySzfvX
+         gWXDySsmv9xbYUBNOalYHD9qm9QW8Oit5DnbQLMwPVoeKPSluW2ZqD2flLpJR0Dvewzb
+         ic/w==
+X-Gm-Message-State: AOAM531v3o41VFlfcH3GpQVW5cfwNIRFPf36SipPDJcrRaCVz+1PYGWY
+        IReZY0S6KO91ZQKb5ZcZP6TbWPuVu3huYXIemCQ=
+X-Google-Smtp-Source: ABdhPJxukGqTjemxMLjPlfBcbu9aA1aF6h1uYbACbyEi4ddmLLVYWVINpxQALF2xCIJXduQGqLQqTNaTplgqVzS6aYU=
+X-Received: by 2002:a92:1fd9:: with SMTP id f86mr8722422ilf.250.1599756102204;
+ Thu, 10 Sep 2020 09:41:42 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a02:ca49:0:0:0:0:0 with HTTP; Thu, 10 Sep 2020 09:41:41
+ -0700 (PDT)
+Reply-To: jessicahaver699@gmail.com
+From:   jessica <aichatouidrissa77@gmail.com>
+Date:   Thu, 10 Sep 2020 16:41:41 +0000
+Message-ID: <CABvkan5goufZjaB0VEpc-Pya=diLqKiVAgyBizjDn4K1pK6Sfg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
-
-[This is an automated email]
-
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
-
-The bot has tested the following trees: v5.8.7, v5.4.63, v4.19.143, v4.14.196, v4.9.235, v4.4.235.
-
-v5.8.7: Build OK!
-v5.4.63: Build OK!
-v4.19.143: Build OK!
-v4.14.196: Build OK!
-v4.9.235: Build OK!
-v4.4.235: Failed to apply! Possible dependencies:
-    71426535f49f ("ALSA: usb-audio: Add native DSD support for Luxman DA-06")
-    74dc71f83e50 ("ALSA: usb-audio: FIX native DSD support for TEAC UD-501 DAC")
-    79289e24194a ("ALSA: usb-audio: Refer to chip->usb_id for quirks and MIDI creation")
-    7f38ca047b0c ("ALSA: usb-audio: Add native DSD support for TEAC 501/503 DAC")
-    866f7ed7d679 ("ALSA: usb-audio: Add native DSD support for Esoteric D-05X")
-    b00214865d65 ("ALSA: usb-audio: Add native DSD support for TEAC UD-301")
-    df3f0347fd85 ("ALSA: usb-audio: quirks: Replace mdelay() with msleep() and usleep_range()")
-    f3b906d720e4 ("ALSA: usb-audio: Integrate native DSD support for ITF-USB based DACs.")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
+Hi, I sent you an email before, but there is no answer from you,
+please reply if you get my message ??,
