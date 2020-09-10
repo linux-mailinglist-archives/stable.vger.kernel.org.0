@@ -2,120 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 772C6281690
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 17:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6358F282A53
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 13:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388074AbgJBP1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 11:27:03 -0400
-Received: from mailout10.rmx.de ([94.199.88.75]:55960 "EHLO mailout10.rmx.de"
+        id S1725949AbgJDLA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 07:00:59 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:58512 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726017AbgJBP1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 11:27:03 -0400
-Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout10.rmx.de (Postfix) with ESMTPS id 4C2v425qLRz32Fq;
-        Fri,  2 Oct 2020 17:26:58 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4C2v380YFgz2TRjr;
-        Fri,  2 Oct 2020 17:26:12 +0200 (CEST)
-Received: from N95HX1G2.wgnetz.xx (192.168.54.33) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Fri, 2 Oct
- 2020 17:25:37 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Christian Eggers <ceggers@arri.de>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2 3/3] i2c: imx: Don't generate STOP condition if arbitration has been lost
-Date:   Fri, 2 Oct 2020 17:23:05 +0200
-Message-ID: <20201002152305.4963-4-ceggers@arri.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201002152305.4963-1-ceggers@arri.de>
-References: <20201002152305.4963-1-ceggers@arri.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [192.168.54.33]
-X-RMX-ID: 20201002-172614-4C2v380YFgz2TRjr-0@kdin02
-X-RMX-SOURCE: 217.111.95.66
+        id S1725825AbgJDLA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Oct 2020 07:00:59 -0400
+X-Greylist: delayed 2477 seconds by postgrey-1.27 at vger.kernel.org; Sun, 04 Oct 2020 07:00:58 EDT
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1kP10r-001oDD-AV; Sun, 04 Oct 2020 10:13:05 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Thu, 10 Sep 2020 12:05:10 +0000
+Subject: [git:media_tree/master] media: cec-adap.c: don't use flush_scheduled_work()
+To:     linuxtv-commits@linuxtv.org
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1kP10r-001oDD-AV@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If arbitration is lost, the master automatically changes to slave mode.
-I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+This is an automatic generated email to let you know that the following patch were queued:
 
-So calling i2c_imx_bus_busy() is not required and would busy-wait until
-timeout.
+Subject: media: cec-adap.c: don't use flush_scheduled_work()
+Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Date:    Tue Sep 8 12:02:53 2020 +0200
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
-                           # the 3rd argument from the calls to
-                           # i2c_imx_bus_busy().
+For some inexplicable reason I decided to call flush_scheduled_work()
+instead of cancel_delayed_work_sync(). The problem with that is that
+flush_scheduled_work() waits for *all* queued scheduled work to be
+completed instead of just the work itself.
+
+This can cause a deadlock if a CEC driver also schedules work that
+takes the same lock. See the comments for flush_scheduled_work() in
+linux/workqueue.h.
+
+This is exactly what has been observed a few times.
+
+This patch simply replaces flush_scheduled_work() by
+cancel_delayed_work_sync().
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v5.8 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/cec/core/cec-adap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- drivers/i2c/busses/i2c-imx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 1db1e2f5296e..ced9cb3a2665 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -616,6 +616,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
- 		/* Stop I2C transaction */
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		if (i2c_imx->dma)
- 			temp &= ~I2CR_DMAEN;
-@@ -785,9 +787,12 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
- 		 */
- 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		i2c_imx_bus_busy(i2c_imx, 0, false);
-+		if (!i2c_imx->stopped)
-+			i2c_imx_bus_busy(i2c_imx, 0, false);
- 	} else {
- 		/*
- 		 * For i2c master receiver repeat restart operation like:
-@@ -912,9 +917,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 				dev_dbg(&i2c_imx->adapter.dev,
- 					"<%s> clear MSTA\n", __func__);
- 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+				if (!(temp & I2CR_MSTA))
-+					i2c_imx->stopped =  1;
- 				temp &= ~(I2CR_MSTA | I2CR_MTX);
- 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--				i2c_imx_bus_busy(i2c_imx, 0, atomic);
-+				if (!i2c_imx->stopped)
-+					i2c_imx_bus_busy(i2c_imx, 0, atomic);
- 			} else {
- 				/*
- 				 * For i2c master receiver repeat restart operation like:
--- 
-Christian Eggers
-Embedded software developer
-
-Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
-Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
-Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
-
+diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
+index 4efe8014445e..926d65db6d3e 100644
+--- a/drivers/media/cec/core/cec-adap.c
++++ b/drivers/media/cec/core/cec-adap.c
+@@ -1199,7 +1199,7 @@ void cec_received_msg_ts(struct cec_adapter *adap,
+ 			/* Cancel the pending timeout work */
+ 			if (!cancel_delayed_work(&data->work)) {
+ 				mutex_unlock(&adap->lock);
+-				flush_scheduled_work();
++				cancel_delayed_work_sync(&data->work);
+ 				mutex_lock(&adap->lock);
+ 			}
+ 			/*
