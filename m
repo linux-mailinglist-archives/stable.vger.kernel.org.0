@@ -2,156 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81B16264084
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 10:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF31B264094
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 10:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbgIJIux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 04:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727820AbgIJIus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 04:50:48 -0400
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49BBC061573;
-        Thu, 10 Sep 2020 01:50:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=eKsZkWdvIiBRnt555PJ6VzAcymBcJaI9YZ3lDNxYBks=; b=rilNWYgjFUy/9/MU1y5a6Ej2af
-        Zz3OjPMQhDSVq43wUhkoi09DbKNkf8SSqSJy5eD6jLr4iA6+ld3q0o0KlLtFt9/4vHgePevUUeSdY
-        Pi5d4PaG1W0JZWGiqbY8r1HKwnhhRtfUeJ/Z4jjTabOYsBuN5HfSq6ljFrP7NfADSJKq+oyjxcAU+
-        12fTNz6gqkyQdSp9GFsN0m1923u+tQrYI6AEKkw2JgkGuHa3Co/rLN7p3C+5ZbbZ9kbXoYosgva3T
-        Bq5znOuD1CPAsIeYR2JsKb+gVJinOUtBCCwAbT2HWVCilg3+CCtS86XgNYQFUBISMahXmkeQvJR3+
-        A+c3gqQQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kGIHu-0001vn-77; Thu, 10 Sep 2020 08:50:38 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 533183007CD;
-        Thu, 10 Sep 2020 10:50:36 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 305522651245D; Thu, 10 Sep 2020 10:50:36 +0200 (CEST)
-Date:   Thu, 10 Sep 2020 10:50:36 +0200
-From:   peterz@infradead.org
-To:     Kim Phillips <kim.phillips@amd.com>
-Cc:     Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>,
-        Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Stephane Eranian <eranian@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, x86 <x86@kernel.org>,
-        Stephane Eranian <stephane.eranian@google.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/7] arch/x86/amd/ibs: Fix re-arming IBS Fetch
-Message-ID: <20200910085036.GD35926@hirez.programming.kicks-ass.net>
-References: <20200908214740.18097-1-kim.phillips@amd.com>
- <20200908214740.18097-4-kim.phillips@amd.com>
- <20200910083223.GY1362448@hirez.programming.kicks-ass.net>
+        id S1729135AbgIJIxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 04:53:42 -0400
+Received: from mail-dm6nam12on2053.outbound.protection.outlook.com ([40.107.243.53]:57994
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727820AbgIJIxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Sep 2020 04:53:38 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KKDhert42/g9k8UgHKlwAh+2G1IjbG4hQ1cn6oNAsRVsEDDqOnu1bwPBOBxcAqRym04CFXsJnNHNb4wuEMA6KIEXbKWddWJdQkvYtAXxg06LjNhKX+mHbtJxJpD88DgpMZSjXBlYrWQJJHMZChUJ/ANCeL+HDwcnIpq5YRmIS0adtdyZvacJip2Ou78HyxRQN7cYfhJ7dirR9baFtSsS5BPxuhGieiTAxBypdh30jKKonfnRFsDGWqdpdEebi/U1aaFv86JlBa5qZs6QDIbPxRPm0uP3FdJUyiNpqv3UdoI1DmGkwuo/zzk3lUu4Iv/yXSn0EpbeofXmeoIChe2iqw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lPOCEX8ljTcxsyYyl39b03L1F7qBLlocdPa6VU6aA54=;
+ b=kkxf0ScCTkk46/i//tGEc1Vfqc+AOODy2lxR7XtwyUVGt9Wq94UdSMDMD3BnrEYBUP07Ss5xkczbcFS44ynQ9iLV3rtPUgtcY/XYY8xkpWYnJ8iTuwL5P4vnC6aRywHjNjBG/BhI4CVD8/epCEItd6R2/hXlfcLbrkmBjIvMKc/oGzO7buSH052YkCEkOogjpXuVayuoQBb37AhfQgoHUn3n4qsFnSX32pcCmBx/b7RnD7Z6aSWq6KI5vi1+a3w9d7k+7Qppy4LTd3N7gNCm5GZSzKrOMEpI03IMonZ4ZiKpdgtuLCOtIQsCRuRHkOqdDrOFcmlUVebT4Z2KOycTMA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 8.4.225.191) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=infinera.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=infinera.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lPOCEX8ljTcxsyYyl39b03L1F7qBLlocdPa6VU6aA54=;
+ b=jkmMEJHbViakc8cIGAFAXrgwH+7ZFDoDjTE4s3oA0MTQWtHmrnWltbatHul/y1cK4IPCK2/LMSYMlL5HpAGOqyOUppwufDPOGHwEfi20tiBJ+sXAIzvnDgLUBiCy+SC4Lzu6dfTP0GNZSozqEJbsSxZR0Dg8ZDur+Z6130/JxWk=
+Received: from CO2PR04CA0145.namprd04.prod.outlook.com (2603:10b6:104::23) by
+ BN6PR10MB1492.namprd10.prod.outlook.com (2603:10b6:404:46::10) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3348.16; Thu, 10 Sep 2020 08:53:35 +0000
+Received: from CO1NAM11FT003.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:104:0:cafe::69) by CO2PR04CA0145.outlook.office365.com
+ (2603:10b6:104::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16 via Frontend
+ Transport; Thu, 10 Sep 2020 08:53:35 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 8.4.225.191)
+ smtp.mailfrom=infinera.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none
+ header.from=infinera.com;
+Received-SPF: Pass (protection.outlook.com: domain of infinera.com designates
+ 8.4.225.191 as permitted sender) receiver=protection.outlook.com;
+ client-ip=8.4.225.191; helo=owa.infinera.com;
+Received: from owa.infinera.com (8.4.225.191) by
+ CO1NAM11FT003.mail.protection.outlook.com (10.13.175.93) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.3370.16 via Frontend Transport; Thu, 10 Sep 2020 08:53:34 +0000
+Received: from sv-ex16-prd.infinera.com (10.100.96.229) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1847.3; Thu, 10 Sep 2020 01:53:34 -0700
+Received: from sv-smtp-prod2.infinera.com (10.100.98.82) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server id
+ 15.1.1847.3 via Frontend Transport; Thu, 10 Sep 2020 01:53:34 -0700
+Received: from se-metroit-prd1.infinera.com ([10.210.32.58]) by sv-smtp-prod2.infinera.com with Microsoft SMTPSVC(7.5.7601.17514);
+         Thu, 10 Sep 2020 01:53:34 -0700
+Received: from gentoo-jocke.infinera.com (gentoo-jocke.infinera.com [10.210.71.2])
+        by se-metroit-prd1.infinera.com (Postfix) with ESMTP id 807D72C06DF0;
+        Thu, 10 Sep 2020 10:53:33 +0200 (CEST)
+Received: by gentoo-jocke.infinera.com (Postfix, from userid 1001)
+        id 72CE55EE3; Thu, 10 Sep 2020 10:53:33 +0200 (CEST)
+From:   Joakim Tjernlund <joakim.tjernlund@infinera.com>
+To:     <alsa-devel@alsa-project.org>
+CC:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] ALSA: usb-audio: Add delay quirk for H570e USB headsets
+Date:   Thu, 10 Sep 2020 10:53:28 +0200
+Message-ID: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200910083223.GY1362448@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 10 Sep 2020 08:53:34.0456 (UTC) FILETIME=[DDA20F80:01D6874F]
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 79fc1aa1-242f-4054-3c52-08d855670073
+X-MS-TrafficTypeDiagnostic: BN6PR10MB1492:
+X-Microsoft-Antispam-PRVS: <BN6PR10MB1492478F399D1ED1525F3D34F4270@BN6PR10MB1492.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:983;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: UBrUyeb1h0bjWDPopYeLcoyIhcmrgKo+ZntlXg16rOzGjKqZe13UnJGksQ4Yd5TJgaNTf1wKSw1++QVcisifx3m+VHy0bOVjQeni2DoZqXVMMSukPUhhUQG5nUStnOIY5EFJCbJAWUB0mWWYjlLKO9Cq0qvRlAA5DWMwtVClCV6AZHw9FB9BsEyU5ZivsGqfjxg8wEXawPGjdvDuj3/cesWM7Q+B3ANBWUXzonGQHsKKjW/L0B2ePvmtaHmhW2z/MBX/Fti8kxRDqGGw9wXh7JNH0/DYwC82O6hEZLBh1+J5OhllzgkniM7DW79hNr1vC1PcCHeiYO5YTvQIDlAqeCcw0RyAnB2S1KbNJABLZCCTwTR27zEch3Wo6Cg2fL6tQ9VT/ZwmA7hM59Pu4S8gMezyPEc1+UtFaUwCC7AYooxC9DzrdqfS9KkZhQBx8pOG
+X-Forefront-Antispam-Report: CIP:8.4.225.191;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:owa.infinera.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(376002)(39860400002)(346002)(396003)(46966005)(186003)(82740400003)(8676002)(336012)(5660300002)(83380400001)(26005)(70206006)(426003)(70586007)(4326008)(8936002)(6862004)(36756003)(82310400003)(47076004)(2616005)(6266002)(86362001)(44832011)(2906002)(356005)(42186006)(54906003)(316002)(36906005)(478600001)(1076003)(34020700004)(81166007)(6666004);DIR:OUT;SFP:1101;
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2020 08:53:34.9870
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 79fc1aa1-242f-4054-3c52-08d855670073
+X-MS-Exchange-CrossTenant-Id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=285643de-5f5b-4b03-a153-0ae2dc8aaf77;Ip=[8.4.225.191];Helo=[owa.infinera.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT003.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR10MB1492
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 10:32:23AM +0200, peterz@infradead.org wrote:
-> > @@ -363,7 +363,14 @@ perf_ibs_event_update(struct perf_ibs *perf_ibs, struct perf_event *event,
-> >  static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
-> >  					 struct hw_perf_event *hwc, u64 config)
-> >  {
-> > -	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
-> > +	u64 _config = (hwc->config | config) & ~perf_ibs->enable_mask;
-> > +
-> > +	/* On Fam17h, the periodic fetch counter is set when IbsFetchEn is changed from 0 to 1 */
-> > +	if (perf_ibs == &perf_ibs_fetch && boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
-> > +		wrmsrl(hwc->config_base, _config);
+Needs the same delay as H650e
 
-> A better option would be to use hwc->flags, you're loading from that
-> line already, so it's guaranteed hot and then you only have a single
-> branch. Or stick it in perf_ibs near enable_mask, same difference.
-
-I fixed it for you.
-
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc: stable@vger.kernel.org
 ---
+ sound/usb/quirks.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-struct perf_ibs {
-	struct pmu                 pmu;                  /*     0   296 */
-	/* --- cacheline 4 boundary (256 bytes) was 40 bytes ago --- */
-	unsigned int               msr;                  /*   296     4 */
-
-	/* XXX 4 bytes hole, try to pack */
-
-	u64                        config_mask;          /*   304     8 */
-	u64                        cnt_mask;             /*   312     8 */
-	/* --- cacheline 5 boundary (320 bytes) --- */
-	u64                        enable_mask;          /*   320     8 */
-	u64                        valid_mask;           /*   328     8 */
-	u64                        max_period;           /*   336     8 */
-	long unsigned int          offset_mask[1];       /*   344     8 */
-	int                        offset_max;           /*   352     4 */
-	unsigned int               fetch_count_reset_broken:1; /*   356: 0  4 */
-
-	/* XXX 31 bits hole, try to pack */
-
-	struct cpu_perf_ibs *      pcpu;                 /*   360     8 */
-	struct attribute * *       format_attrs;         /*   368     8 */
-	struct attribute_group     format_group;         /*   376    40 */
-	/* --- cacheline 6 boundary (384 bytes) was 32 bytes ago --- */
-	const struct attribute_group  * attr_groups[2];  /*   416    16 */
-	u64                        (*get_count)(u64);    /*   432     8 */
-
-	/* size: 440, cachelines: 7, members: 15 */
-	/* sum members: 432, holes: 1, sum holes: 4 */
-	/* sum bitfield members: 1 bits, bit holes: 1, sum bit holes: 31 bits */
-	/* last cacheline: 56 bytes */
-};
-
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -89,6 +89,7 @@ struct perf_ibs {
- 	u64				max_period;
- 	unsigned long			offset_mask[1];
- 	int				offset_max;
-+	unsigned int			fetch_count_reset_broken : 1;
- 	struct cpu_perf_ibs __percpu	*pcpu;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 75bbdc691243..892296df131d 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1678,12 +1678,13 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
  
- 	struct attribute		**format_attrs;
-@@ -370,7 +371,13 @@ perf_ibs_event_update(struct perf_ibs *p
- static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
- 					 struct hw_perf_event *hwc, u64 config)
- {
--	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
-+	u64 _config = (hwc->config | config) & ~perf_ibs->enable_mask;
-+
-+	if (perf_ibs->fetch_count_reset_broken)
-+		wrmsrl(hwc->config_base, _config);
-+
-+ 	_config |= perf_ibs->enable_mask;
-+	wrmsrl(hwc->config_base, _config);
- }
- 
- /*
-@@ -756,6 +763,13 @@ static __init void perf_event_ibs_init(v
- {
- 	struct attribute **attr = ibs_op_format_attrs;
- 
-+	/*
-+	 * Some chips fail to reset the fetch count when it is written; instead
-+	 * they need a 0-1 transition of IbsFetchEn.
-+	 */
-+	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
-+		perf_ibs_fetch.fetch_count_reset_broken = 1;
-+
- 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
- 
- 	if (ibs_caps & IBS_CAPS_OPCNT) {
+-	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
+-	 * delay here, otherwise requests like get/set frequency return as
+-	 * failed despite actually succeeding.
++	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
++	 *  needs a tiny delay here, otherwise requests like get/set
++	 *  frequency return as failed despite actually succeeding.
+ 	 */
+ 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
+ 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
++	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
+ 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
+ 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+-- 
+2.26.2
+
