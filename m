@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D152E26465C
-	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 14:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD8C126472B
+	for <lists+stable@lfdr.de>; Thu, 10 Sep 2020 15:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730430AbgIJMvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 08:51:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42112 "EHLO mx2.suse.de"
+        id S1730719AbgIJNnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 09:43:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53444 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730740AbgIJMsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Sep 2020 08:48:50 -0400
+        id S1730923AbgIJNjI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Sep 2020 09:39:08 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 2BC9FACF2;
-        Thu, 10 Sep 2020 12:49:04 +0000 (UTC)
-Date:   Thu, 10 Sep 2020 14:48:47 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Oscar Salvador <osalvador@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 9C025ACAF;
+        Thu, 10 Sep 2020 13:39:19 +0000 (UTC)
+Date:   Thu, 10 Sep 2020 15:39:00 +0200
+From:   Oscar Salvador <osalvador@suse.de>
+To:     Michal Hocko <mhocko@suse.com>
 Cc:     Laurent Dufour <ldufour@linux.ibm.com>, akpm@linux-foundation.org,
         David Hildenbrand <david@redhat.com>, rafael@kernel.org,
         nathanl@linux.ibm.com, cheloha@linux.ibm.com,
@@ -26,9 +26,8 @@ Cc:     Laurent Dufour <ldufour@linux.ibm.com>, akpm@linux-foundation.org,
         linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] mm: don't rely on system state to detect hot-plug
  operations
-Message-ID: <20200910124847.GH28354@dhcp22.suse.cz>
-References: <20200909090953.GE7348@dhcp22.suse.cz>
- <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
+Message-ID: <20200910133854.GA8713@linux>
+References: <4cdb54be-1a92-4ba4-6fee-3b415f3468a9@linux.ibm.com>
  <20200909105914.GF7348@dhcp22.suse.cz>
  <74a62b00-235e-7deb-2814-f3b240fea25e@linux.ibm.com>
  <20200910072331.GB28354@dhcp22.suse.cz>
@@ -37,64 +36,44 @@ References: <20200909090953.GE7348@dhcp22.suse.cz>
  <bd6f2d09-f4e2-0a63-3511-e0f9bf283fe3@linux.ibm.com>
  <20200910120343.GA6635@linux>
  <20200910124755.GG28354@dhcp22.suse.cz>
+ <20200910124847.GH28354@dhcp22.suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200910124755.GG28354@dhcp22.suse.cz>
+In-Reply-To: <20200910124847.GH28354@dhcp22.suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 10-09-20 14:47:56, Michal Hocko wrote:
-> On Thu 10-09-20 14:03:48, Oscar Salvador wrote:
-> > On Thu, Sep 10, 2020 at 01:35:32PM +0200, Laurent Dufour wrote:
-> >  
-> > > That points has been raised by David, quoting him here:
-> > > 
-> > > > IIRC, ACPI can hotadd memory while SCHEDULING, this patch would break that.
-> > > > 
-> > > > Ccing Oscar, I think he mentioned recently that this is the case with ACPI.
-> > > 
-> > > Oscar told that he need to investigate further on that.
-> > 
-> > I think my reply got lost.
-> > 
-> > We can see acpi hotplugs during SYSTEM_SCHEDULING:
-> > 
-> > $QEMU -enable-kvm -machine pc -smp 4,sockets=4,cores=1,threads=1 -cpu host -monitor pty \
-> >         -m size=$MEM,slots=255,maxmem=4294967296k  \
-> >         -numa node,nodeid=0,cpus=0-3,mem=512 -numa node,nodeid=1,mem=512 \
-> >         -object memory-backend-ram,id=memdimm0,size=134217728 -device pc-dimm,node=0,memdev=memdimm0,id=dimm0,slot=0 \
-> >         -object memory-backend-ram,id=memdimm1,size=134217728 -device pc-dimm,node=0,memdev=memdimm1,id=dimm1,slot=1 \
-> >         -object memory-backend-ram,id=memdimm2,size=134217728 -device pc-dimm,node=0,memdev=memdimm2,id=dimm2,slot=2 \
-> >         -object memory-backend-ram,id=memdimm3,size=134217728 -device pc-dimm,node=0,memdev=memdimm3,id=dimm3,slot=3 \
-> >         -object memory-backend-ram,id=memdimm4,size=134217728 -device pc-dimm,node=1,memdev=memdimm4,id=dimm4,slot=4 \
-> >         -object memory-backend-ram,id=memdimm5,size=134217728 -device pc-dimm,node=1,memdev=memdimm5,id=dimm5,slot=5 \
-> >         -object memory-backend-ram,id=memdimm6,size=134217728 -device pc-dimm,node=1,memdev=memdimm6,id=dimm6,slot=6 \
-> > 
-> > kernel: [    0.753643] __add_memory: nid: 0 start: 0100000000 - 0108000000 (size: 134217728)
-> > kernel: [    0.756950] register_mem_sect_under_node: system_state= 1
-> > 
-> > kernel: [    0.760811]  register_mem_sect_under_node+0x4f/0x230
-> > kernel: [    0.760811]  walk_memory_blocks+0x80/0xc0
-> > kernel: [    0.760811]  link_mem_sections+0x32/0x40
-> > kernel: [    0.760811]  add_memory_resource+0x148/0x250
-> > kernel: [    0.760811]  __add_memory+0x5b/0x90
-> > kernel: [    0.760811]  acpi_memory_device_add+0x130/0x300
-> > kernel: [    0.760811]  acpi_bus_attach+0x13c/0x1c0
-> > kernel: [    0.760811]  acpi_bus_attach+0x60/0x1c0
-> > kernel: [    0.760811]  acpi_bus_scan+0x33/0x70
-> > kernel: [    0.760811]  acpi_scan_init+0xea/0x21b
-> > kernel: [    0.760811]  acpi_init+0x2f1/0x33c
-> > kernel: [    0.760811]  do_one_initcall+0x46/0x1f4
-> 
-> Is there any actual usecase for a configuration like this? What is the
-> point to statically define additional memory like this when the same can
-> be achieved on the same command line?
+On Thu, Sep 10, 2020 at 02:48:47PM +0200, Michal Hocko wrote:
+> > Is there any actual usecase for a configuration like this? What is the
+> > point to statically define additional memory like this when the same can
+> > be achieved on the same command line?
 
-Forgot to ask one more thing. Who is going to online that memory when
-userspace is not running yet?
+Well, for qemu I am not sure, but if David is right, it seems you can face
+the same if you reboot a vm with hotplugged memory.
+Moreover, it seems that the problem we spotted with [1], it was a VM running on
+Promox (KVM).
+The Hypervisor probably said at boot time "Ey, I do have these ACPI devices, care
+to enable them now"?
+
+As always, there are all sorts of configurations/scenarios out there in the wild.
+
+> Forgot to ask one more thing. Who is going to online that memory when
+> userspace is not running yet?
+
+Depends, if you have CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE set or you specify
+memhp_default_online_type=[online,online_*], memory will get onlined right
+after hot-adding stage:
+
+        /* online pages if requested */
+        if (memhp_default_online_type != MMOP_OFFLINE)
+                walk_memory_blocks(start, size, NULL, online_memory_block);
+
+If not, systemd-udev will do the magic once the system is up.
+
 -- 
-Michal Hocko
-SUSE Labs
+Oscar Salvador
+SUSE L3
