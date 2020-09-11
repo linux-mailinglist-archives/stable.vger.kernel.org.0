@@ -2,82 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E41265F17
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 13:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C06265F1A
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 13:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725788AbgIKL5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 07:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35032 "EHLO mail.kernel.org"
+        id S1725768AbgIKL6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 07:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725730AbgIKL5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 07:57:48 -0400
+        id S1725710AbgIKL6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 07:58:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0EE6221E7;
-        Fri, 11 Sep 2020 11:57:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B5B3221EB;
+        Fri, 11 Sep 2020 11:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599825466;
-        bh=OGz8xp4DfNbeDLLobWhgOPaKtHeGjBzxJ1PU9o8tCI8=;
+        s=default; t=1599825490;
+        bh=o9cW/liLO9LiEgJpuDhrXaYdblbkJJYZhvq0jGAF6AU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HmkktZevp+Gs6mdLYJRyYRMZq9zekb9HXwVQ+kbJ2ZqfxN5gL02wCFOKbZHCVLuf1
-         TdoaPTQtk4bYdFitgdzZTfz6RVOiJRoJtqokUWCNOTwRLGP69kDsyemX+KBPLX89wc
-         Cl41jfFTQSeI0hKl/37dzwzPHmzDoKhW4F6Efe9I=
-Date:   Fri, 11 Sep 2020 13:57:52 +0200
+        b=Kq6gJBba1Hy+SzRy3ssBaQfXoE3PFA66PcRd7lYj4u8wdZj18gEXRz713cQZroGyT
+         4eG2FSlV9yKN2bVvxPA98WTKcri4vs2pFWN952guAhHPMHjoUGxUuvnQTKhSEbqQHu
+         s0MSLmTl+MaXLJlDrIog0mYpmD/RUiVw8YNfAakM=
+Date:   Fri, 11 Sep 2020 13:58:16 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Saeed Mahameed <saeed@kernel.org>
-Cc:     Saeed Mahameed <saeedm@mellanox.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        Roi Dayan <roid@mellanox.com>
-Subject: Re: [PATCH 4.19] net/mlx5e: Don't support phys switch id if not in
- switchdev mode
-Message-ID: <20200911115752.GA3717176@kroah.com>
-References: <20200807020542.636290-1-saeedm@mellanox.com>
- <20200807131323.GA664450@kroah.com>
- <fc4effe1bbe6e9c68f4bdd863e3d38cbab52a285.camel@kernel.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Daniel.Craig@csiro.au,
+        Nicolas Courtel <courtel@cena.fr>
+Subject: Re: [PATCH 4.19 142/206] gfs2: fix use-after-free on transaction ail
+ lists
+Message-ID: <20200911115816.GB3717176@kroah.com>
+References: <20200623195316.864547658@linuxfoundation.org>
+ <20200623195323.968867013@linuxfoundation.org>
+ <20200910194319.GA131386@eldamar.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fc4effe1bbe6e9c68f4bdd863e3d38cbab52a285.camel@kernel.org>
+In-Reply-To: <20200910194319.GA131386@eldamar.local>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 11:46:36AM -0700, Saeed Mahameed wrote:
-> On Fri, 2020-08-07 at 15:13 +0200, Greg Kroah-Hartman wrote:
-> > On Thu, Aug 06, 2020 at 07:05:42PM -0700, Saeed Mahameed wrote:
-> > > From: Roi Dayan <roid@mellanox.com>
-> > > 
-> > > Support for phys switch id ndo added for representors and if
-> > > we do not have representors there is no need to support it.
-> > > Since each port return different switch id supporting this
-> > > block support for creating bond over PFs and attaching to bridge
-> > > in legacy mode.
-> > > 
-> > > This bug doesn't exist upstream as the code got refactored and the
-> > > netdev api is totally different.
-> > > 
-> > > Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
-> > > Signed-off-by: Roi Dayan <roid@mellanox.com>
-> > > Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-> > > ---
-> > > Hi Greg,
-> > > 
-> > > Sorry for submitting a non upstream patch, but this bug is
-> > > bothering some users on 4.19-stable kernels and it doesn't exist
-> > > upstream, so i hope you are ok with backporting this one liner
-> > > patch.
-> > 
-> > Also queued up to 4.9.y and 4.14.y.
-> > 
+On Thu, Sep 10, 2020 at 09:43:19PM +0200, Salvatore Bonaccorso wrote:
+> Hi,
 > 
-> Hi Greg, the request was originally made for 4.19.y kernel,
-> I see the patch in 4.9 and 4.14 but not in 4.19 can we push it to 4.19
-> as well ? 
+> On Tue, Jun 23, 2020 at 09:57:50PM +0200, Greg Kroah-Hartman wrote:
+> > From: Bob Peterson <rpeterso@redhat.com>
+> > 
+> > [ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
+> > 
+> > Before this patch, transactions could be merged into the system
+> > transaction by function gfs2_merge_trans(), but the transaction ail
+> > lists were never merged. Because the ail flushing mechanism can run
+> > separately, bd elements can be attached to the transaction's buffer
+> > list during the transaction (trans_add_meta, etc) but quickly moved
+> > to its ail lists. Later, in function gfs2_trans_end, the transaction
+> > can be freed (by gfs2_trans_end) while it still has bd elements
+> > queued to its ail lists, which can cause it to either lose track of
+> > the bd elements altogether (memory leak) or worse, reference the bd
+> > elements after the parent transaction has been freed.
+> > 
+> > Although I've not seen any serious consequences, the problem becomes
+> > apparent with the previous patch's addition of:
+> > 
+> > 	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
+> > 
+> > to function gfs2_trans_free().
+> > 
+> > This patch adds logic into gfs2_merge_trans() to move the merged
+> > transaction's ail lists to the sdp transaction. This prevents the
+> > use-after-free. To do this properly, we need to hold the ail lock,
+> > so we pass sdp into the function instead of the transaction itself.
+> > 
+> > Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+> > Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  fs/gfs2/log.c | 11 +++++++++--
+> >  1 file changed, 9 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+> > index d3f0612e33471..06752db213d21 100644
+> > --- a/fs/gfs2/log.c
+> > +++ b/fs/gfs2/log.c
+> > @@ -877,8 +877,10 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl, u32 flags)
+> >   * @new: New transaction to be merged
+> >   */
+> >  
+> > -static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
+> > +static void gfs2_merge_trans(struct gfs2_sbd *sdp, struct gfs2_trans *new)
+> >  {
+> > +	struct gfs2_trans *old = sdp->sd_log_tr;
+> > +
+> >  	WARN_ON_ONCE(!test_bit(TR_ATTACHED, &old->tr_flags));
+> >  
+> >  	old->tr_num_buf_new	+= new->tr_num_buf_new;
+> > @@ -890,6 +892,11 @@ static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
+> >  
+> >  	list_splice_tail_init(&new->tr_databuf, &old->tr_databuf);
+> >  	list_splice_tail_init(&new->tr_buf, &old->tr_buf);
+> > +
+> > +	spin_lock(&sdp->sd_ail_lock);
+> > +	list_splice_tail_init(&new->tr_ail1_list, &old->tr_ail1_list);
+> > +	list_splice_tail_init(&new->tr_ail2_list, &old->tr_ail2_list);
+> > +	spin_unlock(&sdp->sd_ail_lock);
+> >  }
+> >  
+> >  static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+> > @@ -901,7 +908,7 @@ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+> >  	gfs2_log_lock(sdp);
+> >  
+> >  	if (sdp->sd_log_tr) {
+> > -		gfs2_merge_trans(sdp->sd_log_tr, tr);
+> > +		gfs2_merge_trans(sdp, tr);
+> >  	} else if (tr->tr_num_buf_new || tr->tr_num_databuf_new) {
+> >  		gfs2_assert_withdraw(sdp, test_bit(TR_ALLOCED, &tr->tr_flags));
+> >  		sdp->sd_log_tr = tr;
+> > -- 
+> > 2.25.1
+> 
+> In Debian two user confirmed issues on writing on a GFS2 partition
+> with this commit applied. The initial Debian report is at
+> https://bugs.debian.org/968567 and Daniel Craig reported it into
+> Bugzilla at https://bugzilla.kernel.org/show_bug.cgi?id=209217 .
+> 
+> Writing to a gfs2 filesystem fails and results in a soft lookup of the
+> machine for kernels with that commit applied. I cannot reporduce the
+> issue myself due not having a respective setup available, but Daniel
+> described a minimal serieos of steps to reproduce the issue.
+> 
+> This might affect as well other stable series where this commit was
+> applied, as there was a similar report for someone running 5.4.58 in
+> https://www.redhat.com/archives/linux-cluster/2020-August/msg00000.html
 
-Very odd, don't know what happened.
+Can you report this to the gfs2 developers?
 
-Now fixed up, thanks.
+thanks,
 
 greg k-h
