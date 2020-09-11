@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2251F2664EB
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF1C2664A8
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725838AbgIKQsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:48:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49202 "EHLO mail.kernel.org"
+        id S1726396AbgIKQnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:43:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726025AbgIKPHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:07:49 -0400
+        id S1726393AbgIKPI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:08:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A8E22220A;
-        Fri, 11 Sep 2020 12:58:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4479223BE;
+        Fri, 11 Sep 2020 12:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829089;
-        bh=I3+A75ElY6zXRlrjt7qiOG+vSPUPB1pOOllwGDllo30=;
+        s=default; t=1599829110;
+        bh=yTNy6WjtGNrDyaxHqr4KedfBjMMcnF+93yiBi76T4Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CEYumY/DZkOpRYY5Ud7CHXUhZ871yNwV6mJYbPRg1YG8cVrk5wolcl7aGWyrCuCM
-         VEzyywSpPgCZH5ju9ixQMp+EldpLlW8wzmjSRoWLhh9bkrIZJ1BIvay0kZgYFu7gt6
-         jEOOQTnuagfAcKUpZqCNbf563FcJJvQQjHEWeZmg=
+        b=yyqX12kTeSQ8P9p5JxnEXAcBaIpagJajioRVNlnvMykFzW//VqGwu2FQRKSh1qQZJ
+         yGFTFY2BeltmV7aNGUYtuYzPevWMlio4WdKHZWwJ73ItVlpQIA3LuNdx2zX0ckdOXk
+         kUzNUyiIfbAM1BumjVZuU3Xr3Umdp2HzqXjQNM5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d451401ffd00a60677ee@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 61/71] cfg80211: regulatory: reject invalid hints
-Date:   Fri, 11 Sep 2020 14:46:45 +0200
-Message-Id: <20200911122507.957032784@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 63/71] ALSA; firewire-tascam: exclude Tascam FE-8 from detection
+Date:   Fri, 11 Sep 2020 14:46:47 +0200
+Message-Id: <20200911122508.051870541@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -44,34 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 47caf685a6854593348f216e0b489b71c10cbe03 upstream.
+Tascam FE-8 is known to support communication by asynchronous transaction
+only. The support can be implemented in userspace application and
+snd-firewire-ctl-services project has the support. However, ALSA
+firewire-tascam driver is bound to the model.
 
-Reject invalid hints early in order to not cause a kernel
-WARN later if they're restored to or similar.
+This commit changes device entries so that the model is excluded. In a
+commit 53b3ffee7885 ("ALSA: firewire-tascam: change device probing
+processing"), I addressed to the concern that version field in
+configuration differs depending on installed firmware. However, as long
+as I checked, the version number is fixed. It's safe to return version
+number back to modalias.
 
-Reported-by: syzbot+d451401ffd00a60677ee@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=d451401ffd00a60677ee
-Link: https://lore.kernel.org/r/20200819084648.13956-1-johannes@sipsolutions.net
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 53b3ffee7885 ("ALSA: firewire-tascam: change device probing processing")
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200823075537.56255-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- net/wireless/reg.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/firewire/tascam/tascam.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2321,6 +2321,9 @@ int regulatory_hint_user(const char *alp
- 	if (WARN_ON(!alpha2))
- 		return -EINVAL;
+diff --git a/sound/firewire/tascam/tascam.c b/sound/firewire/tascam/tascam.c
+index 4c967ac1c0e83..40ed4c92e48bd 100644
+--- a/sound/firewire/tascam/tascam.c
++++ b/sound/firewire/tascam/tascam.c
+@@ -225,11 +225,39 @@ static void snd_tscm_remove(struct fw_unit *unit)
+ }
  
-+	if (!is_world_regdom(alpha2) && !is_an_alpha2(alpha2))
-+		return -EINVAL;
-+
- 	request = kzalloc(sizeof(struct regulatory_request), GFP_KERNEL);
- 	if (!request)
- 		return -ENOMEM;
+ static const struct ieee1394_device_id snd_tscm_id_table[] = {
++	// Tascam, FW-1884.
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
+-			       IEEE1394_MATCH_SPECIFIER_ID,
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
+ 		.vendor_id = 0x00022e,
+ 		.specifier_id = 0x00022e,
++		.version = 0x800000,
++	},
++	// Tascam, FE-8 (.version = 0x800001)
++	// This kernel module doesn't support FE-8 because the most of features
++	// can be implemented in userspace without any specific support of this
++	// module.
++	//
++	// .version = 0x800002 is unknown.
++	//
++	// Tascam, FW-1082.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800003,
++	},
++	// Tascam, FW-1804.
++	{
++		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_SPECIFIER_ID |
++			       IEEE1394_MATCH_VERSION,
++		.vendor_id = 0x00022e,
++		.specifier_id = 0x00022e,
++		.version = 0x800004,
+ 	},
+ 	/* FE-08 requires reverse-engineering because it just has faders. */
+ 	{}
+-- 
+2.25.1
+
 
 
