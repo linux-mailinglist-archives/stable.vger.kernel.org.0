@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAD526641B
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F5E2266430
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726318AbgIKQbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53396 "EHLO mail.kernel.org"
+        id S1726401AbgIKQcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726420AbgIKPTW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:19:22 -0400
+        id S1726437AbgIKPTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE3B72076C;
-        Fri, 11 Sep 2020 13:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3214022454;
+        Fri, 11 Sep 2020 12:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829207;
-        bh=H9KAolUqWQVgCsYPLTdOsrxGNRQBT4lkkfDwBjylwu8=;
+        s=default; t=1599829175;
+        bh=W1ZGXPCPWg4GDwJhPkYdlGLPtpBi+3EawQT0rGrBiAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cl0JW8XQArezzj6Q3oTZoYXxTQenJI2FiX5sf51GIbO67NNBjZOYPUc31D4A93ae
-         7JFUhtObHw8aAFBvcFTwQXJ2DIL86konTk8cbha74PQGxENB3PXBfWeV8SoTfbaZYH
-         flOTeunkO+00hr0KsAW6RJPzC3bw+NSxbuKeRzZM=
+        b=Wn1T2ezpZ/I7K4BdGERS1TsY1h4gwXq1MnuHejCF5y8yWQgoDzpiUx0oO1KKhovKu
+         brQGrObcBuAxluZ8B+TmGlrlUFB4ygRYDO/EIQWmKC8b5aLTiRuVJ3kuseZRHn8PzR
+         z+/zpV1VxPtFHKpwL9o19X4l0yO2o1rhx9eINMgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 09/16] netlabel: fix problems with mapping removal
-Date:   Fri, 11 Sep 2020 14:47:26 +0200
-Message-Id: <20200911122500.036474277@linuxfoundation.org>
+Subject: [PATCH 5.8 12/16] taprio: Fix using wrong queues in gate mask
+Date:   Fri, 11 Sep 2020 14:47:29 +0200
+Message-Id: <20200911122500.188587305@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
 References: <20200911122459.585735377@linuxfoundation.org>
@@ -45,140 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit d3b990b7f327e2afa98006e7666fb8ada8ed8683 ]
+[ Upstream commit 09e31cf0c528dac3358a081dc4e773d1b3de1bc9 ]
 
-This patch fixes two main problems seen when removing NetLabel
-mappings: memory leaks and potentially extra audit noise.
+Since commit 9c66d1564676 ("taprio: Add support for hardware
+offloading") there's a bit of inconsistency when offloading schedules
+to the hardware:
 
-The memory leaks are caused by not properly free'ing the mapping's
-address selector struct when free'ing the entire entry as well as
-not properly cleaning up a temporary mapping entry when adding new
-address selectors to an existing entry.  This patch fixes both these
-problems such that kmemleak reports no NetLabel associated leaks
-after running the SELinux test suite.
+In software mode, the gate masks are specified in terms of traffic
+classes, so if say "sched-entry S 03 20000", it means that the traffic
+classes 0 and 1 are open for 20us; when taprio is offloaded to
+hardware, the gate masks are specified in terms of hardware queues.
 
-The potentially extra audit noise was caused by the auditing code in
-netlbl_domhsh_remove_entry() being called regardless of the entry's
-validity.  If another thread had already marked the entry as invalid,
-but not removed/free'd it from the list of mappings, then it was
-possible that an additional mapping removal audit record would be
-generated.  This patch fixes this by returning early from the removal
-function when the entry was previously marked invalid.  This change
-also had the side benefit of improving the code by decreasing the
-indentation level of large chunk of code by one (accounting for most
-of the diffstat).
+The idea here is to fix hardware offloading, so schedules in hardware
+and software mode have the same behavior. What's needed to do is to
+map traffic classes to queues when applying the offload to the driver.
 
-Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
-Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_domainhash.c |   59 ++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 29 deletions(-)
+ net/sched/sch_taprio.c |   30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
---- a/net/netlabel/netlabel_domainhash.c
-+++ b/net/netlabel/netlabel_domainhash.c
-@@ -85,6 +85,7 @@ static void netlbl_domhsh_free_entry(str
- 			kfree(netlbl_domhsh_addr6_entry(iter6));
- 		}
- #endif /* IPv6 */
-+		kfree(ptr->def.addrsel);
- 	}
- 	kfree(ptr->domain);
- 	kfree(ptr);
-@@ -537,6 +538,8 @@ int netlbl_domhsh_add(struct netlbl_dom_
- 				goto add_return;
- 		}
- #endif /* IPv6 */
-+		/* cleanup the new entry since we've moved everything over */
-+		netlbl_domhsh_free_entry(&entry->rcu);
- 	} else
- 		ret_val = -EINVAL;
- 
-@@ -580,6 +583,12 @@ int netlbl_domhsh_remove_entry(struct ne
- {
- 	int ret_val = 0;
- 	struct audit_buffer *audit_buf;
-+	struct netlbl_af4list *iter4;
-+	struct netlbl_domaddr4_map *map4;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	struct netlbl_af6list *iter6;
-+	struct netlbl_domaddr6_map *map6;
-+#endif /* IPv6 */
- 
- 	if (entry == NULL)
- 		return -ENOENT;
-@@ -597,6 +606,9 @@ int netlbl_domhsh_remove_entry(struct ne
- 		ret_val = -ENOENT;
- 	spin_unlock(&netlbl_domhsh_lock);
- 
-+	if (ret_val)
-+		return ret_val;
-+
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
- 	if (audit_buf != NULL) {
- 		audit_log_format(audit_buf,
-@@ -606,40 +618,29 @@ int netlbl_domhsh_remove_entry(struct ne
- 		audit_log_end(audit_buf);
- 	}
- 
--	if (ret_val == 0) {
--		struct netlbl_af4list *iter4;
--		struct netlbl_domaddr4_map *map4;
--#if IS_ENABLED(CONFIG_IPV6)
--		struct netlbl_af6list *iter6;
--		struct netlbl_domaddr6_map *map6;
--#endif /* IPv6 */
--
--		switch (entry->def.type) {
--		case NETLBL_NLTYPE_ADDRSELECT:
--			netlbl_af4list_foreach_rcu(iter4,
--					     &entry->def.addrsel->list4) {
--				map4 = netlbl_domhsh_addr4_entry(iter4);
--				cipso_v4_doi_putdef(map4->def.cipso);
--			}
-+	switch (entry->def.type) {
-+	case NETLBL_NLTYPE_ADDRSELECT:
-+		netlbl_af4list_foreach_rcu(iter4, &entry->def.addrsel->list4) {
-+			map4 = netlbl_domhsh_addr4_entry(iter4);
-+			cipso_v4_doi_putdef(map4->def.cipso);
-+		}
- #if IS_ENABLED(CONFIG_IPV6)
--			netlbl_af6list_foreach_rcu(iter6,
--					     &entry->def.addrsel->list6) {
--				map6 = netlbl_domhsh_addr6_entry(iter6);
--				calipso_doi_putdef(map6->def.calipso);
--			}
-+		netlbl_af6list_foreach_rcu(iter6, &entry->def.addrsel->list6) {
-+			map6 = netlbl_domhsh_addr6_entry(iter6);
-+			calipso_doi_putdef(map6->def.calipso);
-+		}
- #endif /* IPv6 */
--			break;
--		case NETLBL_NLTYPE_CIPSOV4:
--			cipso_v4_doi_putdef(entry->def.cipso);
--			break;
-+		break;
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		cipso_v4_doi_putdef(entry->def.cipso);
-+		break;
- #if IS_ENABLED(CONFIG_IPV6)
--		case NETLBL_NLTYPE_CALIPSO:
--			calipso_doi_putdef(entry->def.calipso);
--			break;
-+	case NETLBL_NLTYPE_CALIPSO:
-+		calipso_doi_putdef(entry->def.calipso);
-+		break;
- #endif /* IPv6 */
--		}
--		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
- 	}
-+	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
- 
- 	return ret_val;
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1177,9 +1177,27 @@ static void taprio_offload_config_change
+ 	spin_unlock(&q->current_entry_lock);
  }
+ 
+-static void taprio_sched_to_offload(struct taprio_sched *q,
++static u32 tc_map_to_queue_mask(struct net_device *dev, u32 tc_mask)
++{
++	u32 i, queue_mask = 0;
++
++	for (i = 0; i < dev->num_tc; i++) {
++		u32 offset, count;
++
++		if (!(tc_mask & BIT(i)))
++			continue;
++
++		offset = dev->tc_to_txq[i].offset;
++		count = dev->tc_to_txq[i].count;
++
++		queue_mask |= GENMASK(offset + count - 1, offset);
++	}
++
++	return queue_mask;
++}
++
++static void taprio_sched_to_offload(struct net_device *dev,
+ 				    struct sched_gate_list *sched,
+-				    const struct tc_mqprio_qopt *mqprio,
+ 				    struct tc_taprio_qopt_offload *offload)
+ {
+ 	struct sched_entry *entry;
+@@ -1194,7 +1212,8 @@ static void taprio_sched_to_offload(stru
+ 
+ 		e->command = entry->command;
+ 		e->interval = entry->interval;
+-		e->gate_mask = entry->gate_mask;
++		e->gate_mask = tc_map_to_queue_mask(dev, entry->gate_mask);
++
+ 		i++;
+ 	}
+ 
+@@ -1202,7 +1221,6 @@ static void taprio_sched_to_offload(stru
+ }
+ 
+ static int taprio_enable_offload(struct net_device *dev,
+-				 struct tc_mqprio_qopt *mqprio,
+ 				 struct taprio_sched *q,
+ 				 struct sched_gate_list *sched,
+ 				 struct netlink_ext_ack *extack)
+@@ -1224,7 +1242,7 @@ static int taprio_enable_offload(struct
+ 		return -ENOMEM;
+ 	}
+ 	offload->enable = 1;
+-	taprio_sched_to_offload(q, sched, mqprio, offload);
++	taprio_sched_to_offload(dev, sched, offload);
+ 
+ 	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_TAPRIO, offload);
+ 	if (err < 0) {
+@@ -1486,7 +1504,7 @@ static int taprio_change(struct Qdisc *s
+ 	}
+ 
+ 	if (FULL_OFFLOAD_IS_ENABLED(q->flags))
+-		err = taprio_enable_offload(dev, mqprio, q, new_admin, extack);
++		err = taprio_enable_offload(dev, q, new_admin, extack);
+ 	else
+ 		err = taprio_disable_offload(dev, q, extack);
+ 	if (err)
 
 
