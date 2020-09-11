@@ -2,118 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF9B265F6E
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 14:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 913B4265FDF
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 14:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725885AbgIKMWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 08:22:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33506 "EHLO mail.kernel.org"
+        id S1726071AbgIKMzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 08:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725876AbgIKMUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:20:55 -0400
+        id S1726047AbgIKMye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:54:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC44821D40;
-        Fri, 11 Sep 2020 12:20:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1141E2075E;
+        Fri, 11 Sep 2020 12:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599826818;
-        bh=p0dMZYlvMuBFRvmCSlPIVCxaoQeDTgEw+OKygz501WY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j6OvDJk9lxBEbRg4B+J1hnhaSFZ0S/2rb1x8+sJ/FOilMRPj58ezUJmV6D19UauvF
-         nkSocYDX6gFzgo3xcje+GaziUM4uhAsw9W56BGftYo/mz0h4wN8n0x9oZUTZ/60Pbx
-         USU/zyrOBaXf379zyB0fBe/zkmRgv1cLGH3MfeeI=
-Date:   Fri, 11 Sep 2020 14:20:24 +0200
+        s=default; t=1599828831;
+        bh=oGr46qlLv8X6ikVTrbl44cD9Uet5OSlJxQACmUVeejw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=F9i4AChHmpor9FFYhbdtZsrYXOTIRQM7rKzrdZbohrEN/NRdO+uXHXff0FPRMvHb0
+         YZo033JTkMj7jZ6IyCCSqGUeDL0xBzEdkPOVq8MRYz4wy6r3C3pvsIvWw6JonWcpnr
+         FBENyfqAdg8fcKGtGIASBvmur4Y9y3Sc5cvQwEzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Bob Peterson <rpeterso@redhat.com>
-Cc:     Salvatore Bonaccorso <carnil@debian.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Daniel Craig <Daniel.Craig@csiro.au>,
-        Nicolas Courtel <courtel@cena.fr>
-Subject: Re: [PATCH 4.19 142/206] gfs2: fix use-after-free on transaction ail
- lists
-Message-ID: <20200911122024.GA3758477@kroah.com>
-References: <20200623195316.864547658@linuxfoundation.org>
- <20200623195323.968867013@linuxfoundation.org>
- <20200910194319.GA131386@eldamar.local>
- <20200911115816.GB3717176@kroah.com>
- <942693093.16771250.1599826115915.JavaMail.zimbra@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Wagner <dwagner@suse.de>
+Subject: [PATCH 4.4 04/62] mm, page_alloc: remove unnecessary variable from free_pcppages_bulk
+Date:   Fri, 11 Sep 2020 14:45:47 +0200
+Message-Id: <20200911122502.615839890@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
+References: <20200911122502.395450276@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <942693093.16771250.1599826115915.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 11, 2020 at 08:08:35AM -0400, Bob Peterson wrote:
-> ----- Original Message -----
-> > On Thu, Sep 10, 2020 at 09:43:19PM +0200, Salvatore Bonaccorso wrote:
-> > > Hi,
-> > > 
-> > > On Tue, Jun 23, 2020 at 09:57:50PM +0200, Greg Kroah-Hartman wrote:
-> > > > From: Bob Peterson <rpeterso@redhat.com>
-> > > > 
-> > > > [ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
-> > > > 
-> > > > Before this patch, transactions could be merged into the system
-> > > > transaction by function gfs2_merge_trans(), but the transaction ail
-> > > > lists were never merged. Because the ail flushing mechanism can run
-> > > > separately, bd elements can be attached to the transaction's buffer
-> > > > list during the transaction (trans_add_meta, etc) but quickly moved
-> > > > to its ail lists. Later, in function gfs2_trans_end, the transaction
-> > > > can be freed (by gfs2_trans_end) while it still has bd elements
-> > > > queued to its ail lists, which can cause it to either lose track of
-> > > > the bd elements altogether (memory leak) or worse, reference the bd
-> > > > elements after the parent transaction has been freed.
-> > > > 
-> > > > Although I've not seen any serious consequences, the problem becomes
-> > > > apparent with the previous patch's addition of:
-> > > > 
-> > > > 	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
-> > > > 
-> > > > to function gfs2_trans_free().
-> > > > 
-> > > > This patch adds logic into gfs2_merge_trans() to move the merged
-> > > > transaction's ail lists to the sdp transaction. This prevents the
-> > > > use-after-free. To do this properly, we need to hold the ail lock,
-> > > > so we pass sdp into the function instead of the transaction itself.
-> > > > 
-> > > > Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-> > > > Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> (snip)
-> > > 
-> > > In Debian two user confirmed issues on writing on a GFS2 partition
-> > > with this commit applied. The initial Debian report is at
-> > > https://bugs.debian.org/968567 and Daniel Craig reported it into
-> > > Bugzilla at https://bugzilla.kernel.org/show_bug.cgi?id=209217 .
-> > > 
-> > > Writing to a gfs2 filesystem fails and results in a soft lookup of the
-> > > machine for kernels with that commit applied. I cannot reporduce the
-> > > issue myself due not having a respective setup available, but Daniel
-> > > described a minimal serieos of steps to reproduce the issue.
-> > > 
-> > > This might affect as well other stable series where this commit was
-> > > applied, as there was a similar report for someone running 5.4.58 in
-> > > https://www.redhat.com/archives/linux-cluster/2020-August/msg00000.html
-> > 
-> > Can you report this to the gfs2 developers?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> Hi Greg,
-> 
-> No need. The patch came from the gfs2 developers. I think he just wants
-> it added to a stable release.
+From: Mel Gorman <mgorman@techsingularity.net>
 
-What commit needs to be added to a stable release?
+commit e5b31ac2ca2cd0cf6bf2fcbb708ed01466c89aaa upstream.
 
-confused,
+The original count is never reused so it can be removed.
 
-greg k-h
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[dwagner: update context]
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ mm/page_alloc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -835,7 +835,6 @@ static void free_pcppages_bulk(struct zo
+ {
+ 	int migratetype = 0;
+ 	int batch_free = 0;
+-	int to_free = count;
+ 	unsigned long nr_scanned;
+ 
+ 	spin_lock(&zone->lock);
+@@ -848,7 +847,7 @@ static void free_pcppages_bulk(struct zo
+ 	 * below while (list_empty(list)) loop.
+ 	 */
+ 	count = min(pcp->count, count);
+-	while (to_free) {
++	while (count) {
+ 		struct page *page;
+ 		struct list_head *list;
+ 
+@@ -868,7 +867,7 @@ static void free_pcppages_bulk(struct zo
+ 
+ 		/* This is the only non-empty list. Free them all. */
+ 		if (batch_free == MIGRATE_PCPTYPES)
+-			batch_free = to_free;
++			batch_free = count;
+ 
+ 		do {
+ 			int mt;	/* migratetype of the to-be-freed page */
+@@ -886,7 +885,7 @@ static void free_pcppages_bulk(struct zo
+ 
+ 			__free_one_page(page, page_to_pfn(page), zone, 0, mt);
+ 			trace_mm_page_pcpu_drain(page, 0, mt);
+-		} while (--to_free && --batch_free && !list_empty(list));
++		} while (--count && --batch_free && !list_empty(list));
+ 	}
+ 	spin_unlock(&zone->lock);
+ }
+
+
