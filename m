@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756B9266645
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FEE266658
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgIKRYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:24:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
+        id S1726286AbgIKRYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:24:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726136AbgIKNAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726135AbgIKNAK (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 09:00:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E39B22269;
-        Fri, 11 Sep 2020 12:56:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D31C92222A;
+        Fri, 11 Sep 2020 12:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828991;
-        bh=kvBJA/qiJc1WD7f0wIbCDjAatVUk58TR8txL9sS+k6I=;
+        s=default; t=1599828994;
+        bh=TulE0s7oJnC/mvY51SC75yJFbCvnqjfF2xT7HJhRDWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P11PmSdtcUwTU/Y13Jhyw+kQWiqlgseHw9FHU1idcv8gffXQVgvkSXgZ0i7kb3sTg
-         LLFiwNWHD/6FoleiMsGzYWY/LeT7QBRURLBEEsIZ9UQAZuzAKUlroJKKosIEl/OH8E
-         Crp4w4I9PRU2HJvI/OH1ybQpc8tlG5hjNLjoBba8=
+        b=ZAascEWhZHYwSL/+oC3CiEJv79kONiOcD2KlgKg9ndLYdJuoXOqLAMmTLwxuJVQCk
+         okbUl87+d3uj02rcf8b4cOWAK6fLclw1FfYWFo1A4z3yrjH2tFf9paPNCtDU210W8P
+         kwhVpC7QR3Q3REkQO/IpH3ro3/RExysmmw7SQupQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/71] bnxt_en: Fix PCI AER error recovery flow
-Date:   Fri, 11 Sep 2020 14:46:07 +0200
-Message-Id: <20200911122506.095483887@linuxfoundation.org>
+Subject: [PATCH 4.9 24/71] fix regression in "epoll: Keep a reference on files added to the check list"
+Date:   Fri, 11 Sep 2020 14:46:08 +0200
+Message-Id: <20200911122506.144629368@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -46,44 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit df3875ec550396974b1d8a518bd120d034738236 ]
+[ Upstream commit 77f4689de17c0887775bb77896f4cc11a39bf848 ]
 
-When a PCI error is detected the PCI state could be corrupt, save
-the PCI state after initialization and restore it after the slot
-reset.
+epoll_loop_check_proc() can run into a file already committed to destruction;
+we can't grab a reference on those and don't need to add them to the set for
+reverse path check anyway.
 
-Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Fixes: a9ed4a6560b8 ("epoll: Keep a reference on files added to the check list")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/eventpoll.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 421cbba9a3bc8..f451be63ab7e6 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -7085,6 +7085,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	bnxt_parse_log_pcie_link(bp);
- 
-+	pci_save_state(pdev);
- 	return 0;
- 
- init_err:
-@@ -7158,6 +7159,8 @@ static pci_ers_result_t bnxt_io_slot_reset(struct pci_dev *pdev)
- 			"Cannot re-enable PCI device after reset.\n");
- 	} else {
- 		pci_set_master(pdev);
-+		pci_restore_state(pdev);
-+		pci_save_state(pdev);
- 
- 		if (netif_running(netdev))
- 			err = bnxt_open(netdev);
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index aad52e1858363..8c40d6652a9a9 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1748,9 +1748,9 @@ static int ep_loop_check_proc(void *priv, void *cookie, int call_nests)
+ 			 * during ep_insert().
+ 			 */
+ 			if (list_empty(&epi->ffd.file->f_tfile_llink)) {
+-				get_file(epi->ffd.file);
+-				list_add(&epi->ffd.file->f_tfile_llink,
+-					 &tfile_check_list);
++				if (get_file_rcu(epi->ffd.file))
++					list_add(&epi->ffd.file->f_tfile_llink,
++						 &tfile_check_list);
+ 			}
+ 		}
+ 	}
 -- 
 2.25.1
 
