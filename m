@@ -2,100 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C816265DFA
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 12:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E41265F17
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 13:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725809AbgIKKec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 06:34:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725836AbgIKKe0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 06:34:26 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8BCC061756
-        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 03:34:23 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id z13so10464584iom.8
-        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 03:34:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=+z524mDmvYq+baR0BWogYM0GjW8snYS+Z6ogchoEokY=;
-        b=U+n9suKgHn5P4rOWtcLGBQNpFFA9wbEzWX4NZIkjlHPuA/ugaIFVl2FkMB622us5cD
-         15vSSipnejQOem5Myy7vGHfyB+PeX3OX/96+8/tEgwMGZudeZ0zKX/Y9V5wM5tmHuFxS
-         DeSDdtuuDPXe1kHSjYUvMNLwNWqWtSdpvvRPPpEzcATRHnMS+II1sAwIowUMfM3RuaD0
-         gFA55gcypM6nJj8McgkXB/znaneoMVQHSqRUpEo4l4HrLu79phghjooQijzMnX8w6v3F
-         pw5HfenWhH4fNG8feAPUpvsGQ2cDH1TJgegTbxFW5MVkeLiv6K+vRAlOojD5rs6sgHLl
-         u3Xg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=+z524mDmvYq+baR0BWogYM0GjW8snYS+Z6ogchoEokY=;
-        b=bla7POkw1kfmbETIqvmGhujwmTZOKwoL0kr7mZcgNkdveHrJHJj0JfnK+hrP1vukcH
-         Xri1W3GjEvpa8hqSqcT5fqhiTPeRIUjFJqQqFbLrkU/AhcXtqYLsT2zXTFckBerTqa6D
-         CX1CHEJ3aMmIr6Xs7nxuaJZzOE/qvni7mhPoy6GmKPY5nAILLuvmpt7t25qZjqbkQH6u
-         5GiHf/egQXGu5/UO+Uyqs3xIbEQmEU76z0+Mu6+X4jqG3w4UL7K0F8ahU5ZOepxb2ESt
-         PSGOuItWCt/w+kfYsEUBzt+gpy2W1k8vsg+J2RtbyQkB/NhPNwD/M3c+kkmUc4BmOcOa
-         FFcQ==
-X-Gm-Message-State: AOAM531F39hB8C2C2lfo9Q9a6LOZac8i3wsgg539om5XTD038aSdtXHH
-        t9ryC3x/YiCzI5OgcTjr3CHehgXD4QdXVp6HEvY=
-X-Google-Smtp-Source: ABdhPJxxT1mW4hhlkRAC+cE3wLb65DWVRjbHs4jtnu+f9EL8hJ9ZugQhTYkAZdmyA/fPU4QVEvJCOHqpxhm9qy7Da/o=
-X-Received: by 2002:a02:9086:: with SMTP id x6mr1298114jaf.126.1599820462464;
- Fri, 11 Sep 2020 03:34:22 -0700 (PDT)
+        id S1725788AbgIKL5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 07:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725730AbgIKL5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 07:57:48 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0EE6221E7;
+        Fri, 11 Sep 2020 11:57:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599825466;
+        bh=OGz8xp4DfNbeDLLobWhgOPaKtHeGjBzxJ1PU9o8tCI8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HmkktZevp+Gs6mdLYJRyYRMZq9zekb9HXwVQ+kbJ2ZqfxN5gL02wCFOKbZHCVLuf1
+         TdoaPTQtk4bYdFitgdzZTfz6RVOiJRoJtqokUWCNOTwRLGP69kDsyemX+KBPLX89wc
+         Cl41jfFTQSeI0hKl/37dzwzPHmzDoKhW4F6Efe9I=
+Date:   Fri, 11 Sep 2020 13:57:52 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Saeed Mahameed <saeed@kernel.org>
+Cc:     Saeed Mahameed <saeedm@mellanox.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        Roi Dayan <roid@mellanox.com>
+Subject: Re: [PATCH 4.19] net/mlx5e: Don't support phys switch id if not in
+ switchdev mode
+Message-ID: <20200911115752.GA3717176@kroah.com>
+References: <20200807020542.636290-1-saeedm@mellanox.com>
+ <20200807131323.GA664450@kroah.com>
+ <fc4effe1bbe6e9c68f4bdd863e3d38cbab52a285.camel@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a05:6602:2d45:0:0:0:0 with HTTP; Fri, 11 Sep 2020 03:34:22
- -0700 (PDT)
-Reply-To: mrs.sophia202@list.ru
-From:   "Mrs. Sophia Robin" <agencydirectorw@gmail.com>
-Date:   Fri, 11 Sep 2020 03:34:22 -0700
-Message-ID: <CAHEkVHsRy8arJT6X-Rpsd_F5api_T7VTutt5fp-HSjHqSTx-Mg@mail.gmail.com>
-Subject: Hello My Dearest
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fc4effe1bbe6e9c68f4bdd863e3d38cbab52a285.camel@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Dearest
+On Thu, Sep 10, 2020 at 11:46:36AM -0700, Saeed Mahameed wrote:
+> On Fri, 2020-08-07 at 15:13 +0200, Greg Kroah-Hartman wrote:
+> > On Thu, Aug 06, 2020 at 07:05:42PM -0700, Saeed Mahameed wrote:
+> > > From: Roi Dayan <roid@mellanox.com>
+> > > 
+> > > Support for phys switch id ndo added for representors and if
+> > > we do not have representors there is no need to support it.
+> > > Since each port return different switch id supporting this
+> > > block support for creating bond over PFs and attaching to bridge
+> > > in legacy mode.
+> > > 
+> > > This bug doesn't exist upstream as the code got refactored and the
+> > > netdev api is totally different.
+> > > 
+> > > Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+> > > Signed-off-by: Roi Dayan <roid@mellanox.com>
+> > > Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+> > > ---
+> > > Hi Greg,
+> > > 
+> > > Sorry for submitting a non upstream patch, but this bug is
+> > > bothering some users on 4.19-stable kernels and it doesn't exist
+> > > upstream, so i hope you are ok with backporting this one liner
+> > > patch.
+> > 
+> > Also queued up to 4.9.y and 4.14.y.
+> > 
+> 
+> Hi Greg, the request was originally made for 4.19.y kernel,
+> I see the patch in 4.9 and 4.14 but not in 4.19 can we push it to 4.19
+> as well ? 
 
-Please I appeal to you to exercise a little patience and read through
-my mail carefully, I am contacting you personally for investment
-assistance and a long term business relationship in your Country.
+Very odd, don't know what happened.
 
-I am Mrs. Sophia Robin a citizen of the united state of America; I
-work in HSBC Bank in Milan Italy as a Telex Manager charge of wire
-transfer and online banking department.
+Now fixed up, thanks.
 
-I am contacting you for an important and  urgent business transaction,
-I  want the bank to transfer the money left by Dr. Cheng Chao,  A
-Chinese  Politicians who  died, March 17th 2020 without any trace of
-his family member,  he used our bank to launder money overseas through
-the help of their Political advisers. And most of the funds which they
-transferred out of the shores of China were gold and oil money that
-was supposed to have been used to develop the continent.
-
-Can you invest this money and also help the poor? The amount value at
-($15.5million Dollars), left in his account still unclaimed, if you
-know that you are capable to invest this fund into any  profitable
-business in your country kindly send me your details information as
-listed below to enable me draft you an application form of claim which
-you are going to fill with your bank account detail necessary and
-contact the HSBC Bank in Italy  for immediate transfer of the Amounted
-sum into your bank account direct  Or open an online banking for you.
-
-Percentage share will be 60, for me/ 40, for you.
-
-(1) Your full name..................................................
-(2) Your address....................................................
-(3) Your Nationality.................................................
-(4) Your Age / Sex.....................................................
-(5) Your Occupation............................................
-(6) Your marital status......................................
-(7) Your direct telephone number..................
-(8) your ID Card.......................................
-
-Thanks with my best regards.
-Mrs. Sophia Robin
-Telex / Online Banking Manager
-Milan Italy  (H.S.B.C)
+greg k-h
