@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B10266041
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD003266010
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726250AbgIKN0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 09:26:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34926 "EHLO mail.kernel.org"
+        id S1726220AbgIKNNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 09:13:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726208AbgIKNXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:23:48 -0400
+        id S1726126AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:12:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ECE1223B0;
-        Fri, 11 Sep 2020 12:57:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2549522464;
+        Fri, 11 Sep 2020 13:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829070;
-        bh=GZalELLdj00pJWebLs/+xLJXt9Zukgi9cgkU6nGhhT8=;
+        s=default; t=1599829243;
+        bh=EHkMk8FZTwQ6Tit8Vxcyh+qja6txSu8AoOFPongUJ5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z//DYQdNDuurHdgfxTuud3UryOyz6/8ovJ69dPzeJsc1ufI6igwWXTVFctP+/Tiri
-         QxOv2HUkKVZggYXRK3QksLgVWRGwV0Wxy+ICuFXizpMtRivHhLO0IrK/ROhbHHT7kF
-         fokdlEsZ9RMbN1SVMiwyM2my7lJz8jNN3lzeWJjU=
+        b=XQ0qEljWv281rC3SnjeFbFnQZWC5pKxjQlBfjfXxP88dJrUxMog/vVdADrEqu9CRM
+         Fe6v81F7VNBEh6v89msSdZGoEXR+oESnl4AMFzHmmAC9r8EZIpRLN6t8+AYV5e1MRz
+         XtlimNAX3O8wuLIck3AGYlerAI052xhYRCBEglu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>
-Subject: [PATCH 4.9 54/71] KVM: arm64: Survive synchronous exceptions caused by AT instructions
-Date:   Fri, 11 Sep 2020 14:46:38 +0200
-Message-Id: <20200911122507.607246851@linuxfoundation.org>
+        stable@vger.kernel.org, Kamil Lorenc <kamil@re-ws.pl>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 4/8] net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+Date:   Fri, 11 Sep 2020 14:54:51 +0200
+Message-Id: <20200911125421.912696140@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
-References: <20200911122504.928931589@linuxfoundation.org>
+In-Reply-To: <20200911125421.695645838@linuxfoundation.org>
+References: <20200911125421.695645838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,138 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Kamil Lorenc <kamil@re-ws.pl>
 
-commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
+[ Upstream commit a609d0259183a841621f252e067f40f8cc25d6f6 ]
 
-KVM doesn't expect any synchronous exceptions when executing, any such
-exception leads to a panic(). AT instructions access the guest page
-tables, and can cause a synchronous external abort to be taken.
+Keenetic Plus DSL is a xDSL modem that uses dm9620 as its USB interface.
 
-The arm-arm is unclear on what should happen if the guest has configured
-the hardware update of the access-flag, and a memory type in TCR_EL1 that
-does not support atomic operations. B2.2.6 "Possible implementation
-restrictions on using atomic instructions" from DDI0487F.a lists
-synchronous external abort as a possible behaviour of atomic instructions
-that target memory that isn't writeback cacheable, but the page table
-walker may behave differently.
-
-Make KVM robust to synchronous exceptions caused by AT instructions.
-Add a get_user() style helper for AT instructions that returns -EFAULT
-if an exception was generated.
-
-While KVM's version of the exception table mixes synchronous and
-asynchronous exceptions, only one of these can occur at each location.
-
-Re-enter the guest when the AT instructions take an exception on the
-assumption the guest will take the same exception. This isn't guaranteed
-to make forward progress, as the AT instructions may always walk the page
-tables, but guest execution may use the translation cached in the TLB.
-
-This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
-entry when an asynchronous exception is pending"), KVM will return to the
-host to process IRQs allowing the rest of the system to keep running.
-
-Cc: stable@vger.kernel.org # v4.9
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Kamil Lorenc <kamil@re-ws.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kvm_asm.h |   28 ++++++++++++++++++++++++++++
- arch/arm64/kvm/hyp/hyp-entry.S   |   12 ++++++++++--
- arch/arm64/kvm/hyp/switch.c      |    8 ++++----
- 3 files changed, 42 insertions(+), 6 deletions(-)
+ drivers/net/usb/dm9601.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/include/asm/kvm_asm.h
-+++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -82,6 +82,34 @@ extern u32 __init_stage2_translation(voi
- 		*__hyp_this_cpu_ptr(sym);				\
- 	 })
+--- a/drivers/net/usb/dm9601.c
++++ b/drivers/net/usb/dm9601.c
+@@ -625,6 +625,10 @@ static const struct usb_device_id produc
+ 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
+ 	 .driver_info = (unsigned long)&dm9601_info,
+ 	},
++	{
++	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
++	 .driver_info = (unsigned long)&dm9601_info,
++	},
+ 	{},			// END
+ };
  
-+#define __KVM_EXTABLE(from, to)						\
-+	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
-+	"	.align		3\n"					\
-+	"	.long		(" #from " - .), (" #to " - .)\n"	\
-+	"	.popsection\n"
-+
-+
-+#define __kvm_at(at_op, addr)						\
-+( { 									\
-+	int __kvm_at_err = 0;						\
-+	u64 spsr, elr;							\
-+	asm volatile(							\
-+	"	mrs	%1, spsr_el2\n"					\
-+	"	mrs	%2, elr_el2\n"					\
-+	"1:	at	"at_op", %3\n"					\
-+	"	isb\n"							\
-+	"	b	9f\n"						\
-+	"2:	msr	spsr_el2, %1\n"					\
-+	"	msr	elr_el2, %2\n"					\
-+	"	mov	%w0, %4\n"					\
-+	"9:\n"								\
-+	__KVM_EXTABLE(1b, 2b)						\
-+	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
-+	: "r" (addr), "i" (-EFAULT));					\
-+	__kvm_at_err;							\
-+} )
-+
-+
- #else /* __ASSEMBLY__ */
- 
- .macro hyp_adr_this_cpu reg, sym, tmp
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -201,6 +201,15 @@ el1_error:
- 	mov	x0, #ARM_EXCEPTION_EL1_SERROR
- 	b	__guest_exit
- 
-+el2_sync:
-+	save_caller_saved_regs_vect
-+	stp     x29, x30, [sp, #-16]!
-+	bl	kvm_unexpected_el2_exception
-+	ldp     x29, x30, [sp], #16
-+	restore_caller_saved_regs_vect
-+
-+	eret
-+
- el2_error:
- 	save_caller_saved_regs_vect
- 	stp     x29, x30, [sp, #-16]!
-@@ -238,7 +247,6 @@ ENDPROC(\label)
- 	invalid_vector	el2t_irq_invalid
- 	invalid_vector	el2t_fiq_invalid
- 	invalid_vector	el2t_error_invalid
--	invalid_vector	el2h_sync_invalid
- 	invalid_vector	el2h_irq_invalid
- 	invalid_vector	el2h_fiq_invalid
- 	invalid_vector	el1_sync_invalid
-@@ -255,7 +263,7 @@ ENTRY(__kvm_hyp_vector)
- 	ventry	el2t_fiq_invalid		// FIQ EL2t
- 	ventry	el2t_error_invalid		// Error EL2t
- 
--	ventry	el2h_sync_invalid		// Synchronous EL2h
-+	ventry	el2_sync			// Synchronous EL2h
- 	ventry	el2h_irq_invalid		// IRQ EL2h
- 	ventry	el2h_fiq_invalid		// FIQ EL2h
- 	ventry	el2_error			// Error EL2h
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -206,10 +206,10 @@ static bool __hyp_text __translate_far_t
- 	 * saved the guest context yet, and we may return early...
- 	 */
- 	par = read_sysreg(par_el1);
--	asm volatile("at s1e1r, %0" : : "r" (far));
--	isb();
--
--	tmp = read_sysreg(par_el1);
-+	if (!__kvm_at("s1e1r", far))
-+		tmp = read_sysreg(par_el1);
-+	else
-+		tmp = 1; /* back to the guest */
- 	write_sysreg(par, par_el1);
- 
- 	if (unlikely(tmp & 1))
 
 
