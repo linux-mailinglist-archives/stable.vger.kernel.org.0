@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0473266128
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971CB266125
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:26:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726213AbgIKO00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S1726293AbgIKOZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725958AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726088AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 09:12:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA52222224;
-        Fri, 11 Sep 2020 13:00:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 325C022225;
+        Fri, 11 Sep 2020 13:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829223;
-        bh=AK6d7eG2Zg7YdbpeAndsqVtnQZdpe2ANMZDR0XaWA4Q=;
+        s=default; t=1599829225;
+        bh=W1ZGXPCPWg4GDwJhPkYdlGLPtpBi+3EawQT0rGrBiAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBwKdltwO5u5nKJLKZc5NlZ9Xck0Zc5s6//stPPVdJ+Mi+6/8rwmld5O8YslTtj5D
-         70biqPmZ/gTzoTCYs4IPM/6UrtgfnIgVgASLEP3fcxpPimGNTs00KgaN5cvxNOv1Bv
-         hLm7xFlyMh/akYRgZxrRjulaaADquyxSd9yFpBIU=
+        b=nftCcjhvIiJ3GXmK4jnsxURVRSFpp9WQm8podGNH1KrQGPc5hSUxoSIi8mYQ0tG8/
+         xNrItN4mNwPVgp0eTq2hNknKq3NhYhdDKbVXdipftnmmK+lgcrj7BMOg1W1GYoRvJr
+         jP5zpBNKCYozUzxuE1XOzDq6Mp2sGVUhSMuhuAF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 5/8] sctp: not disable bh in the whole sctp_get_port_local()
-Date:   Fri, 11 Sep 2020 14:54:43 +0200
-Message-Id: <20200911125420.834670756@linuxfoundation.org>
+Subject: [PATCH 5.4 6/8] taprio: Fix using wrong queues in gate mask
+Date:   Fri, 11 Sep 2020 14:54:44 +0200
+Message-Id: <20200911125420.881569917@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911125420.580564179@linuxfoundation.org>
 References: <20200911125420.580564179@linuxfoundation.org>
@@ -45,105 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit 3106ecb43a05dc3e009779764b9da245a5d082de ]
+[ Upstream commit 09e31cf0c528dac3358a081dc4e773d1b3de1bc9 ]
 
-With disabling bh in the whole sctp_get_port_local(), when
-snum == 0 and too many ports have been used, the do-while
-loop will take the cpu for a long time and cause cpu stuck:
+Since commit 9c66d1564676 ("taprio: Add support for hardware
+offloading") there's a bit of inconsistency when offloading schedules
+to the hardware:
 
-  [ ] watchdog: BUG: soft lockup - CPU#11 stuck for 22s!
-  [ ] RIP: 0010:native_queued_spin_lock_slowpath+0x4de/0x940
-  [ ] Call Trace:
-  [ ]  _raw_spin_lock+0xc1/0xd0
-  [ ]  sctp_get_port_local+0x527/0x650 [sctp]
-  [ ]  sctp_do_bind+0x208/0x5e0 [sctp]
-  [ ]  sctp_autobind+0x165/0x1e0 [sctp]
-  [ ]  sctp_connect_new_asoc+0x355/0x480 [sctp]
-  [ ]  __sctp_connect+0x360/0xb10 [sctp]
+In software mode, the gate masks are specified in terms of traffic
+classes, so if say "sched-entry S 03 20000", it means that the traffic
+classes 0 and 1 are open for 20us; when taprio is offloaded to
+hardware, the gate masks are specified in terms of hardware queues.
 
-There's no need to disable bh in the whole function of
-sctp_get_port_local. So fix this cpu stuck by removing
-local_bh_disable() called at the beginning, and using
-spin_lock_bh() instead.
+The idea here is to fix hardware offloading, so schedules in hardware
+and software mode have the same behavior. What's needed to do is to
+map traffic classes to queues when applying the offload to the driver.
 
-The same thing was actually done for inet_csk_get_port() in
-Commit ea8add2b1903 ("tcp/dccp: better use of ephemeral
-ports in bind()").
-
-Thanks to Marcelo for pointing the buggy code out.
-
-v1->v2:
-  - use cond_resched() to yield cpu to other tasks if needed,
-    as Eric noticed.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ net/sched/sch_taprio.c |   30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -8176,8 +8176,6 @@ static int sctp_get_port_local(struct so
- 
- 	pr_debug("%s: begins, snum:%d\n", __func__, snum);
- 
--	local_bh_disable();
--
- 	if (snum == 0) {
- 		/* Search for an available port. */
- 		int low, high, remaining, index;
-@@ -8196,20 +8194,21 @@ static int sctp_get_port_local(struct so
- 				continue;
- 			index = sctp_phashfn(sock_net(sk), rover);
- 			head = &sctp_port_hashtable[index];
--			spin_lock(&head->lock);
-+			spin_lock_bh(&head->lock);
- 			sctp_for_each_hentry(pp, &head->chain)
- 				if ((pp->port == rover) &&
- 				    net_eq(sock_net(sk), pp->net))
- 					goto next;
- 			break;
- 		next:
--			spin_unlock(&head->lock);
-+			spin_unlock_bh(&head->lock);
-+			cond_resched();
- 		} while (--remaining > 0);
- 
- 		/* Exhausted local port range during search? */
- 		ret = 1;
- 		if (remaining <= 0)
--			goto fail;
-+			return ret;
- 
- 		/* OK, here is the one we will use.  HEAD (the port
- 		 * hash table list entry) is non-NULL and we hold it's
-@@ -8224,7 +8223,7 @@ static int sctp_get_port_local(struct so
- 		 * port iterator, pp being NULL.
- 		 */
- 		head = &sctp_port_hashtable[sctp_phashfn(sock_net(sk), snum)];
--		spin_lock(&head->lock);
-+		spin_lock_bh(&head->lock);
- 		sctp_for_each_hentry(pp, &head->chain) {
- 			if ((pp->port == snum) && net_eq(pp->net, sock_net(sk)))
- 				goto pp_found;
-@@ -8324,10 +8323,7 @@ success:
- 	ret = 0;
- 
- fail_unlock:
--	spin_unlock(&head->lock);
--
--fail:
--	local_bh_enable();
-+	spin_unlock_bh(&head->lock);
- 	return ret;
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1177,9 +1177,27 @@ static void taprio_offload_config_change
+ 	spin_unlock(&q->current_entry_lock);
  }
  
+-static void taprio_sched_to_offload(struct taprio_sched *q,
++static u32 tc_map_to_queue_mask(struct net_device *dev, u32 tc_mask)
++{
++	u32 i, queue_mask = 0;
++
++	for (i = 0; i < dev->num_tc; i++) {
++		u32 offset, count;
++
++		if (!(tc_mask & BIT(i)))
++			continue;
++
++		offset = dev->tc_to_txq[i].offset;
++		count = dev->tc_to_txq[i].count;
++
++		queue_mask |= GENMASK(offset + count - 1, offset);
++	}
++
++	return queue_mask;
++}
++
++static void taprio_sched_to_offload(struct net_device *dev,
+ 				    struct sched_gate_list *sched,
+-				    const struct tc_mqprio_qopt *mqprio,
+ 				    struct tc_taprio_qopt_offload *offload)
+ {
+ 	struct sched_entry *entry;
+@@ -1194,7 +1212,8 @@ static void taprio_sched_to_offload(stru
+ 
+ 		e->command = entry->command;
+ 		e->interval = entry->interval;
+-		e->gate_mask = entry->gate_mask;
++		e->gate_mask = tc_map_to_queue_mask(dev, entry->gate_mask);
++
+ 		i++;
+ 	}
+ 
+@@ -1202,7 +1221,6 @@ static void taprio_sched_to_offload(stru
+ }
+ 
+ static int taprio_enable_offload(struct net_device *dev,
+-				 struct tc_mqprio_qopt *mqprio,
+ 				 struct taprio_sched *q,
+ 				 struct sched_gate_list *sched,
+ 				 struct netlink_ext_ack *extack)
+@@ -1224,7 +1242,7 @@ static int taprio_enable_offload(struct
+ 		return -ENOMEM;
+ 	}
+ 	offload->enable = 1;
+-	taprio_sched_to_offload(q, sched, mqprio, offload);
++	taprio_sched_to_offload(dev, sched, offload);
+ 
+ 	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_TAPRIO, offload);
+ 	if (err < 0) {
+@@ -1486,7 +1504,7 @@ static int taprio_change(struct Qdisc *s
+ 	}
+ 
+ 	if (FULL_OFFLOAD_IS_ENABLED(q->flags))
+-		err = taprio_enable_offload(dev, mqprio, q, new_admin, extack);
++		err = taprio_enable_offload(dev, q, new_admin, extack);
+ 	else
+ 		err = taprio_disable_offload(dev, q, extack);
+ 	if (err)
 
 
