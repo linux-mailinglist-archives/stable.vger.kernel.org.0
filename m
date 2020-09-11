@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DC7266158
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD39326616A
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725854AbgIKOj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:39:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53998 "EHLO mail.kernel.org"
+        id S1726243AbgIKOnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:43:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726076AbgIKNDq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:03:46 -0400
+        id S1726201AbgIKNDp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:03:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C542E222E7;
-        Fri, 11 Sep 2020 12:57:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6757122286;
+        Fri, 11 Sep 2020 12:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829062;
-        bh=Q/EhFX6zxE0gMqEwbl+72lLH6YAeoJMIEHAcTDBU41s=;
+        s=default; t=1599829065;
+        bh=HEx7XSycJRXGxGtCHabvPFr3quqD8R7LQYqFgUzcnSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/AWj+8oPz4Yh0dI+UVIGxwW7yAJnOaHU/nKOjo1pol2CO0kZTZHZtLiYsRb27XUp
-         W3KxNntCSTw+Ydg9VhunmRfHqaVrKJh3hVYboHDpgecckbEMvKKivDlQ97S0WkiDNn
-         XZYhOiZf7MiRCqMusf9RpJjriNDoH3f+jXR5RS1A=
+        b=fhT1vhfqPN4WCgQjVhQjz/KoLqcvQBhGh1z1E4E5roGurUSkvOgU11/08byv4BgQh
+         Kdm4N2JaXrnxJ1j1M0zz+V9wDZGpEs6zEKYT8TS1t98wgniTFpFpiB/GfqxvW9nu7W
+         uhE4D9QhJL+86aHyBByMj4nUpTxegmvnfyrxJ4FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Ajay Kaher <akaher@vmware.com>
-Subject: [PATCH 4.9 51/71] vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
-Date:   Fri, 11 Sep 2020 14:46:35 +0200
-Message-Id: <20200911122507.462861608@linuxfoundation.org>
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>
+Subject: [PATCH 4.9 52/71] KVM: arm64: Add kvm_extable for vaxorcism code
+Date:   Fri, 11 Sep 2020 14:46:36 +0200
+Message-Id: <20200911122507.505484831@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -44,741 +45,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: James Morse <james.morse@arm.com>
 
-commit abafbc551fddede3e0a08dee1dcde08fc0eb8476 upstream.
+commit e9ee186bb735bfc17fa81dbc9aebf268aee5b41e upstream.
 
-Accessing the disabled memory space of a PCI device would typically
-result in a master abort response on conventional PCI, or an
-unsupported request on PCI express.  The user would generally see
-these as a -1 response for the read return data and the write would be
-silently discarded, possibly with an uncorrected, non-fatal AER error
-triggered on the host.  Some systems however take it upon themselves
-to bring down the entire system when they see something that might
-indicate a loss of data, such as this discarded write to a disabled
-memory space.
+KVM has a one instruction window where it will allow an SError exception
+to be consumed by the hypervisor without treating it as a hypervisor bug.
+This is used to consume asynchronous external abort that were caused by
+the guest.
 
-To avoid this, we want to try to block the user from accessing memory
-spaces while they're disabled.  We start with a semaphore around the
-memory enable bit, where writers modify the memory enable state and
-must be serialized, while readers make use of the memory region and
-can access in parallel.  Writers include both direct manipulation via
-the command register, as well as any reset path where the internal
-mechanics of the reset may both explicitly and implicitly disable
-memory access, and manipulation of the MSI-X configuration, where the
-MSI-X vector table resides in MMIO space of the device.  Readers
-include the read and write file ops to access the vfio device fd
-offsets as well as memory mapped access.  In the latter case, we make
-use of our new vma list support to zap, or invalidate, those memory
-mappings in order to force them to be faulted back in on access.
+As we are about to add another location that survives unexpected exceptions,
+generalise this code to make it behave like the host's extable.
 
-Our semaphore usage will stall user access to MMIO spaces across
-internal operations like reset, but the user might experience new
-behavior when trying to access the MMIO space while disabled via the
-PCI command register.  Access via read or write while disabled will
-return -EIO and access via memory maps will result in a SIGBUS.  This
-is expected to be compatible with known use cases and potentially
-provides better error handling capabilities than present in the
-hardware, while avoiding the more readily accessible and severe
-platform error responses that might otherwise occur.
+KVM's version has to be mapped to EL2 to be accessible on nVHE systems.
 
-Fixes: CVE-2020-12888
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-[Ajay: Regenerated the patch for v4.9]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
+The SError vaxorcism code is a one instruction window, so has two entries
+in the extable. Because the KVM code is copied for VHE and nVHE, we end up
+with four entries, half of which correspond with code that isn't mapped.
+
+Cc: stable@vger.kernel.org # v4.9
+Signed-off-by: James Morse <james.morse@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/pci/vfio_pci.c         |  294 +++++++++++++++++++++++++++++++-----
- drivers/vfio/pci/vfio_pci_config.c  |   36 +++-
- drivers/vfio/pci/vfio_pci_intrs.c   |   14 +
- drivers/vfio/pci/vfio_pci_private.h |    9 +
- drivers/vfio/pci/vfio_pci_rdwr.c    |   29 ++-
- 5 files changed, 334 insertions(+), 48 deletions(-)
+ arch/arm64/include/asm/kvm_asm.h |   15 +++++++++++
+ arch/arm64/kernel/vmlinux.lds.S  |    8 ++++++
+ arch/arm64/kvm/hyp/entry.S       |   16 +++++++-----
+ arch/arm64/kvm/hyp/hyp-entry.S   |   51 ++++++++++++++++++++++++---------------
+ arch/arm64/kvm/hyp/switch.c      |   31 +++++++++++++++++++++++
+ 5 files changed, 96 insertions(+), 25 deletions(-)
 
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -29,6 +29,7 @@
- #include <linux/vfio.h>
- #include <linux/vgaarb.h>
- #include <linux/nospec.h>
-+#include <linux/mm.h>
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -106,6 +106,21 @@ extern u32 __init_stage2_translation(voi
+ 	kern_hyp_va	\vcpu
+ .endm
  
- #include "vfio_pci_private.h"
- 
-@@ -181,6 +182,7 @@ no_mmap:
- 
- static void vfio_pci_try_bus_reset(struct vfio_pci_device *vdev);
- static void vfio_pci_disable(struct vfio_pci_device *vdev);
-+static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data);
- 
- /*
-  * INTx masking requires the ability to disable INTx signaling via PCI_COMMAND
-@@ -656,6 +658,12 @@ int vfio_pci_register_dev_region(struct
- 	return 0;
- }
- 
-+struct vfio_devices {
-+	struct vfio_device **devices;
-+	int cur_index;
-+	int max_index;
-+};
++/*
++ * KVM extable for unexpected exceptions.
++ * In the same format _asm_extable, but output to a different section so that
++ * it can be mapped to EL2. The KVM version is not sorted. The caller must
++ * ensure:
++ * x18 has the hypervisor value to allow any Shadow-Call-Stack instrumented
++ * code to write to it, and that SPSR_EL2 and ELR_EL2 are restored by the fixup.
++ */
++.macro	_kvm_extable, from, to
++	.pushsection	__kvm_ex_table, "a"
++	.align		3
++	.long		(\from - .), (\to - .)
++	.popsection
++.endm
 +
- static long vfio_pci_ioctl(void *device_data,
- 			   unsigned int cmd, unsigned long arg)
+ #endif
+ 
+ #endif /* __ARM_KVM_ASM_H__ */
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -23,6 +23,13 @@ ENTRY(_text)
+ 
+ jiffies = jiffies_64;
+ 
++
++#define HYPERVISOR_EXTABLE					\
++	. = ALIGN(SZ_8);					\
++	VMLINUX_SYMBOL(__start___kvm_ex_table) = .;		\
++	*(__kvm_ex_table)					\
++	VMLINUX_SYMBOL(__stop___kvm_ex_table) = .;
++
+ #define HYPERVISOR_TEXT					\
+ 	/*						\
+ 	 * Align to 4 KB so that			\
+@@ -38,6 +45,7 @@ jiffies = jiffies_64;
+ 	VMLINUX_SYMBOL(__hyp_idmap_text_end) = .;	\
+ 	VMLINUX_SYMBOL(__hyp_text_start) = .;		\
+ 	*(.hyp.text)					\
++	HYPERVISOR_EXTABLE				\
+ 	VMLINUX_SYMBOL(__hyp_text_end) = .;
+ 
+ #define IDMAP_TEXT					\
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -135,18 +135,22 @@ ENTRY(__guest_exit)
+ 	// This is our single instruction exception window. A pending
+ 	// SError is guaranteed to occur at the earliest when we unmask
+ 	// it, and at the latest just after the ISB.
+-	.global	abort_guest_exit_start
+ abort_guest_exit_start:
+ 
+ 	isb
+ 
+-	.global	abort_guest_exit_end
+ abort_guest_exit_end:
++	msr	daifset, #4	// Mask aborts
++	ret
+ 
+-	// If the exception took place, restore the EL1 exception
+-	// context so that we can report some information.
+-	// Merge the exception code with the SError pending bit.
+-	tbz	x0, #ARM_EXIT_WITH_SERROR_BIT, 1f
++	_kvm_extable	abort_guest_exit_start, 9997f
++	_kvm_extable	abort_guest_exit_end, 9997f
++9997:
++	msr	daifset, #4	// Mask aborts
++	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
++
++	// restore the EL1 exception context so that we can report some
++	// information. Merge the exception code with the SError pending bit.
+ 	msr	elr_el2, x2
+ 	msr	esr_el2, x3
+ 	msr	spsr_el2, x4
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -25,6 +25,30 @@
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_mmu.h>
+ 
++.macro save_caller_saved_regs_vect
++	stp	x0, x1,   [sp, #-16]!
++	stp	x2, x3,   [sp, #-16]!
++	stp	x4, x5,   [sp, #-16]!
++	stp	x6, x7,   [sp, #-16]!
++	stp	x8, x9,   [sp, #-16]!
++	stp	x10, x11, [sp, #-16]!
++	stp	x12, x13, [sp, #-16]!
++	stp	x14, x15, [sp, #-16]!
++	stp	x16, x17, [sp, #-16]!
++.endm
++
++.macro restore_caller_saved_regs_vect
++	ldp	x16, x17, [sp], #16
++	ldp	x14, x15, [sp], #16
++	ldp	x12, x13, [sp], #16
++	ldp	x10, x11, [sp], #16
++	ldp	x8, x9,   [sp], #16
++	ldp	x6, x7,   [sp], #16
++	ldp	x4, x5,   [sp], #16
++	ldp	x2, x3,   [sp], #16
++	ldp	x0, x1,   [sp], #16
++.endm
++
+ 	.text
+ 	.pushsection	.hyp.text, "ax"
+ 
+@@ -178,25 +202,14 @@ el1_error:
+ 	b	__guest_exit
+ 
+ el2_error:
+-	/*
+-	 * Only two possibilities:
+-	 * 1) Either we come from the exit path, having just unmasked
+-	 *    PSTATE.A: change the return code to an EL2 fault, and
+-	 *    carry on, as we're already in a sane state to handle it.
+-	 * 2) Or we come from anywhere else, and that's a bug: we panic.
+-	 *
+-	 * For (1), x0 contains the original return code and x1 doesn't
+-	 * contain anything meaningful at that stage. We can reuse them
+-	 * as temp registers.
+-	 * For (2), who cares?
+-	 */
+-	mrs	x0, elr_el2
+-	adr	x1, abort_guest_exit_start
+-	cmp	x0, x1
+-	adr	x1, abort_guest_exit_end
+-	ccmp	x0, x1, #4, ne
+-	b.ne	__hyp_panic
+-	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
++	save_caller_saved_regs_vect
++	stp     x29, x30, [sp, #-16]!
++
++	bl	kvm_unexpected_el2_exception
++
++	ldp     x29, x30, [sp], #16
++	restore_caller_saved_regs_vect
++
+ 	eret
+ 
+ ENTRY(__hyp_do_panic)
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -25,6 +25,10 @@
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_emulate.h>
+ #include <asm/kvm_hyp.h>
++#include <asm/uaccess.h>
++
++extern struct exception_table_entry __start___kvm_ex_table;
++extern struct exception_table_entry __stop___kvm_ex_table;
+ 
+ static bool __hyp_text __fpsimd_enabled_nvhe(void)
  {
-@@ -729,7 +737,7 @@ static long vfio_pci_ioctl(void *device_
- 		{
- 			void __iomem *io;
- 			size_t size;
--			u16 orig_cmd;
-+			u16 cmd;
+@@ -454,3 +458,30 @@ void __hyp_text __noreturn hyp_panic(str
  
- 			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
- 			info.flags = 0;
-@@ -749,10 +757,7 @@ static long vfio_pci_ioctl(void *device_
- 			 * Is it really there?  Enable memory decode for
- 			 * implicit access in pci_map_rom().
- 			 */
--			pci_read_config_word(pdev, PCI_COMMAND, &orig_cmd);
--			pci_write_config_word(pdev, PCI_COMMAND,
--					      orig_cmd | PCI_COMMAND_MEMORY);
--
-+			cmd = vfio_pci_memory_lock_and_enable(vdev);
- 			io = pci_map_rom(pdev, &size);
- 			if (io) {
- 				info.flags = VFIO_REGION_INFO_FLAG_READ;
-@@ -760,8 +765,8 @@ static long vfio_pci_ioctl(void *device_
- 			} else {
- 				info.size = 0;
- 			}
-+			vfio_pci_memory_unlock_and_restore(vdev, cmd);
- 
--			pci_write_config_word(pdev, PCI_COMMAND, orig_cmd);
- 			break;
- 		}
- 		case VFIO_PCI_VGA_REGION_INDEX:
-@@ -909,8 +914,16 @@ static long vfio_pci_ioctl(void *device_
- 		return ret;
- 
- 	} else if (cmd == VFIO_DEVICE_RESET) {
--		return vdev->reset_works ?
--			pci_try_reset_function(vdev->pdev) : -EINVAL;
-+		int ret;
-+
-+		if (!vdev->reset_works)
-+			return -EINVAL;
-+
-+		vfio_pci_zap_and_down_write_memory_lock(vdev);
-+		ret = pci_try_reset_function(vdev->pdev);
-+		up_write(&vdev->memory_lock);
-+
-+		return ret;
- 
- 	} else if (cmd == VFIO_DEVICE_GET_PCI_HOT_RESET_INFO) {
- 		struct vfio_pci_hot_reset_info hdr;
-@@ -990,8 +1003,9 @@ reset_info_exit:
- 		int32_t *group_fds;
- 		struct vfio_pci_group_entry *groups;
- 		struct vfio_pci_group_info info;
-+		struct vfio_devices devs = { .cur_index = 0 };
- 		bool slot = false;
--		int i, count = 0, ret = 0;
-+		int i, group_idx, mem_idx = 0, count = 0, ret = 0;
- 
- 		minsz = offsetofend(struct vfio_pci_hot_reset, count);
- 
-@@ -1043,9 +1057,9 @@ reset_info_exit:
- 		 * user interface and store the group and iommu ID.  This
- 		 * ensures the group is held across the reset.
- 		 */
--		for (i = 0; i < hdr.count; i++) {
-+		for (group_idx = 0; group_idx < hdr.count; group_idx++) {
- 			struct vfio_group *group;
--			struct fd f = fdget(group_fds[i]);
-+			struct fd f = fdget(group_fds[group_idx]);
- 			if (!f.file) {
- 				ret = -EBADF;
- 				break;
-@@ -1058,8 +1072,9 @@ reset_info_exit:
- 				break;
- 			}
- 
--			groups[i].group = group;
--			groups[i].id = vfio_external_user_iommu_id(group);
-+			groups[group_idx].group = group;
-+			groups[group_idx].id =
-+					vfio_external_user_iommu_id(group);
- 		}
- 
- 		kfree(group_fds);
-@@ -1078,14 +1093,65 @@ reset_info_exit:
- 		ret = vfio_pci_for_each_slot_or_bus(vdev->pdev,
- 						    vfio_pci_validate_devs,
- 						    &info, slot);
--		if (!ret)
--			/* User has access, do the reset */
--			ret = slot ? pci_try_reset_slot(vdev->pdev->slot) :
--				     pci_try_reset_bus(vdev->pdev->bus);
-+
-+		if (ret)
-+			goto hot_reset_release;
-+
-+		devs.max_index = count;
-+		devs.devices = kcalloc(count, sizeof(struct vfio_device *),
-+				       GFP_KERNEL);
-+		if (!devs.devices) {
-+			ret = -ENOMEM;
-+			goto hot_reset_release;
-+		}
-+
-+		/*
-+		 * We need to get memory_lock for each device, but devices
-+		 * can share mmap_sem, therefore we need to zap and hold
-+		 * the vma_lock for each device, and only then get each
-+		 * memory_lock.
-+		 */
-+		ret = vfio_pci_for_each_slot_or_bus(vdev->pdev,
-+					    vfio_pci_try_zap_and_vma_lock_cb,
-+					    &devs, slot);
-+		if (ret)
-+			goto hot_reset_release;
-+
-+		for (; mem_idx < devs.cur_index; mem_idx++) {
-+			struct vfio_pci_device *tmp;
-+
-+			tmp = vfio_device_data(devs.devices[mem_idx]);
-+
-+			ret = down_write_trylock(&tmp->memory_lock);
-+			if (!ret) {
-+				ret = -EBUSY;
-+				goto hot_reset_release;
-+			}
-+			mutex_unlock(&tmp->vma_lock);
-+		}
-+
-+		/* User has access, do the reset */
-+		ret = slot ? pci_try_reset_slot(vdev->pdev->slot) :
-+				pci_try_reset_bus(vdev->pdev->bus);
- 
- hot_reset_release:
--		for (i--; i >= 0; i--)
--			vfio_group_put_external_user(groups[i].group);
-+		for (i = 0; i < devs.cur_index; i++) {
-+			struct vfio_device *device;
-+			struct vfio_pci_device *tmp;
-+
-+			device = devs.devices[i];
-+			tmp = vfio_device_data(device);
-+
-+			if (i < mem_idx)
-+				up_write(&tmp->memory_lock);
-+			else
-+				mutex_unlock(&tmp->vma_lock);
-+			vfio_device_put(device);
-+		}
-+		kfree(devs.devices);
-+
-+		for (group_idx--; group_idx >= 0; group_idx--)
-+			vfio_group_put_external_user(groups[group_idx].group);
- 
- 		kfree(groups);
- 		return ret;
-@@ -1144,8 +1210,126 @@ static ssize_t vfio_pci_write(void *devi
- 	return vfio_pci_rw(device_data, (char __user *)buf, count, ppos, true);
+ 	unreachable();
  }
- 
--static int vfio_pci_add_vma(struct vfio_pci_device *vdev,
--			    struct vm_area_struct *vma)
-+/* Return 1 on zap and vma_lock acquired, 0 on contention (only with @try) */
-+static int vfio_pci_zap_and_vma_lock(struct vfio_pci_device *vdev, bool try)
++
++asmlinkage void __hyp_text kvm_unexpected_el2_exception(void)
 +{
-+	struct vfio_pci_mmap_vma *mmap_vma, *tmp;
++	unsigned long addr, fixup;
++	struct kvm_cpu_context *host_ctxt;
++	struct exception_table_entry *entry, *end;
++	unsigned long elr_el2 = read_sysreg(elr_el2);
 +
-+	/*
-+	 * Lock ordering:
-+	 * vma_lock is nested under mmap_sem for vm_ops callback paths.
-+	 * The memory_lock semaphore is used by both code paths calling
-+	 * into this function to zap vmas and the vm_ops.fault callback
-+	 * to protect the memory enable state of the device.
-+	 *
-+	 * When zapping vmas we need to maintain the mmap_sem => vma_lock
-+	 * ordering, which requires using vma_lock to walk vma_list to
-+	 * acquire an mm, then dropping vma_lock to get the mmap_sem and
-+	 * reacquiring vma_lock.  This logic is derived from similar
-+	 * requirements in uverbs_user_mmap_disassociate().
-+	 *
-+	 * mmap_sem must always be the top-level lock when it is taken.
-+	 * Therefore we can only hold the memory_lock write lock when
-+	 * vma_list is empty, as we'd need to take mmap_sem to clear
-+	 * entries.  vma_list can only be guaranteed empty when holding
-+	 * vma_lock, thus memory_lock is nested under vma_lock.
-+	 *
-+	 * This enables the vm_ops.fault callback to acquire vma_lock,
-+	 * followed by memory_lock read lock, while already holding
-+	 * mmap_sem without risk of deadlock.
-+	 */
-+	while (1) {
-+		struct mm_struct *mm = NULL;
++	entry = hyp_symbol_addr(__start___kvm_ex_table);
++	end = hyp_symbol_addr(__stop___kvm_ex_table);
++	host_ctxt = __hyp_this_cpu_ptr(kvm_host_cpu_state);
 +
-+		if (try) {
-+			if (!mutex_trylock(&vdev->vma_lock))
-+				return 0;
-+		} else {
-+			mutex_lock(&vdev->vma_lock);
++	while (entry < end) {
++		addr = (unsigned long)&entry->insn + entry->insn;
++		fixup = (unsigned long)&entry->fixup + entry->fixup;
++
++		if (addr != elr_el2) {
++			entry++;
++			continue;
 +		}
-+		while (!list_empty(&vdev->vma_list)) {
-+			mmap_vma = list_first_entry(&vdev->vma_list,
-+						    struct vfio_pci_mmap_vma,
-+						    vma_next);
-+			mm = mmap_vma->vma->vm_mm;
-+			if (mmget_not_zero(mm))
-+				break;
 +
-+			list_del(&mmap_vma->vma_next);
-+			kfree(mmap_vma);
-+			mm = NULL;
-+		}
-+		if (!mm)
-+			return 1;
-+		mutex_unlock(&vdev->vma_lock);
-+
-+		if (try) {
-+			if (!down_read_trylock(&mm->mmap_sem)) {
-+				mmput(mm);
-+				return 0;
-+			}
-+		} else {
-+			down_read(&mm->mmap_sem);
-+		}
-+		if (mmget_still_valid(mm)) {
-+			if (try) {
-+				if (!mutex_trylock(&vdev->vma_lock)) {
-+					up_read(&mm->mmap_sem);
-+					mmput(mm);
-+					return 0;
-+				}
-+			} else {
-+				mutex_lock(&vdev->vma_lock);
-+			}
-+			list_for_each_entry_safe(mmap_vma, tmp,
-+						 &vdev->vma_list, vma_next) {
-+				struct vm_area_struct *vma = mmap_vma->vma;
-+
-+				if (vma->vm_mm != mm)
-+					continue;
-+
-+				list_del(&mmap_vma->vma_next);
-+				kfree(mmap_vma);
-+
-+				zap_vma_ptes(vma, vma->vm_start,
-+					     vma->vm_end - vma->vm_start);
-+			}
-+			mutex_unlock(&vdev->vma_lock);
-+		}
-+		up_read(&mm->mmap_sem);
-+		mmput(mm);
++		write_sysreg(fixup, elr_el2);
++		return;
 +	}
++
++	hyp_panic(host_ctxt);
 +}
-+
-+void vfio_pci_zap_and_down_write_memory_lock(struct vfio_pci_device *vdev)
-+{
-+	vfio_pci_zap_and_vma_lock(vdev, false);
-+	down_write(&vdev->memory_lock);
-+	mutex_unlock(&vdev->vma_lock);
-+}
-+
-+u16 vfio_pci_memory_lock_and_enable(struct vfio_pci_device *vdev)
-+{
-+	u16 cmd;
-+
-+	down_write(&vdev->memory_lock);
-+	pci_read_config_word(vdev->pdev, PCI_COMMAND, &cmd);
-+	if (!(cmd & PCI_COMMAND_MEMORY))
-+		pci_write_config_word(vdev->pdev, PCI_COMMAND,
-+				      cmd | PCI_COMMAND_MEMORY);
-+
-+	return cmd;
-+}
-+
-+void vfio_pci_memory_unlock_and_restore(struct vfio_pci_device *vdev, u16 cmd)
-+{
-+	pci_write_config_word(vdev->pdev, PCI_COMMAND, cmd);
-+	up_write(&vdev->memory_lock);
-+}
-+
-+/* Caller holds vma_lock */
-+static int __vfio_pci_add_vma(struct vfio_pci_device *vdev,
-+			      struct vm_area_struct *vma)
- {
- 	struct vfio_pci_mmap_vma *mmap_vma;
- 
-@@ -1154,10 +1338,7 @@ static int vfio_pci_add_vma(struct vfio_
- 		return -ENOMEM;
- 
- 	mmap_vma->vma = vma;
--
--	mutex_lock(&vdev->vma_lock);
- 	list_add(&mmap_vma->vma_next, &vdev->vma_list);
--	mutex_unlock(&vdev->vma_lock);
- 
- 	return 0;
- }
-@@ -1190,15 +1371,32 @@ static void vfio_pci_mmap_close(struct v
- static int vfio_pci_mmap_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
- {
- 	struct vfio_pci_device *vdev = vma->vm_private_data;
-+	int ret = VM_FAULT_NOPAGE;
-+
-+	mutex_lock(&vdev->vma_lock);
-+	down_read(&vdev->memory_lock);
-+
-+	if (!__vfio_pci_memory_enabled(vdev)) {
-+		ret = VM_FAULT_SIGBUS;
-+		mutex_unlock(&vdev->vma_lock);
-+		goto up_out;
-+	}
-+
-+	if (__vfio_pci_add_vma(vdev, vma)) {
-+		ret = VM_FAULT_OOM;
-+		mutex_unlock(&vdev->vma_lock);
-+		goto up_out;
-+	}
- 
--	if (vfio_pci_add_vma(vdev, vma))
--		return VM_FAULT_OOM;
-+	mutex_unlock(&vdev->vma_lock);
- 
- 	if (remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
- 			    vma->vm_end - vma->vm_start, vma->vm_page_prot))
--		return VM_FAULT_SIGBUS;
-+		ret = VM_FAULT_SIGBUS;
- 
--	return VM_FAULT_NOPAGE;
-+up_out:
-+	up_read(&vdev->memory_lock);
-+	return ret;
- }
- 
- static const struct vm_operations_struct vfio_pci_mmap_ops = {
-@@ -1339,6 +1537,7 @@ static int vfio_pci_probe(struct pci_dev
- 
- 	mutex_init(&vdev->vma_lock);
- 	INIT_LIST_HEAD(&vdev->vma_list);
-+	init_rwsem(&vdev->memory_lock);
- 	ret = vfio_add_group_dev(&pdev->dev, &vfio_pci_ops, vdev);
- 	if (ret) {
- 		vfio_iommu_group_put(group, &pdev->dev);
-@@ -1432,12 +1631,6 @@ static struct pci_driver vfio_pci_driver
- 	.err_handler	= &vfio_err_handlers,
- };
- 
--struct vfio_devices {
--	struct vfio_device **devices;
--	int cur_index;
--	int max_index;
--};
--
- static int vfio_pci_get_devs(struct pci_dev *pdev, void *data)
- {
- 	struct vfio_devices *devs = data;
-@@ -1454,6 +1647,39 @@ static int vfio_pci_get_devs(struct pci_
- 		vfio_device_put(device);
- 		return -EBUSY;
- 	}
-+
-+	devs->devices[devs->cur_index++] = device;
-+	return 0;
-+}
-+
-+static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data)
-+{
-+	struct vfio_devices *devs = data;
-+	struct vfio_device *device;
-+	struct vfio_pci_device *vdev;
-+
-+	if (devs->cur_index == devs->max_index)
-+		return -ENOSPC;
-+
-+	device = vfio_device_get_from_dev(&pdev->dev);
-+	if (!device)
-+		return -EINVAL;
-+
-+	if (pci_dev_driver(pdev) != &vfio_pci_driver) {
-+		vfio_device_put(device);
-+		return -EBUSY;
-+	}
-+
-+	vdev = vfio_device_data(device);
-+
-+	/*
-+	 * Locking multiple devices is prone to deadlock, runaway and
-+	 * unwind if we hit contention.
-+	 */
-+	if (!vfio_pci_zap_and_vma_lock(vdev, true)) {
-+		vfio_device_put(device);
-+		return -EBUSY;
-+	}
- 
- 	devs->devices[devs->cur_index++] = device;
- 	return 0;
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -400,6 +400,14 @@ static inline void p_setd(struct perm_bi
- 	*(__le32 *)(&p->write[off]) = cpu_to_le32(write);
- }
- 
-+/* Caller should hold memory_lock semaphore */
-+bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
-+{
-+	u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
-+
-+	return cmd & PCI_COMMAND_MEMORY;
-+}
-+
- /*
-  * Restore the *real* BARs after we detect a FLR or backdoor reset.
-  * (backdoor = some device specific technique that we didn't catch)
-@@ -560,13 +568,18 @@ static int vfio_basic_config_write(struc
- 
- 		new_cmd = le32_to_cpu(val);
- 
-+		phys_io = !!(phys_cmd & PCI_COMMAND_IO);
-+		virt_io = !!(le16_to_cpu(*virt_cmd) & PCI_COMMAND_IO);
-+		new_io = !!(new_cmd & PCI_COMMAND_IO);
-+
- 		phys_mem = !!(phys_cmd & PCI_COMMAND_MEMORY);
- 		virt_mem = !!(le16_to_cpu(*virt_cmd) & PCI_COMMAND_MEMORY);
- 		new_mem = !!(new_cmd & PCI_COMMAND_MEMORY);
- 
--		phys_io = !!(phys_cmd & PCI_COMMAND_IO);
--		virt_io = !!(le16_to_cpu(*virt_cmd) & PCI_COMMAND_IO);
--		new_io = !!(new_cmd & PCI_COMMAND_IO);
-+		if (!new_mem)
-+			vfio_pci_zap_and_down_write_memory_lock(vdev);
-+		else
-+			down_write(&vdev->memory_lock);
- 
- 		/*
- 		 * If the user is writing mem/io enable (new_mem/io) and we
-@@ -583,8 +596,11 @@ static int vfio_basic_config_write(struc
- 	}
- 
- 	count = vfio_default_config_write(vdev, pos, count, perm, offset, val);
--	if (count < 0)
-+	if (count < 0) {
-+		if (offset == PCI_COMMAND)
-+			up_write(&vdev->memory_lock);
- 		return count;
-+	}
- 
- 	/*
- 	 * Save current memory/io enable bits in vconfig to allow for
-@@ -595,6 +611,8 @@ static int vfio_basic_config_write(struc
- 
- 		*virt_cmd &= cpu_to_le16(~mask);
- 		*virt_cmd |= cpu_to_le16(new_cmd & mask);
-+
-+		up_write(&vdev->memory_lock);
- 	}
- 
- 	/* Emulate INTx disable */
-@@ -832,8 +850,11 @@ static int vfio_exp_config_write(struct
- 						 pos - offset + PCI_EXP_DEVCAP,
- 						 &cap);
- 
--		if (!ret && (cap & PCI_EXP_DEVCAP_FLR))
-+		if (!ret && (cap & PCI_EXP_DEVCAP_FLR)) {
-+			vfio_pci_zap_and_down_write_memory_lock(vdev);
- 			pci_try_reset_function(vdev->pdev);
-+			up_write(&vdev->memory_lock);
-+		}
- 	}
- 
- 	/*
-@@ -911,8 +932,11 @@ static int vfio_af_config_write(struct v
- 						pos - offset + PCI_AF_CAP,
- 						&cap);
- 
--		if (!ret && (cap & PCI_AF_CAP_FLR) && (cap & PCI_AF_CAP_TP))
-+		if (!ret && (cap & PCI_AF_CAP_FLR) && (cap & PCI_AF_CAP_TP)) {
-+			vfio_pci_zap_and_down_write_memory_lock(vdev);
- 			pci_try_reset_function(vdev->pdev);
-+			up_write(&vdev->memory_lock);
-+		}
- 	}
- 
- 	return count;
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -252,6 +252,7 @@ static int vfio_msi_enable(struct vfio_p
- 	struct pci_dev *pdev = vdev->pdev;
- 	unsigned int flag = msix ? PCI_IRQ_MSIX : PCI_IRQ_MSI;
- 	int ret;
-+	u16 cmd;
- 
- 	if (!is_irq_none(vdev))
- 		return -EINVAL;
-@@ -261,13 +262,16 @@ static int vfio_msi_enable(struct vfio_p
- 		return -ENOMEM;
- 
- 	/* return the number of supported vectors if we can't get all: */
-+	cmd = vfio_pci_memory_lock_and_enable(vdev);
- 	ret = pci_alloc_irq_vectors(pdev, 1, nvec, flag);
- 	if (ret < nvec) {
- 		if (ret > 0)
- 			pci_free_irq_vectors(pdev);
-+		vfio_pci_memory_unlock_and_restore(vdev, cmd);
- 		kfree(vdev->ctx);
- 		return ret;
- 	}
-+	vfio_pci_memory_unlock_and_restore(vdev, cmd);
- 
- 	vdev->num_ctx = nvec;
- 	vdev->irq_type = msix ? VFIO_PCI_MSIX_IRQ_INDEX :
-@@ -290,6 +294,7 @@ static int vfio_msi_set_vector_signal(st
- 	struct pci_dev *pdev = vdev->pdev;
- 	struct eventfd_ctx *trigger;
- 	int irq, ret;
-+	u16 cmd;
- 
- 	if (vector < 0 || vector >= vdev->num_ctx)
- 		return -EINVAL;
-@@ -298,7 +303,11 @@ static int vfio_msi_set_vector_signal(st
- 
- 	if (vdev->ctx[vector].trigger) {
- 		irq_bypass_unregister_producer(&vdev->ctx[vector].producer);
-+
-+		cmd = vfio_pci_memory_lock_and_enable(vdev);
- 		free_irq(irq, vdev->ctx[vector].trigger);
-+		vfio_pci_memory_unlock_and_restore(vdev, cmd);
-+
- 		kfree(vdev->ctx[vector].name);
- 		eventfd_ctx_put(vdev->ctx[vector].trigger);
- 		vdev->ctx[vector].trigger = NULL;
-@@ -326,6 +335,7 @@ static int vfio_msi_set_vector_signal(st
- 	 * such a reset it would be unsuccessful. To avoid this, restore the
- 	 * cached value of the message prior to enabling.
- 	 */
-+	cmd = vfio_pci_memory_lock_and_enable(vdev);
- 	if (msix) {
- 		struct msi_msg msg;
- 
-@@ -335,6 +345,7 @@ static int vfio_msi_set_vector_signal(st
- 
- 	ret = request_irq(irq, vfio_msihandler, 0,
- 			  vdev->ctx[vector].name, trigger);
-+	vfio_pci_memory_unlock_and_restore(vdev, cmd);
- 	if (ret) {
- 		kfree(vdev->ctx[vector].name);
- 		eventfd_ctx_put(trigger);
-@@ -379,6 +390,7 @@ static void vfio_msi_disable(struct vfio
- {
- 	struct pci_dev *pdev = vdev->pdev;
- 	int i;
-+	u16 cmd;
- 
- 	for (i = 0; i < vdev->num_ctx; i++) {
- 		vfio_virqfd_disable(&vdev->ctx[i].unmask);
-@@ -387,7 +399,9 @@ static void vfio_msi_disable(struct vfio
- 
- 	vfio_msi_set_block(vdev, 0, vdev->num_ctx, NULL, msix);
- 
-+	cmd = vfio_pci_memory_lock_and_enable(vdev);
- 	pci_free_irq_vectors(pdev);
-+	vfio_pci_memory_unlock_and_restore(vdev, cmd);
- 
- 	/*
- 	 * Both disable paths above use pci_intx_for_msi() to clear DisINTx
---- a/drivers/vfio/pci/vfio_pci_private.h
-+++ b/drivers/vfio/pci/vfio_pci_private.h
-@@ -102,6 +102,7 @@ struct vfio_pci_device {
- 	struct list_head	dummy_resources_list;
- 	struct mutex		vma_lock;
- 	struct list_head	vma_list;
-+	struct rw_semaphore	memory_lock;
- };
- 
- #define is_intx(vdev) (vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX)
-@@ -137,6 +138,14 @@ extern int vfio_pci_register_dev_region(
- 					unsigned int type, unsigned int subtype,
- 					const struct vfio_pci_regops *ops,
- 					size_t size, u32 flags, void *data);
-+
-+extern bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev);
-+extern void vfio_pci_zap_and_down_write_memory_lock(struct vfio_pci_device
-+						    *vdev);
-+extern u16 vfio_pci_memory_lock_and_enable(struct vfio_pci_device *vdev);
-+extern void vfio_pci_memory_unlock_and_restore(struct vfio_pci_device *vdev,
-+					       u16 cmd);
-+
- #ifdef CONFIG_VFIO_PCI_IGD
- extern int vfio_pci_igd_init(struct vfio_pci_device *vdev);
- #else
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -122,6 +122,7 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_
- 	size_t x_start = 0, x_end = 0;
- 	resource_size_t end;
- 	void __iomem *io;
-+	struct resource *res = &vdev->pdev->resource[bar];
- 	ssize_t done;
- 
- 	if (pci_resource_start(pdev, bar))
-@@ -137,6 +138,14 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_
- 
- 	count = min(count, (size_t)(end - pos));
- 
-+	if (res->flags & IORESOURCE_MEM) {
-+		down_read(&vdev->memory_lock);
-+		if (!__vfio_pci_memory_enabled(vdev)) {
-+			up_read(&vdev->memory_lock);
-+			return -EIO;
-+		}
-+	}
-+
- 	if (bar == PCI_ROM_RESOURCE) {
- 		/*
- 		 * The ROM can fill less space than the BAR, so we start the
-@@ -144,20 +153,21 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_
- 		 * filling large ROM BARs much faster.
- 		 */
- 		io = pci_map_rom(pdev, &x_start);
--		if (!io)
--			return -ENOMEM;
-+		if (!io) {
-+			done = -ENOMEM;
-+			goto out;
-+		}
- 		x_end = end;
- 	} else if (!vdev->barmap[bar]) {
--		int ret;
--
--		ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
--		if (ret)
--			return ret;
-+		done = pci_request_selected_regions(pdev, 1 << bar, "vfio");
-+		if (done)
-+			goto out;
- 
- 		io = pci_iomap(pdev, bar, 0);
- 		if (!io) {
- 			pci_release_selected_regions(pdev, 1 << bar);
--			return -ENOMEM;
-+			done = -ENOMEM;
-+			goto out;
- 		}
- 
- 		vdev->barmap[bar] = io;
-@@ -176,6 +186,9 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_
- 
- 	if (bar == PCI_ROM_RESOURCE)
- 		pci_unmap_rom(pdev, io);
-+out:
-+	if (res->flags & IORESOURCE_MEM)
-+		up_read(&vdev->memory_lock);
- 
- 	return done;
- }
 
 
