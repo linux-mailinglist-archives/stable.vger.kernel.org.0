@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8199B265FDE
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 14:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F31B9265FE2
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 14:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726067AbgIKMzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 08:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
+        id S1725949AbgIKM42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 08:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726048AbgIKMye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:54:34 -0400
+        id S1725980AbgIKMy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:54:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5A5022225;
-        Fri, 11 Sep 2020 12:53:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA38F22229;
+        Fri, 11 Sep 2020 12:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828834;
-        bh=T6IXcbTZtskK1L7YVm0OiBCn2pW7sfMMpBbYy0pK7wk=;
+        s=default; t=1599828842;
+        bh=+FACLGKqlSwMrilGYEKodDj+1GCcMCrZAibjV4DcC8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTyf7e3XSzfSf/OknASKWycUoEtX0M5E95kxXpCgWVWr3MKI2hERscvbWcjvYgHUn
-         f+Lz3PvSibjaXk+fhBaBbTv1vRV0LsRVzOVh6BCtvFT2J6rcIr397dv1KYkJeFuown
-         JXWGk39DfFF+Xlv8KmAHev/61we8Q4Dod7bkZDDo=
+        b=BwQl0wOOmtG7L8o82R9Y56Cq5vTqBFV4eyQk/0KYarXUghAiqe6Yxj1o7igqRYjVH
+         RTVVmMJJ3o5P9b+fR9SzLCjz9s/QmFvlptNbG4x3EVz/c58i4X8X6IVZxQS8ovlAMB
+         TO8TM/se3D+T55SKUBFQGc7AwQzvoABnLxor1efI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Simon Leiner <simon@leiner.me>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/62] hwmon: (applesmc) check status earlier.
-Date:   Fri, 11 Sep 2020 14:45:48 +0200
-Message-Id: <20200911122502.669077595@linuxfoundation.org>
+Subject: [PATCH 4.4 08/62] xen/xenbus: Fix granting of vmallocd memory
+Date:   Fri, 11 Sep 2020 14:45:51 +0200
+Message-Id: <20200911122502.815647141@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -45,121 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Simon Leiner <simon@leiner.me>
 
-[ Upstream commit cecf7560f00a8419396a2ed0f6e5d245ccb4feac ]
+[ Upstream commit d742db70033c745e410523e00522ee0cfe2aa416 ]
 
-clang static analysis reports this representative problem
+On some architectures (like ARM), virt_to_gfn cannot be used for
+vmalloc'd memory because of its reliance on virt_to_phys. This patch
+introduces a check for vmalloc'd addresses and obtains the PFN using
+vmalloc_to_pfn in that case.
 
-applesmc.c:758:10: warning: 1st function call argument is an
-  uninitialized value
-        left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-buffer is filled by the earlier call
-
-	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, ...
-
-This problem is reported because a goto skips the status check.
-Other similar problems use data from applesmc_read_key before checking
-the status.  So move the checks to before the use.
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Henrik Rydberg <rydberg@bitmath.org>
-Link: https://lore.kernel.org/r/20200820131932.10590-1-trix@redhat.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Simon Leiner <simon@leiner.me>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20200825093153.35500-1-simon@leiner.me
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/applesmc.c | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/applesmc.c b/drivers/hwmon/applesmc.c
-index 0af7fd311979d..587fc5c686b3c 100644
---- a/drivers/hwmon/applesmc.c
-+++ b/drivers/hwmon/applesmc.c
-@@ -758,15 +758,18 @@ static ssize_t applesmc_light_show(struct device *dev,
- 	}
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index df27cefb2fa35..266f446ba331c 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -384,8 +384,14 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
+ 	int i, j;
  
- 	ret = applesmc_read_key(LIGHT_SENSOR_LEFT_KEY, buffer, data_length);
-+	if (ret)
-+		goto out;
- 	/* newer macbooks report a single 10-bit bigendian value */
- 	if (data_length == 10) {
- 		left = be16_to_cpu(*(__be16 *)(buffer + 6)) >> 2;
- 		goto out;
- 	}
- 	left = buffer[2];
+ 	for (i = 0; i < nr_pages; i++) {
+-		err = gnttab_grant_foreign_access(dev->otherend_id,
+-						  virt_to_gfn(vaddr), 0);
++		unsigned long gfn;
 +
-+	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
- 	if (ret)
- 		goto out;
--	ret = applesmc_read_key(LIGHT_SENSOR_RIGHT_KEY, buffer, data_length);
- 	right = buffer[2];
- 
- out:
-@@ -814,12 +817,11 @@ static ssize_t applesmc_show_fan_speed(struct device *dev,
- 	sprintf(newkey, fan_speed_fmt[to_option(attr)], to_index(attr));
- 
- 	ret = applesmc_read_key(newkey, buffer, 2);
--	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
--
- 	if (ret)
- 		return ret;
--	else
--		return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
++		if (is_vmalloc_addr(vaddr))
++			gfn = pfn_to_gfn(vmalloc_to_pfn(vaddr));
++		else
++			gfn = virt_to_gfn(vaddr);
 +
-+	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
-+	return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
- }
- 
- static ssize_t applesmc_store_fan_speed(struct device *dev,
-@@ -854,12 +856,11 @@ static ssize_t applesmc_show_fan_manual(struct device *dev,
- 	u8 buffer[2];
- 
- 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
--	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
--
- 	if (ret)
- 		return ret;
--	else
--		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
-+
-+	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
-+	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
- }
- 
- static ssize_t applesmc_store_fan_manual(struct device *dev,
-@@ -875,10 +876,11 @@ static ssize_t applesmc_store_fan_manual(struct device *dev,
- 		return -EINVAL;
- 
- 	ret = applesmc_read_key(FANS_MANUAL, buffer, 2);
--	val = (buffer[0] << 8 | buffer[1]);
- 	if (ret)
- 		goto out;
- 
-+	val = (buffer[0] << 8 | buffer[1]);
-+
- 	if (input)
- 		val = val | (0x01 << to_index(attr));
- 	else
-@@ -954,13 +956,12 @@ static ssize_t applesmc_key_count_show(struct device *dev,
- 	u32 count;
- 
- 	ret = applesmc_read_key(KEY_COUNT_KEY, buffer, 4);
--	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
--						((u32)buffer[2]<<8) + buffer[3];
--
- 	if (ret)
- 		return ret;
--	else
--		return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
-+
-+	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
-+						((u32)buffer[2]<<8) + buffer[3];
-+	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
- }
- 
- static ssize_t applesmc_key_at_index_read_show(struct device *dev,
++		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
+ 		if (err < 0) {
+ 			xenbus_dev_fatal(dev, err,
+ 					 "granting access to ring page");
 -- 
 2.25.1
 
